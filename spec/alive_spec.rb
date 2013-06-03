@@ -65,3 +65,9 @@ describe "Beth's test" do
     expect("freedom").to end_with "dom"
   end
 end
+
+describe "mb's test" do
+  specify "that [1,2,3] has 3 elements" do
+    expect([1,2,3].length == 3)
+  end
+end
