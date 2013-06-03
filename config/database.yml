@@ -1,0 +1,47 @@
+<%
+  # TODO: Fix, this is a horrible hack to determine mac or PC
+  unix = ENV['rvm_bin_path'] 
+%>
+
+<% 
+  # Loop over all these possible mysql sockets, and see if they
+  mysql_socket =
+  [ "/var/run/mysqld/mysqld.sock",
+  "/tmp/mysql.sock",
+  "/var/mysql/mysql.sock"
+  ].detect {|socket_path| File.exists?(socket_path)}
+  if !mysql_socket && !unix.nil?
+    puts "*"*80
+    puts "*"*80
+    puts "Potential problem with db/database.yml. Can't locate mysql socket file. Is MySQL correctly installed?"
+    puts "*"*80
+    puts "*"*80
+  end
+%>
+
+development:
+  adapter: mysql2 
+  database: taxonworks_development 
+  username: tw
+  password: t0ps3kr3t   
+    <% if unix  %>
+  socket: <%= mysql_socket %>
+    <% end %>
+
+test: 
+adapter: mysql2 
+database: taxonworks_test
+username: tw 
+password: t0ps3kr3t   
+  <% if unix %>
+socket: <%= mysql_socket %>
+  <% end %>
+
+development:
+  adapter: mysql2 
+  database: taxonworks_production
+  username: tw
+  password: t0ps3kr3t   
+
+
+
