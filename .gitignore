@@ -10,6 +10,7 @@
 *.tmp
 *~
 *.bak
+*.swp
 
 # Ignore bundler config.
 /.bundle
