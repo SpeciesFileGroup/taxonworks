@@ -1,9 +1,8 @@
 require 'spec_helper'
 
- 
 describe "specs working in Rubymine" do
   it "should pass" do
-    expect(true).to be_true 
+    expect{true}.to be_true 
   end
 end
 
@@ -17,5 +16,12 @@ describe "matt's test" do
     expect(some_hash.values.select{|a| a == "foo"}).to eql([])
   end
 
+end
+
+
+describe "rich's test" do
+  it "test number of keys" do
+    expect({:a=>:b}.keys).to have(1).things
+  end
 end
 
