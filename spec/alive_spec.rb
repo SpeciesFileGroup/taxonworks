@@ -19,3 +19,9 @@ describe "matt's test" do
 
 end
 
+
+describe "dmitry's test2" do
+  it "42 is within 10-50" do
+    expect(10..50).to cover(42)
+  end
+end
