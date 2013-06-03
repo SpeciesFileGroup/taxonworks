@@ -24,17 +24,17 @@ development:
   database: taxonworks_development 
   username: tw
   password: t0ps3kr3t   
-    <% if unix  %>
+  <% if unix  %>
   socket: <%= mysql_socket %>
-    <% end %>
+  <% end %>
 
 test: 
-adapter: mysql2 
-database: taxonworks_test
-username: tw 
-password: t0ps3kr3t   
+  adapter: mysql2 
+  database: taxonworks_test
+  username: tw 
+  password: t0ps3kr3t   
   <% if unix %>
-socket: <%= mysql_socket %>
+  socket: <%= mysql_socket %>
   <% end %>
 
 development:
