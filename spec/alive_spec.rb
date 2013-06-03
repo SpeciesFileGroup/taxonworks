@@ -6,9 +6,19 @@ describe "specs working in Rubymine" do
   end
 end
 
-describe "mb's test" do
-  specify "that [1,2,3] has 3 elements" do
-    expect([1,2,3].length == 3)
+describe "First name is 'Jim'" do
+  it "must refer to itself as 'Jim'" do
+    'Jim'
+  end
+end
+
+describe "can find one string in another" do
+  specify "should find 'sd' in 'asdf'" do
+
+    a = 'sd'
+    b = 'asdf'
+    expect(b).to match /.*sd.*/
+
   end
 end
 
