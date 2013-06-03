@@ -37,7 +37,7 @@ test:
   socket: <%= mysql_socket %>
   <% end %>
 
-development:
+production:
   adapter: mysql2 
   database: taxonworks_production
   username: tw
