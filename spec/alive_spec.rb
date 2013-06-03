@@ -34,3 +34,9 @@ describe "matt's test" do
 
 end
 
+
+describe "Beth's test" do
+  specify "'freedom' ends with 'dom'" do
+    expect("freedom").to end_with "dom"
+  end
+end
