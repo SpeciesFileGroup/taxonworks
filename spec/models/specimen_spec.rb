@@ -9,7 +9,7 @@ describe Specimen do
   describe "properties" do
     specify "current_location (the present location [time axis])" 
 
-    specify "disposition ()"
+    specify "disposition ()"  #was boolean lost or not
 
     specify "destroyed? (gone, for real, never ever EVER coming back)"
 
