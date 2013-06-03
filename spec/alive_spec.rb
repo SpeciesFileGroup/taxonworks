@@ -28,6 +28,7 @@ describe "can find one string in another" do
     a = 'sd'
     b = 'asdf'
     expect(b).to match /.*sd.*/
+    expect(b).not_to match /fdsa/
 
   end
 end
