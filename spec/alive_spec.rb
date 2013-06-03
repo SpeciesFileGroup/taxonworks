@@ -16,7 +16,6 @@ describe "mike's test" do
         
  end
 
-
 describe "First name is 'Jim'" do
   it "must refer to itself as 'Jim'" do
     'Jim'
