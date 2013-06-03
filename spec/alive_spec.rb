@@ -6,6 +6,18 @@ describe "specs working in Rubymine" do
   end
 end
 
+describe "mike's test" do
+    
+    specify "foo not equal to bar" do
+       a = "foo"
+        b="bar"
+        expect(a).not_to eq(b)
+    end
+        
+ end
+
+
+
 describe "First name is 'Jim'" do
   it "must refer to itself as 'Jim'" do
     'Jim'
@@ -38,5 +50,18 @@ end
 describe "dmitry's test2" do
   it "42 is within 10-50" do
     expect(10..50).to cover(42)
+  end
+end
+
+describe "rich's test" do
+  it "test number of keys" do
+    expect({:a=>:b}.keys).to have(1).things
+  end
+end
+
+
+describe "Beth's test" do
+  specify "'freedom' ends with 'dom'" do
+    expect("freedom").to end_with "dom"
   end
 end
