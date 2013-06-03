@@ -1,9 +1,35 @@
 require 'spec_helper'
 
- 
 describe "specs working in Rubymine" do
   it "should pass" do
-    expect(true).to be_true 
+    expect{true}.to be_true 
+  end
+end
+
+describe "mike's test" do
+    
+    specify "foo not equal to bar" do
+       a = "foo"
+        b="bar"
+        expect(a).not_to eq(b)
+    end
+        
+ end
+
+
+describe "First name is 'Jim'" do
+  it "must refer to itself as 'Jim'" do
+    'Jim'
+  end
+end
+
+describe "can find one string in another" do
+  specify "should find 'sd' in 'asdf'" do
+
+    a = 'sd'
+    b = 'asdf'
+    expect(b).to match /.*sd.*/
+
   end
 end
 
@@ -19,3 +45,28 @@ describe "matt's test" do
 
 end
 
+
+describe "dmitry's test2" do
+  it "42 is within 10-50" do
+    expect(10..50).to cover(42)
+  end
+end
+
+describe "rich's test" do
+  it "test number of keys" do
+    expect({:a=>:b}.keys).to have(1).things
+  end
+end
+
+
+describe "Beth's test" do
+  specify "'freedom' ends with 'dom'" do
+    expect("freedom").to end_with "dom"
+  end
+end
+
+describe "mb's test" do
+  specify "that [1,2,3] has 3 elements" do
+    expect([1,2,3].length == 3)
+  end
+end
