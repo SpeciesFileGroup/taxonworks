@@ -1,6 +1,5 @@
 require 'spec_helper'
 
- 
 describe "specs working in Rubymine" do
   it "should pass" do
     expect{true}.to be_true 
@@ -46,6 +45,12 @@ describe "matt's test" do
 
 end
 
+
+describe "dmitry's test2" do
+  it "42 is within 10-50" do
+    expect(10..50).to cover(42)
+  end
+end
 
 describe "rich's test" do
   it "test number of keys" do
