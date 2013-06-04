@@ -5,6 +5,15 @@ describe Specimen do
 
   let(:s) { Specimen.new }
 
+  describe "existence and type of object" do
+    specify("exists as an object of the class 'Specimen'") do
+      expect(s).not_to be_nil
+      expect(s).to be_a(Specimen)
+      s.save
+      expect(s.id).to be_an(Integer)
+    end
+  end
+
   # Columns 
   describe "properties" do
     specify "current_location (the present location [time axis])" 
@@ -16,7 +25,7 @@ describe Specimen do
     specify "condition (damaged/level)"
     specify "preparation" # pin/etc./etoh <- questions here
     specify "accession source (from whom the specimen came)"
-    specify "deaccession recipient (to whom the specimen went to)"
+    specify "deaccession recipient (to whom the specimen went)"
     specify "depository (where the)"  
   end
 
@@ -51,26 +60,35 @@ describe Specimen do
   end
 
   describe "instance methods" do
+    # it seems as though these method tests could be refactored as a loop of methods
     specify "verbatim_determination_label" do # a text field with new lines for each field
       expect(s).to respond_to(:verbatim_determination_label)
+      expect(s.verbatim_determination_label).to be_a(String)
+      expect(s.verbatim_determination_label).not_to eq('This must be replaced by the \'verbatim_determination_label\' string.')
     end
 
     specify "verbatim_locality_label" do # a text field with new lines for each field
       expect(s).to respond_to(:verbatim_locality_label)
+      expect(s.verbatim_locality_label).to be_a(String)
+      expect(s.verbatim_locality_label).not_to eq('This must be replaced by the \'verbatim_locality_label\' string.')
     end
 
     specify "verbatim_other_label" do
       expect(s).to respond_to(:verbatim_other_label)
+      expect(s.verbatim_other_label).to be_a(String)
+      expect(s.verbatim_other_label).not_to eq('This must be replaced by the \'verbatim_other_label\' string.')
     end
 
     specify "verbatim_accession_number" do
       expect(s).to respond_to(:verbatim_accession_number)
+      expect(s.verbatim_accession_number).to be_a(String)
+      expect(s.verbatim_accession_number).not_to eq('This must be replaced by the \'verbatim_accession_number\' string.')
     end
 
     it "should return the current determination"
     it "should return the depository"
     it "on update it should SCREAM AT YOU when you change implied verbatim data if more than one specimen uses that data" 
-    it "should permit requirable properties (key/value pairs)"
+    it "should permit arbitrary requirable properties (key/value pairs)"
   end
 
   describe "mx, 3i,SpeciesFile features otherwise unplaced" do 

@@ -2,7 +2,15 @@ require 'spec_helper'
 
 describe "specs working in Rubymine" do
   it "should pass" do
-    expect(true).to be_true 
+    # 'rake spec', both with and without debugging can be made to work in RubyMine:
+    #
+    # this can be fixed with a change to (Your_Ruby_Dir\lib\ruby\gems\2.0.0\gems\railties-4.0.0.rc1\lib\rails\test_unit\railties.rb)
+    # in line 1 where "defined?(Rake)" should be replaced with "defined?(Rake.application)"
+    #
+    # this will be updated with the next release of Rails
+    #
+    # the following test can be set to (true) when everyone has edited thier text (see above) or a new release has been issued.
+    expect(false).to be_true
   end
 end
 
@@ -19,19 +27,7 @@ describe "mike's test" do
   end
 end
 
-describe "can find one string in another" do
-  specify "should find 'sd' in 'asdf'" do
-    a = 'sd'
-    b = 'asdf'
-    expect(b).to include(a)
-    expect(b).to match(/sd/)
-    expect(b).to match(/#{a}/)
-    expect(b).not_to match(/fdsa/)
-    expect(b =~ /#{a}/)
-  end
-end
-
-describe "matt's test" do 
+describe "matt's test" do
   # it/specify are aliases 
   specify "that foo is not found in some hash in either keys or values" do
     some_hash = {a: 1, b: 2, c: [], d: nil, blorf: "borf"}
