@@ -4,7 +4,7 @@ describe "specs working in Rubymine" do
   it "should pass" do
     # 'rake spec', both with and without debugging can be made to work in RubyMine:
     #
-    # this can be fixed with a change to (Your_Ruby_Dir\lib\ruby\gems\2.0.0\gems\railties-4.0.0.rc1\lib\rails\test_unit\railties.rb)
+    # this can be fixed with a change to (Your_Ruby_Dir\lib\ruby\gems\2.0.0\gems\railties-4.0.0.rc1\lib\rails\test_unit\railtie.rb)
     # in line 1 where "defined?(Rake)" should be replaced with "defined?(Rake.application)"
     #
     # this will be updated with the next release of Rails
