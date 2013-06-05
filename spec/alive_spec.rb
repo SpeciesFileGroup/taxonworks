@@ -9,7 +9,7 @@ describe "specs working in Rubymine" do
     #
     # this will be updated with the next release of Rails
     #
-    # the following test can be set to (true) when everyone has edited thier text (see above) or a new release has been issued.
+    # the following test can be set to (true) when everyone has edited their text (see above) or a new release of Rails has been issued.
     expect(false).to be_true
   end
 end

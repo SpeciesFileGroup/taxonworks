@@ -24,3 +24,4 @@ Gemfile.lock
 /log/*.log
 /tmp
 /.idea
+index.html
