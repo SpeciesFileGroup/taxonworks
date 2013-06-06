@@ -5,7 +5,6 @@ describe Container do
   let(:c) { Container.new }
 
   # Foreign key relationships
-  # TODO: Move to a Concern
   context 'reflections / foreign keys' do 
     specify "it has many specimens" do
       expect(c).to respond_to(:specimens)

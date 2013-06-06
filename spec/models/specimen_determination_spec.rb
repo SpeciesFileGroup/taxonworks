@@ -32,6 +32,26 @@ describe SpecimenDetermination do
         expect(specimen_determination.errors.include?(:specimen)).to be_true
       end
     end
+
+    context "other" do
+      specify "only one of a specimens determinations can be current" do
+        pending
+      end
+    end
+
+  end
+
+  context "requirements" do
+    it "it has, by default, an ordering based on date"
+    it "the default ordering can be over-ridden by sort order"
+    it "it can be defined as the current determination"
+    it "can store a date the determination was made"
+    it "can have a source"
+  end
+
+  context "concerns" do
+    # pending 
+    # it_behaves_like "has confidence"
   end
 
 end

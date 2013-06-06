@@ -10,5 +10,4 @@ module Shared::Containable
   end
 
   protected
-
 end

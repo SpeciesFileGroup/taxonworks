@@ -5,10 +5,11 @@ describe Specimen do
   let(:specimen) { Specimen.new }
 
   context "validation" do
-    specify "total must be not nil" do 
+    specify "total must be nil" do 
       specimen.save
-      expect(specimen.errors.include?(:total)).to be_true
+      expect(specimen.total).to be_nil
     end
+
   end
 
   context "reflections / foreign keys" do
@@ -22,6 +23,7 @@ describe Specimen do
   end
 
   context "concerns" do
+    it_behaves_like "containable"
     it_behaves_like "identifiable"
   end
 
