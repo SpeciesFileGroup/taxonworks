@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/szines/awesome_nested_set.git
+  revision: 0b76be8aa094867a039ea21d21cfaf2979916932
+  specs:
+    awesome_nested_set (2.1.6)
+      activerecord (>= 3.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -128,6 +135,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  awesome_nested_set!
   awesome_print
   coffee-rails (~> 4.0.0)
   jbuilder (~> 1.0.1)

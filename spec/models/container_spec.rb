@@ -18,6 +18,7 @@ describe Container do
 
   context "concerns" do
     it_behaves_like "identifiable"
+    it_behaves_like "containable"
   end
 
 end

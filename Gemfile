@@ -33,7 +33,7 @@ group :doc do
 end
 
 group :test do
-  # Nothing to see here yet.
+  gem "rspec"
 end
 
 group :development do 
@@ -41,7 +41,8 @@ group :development do
 end
 
 gem "rspec-rails", :group => [:development, :test]
-gem "rspec"
+
+gem 'awesome_nested_set', git: 'git://github.com/szines/awesome_nested_set.git'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
