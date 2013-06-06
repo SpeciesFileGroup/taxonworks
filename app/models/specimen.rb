@@ -1,15 +1,12 @@
 class Specimen < ActiveRecord::Base
 
-  def verbatim_determination_label
-    'This must be replaced by the \'verbatim_determination_label\' string.'
-  end
-  def verbatim_locality_label
-    'This must be replaced by the \'verbatim_locality_label\' string.'
-  end
-  def verbatim_other_label
-    'This must be replaced by the \'verbatim_other_label\' string.'
-  end
-  def verbatim_accession_number
-    'This must be replaced by the \'verbatim_accession_number\' string.'
-  end
+  include Shared::Identifiable
+
+  has_one :container, through: :container_item
+  has_one :container_item
+  has_many :specimen_determinations
+  has_many :otus, through: :specimen_determinations
+
+  validates_presence_of :total 
+
 end

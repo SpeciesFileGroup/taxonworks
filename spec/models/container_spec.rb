@@ -1,5 +1,23 @@
 require 'spec_helper'
 
 describe Container do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  let(:c) { Container.new }
+
+  # Foreign key relationships
+  # TODO: Move to a Concern
+  context 'reflections / foreign keys' do 
+    specify "it has many specimens" do
+      expect(c).to respond_to(:specimens)
+    end
+
+    specify "container_type" do
+      expect(c).to respond_to(:specimens)
+    end
+  end
+
+  context "concerns" do
+    it_behaves_like "identifiable"
+  end
+
 end

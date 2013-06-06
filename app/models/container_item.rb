@@ -1,0 +1,4 @@
+class ContainerItem < ActiveRecord::Base
+  belongs_to :container
+  belongs_to :otu
+end
