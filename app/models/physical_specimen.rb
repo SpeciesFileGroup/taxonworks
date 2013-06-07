@@ -1,0 +1,2 @@
+class PhysicalSpecimen < Specimen 
+end

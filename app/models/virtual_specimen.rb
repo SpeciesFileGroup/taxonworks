@@ -1,0 +1,2 @@
+class VirtualSpecimen < Specimen 
+end

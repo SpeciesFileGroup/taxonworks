@@ -1,4 +1,4 @@
-class SpecimenIndividual < Specimen
+class SpecimenIndividual < PhysicalSpecimen
 
   validate :value_of_total
 
