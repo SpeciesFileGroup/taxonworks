@@ -1,21 +1,38 @@
 require 'spec_helper'
 
+# A class representing the metadata of one or more specimens.  Physical entities are instantiated from its subclasses SpecimenIndividual and SpecimenLot.
+
 describe Specimen do
 
   let(:specimen) { Specimen.new }
 
   context "validation" do
-    specify "total must be nil" do 
+    context "on creation" do
+      specify "total to be nil" do 
+        expect(specimen.type).to eq('Specimen')
+      end
+    end
+
+    context "requires"
+    before do
       specimen.save
+    end
+
+    specify "total to be nil" do 
       expect(specimen.total).to be_nil
     end
 
   end
 
   context "reflections / foreign keys" do
+    context "has many" do 
+      specify "it has many Otus through determinations" do
+        expect(specimen).to respond_to(:otus)
+      end
 
-    specify "it has many Otus through determinations" do
-      expect(specimen).to respond_to(:otus)
+      specify "SpecimenDeterminations" do
+        expect(specimen).to respond_to(:specimen_determinations)
+      end
     end
   end
 
@@ -24,12 +41,4 @@ describe Specimen do
     it_behaves_like "identifiable"
   end
 
-  # TODO: Move to Concern
-  specify "it is determinable" do
-    expect(specimen).to respond_to(:specimen_determinations)
-  end
-
 end
-
-
-

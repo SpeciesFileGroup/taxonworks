@@ -9,7 +9,9 @@ class Specimen < ActiveRecord::Base
   validate :value_of_total
 
   protected
+
   def value_of_total 
     errors.add(:total, "total must be nil") if !self.total.nil?
   end
+
 end
