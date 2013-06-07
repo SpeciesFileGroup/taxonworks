@@ -2,11 +2,12 @@ module Shared::Containable
   extend ActiveSupport::Concern
 
   included do
-    acts_as_nested_set
-  end
+    has_one :container_item
+    has_one :container, through: :container_item
+  end 
 
   def contained?
-    !self.root?
+    !self.container.nil?
   end
 
   protected

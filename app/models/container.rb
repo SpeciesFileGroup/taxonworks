@@ -1,4 +1,6 @@
 class Container < ActiveRecord::Base
+  acts_as_nested_set
+
   include Shared::Identifiable
   include Shared::Containable
 

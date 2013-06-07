@@ -13,9 +13,6 @@ describe Specimen do
   end
 
   context "reflections / foreign keys" do
-    specify "it is containable" do
-      expect(specimen).to respond_to(:container)
-    end
 
     specify "it has many Otus through determinations" do
       expect(specimen).to respond_to(:otus)
