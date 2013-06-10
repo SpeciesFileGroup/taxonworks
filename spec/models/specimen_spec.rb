@@ -9,7 +9,7 @@ describe Specimen do
   context "validation" do
     context "on creation" do
       specify "total to be nil" do 
-        expect(specimen.type).to eq('Specimen')
+        expect(specimen).to be_a(Specimen)
       end
     end
 

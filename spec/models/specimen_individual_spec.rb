@@ -8,7 +8,7 @@ describe SpecimenIndividual do
 
   context "on creation" do
     specify "type is SpecimenIndividual" do
-      expect(specimen_individual.type).to eq('SpecimenIndividual')
+      expect(specimen_individual).to be_a(SpecimenIndividual)
     end
   end
 
