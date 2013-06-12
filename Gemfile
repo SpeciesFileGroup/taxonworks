@@ -54,4 +54,4 @@ gem 'awesome_nested_set', git: 'git://github.com/szines/awesome_nested_set.git'
 # gem 'capistrano', group: :development
 
 # Use debugger
-# gem 'debugger', group: [:development, :test]
+gem 'debugger', group: [:development, :test]
