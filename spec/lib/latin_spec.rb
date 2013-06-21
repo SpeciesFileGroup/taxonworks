@@ -21,6 +21,9 @@ describe 'Latin' do
       specify "it returns the root" do
         expect(Latin.root(name1)).to eq('A')
         expect(Latin.root(name2)).to eq('A')
+        expect(Latin.root('absurda')).to eq('absurd')
+        expect(Latin.root('absurdum')).to eq('absurd')
+        expect(Latin.root(name1) == Latin.root(name2)).to be_true
       end
     end
 

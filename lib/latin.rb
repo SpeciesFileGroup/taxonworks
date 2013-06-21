@@ -20,15 +20,14 @@ module Latin
   end
 
   def self.root(name)
-    key = nil
+    return false if name.nil? || name.class != String
     self.all_endings.each do |e|
-      if name =~ /(.*)#{e}\Z/   # match Some String + an ending (e) that happens at the end of a string
-        return $1
+      if name =~ /(?<s>.*)#{e}\Z/ 
+        return $~[:s] 
       end
     end
     false
   end
-
 
 end
 
