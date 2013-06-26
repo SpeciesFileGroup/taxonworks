@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.0.0.rc1'
+gem 'rails', '4.0.0'
 
 # Database
 gem 'mysql2', '0.3.11'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0.0.rc1'
+gem 'sass-rails', '~> 4.0.0'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
@@ -42,7 +42,8 @@ end
 
 gem "rspec-rails", :group => [:development, :test]
 
-gem 'awesome_nested_set', git: 'git://github.com/szines/awesome_nested_set.git'
+gem 'awesome_nested_set', :tag => 'rails4' , git: 'git://github.com/collectiveidea/awesome_nested_set.git'
+
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
