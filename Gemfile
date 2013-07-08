@@ -55,4 +55,4 @@ gem 'awesome_nested_set', :tag => 'rails4' , git: 'git://github.com/collectiveid
 # gem 'capistrano', group: :development
 
 # Use debugger
-gem 'debugger', group: [:development, :test]
+# gem 'debugger', group: [:development, :test]
