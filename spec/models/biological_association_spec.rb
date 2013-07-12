@@ -30,6 +30,7 @@ describe BiologicalAssociation do
       specify "biological_relationship_id" do
         expect(biological_association.errors.include?(:object_type)).to be_true
       end
+
     end
   end
 
