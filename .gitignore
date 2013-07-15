@@ -25,3 +25,6 @@ Gemfile.lock
 /tmp
 /.idea
 index.html
+
+# Ignore rdoc folder
+/doc
