@@ -20,7 +20,7 @@
 %>
 
 development:
-  adapter: mysql2 
+  adapter: postgresql
   database: taxonworks_development 
   username: tw
   password: t0ps3kr3t   
@@ -29,7 +29,7 @@ development:
   <% end %>
 
 test: 
-  adapter: mysql2 
+  adapter: postgresql
   database: taxonworks_test
   username: tw 
   password: t0ps3kr3t   
@@ -38,7 +38,7 @@ test:
   <% end %>
 
 production:
-  adapter: mysql2 
+  adapter: postgresql
   database: taxonworks_production
   username: tw
   password: t0ps3kr3t   
