@@ -12,9 +12,6 @@ describe OtuContent do
         expect(otu_content).to respond_to(:otu)
       end
 
-      specify "topic" do
-        expect(otu_content).to respond_to(:topic)
-      end
     end 
 
   end
