@@ -19,19 +19,20 @@
   end
 %>
 
-# Something like this:
+#
+  #adapter: postgresql
 
 development:
-  adapter: mysql2
-  database: taxonworks_development 
-  username: root
-  password:   
+  adapter: postgis
+  database: taxonworks_development
+  username: tw
+  password: t0ps3kr3t   
   <% if unix  %>
   socket: <%= mysql_socket %>
   <% end %>
 
 test: 
-  adapter: mysql2
+  adapter: postgis
   database: taxonworks_test
   username: root
   password:    
@@ -40,7 +41,7 @@ test:
   <% end %>
 
 production:
-  adapter: mysql2
+  adapter: postgis
   database: taxonworks_production
   username: root 
   password: 
