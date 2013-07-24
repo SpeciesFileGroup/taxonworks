@@ -19,10 +19,8 @@ puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 gem 'rails', '~> 4.0'
 
 # Database
-gem 'ffi-geos'
-gem 'pg', '~> 0.17.0'
+gem 'pg'
 gem 'activerecord-postgis-adapter'
-
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0'
@@ -58,7 +56,7 @@ end
 
 gem 'debugger', '~> 1.6', group: [:development, :test] if not win_os
 
-group :development do
+group :development do 
   gem 'awesome_print'
 end
 
