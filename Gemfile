@@ -19,10 +19,8 @@ puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 gem 'rails', '4.0.0'
 
 # Database
-gem 'mysql2', '0.3.11'
-
-# Testing
-# gem "factory_girl_rails", "~> 4.0"
+gem 'pg'
+gem 'activerecord-postgis-adapter'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
