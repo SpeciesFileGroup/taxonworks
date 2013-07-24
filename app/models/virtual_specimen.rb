@@ -1,2 +1,0 @@
-class VirtualSpecimen < Specimen 
-end

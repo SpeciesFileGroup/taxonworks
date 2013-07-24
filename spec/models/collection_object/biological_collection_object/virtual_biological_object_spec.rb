@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe PhysicalSpecimen do
+describe CollectionObject::BiologicalCollectionObject::VirtualBiologicalObject do
   pending "add some examples to (or delete) #{__FILE__}"
 end

@@ -1,2 +1,0 @@
-class PhysicalSpecimen < Specimen 
-end
