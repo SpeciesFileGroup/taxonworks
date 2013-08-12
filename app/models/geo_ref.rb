@@ -8,7 +8,11 @@ class GeoRef < ActiveRecord::Base
 
   def minimal_data_is_provided
     [:a_point, :a_line, :a_polygon, :a_multi_polygon].each do |ref|
-      return true if !self.send(ref).blank?
+      if (self.send(ref).blank?)
+      else
+        return true
+      end
+      #return true if !self.send(ref).blank?
     end
 
     error.add(:cached_display, 'Must contain at least one of [a_point, a_line, a_polygon, :a_multi_polygon].')
