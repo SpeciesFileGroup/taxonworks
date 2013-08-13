@@ -11,7 +11,7 @@ class CollectingEvent < ActiveRecord::Base
       return true if !self.send(v).blank?
     end
 
-    errors.add(:cached_display, 'At least one label type, or field notes, need to be miminally provided.')
+    errors.add(:cached_display, 'At least one label type, or field notes, need to be minimally provided.')
   end
 
 
