@@ -1,5 +1,17 @@
 source 'https://rubygems.org'
 
+mac_os = win_os = false
+
+if $PROGRAM_NAME =~ /[A-Za-z]:[\/\\]/
+  win_os = true
+  os = 'Windows'
+else
+  mac_os = true
+  os = 'Mac'
+end
+
+puts "\nBundling on #{os}."
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.0'
 
