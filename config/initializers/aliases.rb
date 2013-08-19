@@ -1,5 +1,3 @@
 
-Specimen = CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject::Specimen
-Lot      = CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject::Lot  
-
+# Class aliases can be added here.
 

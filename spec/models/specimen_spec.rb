@@ -8,7 +8,7 @@ describe Specimen do
 
   context "validation" do
     context "on creation" do
-      specify "total to be nil" do 
+      specify "total to be 1" do 
         expect(specimen).to be_a(Specimen)
       end
     end
@@ -18,27 +18,23 @@ describe Specimen do
       specimen.save
     end
 
-    specify "total to be nil" do 
-      expect(specimen.total).to be_nil
+    specify "total to be one" do 
+      expect(specimen.total).to eq(1)
     end
 
   end
 
   context "reflections / foreign keys" do
     context "has many" do 
-      specify "it has many Otus through determinations" do
-        expect(specimen).to respond_to(:otus)
-      end
-
-      specify "SpecimenDeterminations" do
-        expect(specimen).to respond_to(:specimen_determinations)
-      end
     end
   end
 
   context "concerns" do
     it_behaves_like "containable"
     it_behaves_like "identifiable"
+    it_behaves_like "determinable"
   end
 
 end
+
+
