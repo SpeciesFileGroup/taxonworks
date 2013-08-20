@@ -7,9 +7,9 @@ describe Otu do
   # foreign key relationships
   context 'reflections / foreign keys' do
     context 'has many' do
-      specify 'specimen determinations' do
-        expect(otu).to respond_to(:specimen_determinations)
-        expect(otu.specimen_determinations).to eq([])
+      specify 'taxon determinations' do
+        expect(otu).to respond_to(:taxon_determinations)
+        expect(otu.taxon_determinations).to eq([])
       end
       
       specify 'contents' do
