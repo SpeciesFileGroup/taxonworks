@@ -1,4 +1,4 @@
-class Geographic_Item < ActiveRecord::Base
+class GeographicItem < ActiveRecord::Base
 
   DATA_TYPES = [:point,
                 :line_string,

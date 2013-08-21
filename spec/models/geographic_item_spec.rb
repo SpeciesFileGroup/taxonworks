@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Geographic_Item do
+describe GeographicItem do
 
   let(:spherical_factory) { ::RGeo::Geographic.spherical_factory(:srid => 4326)}
-  let(:geographic_item) { Geographic_Item.new }
+  let(:geographic_item) { GeographicItem.new }
 
   context "on creation" do
     context "on save" do
@@ -58,10 +58,10 @@ describe Geographic_Item do
       point_in = spherical_factory.point(5, 5)
       point_out = spherical_factory.point(15, 15)
 
-      @s = Geographic_Item.new
+      @s = GeographicItem.new
       @s.polygon = square
-      @p1 = Geographic_Item.new
-      @p2 = Geographic_Item.new
+      @p1 = GeographicItem.new
+      @p2 = GeographicItem.new
       @p1.point =  point_in
       @p2.point =  point_out
 
@@ -90,9 +90,9 @@ describe Geographic_Item do
 end
 
 =begin
-      g1 = Geographic_Item.new
-      g2 = Geographic_Item.new
-      g3 = Geographic_Item.new
+      g1 = GeographicItem.new
+      g2 = GeographicItem.new
+      g3 = GeographicItem.new
 
       m = ::RGeo::Geographic.simple_mercator_factory(
         :has_z_coordinate => true,
