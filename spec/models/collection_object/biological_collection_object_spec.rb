@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe CollectionObject::BiologicalCollectionObject do
 
+   let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
+
   describe "instance methods" do
     # it seems as though these method tests could be refactored as a loop of methods
     specify "verbatim_determination_label" do # a text field with new lines for each field
