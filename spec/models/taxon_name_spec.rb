@@ -8,22 +8,30 @@ describe TaxonName do
 
     context "requires" do
       before do
-        taxon_name.save
+        taxon_name.valid?
       end
 
       specify "name" do
         expect(taxon_name.errors.include?(:name)).to be_true
       end
+
+      specify "rank" do
+        expect(taxon_name.errors.include?(:rank)).to be_true
+      end
+
     end
 
-
     context "after save" do
-      # before do
-      #   taxon_name.save
-      # end
+       before do
+         taxon_name.save
+       end
 
-      specify "cached_name" do
-        expect(taxon_name.cached_name.length > 0).to be_true
+      specify "cached_name should be set" do
+        name = "Foo"
+        taxon_name.name = name 
+        taxon_name.rank = "FOO"
+        taxon_name.save
+        expect(taxon_name.cached_name).to eq(name)
       end
 
     end
