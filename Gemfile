@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 mac_os = win_os = false
 
-if $PROGRAM_NAME =~ /[A-Za-z]:[\/\\]/
+if $LOAD_PATH[0] =~ /[A-Za-z]:[\/\\]/
   win_os = true
   os = 'Windows'
 else
@@ -10,7 +10,7 @@ else
   os = 'Mac'
 end
 
-puts "\nBundling on #{os}."
+puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.0'
