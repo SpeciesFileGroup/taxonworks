@@ -21,6 +21,7 @@ gem 'rails', '4.0.0'
 # Database
 gem 'pg'
 gem 'activerecord-postgis-adapter'
+gem 'ffi-geos'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
