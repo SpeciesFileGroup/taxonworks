@@ -5,39 +5,39 @@ describe GeographicItem do
   let(:spherical_factory) { ::RGeo::Geographic.spherical_factory(:srid => 4326)}
   let(:geographic_item) { GeographicItem.new }
 
-  context "on creation" do
-    context "on save" do
+  context 'on creation' do
+    context 'on save' do
 
       before do
         geographic_item.save
       end
 
-      specify "Errors added because of no data provided." do
+      specify 'Errors added because of no data provided.' do
         expect(geographic_item.errors.keys).to include(:point)
       end
 
-      specify "Fake title" do
-        geographic_item.point = "Some string"
+      specify 'Fake title' do
+        geographic_item.point = 'Some string'
         expect(geographic_item.valid?).to be_false
       end
 
-      specify "A good point" do
+      specify 'A good point' do
         geographic_item.point = spherical_factory.point(-88.241413, 40.091655)
         expect(geographic_item.valid?).to be_true
       end
 
-      specify "A good point that didn't change." do
+      specify 'A good point that didn\'t change.' do
         geographic_item.point = spherical_factory.point(-88.241413, 40.091655)
         expect(geographic_item.point.x).to eq -88.241413
       end
 
-      specify "One and only one of point, line_string, etc. is set." do
+      specify 'One and only one of point, line_string, etc. is set.' do
         geographic_item.point = spherical_factory.point(-88.241413, 40.091655)
         geographic_item.polygon = geographic_item.point.buffer(10)
         expect(geographic_item.valid?).to be_false
       end
 
-      specify "A good point that didn't change." do
+      specify 'A good point that didn\'t change.' do
         geographic_item.point = spherical_factory.point(-88.241413, 40.091655)
         expect(geographic_item.point.x).to eq -88.241413
       end
@@ -45,7 +45,7 @@ describe GeographicItem do
     end
   end
 
-  context "Geographical objects calculations." do
+  context 'Geographical objects calculations.' do
     before do
       ls = spherical_factory.line_string([spherical_factory.point(0, 0),
                                             spherical_factory.point(10, 0),
@@ -71,14 +71,14 @@ describe GeographicItem do
 
     end
 
-    specify 'contains?' do
-      pending()
+    specify 'That one object contains another.' do
+      pending('Requires additional spatial math.')
       #expect(@s.contains?(@p1)).to be_true
       #expect(@s.contains?(@p2)).to be_false
     end
   end
 
-  context 'Methods' do
+  context 'That GeographicItems provide certain methods.' do
     specify 'self.object returns stored data' do
       p1 = spherical_factory.point(-88.241413, 40.091655)
       geographic_item.point = p1
@@ -122,7 +122,7 @@ end
       end
 =end
 =begin
-      specify "At least one point or one line or one polygon or one multi_polygon is provided" do
+      specify 'At least one point or one line or one polygon or one multi_polygon is provided' do
         expect(geographic_item.errors.include?(:cashed_display)).to be_true
       end
     end
