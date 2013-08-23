@@ -1,13 +1,12 @@
 source 'https://rubygems.org'
 
-mac_os = win_os = false
+win_os = false
 
 if $PROGRAM_NAME =~ /[A-Za-z]:[\/\\]/
   win_os = true
   os = 'Windows'
 else
-  mac_os = true
-  os = 'Mac'
+  os = '*nix/os x'
 end
 
 puts "\nBundling on #{os}."
@@ -48,6 +47,8 @@ group :test do
   gem "rspec"
 end
 
+gem 'debugger', group: [:development, :test] if not win_os
+
 group :development do 
   gem 'awesome_print'
 end
@@ -67,4 +68,4 @@ gem 'awesome_nested_set', :tag => 'rails4' , git: 'git://github.com/collectiveid
 # gem 'capistrano', group: :development
 
 # Use debugger
-# gem 'debugger', group: [:development, :test]
+# 
