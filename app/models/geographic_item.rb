@@ -21,7 +21,8 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def contains?(item)
-    self.object.contains?(item.object)
+    item.object.within?(self.object)
+    #self.object.contains?(item.object)
     #true
   end
   protected
