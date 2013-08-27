@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe GeographicItem do
 
-  let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
-  let(:tw_factory) { ::RGeo::Geos.factory(:srid => 4326, 
-                                           :has_z_coordinate => true,
-                                           :has_m_coordinate => true)}
+  #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
+  let(:tw_factory) {::RGeo::Geos.factory(:srid => 4326,
+                                         :has_z_coordinate => true,
+                                         :has_m_coordinate => true)}
   let(:geographic_item) { GeographicItem.new }
 
   context 'on creation' do
@@ -62,6 +62,7 @@ describe GeographicItem do
       @p1.point =  point_in
       @p2.point =  point_out
 
+
       @s.save!
       @p1.save!
       @p2.save!
@@ -69,9 +70,9 @@ describe GeographicItem do
     end
 
     specify 'That one object contains another.' do
-      pending('Requires additional spatial math.')
-      #expect(@s.contains?(@p1)).to be_true
-      #expect(@s.contains?(@p2)).to be_false
+      #pending('Requires additional spatial math.')
+      expect(@s.contains?(@p1)).to be_true
+      expect(@s.contains?(@p2)).to be_false
     end
   end
 
@@ -127,67 +128,149 @@ end
 
 def build_the_objects()
 
-  @tw_factory = ::RGeo::Geos.factory(:srid => 4326,
-                                     :has_z_coordinate => true,
-                                     :has_m_coordinate => true)
+  @tw_factory = ::RGeo::Geos.factory(:srid => 4326, :has_m_coordinate => false, :has_z_coordinate => true)
 
-  @point1 = @tw_factory.point(4, 7)
-  @point2 = @tw_factory.point(8, 5)
-  @point3 = @tw_factory.point(3, 2)
-  @point4 = @tw_factory.point(14, 5)
-  @point14 = @tw_factory.point(3, 44)
-  @point15 = @tw_factory.point(8, 41.3)
-  @point16 = @tw_factory.point(10.9, 41.1)
-  @point17 = @tw_factory.point(13.4, 10)
-  @point18 = @tw_factory.point(25.4, 37.2)
-  @point19 = @tw_factory.point(28.4, 34.9)
+  @room2024 = @tw_factory.point(-88.241413, 40.091655, 757)
+  @room2020 = @tw_factory.point(-88.241421, 40.091565, 757)
+  @room2022 = @tw_factory.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
+                                (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
+                                (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
 
-  @shapeA = @tw_factory.line_string([@tw_factory.point(1, 44),
-                                   @tw_factory.point(8, 44),
-                                   @tw_factory.point(8, 39),
-                                   @tw_factory.point(13, 43)])
+  @point1 = @tw_factory.point(-29, -16)
+  @point2 = @tw_factory.point(-25, -18)
+  @point3 = @tw_factory.point(-28, -21)
+  @point4 = @tw_factory.point(-19, -18)
+  @point5 = @tw_factory.point(3, -14)
+  @point6 = @tw_factory.point(6, -12.9)
+  @point7 = @tw_factory.point(5, -16)
+  @point8 = @tw_factory.point(4, -17.9)
+  @point9 = @tw_factory.point(7, -17.9)
+  @point10 = @tw_factory.point(32.2, 22)
+  @point11 = @tw_factory.point(-17, 7)
+  @point12 = @tw_factory.point(-9.8, 5)
+  @point13 = @tw_factory.point(-10.7, 0)
+  @point14 = @tw_factory.point(-32, 21)
+  @point15 = @tw_factory.point(-24.9, 18.3)
+  @point16 = @tw_factory.point(-22.1, 18.1)
+  @point17 = @tw_factory.point(-19.6, -12)
+  @point18 = @tw_factory.point(-7.6, 14.2)
+  @point19 = @tw_factory.point(-4.6, 11.9)
+  @point20 = @tw_factory.point(-8, -4)
+  @point21 = @tw_factory.point(-4, -3)
+  @point22 = @tw_factory.point(-10, -6)
 
-  listB1 = @tw_factory.line_string([@tw_factory.point(19, 46),
-                                    @tw_factory.point(19, 34),
-                                    @tw_factory.point(31, 34),
-                                    @tw_factory.point(31, 46),
-                                    @tw_factory.point(25, 44)])
+  @shapeA = @tw_factory.line_string([@tw_factory.point(-32, 21),
+                                   @tw_factory.point(-25, 21),
+                                   @tw_factory.point(-25, 16),
+                                   @tw_factory.point(-20, 20)])
 
-  listB2 = @tw_factory.line_string([@tw_factory.point(22, 41),
-                                    @tw_factory.point(25, 40),
-                                    @tw_factory.point(27, 43),
-                                    @tw_factory.point(29, 39),
-                                    @tw_factory.point(26, 36),
-                                    @tw_factory.point(22, 37)])
+  listB1 = @tw_factory.line_string([@tw_factory.point(-14, 23),
+                                    @tw_factory.point(-14, 11),
+                                    @tw_factory.point(-2, 11),
+                                    @tw_factory.point(-2, 23),
+                                    @tw_factory.point(-8, 21)])
+
+  listB2 = @tw_factory.line_string([@tw_factory.point(-11, 18),
+                                    @tw_factory.point(-8, 17),
+                                    @tw_factory.point(-6, 20),
+                                    @tw_factory.point(-4, 16),
+                                    @tw_factory.point(-7, 13),
+                                    @tw_factory.point(-11, 14)])
 
   @shapeB = @tw_factory.polygon(listB1, [listB2])
 
-  listC1 = @tw_factory.line_string([@tw_factory.point(56, 44),
-                                    @tw_factory.point(49, 44),
-                                    @tw_factory.point(49, 39),
-                                    @tw_factory.point(44, 43)])
+  listC1 = @tw_factory.line_string([@tw_factory.point(23, 44),
+                                    @tw_factory.point(16, 44),
+                                    @tw_factory.point(16, 39),
+                                    @tw_factory.point(11, 43)])
 
-  listC2 = @tw_factory.line_string([@tw_factory.point(42, 35.5),
-                                     @tw_factory.point(49, 35.5),
-                                     @tw_factory.point(49, 30.5)])
+  listC2 = @tw_factory.line_string([@tw_factory.point(4, 12.6),
+                                    @tw_factory.point(16, 12.6),
+                                    @tw_factory.point(16, 7.6)])
 
-  listC3 = @tw_factory.line_string([@tw_factory.point(54, 30.5),
-                                     @tw_factory.point(59, 30.5),
-                                     @tw_factory.point(55, 43)])
+  listC3 = @tw_factory.line_string([@tw_factory.point(21, 12.6),
+                                    @tw_factory.point(26, 12.6),
+                                    @tw_factory.point(22, 17.6)])
 
-  @shapeC = @tw_factory.collection([listC1, listC2, listC3])
+  @shapeC = @tw_factory.multi_line_string([listC1, listC2, listC3])
 
-  listK = @tw_factory.line_string([@tw_factory.point(0, 12),
-                                  @tw_factory.point(0, 0),
-                                  @tw_factory.point(12, 0),
-                                  @tw_factory.point(12, 12),
-                                  @tw_factory.point(6, 10),
-                                  @tw_factory.point(0, 12)])
+  @shapeD = @tw_factory.line_string([@tw_factory.point(-33, 11),
+                                     @tw_factory.point(-24, 4),
+                                     @tw_factory.point(-26, 13),
+                                     @tw_factory.point(-31, 4)])
+
+  @shapeE1 = @tw_factory.linear_ring([@tw_factory.point(-19, 9),
+                                      @tw_factory.point(-9, 9),
+                                      @tw_factory.point(-9, 2),
+                                      @tw_factory.point(-19, 2)])
+
+  @shapeE2 = @tw_factory.linear_ring([@tw_factory.point(5, -1),
+                                      @tw_factory.point(-14, -1),
+                                      @tw_factory.point(-14, 6),
+                                      @tw_factory.point(5, 6)])
+
+  @shapeE3 = @tw_factory.linear_ring([@tw_factory.point(-11, -1),
+                                      @tw_factory.point(-11, -5),
+                                      @tw_factory.point(-7, -5),
+                                      @tw_factory.point(-7, -1)])
+
+  @shapeE4 = @tw_factory.linear_ring([@tw_factory.point(-3, -9),
+                                      @tw_factory.point(-3, -1),
+                                      @tw_factory.point(-7, -1),
+                                      @tw_factory.point(-7, -9)])
+
+  @shapeE5 = @tw_factory.linear_ring([@tw_factory.point(-7, -9),
+                                      @tw_factory.point(-7, -5),
+                                      @tw_factory.point(-11, -5),
+                                      @tw_factory.point(-11, -9)])
+
+  @shapeF1 = @tw_factory.line(@tw_factory.point(-23, -1),
+                              @tw_factory.point(-29, -6))
+
+  @shapeF2 = @tw_factory.line(@tw_factory.point(-21, -4),
+                              @tw_factory.point(-31, -4))
+
+  listG1 = @tw_factory.line_string([@tw_factory.point(28, 2.3),
+                                    @tw_factory.point(23, -1.7),
+                                    @tw_factory.point(26, -4.8),
+                                    @tw_factory.point(28, 2.3)])
+
+  listG2 = @tw_factory.line_string([@tw_factory.point(22, -6.8),
+                                    @tw_factory.point(22, -9.8),
+                                    @tw_factory.point(16, -6.8),
+                                    @tw_factory.point(22, -6.8)])
+
+  listG3 = @tw_factory.line_string([@tw_factory.point(16, 2.3),
+                                    @tw_factory.point(14, -2.8),
+                                    @tw_factory.point(18, -2.8),
+                                    @tw_factory.point(16, 2.3)])
+
+  @shapeG = @tw_factory.multi_polygon([@tw_factory.polygon(listG1), @tw_factory.polygon(listG2), @tw_factory.polygon(listG3)])
+
+  @shapeH = @tw_factory.multi_point([@point5,
+                                     @point6,
+                                     @point7,
+                                     @point8,
+                                     @point9])
+
+  @shapeI = @tw_factory.line_string([@tw_factory.point(27, -14),
+                                     @tw_factory.point(18, -21),
+                                     @tw_factory.point(20, -12),
+                                     @tw_factory.point(25, -23)])
+
+  @shapeJ = @tw_factory.collection([@shapeG, @shapeH, @shapeI])
+
+  listK = @tw_factory.line_string([@tw_factory.point(-33, -11),
+                                   @tw_factory.point(-33, -23),
+                                   @tw_factory.point(-21, -23),
+                                   @tw_factory.point(-21, -11),
+                                   @tw_factory.point(-27, -13)])
+
 
   @shapeK = @tw_factory.polygon(listK)
 
-  @shapeL = @tw_factory.line(@tw_factory.point(17, 7.5),
-                           @tw_factory.point(11, 2.5))
+  @shapeL = @tw_factory.line(@tw_factory.point(-16, -15.5),
+                             @tw_factory.point(-22, -20.5))
 
 
 end #.methods - Kernel.methods
@@ -210,6 +293,18 @@ end
 
 def polygon_methods()
   [:geometry_type, :area, :centroid, :point_on_surface, :exterior_ring, :num_interior_rings, :interior_ring_n, :interior_rings, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
+end
+
+def multi_point_methods()
+  [:geometry_type, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
+end
+
+def multi_line_string_methods()
+  [:geometry_type, :length, :is_closed?, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
+end
+
+def multi_polygon_methods
+  [:geometry_type, :area, :centroid, :point_on_surface, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
 end
 
 def collection_methods()
