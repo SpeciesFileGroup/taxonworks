@@ -26,4 +26,7 @@ TaxonWorks::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  # Added by MJY.  This touches all classes so they are available.
+  Rails.application.eager_load!
 end
