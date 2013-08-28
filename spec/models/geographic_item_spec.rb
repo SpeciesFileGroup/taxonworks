@@ -73,16 +73,22 @@ describe GeographicItem do
       #pending('Requires additional spatial math.')
       expect(@s.contains?(@p1)).to be_true
       expect(@s.contains?(@p2)).to be_false
+
+      expect(@p1.within?(@s)).to be_true
+      expect(@p2.within?(@s)).to be_false
     end
   end
 
   context 'That GeographicItems provide certain methods.' do
     specify 'self.object returns stored data' do
-      p1 = tw_factory.point(-88.241413, 40.091655)
+      p1 = tw_factory.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
       geographic_item.save
       # also 'respond_to'
-      expect(geographic_item.object).to eq p1
+      # after the save, the factory type of geographic_item is #<RGeo::Geographic::Factory> and the
+      # factory for p1 is #<RGeo::Geos::ZMFactory>, to the two points do not match.
+      # if we look at the string values, however, we see that the points are the same.
+      expect(geographic_item.object.to_s).to eq p1.to_s
     end
   end
 end
@@ -199,36 +205,52 @@ def build_the_objects()
                                      @tw_factory.point(-26, 13),
                                      @tw_factory.point(-31, 4)])
 
-  @shapeE1 = @tw_factory.linear_ring([@tw_factory.point(-19, 9),
-                                      @tw_factory.point(-9, 9),
-                                      @tw_factory.point(-9, 2),
-                                      @tw_factory.point(-19, 2)])
+  listE1 = @tw_factory.line_string([@tw_factory.point(-19, 9),
+                                    @tw_factory.point(-9, 9),
+                                    @tw_factory.point(-9, 2),
+                                    @tw_factory.point(-19, 2),
+                                    @tw_factory.point(-19, 9)])
 
-  @shapeE2 = @tw_factory.linear_ring([@tw_factory.point(5, -1),
-                                      @tw_factory.point(-14, -1),
-                                      @tw_factory.point(-14, 6),
-                                      @tw_factory.point(5, 6)])
+  listE2 = @tw_factory.line_string([@tw_factory.point(5, -1),
+                                    @tw_factory.point(-14, -1),
+                                    @tw_factory.point(-14, 6),
+                                    @tw_factory.point(5, 6),
+                                    @tw_factory.point(5, -1)])
 
-  @shapeE3 = @tw_factory.linear_ring([@tw_factory.point(-11, -1),
-                                      @tw_factory.point(-11, -5),
-                                      @tw_factory.point(-7, -5),
-                                      @tw_factory.point(-7, -1)])
+  listE3 = @tw_factory.line_string([@tw_factory.point(-11, -1),
+                                    @tw_factory.point(-11, -5),
+                                    @tw_factory.point(-7, -5),
+                                    @tw_factory.point(-7, -1),
+                                    @tw_factory.point(-11, -1)])
 
-  @shapeE4 = @tw_factory.linear_ring([@tw_factory.point(-3, -9),
-                                      @tw_factory.point(-3, -1),
-                                      @tw_factory.point(-7, -1),
-                                      @tw_factory.point(-7, -9)])
+  listE4 = @tw_factory.line_string([@tw_factory.point(-3, -9),
+                                    @tw_factory.point(-3, -1),
+                                    @tw_factory.point(-7, -1),
+                                    @tw_factory.point(-7, -9),
+                                    @tw_factory.point(-3, -9)])
 
-  @shapeE5 = @tw_factory.linear_ring([@tw_factory.point(-7, -9),
-                                      @tw_factory.point(-7, -5),
-                                      @tw_factory.point(-11, -5),
-                                      @tw_factory.point(-11, -9)])
+  listE5 = @tw_factory.line_string([@tw_factory.point(-7, -9),
+                                    @tw_factory.point(-7, -5),
+                                    @tw_factory.point(-11, -5),
+                                    @tw_factory.point(-11, -9),
+                                    @tw_factory.point(-7, -9)])
+
+  @shapeE = @tw_factory.multi_polygon([@tw_factory.polygon(listE1), @tw_factory.polygon(listE2), @tw_factory.polygon(listE3), @tw_factory.polygon(listE4), @tw_factory.polygon(listE5)])
+=begin
+  @shapeE1 = @shapeE.geometry_n(0)
+  @shapeE2 = @shapeE.geometry_n(1)
+  @shapeE3 = @shapeE.geometry_n(2)
+  @shapeE4 = @shapeE.geometry_n(3)
+  @shapeE5 = @shapeE.geometry_n(4)
+=end
 
   @shapeF1 = @tw_factory.line(@tw_factory.point(-23, -1),
                               @tw_factory.point(-29, -6))
 
   @shapeF2 = @tw_factory.line(@tw_factory.point(-21, -4),
                               @tw_factory.point(-31, -4))
+
+  @shapeF = @tw_factory.multi_line_string([@shapeF1, @shapeF2])
 
   listG1 = @tw_factory.line_string([@tw_factory.point(28, 2.3),
                                     @tw_factory.point(23, -1.7),
@@ -246,6 +268,10 @@ def build_the_objects()
                                     @tw_factory.point(16, 2.3)])
 
   @shapeG = @tw_factory.multi_polygon([@tw_factory.polygon(listG1), @tw_factory.polygon(listG2), @tw_factory.polygon(listG3)])
+  @shapeG1 = @shapeG.geometry_n(0)
+  @shapeG2 = @shapeG.geometry_n(1)
+  @shapeG3 = @shapeG.geometry_n(2)
+
 
   @shapeH = @tw_factory.multi_point([@point5,
                                      @point6,
@@ -272,6 +298,42 @@ def build_the_objects()
   @shapeL = @tw_factory.line(@tw_factory.point(-16, -15.5),
                              @tw_factory.point(-22, -20.5))
 
+  @everything = @tw_factory.collection([@point1,
+                                        @point2,
+                                        @point3,
+                                        @point4,
+                                        @point5,
+                                        @point6,
+                                        @point7,
+                                        @point8,
+                                        @point9,
+                                        @point10,
+                                        @point11,
+                                        @point12,
+                                        @point13,
+                                        @point14,
+                                        @point15,
+                                        @point16,
+                                        @point17,
+                                        @point18,
+                                        @point19,
+                                        @point20,
+                                        @point21,
+                                        @point22,
+                                        @shapeA,
+                                        @shapeB,
+                                        @shapeC,
+                                        @shapeD,
+=begin
+                                        @shapeE,
+=end
+                                        @shapeF,
+                                        @shapeG,
+                                        @shapeH,
+                                        @shapeI,
+                                        @shapeJ,
+                                        @shapeK,
+                                        @shapeL])
 
 end #.methods - Kernel.methods
 
