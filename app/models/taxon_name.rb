@@ -1,16 +1,27 @@
 class TaxonName < ActiveRecord::Base
 
-  validates_presence_of :name, :rank_class
-  before_validation :check_format_of_name,
+  validates_presence_of :name, :rank_class, :type
+  
+  before_validation :set_type_if_empty,
+                    :check_format_of_name,
                     :validate_rank_class_class
+
 
   after_validation :set_cached_name
 
   def rank
-    rank_class.constantize.rank_name
+    if ::RANK_CLASS_NAMES.include?(self.rank_class.to_s) 
+      rank_class.constantize.rank_name 
+    else
+      nil
+    end
   end
 
   protected 
+
+  def set_type_if_empty
+    self.type = Protonym if self.type.nil?
+  end
 
   def validate_rank_class_class
     errors.add(:rank_class, "rank not found") if !::RANK_CLASS_NAMES.include?(self.rank_class.to_s) 

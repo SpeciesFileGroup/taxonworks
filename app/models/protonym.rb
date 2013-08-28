@@ -1,0 +1,2 @@
+class Protonym < TaxonName 
+end

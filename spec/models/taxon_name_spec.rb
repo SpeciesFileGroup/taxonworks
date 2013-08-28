@@ -17,6 +17,10 @@ describe TaxonName do
       specify "rank" do
         expect(taxon_name.errors.include?(:rank_class)).to be_true
       end
+
+      specify "type" do
+        expect(taxon_name.type).to eq(Protonym)
+      end
     end
 
     context "rank_class" do
