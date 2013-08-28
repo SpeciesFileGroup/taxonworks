@@ -25,6 +25,10 @@ class GeographicItem < ActiveRecord::Base
     #self.object.contains?(item.object)
     #true
   end
+
+  def within?(item)
+    self.object.contains?(item.object)
+  end
   protected
 
   def proper_data_is_provided
