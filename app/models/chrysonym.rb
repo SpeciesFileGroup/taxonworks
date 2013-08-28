@@ -1,7 +1,6 @@
 class Chrysonym < TaxonName 
 
-
-  validates_presence_of :name, :with => false
-  
+  # TODO: invert the presence validation
+  # validates_[absence]_of :name
 
 end
