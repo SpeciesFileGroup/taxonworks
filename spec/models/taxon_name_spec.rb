@@ -15,30 +15,37 @@ describe TaxonName do
       end
 
       specify "rank" do
-        expect(taxon_name.errors.include?(:rank)).to be_true
+        expect(taxon_name.errors.include?(:rank_class)).to be_true
       end
     end
 
-    context "rank" do
+    context "rank_class" do
       specify "is valid when a NomenclaturalRank subclass" do
-        taxon_name.rank = ::ICZN_LOOKUP['order']
+        taxon_name.rank_class = ::ICZN_LOOKUP['order']
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:rank)).to be_false
+        expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
 
       specify "is not valid when not a NomenclaturalRank subclass" do
-        taxon_name.rank = "foo"
+        taxon_name.rank_class = "foo"
         taxon_name.valid? 
-        expect(taxon_name.errors.include?(:rank)).to be_true
+        expect(taxon_name.errors.include?(:rank_class)).to be_true
       end
     end
 
-    context "name" do
+    #
+    context "name (= latinized version)" do
       context "format" do
-        specify "is validated based on NomenclaturalRank" do
-          taxon_name.name = "Aus"
-          taxon_name.valid?
-          expect(taxon_name.errors.include?(:name)).to be_true
+        context "when rank ICZN family" do
+          specify "is vaidated based on NomenclaturalRank to end in 'idae'" do
+            taxon_name.name = "Aus"
+            taxon_name.rank_class =  ::ICZN_LOOKUP['family'] 
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_true
+            taxon_name.name = "Fooidae"
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_false
+          end
         end
       end
     end

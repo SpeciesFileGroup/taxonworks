@@ -44,6 +44,13 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.6.2)
+    columnize (0.3.6)
+    debugger (1.6.0)
+      columnize (>= 0.3.1)
+      debugger-linecache (~> 1.2.0)
+      debugger-ruby_core_source (~> 1.2.1)
+    debugger-linecache (1.2.0)
+    debugger-ruby_core_source (1.2.2)
     diff-lcs (1.2.4)
     erubis (2.7.0)
     execjs (1.4.0)
@@ -137,6 +144,7 @@ DEPENDENCIES
   awesome_nested_set!
   awesome_print
   coffee-rails (~> 4.0.0)
+  debugger
   jbuilder (~> 1.0.1)
   jquery-rails
   mysql2 (= 0.3.11)
