@@ -1,6 +1,9 @@
 source 'https://rubygems.org'
 ruby '2.0.0'
 
+# This is interesting.
+# gem 'rack-webconsole', git: 'https://github.com/grappendorf/rack-webconsole.git'
+
 win_os = false
 
 if $PROGRAM_NAME =~ /[A-Za-z]:[\/\\]/
