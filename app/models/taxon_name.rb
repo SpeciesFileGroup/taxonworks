@@ -1,11 +1,11 @@
 class TaxonName < ActiveRecord::Base
 
-  validates_presence_of :name, :rank_class, :type
-  
+  validates_presence_of :rank_class, :type
+  validates_presence_of :name, if:  Proc.new { |tn| [TaxonName].include?(tn.class)}
+
   before_validation :set_type_if_empty,
                     :check_format_of_name,
                     :validate_rank_class_class
-
 
   after_validation :set_cached_name
 
@@ -19,6 +19,7 @@ class TaxonName < ActiveRecord::Base
 
   protected 
 
+  
   def set_type_if_empty
     self.type = Protonym if self.type.nil?
   end
