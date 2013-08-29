@@ -54,28 +54,47 @@ describe GeographicItem do
       
       point_in = @point1
       point_out = @point17
-      
-      @s = GeographicItem.new
-      @s.polygon = @shapeK
+
       @p1 = GeographicItem.new
-      @p2 = GeographicItem.new
+      @p17 = GeographicItem.new
+
+      @a = GeographicItem.new
+      @c = GeographicItem.new
+      @g = GeographicItem.new
+      @h = GeographicItem.new
+      @k = GeographicItem.new
+
+      @all_items = GeographicItem.new
+
       @p1.point =  point_in
-      @p2.point =  point_out
+      @p17.point =  point_out
 
+      @a.line_string = @shapeA
+      @c.multi_line_string = @shapeC
+      @g.multi_polygon = @shapeG
+      @h.multi_point = @shapeH
+      @k.polygon = @shapeK
+      @all_items.geometry_collection = @everything
 
-      @s.save!
-      @p1.save!
-      @p2.save!
+      @p1.save
+      @p17.save
+
+      @a.save
+      @c.save
+      @g.save
+      @h.save
+      @k.save
+      @all_items.save
 
     end
 
     specify 'That one object contains another.' do
       #pending('Requires additional spatial math.')
-      expect(@s.contains?(@p1)).to be_true
-      expect(@s.contains?(@p2)).to be_false
+      expect(@k.contains?(@p1)).to be_true
+      expect(@k.contains?(@p17)).to be_false
 
-      expect(@p1.within?(@s)).to be_true
-      expect(@p2.within?(@s)).to be_false
+      expect(@p1.within?(@k)).to be_true
+      expect(@p17.within?(@k)).to be_false
     end
   end
 
@@ -235,14 +254,12 @@ def build_the_objects()
                                     @tw_factory.point(-11, -9),
                                     @tw_factory.point(-7, -9)])
 
-  @shapeE = @tw_factory.multi_polygon([@tw_factory.polygon(listE1), @tw_factory.polygon(listE2), @tw_factory.polygon(listE3), @tw_factory.polygon(listE4), @tw_factory.polygon(listE5)])
-=begin
+  @shapeE = @tw_factory.collection([@tw_factory.polygon(listE1), @tw_factory.polygon(listE2), @tw_factory.polygon(listE3), @tw_factory.polygon(listE4), @tw_factory.polygon(listE5)])
   @shapeE1 = @shapeE.geometry_n(0)
   @shapeE2 = @shapeE.geometry_n(1)
   @shapeE3 = @shapeE.geometry_n(2)
   @shapeE4 = @shapeE.geometry_n(3)
   @shapeE5 = @shapeE.geometry_n(4)
-=end
 
   @shapeF1 = @tw_factory.line(@tw_factory.point(-23, -1),
                               @tw_factory.point(-29, -6))
@@ -324,9 +341,7 @@ def build_the_objects()
                                         @shapeB,
                                         @shapeC,
                                         @shapeD,
-=begin
                                         @shapeE,
-=end
                                         @shapeF,
                                         @shapeG,
                                         @shapeH,
