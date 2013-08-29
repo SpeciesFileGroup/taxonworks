@@ -17,50 +17,25 @@ describe Person do
     end
 
 =end
-    context "on save" do
-      before do
+  context "on save" do
+    before do
       person.last_name = "Smith"
       person.save
     end
     specify "type is set to Anonymous when not provided" do
       expect(person.type).to eq("Anonymous")
     end
-
   end
-end
 
-=begin
-describe Otu do
-  let(:otu) { Otu.new }
-
-  # foreign key relationships
   context "reflections / foreign keys" do
-
-    context "has many" do
-      specify "specimen determinations" do
-        expect(otu).to respond_to(:specimen_determinations)
+    context "has_many" do
+      specify "roles" do
+        expect(person).to respond_to(:roles)
       end
-
-      specify "contents" do
-        expect(otu).to respond_to(:contents)
-      end
-
-      specify "otu contents" do
-        expect(otu).to respond_to(:otu_contents)
-      end
-
-      specify "topics" do
-        expect(otu).to respond_to(:topics)
-      end
-
     end
-
   end
 
-  context "concerns" do
-    it_behaves_like "identifiable"
-  end
 
 
 end
-=end
+
