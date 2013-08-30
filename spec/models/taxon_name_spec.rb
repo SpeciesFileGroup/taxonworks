@@ -30,26 +30,28 @@ describe TaxonName do
         expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
 
-      specify "is not valid when not a NomenclaturalRank subclass" do
+      specify "is invalid when not a NomenclaturalRank subclass" do
         taxon_name.rank_class = "foo"
         taxon_name.valid? 
         expect(taxon_name.errors.include?(:rank_class)).to be_true
       end
     end
 
-    #
     context "name (= latinized version)" do
       context "format" do
+        # TODO: Consider moving this to a different spec.
         context "when rank ICZN family" do
-          specify "is vaidated based on NomenclaturalRank to end in 'idae'" do
-            taxon_name.name = "Aus"
-            taxon_name.rank_class =  ::ICZN_LOOKUP['family'] 
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_true
+          specify "is valid when ending in 'idae'" do
             taxon_name.name = "Fooidae"
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_false
           end
+          specify "is invalid when not ending in 'idae'" do
+            taxon_name.name = "Aus"
+            taxon_name.rank_class =  ::ICZN_LOOKUP['family'] 
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_true
+          end 
         end
       end
     end
@@ -67,8 +69,29 @@ describe TaxonName do
   end
 
   context "methods" do
-    specify "rank_class" do
-      expect(taxon_name).to respond_to(:rank_class)
+    context "rank_class" do 
+      specify "rank_class returns a NomenclaturalRank" do
+        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
+      end
+
+      specify "returns the passed value when not yet validated and not a NomenclaturalRank" do
+        taxon_name.rank_class = "foo"
+        expect(taxon_name.rank_class).to eq('foo') 
+      end
+    end
+
+    context "rank" do
+      specify "returns nil when not a valid rank" do
+        taxon_name.rank_class = "foo"
+        expect(taxon_name.rank).to be_nil
+      end
+
+      specify "returns the vernacular when rank_class is valid" do
+        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        expect(taxon_name.rank).to eq('order')
+      end
+
     end
   end
 

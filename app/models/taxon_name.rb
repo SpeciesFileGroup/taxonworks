@@ -1,7 +1,7 @@
 class TaxonName < ActiveRecord::Base
 
   validates_presence_of :rank_class, :type
-  validates_presence_of :name, if:  Proc.new { |tn| [TaxonName].include?(tn.class)}
+  validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 
   before_validation :set_type_if_empty,
                     :check_format_of_name,
@@ -10,22 +10,26 @@ class TaxonName < ActiveRecord::Base
   after_validation :set_cached_name
 
   def rank
-    if ::RANK_CLASS_NAMES.include?(self.rank_class.to_s) 
-      rank_class.constantize.rank_name 
-    else
-      nil
-    end
+    ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
+  end
+
+  def rank_class=(value)
+    write_attribute(:rank_class, value.to_s)
+  end
+
+  def rank_class
+    r = read_attribute(:rank_class)
+    Ranks.valid?(r) ? r.constantize : r 
   end
 
   protected 
-
   
   def set_type_if_empty
     self.type = Protonym if self.type.nil?
   end
 
   def validate_rank_class_class
-    errors.add(:rank_class, "rank not found") if !::RANK_CLASS_NAMES.include?(self.rank_class.to_s) 
+    errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
   end
 
   # TODO: This should be based on the logic of the related rank
