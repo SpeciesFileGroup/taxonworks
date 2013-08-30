@@ -15,8 +15,7 @@
 /db/schema.rb
 
 # Temporarily
-Gemfile.lock
-Gemfile.lock
+/Gemfile.lock
 
 # Ignore bundler config.
 /.bundle
