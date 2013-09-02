@@ -1,4 +1,4 @@
-class Chrysonym < TaxonName 
+class Chrysonym < TaxonName
 
 
 end

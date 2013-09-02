@@ -3,6 +3,8 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :rank_class, :type
   validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 
+  # validates_format_of :name, with: "somethign", if: "some proc"
+
   before_validation :set_type_if_empty,
                     :check_format_of_name,
                     :validate_rank_class_class

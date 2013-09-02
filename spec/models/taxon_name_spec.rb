@@ -19,7 +19,7 @@ describe TaxonName do
       end
 
       specify "type" do
-        expect(taxon_name.type).to eq(Protonym)
+        expect(taxon_name.type).to eq('Protonym')
       end
     end
 
@@ -70,24 +70,24 @@ describe TaxonName do
 
   context "methods" do
     context "rank_class" do 
-      specify "rank_class returns a NomenclaturalRank" do
-        taxon_name.rank_class = ::ICZN_LOOKUP['order']
-        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
-      end
-
       specify "returns the passed value when not yet validated and not a NomenclaturalRank" do
         taxon_name.rank_class = "foo"
         expect(taxon_name.rank_class).to eq('foo') 
       end
-    end
+
+      specify "returns a NomenclaturalRank when available" do
+        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
+      end
+   end
 
     context "rank" do
-      specify "returns nil when not a valid rank" do
+      specify "returns nil when not a NomenclaturalRank (i.e. invalid)" do
         taxon_name.rank_class = "foo"
         expect(taxon_name.rank).to be_nil
       end
 
-      specify "returns the vernacular when rank_class is valid" do
+      specify "returns vernacular when rank_class is a NomenclaturalRank (i.e. valid)" do
         taxon_name.rank_class = ::ICZN_LOOKUP['order']
         expect(taxon_name.rank).to eq('order')
       end

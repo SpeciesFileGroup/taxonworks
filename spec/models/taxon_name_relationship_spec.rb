@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe TaxonNameRelationship do
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
@@ -23,6 +22,13 @@ describe TaxonNameRelationship do
         expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
     end
+
+    context "type" do
+      specify "" do
+        expect(taxon_name_relationship.errors.include?(:type)).to be_true
+      end
+
+    end
   end
 
   context "relations" do
@@ -34,11 +40,7 @@ describe TaxonNameRelationship do
       specify "object (TaxonName)" do
         expect(taxon_name_relationship).to respond_to (:object)
       end
-
-
-
     end
-
   end
 
 
