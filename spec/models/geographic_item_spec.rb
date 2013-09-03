@@ -5,7 +5,7 @@ describe GeographicItem do
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
   let(:tw_factory) {::RGeo::Geos.factory(:srid => 4326,
                                          :has_z_coordinate => true,
-                                         :has_m_coordinate => true)}
+                                         :has_m_coordinate => false)}
   let(:geographic_item) { GeographicItem.new }
 
   context 'on creation' do
@@ -76,15 +76,15 @@ describe GeographicItem do
       @k.polygon = @shapeK
       @all_items.geometry_collection = @everything
 
-      @p1.save
-      @p17.save
+      @p1.save!
+      @p17.save!
 
-      @a.save
-      @c.save
-      @g.save
-      @h.save
-      @k.save
-      @all_items.save
+      @a.save!
+      @c.save!
+      @g.save!
+      @h.save!
+      @k.save!
+      @all_items.save!
 
     end
 
@@ -104,10 +104,12 @@ describe GeographicItem do
       geographic_item.point = p1
       geographic_item.save
       # also 'respond_to'
-      # after the save, the factory type of geographic_item is #<RGeo::Geographic::Factory> and the
-      # factory for p1 is #<RGeo::Geos::ZMFactory>, to the two points do not match.
-      # if we look at the string values, however, we see that the points are the same.
-      expect(geographic_item.object.to_s).to eq p1.to_s
+      # after the save, the default factory type of geographic_item is
+      # #<RGeo::Geographic::Factory> and the
+      # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
+      # See the model for a method to change the default factory for a given
+      # column (in our case, all).
+      expect(geographic_item.object).to eq p1
     end
   end
 end
