@@ -1,5 +1,6 @@
 class GeographicItem < ActiveRecord::Base
 
+
   DATA_TYPES = [:point,
                 :line_string,
                 :polygon,
@@ -7,6 +8,13 @@ class GeographicItem < ActiveRecord::Base
                 :multi_line_string,
                 :multi_polygon,
                 :geometry_collection]
+
+  DATA_TYPES.each do |t|
+  set_rgeo_factory_for_column(t,
+                              RGeo::Geos.factory(:srid => 4326,
+                                                 :has_z_coordinate => true,
+                                                 :has_m_coordinate => false))
+  end
 
   belongs_to :geographic_area
   belongs_to :confidence
@@ -21,13 +29,14 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def contains?(item)
-    item.object.within?(self.object)
-    #self.object.contains?(item.object)
+    #item.object.within?(self.object)
+    self.object.contains?(item.object)
     #true
   end
 
   def within?(item)
-    self.object.contains?(item.object)
+    #self.object.contains?(item.object)
+    self.object.within?(item.object)
   end
   protected
 
