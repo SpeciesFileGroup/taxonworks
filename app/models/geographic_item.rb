@@ -9,11 +9,11 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
+ column_factory = RGeo::Geos.factory(:srid => 4326,
+                                     :has_z_coordinate => true,
+                                     :has_m_coordinate => false)
   DATA_TYPES.each do |t|
-  set_rgeo_factory_for_column(t,
-                              RGeo::Geos.factory(:srid => 4326,
-                                                 :has_z_coordinate => true,
-                                                 :has_m_coordinate => false))
+    set_rgeo_factory_for_column(t, column_factory)
   end
 
   belongs_to :geographic_area
@@ -38,6 +38,19 @@ class GeographicItem < ActiveRecord::Base
     #self.object.contains?(item.object)
     self.object.within?(item.object)
   end
+
+  def distance?(item)
+    self.object.distance?(item)
+  end
+
+  def near(item, distance)
+    self.object.buffer(distance).contains?(item.object)
+  end
+
+  def far(item, distance)
+    !self.near(item, distance)
+  end
+
   protected
 
   def proper_data_is_provided
