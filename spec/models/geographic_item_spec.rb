@@ -51,44 +51,79 @@ describe GeographicItem do
   context 'Geographical objects calculations.' do
     before do
       build_the_objects()
-      
+
+      # build the records
+
+      [@a, @b, @c].each do |v|
+        # this *does NOT* work the way I want it to!
+        v = GeographicItem.new
+      end
+
       point_in = @point1
       point_out = @point17
 
       @p1 = GeographicItem.new
+      @p10 = GeographicItem.new
+      @p16 = GeographicItem.new
       @p17 = GeographicItem.new
 
       @a = GeographicItem.new
       @c = GeographicItem.new
+      @d = GeographicItem.new
+      @e = GeographicItem.new
+      @f = GeographicItem.new
       @g = GeographicItem.new
       @h = GeographicItem.new
       @k = GeographicItem.new
+      @l = GeographicItem.new
 
       @all_items = GeographicItem.new
 
       @p1.point =  point_in
+      @p10.point = @point10
+      @p16.point = @point16
       @p17.point =  point_out
 
       @a.line_string = @shapeA
       @c.multi_line_string = @shapeC
+      @d.line_string = @shapeD
+      @e.geometry_collection = @shapeE
+      @f.multi_line_string = @shapeF
       @g.multi_polygon = @shapeG
       @h.multi_point = @shapeH
       @k.polygon = @shapeK
+      @l.line_string = @shapeL
       @all_items.geometry_collection = @everything
 
       @p1.save!
+      @p10.save!
+      @p16.save!
       @p17.save!
 
       @a.save!
       @c.save!
+      @d.save!
+      @e.save!
+      @f.save!
       @g.save!
       @h.save!
       @k.save!
+      @l.save!
       @all_items.save!
 
     end
 
-    specify 'That one object contains another.' do
+    specify 'Certain line_string shapes cannot be polygons, others can.' do
+
+      @d.reload
+      @k.reload
+
+      expect(tw_factory.polygon(@k.object)).to be_nil
+      expect(tw_factory.polygon(@d.object)).not_to be_nil
+
+    end
+
+    specify 'That one object contains another, or not.' do
       #pending('Requires additional spatial math.')
       expect(@k.contains?(@p1)).to be_true
       expect(@k.contains?(@p17)).to be_false
@@ -96,6 +131,107 @@ describe GeographicItem do
       expect(@p1.within?(@k)).to be_true
       expect(@p17.within?(@k)).to be_false
     end
+
+    specify 'Two polygons may have various intersections.' do
+
+      @e.reload
+      e0 = @e.object  # a collection of polygons
+      shapeE1 = e0.geometry_n(0)
+      shapeE2 = e0.geometry_n(1)
+      shapeE3 = e0.geometry_n(2)
+      shapeE4 = e0.geometry_n(3)
+      shapeE5 = e0.geometry_n(4)
+
+      e1and2 = tw_factory.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
+      e1or2 = tw_factory.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
+      e1and4 = tw_factory.parse_wkt("GEOMETRYCOLLECTION EMPTY")
+      e1or5 = tw_factory.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
+
+      expect(shapeE1.intersects?(shapeE2)).to be_true
+      expect(shapeE1.intersects?(shapeE3)).to be_false
+
+      expect(shapeE1.overlaps?(shapeE2)).to be_true
+      expect(shapeE1.overlaps?(shapeE3)).to be_false
+
+      expect(shapeE1.intersection(shapeE2)).to eq(e1and2)
+      expect(shapeE1.intersection(shapeE4)).to eq(e1and4)
+
+      expect(shapeE1.union(shapeE2)).to eq(e1or2)
+      expect(shapeE1.union(shapeE5)).to eq(e1or5)
+
+    end
+
+    specify 'Two polygons may have various adjacencies.' do
+
+      e0 = @e.object  # a collection of polygons
+      shapeE1 = e0.geometry_n(0)
+      shapeE2 = e0.geometry_n(1)
+      shapeE3 = e0.geometry_n(2)
+      shapeE4 = e0.geometry_n(3)
+      shapeE5 = e0.geometry_n(4)
+
+      expect(shapeE1.touches?(shapeE5)).to be_false
+      expect(shapeE2.touches?(shapeE3)).to be_true
+      expect(shapeE2.touches?(shapeE5)).to be_false
+
+      expect(shapeE1.disjoint?(shapeE5)).to be_true
+      expect(shapeE2.disjoint?(shapeE5)).to be_true
+      expect(shapeE2.disjoint?(shapeE4)).to be_false
+
+    end
+
+    specify 'Two different object types have various intersections.' do
+
+      a = @a.object
+      k = @k.object
+      l = @l.object
+      e = @e.object
+      f = @f.object
+      f1 = f.geometry_n(0)
+      f2 = f.geometry_n(1)
+      p16 = @p16.object
+
+      p16ona = tw_factory.parse_wkt("POINT (-23.0 18.0 0.0)")
+      expect(a.intersection(p16)).to eq(p16ona)
+
+      f1crosses2 = tw_factory.parse_wkt("POINT (-26.6 -4.0 0.0)")
+
+      expect(l.intersects?(k)).to be_true
+      expect(l.intersects?(e)).to be_false
+
+      expect(f1.intersection(f2)).to eq(f1crosses2)
+    end
+
+    specify 'Objects can be related by distance' do
+
+      p1 = @p1.object
+      p10 = @p10.object
+      p17 = @p17.object
+
+      k = @k.object
+
+      expect(p17.distance(k)).to be < p10.distance(k)
+
+      expect(@k.near(@p1, 0)).to be_true
+      expect(@k.near(@p17, 2)).to be_true
+      expect(@k.near(@p10, 5)).to be_false
+
+      expect(@k.far(@p1, 0)).to be_false
+      expect(@k.far(@p17, 1)).to be_true
+      expect(@k.far(@p10, 5)).to be_true
+
+    end
+
+    specify 'Outer Limits' do
+
+      everything = @all_items.object
+
+      convex_hull = tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -33.0 11.0 0.0, -32.0 21.0 0.0, 11.0 43.0 0.0, 16.0 44.0 0.0, 23.0 44.0 0.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
+
+      expect(everything.convex_hull()).to eq(convex_hull)
+
+    end
+
   end
 
   context 'That GeographicItems provide certain methods.' do
@@ -163,6 +299,7 @@ def build_the_objects()
                                 (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
                                 (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
 
+  @point0 = @tw_factory.point(0, 0)
   @point1 = @tw_factory.point(-29, -16)
   @point2 = @tw_factory.point(-25, -18)
   @point3 = @tw_factory.point(-28, -21)
@@ -177,8 +314,8 @@ def build_the_objects()
   @point12 = @tw_factory.point(-9.8, 5)
   @point13 = @tw_factory.point(-10.7, 0)
   @point14 = @tw_factory.point(-32, 21)
-  @point15 = @tw_factory.point(-24.9, 18.3)
-  @point16 = @tw_factory.point(-22.1, 18.1)
+  @point15 = @tw_factory.point(-25, 18.3)
+  @point16 = @tw_factory.point(-23, 18)
   @point17 = @tw_factory.point(-19.6, -12)
   @point18 = @tw_factory.point(-7.6, 14.2)
   @point19 = @tw_factory.point(-4.6, 11.9)
@@ -189,7 +326,7 @@ def build_the_objects()
   @shapeA = @tw_factory.line_string([@tw_factory.point(-32, 21),
                                    @tw_factory.point(-25, 21),
                                    @tw_factory.point(-25, 16),
-                                   @tw_factory.point(-20, 20)])
+                                   @tw_factory.point(-21, 20)])
 
   listB1 = @tw_factory.line_string([@tw_factory.point(-14, 23),
                                     @tw_factory.point(-14, 11),
@@ -311,13 +448,13 @@ def build_the_objects()
                                    @tw_factory.point(-21, -11),
                                    @tw_factory.point(-27, -13)])
 
-
   @shapeK = @tw_factory.polygon(listK)
 
   @shapeL = @tw_factory.line(@tw_factory.point(-16, -15.5),
                              @tw_factory.point(-22, -20.5))
 
-  @everything = @tw_factory.collection([@point1,
+  @everything = @tw_factory.collection([@point0,
+                                        @point1,
                                         @point2,
                                         @point3,
                                         @point4,
