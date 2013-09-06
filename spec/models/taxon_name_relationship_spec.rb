@@ -24,10 +24,20 @@ describe TaxonNameRelationship do
     end
 
     context "type" do
-      specify "" do
+
+      specify "invalid when not a TaxonNameRelationship" do
+        taxon_name_relationship.type = "foo"
+        taxon_name_relationship.valid?
         expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
 
+      specify "valid when a TaxonNameRelationship" do
+        taxon_name_relationship.type = TaxonNameRelationship::Chrysonym::Genus
+        taxon_name_relationship.valid?
+        expect(taxon_name_relationship.errors.include?(:type)).to be_false
+      end
+
+   
     end
   end
 

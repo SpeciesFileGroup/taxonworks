@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Chrysonym do
 
-
   let(:chrysonym) { Chrysonym.new }
 
   context "validation" do 
