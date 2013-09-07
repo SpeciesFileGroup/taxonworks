@@ -28,7 +28,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   protected
 
   def validate_type
-    errors.add(:type, "invalid taxon name relationship") if !::TaxonNameRelationships.valid?(type)
+    errors.add(:type, "invalid taxon name relationship") if !::TAXON_NAME_RELATIONSHIPS.valid?(type)
   end
 
 end
