@@ -2,7 +2,7 @@
 
 task  :dbgf do |t|
 
-  pn = $PROGRAM_NAME
+  pn = $LOAD_PATH[0]
   if pn =~ /[A-Za-z]:[\/\\]/
     os = 'Windows'
   else
