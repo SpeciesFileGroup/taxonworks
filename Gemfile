@@ -1,13 +1,16 @@
 source 'https://rubygems.org'
+ruby '2.0.0'
 
-mac_os = win_os = false
+# This is interesting.
+# gem 'rack-webconsole', git: 'https://github.com/grappendorf/rack-webconsole.git'
+
+win_os = false
 
 if $LOAD_PATH[0] =~ /[A-Za-z]:[\/\\]/
   win_os = true
   os = 'Windows'
 else
-  mac_os = true
-  os = 'Mac'
+  os = '*nix/os x'
 end
 
 puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
@@ -17,6 +20,9 @@ gem 'rails', '4.0.0'
 
 # Database
 gem 'mysql2', '0.3.11'
+
+# Testing
+# gem "factory_girl_rails", "~> 4.0"
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -48,6 +54,8 @@ group :test do
   gem "rspec"
 end
 
+gem 'debugger', group: [:development, :test] if not win_os
+
 group :development do 
   gem 'awesome_print'
 end
@@ -67,4 +75,4 @@ gem 'awesome_nested_set', :tag => 'rails4' , git: 'git://github.com/collectiveid
 # gem 'capistrano', group: :development
 
 # Use debugger
-# gem 'debugger', group: [:development, :test]
+# 

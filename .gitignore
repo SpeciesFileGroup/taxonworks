@@ -12,10 +12,10 @@
 *.bak
 *.swp
 
-db/schema.rb
+/db/schema.rb
 
 # Temporarily
-Gemfile.lock
+/Gemfile.lock
 
 # Ignore bundler config.
 /.bundle
