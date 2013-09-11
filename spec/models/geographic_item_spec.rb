@@ -343,10 +343,10 @@ def build_the_objects()
 
   @shapeB = @tw_factory.polygon(listB1, [listB2])
 
-  listC1 = @tw_factory.line_string([@tw_factory.point(23, 44),
-                                    @tw_factory.point(16, 44),
-                                    @tw_factory.point(16, 39),
-                                    @tw_factory.point(11, 43)])
+  listC1 = @tw_factory.line_string([@tw_factory.point(23, 21),
+                                    @tw_factory.point(16, 21),
+                                    @tw_factory.point(16, 16),
+                                    @tw_factory.point(11, 20)])
 
   listC2 = @tw_factory.line_string([@tw_factory.point(4, 12.6),
                                     @tw_factory.point(16, 12.6),
@@ -361,7 +361,8 @@ def build_the_objects()
   @shapeD = @tw_factory.line_string([@tw_factory.point(-33, 11),
                                      @tw_factory.point(-24, 4),
                                      @tw_factory.point(-26, 13),
-                                     @tw_factory.point(-31, 4)])
+                                     @tw_factory.point(-31, 4),
+                                     @tw_factory.point(-33, 11)])
 
   listE1 = @tw_factory.line_string([@tw_factory.point(-19, 9),
                                     @tw_factory.point(-9, 9),
@@ -453,7 +454,19 @@ def build_the_objects()
   @shapeL = @tw_factory.line(@tw_factory.point(-16, -15.5),
                              @tw_factory.point(-22, -20.5))
 
-  @everything = @tw_factory.collection([@point0,
+  @everything = @tw_factory.collection([@shapeA,
+                                        @shapeB,
+                                        @shapeC,
+                                        @shapeD,
+                                        @shapeE,
+                                        @shapeF,
+                                        @shapeG,
+                                        @shapeH,
+                                        @shapeI,
+                                        @shapeJ,
+                                        @shapeK,
+                                        @shapeL,
+                                        @point0,
                                         @point1,
                                         @point2,
                                         @point3,
@@ -475,19 +488,7 @@ def build_the_objects()
                                         @point19,
                                         @point20,
                                         @point21,
-                                        @point22,
-                                        @shapeA,
-                                        @shapeB,
-                                        @shapeC,
-                                        @shapeD,
-                                        @shapeE,
-                                        @shapeF,
-                                        @shapeG,
-                                        @shapeH,
-                                        @shapeI,
-                                        @shapeJ,
-                                        @shapeK,
-                                        @shapeL])
+                                        @point22])
 
 end #.methods - Kernel.methods
 
