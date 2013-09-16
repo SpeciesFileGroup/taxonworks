@@ -11,6 +11,7 @@
 *~
 *.bak
 *.swp
+*.wkt
 
 /db/schema.rb
 database.yml

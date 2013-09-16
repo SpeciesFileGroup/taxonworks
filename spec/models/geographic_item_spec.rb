@@ -3,9 +3,9 @@ require 'spec_helper'
 describe GeographicItem do
 
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
-  let(:tw_factory) {::RGeo::Geos.factory(:srid => 4326,
-                                         :has_z_coordinate => true,
-                                         :has_m_coordinate => false)}
+  let(:tw_factory) { ::RGeo::Geos.factory(:srid             => 4326,
+                                          :has_z_coordinate => true,
+                                          :has_m_coordinate => false) }
   let(:geographic_item) { GeographicItem.new }
 
   context 'on creation' do
@@ -35,7 +35,7 @@ describe GeographicItem do
       end
 
       specify 'One and only one of point, line_string, etc. is set.' do
-        geographic_item.point = tw_factory.point(-88.241413, 40.091655)
+        geographic_item.point   = tw_factory.point(-88.241413, 40.091655)
         geographic_item.polygon = geographic_item.point.buffer(10)
         expect(geographic_item.valid?).to be_false
       end
@@ -51,6 +51,7 @@ describe GeographicItem do
   context 'Geographical objects calculations.' do
     before do
       build_the_objects()
+      gen_wkt_files()
 
       # build the records
 
@@ -59,10 +60,10 @@ describe GeographicItem do
         v = GeographicItem.new
       end
 
-      point_in = @point1
+      point_in  = @point1
       point_out = @point17
 
-      @p1 = GeographicItem.new
+      @p1  = GeographicItem.new
       @p10 = GeographicItem.new
       @p16 = GeographicItem.new
       @p17 = GeographicItem.new
@@ -79,20 +80,20 @@ describe GeographicItem do
 
       @all_items = GeographicItem.new
 
-      @p1.point =  point_in
+      @p1.point  = point_in
       @p10.point = @point10
       @p16.point = @point16
-      @p17.point =  point_out
+      @p17.point = point_out
 
-      @a.line_string = @shapeA
-      @c.multi_line_string = @shapeC
-      @d.line_string = @shapeD
-      @e.geometry_collection = @shapeE
-      @f.multi_line_string = @shapeF
-      @g.multi_polygon = @shapeG
-      @h.multi_point = @shapeH
-      @k.polygon = @shapeK
-      @l.line_string = @shapeL
+      @a.line_string                 = @shapeA
+      @c.multi_line_string           = @shapeC
+      @d.line_string                 = @shapeD
+      @e.geometry_collection         = @shapeE
+      @f.multi_line_string           = @shapeF
+      @g.multi_polygon               = @shapeG
+      @h.multi_point                 = @shapeH
+      @k.polygon                     = @shapeK
+      @l.line_string                 = @shapeL
       @all_items.geometry_collection = @everything
 
       @p1.save!
@@ -135,7 +136,7 @@ describe GeographicItem do
     specify 'Two polygons may have various intersections.' do
 
       @e.reload
-      e0 = @e.object  # a collection of polygons
+      e0      = @e.object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
       shapeE2 = e0.geometry_n(1)
       shapeE3 = e0.geometry_n(2)
@@ -143,9 +144,9 @@ describe GeographicItem do
       shapeE5 = e0.geometry_n(4)
 
       e1and2 = tw_factory.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
-      e1or2 = tw_factory.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
+      e1or2  = tw_factory.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
       e1and4 = tw_factory.parse_wkt("GEOMETRYCOLLECTION EMPTY")
-      e1or5 = tw_factory.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
+      e1or5  = tw_factory.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
 
       expect(shapeE1.intersects?(shapeE2)).to be_true
       expect(shapeE1.intersects?(shapeE3)).to be_false
@@ -163,7 +164,7 @@ describe GeographicItem do
 
     specify 'Two polygons may have various adjacencies.' do
 
-      e0 = @e.object  # a collection of polygons
+      e0      = @e.object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
       shapeE2 = e0.geometry_n(1)
       shapeE3 = e0.geometry_n(2)
@@ -182,19 +183,19 @@ describe GeographicItem do
 
     specify 'Two different object types have various intersections.' do
 
-      a = @a.object
-      k = @k.object
-      l = @l.object
-      e = @e.object
-      f = @f.object
-      f1 = f.geometry_n(0)
-      f2 = f.geometry_n(1)
+      a   = @a.object
+      k   = @k.object
+      l   = @l.object
+      e   = @e.object
+      f   = @f.object
+      f1  = f.geometry_n(0)
+      f2  = f.geometry_n(1)
       p16 = @p16.object
 
       p16ona = tw_factory.parse_wkt("POINT (-23.0 18.0 0.0)")
       expect(a.intersection(p16)).to eq(p16ona)
 
-      f1crosses2 = tw_factory.parse_wkt("POINT (-26.6 -4.0 0.0)")
+      f1crosses2 = tw_factory.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
       expect(l.intersects?(k)).to be_true
       expect(l.intersects?(e)).to be_false
@@ -204,7 +205,7 @@ describe GeographicItem do
 
     specify 'Objects can be related by distance' do
 
-      p1 = @p1.object
+      p1  = @p1.object
       p10 = @p10.object
       p17 = @p17.object
 
@@ -226,7 +227,7 @@ describe GeographicItem do
 
       everything = @all_items.object
 
-      convex_hull = tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -33.0 11.0 0.0, -32.0 21.0 0.0, 11.0 43.0 0.0, 16.0 44.0 0.0, 23.0 44.0 0.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
+      convex_hull = tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -33.0 11.0 0.0, -32.0 21.0 0.0, -14.0 23.0 0.0, -2.0 23.0 0.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
 
       expect(everything.convex_hull()).to eq(convex_hull)
 
@@ -236,7 +237,7 @@ describe GeographicItem do
 
   context 'That GeographicItems provide certain methods.' do
     specify 'self.object returns stored data' do
-      p1 = tw_factory.point(-88.241413, 40.091655, 757)
+      p1                    = tw_factory.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
       geographic_item.save
       # also 'respond_to'
@@ -299,21 +300,21 @@ def build_the_objects()
                                 (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
                                 (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
 
-  @point0 = @tw_factory.point(0, 0)
-  @point1 = @tw_factory.point(-29, -16)
-  @point2 = @tw_factory.point(-25, -18)
-  @point3 = @tw_factory.point(-28, -21)
-  @point4 = @tw_factory.point(-19, -18)
-  @point5 = @tw_factory.point(3, -14)
-  @point6 = @tw_factory.point(6, -12.9)
-  @point7 = @tw_factory.point(5, -16)
-  @point8 = @tw_factory.point(4, -17.9)
-  @point9 = @tw_factory.point(7, -17.9)
+  @point0  = @tw_factory.point(0, 0)
+  @point1  = @tw_factory.point(-29, -16)
+  @point2  = @tw_factory.point(-25, -18)
+  @point3  = @tw_factory.point(-28, -21)
+  @point4  = @tw_factory.point(-19, -18)
+  @point5  = @tw_factory.point(3, -14)
+  @point6  = @tw_factory.point(6, -12.9)
+  @point7  = @tw_factory.point(5, -16)
+  @point8  = @tw_factory.point(4, -17.9)
+  @point9  = @tw_factory.point(7, -17.9)
   @point10 = @tw_factory.point(32.2, 22)
   @point11 = @tw_factory.point(-17, 7)
   @point12 = @tw_factory.point(-9.8, 5)
   @point13 = @tw_factory.point(-10.7, 0)
-  @point14 = @tw_factory.point(-32, 21)
+  @point14 = @tw_factory.point(-30, 21)
   @point15 = @tw_factory.point(-25, 18.3)
   @point16 = @tw_factory.point(-23, 18)
   @point17 = @tw_factory.point(-19.6, -12)
@@ -324,9 +325,9 @@ def build_the_objects()
   @point22 = @tw_factory.point(-10, -6)
 
   @shapeA = @tw_factory.line_string([@tw_factory.point(-32, 21),
-                                   @tw_factory.point(-25, 21),
-                                   @tw_factory.point(-25, 16),
-                                   @tw_factory.point(-21, 20)])
+                                     @tw_factory.point(-25, 21),
+                                     @tw_factory.point(-25, 16),
+                                     @tw_factory.point(-21, 20)])
 
   listB1 = @tw_factory.line_string([@tw_factory.point(-14, 23),
                                     @tw_factory.point(-14, 11),
@@ -357,6 +358,9 @@ def build_the_objects()
                                     @tw_factory.point(22, 17.6)])
 
   @shapeC = @tw_factory.multi_line_string([listC1, listC2, listC3])
+  @shapeC1 = @shapeC.geometry_n(0)
+  @shapeC2 = @shapeC.geometry_n(1)
+  @shapeC3 = @shapeC.geometry_n(2)
 
   @shapeD = @tw_factory.line_string([@tw_factory.point(-33, 11),
                                      @tw_factory.point(-24, 4),
@@ -394,15 +398,15 @@ def build_the_objects()
                                     @tw_factory.point(-11, -9),
                                     @tw_factory.point(-7, -9)])
 
-  @shapeE = @tw_factory.collection([@tw_factory.polygon(listE1), @tw_factory.polygon(listE2), @tw_factory.polygon(listE3), @tw_factory.polygon(listE4), @tw_factory.polygon(listE5)])
+  @shapeE  = @tw_factory.collection([@tw_factory.polygon(listE1), @tw_factory.polygon(listE2), @tw_factory.polygon(listE3), @tw_factory.polygon(listE4), @tw_factory.polygon(listE5)])
   @shapeE1 = @shapeE.geometry_n(0)
   @shapeE2 = @shapeE.geometry_n(1)
   @shapeE3 = @shapeE.geometry_n(2)
   @shapeE4 = @shapeE.geometry_n(3)
   @shapeE5 = @shapeE.geometry_n(4)
 
-  @shapeF1 = @tw_factory.line(@tw_factory.point(-23, -1),
-                              @tw_factory.point(-29, -6))
+  @shapeF1 = @tw_factory.line(@tw_factory.point(-20, -1),
+                              @tw_factory.point(-26, -6))
 
   @shapeF2 = @tw_factory.line(@tw_factory.point(-21, -4),
                               @tw_factory.point(-31, -4))
@@ -424,7 +428,7 @@ def build_the_objects()
                                     @tw_factory.point(18, -2.8),
                                     @tw_factory.point(16, 2.3)])
 
-  @shapeG = @tw_factory.multi_polygon([@tw_factory.polygon(listG1), @tw_factory.polygon(listG2), @tw_factory.polygon(listG3)])
+  @shapeG  = @tw_factory.multi_polygon([@tw_factory.polygon(listG1), @tw_factory.polygon(listG2), @tw_factory.polygon(listG3)])
   @shapeG1 = @shapeG.geometry_n(0)
   @shapeG2 = @shapeG.geometry_n(1)
   @shapeG3 = @shapeG.geometry_n(2)
@@ -490,7 +494,98 @@ def build_the_objects()
                                         @point21,
                                         @point22])
 
-end #.methods - Kernel.methods
+  @all_wkt_names = [[@shapeA, 'A'],
+                    [@shapeB, 'B'],
+                    [@shapeC1, 'C1'],
+                    [@shapeC2, 'C2'],
+                    [@shapeC3, 'C3'],
+                    [@shapeD, 'D'],
+                    [@shapeE2, 'E2'],
+                    [@shapeE1, 'E1'],
+                    [@shapeE3, 'E3'],
+                    [@shapeE4, 'E4'],
+                    [@shapeE5, 'E5'],
+                    [@shapeF1, 'F1'],
+                    [@shapeF2, 'F2'],
+                    [@shapeG1, 'G1'],
+                    [@shapeG2, 'G2'],
+                    [@shapeG3, 'G3'],
+                    #[@shapeH, 'H'],
+                    [@shapeI, 'I'],
+                    #[@shapeJ, 'J'],
+                    [@shapeK, 'K'],
+                    [@shapeL, 'L'],
+                    [@point0, 'P0'],
+                    [@point1, 'P1'],
+                    [@point2, 'P2'],
+                    [@point3, 'P3'],
+                    [@point4, 'P4'],
+                    [@point5, 'P5'],
+                    [@point6, 'P6'],
+                    [@point7, 'P7'],
+                    [@point8, 'P8'],
+                    [@point9, 'P9'],
+                    [@point10, 'P10'],
+                    [@point11, 'P11'],
+                    [@point12, 'P12'],
+                    [@point13, 'P13'],
+                    [@point14, 'P14'],
+                    [@point15, 'P15'],
+                    [@point16, 'P16'],
+                    [@point17, 'P17'],
+                    [@point18, 'P18'],
+                    [@point19, 'P19'],
+                    [@point20, 'P20'],
+                    [@point21, 'P21'],
+                    [@point22, 'P22']]
+
+end
+
+#.methods - Kernel.methods
+
+def gen_wkt_files()
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  f_point = File.new('RGeoPoints.wkt', 'w+')
+  f_line  = File.new('RGeoLines.wkt', 'w+')
+  f_poly  = File.new('RGeoPolygons.wkt', 'w+')
+
+  col_header = "id : wkt : name\n"
+
+  f_point.write(col_header)
+  f_line.write(col_header)
+  f_poly.write(col_header)
+
+
+  @all_wkt_names.each_with_index do |it, index|
+    wkt  = it[0].as_text
+    name = it[1]
+    case it[0].geometry_type.type_name
+      when 'Point' then
+        f_type = f_point
+      when 'MultiPoint' then
+        f_type = $stdout
+      #when 'Line' or 'LineString' then
+      when /^Line[S]*/ then
+        f_type = f_line
+      when 'MultiLineString' then
+        f_type = $stdout
+      when 'Polygon' then
+        f_type = f_poly
+      when 'MultiPolygon' then
+        f_type = $stdout
+      when 'GeometryCollection' then
+        f_type = $stdout
+      else
+        f_type = $stdout
+      # ignore it for now
+    end
+    f_type.write("#{index} : #{wkt}: #{name}\n")
+  end
+
+  f_point.close
+  f_line.close
+  f_poly.close
+end
 
 def point_methods()
   [:x, :y, :z, :m, :geometry_type, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
