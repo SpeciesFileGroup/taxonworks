@@ -2,10 +2,15 @@ require 'spec_helper'
 
 describe GeographicItem do
 
+  before :all do
+    build_RGeo_objects()
+    gen_wkt_files()
+  end
+
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
-  let(:tw_factory) { ::RGeo::Geos.factory(:srid             => 4326,
-                                          :has_z_coordinate => true,
-                                          :has_m_coordinate => false) }
+  #let(:tw_factory) { ::RGeo::Geos.factory(:srid             => 4326,
+  #                                        :has_z_coordinate => true,
+  #                                        :has_m_coordinate => false) }
   let(:geographic_item) { GeographicItem.new }
 
   context 'on creation' do
@@ -25,93 +30,32 @@ describe GeographicItem do
       end
 
       specify 'A good point' do
-        geographic_item.point = tw_factory.point(-88.241413, 40.091655)
+        geographic_item.point = @tw_factory.point(-88.241413, 40.091655)
         expect(geographic_item.valid?).to be_true
       end
 
       specify 'A good point that didn\'t change.' do
-        geographic_item.point = tw_factory.point(-88.241413, 40.091655)
+        geographic_item.point = @tw_factory.point(-88.241413, 40.091655)
         expect(geographic_item.point.x).to eq -88.241413
       end
 
       specify 'One and only one of point, line_string, etc. is set.' do
-        geographic_item.point   = tw_factory.point(-88.241413, 40.091655)
+        geographic_item.point   = @tw_factory.point(-88.241413, 40.091655)
         geographic_item.polygon = geographic_item.point.buffer(10)
         expect(geographic_item.valid?).to be_false
       end
 
       specify 'A good point that didn\'t change.' do
-        geographic_item.point = tw_factory.point(-88.241413, 40.091655)
+        geographic_item.point = @tw_factory.point(-88.241413, 40.091655)
         expect(geographic_item.point.x).to eq -88.241413
       end
 
     end
   end
 
-  context 'Geographical objects calculations.' do
+  context 'when Geographical objects interact.' do
     before do
-      build_the_objects()
-      gen_wkt_files()
-
-      # build the records
-
-      [@a, @b, @c].each do |v|
-        # this *does NOT* work the way I want it to!
-        v = GeographicItem.new
-      end
-
-      point_in  = @point1
-      point_out = @point17
-
-      @p1  = GeographicItem.new
-      @p10 = GeographicItem.new
-      @p16 = GeographicItem.new
-      @p17 = GeographicItem.new
-
-      @a = GeographicItem.new
-      @c = GeographicItem.new
-      @d = GeographicItem.new
-      @e = GeographicItem.new
-      @f = GeographicItem.new
-      @g = GeographicItem.new
-      @h = GeographicItem.new
-      @k = GeographicItem.new
-      @l = GeographicItem.new
-
-      @all_items = GeographicItem.new
-
-      @p1.point  = point_in
-      @p10.point = @point10
-      @p16.point = @point16
-      @p17.point = point_out
-
-      @a.line_string                 = @shapeA
-      @c.multi_line_string           = @shapeC
-      @d.line_string                 = @shapeD
-      @e.geometry_collection         = @shapeE
-      @f.multi_line_string           = @shapeF
-      @g.multi_polygon               = @shapeG
-      @h.multi_point                 = @shapeH
-      @k.polygon                     = @shapeK
-      @l.line_string                 = @shapeL
-      @all_items.geometry_collection = @everything
-
-      @p1.save!
-      @p10.save!
-      @p16.save!
-      @p17.save!
-
-      @a.save!
-      @c.save!
-      @d.save!
-      @e.save!
-      @f.save!
-      @g.save!
-      @h.save!
-      @k.save!
-      @l.save!
-      @all_items.save!
-
+      gen_db_objects()
     end
 
     specify 'Certain line_string shapes cannot be polygons, others can.' do
@@ -119,8 +63,8 @@ describe GeographicItem do
       @d.reload
       @k.reload
 
-      expect(tw_factory.polygon(@k.object)).to be_nil
-      expect(tw_factory.polygon(@d.object)).not_to be_nil
+      expect(@tw_factory.polygon(@k.object)).to be_nil
+      expect(@tw_factory.polygon(@d.object)).not_to be_nil
 
     end
 
@@ -143,10 +87,10 @@ describe GeographicItem do
       shapeE4 = e0.geometry_n(3)
       shapeE5 = e0.geometry_n(4)
 
-      e1and2 = tw_factory.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
-      e1or2  = tw_factory.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
-      e1and4 = tw_factory.parse_wkt("GEOMETRYCOLLECTION EMPTY")
-      e1or5  = tw_factory.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
+      e1and2 = @tw_factory.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
+      e1or2  = @tw_factory.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
+      e1and4 = @tw_factory.parse_wkt("GEOMETRYCOLLECTION EMPTY")
+      e1or5  = @tw_factory.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
 
       expect(shapeE1.intersects?(shapeE2)).to be_true
       expect(shapeE1.intersects?(shapeE3)).to be_false
@@ -192,10 +136,10 @@ describe GeographicItem do
       f2  = f.geometry_n(1)
       p16 = @p16.object
 
-      p16ona = tw_factory.parse_wkt("POINT (-23.0 18.0 0.0)")
+      p16ona = @tw_factory.parse_wkt("POINT (-23.0 18.0 0.0)")
       expect(a.intersection(p16)).to eq(p16ona)
 
-      f1crosses2 = tw_factory.parse_wkt("POINT (-23.6 -4.0 0.0)")
+      f1crosses2 = @tw_factory.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
       expect(l.intersects?(k)).to be_true
       expect(l.intersects?(e)).to be_false
@@ -227,7 +171,7 @@ describe GeographicItem do
 
       everything = @all_items.object
 
-      convex_hull = tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -33.0 11.0 0.0, -32.0 21.0 0.0, -14.0 23.0 0.0, -2.0 23.0 0.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
+      convex_hull = @tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -33.0 11.0 0.0, -32.0 21.0 0.0, -14.0 23.0 0.0, -2.0 23.0 0.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
 
       expect(everything.convex_hull()).to eq(convex_hull)
 
@@ -237,7 +181,7 @@ describe GeographicItem do
 
   context 'That GeographicItems provide certain methods.' do
     specify 'self.object returns stored data' do
-      p1                    = tw_factory.point(-88.241413, 40.091655, 757)
+      p1                    = @tw_factory.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
       geographic_item.save
       # also 'respond_to'
@@ -290,7 +234,7 @@ end
     end
 =end
 
-def build_the_objects()
+def build_RGeo_objects()
 
   @tw_factory = ::RGeo::Geos.factory(:srid => 4326, :has_m_coordinate => false, :has_z_coordinate => true)
 
@@ -317,7 +261,7 @@ def build_the_objects()
   @point14 = @tw_factory.point(-30, 21)
   @point15 = @tw_factory.point(-25, 18.3)
   @point16 = @tw_factory.point(-23, 18)
-  @point17 = @tw_factory.point(-19.6, -12)
+  @point17 = @tw_factory.point(-19.6, -13)
   @point18 = @tw_factory.point(-7.6, 14.2)
   @point19 = @tw_factory.point(-4.6, 11.9)
   @point20 = @tw_factory.point(-8, -4)
@@ -560,20 +504,23 @@ def gen_wkt_files()
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-      when 'Point' then
+      when 'Point'
         f_type = f_point
-      when 'MultiPoint' then
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
         f_type = $stdout
-      #when 'Line' or 'LineString' then
-      when /^Line[S]*/ then
+      when /^Line[S]*/  #when 'Line' or 'LineString'
         f_type = f_line
-      when 'MultiLineString' then
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
         f_type = $stdout
-      when 'Polygon' then
+      when 'Polygon'
         f_type = f_poly
-      when 'MultiPolygon' then
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
         f_type = $stdout
-      when 'GeometryCollection' then
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
         f_type = $stdout
       else
         f_type = $stdout
@@ -585,6 +532,71 @@ def gen_wkt_files()
   f_point.close
   f_line.close
   f_poly.close
+end
+
+def gen_db_objects()
+  #build_RGeo_objects()
+  #gen_wkt_files()
+
+  # build the records
+
+  [@a, @b, @c].each do |v|
+    # this *does NOT* work the way I want it to!
+    v = GeographicItem.new
+  end
+
+  point_in  = @point1
+  point_out = @point17
+
+  @p1  = GeographicItem.new
+  @p10 = GeographicItem.new
+  @p16 = GeographicItem.new
+  @p17 = GeographicItem.new
+
+  @a = GeographicItem.new
+  @c = GeographicItem.new
+  @d = GeographicItem.new
+  @e = GeographicItem.new
+  @f = GeographicItem.new
+  @g = GeographicItem.new
+  @h = GeographicItem.new
+  @k = GeographicItem.new
+  @l = GeographicItem.new
+
+  @all_items = GeographicItem.new
+
+  @p1.point  = point_in
+  @p10.point = @point10
+  @p16.point = @point16
+  @p17.point = point_out
+
+  @a.line_string                 = @shapeA
+  @c.multi_line_string           = @shapeC
+  @d.line_string                 = @shapeD
+  @e.geometry_collection         = @shapeE
+  @f.multi_line_string           = @shapeF
+  @g.multi_polygon               = @shapeG
+  @h.multi_point                 = @shapeH
+  @k.polygon                     = @shapeK
+  @l.line_string                 = @shapeL
+  @all_items.geometry_collection = @everything
+
+  @p1.save!
+  @p10.save!
+  @p16.save!
+  @p17.save!
+
+  @a.save!
+  @c.save!
+  @d.save!
+  @e.save!
+  @f.save!
+  @g.save!
+  @h.save!
+  @k.save!
+  @l.save!
+  @all_items.save!
+
 end
 
 def point_methods()
