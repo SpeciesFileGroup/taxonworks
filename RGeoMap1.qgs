@@ -4,9 +4,9 @@
     <mapcanvas>
         <units>degrees</units>
         <extent>
-            <xmin>-34.630001</xmin>
+            <xmin>-34.630000</xmin>
             <ymin>-24.991877</ymin>
-            <xmax>33.830001</xmax>
+            <xmax>33.830000</xmax>
             <ymax>24.991877</ymax>
         </extent>
         <projections>0</projections>
@@ -40,6 +40,35 @@
             </filegroup>
         </legendlayer>
     </legend>
+    <Composer title="Composer 3" visible="0">
+        <ComposerMap keepLayerSet="true" id="1" previewMode="Cache" drawCanvasItems="true">
+            <Extent ymin="-24.9919" xmin="-34.63" ymax="24.9919" xmax="36.0613"/>
+            <LayerSet>
+                <Layer>RGeoPoints20130912120925482</Layer>
+                <Layer>RGeoLines20130916092425614</Layer>
+                <Layer>RGeoPolygons20130912120853600</Layer>
+            </LayerSet>
+            <Grid gridStyle="0" crossLength="1" penColorRed="0" penColorBlue="0" intervalX="1" offsetX="0" intervalY="1" offsetY="0" show="1" penWidth="0" penColorGreen="0">
+                <Annotation direction="0" precision="3" position="1" frameDistance="1" show="0" font="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0"/>
+            </Grid>
+            <ComposerItem width="297" x="0" y="0" rotation="0" height="210" frame="true" outlineWidth="0.3" zValue="2" lastValidViewScaleFactor="3.21327" id="" positionLock="false">
+                <FrameColor alpha="255" red="0" blue="0" green="0"/>
+                <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
+            </ComposerItem>
+        </ComposerMap>
+        <ComposerMap keepLayerSet="false" id="0" previewMode="Cache" drawCanvasItems="true">
+            <Extent ymin="-24.9919" xmin="-34.63" ymax="24.9918" xmax="36.2218"/>
+            <LayerSet/>
+            <Grid gridStyle="0" crossLength="1" penColorRed="0" penColorBlue="0" intervalX="1" offsetX="0" intervalY="1" offsetY="0" show="1" penWidth="0" penColorGreen="0">
+                <Annotation direction="0" precision="3" position="1" frameDistance="1" show="0" font="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0"/>
+            </Grid>
+            <ComposerItem width="297.55" x="0.956193" y="0.637462" rotation="0" height="209.912" frame="true" outlineWidth="0.3" zValue="1" lastValidViewScaleFactor="3.21327" id="" positionLock="false">
+                <FrameColor alpha="255" red="0" blue="0" green="0"/>
+                <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
+            </ComposerItem>
+        </ComposerMap>
+        <Composition printResolution="300" paperWidth="297" snapGridOffsetX="0" snapGridResolution="0" snapGridOffsetY="0" snapping="1" paperHeight="210" printAsRaster="0"/>
+    </Composer>
     <projectlayers layercount="3">
         <maplayer minimumScale="0" maximumScale="1e+08" geometry="Line" type="vector" hasScaleBasedVisibilityFlag="0">
             <id>RGeoLines20130916092425614</id>
@@ -230,7 +259,7 @@
                 <symbols>
                     <symbol outputUnit="MM" alpha="1" type="fill" name="0">
                         <layer pass="0" class="SimpleFill" locked="0">
-                            <prop k="color" v="85,255,255,255"/>
+                            <prop k="color" v="200,200,200,255"/>
                             <prop k="color_border" v="0,0,0,255"/>
                             <prop k="offset" v="0,0"/>
                             <prop k="style" v="solid"/>
