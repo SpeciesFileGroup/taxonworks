@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Chrysonym do
+describe Chresonym do
 
-  let(:chrysonym) { Chrysonym.new }
+  let(:chrysonym) { Chresonym.new }
 
   context "validation" do 
     context "requires" do
@@ -15,7 +15,7 @@ describe Chrysonym do
       end
 
       specify "type" do
-        expect(chrysonym.type).to eq('Chrysonym')
+        expect(chrysonym.type).to eq('Chresonym')
       end
     end
 

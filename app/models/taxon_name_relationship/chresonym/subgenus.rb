@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Chrysonym::Subgenus < TaxonNameRelationship::Chrysonym
+class TaxonNameRelationship::Chresonym::Subgenus < TaxonNameRelationship::Chresonym
 end

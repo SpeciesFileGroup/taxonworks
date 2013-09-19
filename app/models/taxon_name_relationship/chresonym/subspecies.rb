@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Chrysonym::Subspecies < TaxonNameRelationship::Chrysonym
+class TaxonNameRelationship::Chresonym::Subspecies < TaxonNameRelationship::Chresonym
 
 
 
