@@ -17,18 +17,17 @@ class TaxonNameRelationship < ActiveRecord::Base
   end 
 
   def subject_properties
-
+    []
   end
 
-  
   def self.valid?(type)
-    ::TAXON_NAME_RELATIONSHIP_NAMES.include(type.to_s)
+    ::TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
   end
 
   protected
 
   def validate_type
-    errors.add(:type, "invalid taxon name relationship") if !::TAXON_NAME_RELATIONSHIPS.valid?(type)
+    errors.add(:type, "invalid taxon name relationship") if !TaxonNameRelationship.valid?(type)
   end
 
 end
