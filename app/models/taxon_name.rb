@@ -1,5 +1,7 @@
 class TaxonName < ActiveRecord::Base
 
+  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
+
   validates_presence_of :rank_class, :type
   validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 

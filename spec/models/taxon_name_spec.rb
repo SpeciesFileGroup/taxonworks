@@ -101,4 +101,10 @@ describe TaxonName do
     end
   end
 
+  context "relations / associations" do 
+    specify "taxon_name_relationships" do
+        expect(taxon_name.taxon_name_relationships).to eq([])
+    end
+  end
+
 end
