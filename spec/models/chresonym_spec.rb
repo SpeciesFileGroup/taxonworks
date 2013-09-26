@@ -40,7 +40,6 @@ describe Chresonym do
       end
 
       specify "has met taxon_name_relationship validation" do
-        debugger
          expect(chresonym.errors.include?("no names")).to be_false
       end
     end
