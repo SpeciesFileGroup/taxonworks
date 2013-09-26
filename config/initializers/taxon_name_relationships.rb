@@ -11,5 +11,5 @@ ICZN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Iczn.descendants.col
 ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s} 
 
 # Array of all TaxonNameRelationship classes, as Strings 
-TAXON_NAME_RELATIONSHIP_NAMES = ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES
+TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.collect{|r| r.to_s} 
 
