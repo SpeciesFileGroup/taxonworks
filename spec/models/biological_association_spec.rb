@@ -12,11 +12,11 @@ describe BiologicalAssociation do
 
       # Is this true? We could generate a name based on properties at that stage.
       specify "object_id" do
-        expect(biological_association.errors.include?(:object_id)).to be_true
+        expect(biological_association.errors.include?(:biological_association_object_id)).to be_true
       end
 
       specify "subject_id" do
-        expect(biological_association.errors.include?(:subject_id)).to be_true
+        expect(biological_association.errors.include?(:biological_association_subject_id)).to be_true
       end
  
       specify "subject_type" do
