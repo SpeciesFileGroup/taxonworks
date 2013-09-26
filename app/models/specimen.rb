@@ -1,17 +1,18 @@
-class Specimen < ActiveRecord::Base
-  include Shared::Identifiable
-  include Shared::Containable
+class Specimen < CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject
 
-  has_many :specimen_determinations
-  has_many :otus, through: :specimen_determinations
-
+  before_validation :check_and_set_total
   validates_presence_of :total 
   validate :value_of_total
 
   protected
 
   def value_of_total 
-    errors.add(:total, "total must be nil") if !self.total.nil?
+    errors.add(:total, "total must be 1") if !self.total == 1
+  end
+
+  def check_and_set_total
+    self.total ||= 1  
+    errors.add(:total, "total must be 1") if !self.total == 1
   end
 
 end

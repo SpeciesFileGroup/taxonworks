@@ -1,0 +1,2 @@
+class CollectionObject::BiologicalCollectionObject::VirtualBiologicalObject < CollectionObject::BiologicalCollectionObject
+end
