@@ -6,7 +6,6 @@ TaxonWorks
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
 
-
 Ruby version
 ------------
 2.0.0 -- also see .ruby-version file
