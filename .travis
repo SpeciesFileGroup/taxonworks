@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+  - 2.0.0
+bundler_args: --without development
+branches:
+  only:
+      - postgres
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libgeos-dev
+  - sudo apt-get install postgis
+before_script:
+  - cp config/config.yml.example config/config.yml
+  - rake db:create:all
+  - rake db:migrate
+  - rake db:migrate HPS_ENV=test
+
