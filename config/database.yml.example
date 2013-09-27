@@ -19,7 +19,7 @@
   end
 %>
 
-#
+# Something like this:
 
 development:
   adapter: mysql2

@@ -13,6 +13,7 @@
 *.swp
 
 /db/schema.rb
+database.yml
 
 # Temporarily
 /Gemfile.lock
