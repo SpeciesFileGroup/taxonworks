@@ -34,9 +34,6 @@ PostgreSQL (tested on 9.3.0), postgis, GEOS
 Configuration
 -------------
 
-
-* Configuration
->>>>>>> README
 use config/database.yml.example for create and customize config/database.yml
 
 * Database creation
