@@ -1,0 +1,14 @@
+language: ruby
+rvm:
+  - 2.0.0
+bundler_args: --without development
+branches:
+  only:
+      - master 
+before_install:
+before_script:
+  - cp config/database.yml.example config/database.yml
+  - rake db:drop:all
+  - rake db:create:all
+  - rake db:migrate
+  - rake db:migrate HPS_ENV=test
