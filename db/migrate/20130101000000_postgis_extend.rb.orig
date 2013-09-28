@@ -1,0 +1,10 @@
+class PostgisExtend < ActiveRecord::Migration
+  def change
+<<<<<<< HEAD
+    #ActiveRecord::Base.connection.execute('CREATE EXTENSION postgis')
+=======
+    # ActiveRecord::Base.connection.execute('CREATE EXTENSION postgis')
+>>>>>>> Commenting out initial migration for postgres, there are various other routes to initially building the database, including just using "rake db:create".  Need to further document building the postgres database with postgis extensions/user setup etc. for linux.
+    # ActiveRecord::Base.connection.execute('CREATE EXTENSION postgis_topology')
+  end
+end
