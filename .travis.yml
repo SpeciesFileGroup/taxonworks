@@ -11,6 +11,7 @@ before_install:
   - sudo apt-get install postgis
   - psql -U postgres -c 'CREATE EXTENSION postgis'
   - sudo service postgresql restart
+  - psql -U postgres postgres  -c 'select rolname, rolsuper from pg_roles'
 before_script:
   - cp config/database.yml.example config/database.yml
   - rake db:drop:all
