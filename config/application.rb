@@ -23,5 +23,10 @@ module TaxonWorks
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+
+    # When using PostGIS adapter make sure schema dumps are in :ruby format not
+    # :sql - because low level :sql will not be correct for spatial db
+    # @see http://dazuma.github.io/activerecord-postgis-adapter/rdoc/Documentation_rdoc.html
+    config.active_record.schema_format :ruby
   end
 end

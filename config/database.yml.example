@@ -24,27 +24,37 @@
 
 development:
   adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
   database: taxonworks_development
-  username: tw
-  password: t0ps3kr3t   
-  <% if unix  %>
-  socket: <%= mysql_socket %>
-  <% end %>
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
-test: 
+test:
   adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
   database: taxonworks_test
-  username: root
-  password:    
-  <% if unix %>
-  socket: <%= mysql_socket %>
-  <% end %>
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
 production:
   adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
   database: taxonworks_production
-  username: root 
-  password: 
-
-
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
