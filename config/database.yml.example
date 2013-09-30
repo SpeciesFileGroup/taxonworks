@@ -10,7 +10,7 @@ development:
   su_username: postgres
   su_password:
 
-test: 
+test:
   adapter: postgis
   encoding: unicode
   postgis_extension: true
@@ -18,7 +18,7 @@ test:
   pool: 5
   database: taxonworks_test
   username: postgres
-  password:    
+  password:
   su_username: postgres
   su_password:
 
@@ -30,7 +30,7 @@ production:
   pool: 5
   database: taxonworks_production
   username: postgres
-  password: 
+  password:
   su_username: postgres
   su_password:
 
