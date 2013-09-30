@@ -52,6 +52,7 @@ end
 
 group :test do
   gem "rspec"
+  gem 'coveralls', '~> 0.7', require: false
 end
 
 gem 'debugger', group: [:development, :test] if not win_os
