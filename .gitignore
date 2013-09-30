@@ -20,6 +20,7 @@ database.yml
 
 # Ignore bundler config.
 /.bundle
+/bin
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
