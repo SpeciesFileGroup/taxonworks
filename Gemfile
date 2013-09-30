@@ -57,7 +57,7 @@ end
 
 gem 'debugger', '~> 1.6', group: [:development, :test] if not win_os
 
-group :development do 
+group :development do
   gem 'awesome_print'
 end
 
