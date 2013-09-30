@@ -57,11 +57,11 @@ end
 
 gem 'debugger', '~> 1.6', group: [:development, :test] if not win_os
 
-group :development do 
+group :development do
   gem 'awesome_print'
 end
 
-gem 'rspec-rails', :group => [:development, :test]
+gem 'rspec-rails', group: [:development, :test]
 
 gem 'awesome_nested_set',  
   tag: '3.0.0.rc.2', 
