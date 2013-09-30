@@ -62,7 +62,9 @@ end
 
 gem "rspec-rails", :group => [:development, :test]
 
-gem 'awesome_nested_set',  git: 'git://github.com/collectiveidea/awesome_nested_set.git' # :tag => 'rails4' ,
+gem 'awesome_nested_set',  
+  tag: '3.0.0.rc.2', 
+  git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 
 # Use ActiveModel has_secure_password
