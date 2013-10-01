@@ -12,10 +12,10 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
- column_factory = RGeo::Geos.factory(native_interface: :ffi,
-                                     :srid => 4326,
-                                     :has_z_coordinate => true,
-                                     :has_m_coordinate => false)
+ column_factory = RGeo::Geos.factory(
+                                     srid: 4326,
+                                     has_z_coordinate: true,
+                                     has_m_coordinate: false)
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
