@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Available::Valid::NomenDubium < ActiveRecord::Base
+class TaxonNameClass::Iczn::Available::Valid::NomenDubium < TaxonNameClass::Iczn::Available::Valid
 end
