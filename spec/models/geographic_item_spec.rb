@@ -4,7 +4,7 @@ describe GeographicItem do
 
   before :all do
     build_RGeo_objects()
-    gen_wkt_files()
+    # gen_wkt_files()
   end
 
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
@@ -236,7 +236,7 @@ end
 
 def build_RGeo_objects()
 
-  @tw_factory = ::RGeo::Geos.factory(:srid => 4326, :has_m_coordinate => false, :has_z_coordinate => true)
+  @tw_factory = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
   @room2024 = @tw_factory.point(-88.241413, 40.091655, 757)
   @room2020 = @tw_factory.point(-88.241421, 40.091565, 757)
