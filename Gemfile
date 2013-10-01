@@ -19,7 +19,7 @@ puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 gem 'rails', '~> 4.0'
 
 # Database
-gem 'pg'
+gem 'pg', '~> 0.17.0'
 gem 'activerecord-postgis-adapter'
 gem 'ffi-geos'
 
