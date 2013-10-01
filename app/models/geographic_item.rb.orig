@@ -1,0 +1,55 @@
+<<<<<<< HEAD
+class Geographic_Item < ActiveRecord::Base
+=======
+class GeographicItem < ActiveRecord::Base
+
+  # Where would one put such code?
+  # RGeo::Geos.preferred_native_interface = :ffi
+  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
+
+  DATA_TYPES = [:point,
+                :line_string,
+                :polygon,
+                :multi_point,
+                :multi_line_string,
+                :multi_polygon,
+                :geometry_collection]
+
+ column_factory = RGeo::Geos.factory(
+                                     srid: 4326,
+                                     has_z_coordinate: true,
+                                     has_m_coordinate: false)
+  DATA_TYPES.each do |t|
+    set_rgeo_factory_for_column(t, column_factory)
+  end
+
+>>>>>>> Try an initializer to set the default factory.
+  belongs_to :geographic_area
+  belongs_to :confidence
+
+  validate :minimal_data_is_provided
+
+  protected
+
+  def minimal_data_is_provided
+    [:a_point,
+     :a_simple_line,
+     :a_complex_line,
+     :a_linear_ring,
+     :a_polygon,
+     :a_multi_point,
+     :a_multi_line_string,
+     :a_multi_polygon,
+     :a_geometry_collection].each do |item|
+      #return true if !self.send(item).blank?
+      if (self.send(item).blank?)
+        # continue checking
+      else
+        return true
+    end
+  end
+
+    error.add(:cached_display, 'Must contain at least one of [a_point, a_line_string, a_polygon, :a_multi_polygon].')
+>>>>>>> Change geo_refs to geographic_items
+end
+end
