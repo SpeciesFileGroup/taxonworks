@@ -13,7 +13,7 @@ Ruby version
 System dependencies
 ------------------- 
 
-PostgreSQL, postgis, GEOS
+PostgreSQL (tested on 9.3.0), postgis, GEOS
   
     # Ubuntu: 
     sudo apt-get install libgeos-dev postgresql postgis
@@ -24,6 +24,12 @@ PostgreSQL, postgis, GEOS
 
     brew install geos
     brew install postgis
+
+### OS x Troubleshooting
+
+* If you get 'library not loaded errors' You may need to rebuild the pg gem.
+* If you get 'json' related errors relinking with 'brew switch json-c 0.10' may help [see][10].
+
     
 Configuration
 -------------
@@ -57,3 +63,4 @@ How to run the test suite
 [7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png
 [8]: https://gemnasium.com/SpeciesFileGroup/taxonworks
 [9]: http://brew.sh/
+[10]: http://stackoverflow.com/questions/18071946/rails-postgis-upgrade-issues
