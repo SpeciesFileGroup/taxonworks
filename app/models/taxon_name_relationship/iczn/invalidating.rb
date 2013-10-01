@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Iczn::Invalidating < ActiveRecord::Base
+class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
 end
