@@ -16,6 +16,7 @@ class GeographicItem < ActiveRecord::Base
                 :geometry_collection]
 
  column_factory = RGeo::Geos.factory(
+				     native_interface: :ffi,
                                      srid: 4326,
                                      has_z_coordinate: true,
                                      has_m_coordinate: false)
@@ -23,7 +24,7 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
->>>>>>> Try an initializer to set the default factory.
+>>>>>>> reintroduced automerges from master
   belongs_to :geographic_area
   belongs_to :confidence
 
