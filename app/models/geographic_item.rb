@@ -13,6 +13,7 @@ class GeographicItem < ActiveRecord::Base
                 :geometry_collection]
 
  column_factory = RGeo::Geos.factory(
+				     native_interface: :ffi,
                                      srid: 4326,
                                      has_z_coordinate: true,
                                      has_m_coordinate: false)
