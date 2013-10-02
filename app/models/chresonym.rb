@@ -1,4 +1,4 @@
-class Chresonym < TaxonName
+class ::Chresonym < TaxonName
 
   before_validation :check_for_at_least_on_taxon_name_relationship_of_type_chresonym
 

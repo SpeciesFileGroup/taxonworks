@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chresonym do
 
-  let(:chresonym) { Chresonym.new }
+  let(:chresonym) { ::Chresonym.new }
 
   context "validation" do 
     context "requires" do
