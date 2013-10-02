@@ -54,13 +54,13 @@ How to run the test suite
 * ...
 
 
-[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png
-[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks
+[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=postgres
+[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=postgres
 [3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=master
-[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=master
-[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png
-[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks
-[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png
-[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks
+[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=postgres
+[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=postgres
+[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=postgres
+[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=postgres
+[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=postgres
 [9]: http://brew.sh/
 [10]: http://stackoverflow.com/questions/18071946/rails-postgis-upgrade-issues

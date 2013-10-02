@@ -7,8 +7,8 @@ module ApplicationEnumeration
   # Return all models in the /app/models/#{klass.name} (not necessarily inheriting) as an Array of Classes.
   # Used in Ranks.
   def self.all_submodels(klass)
-      Dir.glob(Rails.root + "app/models/#{klass.name.underscore}/**/*.rb").collect{|a| self.model_from_file_name(a) }
-    end
+    Dir.glob(Rails.root + "app/models/#{klass.name.underscore}/**/*.rb").collect{|a| self.model_from_file_name(a) }
+  end
 
   # Return the Class represented by a path included filename from /app/models.
   # e.g. given 'app/models/specimen.rb' the Specimen class is returned
@@ -19,4 +19,3 @@ module ApplicationEnumeration
   # Note the use of Module.nesting (http://urbanautomaton.com/blog/2013/08/27/rails-autoloading-hell/)
 
 end
-
