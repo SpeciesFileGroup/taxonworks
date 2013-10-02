@@ -65,8 +65,10 @@ gem "rspec-rails", :group => [:development, :test]
 
 gem 'awesome_nested_set',  
   tag: '3.0.0.rc.2', 
-  git: 'https://github.com/collectiveidea/awesome_nested_set.git'
+  git: 'http://github.com/collectiveidea/awesome_nested_set.git'
 
+# gem for decoding & encoding .bib files (BibTex bibliography files)
+gem 'bibtex-ruby'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
