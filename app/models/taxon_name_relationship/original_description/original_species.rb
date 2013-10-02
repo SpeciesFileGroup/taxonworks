@@ -1,2 +1,2 @@
-class TaxonNameRelationship::OriginalDescription::OriginalSpecies < ActiveRecord::Base
+class TaxonNameRelationship::OriginalDescription::OriginalSpecies < TaxonNameRelationship::OriginalDescription
 end

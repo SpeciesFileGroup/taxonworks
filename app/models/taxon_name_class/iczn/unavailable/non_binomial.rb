@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Unavailable::NonBinomial < ActiveRecord::Base
+class TaxonNameClass::Iczn::Unavailable::NonBinomial < TaxonNameClass::Iczn::Unavailable
 end

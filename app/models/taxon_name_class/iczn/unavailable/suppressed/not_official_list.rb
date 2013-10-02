@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Unavailable::Suppressed::NotOfficialList < ActiveRecord::Base
+class TaxonNameClass::Iczn::Unavailable::Suppressed::NotOfficialList < TaxonNameClass::Iczn::Unavailable::Suppressed
 end

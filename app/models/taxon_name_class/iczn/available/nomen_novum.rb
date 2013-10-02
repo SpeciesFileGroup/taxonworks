@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Available::NomenNovum < ActiveRecord::Base
+class TaxonNameClass::Iczn::Available::NomenNovum < TaxonNameClass::Iczn::Available
 end

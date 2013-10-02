@@ -33,7 +33,7 @@ describe 'Ranks' do
       specify "top_rank returns top assignable rank" do
         # The top two levels 
         expect(Ranks.top_rank(NomenclaturalRank::Iczn)).to eq(NomenclaturalRank::Iczn::Ungoverned::Superkingdom)
-        expect(Ranks.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::Governed::HigherName::Regnum)
+        expect(Ranks.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::Governed::AboveFamily::Regnum)
 
         # Behaviour is a little different
         expect(Ranks.top_rank(NomenclaturalRank::Iczn::Governed::FamilyGroup)).to eq(NomenclaturalRank::Iczn::Governed::FamilyGroup::SuperfamilyGroup)

@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Icn < ActiveRecord::Base
+class TaxonNameRelationship::Icn < TaxonNameRelationship
 end

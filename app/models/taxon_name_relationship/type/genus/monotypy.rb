@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Type::Genus::Monotypy < ActiveRecord::Base
+class TaxonNameRelationship::Type::Genus::Monotypy < TaxonNameRelationship::Type::Genus
 end
