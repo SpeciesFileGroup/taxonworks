@@ -19,6 +19,11 @@ puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 gem 'rails', '4.0.0'
 
 # Database
+# make sure that gemfile.lock contains the following 2 lines:
+# mysql2 (0.3.11)
+# mysql2 (0.3.11-x86-mingw32)
+# both are needed to run properly
+
 gem 'mysql2', '0.3.11'
 
 # Testing
@@ -52,6 +57,7 @@ end
 
 group :test do
   gem "rspec"
+  gem 'coveralls', '~> 0.7', require: false
 end
 
 gem 'debugger', group: [:development, :test] if not win_os
@@ -62,8 +68,12 @@ end
 
 gem "rspec-rails", :group => [:development, :test]
 
-gem 'awesome_nested_set', :tag => 'rails4' , git: 'git://github.com/collectiveidea/awesome_nested_set.git'
+gem 'awesome_nested_set',  
+  tag: '3.0.0.rc.2', 
+  git: 'http://github.com/collectiveidea/awesome_nested_set.git'
 
+# gem for decoding & encoding .bib files (BibTex bibliography files)
+gem 'bibtex-ruby'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

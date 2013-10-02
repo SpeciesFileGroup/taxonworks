@@ -13,12 +13,14 @@
 *.swp
 
 /db/schema.rb
+database.yml
 
 # Temporarily
 /Gemfile.lock
 
 # Ignore bundler config.
 /.bundle
+/bin
 
 # Ignore all logfiles and tempfiles.
 /log/*.log

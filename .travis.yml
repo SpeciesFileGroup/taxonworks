@@ -1,0 +1,20 @@
+language: ruby
+rvm:
+  - 2.0.0
+branches:
+  only:
+      - master
+# before_install:
+#   - sudo apt-get update
+#   - sudo apt-get install libgeos-dev
+#   - sudo apt-get install postgis
+#   - psql -U postgres -c 'CREATE EXTENSION postgis'
+#   - sudo service postgresql restart
+#   - psql -U postgres postgres  -c 'select rolname, rolsuper from pg_roles'
+before_script:
+  - cp config/database.yml.example config/database.yml
+  - rake db:drop:all
+  - rake db:create:all
+  - rake db:migrate
+  - rake db:migrate HPS_ENV=test
+
