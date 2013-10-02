@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Type::Genus::Tautonomy < ActiveRecord::Base
+class TaxonNameRelationship::Type::Genus::Tautonomy < TaxonNameRelationship::Type::Genus
 end
