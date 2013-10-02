@@ -36,7 +36,7 @@ TaxonWorks::Application.configure do
 
   # Added by MJY.  This touches all classes so they are available.
   # TODO: test for need in production.
-  Rails.application.eager_load!
+  # Rails.application.eager_load!
 
-
+  require 'taxonworks'
 end
