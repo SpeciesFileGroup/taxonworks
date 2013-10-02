@@ -38,5 +38,5 @@ TaxonWorks::Application.configure do
   # TODO: test for need in production.
   # Rails.application.eager_load!
 
-
+  require 'taxonworks'
 end

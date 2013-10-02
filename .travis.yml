@@ -1,0 +1,18 @@
+language: ruby
+rvm:
+  - 2.0.0
+bundler_args: --without development
+branches:
+  only:
+      - master
+      - postgres
+before_install:
+  - sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
+  - sudo apt-get update
+  - apt-get install -qq libgeos-dev libproj-dev libgeos++-dev
+  - postgresql-9.1-postgis 
+before_script:
+  - cp config/database.yml.example config/database.yml
+  - rake db:drop:all
+  - rake db:create:all
+  - rake db:migrate
