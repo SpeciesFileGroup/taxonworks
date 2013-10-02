@@ -18,6 +18,9 @@ database.yml
 # Temporarily
 /Gemfile.lock
 
+# Ignore rvm gemset configuration
+/.ruby-gemset
+
 # Ignore bundler config.
 /.bundle
 /bin
