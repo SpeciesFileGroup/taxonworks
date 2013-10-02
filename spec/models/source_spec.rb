@@ -5,7 +5,7 @@ describe Source do
 
   before do
     @bibtex_file = File.read(Rails.root + "spec/files/Taenionema.bib")
-# @bibtex_records = Beth, figure it out!  Is this an array of all records? We need to cycle through them.
+    @bibtex_records = 'Beth, figure it out!  Is this an array of all records? We need to cycle through them.'
   end
 
   context "Bibtex configuration" do
@@ -32,18 +32,13 @@ describe Source do
 
   context "on save" do
     before do
-      source.update_attributes(@bibtex_records.first.to_hash)
+      # source.update_attributes(@bibtex_records.first.to_hash)
       source.save
     end
   end
 
   context "instance methods" do
-   expect "source_to_bibtex to create valid bibtex record"
-
-
-
-
+    pending "source_to_bibtex to create valid bibtex record"
   end
-
 
 end
