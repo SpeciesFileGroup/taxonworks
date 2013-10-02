@@ -35,3 +35,5 @@ index.html
 /doc
 
 .DS_store
+
+coverage/
