@@ -30,3 +30,5 @@ index.html
 
 # Ignore rdoc folder
 /doc
+
+.DS_store
