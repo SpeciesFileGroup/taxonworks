@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Iczn::Validating::JustifiedEmendation < TaxonNameRelationship::Iczn::Validating
+class TaxonNameRelationship::Iczn::Legitimating::JustifiedEmendation < TaxonNameRelationship::Iczn::Legitimating
 end
