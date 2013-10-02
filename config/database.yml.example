@@ -1,49 +1,36 @@
-<%
-  # TODO: Fix, this is a horrible hack to determine mac or PC
-  unix = ENV['rvm_bin_path'] 
-%>
-
-<% 
-  # Loop over all these possible mysql sockets, and see if they
-  mysql_socket =
-  [ "/var/run/mysqld/mysqld.sock",
-  "/tmp/mysql.sock",
-  "/var/mysql/mysql.sock"
-  ].detect {|socket_path| File.exists?(socket_path)}
-  if !mysql_socket && !unix.nil?
-    puts "*"*80
-    puts "*"*80
-    puts "Potential problem with db/database.yml. Can't locate mysql socket file. Is MySQL correctly installed?"
-    puts "*"*80
-    puts "*"*80
-  end
-%>
-
-# Something like this:
-
 development:
-  adapter: mysql2
-  database: taxonworks_development 
-  username: root
-  password:   
-  <% if unix  %>
-  socket: <%= mysql_socket %>
-  <% end %>
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
+  database: taxonworks_development
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
-test: 
-  adapter: mysql2
+test:
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
   database: taxonworks_test
-  username: root
-  password:    
-  <% if unix %>
-  socket: <%= mysql_socket %>
-  <% end %>
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
 production:
-  adapter: mysql2
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: true
+  schema_search_path: public,postgis
+  pool: 5
   database: taxonworks_production
-  username: root 
-  password: 
-
-
+  username: postgres
+  password:
+  su_username: postgres
+  su_password:
 
