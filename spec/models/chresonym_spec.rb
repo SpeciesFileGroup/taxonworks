@@ -46,5 +46,4 @@ describe Chresonym do
 
   end
 
-
 end

@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Available < ActiveRecord::Base
+class TaxonNameClass::Iczn::Available < TaxonNameClass::Iczn
 end

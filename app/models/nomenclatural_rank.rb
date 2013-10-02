@@ -7,9 +7,20 @@ class NomenclaturalRank
 
   # These Constants must be accessed by their corresponding 
   # class method.
-  
+
   # Should the rank be displayed in "typical" use?
   COMMON     = true
+
+  def self.top_rank(rank)
+    all = rank.descendants 
+    all.select!{|r| !r.parent_rank.nil?}
+    all.each do |r| 
+      return r if not all.include?(r.parent_rank)  
+    end
+  end
+
+
+
 
   # Return a String with the "common" name for this rank. 
   def self.rank_name
@@ -30,7 +41,7 @@ class NomenclaturalRank
   def self.abbreviations
     []
   end
-  
+
   def self.common?
     self::COMMON
   end
