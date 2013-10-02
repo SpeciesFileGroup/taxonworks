@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Icn::Invalidating::Homonym < TaxonNameRelationship::Icn::Invalidating
+class  TaxonNameRelationship::Icn::Illegitimating::Homonym <  TaxonNameRelationship::Icn::Illegitimating
 end
