@@ -27,6 +27,5 @@ TaxonWorks::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
-  # Added by MJY.  This touches all classes so they are available.
-  Rails.application.eager_load!
+  require 'taxonworks'
 end
