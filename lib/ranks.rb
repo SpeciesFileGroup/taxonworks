@@ -20,7 +20,7 @@ module Ranks
     return false if rank == NomenclaturalRank || (rank.class.name =~ /NomenclaturalRank/)
     ordered = []
     top = Ranks.top_rank(rank)
-    all = ApplicationEnumeration.all_submodels(rank)
+    all = rank.descendants # ApplicationEnumeration.all_submodels(rank)
     all.select!{|r| !r.parent_rank.nil?}
     ordered.push(top)
     return [] if all.size == 0
