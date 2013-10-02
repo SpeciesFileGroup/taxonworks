@@ -5,6 +5,7 @@ describe GeographicItem do
   before :all do
     build_RGeo_objects()
     # gen_wkt_files()
+    gen_db_objects()
   end
 
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
