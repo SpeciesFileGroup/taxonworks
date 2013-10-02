@@ -10,7 +10,7 @@ TaxonWorks::Application.configure do
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
-  config.eager_load = false
+  config.eager_load = false 
 
   # Configure static asset server for tests with Cache-Control for performance.
   config.serve_static_assets  = true
@@ -36,7 +36,7 @@ TaxonWorks::Application.configure do
 
   # Added by MJY.  This touches all classes so they are available.
   # TODO: test for need in production.
-  Rails.application.eager_load!
+  # Rails.application.eager_load!
 
 
 end
