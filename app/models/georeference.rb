@@ -1,4 +1,9 @@
 class Georeference < ActiveRecord::Base
+
+  belongs_to :collecting_event
+
+  has_one :geographic_item
+
   validate :proper_data_is_provided
 
   protected
