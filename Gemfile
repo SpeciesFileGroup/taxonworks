@@ -62,15 +62,15 @@ end
 
 gem 'debugger', group: [:development, :test] if not win_os
 
-group :development do 
+group :development do
   gem 'awesome_print'
 end
 
 gem "rspec-rails", :group => [:development, :test]
 
-gem 'awesome_nested_set',  
-  tag: '3.0.0.rc.2', 
-  git: 'http://github.com/collectiveidea/awesome_nested_set.git'
+gem 'awesome_nested_set',
+    tag: '3.0.0.rc.2',
+    git: 'http://github.com/collectiveidea/awesome_nested_set.git'
 
 # gem for decoding & encoding .bib files (BibTex bibliography files)
 gem 'bibtex-ruby'
@@ -79,7 +79,7 @@ gem 'bibtex-ruby'
 gem 'bcrypt-ruby', '~> 3.0.0'
 
 # gem for dumping DwC-A archives
-gem "dwc-archive", "~> 0.9.6"
+#gem "dwc-archive", "~> 0.9.6"
 
 # Use unicorn as the app server
 # gem 'unicorn'
