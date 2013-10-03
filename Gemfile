@@ -76,7 +76,10 @@ gem 'awesome_nested_set',
 gem 'bibtex-ruby'
 
 # Use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt-ruby', '~> 3.0.0'
+
+# gem for dumping DwC-A archives
+gem "dwc-archive", "~> 0.9.6"
 
 # Use unicorn as the app server
 # gem 'unicorn'
