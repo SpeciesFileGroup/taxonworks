@@ -34,9 +34,6 @@ TaxonWorks::Application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
-  # Added by MJY.  This touches all classes so they are available.
-  # TODO: test for need in production.
-  # Rails.application.eager_load!
 
   require 'taxonworks'
 end

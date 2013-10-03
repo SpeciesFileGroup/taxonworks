@@ -5,4 +5,11 @@ class Source < ActiveRecord::Base
     #
   end
 
+  protected
+  def source_to_bibtex
+    false   # What goes in this method? Some magic, I expect.
+  end
+
+
+
 end

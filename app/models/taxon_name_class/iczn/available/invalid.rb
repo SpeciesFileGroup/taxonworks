@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Available::Invalid < TaxonNameClass::Iczn::Availabl
+class TaxonNameClass::Iczn::Available::Invalid < TaxonNameClass::Iczn::Available
 end

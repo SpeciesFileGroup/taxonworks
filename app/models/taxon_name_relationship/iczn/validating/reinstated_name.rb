@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Iczn::Legitimating::ReinstatedName < TaxonNameRelationship::Iczn::Legitimating
+class TaxonNameRelationship::Iczn::Validating::ReinstatedName < TaxonNameRelationship::Iczn::Validating
 end

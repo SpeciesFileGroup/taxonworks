@@ -1,2 +1,2 @@
-class TaxonNameRelationship::Iczn::Legitimating::UncertainPlacement < TaxonNameRelationship::Iczn::Legitimating
+class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRelationship::Iczn::Validating
 end
