@@ -10,6 +10,8 @@ class Source::Import < Source
 
   def bibtex2tw
     # Move the BibTeX records into TaxonWorks records
+    # input BibTeX-ruby bibliography (hash)
+    # output TaxonWorks source records (hash?, array?)
   end
 
   # Save a TaxonWorks record
