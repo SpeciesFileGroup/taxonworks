@@ -29,7 +29,7 @@ describe Identifier do
       end
 
       specify "type" do
-        expect(identifier.errors.include?(:type)).to be_true
+        expect(identifier.errors.include?(:typification)).to be_true
       end
     end
   end

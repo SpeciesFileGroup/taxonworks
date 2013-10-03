@@ -5,4 +5,5 @@ class NomenclaturalRank::Iczn::Governed::GenusGroup::Infragenus < NomenclaturalR
   end
 
 
+
 end

@@ -78,6 +78,9 @@ gem 'bibtex-ruby'
 # Use ActiveModel has_secure_password
 gem 'bcrypt-ruby', '~> 3.0.0'
 
+# gem for dumping DwC-A archives
+gem "dwc-archive", "~> 0.9.6" if not win_os
+
 # Use unicorn as the app server
 # gem 'unicorn'
 

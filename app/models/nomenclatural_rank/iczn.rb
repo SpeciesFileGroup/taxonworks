@@ -1,5 +1,5 @@
 class NomenclaturalRank::Iczn < NomenclaturalRank
 
-  COMMON = false 
+  #COMMON = false
 
 end

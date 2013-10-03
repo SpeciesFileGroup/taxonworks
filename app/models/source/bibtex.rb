@@ -1,7 +1,5 @@
 class Source::Bibtex < Source 
 
-  # Bibtex.entity.type == bibtex_type
-
   BIBTEX_FIELDS = [
     :address,
     :annote,             
@@ -59,13 +57,11 @@ class Source::Bibtex < Source
     s = Source::Bibtex.new(
       bibtex_type: bibtex_entry.type.to_s,
     )
-
     bibtex_entry.fields.each do |key,value|
-     s[key] = value.to_s
+      s[key] = value.to_s
     end
     s
   end
 
 end
-
 
