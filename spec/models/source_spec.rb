@@ -12,6 +12,10 @@ describe Source do
       expect(@bibtex_records.size).to eq(42)
     end
 
+    specify "the first record has 4 fields populated" do
+      expect(@bibtex_records.first.fields.keys.size).to eq(4)
+    end
+
     specify "title of first record is 'A Monograph of the Plecoptera or Stoneflies of America North of America'" do
       expect(@bibtex_records.first.title).to eq('A Monograph of the Plecoptera or Stoneflies of America North of America')
     end
