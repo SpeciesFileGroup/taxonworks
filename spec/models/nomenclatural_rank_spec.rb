@@ -24,6 +24,17 @@ describe NomenclaturalRank do
     specify "top_rank" do
       expect(respond_to(:top_rank)).to be_true
     end
+    
+    # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 
+    #       We need to decide which one should be implementing this method.
+    specify "top_rank returns top assignable rank" do
+      # The top two levels 
+      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn)).to eq(NomenclaturalRank::Iczn::Ungoverned::Superkingdom)
+      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::Governed::AboveFamily::Regnum)
+
+      # Behaviour is a little different
+      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn::Governed::FamilyGroup)).to eq(NomenclaturalRank::Iczn::Governed::FamilyGroup::SuperfamilyGroup)
+    end    
   end
   
   context 'relation properties' do
