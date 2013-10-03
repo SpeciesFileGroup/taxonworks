@@ -1,0 +1,58 @@
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1"
+    xmlns:md="eml://ecoinformatics.org/methods-2.1.1"
+    xmlns:proj="eml://ecoinformatics.org/project-2.1.1"
+    xmlns:d="eml://ecoinformatics.org/dataset-2.1.1"
+    xmlns:res="eml://ecoinformatics.org/resource-2.1.1"
+    xmlns:dc="http://purl.org/dc/terms/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0/eml.xsd"
+    xml:lang="eng">
+
+   <dataset>
+      <title xml:lang="eng">Plecoptera Species File</title>
+      <creator>
+         <positionName>Plecoptera Species File Curator</positionName>
+      </creator>
+      <metadataProvider>
+         <organizationName>Species File Group</organizationName>
+
+         <electronicMailAddress>speciesfilegroup@listserv.illinois.edu</electronicMailAddress>
+         <onlineUrl>http://software.speciesfile.org</onlineUrl>
+      </metadataProvider>
+
+      <language>eng</language>
+      <abstract>
+
+         <para>
+            This file contains taxon names and related nomenclatural information for the order Plecoptera originating from the Plecoptera Species File maintained by the Species File Group (http://software.speciesfile.org) at the University of Illinois, Illinois Natural History Survey.
+         </para>
+      </abstract>
+      <coverage>
+         <geographicCoverage>
+            <geographicDescription>World coverage</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-180</westBoundingCoordinate>
+               <eastBoundingCoordinate>180</eastBoundingCoordinate>
+
+               <northBoundingCoordinate>90</northBoundingCoordinate>
+               <southBoundingCoordinate>-90</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+      </coverage>
+      <contact>
+         <organizationName>Species File Group</organizationName>
+
+         <electronicMailAddress>speciesfilegroup@listserv.illinois.edu</electronicMailAddress>
+         <onlineUrl>http://plecoptera.speciesfile.org/</onlineUrl>
+      </contact>
+   </dataset>
+   <additionalMetadata>
+      <metadata>
+         <gbif>
+            <hierarchyLevel>dataset</hierarchyLevel>
+            <livingTimePeriod>all</livingTimePeriod>
+            <formationPeriod>all</formationPeriod>
+         </gbif>
+      </metadata>
+   </additionalMetadata>
+</eml:eml>
