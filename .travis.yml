@@ -8,6 +8,5 @@ branches:
 before_install: ./travis/before_install.sh
 before_script:
   - cp config/database.yml.example config/database.yml
-  - rake db:drop:all
   - rake db:create:all
   - rake db:migrate
