@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<archive xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://rs.tdwg.org/dwc/text/tdwg_dwc_text.xsd" metadata="eml.xml" xmlns="http://rs.tdwg.org/dwc/text/">
+   <core encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+      <files>
+         <location>taxa.csv</location>
+      </files>
+      <id index="0" />
+      <field index="0" term="http://rs.tdwg.org/dwc/terms/taxonID" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsageID" />
+      <field index="2" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID" />
+      <field index="3" term="http://rs.tdwg.org/dwc/terms/scientificName" />
+      <field index="4" term="http://rs.tdwg.org/dwc/terms/scientificNameAuthorship" />
+      <field index="5" term="http://rs.tdwg.org/dwc/terms/taxonRank" vocabulary="http://rs.gbif.org/vocabulary/gbif/rank" />
+      <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus" vocabulary="http://rs.gbif.org/vocabulary/gbif/taxonomicStatus/" />
+      <field index="7" term="http://rs.tdwg.org/dwc/terms/nomenclaturalStatus" vocabulary="http://rs.gbif.org/vocabulary/gbif/nomenclatural_status" />
+      <field index="8" term="http://rs.tdwg.org/dwc/terms/namePublishedIn" />
+      <field index="9" term="http://rs.tdwg.org/dwc/terms/taxonRemarks" />
+      <field index="10" term="http://purl.org/dc/terms/modified" />
+      <field default="ICZN" term="http://rs.tdwg.org/dwc/terms/nomenclaturalCode" vocabulary="http://rs.gbif.org/vocabulary/gbif/nomenclatural_code" />
+      <field default="Animalia" term="http://rs.tdwg.org/dwc/terms/kingdom" />
+   </core>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Description">
+      <files>
+         <location>description.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://purl.org/dc/terms/type" vocabulary="http://rs.gbif.org/vocabulary/gbif/descriptionType" />
+      <field index="2" term="http://purl.org/dc/terms/description" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Distribution">
+      <files>
+         <location>distribution.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/locationID" />
+      <field index="2" term="http://rs.tdwg.org/dwc/terms/locality" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Image">
+      <files>
+         <location>images.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://purl.org/dc/terms/identifier" />
+      <field index="2" term="http://purl.org/dc/terms/description" />
+      <field default="jpeg" term="http://purl.org/dc/terms/format" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Reference">
+      <files>
+         <location>literature.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://purl.org/dc/terms/title" />
+      <field index="2" term="http://purl.org/dc/terms/source" />
+      <field index="3" term="http://purl.org/dc/terms/creator" />
+      <field index="4" term="http://purl.org/dc/terms/date" />
+      <field index="5" term="http://purl.org/dc/terms/type" vocabulary="http://rs.gbif.org/vocabulary/gbif/referenceType" />
+      <field index="6" term="http://purl.org/dc/terms/bibliographicCitation" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/SpeciesProfile">
+      <files>
+         <location>speciesProfile.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://rs.gbif.org/terms/1.0/isExtinct" vocabulary="http://rs.gbif.org/vocab/boolean/" />
+      <field index="2" term="http://rs.gbif.org/terms/1.0/livingPeriod" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/TypesAndSpecimen">
+      <files>
+         <location>types.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/typeStatus" vocabulary="http://rs.gbif.org/vocabulary/gbif/type_status" />
+      <field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName" />
+      <field index="3" term="http://rs.tdwg.org/dwc/terms/sex" vocabulary="http://rs.gbif.org/vocabulary/gbif/sex" />
+      <field index="4" term="http://rs.tdwg.org/dwc/terms/locality" />
+      <field index="5" term="http://rs.tdwg.org/dwc/terms/verbatimLatitude" />
+      <field index="6" term="http://rs.tdwg.org/dwc/terms/verbatimLongitude" />
+      <field index="7" term="http://rs.tdwg.org/dwc/terms/institutionCode" />
+      <field index="8" term="http://rs.tdwg.org/dwc/terms/catalogNumber" />
+      <field index="9" term="http://rs.tdwg.org/dwc/terms/recordedBy" />
+      <field index="10" term="http://rs.tdwg.org/dwc/terms/verbatimEventDate" />
+      <field index="11" term="http://rs.gbif.org/terms/1.0/typeDesignatedBy" />
+   </extension>
+   <extension encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/VernacularName">
+      <files>
+         <location>vernacular.csv</location>
+      </files>
+      <coreid index="0" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/vernacularName" />
+      <field index="2" term="http://purl.org/dc/terms/language" />
+   </extension>
+</archive>
