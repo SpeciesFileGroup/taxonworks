@@ -24,8 +24,8 @@ describe Source do
       expect(@bibtex_records.first.type).to eq(:book)
     end
 
-    specify "first record address is 'Lafayette, IN'" do
-      expect(@bibtex_records.first.address).to eq('Lafayette, IN')
+    specify "first record address is 'Lafayette, {IN}'" do
+      expect(@bibtex_records.first.address).to eq('Lafayette, {IN}')
     end
 
     specify "first record publisher is 'The Thomas Say Foundation'" do
@@ -53,7 +53,7 @@ describe Source do
     end
 
     specify "second record journal is 'Canadian Journal of Zoology'" do
-      expect(@bibtex_records[1].journal).to eq('Candian Journal of Zoology')
+      expect(@bibtex_records[1].journal).to eq('Canadian Journal of Zoology')
     end
 
     specify "second record year is '1975'" do
@@ -61,7 +61,7 @@ describe Source do
     end
 
     specify "second record pages is '132–153'" do
-      expect(@bibtex_records[1].pages).to eq('132-153')
+      expect(@bibtex_records[1].pages).to eq('132–153')
     end
 
     specify "fourth record pubtype is 'incollection'" do
@@ -81,7 +81,7 @@ describe Source do
     end
 
     specify "last record urldate is '2010-12-06'" do
-      expect(@bibtex_records[-1].date).to eq('2010-12-06')
+      expect(@bibtex_records[-1].urldate).to eq('2010-12-06')
     end
   end
 
