@@ -26,6 +26,8 @@ class Georeference < ActiveRecord::Base
         errors.add(:georef, 'ID must be from item of class CollectingEvent.')
       when GeographicItem.find(error_geographic_item_id).geometry_type.type_name != 'Polygon'
         errors.add(:georef, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
+      when GeorefeenceType.find(type).to_s != 'Georeference::GeoreferenceType'
+        errors.add(:georef, 'type must be of class Georeference::GeoreferenceType.')
       else
         true
     end
