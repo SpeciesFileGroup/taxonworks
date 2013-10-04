@@ -18,9 +18,11 @@ before_install:
   - sudo apt-get install libgeos++-dev
   - sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install postgresql-9.2 postgresql-contrib-9.2 -qq
   - sudo ./travis/psql_perms
+  - sudo cat /etc/postgresql/9.2/main/pg_hba.conf
   - sudo /etc/init.d/postgresql stop
   - sudo /etc/init.d/postgresql start
 before_script:
   - cp config/database.yml.example config/database.yml
   - rake db:create:all
+  - psql -U postgres -d taxonworks_test -c "CREATE EXTENSION postgis;"
   - rake db:migrate
