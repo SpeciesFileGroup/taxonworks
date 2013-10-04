@@ -12,11 +12,8 @@ class NomenclaturalRank
   COMMON     = true
 
   def self.top_rank(rank)
-    all = rank.descendants 
-    all.select!{|r| !r.parent_rank.nil?}
-    all.each do |r| 
-      return r if not all.include?(r.parent_rank)  
-    end
+    all = rank.descendants
+    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
   end
 
 

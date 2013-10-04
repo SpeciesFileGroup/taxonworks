@@ -12,7 +12,7 @@ describe Role do
         expect(role.errors.include?(:person_id)).to be_true
       end
      specify "type" do
-        expect(role.errors.include?(:typification)).to be_true
+        expect(role.errors.include?(:type)).to be_true
       end
       specify "role_object_id" do
         expect(role.errors.include?(:role_object_id)).to be_true

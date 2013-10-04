@@ -95,7 +95,7 @@ describe TaxonName do
     end
   end
 
-  context "heirarchy" do
+  context "hierarchy" do
     specify "a given hierarchy has only one root" do
       pending "requires nested set base"
     end

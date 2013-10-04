@@ -49,12 +49,12 @@ How to run the test suite
 * ...
 
 
-[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png
-[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks
+[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
+[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
 [3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=master
 [4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=master
-[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png
-[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks
-[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png
-[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks
+[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=master
+[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=master
+[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
+[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
 [9]: http://brew.sh/
