@@ -6,9 +6,8 @@ branches:
   only:
       - postgres
 before_install: ./travis/before_install.sh
-before_script:
+before_script: 
   - cp config/database.yml.example config/database.yml
   - rake db:create:all
-  - psql -U postgres -d taxonworks_development -c "CREATE EXTENSION postgis;"
-  - psql -U postgres -d taxonworks_test -c "CREATE EXTENSION postgis;"
-  - rake db:migrate
+  - ./travis/before_script.sh
+  - rake db:migrate 
