@@ -4,25 +4,25 @@ describe NomenclaturalRank do
 
   context 'base methods' do
     specify "rank_name" do
-      expect(respond_to(:rank_name)).to be_true
+      expect(NomenclaturalRank).respond_to(:rank_name)
     end
 
     # TODO: can NomenclaturalRank be abstracted out as "subject" or similar
     specify "abbreviations" do
-      expect(respond_to(:abbreviations)).to be_true
+      expect(NomenclaturalRank).to respond_to(:abbreviations)
       expect(NomenclaturalRank.abbreviations).to eq([])
     end
 
     specify "common?" do
-      expect(respond_to(:common?)).to be_true
+      expect(NomenclaturalRank).to respond_to(:common?)
     end
 
     specify "parent_rank" do
-      expect(respond_to(:parent_rank)).to be_true
+      expect(NomenclaturalRank).to respond_to(:parent_rank)
     end
     
     specify "top_rank" do
-      expect(respond_to(:top_rank)).to be_true
+      expect(NomenclaturalRank).to respond_to(:top_rank)
     end
     
     # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 
