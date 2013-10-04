@@ -1,4 +1,4 @@
-class Source::Import < Source
+class BibtexImport
 
 
   def bibtex_read (input_file)

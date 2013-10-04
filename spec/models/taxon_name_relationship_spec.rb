@@ -19,7 +19,7 @@ describe TaxonNameRelationship do
       end
 
       specify "type" do
-        expect(taxon_name_relationship.errors.include?(:typification)).to be_true
+        expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
     end
 
@@ -28,7 +28,7 @@ describe TaxonNameRelationship do
       specify "invalid when not a TaxonNameRelationship" do
         taxon_name_relationship.type = "foo"
         taxon_name_relationship.valid?
-        expect(taxon_name_relationship.errors.include?(:typification)).to be_true
+        expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
 
       specify "valid when a TaxonNameRelationship" do

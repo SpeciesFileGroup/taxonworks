@@ -4,6 +4,4 @@ class NomenclaturalRank::Iczn::Governed::SpeciesGroup::SpeciesSeries < Nomenclat
     NomenclaturalRank::Iczn::Governed::GenusGroup::Infragenus
   end
 
-
-
 end

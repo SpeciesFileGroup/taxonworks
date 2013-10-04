@@ -17,7 +17,7 @@ describe TaxonNameClassification do
       end
 
       specify "type" do
-        expect(taxon_name_classification.errors.include?(:typification)).to be_true
+        expect(taxon_name_classification.errors.include?(:type)).to be_true
       end
 
     end

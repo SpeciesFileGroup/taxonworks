@@ -8,13 +8,10 @@ module Ranks
   # TODO: check this now that Ranks moved to initializers.
 
   # Returns a NomenclaturalRank Class, the highest assignable for the rank Class passed.
- def self.top_rank(rank)
-   all = rank.descendants 
-   all.select!{|r| !r.parent_rank.nil?}
-   all.each do |r| 
-     return r if not all.include?(r.parent_rank)  
-   end
- end
+  def self.top_rank(rank)
+    all = rank.descendants
+    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
+  end
 
   # Returns an ordered Array of NomenclaturalRanks for all direct descendants of the provided base Class
   def self.ordered_ranks_for(rank)
@@ -25,13 +22,11 @@ module Ranks
     all.select!{|r| !r.parent_rank.nil?}
     ordered.push(top)
     return [] if all.size == 0
+
     # This sort algorithim is terrible, it could be optimized.
-    while ordered.size != (all.size)
-      all.each do |r|
-        ordered.push(r) if (ordered.last == r.parent_rank)
-      end
-    end
-    ordered
+    ordered << all.detect { |r| ordered.last == r.parent_rank } while ordered.size != all.size
+    
+    return ordered
   end
 
   # Returns true if rank.to_s is the name of a NomenclaturalRank. 
