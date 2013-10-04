@@ -4,7 +4,7 @@ describe NomenclaturalRank do
 
   context 'base methods' do
     specify "rank_name" do
-      expect(NomenclaturalRank).respond_to(:rank_name)
+      expect(NomenclaturalRank).to respond_to(:rank_name)
     end
 
     # TODO: can NomenclaturalRank be abstracted out as "subject" or similar
