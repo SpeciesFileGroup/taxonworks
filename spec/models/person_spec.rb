@@ -1,29 +1,24 @@
 require 'spec_helper'
 
 describe Person do
-  let(:person) { Person.new }
+  FactoryGirl.define do
+    factory :person do
+    end
+  end
+
+  let(:person) { FactoryGirl.build(:person) }
 
   context "validation" do
     before do
       person.valid?
     end
+
     specify "last_name is required" do
       expect(person.errors.keys).to include(:last_name)
     end
-  end
-=begin
-    specify "type is required" do
-      expect(person.errors.keys).to include(:type)
-    end
 
-=end
-  context "on save" do
-    before do
-      person.last_name = "Smith"
-      person.save
-    end
-    specify "type is set to Anonymous when not provided" do
-      expect(person.type).to eq("Anonymous")
+    specify "type is require (set to 'Unvetted' when not provided)" do
+      expect(person.type).to eq("Unvetted")
     end
   end
 
@@ -35,7 +30,38 @@ describe Person do
     end
   end
 
+  context "usage and rendering" do
 
+    before do
+      @person1 = FactoryGirl.build(:person, first_name: "J.", last_name: "Smith")
+      @person2 = FactoryGirl.build(:person, first_name: "J.", last_name: "McDonald")
+      @person3 = FactoryGirl.build(:person, first_name: "D. Keith McE.", last_name: "Kevan")
+      @person4 = FactoryGirl.build(:person, first_name: "Ki-Su", last_name: "Ahn")
+    end
 
+    context "usage" do
+      specify "initials and last name only" do
+        expect(@person1.valid?).to be_true
+      end
+
+      specify "camel cased last name and initials" do
+        expect(@person2.valid?).to be_true
+      end
+
+      specify "cased last initials and last name only" do
+        expect(@person3.valid?).to be_true
+      end
+
+      specify "last name, dashed first name" do
+        expect(@person4.valid?).to be_true
+      end
+
+      context "rendering" do
+        specify "initials, last name only" do
+         expect(@person1.name).to eq("J. Smith")
+        end
+      end
+    end
+
+  end
 end
-
