@@ -15,7 +15,7 @@ describe Chresonym do
       end
 
       specify "typification" do
-        expect(chresonym.typification).to eq('Chresonym')
+        expect(chresonym.type).to eq('Chresonym')
       end
 
       specify "rank_class" do
