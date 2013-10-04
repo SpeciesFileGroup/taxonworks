@@ -1,3 +1,9 @@
+# switching mysql <=> postgis (for Windows)
+#   1. update database.yml file from either .mysql or .postgis. Don't forget to update the password, if required.
+#   2. uncomment the following line in db\migrate\2013010100000000_postgis_extend.rb
+        # ActiveRecord::Base.connection.execute('CREATE EXTENSION postgis_topology')
+#   3. drop, create, migrate the databases, 'specially taxonworks_test
+
 development:
   adapter: postgis
   encoding: unicode

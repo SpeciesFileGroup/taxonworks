@@ -1,6 +1,7 @@
 class CollectingEvent < ActiveRecord::Base
   belongs_to :geographic_area
   belongs_to :confidence
+  has_many :georeference
 
   validate :minimal_data_is_provided
 

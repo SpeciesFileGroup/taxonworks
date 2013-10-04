@@ -1,5 +1,7 @@
 class GeographicItem < ActiveRecord::Base
 
+  belongs_to  :georeference
+
   # Where would one put such code?
   # RGeo::Geos.preferred_native_interface = :ffi
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
