@@ -33,5 +33,18 @@ module Ranks
   def self.valid?(rank)
     ::RANK_CLASS_NAMES.include?(rank.to_s)
   end
+
+  def self.lookup(code, rank)
+    r = rank.downcase
+    case code
+      when :iczn
+        ::ICZN_LOOKUP[r]
+      when :icn
+        ::ICN_LOOKUP[r]
+      else
+        return false
+    end
+  end
 end
+
 

@@ -15,7 +15,7 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class "NomenclaturalRank::ICZN::Ungoverned::Order"
+    rank_class ::ICZN_LOOKUP["Order"]
     type nil
   end
 

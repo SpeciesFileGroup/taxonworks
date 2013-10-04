@@ -40,12 +40,24 @@ describe 'Ranks' do
       end
 
       specify "ordered_ranks_for returns descendant classes" do
-        expect(Ranks.ordered_ranks_for(NomenclaturalRank::Icn::Governed::FamilyName)).to eq(
-          [NomenclaturalRank::Icn::Governed::FamilyName::Family,
-           NomenclaturalRank::Icn::Governed::FamilyName::Subfamily,
-           NomenclaturalRank::Icn::Governed::FamilyName::Tribe,
-           NomenclaturalRank::Icn::Governed::FamilyName::Subtribe]
+        expect(Ranks.ordered_ranks_for(NomenclaturalRank::Icn::Governed::FamilyGroup)).to eq(
+          [NomenclaturalRank::Icn::Governed::FamilyGroup::Family,
+           NomenclaturalRank::Icn::Governed::FamilyGroup::Subfamily,
+           NomenclaturalRank::Icn::Governed::FamilyGroup::Tribe,
+           NomenclaturalRank::Icn::Governed::FamilyGroup::Subtribe]
         )
+      end
+
+      specify "rank.lookup return false" do
+        expect(Ranks.lookup(:iczn, 'false')).to be_false
+      end
+
+      specify "rank.lookup return proper class for ICZN rank" do
+        expect(Ranks.lookup(:iczn, 'Family').to_s).to eq("NomenclaturalRank::Iczn::Governed::FamilyGroup::Family")
+      end
+
+      specify "rank.lookup return proper class for ICN rank" do
+        expect(Ranks.lookup(:icn, 'Family').to_s).to eq("NomenclaturalRank::Icn::Governed::FamilyGroup::Family")
       end
 
     end

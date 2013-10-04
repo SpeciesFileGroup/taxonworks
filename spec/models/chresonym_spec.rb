@@ -14,8 +14,8 @@ describe Chresonym do
         expect(chresonym.errors.include?(:name)).to be_false
       end
 
-      specify "type" do
-        expect(chresonym.type).to eq('Chresonym')
+      specify "typification" do
+        expect(chresonym.typification).to eq('Chresonym')
       end
 
       specify "rank_class" do

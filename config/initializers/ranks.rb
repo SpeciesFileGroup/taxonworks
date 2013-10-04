@@ -14,7 +14,7 @@
 
  # ICN Rank Classes in a Hash with keys being the "human" name
  # For example, to return the class for a plant family:
- #   Ranks::ICN_LOOKUP['family']
+ #   ::ICN_LOOKUP['family']
  ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
  
  # ICZN Rank Classes in a Hash with keys being the "human" name
