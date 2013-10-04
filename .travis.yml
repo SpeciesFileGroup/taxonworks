@@ -17,6 +17,7 @@ before_install:
   - sudo apt-get install libgeos-dev libproj-dev 
   - sudo apt-get install libgeos++-dev
   - sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install postgresql-9.2 postgresql-contrib-9.2 -qq
+  - sudo ./travis/psql_perms
 before_script:
   - cp config/database.yml.example config/database.yml
   - rake db:create:all
