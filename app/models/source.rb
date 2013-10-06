@@ -1,4 +1,8 @@
 class Source < ActiveRecord::Base
+  include Shared::Identifiable 
+  include Shared::HasRoles 
+
+
   validate :not_empty
 
   protected

@@ -1,5 +1,7 @@
 class Source::Bibtex < Source 
 
+  # have some authors and editors
+
   BIBTEX_FIELDS = [
     :address,
     :annote,             
