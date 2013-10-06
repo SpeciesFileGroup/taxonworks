@@ -84,6 +84,7 @@ end
 group :test do
   gem "rspec"
   gem 'coveralls', '~> 0.7', require: false
+  gem 'capybara', '~> 2.1'
 end
 
 group :development do 

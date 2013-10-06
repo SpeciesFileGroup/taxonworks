@@ -1,0 +1,14 @@
+<div>
+  <% if sessions_signed_in? %>
+    <p>Signed in as user <%= sessions_current_user.id %></p>
+    <ul>
+      <li><%= link_to 'Your account', sessions_current_user %></li>
+      <li><%= link_to 'Sign out', signout_path, method: 'delete' %></li>
+    </ul>
+  <% else %>
+    <ul>
+      <li><%= link_to 'Sign in', signin_path %></li>
+      <li><%= link_to 'Create account', signup_path %></li>
+    </ul>
+  <% end %>
+</div>
