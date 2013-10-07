@@ -4,4 +4,9 @@ class NomenclaturalRank::Icn::Governed::FamilyGroup::Subfamily < NomenclaturalRa
       NomenclaturalRank::Icn::Governed::FamilyGroup::Family
   end
 
+  def self.validate_name_format(taxon_name)
+    super
+    taxon_name.errors.add(:name, 'name must end in -oideae') if not(taxon_name.name =~ /.*oideae\Z/)
+  end
+
 end
