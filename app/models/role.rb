@@ -1,8 +1,10 @@
 class Role < ActiveRecord::Base
 
-  belongs_to :has_roles, polymorphic: :true
+  acts_as_list scope: [:role_object_type, :role_object_id]
+
+  belongs_to :role_object, polymorphic: :true
   belongs_to :person
 
-  validates_presence_of :person_id, :type, :role_object_id, :role_object_type #, :position
+  validates_presence_of :person_id, :type, :role_object_id, :role_object_type, :position
 
 end

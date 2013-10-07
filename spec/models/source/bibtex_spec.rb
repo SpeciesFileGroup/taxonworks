@@ -144,17 +144,37 @@ describe Source::Bibtex do
   end
 
   context "relations / associations" do 
-    specify "authors" do
-      expect(bibtex).to respond_to(:authors)
-      expect(bibtex.authors).to eq([])
-    end
+    context "roles" do
+      valid_person = FactoryGirl.create(:valid_person)
+      %w{author editor}.each do |i|
 
-    specify "editors" do
-      expect(bibtex).to respond_to(:editors)
-      expect(bibtex.editors).to eq([])
-    end
+        specify "#{i}s" do
+          method = "#{i}s"
+          expect(bibtex).to respond_to(method)
+          expect(bibtex.send(method)).to eq([])
+          expect(bibtex.save).to be_true
+          expect(bibtex.send(method) << valid_person).to be_true
+          expect(bibtex.save).to be_true
+          expect(bibtex.send(method).first).to eq(valid_person)
+        end
  
+        specify "#{i}_roles" do
+          method = "#{i}_roles"
+          expect(bibtex).to respond_to(method)
+          expect(bibtex.send(method)).to eq([])
+          expect(bibtex.save).to be_true
+          expect(bibtex.send("#{i}s") << valid_person).to be_true
+          expect(bibtex.save).to be_true
+          expect(bibtex.send(method).size).to eq(1)
+        end
+      end
+    end
   end
+
+
+
+ 
+
 
   context "concerns" do
     it_behaves_like "identifiable"

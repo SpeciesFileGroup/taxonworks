@@ -17,8 +17,8 @@ describe Person do
       expect(person.errors.keys).to include(:last_name)
     end
 
-    specify "type is require (set to 'Unvetted' when not provided)" do
-      expect(person.type).to eq("Unvetted")
+    specify "type is require (set to 'Person::Unvetted' when not provided)" do
+      expect(person.type).to eq("Person::Unvetted")
     end
   end
 
