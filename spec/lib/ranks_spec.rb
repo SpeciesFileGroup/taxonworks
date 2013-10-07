@@ -23,8 +23,8 @@ describe 'Ranks' do
       end
 
       specify '::ICZN_LOOKUP' do
-        expect(ICN).to be_true
-        expect(ICN_LOOKUP.class).to eq(Hash)
+        expect(ICZN).to be_true
+        expect(ICZN_LOOKUP.class).to eq(Hash)
       end
     end
 
