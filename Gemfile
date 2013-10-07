@@ -19,6 +19,27 @@ puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 gem 'rails', '~> 4.0'
 
 # Database
+#JDT 20131007
+# The ffi gem for Windows 64-bit suffers from the same sort of problem as the mysql2 gem does, WRT Gemfile/bundler:
+# the gem says it's name is 'ffi (1.9.0)', but the bundler resolves the requirement as 'ffi (1.9.0-x86-mingw32)',
+# so we have both a Windows/*nix problem (x86-mingw32)
+# the current fix is to add a line to the Gemfile.lock file to augment the file with the answer which is given by
+# the ffi gem when asked what it's name is.  Thus, we make the following substitution:
+#
+#     ffi (1.9.0-x86-mingw32)
+# becomes
+#     ffi (1.9.0-x86-mingw32)
+#     ffi (1.9.0-x86)
+#
+# The pg gem suffers a similar problem, but with different specifics:
+#
+#     pg (0.17.0-x86-mingw32)
+# becomes
+#     pg (0.17.0-x86-mingw32)
+#     pg (0.17.0-x64-mingw32)
+#
+#
+
 gem 'ffi-geos'
 gem 'pg', '~> 0.17.0'
 gem 'activerecord-postgis-adapter'
