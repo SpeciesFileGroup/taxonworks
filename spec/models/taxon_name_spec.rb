@@ -25,7 +25,7 @@ describe TaxonName do
 
     context "rank_class" do
       specify "is valid when a NomenclaturalRank subclass" do
-        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
@@ -48,7 +48,7 @@ describe TaxonName do
           end
           specify "is invalid when not ending in 'idae'" do
             taxon_name.name = "Aus"
-            taxon_name.rank_class =  ::ICZN_LOOKUP['family'] 
+            taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_true
           end 
@@ -76,7 +76,7 @@ describe TaxonName do
       end
 
       specify "returns a NomenclaturalRank when available" do
-        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
       end
    end
@@ -88,7 +88,7 @@ describe TaxonName do
       end
 
       specify "returns vernacular when rank_class is a NomenclaturalRank (i.e. valid)" do
-        taxon_name.rank_class = ::ICZN_LOOKUP['order']
+        taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank).to eq('order')
       end
 
