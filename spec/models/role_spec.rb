@@ -7,11 +7,12 @@ describe Role do
     before do
       role.valid?
     end
+
     context "required fields" do
       specify "person_id" do
         expect(role.errors.include?(:person_id)).to be_true
       end
-     specify "type" do
+      specify "type" do
         expect(role.errors.include?(:type)).to be_true
       end
       specify "role_object_id" do
@@ -19,10 +20,15 @@ describe Role do
       end
       specify "role_object_type" do
         expect(role.errors.include?(:role_object_type)).to be_true
-        end
-      specify "position" do
-        expect(role.errors.include?(:position)).to be_true
-        end
+      end
+   end
+
+    context "after save" do
+      author_role = FactoryGirl.create(:source_author_role)
+    
+      specify "position is speciefied by acts_as_list" do
+        expect(author_role.position).to eq(1)
+      end
     end
   end
 
@@ -31,7 +37,7 @@ describe Role do
       specify "person" do
         expect(role).to respond_to(:person)
       end
-     end
+    end
   end
 
 end
