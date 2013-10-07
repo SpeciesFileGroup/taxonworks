@@ -30,8 +30,8 @@ describe Chresonym do
     context "of formed binomial" do
       before do
 
-        g = TaxonName.new(name: 'Aus', rank_class: ::ICZN_LOOKUP['genus'])
-        s = TaxonName.new(name: 'bus', rank_class: ::ICZN_LOOKUP['species'])
+        g = TaxonName.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'))
+        s = TaxonName.new(name: 'bus', rank_class: Ranks.lookup(:iczn, 'species'))
 
         chresonym.genus = g
         chresonym.species = s
