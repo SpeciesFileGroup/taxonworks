@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-=begin
-describe GeoreferenceType::VerbatimData do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Georeference::GeoreferenceType::VerbatimData do
+  pending "Waiting for object specifications in #{__FILE__}"
 end
-=end
