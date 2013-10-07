@@ -2,6 +2,9 @@ class Source::Bibtex < Source
 
   # have some authors and editors
 
+  has_many :authors, -> {where role: {type: 'SourceAuthor'} }, through: :roles, source: :person
+  has_many :editors, -> {where role: {type: 'SourceEditor'} }, through: :roles, source: :person
+
   BIBTEX_FIELDS = [
     :address,
     :annote,             

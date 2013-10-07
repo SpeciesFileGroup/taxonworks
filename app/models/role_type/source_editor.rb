@@ -1,2 +1,3 @@
-class RoleType::SourceEditor < ActiveRecord::Base
+class RoleType::SourceEditor < RoleType 
+
 end

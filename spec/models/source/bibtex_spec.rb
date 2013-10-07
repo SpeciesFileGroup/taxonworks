@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe Source::Bibtex do
 
+  let(:bibtex) { Source::Bibtex.new }
+
   before do
     @bibtex_bibliography = BibTeX.open(Rails.root + "spec/files/Taenionema.bib")
     @simple1 = BibTeX::Entry.new() 
@@ -135,11 +137,28 @@ describe Source::Bibtex do
     end
   end
 
-  pending "it should have many identifiers" 
   pending "it should compare their source fields to their persisted (TW) fields"
 
   specify "if we have a bibtex record convert it to a taxonworks source" do
     expect(Source::Bibtex.new_from_bibtex(@bibtex_bibliography[0]).valid?).to be(true)
+  end
+
+  context "relations / associations" do 
+    specify "authors" do
+      expect(bibtex).to respond_to(:authors)
+      expect(bibtex.authors).to eq([])
+    end
+
+    specify "editors" do
+      expect(bibtex).to respond_to(:editors)
+      expect(bibtex.editors).to eq([])
+    end
+ 
+  end
+
+  context "concerns" do
+    it_behaves_like "identifiable"
+    it_behaves_like "has_roles"
   end
 
 end
