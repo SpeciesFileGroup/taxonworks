@@ -1,12 +1,10 @@
-# This will guess the User class
 FactoryGirl.define do
-  factory :taxon_name do
+  factory :taxon_name, class: TaxonName do
     name "Aus"
-    class_rank "NomenclaturalRank::ICZN::Governed::GenusGroup::Genus"
+    rank_class "NomenclaturalRank::Iczn::Governed::GenusGroup::Genus"
   end
-
-  factory :order do
-    TaxonNameID 1
+  
+  factory :order, class: TaxonName do
     name "Hemiptera"
     parent_id nil
     cached_name nil
@@ -15,12 +13,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class ::ICZN_LOOKUP["Order"]
+    rank_class ::ICZN_LOOKUP["order"]
     type nil
   end
 
-  factory :family do
-    TaxonNameID 2
+  factory :family, class: TaxonName do
     name "Cicadellidae"
     parent_id :order
     cached_name nil
@@ -29,12 +26,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class "NomenclaturalRank::ICZN::Governed::FamilyGroup::Family"
+    rank_class "NomenclaturalRank::Iczn::Governed::FamilyGroup::Family"
     type nil
   end
 
-  factory :subfamily do
-    TaxonNameID 3
+  factory :subfamily, class: TaxonName do
     name "Typhlocybinae"
     parent_id :family
     cached_name nil
@@ -43,12 +39,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class "NomenclaturalRank::ICZN::Governed::FamilyGroup::Subfamily"
+    rank_class "NomenclaturalRank::Iczn::Governed::FamilyGroup::Subfamily"
     type nil
   end
 
-  factory :tribe do
-    TaxonNameID 4
+  factory :tribe, class: TaxonName do
     name "Erythroneurini"
     parent_id :subfamily
     cached_name nil
@@ -57,13 +52,12 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class "NomenclaturalRank::ICZN::Governed::FamilyGroup::Tribe"
+    rank_class "NomenclaturalRank::Iczn::Governed::FamilyGroup::Tribe"
     type nil
   end
 
-  factory :subtribe do
-    TaxonNameID 5
-    name "Aaina"
+  factory :subtribe, class: TaxonName do
+    name "Aainaini" #TODO: Used to be "Aaina", added suffix "ini" to make the validation pass, please review logic or just delete this comment if previous value was incorrect
     parent_id :tribe
     cached_name nil
     cached_author_year nil
@@ -71,12 +65,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication nil
     author nil
-    rank_class "NomenclaturalRank::ICZN::Governed::FamilyGroup::Tribe"
+    rank_class "NomenclaturalRank::Iczn::Governed::FamilyGroup::Tribe"
     type nil
   end
 
-  factory :genus do
-    TaxonNameID 6
+  factory :genus, class: TaxonName do
     name "Erythroneura"
     parent_id :tribe
     cached_name "Erythroneura"
@@ -85,12 +78,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication 1850
     author "Say"
-    rank_class "NomenclaturalRank::ICZN::Governed::GenusGroup::Genus"
+    rank_class "NomenclaturalRank::Iczn::Governed::GenusGroup::Genus"
     type nil
   end
 
-  factory :subgenus do
-    TaxonNameID 7
+  factory :subgenus, class: TaxonName do
     name "Erythroneura"
     parent_id :genus
     cached_name "Erythroneura (Erythroneura)"
@@ -99,12 +91,11 @@ FactoryGirl.define do
     original_description_source_id nil
     year_of_publication 1850
     author "Say"
-    rank_class "NomenclaturalRank::ICZN::Governed::GenusGroup::Subgenus"
+    rank_class "NomenclaturalRank::Iczn::Governed::GenusGroup::Subgenus"
     type nil
   end
 
-  factory :species do
-    TaxonNameID 8
+  factory :species, class: TaxonName do
     name "aaa"
     parent_id :subgenus
     cached_name "Erythroneura (Erythroneura) aaa"
@@ -113,12 +104,11 @@ FactoryGirl.define do
     original_description_source_id 10
     year_of_publication 1900
     author "McAtee"
-    rank_class "NomenclaturalRank::ICZN::Governed::SpeciesGroup::Species"
+    rank_class "NomenclaturalRank::Iczn::Governed::SpeciesGroup::Species"
     type nil
   end
 
-  factory :subspecies do
-    TaxonNameID 9
+  factory :subspecies, class: TaxonName do
     name "bbb"
     parent_id :species
     cached_name "Erythroneura (Erythroneura) aaa bbb"
@@ -127,7 +117,7 @@ FactoryGirl.define do
     original_description_source_id 10
     year_of_publication 1900
     author "McAtee"
-    rank_class "NomenclaturalRank::ICZN::Governed::SpeciesGroup::Subspecies"
+    rank_class "NomenclaturalRank::Iczn::Governed::SpeciesGroup::Subspecies"
     type nil
   end
 
