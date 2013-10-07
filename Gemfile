@@ -76,6 +76,9 @@ gem 'awesome_nested_set',
 # gem for decoding & encoding .bib files (BibTex bibliography files)
 gem 'bibtex-ruby'
 
+# Ordering records
+gem 'acts_as_list'
+
 # Use ActiveModel has_secure_password
 #
 # The bcrypt-ruby gem suffers a problem similar to that of the mysql2 gem, but with different specifics:
