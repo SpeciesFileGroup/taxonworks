@@ -29,7 +29,7 @@ gem 'rails', '~> 4.0'
 #     ffi (1.9.0-x86-mingw32)
 # becomes
 #     ffi (1.9.0-x86-mingw32)
-#     ffi (1.9.0-x86)
+#     ffi (1.9.0)
 #
 # The pg gem suffers a similar problem, but with different specifics:
 #
