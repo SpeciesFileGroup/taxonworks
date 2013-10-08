@@ -1,3 +1,3 @@
-class GeoreferenceType::GeoLocate < GeoreferenceType
+class Georeference::GeoreferenceType::GeoLocate < Georeference::GeoreferenceType
 
 end

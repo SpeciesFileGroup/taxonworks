@@ -1,2 +1,2 @@
-class GeoreferenceType::VerbatimData < GeoreferenceType
+class Georeference::GeoreferenceType::VerbatimData < Georeference::GeoreferenceType
 end
