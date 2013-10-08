@@ -5,7 +5,18 @@ describe BiologicalAssociationsGraph do
   let(:biological_associations_graph) { BiologicalAssociationsGraph.new }
 
   context "validation" do
-    pending "require some edges to be post-save valid" 
+
+    before do
+      biological_associations_graph.valid?
+    end
+
+    context "required fields" do
+      specify "name" do
+        expect(biological_associations_graph).to respond_to(:name)
+        expect(biological_associations_graph.errors.include?(:name)).to be_true 
+      end
+    end 
+  
   end
 
   context "foreign keys / relationships" do
