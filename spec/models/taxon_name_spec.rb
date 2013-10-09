@@ -83,7 +83,7 @@ describe TaxonName do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
       end
-   end
+    end
 
     context "rank" do
       specify "returns nil when not a NomenclaturalRank (i.e. invalid)" do
@@ -100,14 +100,65 @@ describe TaxonName do
   end
 
   context "hierarchy" do
-    specify "a given hierarchy has only one root" do
-      pending "requires nested set base"
+    context "class methods from awesome_nested_set" do
+
+      specify "permit one root per project" 
+
+      specify "permit multiple roots across the database" do
+        root1 = FactoryGirl.create(:root_taxon_name)
+        root2 = FactoryGirl.build(:root_taxon_name)
+        expect(root2.parent).to be_nil
+        expect(root2.valid?).to be_true
+      end
+
+      # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
+      context "handle a simple hierarchy with awesome_nested_set" do
+      
+        root = FactoryGirl.create(:root_taxon_name)
+        family = FactoryGirl.create(:iczn_family, parent: root)
+        genus1 = FactoryGirl.create(:iczn_genus, parent: family)
+        genus2 = FactoryGirl.create(:iczn_genus, parent: family)
+        species1 = FactoryGirl.create(:iczn_species, parent: genus1)
+        species2 = FactoryGirl.create(:iczn_species, parent: genus2)
+
+        root.reload
+
+        specify "root" do 
+          # returns the subclass, so test by id
+          expect(species1.root.id).to eq(root.id)
+        end
+
+        specify "ancestors" do 
+          expect(root.ancestors.size).to eq(0)
+          expect(family.ancestors.size).to eq(1)
+          expect(species1.ancestors.size).to eq(3)
+        end
+
+        specify "parent" do 
+          expect(root.parent).to eq(nil)
+          expect(family.parent).to eq(root)
+        end
+
+        specify "leaves" do
+          expect(root.leaves).to eq([species1, species2])
+        end
+
+        specify "move_to_child_of" do
+          species2.move_to_child_of(genus1)
+          expect(genus2.children).to eq([])
+          expect(genus1.children).to eq([species1,species2])
+        end
+
+        #TODO: others, but clearly it works as needed
+      end
+
+
     end
   end
 
   context "relations / associations" do 
     specify "taxon_name_relationships" do
-        expect(taxon_name.taxon_name_relationships).to eq([])
+      expect(taxon_name.taxon_name_relationships).to eq([])
     end
   end
 
