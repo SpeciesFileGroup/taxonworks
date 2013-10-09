@@ -5,7 +5,7 @@ require 'fileutils'
 namespace :tw do
   namespace :development do
 
-    desc 'Add mingw32 lines to the Gemfile.lock to support mysql and other problems in windows !! assumes particular gem verions !!'
+    desc 'Add mingw32 lines to the Gemfile.lock to support mysql and other problems in windows !! assumes particular gem versions !!'
     task  :fix_windows_gemfile_lock do |t|
       new_lockfile = File.new(Rails.root + 'tmp/temp_lockfile.tmp', 'w')
       old_lockfile = File.open(Rails.root + 'Gemfile.lock')
@@ -16,10 +16,10 @@ namespace :tw do
 
         if not_done
           if line =~ /bcrypt-ruby/
-            new_lockfile <<  "    bcrypt-ruby (3.0.1-x86-mingw32)\n" 
+            new_lockfile <<  "    bcrypt-ruby (3.0.1-x64-mingw32)\n"
           end
           if line =~ /mysql2/
-            new_lockfile <<  "    mysql2 (0.3.11-x86-mingw32)\n" 
+            new_lockfile <<  "    mysql2 (0.3.11)\n"
           end
         end
 
