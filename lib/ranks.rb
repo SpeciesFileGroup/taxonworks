@@ -31,7 +31,7 @@ module Ranks
 
   # Returns true if rank.to_s is the name of a NomenclaturalRank. 
   def self.valid?(rank)
-    ::RANK_CLASS_NAMES.include?(rank.to_s)
+     ::RANK_CLASS_NAMES.include?(rank.to_s) 
   end
 
   def self.lookup(code, rank)

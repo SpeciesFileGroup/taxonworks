@@ -1,4 +1,4 @@
-# The base Class for all Nomenclature classes. 
+# The base Class for all Nomenclature classes. The class of a TaxonName root. 
 # !! See /lib/Ranks for related Constants and Hooks
 class NomenclaturalRank 
 
@@ -8,6 +8,7 @@ class NomenclaturalRank
   # These Constants must be accessed by their corresponding 
   # class method.
 
+  # TODO: refactor/clarify 
   # Should the rank be displayed in "typical" use?
   COMMON     = true
 
@@ -15,9 +16,6 @@ class NomenclaturalRank
     all = rank.descendants
     all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
   end
-
-
-
 
   # Return a String with the "common" name for this rank. 
   def self.rank_name
