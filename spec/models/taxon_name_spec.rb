@@ -125,12 +125,13 @@ describe TaxonName do
 
         specify "root" do 
           # returns the subclass, so test by id
-          expect(species1.root.id).to eq(root.id)
+          expect(species1.root).to eq(root)
         end
 
         specify "ancestors" do 
           expect(root.ancestors.size).to eq(0)
           expect(family.ancestors.size).to eq(1)
+          expect(family.ancestors).to eq([root])
           expect(species1.ancestors.size).to eq(3)
         end
 
