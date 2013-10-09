@@ -26,8 +26,8 @@ gem 'rails', '4.0.0'
 # the same may apply to bcrypt-ruby gem
 
 gem 'mysql2', '0.3.11'
-
-# Testing
+ 
+# Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
 
 # Use SCSS for stylesheets

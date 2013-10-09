@@ -6,14 +6,19 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
- # MySql commands to rebuild databases:
 
-=begin
-create database taxonworks_test;
-create database taxonworks_development;
-create database taxonworks_production;
-grant all privileges on taxonworks_development.* to 'tw'@'localhost' identified by 't0ps3kr3t';
-grant all privileges on taxonworks_test.* to 'tw'@'localhost' identified by 't0ps3kr3t';
-grant all privileges on taxonworks_production.* to 'tw'@'localhost' identified by 't0ps3kr3t';
-=end
+case Rails.env
 
+when 'development'
+
+  # Experimenting with some dummy data for a 'hello world' stack.
+  root =  FactoryGirl.create(:root_taxon_name)
+  %w{Aidae Bidae Cidae}.each do |family|
+    FactoryGirl.create(:iczn_family, parent: root, name: family)
+  end
+
+when 'production'
+  # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.
+when 'test'
+  # Never ever do anything. Test with FactoryGirl or inline..... 
+end

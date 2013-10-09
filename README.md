@@ -29,11 +29,27 @@ PostgreSQL, postgis, GEOS
 Configuration
 -------------
 
-use config/database.yml.example for create and customize config/database.yml
+Use config/database.yml.example for create and customize config/database.yml
+
+* Database permissions (MySQL)
+
+Somethign like this should work:
+
+  grant all privileges on taxonworks_development.* to 'tw'@'localhost' identified by 't0ps3kr3t';
+  grant all privileges on taxonworks_test.* to 'tw'@'localhost' identified by 't0ps3kr3t';
+  grant all privileges on taxonworks_production.* to 'tw'@'localhost' identified by 't0ps3kr3t';
 
 * Database creation
 
+If your database.yml is setup and reflects the uptodate permissions just use 
+
+  rake db:create
+
 * Database initialization
+
+If you want to seed some dummy development data (very minimal at present) do
+
+  rake db:seed RAILS_ENV=development
 
 How to run the test suite
 -------------------------

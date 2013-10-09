@@ -4,6 +4,9 @@ TaxonWorks::Application.routes.draw do
 
   root 'dashboard#index'
 
+  get 'taxon_names/demo'
+#  resources :taxon_names
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
