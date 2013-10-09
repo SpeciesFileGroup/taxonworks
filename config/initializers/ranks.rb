@@ -7,7 +7,7 @@
  ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
 
  # All assignable Rank Classes
- RANKS = ICN + ICZN
+ RANKS = ICN + ICZN + [NomenclaturalRank]
 
  # All Ranks, as Strings
  RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
