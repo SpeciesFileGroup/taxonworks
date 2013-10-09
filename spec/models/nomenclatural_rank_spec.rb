@@ -24,7 +24,15 @@ describe NomenclaturalRank do
     specify "top_rank" do
       expect(NomenclaturalRank).to respond_to(:top_rank)
     end
-    
+
+    specify "nomenclatural_code" do
+      expect(NomenclaturalRank::Iczn::Governed::FamilyGroup::Family.nomenclatural_code).to eq(:iczn)
+    end
+
+    specify "nomenclatural_code_class" do
+      expect(NomenclaturalRank::Iczn::Governed::FamilyGroup::Family.nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+    end
+
     # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 
     #       We need to decide which one should be implementing this method.
     specify "top_rank returns top assignable rank" do

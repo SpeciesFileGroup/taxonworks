@@ -100,6 +100,12 @@ describe TaxonName do
   end
 
   context "hierarchy" do
+    context "rank related" do
+      specify "should return an ancestor at given rank" do
+        subspecies = FactoryGirl.create(:iczn_subspecies)
+        expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
+      end
+    end
     context "class methods from awesome_nested_set" do
 
       specify "permit one root per project" 

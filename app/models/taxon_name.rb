@@ -28,6 +28,20 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
+  def self.ancestor_at_rank(rank)
+    r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
+    if RANKS.index(r) <= RANKS.index(self.rank_class)
+      return nil
+    else
+      self.ancestors.each do |ancestor|
+        if ancestor.rank_class == r
+          return ancestor
+        end
+      end
+      return nil
+    end
+  end
+
   protected 
   
   def set_type_if_empty
