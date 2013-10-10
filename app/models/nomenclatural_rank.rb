@@ -26,6 +26,28 @@ class NomenclaturalRank
     n
   end
 
+  # returns a nomenclatural code name for this taxon
+  def self.nomenclatural_code
+    if ::ICZN.include?(self)
+      return :iczn
+    elsif ::ICN.include?(self)
+      return :iczn
+    else
+      return nil
+    end
+  end
+
+  # returns a nomenclatural code class for this taxon
+  def self.nomenclatural_code_class
+    if ::ICZN.include?(self)
+      return NomenclaturalRank::Iczn
+    elsif ::ICN.include?(self)
+      return NomenclaturalRank::Icn
+    else
+      return nil
+    end
+  end
+
   # The Class representing the immediate parent rank.  Required. 
   # Set to nil if a "root" level, this further implies that self
   # can not be assigned as a Rank to a TaxonName
