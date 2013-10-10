@@ -4,7 +4,8 @@ class TaxonName < ActiveRecord::Base
 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
 
-  validates_presence_of :rank_class, :type
+  validates_presence_of :type
+  validates_presence_of :rank_class, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
   validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 
   # TODO: validates_format_of :name, with: "something", if: "some proc"
@@ -50,3 +51,6 @@ class TaxonName < ActiveRecord::Base
   end
 
 end
+
+return false if RANKS.index(rank) =Chresonym< RANKS.index(self.rank_class)
+
