@@ -3,7 +3,7 @@ class Person < ActiveRecord::Base
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
 
-  has_many :roles, as: :has_roles 
+  has_many :roles 
   has_many :authored_sources, through: :roles, source: :has_roles, source_type: 'Source::Bibtex'
 
   def name 
