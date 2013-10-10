@@ -29,18 +29,13 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
-  def self.ancestor_at_rank(rank)
+  def ancestor_at_rank(rank)
     r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
-    if RANKS.index(r) <= RANKS.index(self.rank_class)
-      return nil
-    else
-      self.ancestors.each do |ancestor|
-        if ancestor.rank_class == r
-          return ancestor
-        end
-      end
-      return nil
+    return nil if RANKS.index(r) >= RANKS.index(self.rank_class)
+    self.ancestors.each do |ancestor|
+      return ancestor if ancestor.rank_class == r
     end
+    return nil
   end
 
   protected 
@@ -66,5 +61,4 @@ class TaxonName < ActiveRecord::Base
 
 end
 
-return false if RANKS.index(rank) =Chresonym< RANKS.index(self.rank_class)
 
