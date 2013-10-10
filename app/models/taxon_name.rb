@@ -45,6 +45,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_rank_class_class
+    # TODO: refactor properly
+    return true if self.class == Chresonym && self.rank_class.nil? 
     errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
   end
 

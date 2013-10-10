@@ -7,19 +7,17 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   before_validation :validate_type
 
-
   def aliases
     []
   end
 
-  def object_properties
+  def self.object_properties
     [] 
   end 
 
-  def subject_properties
-
+  def self.subject_properties
+    []
   end
-
   
   def self.valid?(type)
     ::TAXON_NAME_RELATIONSHIP_NAMES.include(type.to_s)

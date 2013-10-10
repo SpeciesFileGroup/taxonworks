@@ -18,12 +18,14 @@ describe Chresonym do
         expect(chresonym.type).to eq('Chresonym')
       end
 
-      specify "rank_class" do
-        expect(chresonym.errors.include?(:rank_class)).to be_true
-      end
-
       specify 'at least one TaxonNameRelationship::Chresonym relationship' do
         expect(chresonym.errors.include?(:base)).to be_true 
+      end
+
+      context "optional" do
+        specify "rank_class " do
+          expect(chresonym.errors.include?(:rank_class)).to be_false
+        end
       end
     end
 
@@ -40,7 +42,7 @@ describe Chresonym do
       end
 
       specify "has met taxon_name_relationship validation" do
-         expect(chresonym.errors.include?("no names")).to be_false
+        expect(chresonym.errors.include?("no names")).to be_false
       end
     end
 
