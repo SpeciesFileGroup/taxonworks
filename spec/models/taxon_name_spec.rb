@@ -81,7 +81,7 @@ describe TaxonName do
 
       specify "returns a NomenclaturalRank when available" do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::Ungoverned::Order)
+        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::AboveFamilyGroup::Order)
       end
     end
 
