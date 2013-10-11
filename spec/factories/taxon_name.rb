@@ -18,7 +18,7 @@ FactoryGirl.define do
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera"
-    original_description_source_id nil
+    source_id nil
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "order")
@@ -31,7 +31,7 @@ FactoryGirl.define do
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera:Cicadellidae"
-    original_description_source_id nil
+    source_id nil
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Family")
@@ -44,7 +44,7 @@ FactoryGirl.define do
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae"
-    original_description_source_id nil
+    source_id nil
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Subfamily")
@@ -57,7 +57,7 @@ FactoryGirl.define do
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini"
-    original_description_source_id nil
+    source_id nil
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Tribe")
@@ -70,7 +70,7 @@ FactoryGirl.define do
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Aaina"
-    original_description_source_id nil
+    source_id nil
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Tribe")
@@ -83,7 +83,7 @@ FactoryGirl.define do
     cached_name "Erythroneura"
     cached_author_year "Say, 1850"
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini"
-    original_description_source_id nil
+    source_id nil
     year_of_publication 1850
     author "Say"
     rank_class Ranks.lookup(:iczn, "Genus")
@@ -96,7 +96,7 @@ FactoryGirl.define do
     cached_name "Erythroneura (Erythroneura)"
     cached_author_year "Say, 1850"
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini"
-    original_description_source_id nil
+    source_id nil
     year_of_publication 1850
     author "Say"
     rank_class Ranks.lookup(:iczn, "Subgenus")
@@ -109,7 +109,7 @@ FactoryGirl.define do
     cached_name "Erythroneura (Erythroneura) aaa"
     cached_author_year "McAtee, 1900"
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini"
-    original_description_source_id 10
+    source_id 10
     year_of_publication 1900
     author "McAtee"
     rank_class Ranks.lookup(:iczn, "SPECIES")
@@ -122,7 +122,7 @@ FactoryGirl.define do
     cached_name "Erythroneura (Erythroneura) aaa bbb"
     cached_author_year "McAtee, 1900"
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini"
-    original_description_source_id 10
+    source_id 10
     year_of_publication 1900
     author "McAtee"
     rank_class Ranks.lookup(:iczn, "subspecies")
