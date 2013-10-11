@@ -31,6 +31,9 @@ describe TaxonNameRelationship do
           taxon_name_relationship.type = "foo"
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:type)).to be_true
+          taxon_name_relationship.type = Specimen 
+          taxon_name_relationship.valid?
+          expect(taxon_name_relationship.errors.include?(:type)).to be_true
         end
 
         specify "valid when a TaxonNameRelationship" do
