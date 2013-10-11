@@ -109,7 +109,7 @@ describe TaxonName do
           expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
         end
         
-        specify "returns nil when given rank and name's rank is the same" do
+        specify "returns nil when given rank and name's rank are the same" do
           expect(subspecies.ancestor_at_rank('subspecies')).to be_nil
         end
         
