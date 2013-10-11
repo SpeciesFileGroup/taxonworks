@@ -145,6 +145,14 @@ describe Source::Bibtex do
 
   context "relations / associations" do 
     context "roles" do
+      pending "authors should be ordered"
+      pending "editors should be ordered"
+      pending "After save on new bibtex records, populate author/editor roles"
+      pending "If authors/editors roles exist and bibtex author/editor is empty, populate bibtex author/editor"
+      pending "On bibtex save, validate author vs. authors"
+      pending "On bibtex save, validate editor vs. editors"
+      pending "If updated a person, then update bibtex authors/editors"
+
       valid_person = FactoryGirl.create(:valid_person)
       %w{author editor}.each do |i|
 

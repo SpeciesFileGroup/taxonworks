@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 ruby '2.0.0'
 
 # This is interesting.
@@ -25,8 +25,10 @@ gem 'rails', '4.0.0'
 # both are needed to run properly
 # the same may apply to bcrypt-ruby gem
 
+
+
 gem 'mysql2', '0.3.11'
- 
+
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
 
@@ -88,8 +90,8 @@ gem 'acts_as_list'
 #     bcrypt-ruby (3.0.1-x86-mingw32)
 #     bcrypt-ruby (3.0.1-x64-mingw32)
 #
-#
-gem 'bcrypt-ruby', '~> 3.0.0'
+
+gem 'bcrypt-ruby', '~> 3.0'
 
 # gem for dumping DwC-A archives
 gem "dwc-archive", "~> 0.9.6" if not win_os

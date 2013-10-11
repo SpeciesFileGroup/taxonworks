@@ -3,6 +3,7 @@ class Source::Bibtex < Source
   # have some authors and editors
 
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
+  #has_many :authors, -> {order(roles:{position: :asc})}, through: :author_roles, source: :person
   has_many :authors, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
   has_many :editors, through: :editor_roles, source: :person
@@ -10,7 +11,7 @@ class Source::Bibtex < Source
     BIBTEX_FIELDS = [
     :address,
     :annote,             
-    :author,             
+    :author,
     :booktitle,          
     :chapter,           
     :crossref,           
