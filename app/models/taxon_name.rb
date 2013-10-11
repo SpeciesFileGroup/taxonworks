@@ -31,11 +31,8 @@ class TaxonName < ActiveRecord::Base
 
   def ancestor_at_rank(rank)
     r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
-    return nil if RANKS.index(r) >= RANKS.index(self.rank_class)
-    self.ancestors.each do |ancestor|
-      return ancestor if ancestor.rank_class == r
-    end
-    return nil
+    return RANKS.index(r) >= RANKS.index(self.rank_class) ? nil :
+      self.ancestors.detect { |ancestor| ancestor.rank_class == r }
   end
 
   protected 

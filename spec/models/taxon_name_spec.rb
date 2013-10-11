@@ -101,9 +101,25 @@ describe TaxonName do
 
   context "hierarchy" do
     context "rank related" do
-      specify "should return an ancestor at given rank" do
+      context "ancestor_at_rank" do
+        genus = FactoryGirl.create(:iczn_genus)
         subspecies = FactoryGirl.create(:iczn_subspecies)
-        expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
+                
+        specify "returns an ancestor at given rank" do
+          expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
+        end
+        
+        specify "returns nil when given rank and name's rank is the same" do
+          expect(subspecies.ancestor_at_rank('subspecies')).to be_nil
+        end
+        
+        specify "returns nil when given rank is lower than name's rank" do
+          expect(genus.ancestor_at_rank('species')).to be_nil
+        end
+        
+        specify "returns nil when given rank is not present in the parent chain" do
+          expect(genus.ancestor_at_rank('subtribe')).to be_nil
+        end
       end
     end
     context "class methods from awesome_nested_set" do
