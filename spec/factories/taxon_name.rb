@@ -66,7 +66,7 @@ FactoryGirl.define do
 
   factory :iczn_subtribe, class: Protonym do
     name "Aainaini" # TODO: Used to be "Aaina", added suffix "ini" to make the validation pass, please review logic or just delete this comment if previous value was incorrect
-    association :parent, factory: :iczn_trib
+    association :parent, factory: :iczn_tribe
     cached_name nil
     cached_author_year nil
     cached_higher_classification "Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Aaina"
