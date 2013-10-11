@@ -20,21 +20,21 @@ describe Protonym do
 
         context "typification" do
 
-       #  before do
-       #    # make the protonym a type of a genus
-       #    type_taxon_name_relationship = FactoryGirl.create(:taxon_name_relationship,
-       #                                                      subject: protonym,
-       #                                                      object: FactoryGirl.create(:iczn_genus),
-       #                                                      type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
-       #  end
+         before do
+           # make the protonym a type of a genus
+           type_taxon_name_relationship = TaxonNameRelationship.new(
+                                                             subject: protonym,
+                                                             object: FactoryGirl.create(:iczn_genus),
+                                                             type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
+         end
 
-       #  specify 'type_taxon_name' do
-       #    expect(protonym).to respond_to(:type_taxon_name)
-       #  end 
+         specify 'type_taxon_name' do
+           expect(protonym).to respond_to(:type_taxon_name)
+         end 
 
-       #  specify 'type_taxon_name_relationship' do
-       #    expect(protonym).to respond_to(:type_taxon_name_relatinship)
-       #  end 
+         specify 'type_taxon_name_relationship' do
+           expect(protonym).to respond_to(:type_taxon_name_relatinship)
+         end 
         end
 
         %w{genus subgenus species}.each do |rank|
