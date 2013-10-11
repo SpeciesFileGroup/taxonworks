@@ -19,9 +19,9 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
   
-  def self.valid?(type)
-    ::TAXON_NAME_RELATIONSHIP_NAMES.include(type.to_s)
-  end
+# def self.valid?(type)
+#   ::TAXON_NAME_RELATIONSHIP_NAMES.include(type.to_s)
+# end
 
   protected
 

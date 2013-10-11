@@ -12,9 +12,9 @@ class TaxonName < ActiveRecord::Base
   # TODO: validates_format_of :name, with: "something", if: "some proc"
 
   before_validation :set_type_if_empty,
-                    :check_format_of_name,
-                    :validate_rank_class_class,
-                    :validate_source_type
+    :check_format_of_name,
+    :validate_rank_class_class,
+    :validate_source_type
 
   after_validation :set_cached_name
 
@@ -38,7 +38,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   protected 
-  
+
   def set_type_if_empty
     self.type = 'Protonym' if self.type.nil?
   end

@@ -2,7 +2,7 @@ class Chresonym < TaxonName
 
   has_many :chresonym_relationships, -> {
     joins(:taxon_name_relationships)
-    where("taxon_name_relationships.type LIKE 'TaxonNameRelationships::Chresonym::%'")},
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Chresonym::%'")},
     class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   %w{genus subgenus species subspecies}.each do |rank|
