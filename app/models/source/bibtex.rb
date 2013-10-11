@@ -3,8 +3,9 @@ class Source::Bibtex < Source
   # have some authors and editors
 
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
-  #has_many :authors, -> {order(roles:{position: :asc})}, through: :author_roles, source: :person
-  has_many :authors, through: :author_roles, source: :person
+  # eef - The following is trying to order the author list based on the order in SourceAuthor.
+  has_many :authors, :order => "Role.position ASC", through: :author_roles, source: :person
+  #has_many :authors, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
   has_many :editors, through: :editor_roles, source: :person
 
