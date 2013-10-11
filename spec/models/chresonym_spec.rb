@@ -4,48 +4,67 @@ describe Chresonym do
 
   let(:chresonym) { Chresonym.new }
 
+  context "associations" do
+    context "has_one" do
+      context "taxon_name_relationships" do
+        %w{genus subgenus species subspecies}.each do |rank|
+          method = "#{rank}_taxon_name_relationship" 
+          specify method do
+            expect(chresonym).to respond_to(method)
+          end 
+        end
+      end
+
+      context "taxon_names" do
+        %w{genus subgenus species subspecies}.each do |rank|
+          specify rank do
+            expect(chresonym).to respond_to(rank.to_sym)
+          end 
+        end
+      end
+    end
+  end
+
   context "validation" do 
     context "requires" do
       before do
         chresonym.valid?
       end
 
-      specify "name" do
+      specify "name to be nil" do
         expect(chresonym.errors.include?(:name)).to be_false
       end
 
-      specify "typification" do
+      specify "type is Chresonym" do
         expect(chresonym.type).to eq('Chresonym')
       end
 
-      specify 'at least one TaxonNameRelationship::Chresonym relationship' do
-        expect(chresonym.errors.include?(:base)).to be_true 
+      specify "rank_class is optional" do
+        expect(chresonym.errors.include?(:rank_class)).to be_false
       end
 
-      context "optional" do
-        specify "rank_class " do
-          expect(chresonym.errors.include?(:rank_class)).to be_false
+      specify 'specified Chresonym differs from Protonym original description for species-group names' do
+        pending
+      end 
+
+    end
+
+    context "usage" do
+      context "subgeneric placement" do
+        specify "a genus group name used as a subgenus" do
+          c = FactoryGirl.create(:subgenus_chresonym)
+          expect(c.genus.name).to eq('Aus')
+          expect(c.subgenus.name).to eq('Bus')
+        end
+      end
+
+      context "species group names" do
+        specify "a species group named used under a different genus" do
+          c = FactoryGirl.create(:species_chresonym)
+          expect(c.genus.name).to eq('Aus')
+          expect(c.species.name).to eq('bus')
         end
       end
     end
-
-    context "of formed binomial" do
-      before do
-
-        g = TaxonName.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'))
-        s = TaxonName.new(name: 'bus', rank_class: Ranks.lookup(:iczn, 'species'))
-
-        chresonym.genus = g
-        chresonym.species = s
-
-        chresonym.valid?
-      end
-
-      specify "has met taxon_name_relationship validation" do
-        expect(chresonym.errors.include?("no names")).to be_false
-      end
-    end
-
   end
-
 end

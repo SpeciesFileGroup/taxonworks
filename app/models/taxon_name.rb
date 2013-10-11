@@ -2,6 +2,7 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set
 
+  belongs_to :source 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
 
   validates_presence_of :type
@@ -12,7 +13,8 @@ class TaxonName < ActiveRecord::Base
 
   before_validation :set_type_if_empty,
                     :check_format_of_name,
-                    :validate_rank_class_class
+                    :validate_rank_class_class,
+                    :validate_source_type
 
   after_validation :set_cached_name
 
@@ -41,15 +43,21 @@ class TaxonName < ActiveRecord::Base
     self.type = 'Protonym' if self.type.nil?
   end
 
+  # TODO: This should be based on the logic of the related rank
+  def set_cached_name
+    true 
+  end
+
+  def validate_source_type
+    if !self.source.nil?
+      errors.add(:source_id, "source must be a Bibtex") if self.source.type != 'Source::Bibtex'
+    end
+  end
+
   def validate_rank_class_class
     # TODO: refactor properly
     return true if self.class == Chresonym && self.rank_class.nil? 
     errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
-  end
-
-  # TODO: This should be based on the logic of the related rank
-  def set_cached_name
-    true 
   end
 
   def check_format_of_name

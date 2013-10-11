@@ -21,27 +21,28 @@ describe TaxonNameRelationship do
       specify "type" do
         expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
-    end
 
-    context "type" do
-
-      specify "invalid when not a TaxonNameRelationship" do
-        taxon_name_relationship.type = "foo"
-        taxon_name_relationship.valid?
-        expect(taxon_name_relationship.errors.include?(:type)).to be_true
+      specify 'object_taxon_name_id != subject_taxon_name_id' do
+        pending
       end
 
-      specify "valid when a TaxonNameRelationship" do
-        taxon_name_relationship.type = TaxonNameRelationship::Chresonym::Genus
-        taxon_name_relationship.valid?
-        expect(taxon_name_relationship.errors.include?(:typification)).to be_false
-      end
+      context "type" do
+        specify "invalid when not a TaxonNameRelationship" do
+          taxon_name_relationship.type = "foo"
+          taxon_name_relationship.valid?
+          expect(taxon_name_relationship.errors.include?(:type)).to be_true
+        end
 
-   
+        specify "valid when a TaxonNameRelationship" do
+          taxon_name_relationship.type = TaxonNameRelationship::Chresonym::Genus
+          taxon_name_relationship.valid?
+          expect(taxon_name_relationship.errors.include?(:typification)).to be_false
+        end
+      end  
     end
   end
 
-  context "relations" do
+  context "associations" do
     context "belongs_to" do
       specify "subject (TaxonName)" do
         expect(taxon_name_relationship).to respond_to (:subject)

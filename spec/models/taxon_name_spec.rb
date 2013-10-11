@@ -8,6 +8,12 @@ describe TaxonName do
 
   let(:taxon_name) { TaxonName.new }
 
+  context "associations/reflections" do 
+    specify "source" do
+      expect(taxon_name).to respond_to(:source)
+    end 
+  end
+
   context "validation" do 
     context "requires" do
       before do
@@ -24,6 +30,19 @@ describe TaxonName do
 
       specify "type" do
         expect(taxon_name.type).to eq('Protonym')
+      end
+    end
+
+    context "source" do
+      specify "when provided, is type Source::Bibtex" do
+        h = FactoryGirl.build(:human_source)
+        taxon_name.source = h
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:source_id)).to be_true
+        b = FactoryGirl.build(:bibtex_source)
+        taxon_name.source = b
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:source_id)).to be_false
       end
     end
 
@@ -95,7 +114,6 @@ describe TaxonName do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank).to eq('order')
       end
-
     end
   end
 

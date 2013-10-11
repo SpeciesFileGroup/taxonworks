@@ -22,7 +22,7 @@ FactoryGirl.define do
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "order")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_family, class: Protonym do
@@ -35,7 +35,7 @@ FactoryGirl.define do
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Family")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_subfamily, class: Protonym do
@@ -48,7 +48,7 @@ FactoryGirl.define do
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Subfamily")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_tribe, class: Protonym do
@@ -61,7 +61,7 @@ FactoryGirl.define do
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Tribe")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_subtribe, class: Protonym do
@@ -74,7 +74,7 @@ FactoryGirl.define do
     year_of_publication nil
     author nil
     rank_class Ranks.lookup(:iczn, "Tribe")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_genus, class: Protonym do
@@ -87,7 +87,7 @@ FactoryGirl.define do
     year_of_publication 1850
     author "Say"
     rank_class Ranks.lookup(:iczn, "Genus")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_subgenus, class: Protonym do
@@ -100,7 +100,7 @@ FactoryGirl.define do
     year_of_publication 1850
     author "Say"
     rank_class Ranks.lookup(:iczn, "Subgenus")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_species, class: Protonym do
@@ -113,7 +113,7 @@ FactoryGirl.define do
     year_of_publication 1900
     author "McAtee"
     rank_class Ranks.lookup(:iczn, "SPECIES")
-    type nil
+    type 'Protonym'
   end
 
   factory :iczn_subspecies, class: Protonym do
@@ -126,7 +126,7 @@ FactoryGirl.define do
     year_of_publication 1900
     author "McAtee"
     rank_class Ranks.lookup(:iczn, "subspecies")
-    type nil
+    type 'Protonym'
   end
 
 end
