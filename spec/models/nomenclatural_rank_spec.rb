@@ -2,6 +2,15 @@ require 'spec_helper'
 
 describe NomenclaturalRank do
 
+  context 'David' do
+    specify 'ranks should have an integer index' do
+        rank_class = Ranks.lookup(:iczn, 'family')
+        rank_class2 = Ranks.lookup(:iczn, 'genus')
+        expect(RANKS.index(rank_class).class).to eq(Fixnum)
+        expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_true
+      end
+    end
+
   context 'base methods' do
     specify "rank_name" do
       expect(NomenclaturalRank).to respond_to(:rank_name)
