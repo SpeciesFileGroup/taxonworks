@@ -4,22 +4,21 @@ describe Protonym do
 
   let(:protonym) { Protonym.new }
 
-  context "associations" do
-    context "has_many" do
-      specify "original_description_relationships" do 
+  context 'associations' do
+    context 'has_many' do
+      specify 'original_description_relationships' do 
         expect(protonym).to respond_to(:original_description_relationships)
       end
     end
 
-    context "has_one" do
-      specify "original_description_source" do
+    context 'has_one' do
+      specify 'original_description_source' do
         expect(protonym).to respond_to(:original_description_source)
       end
 
-      context "type_taxon_name_relationship" do
+      context 'type_taxon_name_relationship' do
 
-        context "typification" do
-
+        context 'typification' do
           before do
             # make the protonym a type of a genus
             protonym.name = 'aus'
@@ -36,8 +35,6 @@ describe Protonym do
                                                        subject: @genus,
                                                        object: @family, 
                                                        type: TaxonNameRelationship::Typification::Family)
-
-
           end
 
           specify 'type_taxon_name' do
@@ -52,9 +49,14 @@ describe Protonym do
             expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
           end 
 
-          pending "can have at most one has_type relationship" 
-
-
+          specify 'can have at most one has_type relationship' do
+            extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
+                                                       subject: @genus,
+                                                       object: @family, 
+                                                       type: TaxonNameRelationship::Typification::Family)
+            # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
+            expect(extra_type_relation.valid?).to be_false
+          end
         end
 
         %w{genus subgenus species}.each do |rank|
@@ -65,7 +67,7 @@ describe Protonym do
         end
       end
 
-      context "taxon_names" do
+      context 'taxon_names' do
         %w{genus subgenus species}.each do |rank|
           method = "original_#{rank}" 
           specify method do

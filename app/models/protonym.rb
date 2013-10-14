@@ -19,6 +19,7 @@ class Protonym < TaxonName
     limit(1)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
+ 
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject
 
  # TODO: Not tested
