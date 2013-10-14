@@ -10,6 +10,7 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 
   # TODO: validates_format_of :name, with: "something", if: "some proc"
+  # TODO: make sure author and year for ICN name could be displayed in formats "(Linnaeus) Smith (1975)" and "Linnaeus (1975)"
 
   before_validation :set_type_if_empty,
     :check_format_of_name,

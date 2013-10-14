@@ -58,6 +58,7 @@ describe TaxonName do
     context "rank_class" do
       specify "is valid when a NomenclaturalRank subclass" do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
+        taxon_name.name = "Aaa"
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
@@ -73,17 +74,30 @@ describe TaxonName do
       context "format" do
         # TODO: Consider moving this to a different spec.
         context "when rank ICZN family" do
-          specify "is valid when ending in 'idae'" do
+          specify "is valid when ending in '-idae'" do
             taxon_name.name = "Fooidae"
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_false
           end
-          specify "is invalid when not ending in 'idae'" do
+          specify "is invalid when not ending in '-idae'" do
             taxon_name.name = "Aus"
             taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_true
-          end 
+          end
+        end
+        context "when rank ICN family" do
+          specify "is valid when ending in '-aceae'" do
+            taxon_name.name = "Fooaceae"
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_false
+          end
+          specify "is invalid when not ending in '-aceae'" do
+            taxon_name.name = "Aus"
+            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_true
+          end
         end
       end
     end
@@ -94,8 +108,16 @@ describe TaxonName do
       end
 
       specify "cached_name should be set" do
-        # expect(taxon_name.cached_name.nil?).to be false 
+        # expect(taxon_name.cached_name.nil?).to be false
         pending "requires code in NomenclaturalRank subclasses"
+
+        #specify "cached_higher_classification" do
+        #  expect(family.cached_higher_classification).to !eq(nil)
+        #end
+        #specify "cached_name" do
+        #  expect(family.cached_name).to eq(nil)
+        #end
+
       end
     end
   end
@@ -110,6 +132,8 @@ describe TaxonName do
       specify "returns a NomenclaturalRank when available" do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::AboveFamilyGroup::Order)
+        taxon_name.rank_class = Ranks.lookup(:icn, 'family')
+        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Icn::FamilyGroup::Family)
       end
     end
 
@@ -122,6 +146,8 @@ describe TaxonName do
       specify "returns vernacular when rank_class is a NomenclaturalRank (i.e. valid)" do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank).to eq('order')
+        taxon_name.rank_class = Ranks.lookup(:icn, 'family')
+        expect(taxon_name.rank).to eq('family')
       end
     end
   end
@@ -177,6 +203,8 @@ describe TaxonName do
           # returns the subclass, so test by id
           expect(species1.root).to eq(root)
         end
+
+
 
         specify "ancestors" do 
           expect(root.ancestors.size).to eq(0)
