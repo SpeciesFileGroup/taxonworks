@@ -14,7 +14,8 @@ class TaxonName < ActiveRecord::Base
   before_validation :set_type_if_empty,
     :check_format_of_name,
     :validate_rank_class_class,
-    :validate_source_type
+    :validate_source_type,
+    :validate_parent_rank_is_higher
 
   after_validation :set_cached_name
 
@@ -46,6 +47,13 @@ class TaxonName < ActiveRecord::Base
   # TODO: This should be based on the logic of the related rank
   def set_cached_name
     true 
+  end
+
+  def validate_parent_rank_is_higher
+    return true if self.parent.nil? || self.parent.rank_class == NomenclaturalRank
+    if RANKS.index(self.rank_class) < RANKS.index(self.parent.rank_class)
+      errors.add(:parent_id, "parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+    end
   end
 
   def validate_source_type

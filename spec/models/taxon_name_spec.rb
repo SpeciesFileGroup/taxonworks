@@ -31,6 +31,15 @@ describe TaxonName do
       specify "type" do
         expect(taxon_name.type).to eq('Protonym')
       end
+
+      specify 'parent rank is higher' do
+        taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'),
+                          name: 'Aus')
+        taxon_name.parent = FactoryGirl.build(:iczn_species)
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:parent_id)).to be_true
+      end
+
     end
 
     context "source" do
@@ -117,11 +126,12 @@ describe TaxonName do
     end
   end
 
-  context "hierarchy" do
-    context "rank related" do
-      context "ancestor_at_rank" do
+  context 'hierarchy' do
+    context 'rank related' do
+      context 'ancestor_at_rank' do
         genus = FactoryGirl.create(:iczn_genus)
         subspecies = FactoryGirl.create(:iczn_subspecies)
+
                 
         specify "returns an ancestor at given rank" do
           expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
