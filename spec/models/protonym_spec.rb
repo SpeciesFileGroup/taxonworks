@@ -49,13 +49,21 @@ describe Protonym do
             expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
           end 
 
-          specify 'can have at most one has_type relationship' do
+          specify 'has at most one has_type relationship' do
             extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
                                                        subject: @genus,
                                                        object: @family, 
                                                        type: TaxonNameRelationship::Typification::Family)
             # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
             expect(extra_type_relation.valid?).to be_false
+          end
+
+          # A taxon_name can be a type of multiple other names
+          specify 'type_of_relationships' do
+              expect(protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
+          end
+          specify 'type_of_taxon_names' do
+              expect(protonym.type_of_taxon_names).to eq([@genus])
           end
         end
 

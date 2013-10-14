@@ -22,13 +22,12 @@ class Protonym < TaxonName
  
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject
 
- # TODO: Not tested
- # has_many :type_of_relationships, -> {
- #   joins(:taxon_name_relationships)
- #   where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
- # },class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
- # 
- # has_many :type_of_taxon_names, through: :type_taxon_name_relationship, source: :object
+  has_many :type_of_relationships, -> {
+    joins(:taxon_name_relationships)
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
+  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+
+  has_many :type_of_taxon_names, through: :type_of_relationships, source: :object
 
   has_many :original_description_relationships, -> {
     joins(:taxon_name_relationships)
