@@ -4,6 +4,31 @@ class TaxonName < ActiveRecord::Base
 
   belongs_to :source 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
+  def all_taxon_name_relationships
+    (self.taxon_name_relationships & self.related_taxon_name_relationships)
+  end
+
+ #has_many :all_taxon_name_relationships, -> {
+ #  includes(:taxon_name_relationships, :related_taxon_name_relationships)
+ #  where(taxon_name_relationships: {subject_taxon_name_id: :id } },
+ #class_name: 'TaxonNameRelationship'
+
+# has_many :related_taxon_names, 
+#     class_name: 'TaxonName',
+#     finder_sql: 'SELECT DISTINCT tn.* FROM taxon_names tn 
+#                     LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
+#                     LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
+#                     WHERE tnr1.object_taxon_name_id = #{id} OR tnr2.subject_taxon_name_id = #{id};'
+
+# has_many :all_taxon_name_relationships,
+#     class_name: 'TaxonNameRelationship',
+#     finder_sql: 'SELECT DISTINCT tn.* FROM taxon_names tn 
+#                     LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
+#                     LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
+#                     WHERE tnr1.object_taxon_name_id = #{id} OR tnr2.subject_taxon_name_id = #{id};'
+
 
   validates_presence_of :type
   validates_presence_of :rank_class, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
