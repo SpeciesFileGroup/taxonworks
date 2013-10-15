@@ -1,2 +1,2 @@
-class TaxonNameRelationship::OriginalDescription
+class TaxonNameRelationship::OriginalDescription < TaxonNameRelationship
 end

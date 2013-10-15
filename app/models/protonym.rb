@@ -34,4 +34,6 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalDescription::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
+  has_many :type_relationships
+
 end
