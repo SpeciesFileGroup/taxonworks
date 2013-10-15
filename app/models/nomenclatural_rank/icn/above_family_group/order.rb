@@ -1,7 +1,7 @@
-class NomenclaturalRank::Icn::AboveFamily::Order < NomenclaturalRank::Icn::AboveFamily
+class NomenclaturalRank::Icn::AboveFamilyGroup::Order < NomenclaturalRank::Icn::AboveFamilyGroup
 
   def self.parent_rank
-     NomenclaturalRank::Icn::AboveFamily::Subclass
+     NomenclaturalRank::Icn::AboveFamilyGroup::Subclass
   end
 
   def self.validate_name_format(taxon_name)

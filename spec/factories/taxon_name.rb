@@ -1,9 +1,9 @@
 FactoryGirl.define do
 
-  factory :iczn_taxon_name, class: Protonym do
-    name 'Aus'
-    rank_class Ranks.lookup(:iczn, 'genus')
-  end
+#  factory :iczn_taxon_name, class: Protonym do
+#    name 'Aus'
+#    rank_class Ranks.lookup(:iczn, 'genus')
+#  end
 
   factory :root_taxon_name, class: Protonym do
     name 'Root'

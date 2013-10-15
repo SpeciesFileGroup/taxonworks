@@ -22,6 +22,8 @@ class NomenclaturalRank
     n = self.name.demodulize.underscore.humanize.downcase
     if n == "nomenclatural rank"
       n = "root"
+    elsif n == "classrank"
+      n = "class"
     end
     n
   end
@@ -31,7 +33,7 @@ class NomenclaturalRank
     if ::ICZN.include?(self)
       return :iczn
     elsif ::ICN.include?(self)
-      return :iczn
+      return :icn
     else
       return nil
     end

@@ -33,8 +33,7 @@ describe TaxonName do
       end
 
       specify 'parent rank is higher' do
-        taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'),
-                          name: 'Aus')
+        taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
         taxon_name.parent = FactoryGirl.build(:iczn_species)
         taxon_name.valid?
         expect(taxon_name.errors.include?(:parent_id)).to be_true
@@ -73,9 +72,36 @@ describe TaxonName do
     context "name (= latinized version)" do
       context "format" do
         # TODO: Consider moving this to a different spec.
+        context "validate taxon_name FactoryGirl" do
+          subspecies = FactoryGirl.create(:iczn_subspecies)
+          kingdom1 = subspecies.ancestor_at_rank("kingdom")
+          variety = FactoryGirl.create(:icn_variety)
+          kingdom2 = variety.ancestor_at_rank("kingdom")
+
+          specify "all FactoryGirl ICZN fixtures are valid" do
+            expect(kingdom1.descendants.length).should be >= 10
+            kingdom1.descendants.each do |t|
+              expect(t.valid?).to be_true
+            end
+          end
+
+          specify "all ICN FactoryGirl fixtures are valid" do
+            expect(kingdom2.descendants.length).should be >= 15
+            kingdom2.descendants.each do |t|
+              expect(t.valid?).to be_true
+            end
+          end
+
+          fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "Foo")
+          specify "altered FactoryGirl fixtures should fail" do
+            expect(fail1.valid?).to be_false
+          end
+
+        end
         context "when rank ICZN family" do
           specify "is valid when ending in '-idae'" do
             taxon_name.name = "Fooidae"
+            taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_false
           end
@@ -89,6 +115,7 @@ describe TaxonName do
         context "when rank ICN family" do
           specify "is valid when ending in '-aceae'" do
             taxon_name.name = "Fooaceae"
+            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_false
           end
@@ -157,10 +184,11 @@ describe TaxonName do
       context 'ancestor_at_rank' do
         genus = FactoryGirl.create(:iczn_genus)
         subspecies = FactoryGirl.create(:iczn_subspecies)
+        family = FactoryGirl.create(:icn_family)
 
-                
         specify "returns an ancestor at given rank" do
           expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
+          expect(family.ancestor_at_rank('class').name).to eq('Aopsida')
         end
         
         specify "returns nil when given rank and name's rank are the same" do
@@ -203,7 +231,6 @@ describe TaxonName do
           # returns the subclass, so test by id
           expect(species1.root).to eq(root)
         end
-
 
 
         specify "ancestors" do 

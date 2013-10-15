@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::ClassRank < NomenclaturalRank::
     NomenclaturalRank::Iczn::AboveFamilyGroup::Superclass
   end
 
-  def self.rank_name
+  def rank_name
     "class"
   end
 

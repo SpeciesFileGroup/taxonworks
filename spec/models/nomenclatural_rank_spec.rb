@@ -35,11 +35,14 @@ describe NomenclaturalRank do
     end
 
     specify "nomenclatural_code" do
-      expect(Ranks.lookup(:icn, 'Family').nomenclatural_code).to eq(:iczn)
+      expect(Ranks.lookup(:iczn, 'Family').nomenclatural_code).to eq(:iczn)
+      expect(Ranks.lookup(:icn, 'Class').nomenclatural_code).to eq(:icn)
+
     end
 
     specify "nomenclatural_code_class" do
       expect(Ranks.lookup(:iczn, "Family").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+      expect(Ranks.lookup(:iczn, "Class").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
     end
 
     # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 
@@ -47,7 +50,7 @@ describe NomenclaturalRank do
     specify "top_rank returns top assignable rank" do
       # The top two levels 
       expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn)).to eq(NomenclaturalRank::Iczn::AboveFamilyGroup::Superkingdom)
-      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::AboveFamily::Kingdom)
+      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::AboveFamilyGroup::Kingdom)
 
       # Behaviour is a little different
       expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn::FamilyGroup)).to eq(NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup)
