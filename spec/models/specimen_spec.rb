@@ -7,7 +7,7 @@ describe Specimen do
   let(:specimen) { Specimen.new }
 
   context "validation" do
-
+    
     # Trigger the callbacks
     before do 
       specimen.save

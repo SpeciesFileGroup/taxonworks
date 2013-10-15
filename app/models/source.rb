@@ -1,15 +1,12 @@
 class Source < ActiveRecord::Base
-  validate :bibtex_format
-  protected
-  def bibtex_format
-    #
-  end
+  include Shared::Identifiable 
+  include Shared::HasRoles 
+
+  validate :not_empty
 
   protected
-  def source_to_bibtex
-    false   # What goes in this method? Some magic, I expect.
+  def not_empty
+    # a source must have content in some field
   end
-
-
 
 end

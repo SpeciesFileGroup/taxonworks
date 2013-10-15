@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 ruby '2.0.0'
 
 # This is interesting.
@@ -44,6 +44,8 @@ gem 'ffi-geos'
 gem 'pg', '~> 0.17.0'
 gem 'activerecord-postgis-adapter'
 
+# Build instances from factories
+gem "factory_girl_rails", "~> 4.0"
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0'
@@ -77,9 +79,9 @@ group :test do
   gem 'coveralls', '~> 0.7', require: false
 end
 
-gem 'debugger', '~> 1.6', group: [:development, :test] if not win_os
+gem 'debugger', group: [:development, :test] if not win_os
 
-group :development do
+group :development do 
   gem 'awesome_print'
 end
 
@@ -92,6 +94,9 @@ gem 'awesome_nested_set',
 # gem for decoding & encoding .bib files (BibTex bibliography files)
 gem 'bibtex-ruby'
 
+# Ordering records
+gem 'acts_as_list'
+
 # Use ActiveModel has_secure_password
 #
 # The bcrypt-ruby gem suffers a problem similar to that of the mysql2 gem, but with different specifics:
@@ -103,6 +108,9 @@ gem 'bibtex-ruby'
 #
 #
 gem 'bcrypt-ruby', '~> 3.0.0'
+
+# gem for dumping DwC-A archives
+gem "dwc-archive", "~> 0.9.6" if not win_os
 
 # Use unicorn as the app server
 # gem 'unicorn'

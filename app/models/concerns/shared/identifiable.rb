@@ -1,6 +1,5 @@
 module Shared::Identifiable
   extend ActiveSupport::Concern
-
   included do
 
     has_many :identifiers 

@@ -24,7 +24,7 @@ PostgreSQL (tested on 9.3.0), postgis, GEOS
 
     brew install geos
     brew install postgis
-
+    
 ### OS x Troubleshooting
 
 * If you get 'library not loaded errors' You may need to rebuild the pg gem.

@@ -7,14 +7,15 @@
  ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
 
  # All assignable Rank Classes
- RANKS = ICN + ICZN
+ RANKS = ICN + ICZN + [NomenclaturalRank]
 
  # All Ranks, as Strings
+ # TODO: Is there a point to this?
  RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
 
  # ICN Rank Classes in a Hash with keys being the "human" name
  # For example, to return the class for a plant family:
- #   Ranks::ICN_LOOKUP['family']
+ #   ::ICN_LOOKUP['family']
  ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
  
  # ICZN Rank Classes in a Hash with keys being the "human" name
