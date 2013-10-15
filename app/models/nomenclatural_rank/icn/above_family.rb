@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icn::AboveFamily < NomenclaturalRank::Icn
+class NomenclaturalRank::Icn::AboveFamilyGroup < NomenclaturalRank::Icn
 
   def self.validate_name_format(taxon_name)
     taxon_name.errors.add(:name, 'name must be capitalized') if not(taxon_name.name = taxon_name.name.capitalize)
