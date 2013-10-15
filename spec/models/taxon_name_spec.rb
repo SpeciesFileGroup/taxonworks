@@ -8,41 +8,56 @@ describe TaxonName do
 
   let(:taxon_name) { TaxonName.new }
 
+  context 'properties' do
+    specify 'name' do
+      expect(taxon_name).to respond_to(:name)
+    end
+    
+    specify 'parent_id' do
+      expect(taxon_name).to respond_to(:parent_it)
+    end
+  
+    specify 'source_id' do
+      expect(taxon_name).to respond_to(:source_id)
+    end
+
+    specify 'rank_class' do
+      expect(taxon_name).to respond_to(:rank_class)
+    end
+  end
+
   context 'associations' do 
     specify 'source' do
       expect(taxon_name).to respond_to(:source)
     end 
 
     context 'taxon_name_relationships' do
-
       before do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
         taxon_name.save!
         @type_of_genus =  FactoryGirl.create(:iczn_genus, name: 'Bus')
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
-        @relationship1 = FactoryGirl.create(:type_species_relationship, object: @type_of_genus)
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: taxon_name, object: @original_genus, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
-  end
+        @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
+      end
 
       # TaxonNameRelationships in which the taxon name is the subject
       specify 'taxon_name_relationships' do
         expect(taxon_name).to respond_to (:taxon_name_relationships)
-        expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship2.becomes(@relationship2.type)])
+        expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
       end
 
       # TaxonNameRelationships in which the taxon name is the subject OR object
       specify 'all_taxon_name_relationships' do
         expect(taxon_name).to respond_to (:all_taxon_name_relationships)
-        expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1, @relationship2])
+        expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
       end
 
       # TaxonNames related by all_taxon_name_relationships
       specify 'related_taxon_names' do
-        expect(taxon_name.related_taxon_names).to eq([])
+        expect(taxon_name.related_taxon_names).to eq([@type_of_genus, @original_genus])
       end
     end
-
-
   end
 
   context 'validation' do 
@@ -189,26 +204,26 @@ describe TaxonName do
         genus = FactoryGirl.create(:iczn_genus)
         subspecies = FactoryGirl.create(:iczn_subspecies)
 
-                
+
         specify 'returns an ancestor at given rank' do
           expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
         end
-        
+
         specify "returns nil when given rank and name's rank are the same" do
           expect(subspecies.ancestor_at_rank('subspecies')).to be_nil
         end
-        
+
         specify "returns nil when given rank is lower than name's rank" do
           expect(genus.ancestor_at_rank('species')).to be_nil
         end
-        
+
         specify 'returns nil when given rank is not present in the parent chain' do
           expect(genus.ancestor_at_rank('subtribe')).to be_nil
         end
       end
     end
-    context 'class methods from awesome_nested_set' do
 
+    context 'class methods from awesome_nested_set' do
       specify 'permit one root per project' 
 
       specify 'permit multiple roots across the database' do
@@ -220,22 +235,18 @@ describe TaxonName do
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
       context 'handle a simple hierarchy with awesome_nested_set' do
-      
         root = FactoryGirl.create(:root_taxon_name)
         family = FactoryGirl.create(:iczn_family, parent: root)
         genus1 = FactoryGirl.create(:iczn_genus, parent: family)
         genus2 = FactoryGirl.create(:iczn_genus, parent: family)
         species1 = FactoryGirl.create(:iczn_species, parent: genus1)
         species2 = FactoryGirl.create(:iczn_species, parent: genus2)
-
         root.reload
 
         specify 'root' do 
           # returns the subclass, so test by id
           expect(species1.root).to eq(root)
         end
-
-
 
         specify "ancestors" do 
           expect(root.ancestors.size).to eq(0)
@@ -262,5 +273,10 @@ describe TaxonName do
         #TODO: others, but clearly it works as needed
       end
     end
-  end
+
+    context "rendering" do
+
+
     end
+  end
+end
