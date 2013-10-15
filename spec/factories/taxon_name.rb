@@ -23,7 +23,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'kingdom')
     type 'Protonym'
   end
@@ -36,7 +36,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'phylum')
     type 'Protonym'
   end
@@ -49,7 +49,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'class')
     type 'Protonym'
   end
@@ -63,7 +63,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'order')
     type 'Protonym'
   end
@@ -76,7 +76,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'Family')
     type 'Protonym'
   end
@@ -89,7 +89,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'Subfamily')
     type 'Protonym'
   end
@@ -102,7 +102,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'Tribe')
     type 'Protonym'
   end
@@ -115,7 +115,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Aaina'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:iczn, 'Tribe')
     type 'Protonym'
   end
@@ -128,7 +128,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id nil
     year_of_publication 1850
-    author 'Say'
+    verbatim_author 'Say'
     rank_class Ranks.lookup(:iczn, 'Genus')
     type 'Protonym'
   end
@@ -141,7 +141,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id nil
     year_of_publication 1850
-    author 'Say'
+    verbatim_author 'Say'
     rank_class Ranks.lookup(:iczn, 'Subgenus')
     type 'Protonym'
   end
@@ -154,7 +154,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id 10
     year_of_publication 1900
-    author 'McAtee'
+    verbatim_author 'McAtee'
     rank_class Ranks.lookup(:iczn, 'SPECIES')
     type 'Protonym'
   end
@@ -167,7 +167,7 @@ FactoryGirl.define do
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id 10
     year_of_publication 1900
-    author 'McAtee'
+    verbatim_author 'McAtee'
     rank_class Ranks.lookup(:iczn, 'subspecies')
     type 'Protonym'
   end
@@ -183,7 +183,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'kingdom')
     type 'Protonym'
   end
@@ -196,7 +196,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'phylum')
     type 'Protonym'
   end
@@ -209,7 +209,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'subphylum')
     type 'Protonym'
   end
@@ -222,7 +222,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'class')
     type 'Protonym'
   end
@@ -235,7 +235,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'subclass')
     type 'Protonym'
   end
@@ -248,7 +248,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'order')
     type 'Protonym'
   end
@@ -261,7 +261,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'suborder')
     type 'Protonym'
   end
@@ -274,7 +274,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'family')
     type 'Protonym'
   end
@@ -287,7 +287,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'subfamily')
     type 'Protonym'
   end
@@ -300,7 +300,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'Tribe')
     type 'Protonym'
   end
@@ -313,7 +313,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
     year_of_publication nil
-    author nil
+    verbatim_author nil
     rank_class Ranks.lookup(:icn, 'subtribe')
     type 'Protonym'
   end
@@ -326,7 +326,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
     year_of_publication 1850
-    author 'John'
+    verbatim_author 'John'
     rank_class Ranks.lookup(:icn, 'Genus')
     type 'Protonym'
   end
@@ -339,7 +339,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
     year_of_publication 1850
-    author 'Say'
+    verbatim_author 'Say'
     rank_class Ranks.lookup(:icn, 'Subgenus')
     type 'Protonym'
   end
@@ -352,7 +352,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
     year_of_publication 1850
-    author 'Say'
+    verbatim_author 'Say'
     rank_class Ranks.lookup(:icn, 'section')
     type 'Protonym'
   end
@@ -365,7 +365,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
     year_of_publication 1850
-    author 'Say'
+    verbatim_author 'Say'
     rank_class Ranks.lookup(:icn, 'series')
     type 'Protonym'
   end
@@ -379,7 +379,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id 10
     year_of_publication 1900
-    author 'McAtee'
+    verbatim_author 'McAtee'
     rank_class Ranks.lookup(:icn, 'SPECIES')
     type 'Protonym'
   end
@@ -392,7 +392,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id 10
     year_of_publication 1900
-    author 'McAtee'
+    verbatim_author 'McAtee'
     rank_class Ranks.lookup(:icn, 'subspecies')
     type 'Protonym'
   end
@@ -405,7 +405,7 @@ FactoryGirl.define do
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id 10
     year_of_publication 1900
-    author 'McAtee'
+    verbatim_author 'McAtee'
     rank_class Ranks.lookup(:icn, 'variety')
     type 'Protonym'
   end

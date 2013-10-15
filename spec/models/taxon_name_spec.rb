@@ -1,30 +1,12 @@
 require 'spec_helper'
 
-# TODO:
-# validation tests should be more generalized to cover botanical and potentially
-# other nomenclature as well. Botanical ranks also have  endings of taxa encoded.
+# TODO: validation tests should be more generalized to cover botanical and potentially
+# other nomenclature as well.
+# Botanical ranks also have endings of taxa encoded. <- this should be 'specified'
 
 describe TaxonName do
 
   let(:taxon_name) { TaxonName.new }
-
-  context 'properties' do
-    specify 'name' do
-      expect(taxon_name).to respond_to(:name)
-    end
-    
-    specify 'parent_id' do
-      expect(taxon_name).to respond_to(:parent_it)
-    end
-  
-    specify 'source_id' do
-      expect(taxon_name).to respond_to(:source_id)
-    end
-
-    specify 'rank_class' do
-      expect(taxon_name).to respond_to(:rank_class)
-    end
-  end
 
   context 'associations' do 
     specify 'source' do
@@ -32,6 +14,11 @@ describe TaxonName do
     end 
 
     context 'taxon_name_relationships' do
+
+      specify 'taxon_name_relationships' do
+        expect(taxon_name).to respond_to(:taxon_name_relationships)
+      end 
+
       before do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
         taxon_name.save!
@@ -41,22 +28,24 @@ describe TaxonName do
         @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
       end
 
-      # TaxonNameRelationships in which the taxon name is the subject
-      specify 'taxon_name_relationships' do
-        expect(taxon_name).to respond_to (:taxon_name_relationships)
-        expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
-      end
+      context 'methods related to taxon_name_relationship associations (returning Array)' do
+        # TaxonNameRelationships in which the taxon name is the subject
+        specify 'taxon_name_relationships' do
+          expect(taxon_name).to respond_to (:taxon_name_relationships)
+          expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
+        end
 
-      # TaxonNameRelationships in which the taxon name is the subject OR object
-      specify 'all_taxon_name_relationships' do
-        expect(taxon_name).to respond_to (:all_taxon_name_relationships)
-        expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
-      end
+        # TaxonNameRelationships in which the taxon name is the subject OR object
+        specify 'all_taxon_name_relationships' do
+          expect(taxon_name).to respond_to (:all_taxon_name_relationships)
+          expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
+        end
 
-      # TaxonNames related by all_taxon_name_relationships
-      specify 'related_taxon_names' do
-        expect(taxon_name.related_taxon_names).to eq([@type_of_genus, @original_genus])
-      end
+        # TaxonNames related by all_taxon_name_relationships
+        specify 'related_taxon_names' do
+          expect(taxon_name.related_taxon_names).to eq([@type_of_genus, @original_genus])
+        end
+      end 
     end
   end
 
@@ -169,6 +158,14 @@ describe TaxonName do
   end
 
   context 'methods' do
+    context 'verbatim_author' do 
+      specify 'parens are allowed' do
+        taxon_name.verbatim_author = '(Smith)' 
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:verbatim_author)).to be_false
+      end
+    end
+
     context 'rank_class' do 
       specify 'returns the passed value when not yet validated and not a NomenclaturalRank' do
         taxon_name.rank_class = 'foo'
@@ -274,9 +271,5 @@ describe TaxonName do
       end
     end
 
-    context "rendering" do
-
-
-    end
   end
 end
