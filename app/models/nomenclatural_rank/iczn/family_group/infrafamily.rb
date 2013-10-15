@@ -4,5 +4,10 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infrafamily < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::FamilyGroup::Subfamily
   end
 
+  def self.validate_name_format(taxon_name)
+    super
+    taxon_name.errors.add(:name, 'name must end in -odd') if not(taxon_name.name =~ /.*odd\Z/)
+  end
+
 
 end
