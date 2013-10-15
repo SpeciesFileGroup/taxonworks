@@ -93,7 +93,16 @@ gem 'awesome_nested_set',
 gem 'bibtex-ruby'
 
 # Use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
+#
+# The bcrypt-ruby gem suffers a problem similar to that of the mysql2 gem, but with different specifics:
+#
+#     bcrypt-ruby (3.0.1-x86-mingw32)
+# becomes
+#     bcrypt-ruby (3.0.1-x86-mingw32)
+#     bcrypt-ruby (3.0.1-x64-mingw32)
+#
+#
+gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Use unicorn as the app server
 # gem 'unicorn'
