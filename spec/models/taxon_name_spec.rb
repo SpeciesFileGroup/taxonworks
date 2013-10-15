@@ -121,7 +121,7 @@ describe TaxonName do
           end
 
           specify "all ICN FactoryGirl fixtures are valid" do
-            expect(kingdom2.descendants.length).should be >= 15
+            expect(kingdom2.descendants.length).to be >= 15
             kingdom2.descendants.each do |t|
               expect(t.valid?).to be_true
             end
