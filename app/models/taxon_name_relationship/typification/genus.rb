@@ -3,14 +3,13 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
   # write validation to be used onyl when a genus group name
   # write validation so that the subject must be a species group name
 
-   # left side
-   def self.valid_subject_ranks
-     NomenclaturalRank::ICZN::SpeciesGroup.descendants + NomenclaturalRank::ICN::SpeciesGroup 
+  # left side
+  def self.valid_subject_ranks
+    NomenclaturalRank::ICZN::SpeciesGroup.descendants + NomenclaturalRank::ICN::SpeciesGroup 
   end
 
-   # right_side
+  # right_side
   def self.valid_object_ranks
-
   end
 
   def self.assignment_method
