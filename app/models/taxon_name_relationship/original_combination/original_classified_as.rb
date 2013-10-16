@@ -1,0 +1,2 @@
+class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNameRelationship::OriginalCombination
+end
