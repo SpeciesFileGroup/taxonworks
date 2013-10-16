@@ -4,5 +4,11 @@ class NomenclaturalRank::Icn::GenusGroup::Subgenus < NomenclaturalRank::Icn::Gen
     NomenclaturalRank::Icn::GenusGroup::Genus
   end
 
+  def self.available_parents
+    NomenclaturalRank::Icn::GenusGroup::Genus
+  end
 
+  def self.abbreviation
+    "sgen."
+  end
 end

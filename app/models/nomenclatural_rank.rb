@@ -57,8 +57,12 @@ class NomenclaturalRank
     nil
   end
 
-  def self.abbreviations
-    []
+  def self.abbreviation
+    nil
+  end
+
+  def self.available_parents
+    NomenclaturalRank
   end
 
   def self.common?

@@ -4,5 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infrakingdom < NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom
   end
 
-
+  def self.available_parents
+    NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom
+  end
 end

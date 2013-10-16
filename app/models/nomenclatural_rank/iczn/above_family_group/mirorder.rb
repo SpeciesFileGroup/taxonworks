@@ -4,5 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Mirorder < NomenclaturalRank::I
     NomenclaturalRank::Iczn::AboveFamilyGroup::Superorder
   end
 
-
+  def self.available_parents
+    NomenclaturalRank::Iczn::AboveFamilyGroup::Superorder
+  end
 end

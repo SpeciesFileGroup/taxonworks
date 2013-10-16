@@ -4,5 +4,12 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Subspecies < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::SpeciesGroup::Species
   end
 
+  def self.available_parents
+    NomenclaturalRank::Iczn::SpeciesGroup::Species
+  end
+
+  def self.abbreviation
+    'ssp.'
+  end
 
 end

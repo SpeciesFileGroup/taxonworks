@@ -4,5 +4,4 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Phylum < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::AboveFamilyGroup::Superphylum
   end
 
-
 end

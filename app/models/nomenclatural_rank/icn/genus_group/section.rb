@@ -4,5 +4,7 @@ class NomenclaturalRank::Icn::GenusGroup::Section < NomenclaturalRank::Icn::Genu
     NomenclaturalRank::Icn::GenusGroup::Subgenus
   end
 
-
+  def self.abbreviation
+    "sect."
+  end
 end

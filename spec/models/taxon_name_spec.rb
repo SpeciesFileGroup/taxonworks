@@ -1,9 +1,5 @@
 require 'spec_helper'
 
-# TODO: validation tests should be more generalized to cover botanical and potentially
-# other nomenclature as well.
-# Botanical ranks also have endings of taxa encoded. <- this should be 'specified'
-
 describe TaxonName do
 
   let(:taxon_name) { TaxonName.new }
