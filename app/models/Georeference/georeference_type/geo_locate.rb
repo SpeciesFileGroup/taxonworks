@@ -32,14 +32,48 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
-  def locate(country, locality, state)
+=begin
+  def initialize(parms = {})
+    opts = {
+        request: nil
+    }.merge!(parms)
+
+    #new_request = opts[:request]
+
+
+
+    if ! opts[:request].nil?
+      self.request = opts[:request]  # store the request in the grandparent
+      # and parse it
+      parse_to_grandparent(geo_locate_api(self.request))
+    end
+
+  end
+=end
+
+  def locate(parms = {})
     # TODO: validation: if country is some form of 'USA', a state is required
     # TODO: options can be added: county, hwyX, etc.
 
+    opts = {
+        country: nil,
+        state: nil,
+        county: nil,
+        locality: nil,
+        hwyX: 'false',
+        enableH2O: 'false',
+        doUncert: 'true',
+        doPoly: 'false',
+        displacePoly: 'false',
+        languageKey: '0',
+        fmt: 'json'
+    }.merge!(parms)
+
     # 'request' will be stored in the grandparent
 
-    self.request = "?country=#{country}&locality=#{locality}&state=#{state}&dopoly=true"
-    result = JSON.parse(Net::HTTP.get(URI_HOST, URI_PATH + request))
+    #self.request = "?country=#{country}&locality=#{locality}&state=#{state}&dopoly=true"
+    self.request = '?' + opts.collect{|key, value| "#{key}=#{value}"}.join('&')
+    result = geo_locate_api(self.request)
 
     if result['numResults'] > 0
       # TODO: there may be cases of more than one
@@ -47,8 +81,11 @@ g.locate('USA', 'Champaign', 'IL')
     else
       puts "Request = \'#{self.request}\': insufficient data."
     end
-
     # TODO: return validation: check to see what the return was.  Right not
+  end
+
+  def geo_locate_api(api_request)
+    JSON.parse(Net::HTTP.get(URI_HOST, URI_PATH + api_request))
   end
 
   def parse_to_grandparent(result)
