@@ -9,7 +9,7 @@ class NomenclaturalRank::Icn::AboveFamilyGroup::Subphylum < NomenclaturalRank::I
     taxon_name.errors.add(:name, 'name must end in -phytina, -phycotina, or -mycotina') if not(taxon_name.name =~ /.*phytina|phycotina|mycotina\Z/)
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Icn::AboveFamilyGroup::Phylum
   end
 end

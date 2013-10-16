@@ -9,7 +9,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infrafamily < NomenclaturalRank::Icz
     taxon_name.errors.add(:name, 'name must end in -odd') if not(taxon_name.name =~ /.*odd\Z/)
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Iczn::FamilyGroup::Subfamily
   end
 

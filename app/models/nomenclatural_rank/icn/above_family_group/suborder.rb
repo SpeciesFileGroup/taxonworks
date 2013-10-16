@@ -10,7 +10,7 @@ class NomenclaturalRank::Icn::AboveFamilyGroup::Suborder < NomenclaturalRank::Ic
     taxon_name.errors.add(:name, 'name must not end in -virineae') if(taxon_name.name =~ /.*virineae\Z/)
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Icn::AboveFamilyGroup::Order
   end
 end

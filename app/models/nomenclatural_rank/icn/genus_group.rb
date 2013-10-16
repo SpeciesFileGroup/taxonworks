@@ -8,8 +8,7 @@ class NomenclaturalRank::Icn::GenusGroup <  NomenclaturalRank::Icn
     nil
   end
 
-  def name
-    nil
+  def self.valid_parents
+    NomenclaturalRank::Icn::GenusGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
   end
-
 end

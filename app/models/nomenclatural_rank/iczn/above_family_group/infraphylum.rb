@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraphylum  < NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subphylum
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subphylum
   end
 end

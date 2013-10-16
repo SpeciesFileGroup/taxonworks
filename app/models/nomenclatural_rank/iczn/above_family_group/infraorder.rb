@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraorder < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Suborder
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Suborder
   end
 end

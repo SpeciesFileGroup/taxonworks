@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSubgroup < NomenclaturalRank
     NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup
   end
 

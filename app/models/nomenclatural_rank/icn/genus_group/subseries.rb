@@ -4,7 +4,7 @@ class NomenclaturalRank::Icn::GenusGroup::Subseries < NomenclaturalRank::Icn::Ge
     NomenclaturalRank::Icn::GenusGroup::Series
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Icn::GenusGroup::Series
   end
 

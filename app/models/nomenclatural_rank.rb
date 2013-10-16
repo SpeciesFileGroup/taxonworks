@@ -61,8 +61,8 @@ class NomenclaturalRank
     nil
   end
 
-  def self.available_parents
-    NomenclaturalRank
+  def self.valid_parents
+    nil
   end
 
   def self.common?
