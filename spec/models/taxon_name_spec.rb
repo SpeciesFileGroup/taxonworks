@@ -43,7 +43,7 @@ describe TaxonName do
 
         # TaxonNames related by all_taxon_name_relationships
         specify 'related_taxon_names' do
-          expect(taxon_name.related_taxon_names).to eq([@type_of_genus, @original_genus])
+          expect(taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
         end
       end
     end
