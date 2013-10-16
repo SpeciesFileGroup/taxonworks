@@ -9,10 +9,10 @@ class TaxonName < ActiveRecord::Base
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
 
-   # !! If self relatinships are every made possiblepossible this needs a DISTINCT clause
-   TaxonNameRelationship.find_by_sql("SELECT `taxon_name_relationships`.* FROM `taxon_name_relationships` WHERE `taxon_name_relationships`.`subject_taxon_name_id` = #{self.id} UNION
+    # !! If self relatinships are every made possiblepossible this needs a DISTINCT clause
+    TaxonNameRelationship.find_by_sql("SELECT `taxon_name_relationships`.* FROM `taxon_name_relationships` WHERE `taxon_name_relationships`.`subject_taxon_name_id` = #{self.id} UNION
                          SELECT `taxon_name_relationships`.* FROM `taxon_name_relationships` WHERE `taxon_name_relationships`.`object_taxon_name_id` = #{self.id}")
- end
+  end
 
   def all_related_taxon_names
     TaxonNameRelationship.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn 
@@ -33,7 +33,6 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
 
   # TODO: validates_format_of :name, with: "something", if: "some proc"
- 
 
   before_validation :set_type_if_empty,
     :check_format_of_name,
@@ -68,7 +67,7 @@ class TaxonName < ActiveRecord::Base
     self.type = 'Protonym' if self.type.nil?
   end
 
-  # TODO: This should be based on the logic of the related rank
+  # TODO: This should be based on the logic of the related Rank
   def set_cached_name
     true 
   end

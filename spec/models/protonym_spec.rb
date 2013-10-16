@@ -74,7 +74,7 @@ describe Protonym do
         end
 
         %w{genus subgenus species}.each do |rank|
-          method = "original_#{rank}" 
+          method = "original_description_#{rank}" 
           specify method do
             expect(protonym).to respond_to(method)
           end 
@@ -87,13 +87,32 @@ describe Protonym do
     before do
       @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'))
       @s = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'))
+      @o = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
       @g.save
       @s.save
+      @o.save
+    end
+
+    specify 'assign an original description genus' do
+      expect(@s.original_description_genus = @o).to be_true
+      expect(@s.save).to be_true 
+      expect(@s.original_description_genus_relationship.class).to eq(TaxonNameRelationship::OriginalDescription::OriginalGenus)
+      expect(@s.original_description_genus_relationship.subject).to eq(@o)
+      expect(@s.original_description_genus_relationship.object).to eq(@s)
     end
 
     specify 'assign a type species to a genus' do
-      expect(@g.type_taxon_name = @s).to be_true
+      expect(@g.type_species = @s).to be_true
+      expect(@g.save).to be_true
+    
+      expect(@g.type_species_relationship.class).to eq(TaxonNameRelationship::Typification::Species)
+      expect(@g.type_species_relationship.subject).to eq(@s)
+      expect(@g.type_species_relationship.object).to eq(@g)
+      expect(@g.type_taxon_name_relationship.class).to eq(TaxonNameRelationship::Typification::Species)
       expect(@g.type_taxon_name.name).to eq('aus')
+      expect(@s.type_of_relationships.to_a).to eq(@s.taxon_name_relationships.to_a)
+      expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Species)
+      expect(@s.type_of_relationships.first.object).to eq(@g)
     end
   end
 

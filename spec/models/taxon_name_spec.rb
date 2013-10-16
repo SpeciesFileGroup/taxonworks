@@ -26,27 +26,27 @@ describe TaxonName do
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
         @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
-  end
+      end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
-      # TaxonNameRelationships in which the taxon name is the subject
-      specify 'taxon_name_relationships' do
-        expect(taxon_name).to respond_to (:taxon_name_relationships)
+        # TaxonNameRelationships in which the taxon name is the subject
+        specify 'taxon_name_relationships' do
+          expect(taxon_name).to respond_to (:taxon_name_relationships)
           expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
-      end
+        end
 
-      # TaxonNameRelationships in which the taxon name is the subject OR object
-      specify 'all_taxon_name_relationships' do
-        expect(taxon_name).to respond_to (:all_taxon_name_relationships)
+        # TaxonNameRelationships in which the taxon name is the subject OR object
+        specify 'all_taxon_name_relationships' do
+          expect(taxon_name).to respond_to (:all_taxon_name_relationships)
           expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
-      end
+        end
 
-      # TaxonNames related by all_taxon_name_relationships
-      specify 'related_taxon_names' do
+        # TaxonNames related by all_taxon_name_relationships
+        specify 'related_taxon_names' do
           expect(taxon_name.related_taxon_names).to eq([@type_of_genus, @original_genus])
+        end
       end
     end
-  end
   end
 
   context 'validation' do 
@@ -107,80 +107,79 @@ describe TaxonName do
     context 'name (= latinized version)' do
       context 'format' do
         # TODO: Consider moving this to a different spec.
-        context "validate taxon_name FactoryGirl" do
-          subspecies = FactoryGirl.create(:iczn_subspecies)
-          kingdom1 = subspecies.ancestor_at_rank("kingdom")
-          variety = FactoryGirl.create(:icn_variety)
-          kingdom2 = variety.ancestor_at_rank("kingdom")
+        context "validate taxon_name FactoryGirl" 
+        subspecies = FactoryGirl.create(:iczn_subspecies)
+        kingdom1 = subspecies.ancestor_at_rank("kingdom")
+        variety = FactoryGirl.create(:icn_variety)
+        kingdom2 = variety.ancestor_at_rank("kingdom")
 
-          specify "all FactoryGirl ICZN fixtures are valid" do
-            expect(kingdom1.descendants.length).should be >= 10
-            kingdom1.descendants.each do |t|
-              expect(t.valid?).to be_true
-            end
-          end
-
-          specify "all ICN FactoryGirl fixtures are valid" do
-            expect(kingdom2.descendants.length).to be >= 15
-            kingdom2.descendants.each do |t|
-              expect(t.valid?).to be_true
-            end
-          end
-
-          fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "Foo")
-          specify "altered FactoryGirl fixtures should fail" do
-            expect(fail1.valid?).to be_false
-          end
-
-        end
-        context "when rank ICZN family" do
-          specify "is valid when ending in '-idae'" do
-            taxon_name.name = "Fooidae"
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_false
-          end
-          specify "is invalid when not ending in '-idae'" do
-            taxon_name.name = "Aus"
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_true
+        specify "all FactoryGirl ICZN fixtures are valid" do
+          expect(kingdom1.descendants.length).to be >= 10
+          kingdom1.descendants.each do |t|
+            expect(t.valid?).to be_true
           end
         end
-        context "when rank ICN family" do
-          specify "is valid when ending in '-aceae'" do
-            taxon_name.name = "Fooaceae"
-            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_false
+
+        specify "all ICN FactoryGirl fixtures are valid" do
+          expect(kingdom2.descendants.length).to be >= 15
+          kingdom2.descendants.each do |t|
+            expect(t.valid?).to be_true
           end
-          specify "is invalid when not ending in '-aceae'" do
-            taxon_name.name = "Aus"
-            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_true
-          end
+        end
+
+        fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "Foo")
+        specify "altered FactoryGirl fixtures should fail" do
+          expect(fail1.valid?).to be_false
+        end
+
+      end
+      context "when rank ICZN family" do
+        specify "is valid when ending in '-idae'" do
+          taxon_name.name = "Fooidae"
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_false
+        end
+        specify "is invalid when not ending in '-idae'" do
+          taxon_name.name = "Aus"
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_true
+        end
+      end
+      context "when rank ICN family" do
+        specify "is valid when ending in '-aceae'" do
+          taxon_name.name = "Fooaceae"
+          taxon_name.rank_class = Ranks.lookup(:icn, 'family')
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_false
+        end
+        specify "is invalid when not ending in '-aceae'" do
+          taxon_name.name = "Aus"
+          taxon_name.rank_class = Ranks.lookup(:icn, 'family')
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
     end
+  end
 
-    context 'after save' do
-      before do
-        taxon_name.save
-      end
+  context 'after save' do
+    before do
+      taxon_name.save
+    end
 
-      specify 'cached_name should be set' do
-        # expect(taxon_name.cached_name.nil?).to be false
-        pending "requires code in NomenclaturalRank subclasses"
+    specify 'cached_name should be set' do
+      # expect(taxon_name.cached_name.nil?).to be false
+      pending "requires code in NomenclaturalRank subclasses"
 
-        #specify "cached_higher_classification" do
-        #  expect(family.cached_higher_classification).to !eq(nil)
-        #end
-        #specify "cached_name" do
-        #  expect(family.cached_name).to eq(nil)
-        #end
+      #specify "cached_higher_classification" do
+      #  expect(family.cached_higher_classification).to !eq(nil)
+      #end
+      #specify "cached_name" do
+      #  expect(family.cached_name).to eq(nil)
+      #end
 
-      end
     end
   end
 
@@ -229,20 +228,20 @@ describe TaxonName do
         subspecies = FactoryGirl.create(:iczn_subspecies)
         family = FactoryGirl.create(:icn_family)
 
-                
+
         specify 'returns an ancestor at given rank' do
           expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
           expect(family.ancestor_at_rank('class').name).to eq('Aopsida')
         end
-        
+
         specify "returns nil when given rank and name's rank are the same" do
           expect(subspecies.ancestor_at_rank('subspecies')).to be_nil
         end
-        
+
         specify "returns nil when given rank is lower than name's rank" do
           expect(genus.ancestor_at_rank('species')).to be_nil
         end
-        
+
         specify 'returns nil when given rank is not present in the parent chain' do
           expect(genus.ancestor_at_rank('subtribe')).to be_nil
         end
@@ -274,7 +273,6 @@ describe TaxonName do
           expect(species1.root).to eq(root)
         end
 
-
         specify "ancestors" do 
           expect(root.ancestors.size).to eq(0)
           expect(family.ancestors.size).to eq(1)
@@ -300,6 +298,5 @@ describe TaxonName do
         #TODO: others, but clearly it works as needed
       end
     end
-
   end
-    end
+end
