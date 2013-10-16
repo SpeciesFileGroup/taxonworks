@@ -88,6 +88,7 @@ describe Protonym do
       @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'))
       @s = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'))
       @o = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
+      @f = Protonym.new(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'))
       @g.save
       @s.save
       @o.save
@@ -114,6 +115,8 @@ describe Protonym do
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@s.type_of_relationships.first.object).to eq(@g)
     end
+
+
   end
 
 end
