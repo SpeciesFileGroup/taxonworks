@@ -9,7 +9,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infratribe < NomenclaturalRank::Iczn
     taxon_name.errors.add(:name, 'name must end in -ad') if not(taxon_name.name =~ /.*ad\Z/)
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Iczn::FamilyGroup::Subtribe
   end
 

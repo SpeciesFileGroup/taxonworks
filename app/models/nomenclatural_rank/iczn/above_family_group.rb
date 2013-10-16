@@ -4,4 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup < NomenclaturalRank::Iczn
     taxon_name.errors.add(:name, 'name must be capitalized') unless(taxon_name.name == taxon_name.name.capitalize)
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Iczn::AboveFamilyGroup.descendants
+  end
 end

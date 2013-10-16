@@ -4,7 +4,7 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Subform < NomenclaturalRank::I
     NomenclaturalRank::Icn::InfraspecificGroup::Form
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Icn::InfraspecificGroup::Form
   end
 

@@ -4,7 +4,7 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Subvariety < NomenclaturalRank
     NomenclaturalRank::Icn::InfraspecificGroup::Variety
   end
 
-  def self.available_parents
+  def self.valid_parents
     NomenclaturalRank::Icn::InfraspecificGroup::Variety
   end
 
