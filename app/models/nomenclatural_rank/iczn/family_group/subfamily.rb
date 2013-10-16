@@ -10,6 +10,6 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subfamily < NomenclaturalRank::Iczn:
   end
 
   def self.available_parents
-    [NomenclaturalRank::Iczn::FamilyGroup::Family, NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup
+    [NomenclaturalRank::Iczn::FamilyGroup::Family, NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup]
   end
 end
