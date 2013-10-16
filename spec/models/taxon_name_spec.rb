@@ -25,7 +25,7 @@ describe TaxonName do
         @type_of_genus =  FactoryGirl.create(:iczn_genus, name: 'Bus')
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
