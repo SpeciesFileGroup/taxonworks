@@ -5,8 +5,8 @@ class Georeference < ActiveRecord::Base
   # table
   belongs_to :collecting_event
 
-  # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name used in the table;
-  # therefor, we need to tell it *which* table, and what to use to address the record we want
+  # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name of the column used in the table;
+  # therefore, we need to tell it *which* table, and what to use to address the record we want
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
 
   belongs_to :geographic_item

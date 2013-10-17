@@ -10,6 +10,7 @@ describe Georeference::GeoreferenceType::GeoLocate do
 
     specify 'that the locator can do certain things, or not.' do
       geo_locator = Georeference::GeoreferenceType::GeoLocate.new
+      u_geo_locator = Georeference::GeoreferenceType::GeoLocate.new(request: '?country=USA&locality=Urbana&state=IL&dopoly=true')
 
       geo_locator.locate(country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true')
 
