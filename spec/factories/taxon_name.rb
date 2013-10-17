@@ -321,7 +321,7 @@ FactoryGirl.define do
   factory :icn_genus, class: Protonym do
     name 'Aus'
     association :parent, factory: :icn_subtribe
-    cached_name 'Erythroneura'
+    cached_name 'Aus'
     cached_author_year 'Say (1850)'
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
     source_id nil
