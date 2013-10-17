@@ -2,12 +2,12 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
 
   # left side
   def self.valid_subject_ranks
-    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::ICZN::FamilyGroup.descendants + NomenclaturalRank::ICN::FamilyGroup.descendants
+    NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
   end
 
   def self.assignment_method

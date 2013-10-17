@@ -2,12 +2,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
+    NomenclaturalRank::Icn::Species + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
+    NomenclaturalRank::Icn::Species + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
 

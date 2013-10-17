@@ -2,12 +2,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalSection < TaxonNameRel
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICZN::SpeciesGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants + NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + NomenclaturalRank::Icn::Species + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
   def self.assignment_method
