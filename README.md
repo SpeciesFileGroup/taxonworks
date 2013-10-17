@@ -5,7 +5,7 @@ TaxonWorks
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
-[![Rdoc][rdoc]][10]]
+[rdoc]][10]
 
 Ruby version
 ------------
