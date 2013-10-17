@@ -1,13 +1,13 @@
 class TaxonNameRelationship::OriginalCombination::OriginalVariety < TaxonNameRelationship::OriginalCombination
 
+  # left_side
   def self.valid_subject_ranks
-    # TODO: Dmitry fix me! 
-    # Ranks.ordered_ranks_for(NomenclaturalRank::ICN::SpeciesGroup)
-    [ NomenclaturalRank::Icn::InfraspecificGroup::Variety  ]
+    NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
   end
 
+  # right_side
   def self.valid_object_ranks
-    #  Ranks.ordered_ranks_for(NomenclaturalRank::ICN::InfraspecificGroup)
+    NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
   end
 
   def self.assignment_method

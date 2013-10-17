@@ -1,14 +1,12 @@
 class TaxonNameRelationship::OriginalCombination::OriginalSubgenus < TaxonNameRelationship::OriginalCombination
 
-def self.valid_subject_ranks
-    # TODO: Dmitry fix me! 
-    # Ranks.ordered_ranks_for(NomenclaturalRank::ICN::SpeciesGroup)
-    [ ]
+  def self.valid_subject_ranks
+    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants
   end
 
+  # right_side
   def self.valid_object_ranks
-    #  Ranks.ordered_ranks_for(NomenclaturalRank::ICN::InfraspecificGroup)
-    [ ]
+    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICZN::SpeciesGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants + NomenclaturalRank::ICN::Species + NomenclaturalRank::ICN::InfraspecificGroup.descendants
   end
 
   def self.assignment_method
