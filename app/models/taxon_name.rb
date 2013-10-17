@@ -1,5 +1,8 @@
 class TaxonName < ActiveRecord::Base
 
+  include Shared::Identifiable
+  include Shared::Citable
+
   acts_as_nested_set
 
   belongs_to :source 
