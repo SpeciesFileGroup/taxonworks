@@ -5,7 +5,7 @@ TaxonWorks
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
-
+[![Rdoc][rdoc]][10]
 
 Ruby version
 ------------
@@ -71,3 +71,4 @@ How to run the test suite
 [7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
 [8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
 [9]: http://brew.sh/
+[10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
