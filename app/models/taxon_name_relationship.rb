@@ -13,8 +13,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def self.object_properties
-    [] 
-  end 
+    []
+  end
 
   def self.subject_properties
     []
@@ -29,8 +29,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_share_code
     if object.class == Protonym and subject.class == Protonym
-#      if ![object.class, subject.class].include?(Combination)
-      errors.add(:object_id, "The related taxon if from different nomenclatural code") if subject.rank_class.nomenclatural_code != object.rank_class.nomenclatural_code
+      errors.add(:object_id, "The related taxon is from different nomenclatural code") if subject.rank_class.nomenclatural_code != object.rank_class.nomenclatural_code
     end
   end
 
