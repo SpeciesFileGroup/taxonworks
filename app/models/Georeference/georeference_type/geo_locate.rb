@@ -5,7 +5,7 @@ class Georeference::GeoreferenceType::GeoLocate < Georeference::GeoreferenceType
   URI_HOST = 'www.museum.tulane.edu'
   URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx'
 
-  result = {}
+  @result = nil
 =begin
 
 g = Georeference::GeoreferenceType::GeoLocate.new
@@ -32,8 +32,8 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
-=begin
   def initialize(parms = {})
+    super
     opts = {
         request: nil
     }.merge!(parms)
@@ -44,12 +44,12 @@ g.locate('USA', 'Champaign', 'IL')
 
     if ! opts[:request].nil?
       self.request = opts[:request]  # store the request in the grandparent
-      # and parse it
-      parse_to_grandparent(geo_locate_api(self.request))
+      # and parse it      (make the request...)
+      result = geo_locate_api(self.request)
+      parse_to_grandparent(result) if result['numResults'] > 0
     end
 
   end
-=end
 
   def locate(parms = {})
     # TODO: validation: if country is some form of 'USA', a state is required
