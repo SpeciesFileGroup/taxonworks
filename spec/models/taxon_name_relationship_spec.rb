@@ -52,7 +52,7 @@ describe TaxonNameRelationship do
         end
 
         specify "valid when a TaxonNameRelationship" do
-          taxon_name_relationship.type = TaxonNameRelationship::Chresonym::Genus
+          taxon_name_relationship.type = TaxonNameRelationship::Combination::Genus
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:typification)).to be_false
         end

@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe TaxonNameRelationship::Chresonym::Species do
+describe TaxonNameRelationship::Combination::Species do
   pending "add some examples to (or delete) #{__FILE__}"
 end
