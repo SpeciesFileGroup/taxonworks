@@ -5,11 +5,15 @@ describe Source::Bibtex do
   let(:bibtex) { Source::Bibtex.new }
 
   before do
-    @bibtex_bibliography = BibTeX.open(Rails.root + "spec/files/Taenionema.bib")
+    @bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/Taenionema.bib')
     @simple1 = BibTeX::Entry.new() 
     @simple2 = BibTeX::Entry.new() 
-    @entry1 = BibTeX::Entry.new(type: :book, title: "Foos of Bar America", author: "Smith, James", year: 1921) 
-    @entry2 = BibTeX::Entry.new(type: :book, title: "Foos of Bar America", author: "Smith, James", year: 1921) 
+    @entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+    @entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+    @valid_bib = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+                                          year: 1921, publisher: 'Test Books Inc.')
+    @inval_bib = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
+                                  year: 1921)
   end
 
   context 'testing BibTeX capabilities' do 
@@ -98,7 +102,7 @@ describe Source::Bibtex do
     end
   end
 
-  context "on save" do
+  context 'on save' do
     before do
       source.save
     end
@@ -120,7 +124,7 @@ describe Source::Bibtex do
   end
 
   context 'import from bibtex to Source::Bibtex' do
-    specify "if we have an non-bibtex entry then #new_from_bibtex returns false" do
+    specify 'if we have an non-bibtex entry then #new_from_bibtex returns false' do
       expect(Source::Bibtex.new_from_bibtex(1)).to eq(false)
     end
   end
@@ -143,11 +147,35 @@ describe Source::Bibtex do
     expect(Source::Bibtex.new_from_bibtex(@bibtex_bibliography[0]).valid?).to be(true)
   end
 
-  context "relations / associations" do 
-    context "roles" do
-      pending "authors should be ordered"
+  context 'relations / associations' do
+    context('roles') {
+      before do
+        # create & save 3 people
+        p1 = Person.new(last_name: 'Aus')
+        p1.save
+        p2 = Person.new(last_name: 'Bus')
+        p2.save
+        p3 = Person.new(last_name: 'Cus')
+        p3.save
+        # create 3 bibtex sources
+        bs1 = Source::Bibtex.new(title: 'a1b2c3', author: 'Aus, Bus, Cus')
+        bs1.save
+        bs2 = Source::Bibtex.new(title: 'a3b1c2', author: 'Bus, Cus, Aus')
+        bs2.save
+        bs3 = Source::Bibtex.new(title: 'a2b3c1', author: 'Cus, Aus, Bus')
+        bs3.save
+      end
+
+      specify 'After save on new bibtex records, populate author/editor roles' do
+        pending # bs1 was saved in the "before", since the authors already exist in the db,
+        # the roles should be automatially set
+
+      end
+      specify 'bibtex.authors should be ordered based on roles' do
+        # assign author roles
+        pending
+      end
       pending "editors should be ordered"
-      pending "After save on new bibtex records, populate author/editor roles"
       pending "If authors/editors roles exist and bibtex author/editor is empty, populate bibtex author/editor"
       pending "On bibtex save, validate author vs. authors"
       pending "On bibtex save, validate editor vs. editors"
@@ -160,28 +188,61 @@ describe Source::Bibtex do
           method = "#{i}s"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          expect(bibtex.save).to be_true
-          expect(bibtex.send(method) << valid_person).to be_true
-          expect(bibtex.save).to be_true
+          bibtex.title = 'valid record'
+          bibtex.bibtex_type = 'book'
+          expect(bibtex.save).to be_true # save record to get an ID
+          expect(bibtex.send(method) << valid_person).to be_true # assigns author but doesn't save role
+          expect(bibtex.save).to be_true # saving bibtex also saves role
           expect(bibtex.send(method).first).to eq(valid_person)
         end
- 
+
         specify "#{i}_roles" do
           method = "#{i}_roles"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
+          bibtex.title = 'valid record'
+          bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true
           expect(bibtex.send("#{i}s") << valid_person).to be_true
           expect(bibtex.save).to be_true
           expect(bibtex.send(method).size).to eq(1)
         end
       end
-    end
+    }
   end
 
 
+context('Beth') {
 
- 
+  context 'define valid active record bibtex source' do
+    specify 'a valid bibtex source must have a bibtex type' do
+      localSrc = Source::Bibtex.new_from_bibtex(@valid_bib)
+      expect(localSrc.valid?).to be_true
+      localSrc.bibtex_type = 'test'
+      expect(localSrc.valid?).to be_false
+      localSrc.bibtex_type = nil
+      expect(localSrc.valid?).to be_false
+    end
+    pending 'a valid bibtex source must have one of the following fields: :author, :booktitle, :editor, :journal,
+      :title, :year, :URL, :stated_year' do
+      localSrc = Source::Bibtex.new()
+      expect(localSrc.valid?).to be_false
+    end
+  end
+
+  context 'on create_with_people' do
+    specify 'If I am not a valid bibtex source, do not save - return error' do
+      pending 'bibsrc = Source::Bibtex.new()'
+    end
+
+    pending 'If passed true, parse and create all new people from authors and editors'
+    pending 'If passed false, check for existing people and create only those who do not exist'
+    pending 'If passed false, and mult. people match an author or editor - return error'
+  end
+
+
+}
+
 
 
   context "concerns" do
