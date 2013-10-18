@@ -14,7 +14,7 @@ describe Role::Determiner do
       end
 
       specify 'determined_biological_collection_objects' do
-        expect(determiner).to respond_to(:determined_biological_collection_objects)
+        pending
       end
     end
   end
