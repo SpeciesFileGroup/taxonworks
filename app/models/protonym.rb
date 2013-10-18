@@ -6,15 +6,17 @@ class Protonym < TaxonName
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
 
-  %w{genus subgenus species}.each do |rank|
-    has_one "original_combination_#{rank}_relationship".to_sym, class_name: "TaxonNameRelationship::OriginalCombination::Original#{rank.capitalize}", foreign_key: :object_taxon_name_id 
-    has_one "original_combination_#{rank}".to_sym, through: "original_combination_#{rank}_relationship".to_sym, source: :subject
-  end
 
-  TaxonNameRelationship::Typification.descendants.each do |d|
-    relationship = "#{d.assignment_method}_relationship".to_sym
-    has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
-    has_one d.assignment_method.to_sym, through: relationship, source: :subject
+  TaxonNameRelationship.descendants.each do |d|
+    if d.respond_to?(:assignment_method) 
+      relationship = "#{d.assignment_method}_relationship".to_sym
+      has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
+      has_one d.assignment_method.to_sym, through: relationship, source: :subject
+    end
+
+    if d.respond_to?(:inverse_assignment_method)
+      # eval inverse method here
+    end
   end
 
   has_one :type_taxon_name_relationship, -> {

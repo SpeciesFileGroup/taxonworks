@@ -1,6 +1,5 @@
-class TaxonNameRelationship::OriginalCombination::OriginalSpecies < TaxonNameRelationship::OriginalCombination
+class TaxonNameRelationship::OriginalCombination::OriginalSubspecies < TaxonNameRelationship::OriginalCombination
 
-  # left_side
   def self.valid_subject_ranks
     NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::Species + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
@@ -12,12 +11,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalSpecies < TaxonNameRel
 
   def self.assignment_method
     # aus.original_combination_form = bus
-    :original_combination_species
+    :original_combination_subspecies
   end
 
   def self.inverse_assignment_method
     # bus.set_as_species_in_original_combination(aus)
-    :species_in_original_combination
+    :subspecies_in_original_combination
   end
 
 end

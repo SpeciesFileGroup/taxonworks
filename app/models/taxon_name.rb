@@ -1,5 +1,8 @@
 class TaxonName < ActiveRecord::Base
 
+  include Shared::Identifiable
+  include Shared::Citable
+
   acts_as_nested_set
 
   belongs_to :source 
@@ -29,8 +32,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   validates_presence_of :type
-  validates_presence_of :rank_class, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
-  validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
+  validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
+  validates_presence_of :name, if: Proc.new { |tn| [Protonym, TaxonName].include?(tn.class)}
 
   # TODO: validates_format_of :name, with: "something", if: "some proc"
 
@@ -87,7 +90,7 @@ class TaxonName < ActiveRecord::Base
 
   def validate_rank_class_class
     # TODO: refactor properly
-    return true if self.class == Chresonym && self.rank_class.nil? 
+    return true if self.class == Combination && self.rank_class.nil? 
     errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
   end
 

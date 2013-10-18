@@ -38,6 +38,20 @@ describe Protonym do
     end
 
     context 'has_one' do
+
+      TaxonNameRelationship.descendants.each do |d|
+        if d.respond_to?(:assignment_method) 
+          relationship = "#{d.assignment_method}_relationship".to_sym
+          specify relationship do
+            expect(protonym).to respond_to(relationship)
+          end 
+
+          specify d.assignment_method.to_s do
+            expect(protonym).to respond_to(d.assignment_method.to_sym)
+          end
+        end
+      end
+
       context 'typification' do
         specify 'type_taxon_name' do
           expect(@genus).to respond_to(:type_taxon_name)
@@ -115,8 +129,6 @@ describe Protonym do
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@s.type_of_relationships.first.object).to eq(@g)
     end
-
-
   end
 
 end

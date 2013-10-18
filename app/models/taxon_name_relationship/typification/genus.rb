@@ -5,12 +5,12 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
 
    # left side
   def self.valid_subject_ranks
-    NomenclaturalRank::ICZN::SpeciesGroup.descendants + NomenclaturalRank::ICN::SpeciesGroup.descendants
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::SpeciesGroup.descendants
   end
 
    # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::ICZN::GenusGroup.descendants + NomenclaturalRank::ICN::GenusGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants
   end
 
   def self.assignment_method
