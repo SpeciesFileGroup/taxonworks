@@ -74,56 +74,15 @@ class TaxonName < ActiveRecord::Base
 
   # TODO: This should be based on the logic of the related Rank
   def set_cached_name
-    genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
-    if !genus_species_ranks.include?(self.rank_class)
-      return nil
-    else
-      ((self.ancestors + self) & genus_species_ranks).each do |i|
-
-        case i.rank_class.rank_name
-          when "genus" then genus = i.name + ' '
-          when "subgenus" then subgenus += i.name + ' '
-          when "section" then subgenus += 'sect. ' + i.name + ' '
-          when "subsection" then subgenus += 'subsect. ' + i.name + ' '
-          when "series" then subgenus += 'ser. ' + i.name + ' '
-          when "subseries" then subgenus += 'subser. ' + i.name + ' '
-          when "species" then species += i.name + ' '
-          when "subspecies" then species += i.name + ' '
-          when "variety" then species += 'var. ' + i.name + ' '
-          when "subvariety" then species += 'subvar. ' + i.name + ' '
-          when "form" then species += 'f. ' + i.name + ' '
-          when "subform" then species += 'subf. ' + i.name + ' '
-          else
-        end
-        subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
-        return (genus + subgenus + species).strip!
-      end
-    end
+true
   end
 
   def set_cached_author_year
-    if self.rank_class.to_s.empty?
-      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-    elsif Object.const_get(self.rank_class.to_s).nomenclatural_code == :iczn
-      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-      if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
-        if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.empty?
-          ay = '(' + ay + ')' unless ay.empty?
-        end
-      end
-    elsif Object.const_get(self.rank_class.to_s).nomenclatural_code == :icn
-      t = [self.verbatim_author]
-      t += ['(' + self.year_of_publication + ')'] unless self.year_of_publication.empty?
-      ay = t.compact.join(' ')
-    else
-      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-    end
-    ay
+   true
   end
 
   def set_cached_higher_classification
-    above_family_ranks = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
-    self.ancestors.select{|i| [i.rank_class] == [i.rank_class] & above_family_ranks}.collect{|i| i.name}.join(':')
+true
   end
 
   def validate_parent_rank_is_higher
