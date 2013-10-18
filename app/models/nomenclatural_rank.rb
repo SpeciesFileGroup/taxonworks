@@ -50,7 +50,7 @@ class NomenclaturalRank
     end
   end
 
-  # The Class representing the immediate parent rank.  Required. 
+  # The Class representing the immediate parent rank.  Required.
   # Set to nil if a "root" level, this further implies that self
   # can not be assigned as a Rank to a TaxonName
   def self.parent_rank
