@@ -26,6 +26,21 @@ describe TaxonNameRelationship do
         pending
       end
 
+      context "object and subject should share the same nomenclatural code" do
+        specify "same code" do
+          r = FactoryGirl.build(:type_species_relationship)
+          r.valid?
+          expect(r.errors.include?(:object_id)).to be_false
+        end
+
+        specify "different code" do
+         # r = FactoryGirl.build(:type_species_relationship_faulty_object)
+          r = FactoryGirl.build(:type_species_relationship, object: FactoryGirl.build(:icn_genus))
+          r.valid?
+          expect(r.errors.include?(:object_id)).to be_true
+        end
+      end
+
       context "type" do
         specify "invalid when not a TaxonNameRelationship" do
           taxon_name_relationship.type = "foo"
@@ -37,7 +52,7 @@ describe TaxonNameRelationship do
         end
 
         specify "valid when a TaxonNameRelationship" do
-          taxon_name_relationship.type = TaxonNameRelationship::Chresonym::Genus
+          taxon_name_relationship.type = TaxonNameRelationship::Combination::Genus
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:typification)).to be_false
         end
@@ -56,6 +71,5 @@ describe TaxonNameRelationship do
       end
     end
   end
-
 
 end

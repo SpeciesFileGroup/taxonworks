@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Chresonym do
+describe Combination do
 
-  let(:chresonym) { Chresonym.new }
+  let(:combination) { Combination.new }
 
   context "associations" do
     context "has_one" do
@@ -10,7 +10,7 @@ describe Chresonym do
         %w{genus subgenus species subspecies}.each do |rank|
           method = "#{rank}_taxon_name_relationship" 
           specify method do
-            expect(chresonym).to respond_to(method)
+            expect(combination).to respond_to(method)
           end 
         end
       end
@@ -18,7 +18,7 @@ describe Chresonym do
       context "taxon_names" do
         %w{genus subgenus species subspecies}.each do |rank|
           specify rank do
-            expect(chresonym).to respond_to(rank.to_sym)
+            expect(combination).to respond_to(rank.to_sym)
           end 
         end
       end
@@ -28,22 +28,22 @@ describe Chresonym do
   context "validation" do 
     context "requires" do
       before do
-        chresonym.valid?
+        combination.valid?
       end
 
       specify "name to be nil" do
-        expect(chresonym.errors.include?(:name)).to be_false
+        expect(combination.errors.include?(:name)).to be_false
       end
 
-      specify "type is Chresonym" do
-        expect(chresonym.type).to eq('Chresonym')
+      specify "type is Combination" do
+        expect(combination.type).to eq('Combination')
       end
 
       specify "rank_class is optional" do
-        expect(chresonym.errors.include?(:rank_class)).to be_false
+        expect(combination.errors.include?(:rank_class)).to be_false
       end
 
-      specify 'specified Chresonym differs from Protonym original description for species-group names' do
+      specify 'specified Combination differs from Protonym original description for species-group names' do
         pending
       end 
 
@@ -52,7 +52,7 @@ describe Chresonym do
     context "usage" do
       context "subgeneric placement" do
         specify "a genus group name used as a subgenus" do
-          c = FactoryGirl.create(:subgenus_chresonym)
+          c = FactoryGirl.create(:subgenus_combination)
           expect(c.genus.name).to eq('Aus')
           expect(c.subgenus.name).to eq('Bus')
         end
@@ -60,7 +60,7 @@ describe Chresonym do
 
       context "species group names" do
         specify "a species group named used under a different genus" do
-          c = FactoryGirl.create(:species_chresonym)
+          c = FactoryGirl.create(:species_combination)
           expect(c.genus.name).to eq('Aus')
           expect(c.species.name).to eq('bus')
         end

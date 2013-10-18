@@ -4,5 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subclass < NomenclaturalRank::I
     NomenclaturalRank::Iczn::AboveFamilyGroup::ClassRank
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Iczn::AboveFamilyGroup::ClassRank
+  end
 
 end

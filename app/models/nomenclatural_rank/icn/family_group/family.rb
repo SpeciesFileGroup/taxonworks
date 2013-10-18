@@ -9,4 +9,7 @@ class NomenclaturalRank::Icn::FamilyGroup::Family < NomenclaturalRank::Icn::Fami
     taxon_name.errors.add(:name, 'name must end in -aceae') if not(taxon_name.name =~ /.*aceae\Z/)
   end
 
+  def self.abbreviation
+    "fam."
+  end
 end

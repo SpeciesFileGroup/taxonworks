@@ -9,4 +9,7 @@ class NomenclaturalRank::Icn::GenusGroup::Genus < NomenclaturalRank::Icn::GenusG
     taxon_name.errors.add(:name, 'name must not end in -virus') if (taxon_name.name =~ /.*virus\Z/)
   end
 
+  def self.abbreviation
+    "gen."
+  end
 end

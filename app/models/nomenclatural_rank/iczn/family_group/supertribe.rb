@@ -4,4 +4,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Supertribe < NomenclaturalRank::Iczn
     NomenclaturalRank::Iczn::FamilyGroup::Infrafamily
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Iczn::FamilyGroup::Subfamily
+  end
 end

@@ -1,1 +1,0 @@
-This project uses rspec-rails at the moment.  See https://github.com/rspec/rspec-rails.

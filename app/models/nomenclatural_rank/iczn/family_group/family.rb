@@ -9,4 +9,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Family < NomenclaturalRank::Iczn::Fa
     taxon_name.errors.add(:name, 'name must end in -idae') if not(taxon_name.name =~ /.*idae\Z/)
   end
 
+  def self.abbreviation
+    "fam."
+  end
 end

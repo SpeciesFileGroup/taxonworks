@@ -4,4 +4,11 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Subspecies < NomenclaturalRank
     NomenclaturalRank::Icn::Species
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Icn::Species
+  end
+
+  def self.abbreviation
+    "subsp."
+  end
 end

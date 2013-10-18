@@ -7,7 +7,7 @@
  ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
 
  # All assignable Rank Classes
- RANKS = ICN + ICZN + [NomenclaturalRank]
+ RANKS = [NomenclaturalRank] + ICN + ICZN
 
  # All Ranks, as Strings
  # TODO: Is there a point to this?
@@ -20,4 +20,5 @@
  
  # ICZN Rank Classes in a Hash with keys being the "human" name
  ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
+
 

@@ -1,5 +1,8 @@
 class TaxonName < ActiveRecord::Base
 
+  include Shared::Identifiable
+  include Shared::Citable
+
   acts_as_nested_set
 
   belongs_to :source 
@@ -29,18 +32,20 @@ class TaxonName < ActiveRecord::Base
   end
 
   validates_presence_of :type
-  validates_presence_of :rank_class, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
-  validates_presence_of :name, if: Proc.new { |tn| [TaxonName].include?(tn.class)}
+  validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
+  validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
 
   # TODO: validates_format_of :name, with: "something", if: "some proc"
 
   before_validation :set_type_if_empty,
-    :check_format_of_name,
-    :validate_rank_class_class,
-    :validate_source_type,
-    :validate_parent_rank_is_higher
+                    :check_format_of_name,
+                    :validate_rank_class_class,
+                    :validate_source_type,
+                    :validate_parent_rank_is_higher
 
-  after_validation :set_cached_name
+  after_validation :set_cached_name,
+                   :set_cached_author_year,
+                   :set_cached_higher_classification
 
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
@@ -69,8 +74,73 @@ class TaxonName < ActiveRecord::Base
 
   # TODO: This should be based on the logic of the related Rank
   def set_cached_name
-    true 
+    genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
+    if !genus_species_ranks.include?(self.rank_class)
+      name = nil
+    else
+      genus = ''
+      subgenus = ''
+      species = ''
+      (self.ancestors + [self]).each do |i|
+
+        if genus_species_ranks.include?(Object.const_get(self.rank_class.to_s))
+          case i.rank_class.rank_name
+            when "genus" then genus = i.name + ' '
+            when "subgenus" then subgenus += i.name + ' '
+            when "section" then subgenus += 'sect. ' + i.name + ' '
+            when "subsection" then subgenus += 'subsect. ' + i.name + ' '
+            when "series" then subgenus += 'ser. ' + i.name + ' '
+            when "subseries" then subgenus += 'subser. ' + i.name + ' '
+            when "species" then species += i.name + ' '
+            when "subspecies" then species += i.name + ' '
+            when "variety" then species += 'var. ' + i.name + ' '
+            when "subvariety" then species += 'subvar. ' + i.name + ' '
+            when "form" then species += 'f. ' + i.name + ' '
+            when "subform" then species += 'subf. ' + i.name + ' '
+            else
+          end
+          subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
+        end
+      end
+      name = (genus + subgenus + species).strip!
+    end
+    self.cached_name = name
   end
+
+  def set_cached_author_year
+    begin
+      rank = self.rank_class.to_class
+    rescue NameError
+      rank = nil
+    end
+
+    if rank.nil?
+      ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
+    else
+      if rank.nomenclatural_code == :iczn
+        ay = ([self.verbatim_author.to_s] + [self.year_of_publication.to_s]).compact.join(', ')
+        if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
+          if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.to_s.empty?
+            ay = '(' + ay + ')' unless ay.empty?
+          end
+       end
+      elsif rank.nomenclatural_code == :icn
+        t = [self.verbatim_author.to_s]
+        t += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
+        ay = t.compact.join(' ')
+      else
+        ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
+      end
+    end
+    self.cached_author_year = ay
+  end
+
+  def set_cached_higher_classification
+    above_family_ranks = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
+    hc = self.ancestors.select{|i| [i.rank_class] == [i.rank_class] & above_family_ranks}.collect{|i| i.name}.join(':')
+    self.cached_higher_classification = hc
+  end
+
 
   def validate_parent_rank_is_higher
     return true if self.parent.nil? || self.parent.rank_class == NomenclaturalRank
@@ -87,7 +157,7 @@ class TaxonName < ActiveRecord::Base
 
   def validate_rank_class_class
     # TODO: refactor properly
-    return true if self.class == Chresonym && self.rank_class.nil? 
+    return true if self.class == Combination && self.rank_class.nil?
     errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
   end
 

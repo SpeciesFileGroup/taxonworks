@@ -4,5 +4,4 @@ class NomenclaturalRank::Iczn::GenusGroup::GenusGroup < NomenclaturalRank::Iczn:
     NomenclaturalRank::Iczn::FamilyGroup::Infratribe
   end
 
-
 end

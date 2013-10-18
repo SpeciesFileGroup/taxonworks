@@ -4,4 +4,7 @@ class NomenclaturalRank::Icn::GenusGroup::Series < NomenclaturalRank::Icn::Genus
     NomenclaturalRank::Icn::GenusGroup::Subsection
   end
 
+  def self.abbreviation
+    "ser."
+  end
 end

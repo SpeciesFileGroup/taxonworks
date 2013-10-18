@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::GenusGroup::Infragenus < NomenclaturalRank::Iczn:
     NomenclaturalRank::Iczn::GenusGroup::Subgenus
   end
 
-
+  def self.available_parent
+    NomenclaturalRank::Iczn::GenusGroup::Subgenus
+  end
 
 end

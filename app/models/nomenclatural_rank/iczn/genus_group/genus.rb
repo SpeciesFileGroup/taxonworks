@@ -4,5 +4,8 @@ class NomenclaturalRank::Iczn::GenusGroup::Genus < NomenclaturalRank::Iczn::Genu
     NomenclaturalRank::Iczn::GenusGroup::GenusGroup
   end
 
+  def self.abbreviation
+    'gen.'
+  end
 
 end

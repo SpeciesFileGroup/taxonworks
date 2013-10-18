@@ -4,5 +4,7 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Form < NomenclaturalRank::Icn:
     NomenclaturalRank::Icn::InfraspecificGroup::Subvariety
   end
 
-
+  def self.abbreviation
+    "f."
+  end
 end

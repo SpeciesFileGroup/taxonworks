@@ -4,5 +4,11 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Subform < NomenclaturalRank::I
     NomenclaturalRank::Icn::InfraspecificGroup::Form
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Icn::InfraspecificGroup::Form
+  end
 
+  def self.abbreviation
+    "subf."
+  end
 end

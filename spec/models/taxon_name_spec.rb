@@ -1,12 +1,8 @@
 require 'spec_helper'
 
-# TODO: validation tests should be more generalized to cover botanical and potentially
-# other nomenclature as well.
-# Botanical ranks also have endings of taxa encoded. <- this should be 'specified'
-
 describe TaxonName do
 
-  let(:taxon_name) { TaxonName.new }
+  let(:taxon_name) { Protonym.new }
 
   context 'associations' do 
     specify 'source' do
@@ -25,7 +21,7 @@ describe TaxonName do
         @type_of_genus =  FactoryGirl.create(:iczn_genus, name: 'Bus')
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalDescription::OriginalGenus)
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
@@ -127,7 +123,7 @@ describe TaxonName do
           end
         end
 
-        fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "Foo")
+        fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "foo")
         specify "altered FactoryGirl fixtures should fail" do
           expect(fail1.valid?).to be_false
         end
@@ -173,14 +169,22 @@ describe TaxonName do
       # expect(taxon_name.cached_name.nil?).to be false
       pending "requires code in NomenclaturalRank subclasses"
 
-      #specify "cached_higher_classification" do
-      #  expect(family.cached_higher_classification).to !eq(nil)
-      #end
-      #specify "cached_name" do
-      #  expect(family.cached_name).to eq(nil)
-      #end
-
     end
+
+    specify 'cached_higher_classification' do
+      t = FactoryGirl.create(:iczn_species, cached_higher_classification: 'foo')
+      t.valid?
+      expect(t.cached_higher_classification).to eq('foo')
+      t.save
+      expect(t.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+    end
+
+    specify 'cached_author_year' do
+    end
+
+    specify 'cached_name' do
+    end
+
   end
 
   context 'methods' do
@@ -299,4 +303,10 @@ describe TaxonName do
       end
     end
   end
+
+  context 'concerns' do
+    it_behaves_like "identifiable"
+    it_behaves_like "citable"
+  end
+
 end

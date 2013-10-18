@@ -4,4 +4,7 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Variety < NomenclaturalRank::I
     NomenclaturalRank::Icn::InfraspecificGroup::Subspecies
   end
 
+  def self.abbreviation
+    "var."
+  end
 end

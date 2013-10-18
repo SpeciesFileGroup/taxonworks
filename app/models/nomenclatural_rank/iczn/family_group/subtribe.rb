@@ -8,4 +8,11 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subtribe < NomenclaturalRank::Iczn::
     super
     taxon_name.errors.add(:name, 'name must end in -ina') if not(taxon_name.name =~ /.*ina\Z/)
   end
+
+  def self.valid_parents
+    NomenclaturalRank::Iczn::FamilyGroup::Tribe
+  end
+  def self.abbreviation
+    "subtr."
+  end
 end
