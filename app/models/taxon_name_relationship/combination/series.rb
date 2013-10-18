@@ -7,7 +7,7 @@ class TaxonNameRelationship::Combination::Series < TaxonNameRelationship::Combin
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + NomenclaturalRank::Icn::Species + NomenclaturalRank::Icn::InfraspecificGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
 end

@@ -22,7 +22,7 @@ class NomenclaturalRank
     n = self.name.demodulize.underscore.humanize.downcase
     if n == "nomenclatural rank"
       n = "root"
-    elsif n == "classrank"
+    elsif n == "class rank"
       n = "class"
     end
     n

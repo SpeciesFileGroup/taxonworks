@@ -9,6 +9,4 @@ module Shared::HasRoles
     self.roles.size > 0
   end
 
-  protected
-
 end

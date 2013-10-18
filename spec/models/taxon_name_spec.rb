@@ -70,6 +70,12 @@ describe TaxonName do
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
 
+      specify 'cached_higher_classification' do
+        t = FactoryGirl.create(:iczn_species)
+        t.valid?
+        expect(t.set_cached_higher_classification).to eq('aaa')
+      end
+
     end
 
     context 'source' do
