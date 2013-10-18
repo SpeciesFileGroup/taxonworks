@@ -161,28 +161,15 @@ describe TaxonName do
   end
 
   context 'after save' do
-    before do
-      taxon_name.save
-    end
 
-    specify 'cached_name should be set' do
-      # expect(taxon_name.cached_name.nil?).to be false
-      pending "requires code in NomenclaturalRank subclasses"
+    specify 'cached_names should be set' do
+      t = FactoryGirl.create(:iczn_species)
 
-    end
-
-    specify 'cached_higher_classification' do
-      t = FactoryGirl.create(:iczn_species, cached_higher_classification: 'foo')
-      t.valid?
-      expect(t.cached_higher_classification).to eq('foo')
+      expect(t.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
       t.save
       expect(t.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-    end
-
-    specify 'cached_author_year' do
-    end
-
-    specify 'cached_name' do
+      expect(t.cached_author_year).to eq('McAtee, 1900')
+      expect(t.cached_name).to eq('Erythroneura (Erythroneura) vitis')
     end
 
   end

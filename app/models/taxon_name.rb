@@ -72,18 +72,17 @@ class TaxonName < ActiveRecord::Base
     self.type = 'Protonym' if self.type.nil?
   end
 
-  # TODO: This should be based on the logic of the related Rank
   def set_cached_name
     genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
     if !genus_species_ranks.include?(self.rank_class)
-      name = nil
+      cached_name = nil
     else
       genus = ''
       subgenus = ''
       species = ''
+      cached_name = nil
       (self.ancestors + [self]).each do |i|
-
-        if genus_species_ranks.include?(Object.const_get(self.rank_class.to_s))
+        if genus_species_ranks.include?(Object.const_get(i.rank_class.to_s))
           case i.rank_class.rank_name
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '
@@ -99,12 +98,12 @@ class TaxonName < ActiveRecord::Base
             when "subform" then species += 'subf. ' + i.name + ' '
             else
           end
-          subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
         end
       end
-      name = (genus + subgenus + species).strip!
+      subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
+      cached_name = (genus + subgenus + species).strip!
     end
-    self.cached_name = name
+    self.cached_name = cached_name
   end
 
   def set_cached_author_year
@@ -137,10 +136,9 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     above_family_ranks = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
-    hc = self.ancestors.select{|i| [i.rank_class] == [i.rank_class] & above_family_ranks}.collect{|i| i.name}.join(':')
+    hc = self.ancestors.select{|i| above_family_ranks.include?(Object.const_get(i.rank_class.to_s))}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
-
 
   def validate_parent_rank_is_higher
     return true if self.parent.nil? || self.parent.rank_class == NomenclaturalRank
