@@ -70,14 +70,6 @@ describe TaxonName do
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
 
-      specify 'cached_higher_classification' do
-        t = FactoryGirl.create(:iczn_species, cached_higher_classification: 'foo')
-        t.valid?
-        expect(t.cached_higher_classification).to eq('foo')
-        t.save
-        expect(t.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-      end
-
     end
 
     context 'source' do
@@ -177,14 +169,22 @@ describe TaxonName do
       # expect(taxon_name.cached_name.nil?).to be false
       pending "requires code in NomenclaturalRank subclasses"
 
-      #specify "cached_higher_classification" do
-      #  expect(family.cached_higher_classification).to !eq(nil)
-      #end
-      #specify "cached_name" do
-      #  expect(family.cached_name).to eq(nil)
-      #end
-
     end
+
+    specify 'cached_higher_classification' do
+      t = FactoryGirl.create(:iczn_species, cached_higher_classification: 'foo')
+      t.valid?
+      expect(t.cached_higher_classification).to eq('foo')
+      t.save
+      expect(t.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+    end
+
+    specify 'cached_author_year' do
+    end
+
+    specify 'cached_name' do
+    end
+
   end
 
   context 'methods' do

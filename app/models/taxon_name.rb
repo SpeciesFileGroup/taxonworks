@@ -76,7 +76,7 @@ class TaxonName < ActiveRecord::Base
   def set_cached_name
     genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
     if !genus_species_ranks.include?(self.rank_class)
-      return nil
+      name = nil
     else
       genus = ''
       subgenus = ''
@@ -102,8 +102,9 @@ class TaxonName < ActiveRecord::Base
           subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
         end
       end
-      return (genus + subgenus + species).strip!
+      name = (genus + subgenus + species).strip!
     end
+    self.cached_name = name
   end
 
   def set_cached_author_year
@@ -131,12 +132,13 @@ class TaxonName < ActiveRecord::Base
         ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
       end
     end
-    ay
+    self.cached_author_year = ay
   end
 
   def set_cached_higher_classification
     above_family_ranks = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
-    self.ancestors.select{|i| [i.rank_class] == [i.rank_class] & above_family_ranks}.collect{|i| i.name}.join(':')
+    hc = self.ancestors.select{|i| [i.rank_class] == [i.rank_class] & above_family_ranks}.collect{|i| i.name}.join(':')
+    self.cached_higher_classification = hc
   end
 
 
