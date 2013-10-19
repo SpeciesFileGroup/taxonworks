@@ -1,5 +1,20 @@
 require 'spec_helper'
 
 describe CollectionObject do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  let(:collection_object) {CollectionObject.new}
+
+  context 'associations' do
+    context 'belongs_to' do
+      specify 'preparation_type' do
+        expect(collection_object).to respond_to(:preparation_type)
+      end
+    end
+  end
+
+  context 'concerns' do
+    it_behaves_like "identifiable"
+    it_behaves_like "containable"
+  end
+
 end

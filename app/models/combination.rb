@@ -17,5 +17,4 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object    
   end
 
-
 end

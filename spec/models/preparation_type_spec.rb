@@ -6,8 +6,8 @@ describe PreparationType do
 
   context 'associations' do
     context 'has_many' do
-      specify 'biological_collection_objects' do
-        expect(preparation_type).to respond_to(:biological_collection_objects)
+      specify 'collection_objects' do
+        expect(preparation_type).to respond_to(:collection_objects)
       end
     end
   end

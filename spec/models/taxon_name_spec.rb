@@ -1,5 +1,4 @@
 require 'spec_helper'
-
 describe TaxonName do
 
   let(:taxon_name) { Protonym.new }
@@ -18,8 +17,8 @@ describe TaxonName do
       before do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
         taxon_name.save!
-        @type_of_genus =  FactoryGirl.create(:iczn_genus, name: 'Bus')
-        @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
+        @type_of_genus =  FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
+        @original_genus =  FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
         @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
@@ -66,6 +65,7 @@ describe TaxonName do
       specify 'parent rank is higher' do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
         taxon_name.parent = Protonym.new(name: 'aaa', rank_class: Ranks.lookup(:iczn, 'species'))
+        taxon_name.valid?
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
 
@@ -101,21 +101,19 @@ describe TaxonName do
 
     context 'name (= latinized version)' do
       context 'format' do
-        # TODO: Consider moving this to a different spec.
-        context "validate taxon_name FactoryGirl" 
-        subspecies = FactoryGirl.create(:iczn_subspecies)
-        variety = FactoryGirl.create(:icn_variety)
+        let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
+        let(:variety) { FactoryGirl.create(:icn_variety) }
 
-        specify "all FactoryGirl ICZN fixtures are valid" do
-          expect(subspecies.ancestors.length).to be >= 10
-        end
-
-        specify "all ICN FactoryGirl fixtures are valid" do
-          expect(variety.ancestors.length).to be >= 15
-        end
+         context "double checking FactoryGirl" do
+           specify "is building all related names for respective models" do 
+             expect(subspecies.ancestors.length).to be >= 10
+             expect(variety.ancestors.length).to be >= 15
+           end
+         end
 
         context 'after save' do
           specify 'cached_names should be set' do
+            # TODO: This behaviour is *not* expected, the Cached name should be set
             expect(subspecies.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
             subspecies.save
             expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
@@ -215,7 +213,6 @@ describe TaxonName do
       context 'ancestor_at_rank' do
         genus = FactoryGirl.create(:iczn_genus)
         family = FactoryGirl.create(:icn_family)
-
 
         specify 'returns an ancestor at given rank' do
           expect(genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
