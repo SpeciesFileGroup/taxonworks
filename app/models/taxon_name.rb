@@ -83,7 +83,7 @@ class TaxonName < ActiveRecord::Base
       cached_name = nil
       (self.ancestors + [self]).each do |i|
         if genus_species_ranks.include?(Object.const_get(i.rank_class.to_s))
-          case i.rank_class.rank_name
+          case i.rank
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '
             when "section" then subgenus += 'sect. ' + i.name + ' '
@@ -107,15 +107,10 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_author_year
-    begin
-      rank = self.rank_class.to_class
-    rescue NameError
-      rank = nil
-    end
-
-    if rank.nil?
+    if self.rank.nil?
       ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
     else
+      rank = Object.const_get(self.rank_class.to_s)
       if rank.nomenclatural_code == :iczn
         ay = ([self.verbatim_author.to_s] + [self.year_of_publication.to_s]).compact.join(', ')
         if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
@@ -128,7 +123,7 @@ class TaxonName < ActiveRecord::Base
         t += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
         ay = t.compact.join(' ')
       else
-        ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
+        ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(' ')
       end
     end
     self.cached_author_year = ay

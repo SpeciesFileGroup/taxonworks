@@ -65,8 +65,7 @@ describe TaxonName do
 
       specify 'parent rank is higher' do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-        taxon_name.parent = FactoryGirl.build(:iczn_species)
-        taxon_name.valid?
+        taxon_name.parent = Protonym.new(name: 'aaa', rank_class: Ranks.lookup(:iczn, 'species'))
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
 
@@ -105,30 +104,31 @@ describe TaxonName do
         # TODO: Consider moving this to a different spec.
         context "validate taxon_name FactoryGirl" 
         subspecies = FactoryGirl.create(:iczn_subspecies)
-        kingdom1 = subspecies.ancestor_at_rank("kingdom")
         variety = FactoryGirl.create(:icn_variety)
-        kingdom2 = variety.ancestor_at_rank("kingdom")
 
         specify "all FactoryGirl ICZN fixtures are valid" do
-          expect(kingdom1.descendants.length).to be >= 10
-          kingdom1.descendants.each do |t|
-            expect(t.valid?).to be_true
-          end
+          expect(subspecies.ancestors.length).to be >= 10
         end
 
         specify "all ICN FactoryGirl fixtures are valid" do
-          expect(kingdom2.descendants.length).to be >= 15
-          kingdom2.descendants.each do |t|
-            expect(t.valid?).to be_true
+          expect(variety.ancestors.length).to be >= 15
+        end
+
+        context 'after save' do
+          specify 'cached_names should be set' do
+            expect(subspecies.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
+            subspecies.save
+            expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+            expect(subspecies.cached_author_year).to eq('McAtee, 1900')
+            expect(subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
+            variety.save
+            expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
+            expect(variety.cached_author_year).to eq('McAtee (1900)')
+            expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
           end
         end
-
-        fail1 = FactoryGirl.build(:iczn_kingdom, rank_class: "foo")
-        specify "altered FactoryGirl fixtures should fail" do
-          expect(fail1.valid?).to be_false
-        end
-
       end
+
       context "when rank ICZN family" do
         specify "is valid when ending in '-idae'" do
           taxon_name.name = "Fooidae"
@@ -139,6 +139,18 @@ describe TaxonName do
         specify "is invalid when not ending in '-idae'" do
           taxon_name.name = "Aus"
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_true
+        end
+        specify "is valid when capitalized" do
+          taxon_name.name = "Fooidae"
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
+          taxon_name.valid?
+          expect(taxon_name.errors.include?(:name)).to be_false
+        end
+        specify "is invalid when not capitalized" do
+          taxon_name.name = "fooidae"
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
@@ -158,20 +170,6 @@ describe TaxonName do
         end
       end
     end
-  end
-
-  context 'after save' do
-
-    specify 'cached_names should be set' do
-      t = FactoryGirl.create(:iczn_species)
-
-      expect(t.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
-      t.save
-      expect(t.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-      expect(t.cached_author_year).to eq('McAtee, 1900')
-      expect(t.cached_name).to eq('Erythroneura (Erythroneura) vitis')
-    end
-
   end
 
   context 'methods' do
@@ -216,17 +214,16 @@ describe TaxonName do
     context 'rank related' do
       context 'ancestor_at_rank' do
         genus = FactoryGirl.create(:iczn_genus)
-        subspecies = FactoryGirl.create(:iczn_subspecies)
         family = FactoryGirl.create(:icn_family)
 
 
         specify 'returns an ancestor at given rank' do
-          expect(subspecies.ancestor_at_rank('family').name).to eq('Cicadellidae')
+          expect(genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
           expect(family.ancestor_at_rank('class').name).to eq('Aopsida')
         end
 
         specify "returns nil when given rank and name's rank are the same" do
-          expect(subspecies.ancestor_at_rank('subspecies')).to be_nil
+          expect(genus.ancestor_at_rank('genus')).to be_nil
         end
 
         specify "returns nil when given rank is lower than name's rank" do
@@ -240,7 +237,7 @@ describe TaxonName do
     end
 
     context 'class methods from awesome_nested_set' do
-      specify 'permit one root per project' 
+      specify 'permit one root per project'
 
       specify 'permit multiple roots across the database' do
         root1 = FactoryGirl.create(:root_taxon_name)
@@ -259,19 +256,19 @@ describe TaxonName do
         species2 = FactoryGirl.create(:iczn_species, parent: genus2)
         root.reload
 
-        specify 'root' do 
+        specify 'root' do
           # returns the subclass, so test by id
           expect(species1.root).to eq(root)
         end
 
-        specify "ancestors" do 
+        specify "ancestors" do
           expect(root.ancestors.size).to eq(0)
           expect(family.ancestors.size).to eq(1)
           expect(family.ancestors).to eq([root])
           expect(species1.ancestors.size).to eq(3)
         end
 
-        specify 'parent' do 
+        specify 'parent' do
           expect(root.parent).to eq(nil)
           expect(family.parent).to eq(root)
         end

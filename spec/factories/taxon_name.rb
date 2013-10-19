@@ -376,7 +376,7 @@ FactoryGirl.define do
 
   factory :icn_species, class: Protonym do
     name 'aaa'
-    association :parent, factory: :icn_section
+    association :parent, factory: :icn_series
     cached_name 'Aus (Aus sect. Aus ser. Aus) aaa'
     cached_author_year 'McAtee (1900)'
     cached_higher_classification 'Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae'
