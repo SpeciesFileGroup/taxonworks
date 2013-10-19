@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe TaxonName do
 
-  let(:taxon_name) { Protonym.new }
+  let(:taxon_name) { TaxonName.new }
 
   context 'associations' do 
     specify 'source' do
@@ -44,16 +44,12 @@ describe TaxonName do
     end
   end
 
-  context 'validation' do 
+  context 'validation' do
+    before do
+      taxon_name.valid?
+    end
+ 
     context 'requires' do
-      before do
-        taxon_name.valid?
-      end
-
-      specify 'name' do
-        expect(taxon_name.errors.include?(:name)).to be_true
-      end
-
       specify 'rank' do
         expect(taxon_name.errors.include?(:rank_class)).to be_true
       end
@@ -64,11 +60,10 @@ describe TaxonName do
 
       specify 'parent rank is higher' do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-        taxon_name.parent = Protonym.new(name: 'aaa', rank_class: Ranks.lookup(:iczn, 'species'))
+        taxon_name.parent = TaxonName.new(name: 'aaa', rank_class: Ranks.lookup(:iczn, 'species'))
         taxon_name.valid?
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
-
     end
 
     context 'source' do
@@ -101,6 +96,11 @@ describe TaxonName do
 
     context 'name (= latinized version)' do
       context 'format' do
+
+        specify "check format of name only when present" do
+          pending 
+        end
+
         let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
         let(:variety) { FactoryGirl.create(:icn_variety) }
 

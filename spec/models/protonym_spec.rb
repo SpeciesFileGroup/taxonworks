@@ -10,8 +10,8 @@ describe Protonym do
       protonym.name = 'aus'
       protonym.rank_class = Ranks.lookup(:iczn, 'species')
       protonym.save
-      @genus = FactoryGirl.create(:iczn_genus)
-      @family = @genus.ancestor_at_rank('family')
+      @genus = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus' )
+      @family = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae') 
       @species_type_of_genus = FactoryGirl.create(:taxon_name_relationship,
                                                   subject: protonym,
                                                   object: @genus, 
@@ -38,7 +38,6 @@ describe Protonym do
     end
 
     context 'has_one' do
-
       TaxonNameRelationship.descendants.each do |d|
         if d.respond_to?(:assignment_method) 
           relationship = "#{d.assignment_method}_relationship".to_sym
@@ -94,6 +93,16 @@ describe Protonym do
           end 
         end
       end
+    end
+  end
+
+  context 'validation' do
+    before do
+      protonym.valid?
+    end
+
+    specify 'name' do
+      expect(protonym.errors.include?(:name)).to be_true
     end
   end
 
