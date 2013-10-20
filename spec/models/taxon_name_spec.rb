@@ -14,31 +14,30 @@ describe TaxonName do
         expect(taxon_name).to respond_to(:taxon_name_relationships)
       end 
 
-      before do
-        taxon_name.update(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
-        taxon_name.save!
-        @type_of_genus =  FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
-        @original_genus =  FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
-        @relationship1 = FactoryGirl.create(:type_species_relationship, subject: taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+      before(:all) do
+        @taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
+        @type_of_genus = FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
+        @original_genus = FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
+        @relationship1 = FactoryGirl.create(:type_species_relationship, subject: @taxon_name, object: @type_of_genus )
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'taxon_name_relationships' do
           expect(taxon_name).to respond_to (:taxon_name_relationships)
-          expect(taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
+          expect(@taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'all_taxon_name_relationships' do
           expect(taxon_name).to respond_to (:all_taxon_name_relationships)
-          expect(taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
+          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
         end
 
         # TaxonNames related by all_taxon_name_relationships
         specify 'related_taxon_names' do
-          expect(taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
+          expect(@taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
         end
       end
     end
@@ -211,24 +210,26 @@ describe TaxonName do
   context 'hierarchy' do
     context 'rank related' do
       context 'ancestor_at_rank' do
-        genus = FactoryGirl.create(:iczn_genus)
-        family = FactoryGirl.create(:icn_family)
+        before(:all) do
+          @genus = FactoryGirl.create(:iczn_genus)
+          @family = FactoryGirl.create(:icn_family)
+        end
 
         specify 'returns an ancestor at given rank' do
-          expect(genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
-          expect(family.ancestor_at_rank('class').name).to eq('Aopsida')
+          expect(@genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
+          expect(@family.ancestor_at_rank('class').name).to eq('Aopsida')
         end
 
         specify "returns nil when given rank and name's rank are the same" do
-          expect(genus.ancestor_at_rank('genus')).to be_nil
+          expect(@genus.ancestor_at_rank('genus')).to be_nil
         end
 
         specify "returns nil when given rank is lower than name's rank" do
-          expect(genus.ancestor_at_rank('species')).to be_nil
+          expect(@genus.ancestor_at_rank('species')).to be_nil
         end
 
         specify 'returns nil when given rank is not present in the parent chain' do
-          expect(genus.ancestor_at_rank('subtribe')).to be_nil
+          expect(@genus.ancestor_at_rank('subtribe')).to be_nil
         end
       end
     end
@@ -245,39 +246,40 @@ describe TaxonName do
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
       context 'handle a simple hierarchy with awesome_nested_set' do
-        root = FactoryGirl.create(:root_taxon_name)
-        family = FactoryGirl.create(:iczn_family, parent: root)
-        genus1 = FactoryGirl.create(:iczn_genus, parent: family)
-        genus2 = FactoryGirl.create(:iczn_genus, parent: family)
-        species1 = FactoryGirl.create(:iczn_species, parent: genus1)
-        species2 = FactoryGirl.create(:iczn_species, parent: genus2)
-        root.reload
+        before(:all) do
+          @root = FactoryGirl.create(:root_taxon_name)
+          @family = FactoryGirl.create(:iczn_family, parent: @root)
+          @genus1 = FactoryGirl.create(:iczn_genus, parent: @family)
+          @genus2 = FactoryGirl.create(:iczn_genus, parent: @family)
+          @species1 = FactoryGirl.create(:iczn_species, parent: @genus1)
+          @species2 = FactoryGirl.create(:iczn_species, parent: @genus2)
+          @root.reload
+        end
 
         specify 'root' do
-          # returns the subclass, so test by id
-          expect(species1.root).to eq(root)
+          expect(@species1.root).to eq(@root)
         end
 
         specify "ancestors" do
-          expect(root.ancestors.size).to eq(0)
-          expect(family.ancestors.size).to eq(1)
-          expect(family.ancestors).to eq([root])
-          expect(species1.ancestors.size).to eq(3)
+          expect(@root.ancestors.size).to eq(0)
+          expect(@family.ancestors.size).to eq(1)
+          expect(@family.ancestors).to eq([@root])
+          expect(@species1.ancestors.size).to eq(3)
         end
 
         specify 'parent' do
-          expect(root.parent).to eq(nil)
-          expect(family.parent).to eq(root)
+          expect(@root.parent).to eq(nil)
+          expect(@family.parent).to eq(@root)
         end
 
         specify 'leaves' do
-          expect(root.leaves).to eq([species1, species2])
+          expect(@root.leaves).to eq([@species1, @species2])
         end
 
         specify 'move_to_child_of' do
-          species2.move_to_child_of(genus1)
-          expect(genus2.children).to eq([])
-          expect(genus1.children).to eq([species1,species2])
+          @species2.move_to_child_of(@genus1)
+          expect(@genus2.children).to eq([])
+          expect(@genus1.children).to eq([@species1,@species2])
         end
 
         #TODO: others, but clearly it works as needed

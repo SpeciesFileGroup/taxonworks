@@ -130,8 +130,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_higher_classification
-    above_family_ranks = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
-    hc = self.ancestors.select{|i| above_family_ranks.include?(Object.const_get(i.rank_class.to_s))}.collect{|i| i.name}.join(':')
+    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
+    hc = self.ancestors.select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 
