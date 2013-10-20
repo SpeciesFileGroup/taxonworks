@@ -7,6 +7,13 @@ describe Person do
   end
 
   let(:person) { FactoryGirl.build(:person) }
+  let(:save_person) {
+    person.last_name = 'Smith' 
+    person.save
+  }
+  let(:bibtex_source) {
+    FactoryGirl.create(:bibtex_source) 
+  }
 
   context 'validation' do
     before do
@@ -31,21 +38,48 @@ describe Person do
     end
   end
 
-  context 'reflections / foreign keys' do
+  context 'associations' do
+
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
       end
+
+      context 'sources' do
+        specify 'authored_sources' do
+          expect(person).to respond_to(:authored_sources)
+          save_person {
+            bibtex_source.authors << person
+            bibtex_source.save
+            expect(person.authored_sources.to_a).to eq([bibtex_source])
+          }
+        end
+
+        specify 'edited_sources' do
+          expect(person).to respond_to(:edited_sources)
+          save_person {
+            bibtex_source.editors << person
+            bibtex_source.save
+            expect(person.edited_sources.to_a).to eq([bibtex_source])
+          }
+        end 
+
+      end
+
     end
   end
 
   context 'usage and rendering' do
 
-    before do
+    let(:build_people) {
       @person1 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith')
       @person2 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald')
       @person3 = FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan')
       @person4 = FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn')
+    }
+
+    before do
+      build_people
     end
 
     context 'usage' do
@@ -67,22 +101,21 @@ describe Person do
 
       context 'rendering' do
         specify "initials, last name only" do
-         expect(@person1.name).to eq("J. Smith")
+          expect(@person1.name).to eq("J. Smith")
         end
       end
     end
-
   end
 
   context 'roles' do
     specify 'is_author?' do
-      person.last_name = 'balloonman'
-      expect(person).to respond_to(:is_author?)
-      expect(person.is_author?).to be_false
-      b = FactoryGirl.create(:bibtex_source)         # Source::Bibtex.new
-      b.authors << person
-      b.save!
-      expect(person.is_author?).to be_true
+      save_person {
+        expect(person).to respond_to(:is_author?)
+        expect(person.is_author?).to be_false
+        bibtex_source.authors << person
+        bibtex_source.save!
+        expect(person.is_author?).to be_true
+      }
     end
   end
 

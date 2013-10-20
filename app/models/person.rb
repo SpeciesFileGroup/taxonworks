@@ -1,10 +1,15 @@
 class Person < ActiveRecord::Base
 
   validates_presence_of :last_name, :type
-  before_validation :set_type_if_blank, :type_is_vetted_or_unvetted
+  before_validation :set_type_if_blank
+  validates :type, inclusion: { in: ['Person::Vetted', 'Person::Unvetted'],
+                                message: "%{value} is not a valid type" }
 
   has_many :roles 
-  has_many :authored_sources, through: :roles, source: :role_object, source_type: 'Source::Bibtex'  
+  has_many :author_roles, class_name: 'Role::SourceAuthor'
+  has_many :editor_roles, class_name: 'Role::SourceAuthor'
+  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'  
+  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'  
 
   def name 
     [self.first_name, self.suffix, self.last_name, self.postfix].compact.join(' ')
@@ -19,20 +24,6 @@ class Person < ActiveRecord::Base
   def set_type_if_blank
     self.type ||= 'Person::Unvetted'
   end
-
-  # @return [Object]
-  def type_is_vetted_or_unvetted
-    if !['Person::Vetted', 'Person::Unvetted'].include?(self.type)
-      errors.add(:type, 'Invalid type')
-    end
-  end
-
-=begin
-    if self.type == 'Person::Vetted' or 'Person::Unvetted'
-      return true
-    end
-    # self.type == 'Person::Vetted' || 'Person::Unvetted'
-=end
 
 end
 
