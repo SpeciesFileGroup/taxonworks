@@ -103,22 +103,28 @@ describe TaxonName do
         let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
         let(:variety) { FactoryGirl.create(:icn_variety) }
 
-         context "double checking FactoryGirl" do
-           specify "is building all related names for respective models" do 
-             expect(subspecies.ancestors.length).to be >= 10
-             expect(variety.ancestors.length).to be >= 15
-           end
-         end
+        context "double checking FactoryGirl" do
+          specify "is building all related names for respective models" do 
+            expect(subspecies.ancestors.length).to be >= 10
+            expect(variety.ancestors.length).to be >= 15
+          end
+        end
 
-        context 'after save' do
-          specify 'cached_names should be set' do
-            # TODO: This behaviour is *not* expected, the Cached name should be set
+        context 'before_validation' do
+          specify 'cached_higher_name is set when it stands alone' do
+            family = TaxonName.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'))
+            family.valid?
+            # TODO: Dmitry- is this the expected higher classification?
+            expect(family.cached_higher_classification).to eq('Aidae')
+          end
+
+          specify 'cached_names are be set with ancestors' do
             expect(subspecies.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
-            subspecies.save
+            subspecies.valid?
             expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
             expect(subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
-            variety.save
+            variety.valid?
             expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
             expect(variety.cached_author_year).to eq('McAtee (1900)')
             expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')

@@ -43,9 +43,9 @@ class TaxonName < ActiveRecord::Base
                     :validate_source_type,
                     :validate_parent_rank_is_higher
 
-  after_validation :set_cached_name,
-                   :set_cached_author_year,
-                   :set_cached_higher_classification
+  before_validation :set_cached_name,
+    :set_cached_author_year,
+    :set_cached_higher_classification
 
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
