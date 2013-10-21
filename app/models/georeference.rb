@@ -20,6 +20,8 @@
 =end
 class Georeference < ActiveRecord::Base
 
+  FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
+
   # 'belongs_to' indicates that there is a record ID for this type of object (collecting_event) in *this* table, which
   # is used to find the object we want, 'collecting_event_id' is the column name, and refers to the 'collecting_events'
   # table
@@ -34,18 +36,19 @@ class Georeference < ActiveRecord::Base
   validate :proper_data_is_provided
 
   protected
+
   def proper_data_is_provided
-    case
-    when GeographicItem.find(geographic_item_id) == nil
-      errors.add(:georef, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
+   # case
+   # when GeographicItem.find(geographic_item_id) == nil
+     #  errors.add(:georef, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
       # when CollectingEvent.find(collecting_event_id) == nil
       #  errors.add(:georef, 'ID must be from item of class CollectingEvent.')
       # when GeographicItem.find(error_geographic_item_id).object.geometry_type.type_name != 'Polygon'
       #  errors.add(:georef, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
-      # when GeoreferenceType.find(type).to_s != 'Georeference::GeoreferenceType'
+      # when GeoreferenceHash[*arr]Type.find(type).to_s != 'Georeference::GeoreferenceType'
       #  errors.add(:georef, 'type must be of class Georeference::GeoreferenceType.')
-    else
+   # else
       true
-    end
+   # end
   end
 end

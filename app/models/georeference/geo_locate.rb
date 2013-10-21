@@ -1,14 +1,15 @@
 class Georeference::GeoLocate < Georeference
   #require 'json'
+  attr_accessor :response
+  attr_accessor :request
 
-  # TODO: These constants perhaps should be initialized in lib/tulane.rb
+  # These are fine here
   URI_HOST = 'www.museum.tulane.edu'
-  URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx'
+  URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
 
-  @result = nil
 =begin
 
-g = Georeference::GeoreferenceType::GeoLocate.new
+g = Georeference::GeoLocate.new
 g.locate('USA', 'Champaign', 'IL')
 
   Things to build a request:
@@ -32,99 +33,89 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
-  def initialize(parms = {})
+  def initialize(params = {})
     super
-    opts = {
-        request: nil
-    }.merge!(parms)
-
-    #new_request = opts[:request]
-
-
-
-    if ! opts[:request].nil?
-      self.request = opts[:request]  # store the request in the grandparent
-      # and parse it      (make the request...)
-      result = geo_locate_api(self.request)
-      parse_to_grandparent(result) if result['numResults'] > 0
-    end
-
+    @request = {} if @request.nil?
+    @response = nil
+    build(@request) if @request != {}
   end
 
-  def locate(parms = {})
+  def request_hash
+    Hash[*self.api_request.split('&').collect{|a| a.split('=', 2)}.flatten]
+  end
+
+  def build(params)
+    locate(params)
+    if @response['numResults'] > 0
+      build_geographic_item
+      build_error_geographic_item
+    else
+      errors.add(:api_request, 'requested parameters returned no results')
+    end
+  end
+
+  def locate(params = {})
+    if self.build_request(params)
+      get_response
+    end
+  end
+
+  def build_request(params = {})
     # TODO: validation: if country is some form of 'USA', a state is required
     # TODO: options can be added: county, hwyX, etc.
-
     opts = {
-        country: nil,
-        state: nil,
-        county: nil,
-        locality: nil,
-        hwyX: 'false',
-        enableH2O: 'false',
-        doUncert: 'true',
-        doPoly: 'false',
-        displacePoly: 'false',
-        languageKey: '0',
-        fmt: 'json'
-    }.merge!(parms)
+      country: nil,
+      state: nil,
+      county: nil,
+      locality: nil,
+      hwyX: 'false',
+      enableH2O: 'false',
+      doUncert: 'true',
+      doPoly: 'false',
+      displacePoly: 'false',
+      languageKey: '0',
+      fmt: 'json'
+    }.merge!(params)
 
-    # 'request' will be stored in the grandparent
-
-    #self.request = "?country=#{country}&locality=#{locality}&state=#{state}&dopoly=true"
-    self.request = '?' + opts.collect{|key, value| "#{key}=#{value}"}.join('&')
-    result = geo_locate_api(self.request)
-
-    if result['numResults'] > 0
-      # TODO: there may be cases of more than one
-      self.parse_to_grandparent(result)
+    # TODO: write actual validation
+    if valid = true
+      self.api_request = opts.collect{|key, value| "#{key}=#{value}"}.join('&')
+      true  
     else
-      puts "Request = \'#{self.request}\': insufficient data."
-    end
-    # TODO: return validation: check to see what the return was.  Right not
+      errors.add(:api_request, 'invalid request parameters') 
+      false
+    end 
   end
 
-  def geo_locate_api(api_request)
-    JSON.parse(Net::HTTP.get(URI_HOST, URI_PATH + api_request))
+  def get_response
+    @response = JSON.parse(self.call_api)
   end
 
-  def parse_to_grandparent(result)
+  def call_api
+    Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
+  end
 
-    # TODO: what is the name of the global GeoFactory?
-    twf = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
-    p = result['resultSet']['features'][0]['geometry']['coordinates']
+  def build_geographic_item
+    p = @response['resultSet']['features'][0]['geometry']['coordinates']
+    self.geographic_item =  GeographicItem.new
+    self.geographic_item.point = Georeference::FACTORY.point(p[0], p[1])
+  end
 
-    # 'self' is how one gets to the attributes of the grandparent?
-    #
-    # This is the point which will become the object for the grandparent's 'geographic_item_id'.
-
-    v = GeographicItem.new
-
-    v.point = twf.point(p[0], p[1])
-    v.save
-
-    self.geographic_item_id = v.id
-    # This will become grandparent's error_radius
-
-    self.error_radius = result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
-
-    # isolate the array of points from the result, and build the polygon from a line_string
+  def build_georeference_error
+    self.error_radius = @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
+    # Build the error geographic shape
+    # isolate the array of points from the response, and build the polygon from a line_string
     # made out of the points
-
-    p = result['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
-
-    # build an array of twf.points from p
+    p = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
+    # build an array of Georeference::FACTORY.points from p
+    
+    # TODO: could benchmark 
+    # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
+    # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+    
     err_array = []
-    p.each {|point| err_array.push(twf.point(point[0], point[1]))}
-
-    # This will become the object for the grandparent's 'error_geographic_item_id'
-
-    v = GeographicItem.new
-
-    v.polygon = twf.polygon(twf.line_string(err_array))
-    v.save
-
-    self.error_geographic_item_id = v.id
-
+    p.each {|point| err_array.push(Georeference::FACTORY.point(point[0], point[1]))}
+    self.error_geographic_item =  GeographicItem.new
+    self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
   end
 end
