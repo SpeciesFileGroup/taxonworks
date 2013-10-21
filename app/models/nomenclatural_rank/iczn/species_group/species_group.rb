@@ -4,5 +4,4 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup < NomenclaturalRank::I
     NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSeries
   end
 
-
 end

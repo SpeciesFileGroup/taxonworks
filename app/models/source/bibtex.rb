@@ -1,7 +1,8 @@
 class Source::Bibtex < Source 
 
-  # have some authors and editors
+  before_validation :check_bibtex_type, :check_has_field
 
+  # have some authors and editors
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
   # eef - The following is trying to order the author list based on the order in SourceAuthor.
   has_many :authors, -> {order("roles.position ASC")}, through: :author_roles, source: :person #TODO: It works, but :order depends on table name. Check if something can be done about this.
@@ -47,7 +48,35 @@ class Source::Bibtex < Source
     :bibtex_type       
   ]
 
-  def to_bibtex
+  # The following list is from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
+  VALID_BIBTEX_TYPES = %w{article
+      book
+      booklet
+      conference
+      inbook
+      incollection
+      inproceedings
+      manual
+      mastersthesis
+      misc
+      phdthesis
+      proceedings
+      techreport
+      unpublished}
+
+  # TW required fields (must have one of these fields filled in)
+  TW_REQ_FIELDS = [
+      :author,
+      :editor,
+      :booktitle,
+      :title,
+      :URL,
+      :journal,
+      :year,
+      :stated_year
+  ]
+
+    def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
     BIBTEX_FIELDS.each do |f|
       if !(f == :bibtex_type) && (!self[f].blank?)
@@ -70,6 +99,27 @@ class Source::Bibtex < Source
       s[key] = value.to_s
     end
     s
+  end
+
+  def self.create_with_people(all_new_people)
+    # parse the authors out of the author fields, and create the role linkages if the authors exist.
+    return false if !self.valid?
+    # if all_new_people
+  end
+
+  protected
+
+  def check_bibtex_type # must have a valid bibtex_type
+    VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+  end
+  def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
+    TW_REQ_FIELDS.each do |i| # for each i in the required fields list
+       # if i is not nil and not == "", it's valid
+      if (!self[i].nil?) && (self[i] != '')
+        return true
+      end
+    end
+    return false # none of the required fields have a value
   end
 
 end

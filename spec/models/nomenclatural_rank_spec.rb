@@ -17,9 +17,9 @@ describe NomenclaturalRank do
     end
 
     # TODO: can NomenclaturalRank be abstracted out as "subject" or similar
-    specify "abbreviations" do
-      expect(NomenclaturalRank).to respond_to(:abbreviations)
-      expect(NomenclaturalRank.abbreviations).to eq([])
+    specify "abbreviation" do
+      expect(NomenclaturalRank).to respond_to(:abbreviation)
+      expect(Ranks.lookup(:iczn, 'genus').abbreviation).to eq("gen.")
     end
 
     specify "common?" do

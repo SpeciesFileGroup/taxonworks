@@ -22,7 +22,7 @@ class NomenclaturalRank
     n = self.name.demodulize.underscore.humanize.downcase
     if n == "nomenclatural rank"
       n = "root"
-    elsif n == "classrank"
+    elsif n == "class rank"
       n = "class"
     end
     n
@@ -50,15 +50,19 @@ class NomenclaturalRank
     end
   end
 
-  # The Class representing the immediate parent rank.  Required. 
+  # The Class representing the immediate parent rank.  Required.
   # Set to nil if a "root" level, this further implies that self
   # can not be assigned as a Rank to a TaxonName
   def self.parent_rank
     nil
   end
 
-  def self.abbreviations
-    []
+  def self.abbreviation
+    nil
+  end
+
+  def self.valid_parents
+    nil
   end
 
   def self.common?

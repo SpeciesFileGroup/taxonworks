@@ -8,4 +8,5 @@ class NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup < NomenclaturalRank
     super
     taxon_name.errors.add(:name, 'name must end in -oidea') if not(taxon_name.name =~ /.*oidea\Z/)
   end
+
 end

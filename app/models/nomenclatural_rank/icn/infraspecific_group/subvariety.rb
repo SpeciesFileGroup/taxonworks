@@ -4,4 +4,11 @@ class NomenclaturalRank::Icn::InfraspecificGroup::Subvariety < NomenclaturalRank
     NomenclaturalRank::Icn::InfraspecificGroup::Variety
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Icn::InfraspecificGroup::Variety
+  end
+
+  def self.abbreviation
+    "subvar."
+  end
 end

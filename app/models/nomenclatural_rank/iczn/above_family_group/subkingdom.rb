@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom
   end
 
+  def self.valid_parents
+    NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom
+  end
+
 end

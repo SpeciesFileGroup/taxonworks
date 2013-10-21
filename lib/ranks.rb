@@ -36,9 +36,9 @@ module Ranks
 
   def self.lookup(code, rank)
     r = rank.downcase
-    if r == "class"
-      r = "class rank"
-    end
+    #if r == "class"
+    #  r = "class rank"
+    #end
 
     case code
       when :iczn

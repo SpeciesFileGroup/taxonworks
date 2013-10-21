@@ -10,4 +10,7 @@ class NomenclaturalRank::Icn::FamilyGroup::Tribe < NomenclaturalRank::Icn::Famil
     taxon_name.errors.add(:name, 'name must not end in -vireae') if (taxon_name.name =~ /.*vireae\Z/)
   end
 
+  def self.abbreviation
+    "tr."
+  end
 end

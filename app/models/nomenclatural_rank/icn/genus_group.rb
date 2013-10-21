@@ -1,15 +1,15 @@
 class NomenclaturalRank::Icn::GenusGroup <  NomenclaturalRank::Icn
 
   def self.validate_name_format(taxon_name)
-    taxon_name.errors.add(:name, 'name must be capitalized') if not(taxon_name.name = taxon_name.name.capitalize)
+    taxon_name.errors.add(:name, 'name must be capitalized') unless taxon_name.name = taxon_name.name.capitalize
+    taxon_name.errors.add(:name, 'name must be at least two letters') unless taxon_name.name.length > 1
   end
 
   def parent_rank
     nil
   end
 
-  def name
-    nil
+  def self.valid_parents
+    NomenclaturalRank::Icn::GenusGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
   end
-
 end
