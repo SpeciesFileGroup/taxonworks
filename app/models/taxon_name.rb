@@ -73,6 +73,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_name
+    # TODO: Dmitry- Move this to a Constant
     genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
     if !genus_species_ranks.include?(self.rank_class)
       cached_name = nil
@@ -131,7 +132,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
+    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 
