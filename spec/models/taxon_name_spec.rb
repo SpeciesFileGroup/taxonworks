@@ -118,9 +118,6 @@ describe TaxonName do
           end
 
           specify 'cached_names are be set with ancestors' do
-            # Dmitry: We don't want to test that it starts with 'aaa' unless we *intend* for the record to be invalid by default,
-            # do we intend this? 
-            # expect(subspecies.cached_higher_classification).to eq('aaa')  # it is 'aaa' in FactoryGirl
             subspecies.valid?
             expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
             

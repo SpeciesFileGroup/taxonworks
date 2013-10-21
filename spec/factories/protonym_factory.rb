@@ -137,12 +137,9 @@ FactoryGirl.define do
   factory :iczn_species, class: Protonym do
     name 'vitis'
     association :parent, factory: :iczn_subgenus
-    cached_name 'zzz'
-    #cached_name 'Erythroneura (Erythroneura) aaa'
-    cached_author_year 'ooooooooooo'
-    #cached_author_year 'McAtee, 1900'
-    cached_higher_classification 'aaa'
-    #cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
+    cached_name 'Erythroneura (Erythroneura) aaa'
+    cached_author_year 'McAtee, 1900'
+    cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id 10
     year_of_publication 1900
     verbatim_author 'McAtee'
@@ -154,7 +151,7 @@ FactoryGirl.define do
     association :parent, factory: :iczn_species
     cached_name 'Erythroneura (Erythroneura) vitis ssp'
     cached_author_year 'McAtee, 1900'
-    cached_higher_classification 'aaa'
+    cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
     source_id 10
     year_of_publication 1900
     verbatim_author 'McAtee'
