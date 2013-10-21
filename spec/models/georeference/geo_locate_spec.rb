@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Georeference::GeoreferenceType::GeoLocate do
+describe Georeference::GeoLocate do
 
   before :all do
 
@@ -9,7 +9,7 @@ describe Georeference::GeoreferenceType::GeoLocate do
   context 'on invocation of \'locate\'' do
 
     specify 'that the locator can do certain things, or not.' do
-      geo_locator = Georeference::GeoreferenceType::GeoLocate.new
+      geo_locator = Georeference::GeoLocate.new
 
       geo_locator.locate(country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true')
 
@@ -22,7 +22,7 @@ describe Georeference::GeoreferenceType::GeoLocate do
 
   context 'on invocation of \'new\' with a valid request.' do
     specify 'that the object fills itself in.' do
-      geo_locator = Georeference::GeoreferenceType::GeoLocate.new(request: '?country=USA&state=IL&locality=Urbana&dopoly=true')
+      geo_locator = Georeference::GeoLocate.new(request: '?country=USA&state=IL&locality=Urbana&dopoly=true')
 
       expect(geo_locator.request).to eq '?country=USA&state=IL&locality=Urbana&dopoly=true'
       expect(geo_locator.error_radius).to eq 5592.0
@@ -33,7 +33,7 @@ describe Georeference::GeoreferenceType::GeoLocate do
   context 'on invocation of \'new\' with an invalid request.' do
     specify 'that the object fills itself in.' do
       this_request = '?country=USA&locality=Urbana&dopoly=true'
-      geo_locator = Georeference::GeoreferenceType::GeoLocate.new(request: this_request)
+      geo_locator = Georeference::GeoLocate.new(request: this_request)
 
       expect(geo_locator.request).to eq this_request
       expect(geo_locator.error_radius).to be_nil
@@ -43,9 +43,9 @@ describe Georeference::GeoreferenceType::GeoLocate do
 
   context 'compare two adjacent location polygons' do
     specify 'that the two have certain relationships.' do
-      c_locator = Georeference::GeoreferenceType::GeoLocate.new
+      c_locator = Georeference::GeoLocate.new
       c_locator.locate(country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true')
-      u_locator = Georeference::GeoreferenceType::GeoLocate.new(request: '?country=USA&locality=Urbana&state=IL&dopoly=true')
+      u_locator = Georeference::GeoLocate.new(request: '?country=USA&locality=Urbana&state=IL&dopoly=true')
 
       expect(c_locator.error_geographic_item.object.intersects?(u_locator.error_geographic_item.object)).to be_true
       expect(c_locator.geographic_item.object.distance(u_locator.geographic_item.object)).to eq 0.03657760243645799

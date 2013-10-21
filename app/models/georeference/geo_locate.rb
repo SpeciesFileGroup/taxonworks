@@ -1,4 +1,4 @@
-class Georeference::GeoreferenceType::GeoLocate < Georeference::GeoreferenceType
+class Georeference::GeoLocate < Georeference
   #require 'json'
 
   # TODO: These constants perhaps should be initialized in lib/tulane.rb
