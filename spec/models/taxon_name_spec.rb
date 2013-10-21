@@ -114,12 +114,11 @@ describe TaxonName do
           specify 'cached_higher_name is set when it stands alone' do
             family = TaxonName.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'))
             family.valid?
-            # TODO: Dmitry- is this the expected higher classification?
             expect(family.cached_higher_classification).to eq('Aidae')
           end
 
           specify 'cached_names are be set with ancestors' do
-            expect(subspecies.cached_higher_classification).to eq('')  # it is 'aaa' in FactoryGirl
+            expect(subspecies.cached_higher_classification).to eq('aaa')  # it is 'aaa' in FactoryGirl
             subspecies.valid?
             expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
             expect(subspecies.cached_author_year).to eq('McAtee, 1900')

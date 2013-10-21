@@ -131,7 +131,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = self.ancestors.select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
+    hc = (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 

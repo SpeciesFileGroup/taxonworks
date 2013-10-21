@@ -154,7 +154,7 @@ FactoryGirl.define do
     association :parent, factory: :iczn_species
     cached_name 'Erythroneura (Erythroneura) vitis ssp'
     cached_author_year 'McAtee, 1900'
-    cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
+    cached_higher_classification 'aaa'
     source_id 10
     year_of_publication 1900
     verbatim_author 'McAtee'
