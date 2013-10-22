@@ -33,38 +33,40 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
-  def initialize(request_in = {})
+  def initialize(params = {})
+    @request = params[:request]
+    params.delete(:request)
     super
-
-    if request_in != {}
-      @response = nil
-      build(request_in)
-      # request_in.clear
-    end
-
+    @response = nil
+    @request ||= {}
+    build if @request != {}
   end
 
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
-  def build(params)
-    locate(params)
-    if @response['numResults'] > 0
-      build_geographic_item
-      build_error_geographic_item
+  def build
+    if @request.keys.size > 0
+      locate
+      if @response['numResults'] > 0
+        build_geographic_item
+        build_error_geographic_item
+      else
+        errors.add(:api_request, 'requested parameters returned no results')
+      end
     else
-      errors.add(:api_request, 'requested parameters returned no results')
+      errors.add(:base, 'no request paramaters provided')
     end
   end
 
-  def locate(params = {})
-    if self.build_request(params)
+  def locate
+    if self.build_request
       get_response
     end
   end
 
-  def build_request(params = {})
+  def build_request
     # TODO: validation: if country is some form of 'USA', a state is required
     # TODO: options can be added: county, hwyX, etc.
     opts             = {
@@ -79,7 +81,7 @@ g.locate('USA', 'Champaign', 'IL')
       displacePoly: 'false',
       languageKey:  '0',
       fmt:          'json'
-    }.merge!(params)
+    }.merge!(@request)
 
     # TODO: write actual validation
     # if valid == true
@@ -91,12 +93,12 @@ g.locate('USA', 'Champaign', 'IL')
     # end
   end
 
-  def get_response
-    @response = JSON.parse(self.call_api)
-  end
-
   def call_api
     Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
+  end
+
+  def get_response
+    @response = JSON.parse(self.call_api)
   end
 
   def build_geographic_item
