@@ -17,11 +17,11 @@ describe Source::Bibtex do
   end
 
   context 'testing BibTeX capabilities' do 
-    specify "the test file should have 42 records" do
+    specify 'the test file should have 42 records' do
       expect(@bibtex_bibliography.size).to eq(42)
     end
 
-    specify "the first record has 4 fields populated" do
+    specify 'the first record has 4 fields populated' do
       expect(@bibtex_bibliography.first.fields.keys.size).to eq(4)
     end
 
@@ -227,6 +227,7 @@ context('Beth') {
       :title, :year, :URL, :stated_year' do
       localSrc = Source::Bibtex.new()
       expect(localSrc.valid?).to be_false
+      localSrc.title = 'Test article'
     end
   end
 
