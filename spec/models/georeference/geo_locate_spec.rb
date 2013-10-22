@@ -79,9 +79,9 @@ describe Georeference::GeoLocate do
   # TODO: this is a Georeference test
   context 'compare two adjacent location polygons' do
     specify 'that the two have certain relationships.' do
-      c_locator = Georeference::GeoLocate.new(request: {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'})
+      c_locator = Georeference::GeoLocate.new(request: request_params)
       c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request: request_params) # '?country=USA&locality=Urbana&state=IL&dopoly=true'
+      u_locator = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'}) # '?country=USA&locality=Urbana&state=IL&dopoly=true'
 
       expect(c_locator.error_geographic_item.object.intersects?(u_locator.error_geographic_item.object)).to be_true
       expect(c_locator.geographic_item.object.distance(u_locator.geographic_item.object)).to eq 0.03657760243645799
