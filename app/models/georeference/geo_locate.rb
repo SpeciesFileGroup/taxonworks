@@ -33,15 +33,19 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
-  def initialize(params = {})
+  def initialize(request_in = {})
     super
-    @request = {} if @request.nil?
-    @response = nil
-    build(@request) if @request != {}
+
+    if request_in != {}
+      @response = nil
+      build(request_in)
+      # request_in.clear
+    end
+
   end
 
   def request_hash
-    Hash[*self.api_request.split('&').collect{|a| a.split('=', 2)}.flatten]
+    Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
   def build(params)
@@ -63,28 +67,28 @@ g.locate('USA', 'Champaign', 'IL')
   def build_request(params = {})
     # TODO: validation: if country is some form of 'USA', a state is required
     # TODO: options can be added: county, hwyX, etc.
-    opts = {
-      country: nil,
-      state: nil,
-      county: nil,
-      locality: nil,
-      hwyX: 'false',
-      enableH2O: 'false',
-      doUncert: 'true',
-      doPoly: 'false',
+    opts             = {
+      country:      nil,
+      state:        nil,
+      county:       nil,
+      locality:     nil,
+      hwyX:         'false',
+      enableH2O:    'false',
+      doUncert:     'true',
+      doPoly:       'false',
       displacePoly: 'false',
-      languageKey: '0',
-      fmt: 'json'
+      languageKey:  '0',
+      fmt:          'json'
     }.merge!(params)
 
     # TODO: write actual validation
-    if valid = true
-      self.api_request = opts.collect{|key, value| "#{key}=#{value}"}.join('&')
-      true  
-    else
-      errors.add(:api_request, 'invalid request parameters') 
-      false
-    end 
+    # if valid == true
+    self.api_request = opts.collect { |key, value| "#{key}=#{value}" }.join('&')
+    #  true
+    # else
+    #  errors.add(:api_request, 'invalid request parameters')
+    #  false
+    # end
   end
 
   def get_response
@@ -96,8 +100,8 @@ g.locate('USA', 'Champaign', 'IL')
   end
 
   def build_geographic_item
-    p = @response['resultSet']['features'][0]['geometry']['coordinates']
-    self.geographic_item =  GeographicItem.new
+    p                          = @response['resultSet']['features'][0]['geometry']['coordinates']
+    self.geographic_item       = GeographicItem.new
     self.geographic_item.point = Georeference::FACTORY.point(p[0], p[1])
   end
 
@@ -106,16 +110,16 @@ g.locate('USA', 'Champaign', 'IL')
     # Build the error geographic shape
     # isolate the array of points from the response, and build the polygon from a line_string
     # made out of the points
-    p = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
+    p                 = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
     # build an array of Georeference::FACTORY.points from p
-    
+
     # TODO: could benchmark 
     # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
     # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
-    
-    err_array = []
-    p.each {|point| err_array.push(Georeference::FACTORY.point(point[0], point[1]))}
-    self.error_geographic_item =  GeographicItem.new
+
+    err_array         = []
+    p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+    self.error_geographic_item         = GeographicItem.new
     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
   end
 end
