@@ -1,15 +1,15 @@
 class TaxonNameClass::Iczn::Unavailable::NonBinomial < TaxonNameClass::Iczn::Unavailable
-  module IcznNotBinomialModule
-    class TaxonNameClass::Iczn::Unavailable::NonBinomial::NotUninomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
-    end
 
-    class TaxonNameClass::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
-    end
-
-    class TaxonNameClass::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare < TaxonNameClass::Iczn::Unavailable::NonBinomial
-    end
-
-    class TaxonNameClass::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
-    end
+  class NotUninomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
   end
+
+  class SpeciesNotBinomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
+  end
+
+  class SubgenusNotIntercalare < TaxonNameClass::Iczn::Unavailable::NonBinomial
+  end
+
+  class SubspeciesNotTrinomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
+  end
+
 end

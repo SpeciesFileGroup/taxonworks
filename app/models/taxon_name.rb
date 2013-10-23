@@ -73,9 +73,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_name
-    # TODO: Dmitry- Move this to a Constant
-    genus_species_ranks = NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
-    if !genus_species_ranks.include?(self.rank_class)
+    # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
+    if !GENUS_AND_SPECIES_RANKS.include?(self.rank_class)
       cached_name = nil
     else
       genus = ''
@@ -83,7 +82,7 @@ class TaxonName < ActiveRecord::Base
       species = ''
       cached_name = nil
       (self.ancestors + [self]).each do |i|
-        if genus_species_ranks.include?(Object.const_get(i.rank_class.to_s))
+        if GENUS_AND_SPECIES_RANKS.include?(Object.const_get(i.rank_class.to_s))
           case i.rank
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '

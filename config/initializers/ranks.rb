@@ -27,5 +27,12 @@ FAMILY_AND_ABOVE_RANKS = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants +
       NomenclaturalRank::Icn::AboveFamilyGroup.descendants +
       NomenclaturalRank::Icn::FamilyGroup.descendants
 
+# All assignable ranks for genus and species groups, for both ICN and ICZN
+GENUS_AND_SPECIES_RANKS = NomenclaturalRank::Iczn::GenusGroup.descendants +
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants +
+      NomenclaturalRank::Icn::GenusGroup.descendants +
+      [NomenclaturalRank::Icn::Species] +
+      NomenclaturalRank::Icn::InfraspecificGroup.descendants
+
 
  
