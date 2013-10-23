@@ -44,31 +44,33 @@ g.locate('USA', 'Champaign', 'IL')
     build if @request != {}
   end
 
+=begin
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
+=end
 
   def build
     if @request.keys.size > 0
       locate
       if @response['numResults'] > 0
-        build_geographic_item
-        build_error_geographic_item
+        make_geographic_item
+        make_error_geographic_item
       else
         errors.add(:api_request, 'requested parameters returned no results')
       end
     else
-      errors.add(:base, 'no request paramaters provided')
+      errors.add(:base, 'no request parameters provided')
     end
   end
 
   def locate
-    if self.build_request
+    if self.make_request
       get_response
     end
   end
 
-  def build_request
+  def make_request
     # TODO: validation: if country is some form of 'USA', a state is required
     # TODO: options can be added: county, hwyX, etc.
     opts             = {
@@ -95,21 +97,22 @@ g.locate('USA', 'Champaign', 'IL')
     # end
   end
 
-  def call_api
-    Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
-  end
-
   def get_response
     @response = JSON.parse(self.call_api)
   end
 
-  def build_geographic_item
+  def call_api
+    part = Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
+    part
+  end
+
+  def make_geographic_item
     p                          = @response['resultSet']['features'][0]['geometry']['coordinates']
     self.geographic_item       = GeographicItem.new
     self.geographic_item.point = Georeference::FACTORY.point(p[0], p[1])
   end
 
-  def build_error_geographic_item
+  def make_error_geographic_item
     self.error_radius = @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
     # Build the error geographic shape
     # isolate the array of points from the response, and build the polygon from a line_string
