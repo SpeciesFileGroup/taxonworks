@@ -11,7 +11,7 @@ class Source::Bibtex < Source
   has_many :editors, through: :editor_roles, source: :person
   #  accepts_nested_attributes_for :authors, :author_roles, :editors, :editor_roles
 
-    BIBTEX_FIELDS = [
+  BIBTEX_FIELDS = [
     :address,
     :annote,             
     :author,
@@ -50,7 +50,8 @@ class Source::Bibtex < Source
   ]
 
   # The following list is from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
-  VALID_BIBTEX_TYPES = %w{article
+  VALID_BIBTEX_TYPES = %w{
+      article
       book
       booklet
       conference

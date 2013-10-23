@@ -102,25 +102,26 @@ describe Source::Bibtex do
     end
   end
 
-  context "instance methods" do
+  context 'instance methods' do
     before(:all) do
       @s = Source::Bibtex.new_from_bibtex(@entry1)
     end
 
     # TODO: fields doesn't include types
-    specify "to_bibtex" do
+    specify 'to_bibtex' do
       expect(@s.to_bibtex.fields).to eq(@entry1.fields)
     end
 
-    specify "valid_bibtex?" do
+    specify 'valid_bibtex?' do
       expect(@s.valid_bibtex?).to be_false
     end
   end
 
-  context "if I have a zotero bibliography" do
-    context "and I import it to TW" do
-      context "when I update a record in zotero" do
-        specify "then TW should be aware and notify me of discrepancies" do
+  context 'if I have a zotero bibliography' do
+    context 'and I import it to TW' do
+      context 'when I update a record in zotero' do
+        specify 'then TW should be aware and notify me of discrepancies' do
+          pending 'not implemented yet'
         end
       end
     end
@@ -137,17 +138,18 @@ describe Source::Bibtex do
         p3 = Person.new(last_name: 'Cus')
         p3.save
         # create 3 bibtex sources
-        bs1 = Source::Bibtex.new(title: 'a1b2c3', author: 'Aus, Bus, Cus')
+        bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
         bs1.save
-        bs2 = Source::Bibtex.new(title: 'a3b1c2', author: 'Bus, Cus, Aus')
+        bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
         bs2.save
-        bs3 = Source::Bibtex.new(title: 'a2b3c1', author: 'Cus, Aus, Bus')
+        bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
         bs3.save
       end
 
       specify 'After save on new bibtex records, populate author/editor roles' do
-        pending # bs1 was saved in the "before", since the authors already exist in the db,
-        # the roles should be automatially set
+        # bs1 was saved in the "before", since the authors already exist in the db,
+        # the roles should be automatially set?
+        pending
       end
 
       specify 'bibtex.authors should be ordered by roles.position' do
@@ -155,7 +157,7 @@ describe Source::Bibtex do
         pending
       end
 
-      pending "editors should be ordered by roles.position"
+      pending 'editors should be ordered by roles.position'
     
       context 'on validation' do
         # Force the user to interact through authors first, then back save to author 
@@ -313,6 +315,14 @@ describe Source::Bibtex do
       it_behaves_like "identifiable"
       it_behaves_like "has_roles"
     end
+  end
+
+  context 'Hackathon requirements' do #these tests should be included somewhere above.
+    pending 'Must allow letters after the year'
+
+    pending 'Should be able to round trip data '
+    #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
+
   end
 end
 
