@@ -10,7 +10,7 @@ describe Source::Bibtex do
     @simple2 = BibTeX::Entry.new() 
     @entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
     @entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @valid_bib = BibTeX::Entry.new(type: :book, title: 'ValidlyPublished Bibtex of America', author: 'Smith, James',
+    @valid_bib = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
                                    year: 1921, publisher: 'Test Books Inc.')
     @invalid_bibtex = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
                                         year: 1921)
@@ -176,7 +176,7 @@ describe Source::Bibtex do
           method = "#{i}s"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title = 'validly_published record'
+          bibtex.title = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true # save record to get an ID
           expect(bibtex.send(method) << valid_person).to be_true # assigns author but doesn't save role
@@ -188,7 +188,7 @@ describe Source::Bibtex do
           method = "#{i}_roles"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title = 'validly_published record'
+          bibtex.title = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true
           expect(bibtex.send("#{i}s") << valid_person).to be_true
@@ -201,8 +201,8 @@ describe Source::Bibtex do
 
   context('Beth') do 
 
-    context 'a validly_published Source::Bibtex' do
-      specify 'must have a validly_published bibtex_type' do
+    context 'a valid Source::Bibtex' do
+      specify 'must have a valid bibtex_type' do
         local_src = FactoryGirl.create(:valid_bibtex_source) 
         expect(local_src.valid?).to be_true
         local_src.bibtex_type = 'test'
@@ -244,11 +244,11 @@ describe Source::Bibtex do
           end
         end
 
-        specify 'returns false if pre-save Source::Bibtex is !validly_published?' do
+        specify 'returns false if pre-save Source::Bibtex is !valid?' do
           pending
         end
 
-        specify 'instantiates if BibTeX::Entry is not validly_published but Source::Bibtex is' do
+        specify 'instantiates if BibTeX::Entry is not valid but Source::Bibtex is' do
           pending
         end
 
@@ -291,7 +291,7 @@ describe Source::Bibtex do
           expect(bibtex_source.create_related_people).to be_false
         end
 
-        specify 'returns false when instance.validly_published? is false' do
+        specify 'returns false when instance.valid? is false' do
           s = FactoryGirl.build(:bibtex_source)
           expect(s.create_related_people).to be_false
         end
