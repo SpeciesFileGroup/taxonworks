@@ -1,6 +1,6 @@
 class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unavailable
-  module IcznNomenNudumModule
-    class TaxonNameClass::Iczn::Unavailable::NomenNudum::AnonymousAuthorshipAfter1950 < TaxonNameClass::Iczn::Unavailable::NomenNudum
+#  module IcznNomenNudumModule
+    class AnonymousAuthorshipAfter1950 < TaxonNameClass::Iczn::Unavailable::NomenNudum
     end
 
     class TaxonNameClass::Iczn::Unavailable::NomenNudum::CitationOfUnavailableName < TaxonNameClass::Iczn::Unavailable::NomenNudum
@@ -53,5 +53,5 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
 
     class TaxonNameClass::Iczn::Unavailable::NomenNudum::UmbiguousGenericPlacement < TaxonNameClass::Iczn::Unavailable::NomenNudum
     end
-  end
+#  end
 end
