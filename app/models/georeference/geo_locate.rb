@@ -34,11 +34,13 @@ g.locate('USA', 'Champaign', 'IL')
 =end
 
   def initialize(params = {})
-    @request = params[:request]
-    params.delete(:request)
+    if params != {}
+      @request = params[:request]
+      params.delete(:request)
+    end
     super
     @response = nil
-    @request ||= {}
+    @request  ||= {}
     build if @request != {}
   end
 
