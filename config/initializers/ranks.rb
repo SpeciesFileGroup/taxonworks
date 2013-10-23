@@ -22,10 +22,17 @@
  ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
 
 # All assignable ranks for family group and above names, for both ICN and ICZN
-FAMILY_AND_ABOVE_RANKS = NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + 
+FAMILY_AND_ABOVE_RANKS_NAMES = (NomenclaturalRank::Iczn::AboveFamilyGroup.descendants +
       NomenclaturalRank::Iczn::FamilyGroup.descendants +
       NomenclaturalRank::Icn::AboveFamilyGroup.descendants +
-      NomenclaturalRank::Icn::FamilyGroup.descendants
+      NomenclaturalRank::Icn::FamilyGroup.descendants).collect{|i| i.to_s}
+
+# All assignable ranks for genus and species groups, for both ICN and ICZN
+GENUS_AND_SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::GenusGroup.descendants +
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants +
+      NomenclaturalRank::Icn::GenusGroup.descendants +
+      [NomenclaturalRank::Icn::Species] +
+      NomenclaturalRank::Icn::InfraspecificGroup.descendants).collect{|i| i.to_s}
 
 
  

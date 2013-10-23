@@ -24,7 +24,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
-    errors.add(:type, "'#{type}' is not a valid taxon name relationship") if !::TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+    errors.add(:type, "'#{type}' is not a validly_published taxon name relationship") if !::TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
   end
 
   def validate_subject_and_object_share_code
