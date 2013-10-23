@@ -32,6 +32,8 @@ describe Person do
 
   context 'associations' do
 
+    #role orders: source_authors, source_editors, collectors, (type_)designators, determinators, taxon_name_authors, source_sources
+
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
@@ -61,7 +63,17 @@ describe Person do
       specify 'taxon_determinations' do
         expect(person).to respond_to(:taxon_determinations)
       end
+
+      specify 'type_designations' # need type specimen class
+
+      specify 'taxon_name_author' do
+        expect(person).to respond_to(:taxon_name_authors)
+      end
+
+      specify 'source_sources'
+
     end
+
 
     context 'usage and rendering' do
 
