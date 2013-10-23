@@ -7,16 +7,24 @@ class Person < ActiveRecord::Base
 
   has_many :roles 
   has_many :author_roles, class_name: 'Role::SourceAuthor'
-  has_many :editor_roles, class_name: 'Role::SourceAuthor'
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'  
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'  
+  has_many :editor_roles, class_name: 'Role::SourceEditor'
+  has_many :collector_roles, class_name: 'Role::Collector'
+
+  # Matt thinks following 2 lines not working as advertised
+  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
+  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
+  has_many :collecting_events, through: :collectors, source: :role_object, source_type: 'CollectingEvent'
 
   def name 
     [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ')
   end
 
   def is_author?
-    self.authored_sources.to_a.length > 0
+    self.author_roles.to_a.length > 0
+  end
+
+  def is_editor?
+    self.editor_roles.to_a.length > 0
   end
 
   protected

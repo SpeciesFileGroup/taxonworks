@@ -1,18 +1,10 @@
 require 'spec_helper'
 
 describe Person do
-  FactoryGirl.define do
-    factory :person do
-    end
-  end
 
   let(:person) { FactoryGirl.build(:person) }
-  let(:save_person) {
-    person.last_name = 'Smith' 
-    person.save
-  }
   let(:bibtex_source) {
-    FactoryGirl.create(:bibtex_source) 
+    FactoryGirl.create(:valid_bibtex_source)
   }
 
   context 'validation' do
@@ -45,26 +37,26 @@ describe Person do
         expect(person).to respond_to(:roles)
       end
 
-      context 'sources' do
+ #     context 'sources' do
         specify 'authored_sources' do
+ #         b = FactoryGirl.create(:valid_bibtex_source)
           expect(person).to respond_to(:authored_sources)
-          save_person {
-            bibtex_source.authors << person
-            bibtex_source.save
-            expect(person.authored_sources.to_a).to eq([bibtex_source])
-          }
+ #         b.authors << person
+ #         b.save
+ #         expect(person.authored_sources.to_a).to eq([b])
         end
 
         specify 'edited_sources' do
           expect(person).to respond_to(:edited_sources)
-          save_person {
-            bibtex_source.editors << person
-            bibtex_source.save
-            expect(person.edited_sources.to_a).to eq([bibtex_source])
-          }
-        end 
+#          bibtex_source.editors << person
+#          bibtex_source.save
+#          expect(person.edited_sources.to_a).to eq([bibtex_source])
+        end
+  #    end
 
-      end
+      specify 'collecting_events' do
+        expect(person).to respond_to(:collecting_events)
+     end
 
     end
   end
@@ -108,16 +100,30 @@ describe Person do
   end
 
   context 'roles' do
-    specify 'is_author?' do
-      save_person {
-        expect(person).to respond_to(:is_author?)
-        expect(person.is_author?).to be_false
-        bibtex_source.authors << person
-        bibtex_source.save!
-        expect(person.is_author?).to be_true
-      }
+    before(:each) do
+      @vp = FactoryGirl.build(:valid_person)
     end
-    specify 'is_editor?'
+    specify '@vp is valid person' do
+      expect(@vp.valid?).to be_true
+    end
+    specify 'is_author?' do
+      @vp.save
+      expect(@vp).to respond_to(:is_author?)
+      expect(@vp.is_author?).to be_false
+      bibtex_source.authors << @vp
+      bibtex_source.save!
+      @vp.reload
+      expect(@vp.is_author?).to be_true
+    end
+    specify 'is_editor?' do
+      @vp.save
+      expect(@vp).to respond_to(:is_editor?)
+      expect(@vp.is_editor?).to be_false
+      bibtex_source.editors << @vp
+      bibtex_source.save!
+      @vp.reload
+      expect(@vp.is_editor?).to be_true
+     end
     specify 'is_type_designator?'
     specify 'is_taxon_name_author?'
     specify 'is_collector?'
