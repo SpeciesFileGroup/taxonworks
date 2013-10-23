@@ -117,6 +117,13 @@ describe Person do
         expect(person.is_author?).to be_true
       }
     end
+    specify 'is_editor?'
+    specify 'is_type_designator?'
+    specify 'is_taxon_name_author?'
+    specify 'is_collector?'
+    specify 'is_determiner?'
+    specify 'is_source_source?'
+
   end
 
 end
