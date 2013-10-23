@@ -33,6 +33,8 @@ class Georeference < ActiveRecord::Base
 
   belongs_to :geographic_item
 
+  accepts_nested_attributes_for :geographic_item, :error_geographic_item
+
   validate :proper_data_is_provided
 
   protected

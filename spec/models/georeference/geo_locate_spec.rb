@@ -42,7 +42,10 @@ describe Georeference::GeoLocate do
     end
 
     specify '.build wraps the whole process' do
-      pending 
+      set_request {
+        geo_locate.build
+        expect(geo_locate.valid?).to be_true
+      }
     end
   end
 
@@ -53,11 +56,24 @@ describe Georeference::GeoLocate do
   end
 
   context 'on new() with a valid request.' do
-    specify 'build() successfully completes' do
-      g = Georeference::GeoLocate.new(request: request_params)  # TODO: make hash})
-      expect(g.api_request).to eq 'country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json'
-      expect(g.error_radius).to eq 5592.0
-      expect(g.error_geographic_item.object.contains?(geo_locate.geographic_item.object)).to be_true
+
+    context 'before save' do
+
+      specify 'build() successfully completes' do
+        g = Georeference::GeoLocate.new(request: request_params)
+        expect(g.api_request).to eq 'country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json'
+        expect(g.geographic_item.id).to be_nil
+        expect(g.error_geographic_item.id).to be_nil
+        expect(g.error_radius).to eq 7338.0
+      end
+    end
+
+    context 'after save' do
+      specify 'save successfully completes' do
+        g = Georeference::GeoLocate.new(request: request_params)
+        g.save
+        expect(g.error_geographic_item.object.contains?(g.geographic_item.object)).to be_true
+      end
     end
   end
 
@@ -74,19 +90,5 @@ describe Georeference::GeoLocate do
    #  expect(geo_locate.error_radius).to be_nil
    #  #      expect(geo_locate.error_geographic_item.object.contains?(geo_locate.geographic_item.object)).to be_true
    #end
-  end
-
-  # TODO: this is a Georeference test
-  context 'compare two adjacent location polygons' do
-    specify 'that the two have certain relationships.' do
-      c_locator = Georeference::GeoLocate.new(request: request_params)
-      c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'}) # '?country=USA&locality=Urbana&state=IL&dopoly=true'
-
-      expect(c_locator.error_geographic_item.object.intersects?(u_locator.error_geographic_item.object)).to be_true
-      expect(c_locator.geographic_item.object.distance(u_locator.geographic_item.object)).to eq 0.03657760243645799
-      expect(c_locator.geographic_item.object.distance(u_locator.error_geographic_item.object)).to eq 0.014470082533135583
-      expect(u_locator.geographic_item.object.distance(c_locator.error_geographic_item.object)).to eq 0.021583346308561287
-    end
   end
 end

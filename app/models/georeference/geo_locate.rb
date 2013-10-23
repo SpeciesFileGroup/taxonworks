@@ -109,7 +109,7 @@ g.locate('USA', 'Champaign', 'IL')
     self.geographic_item.point = Georeference::FACTORY.point(p[0], p[1])
   end
 
-  def build_georeference_error
+  def build_error_geographic_item
     self.error_radius = @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
     # Build the error geographic shape
     # isolate the array of points from the response, and build the polygon from a line_string
