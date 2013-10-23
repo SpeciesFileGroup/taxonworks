@@ -3,7 +3,7 @@ class Person < ActiveRecord::Base
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
   validates :type, inclusion: { in: ['Person::Vetted', 'Person::Unvetted'],
-                                message: "%{value} is not a valid type" }
+                                message: "%{value} is not a validly_published type" }
 
   has_many :roles 
   has_many :author_roles, class_name: 'Role::SourceAuthor'

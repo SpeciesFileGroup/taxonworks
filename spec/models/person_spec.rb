@@ -20,7 +20,7 @@ describe Person do
       expect(person.type).to eq('Person::Unvetted')
     end
 
-    specify 'valid type is either vetted or unvetted' do
+    specify 'validly_published type is either vetted or unvetted' do
       #expect(person.type).to eq('Person::Vetted' or 'Person::Unvetted')
       #expect(['Person::Vetted', 'Person::Unvetted'].include?(person.type)).to be_true
       expect(person.errors.include?(:type)).to be_false
