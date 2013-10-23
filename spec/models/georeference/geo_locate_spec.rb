@@ -11,11 +11,11 @@ describe Georeference::GeoLocate do
   }
 
   context 'methods' do
-    specify '.make_request builds a request string' do
-      set_request
-      expect(geo_locate.make_request).to be_true
-      expect(geo_locate.read_attribute(:api_request)).to eq('country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
 
+    specify '.request_hash returns the a valid hash to use as a request.' do
+      geo_locate.request = {state: 'IL', country: 'USA', locality: 'Urbana'}
+      geo_locate.make_request
+      expect(geo_locate.request_hash.to_s).to eq '{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "hwyX"=>"false", "enableH2O"=>"false", "doUncert"=>"true", "doPoly"=>"false", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}'
     end
 
     specify '.locate populates @response' do
@@ -25,7 +25,14 @@ describe Georeference::GeoLocate do
 
     end
 
-    specify '#make_geographic_item populates #geographic_item when @response contains a result' do
+    specify '.make_request builds a request string' do
+      set_request
+      expect(geo_locate.make_request).to be_true
+      expect(geo_locate.read_attribute(:api_request)).to eq('country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
+
+    end
+
+    specify '.make_geographic_item populates .geographic_item when @response contains a result' do
       set_request
       geo_locate.locate
       geo_locate.make_geographic_item
@@ -33,7 +40,7 @@ describe Georeference::GeoLocate do
 
     end
 
-    specify '#make_error_geographic_item populates #error_geographic_item when @response contains a result' do
+    specify '.make_error_geographic_item populates .error_geographic_item when @response contains a result' do
       set_request
       geo_locate.locate
       geo_locate.make_error_geographic_item
@@ -49,7 +56,7 @@ describe Georeference::GeoLocate do
       }
     end
 
-  end
+  end # end of 'methods'
 
   context 'on new() with a valid request.' do
 
@@ -71,6 +78,7 @@ describe Georeference::GeoLocate do
         expect(g.error_geographic_item.object.contains?(g.geographic_item.object)).to be_true
       end
     end
+
   end
 
   context 'on invocation of new() with an invalid request' do
@@ -82,4 +90,11 @@ describe Georeference::GeoLocate do
 
     end
   end
+
+  context 'request contains doPoly = false' do
+    specify '' do
+      pending
+    end
+  end
+
 end

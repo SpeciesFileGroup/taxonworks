@@ -44,24 +44,8 @@ g.locate('USA', 'Champaign', 'IL')
     build if @request != {}
   end
 
-=begin
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
-  end
-=end
-
-  def build
-    if @request.keys.size > 0
-      locate
-      if @response['numResults'] > 0
-        make_geographic_item
-        make_error_geographic_item
-      else
-        errors.add(:api_request, 'requested parameters returned no results')
-      end
-    else
-      errors.add(:base, 'no request parameters provided')
-    end
   end
 
   def locate
@@ -129,4 +113,19 @@ g.locate('USA', 'Champaign', 'IL')
     self.error_geographic_item         = GeographicItem.new
     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
   end
+
+  def build
+    if @request.keys.size > 0
+      locate
+      if @response['numResults'] > 0
+        make_geographic_item
+        make_error_geographic_item
+      else
+        errors.add(:api_request, 'requested parameters returned no results')
+      end
+    else
+      errors.add(:base, 'no request parameters provided')
+    end
+  end
+
 end
