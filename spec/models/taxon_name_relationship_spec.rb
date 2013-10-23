@@ -42,7 +42,7 @@ describe TaxonNameRelationship do
       end
 
       context "type" do
-        specify "invalid when not a TaxonNameRelationship" do
+        specify "invalidly_published when not a TaxonNameRelationship" do
           taxon_name_relationship.type = "foo"
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:type)).to be_true
@@ -51,7 +51,7 @@ describe TaxonNameRelationship do
           expect(taxon_name_relationship.errors.include?(:type)).to be_true
         end
 
-        specify "valid when a TaxonNameRelationship" do
+        specify "validly_published when a TaxonNameRelationship" do
           taxon_name_relationship.type = TaxonNameRelationship::Combination::Genus
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:typification)).to be_false
