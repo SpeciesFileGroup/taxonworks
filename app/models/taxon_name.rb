@@ -74,7 +74,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-    if !GENUS_AND_SPECIES_RANKS.include?(self.rank_class)
+    if !GENUS_AND_SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
       cached_name = nil
     else
       genus = ''
@@ -82,7 +82,7 @@ class TaxonName < ActiveRecord::Base
       species = ''
       cached_name = nil
       (self.ancestors + [self]).each do |i|
-        if GENUS_AND_SPECIES_RANKS.include?(Object.const_get(i.rank_class.to_s))
+        if GENUS_AND_SPECIES_RANKS_NAMES.include?(i.rank_class.to_s)
           case i.rank
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '
@@ -131,7 +131,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
+    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 
