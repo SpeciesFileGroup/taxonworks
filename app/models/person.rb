@@ -14,6 +14,7 @@ class Person < ActiveRecord::Base
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :collecting_events, through: :collectors, source: :role_object, source_type: 'CollectingEvent'
+  has_many :taxon_determinations, through: :determiners, source: :role_object, source_type: 'TaxonDetermination'
 
   def name 
     [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ')

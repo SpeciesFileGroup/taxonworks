@@ -1,4 +1,5 @@
 class CollectingEvent < ActiveRecord::Base
+  # several lines commented out per Matt ('old stuff')
   # belongs_to :geographic_area
   # belongs_to :confidence
 
