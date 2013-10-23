@@ -95,13 +95,13 @@ describe TaxonName do
 
     context 'name (= latinized version)' do
       context 'format' do
+        let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
+        let(:variety) { FactoryGirl.create(:icn_variety) }
 
         specify "check format of name only when present" do
           pending 
         end
 
-        let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
-        let(:variety) { FactoryGirl.create(:icn_variety) }
 
         context "double checking FactoryGirl" do
           specify "is building all related names for respective models" do 
@@ -120,7 +120,6 @@ describe TaxonName do
           specify 'cached_names are be set with ancestors' do
             subspecies.valid?
             expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-            
             expect(subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
             variety.valid?
