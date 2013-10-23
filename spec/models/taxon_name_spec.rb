@@ -95,19 +95,9 @@ describe TaxonName do
 
     context 'name (= latinized version)' do
       context 'format' do
-        let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
-        let(:variety) { FactoryGirl.create(:icn_variety) }
-
-        specify "check format of name only when present" do
-          pending 
-        end
-
-
-        context "double checking FactoryGirl" do
-          specify "is building all related names for respective models" do 
-            expect(subspecies.ancestors.length).to be >= 10
-            expect(variety.ancestors.length).to be >= 15
-          end
+        before(:all) do
+          @subspecies = FactoryGirl.create(:iczn_subspecies)
+          @variety = FactoryGirl.create(:icn_variety)
         end
 
         context 'before_validation' do
@@ -116,16 +106,25 @@ describe TaxonName do
             family.valid?
             expect(family.cached_higher_classification).to eq('Aidae')
           end
+        end
 
+        context "double checking FactoryGirl" do
+          specify "is building all related names for respective models" do 
+            expect(@subspecies.ancestors.length).to be >= 10
+            expect(@variety.ancestors.length).to be >= 15
+          end
+        end
+
+        context 'after_validation' do
           specify 'cached_names are be set with ancestors' do
-            subspecies.valid?
-            expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-            expect(subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
-            variety.valid?
-            expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
-            expect(variety.cached_author_year).to eq('McAtee (1900)')
-            expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
+            @subspecies.valid?
+            expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+            expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
+            expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
+            @variety.valid?
+            expect(@variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
+            expect(@variety.cached_author_year).to eq('McAtee (1900)')
+            expect(@variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
           end
         end
       end
