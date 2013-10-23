@@ -12,7 +12,7 @@ class Person < ActiveRecord::Base
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'  
 
   def name 
-    [self.first_name, self.suffix, self.last_name, self.postfix].compact.join(' ')
+    [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ')
   end
 
   def is_author?

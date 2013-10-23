@@ -1,4 +1,4 @@
-class RangedLot < CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject 
+class RangedLot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
 
   validates_presence_of :ranged_lot_category_id
 

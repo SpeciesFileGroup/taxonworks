@@ -1,4 +1,4 @@
-class Lot < CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject
+class Lot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
 
   validate :size_of_total
 

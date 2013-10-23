@@ -9,6 +9,7 @@ class Source::Bibtex < Source
   #has_many :authors, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
   has_many :editors, through: :editor_roles, source: :person
+  #  accepts_nested_attributes_for :authors, :author_roles, :editors, :editor_roles
 
     BIBTEX_FIELDS = [
     :address,
@@ -76,7 +77,7 @@ class Source::Bibtex < Source
       :stated_year
   ]
 
-    def to_bibtex
+  def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
     BIBTEX_FIELDS.each do |f|
       if !(f == :bibtex_type) && (!self[f].blank?)
@@ -101,6 +102,30 @@ class Source::Bibtex < Source
     s
   end
 
+  def create_related_people
+    return false if !self.valid? || 
+      self.new_record?  ||
+      (self.author.blank? && self.editor.blank?) ||
+      self.roles.count > 0 
+
+    bibtex = to_bibtex
+    bibtex.parse_names
+    bibtex.names.each do |a|
+      p = Source::Bibtex.bibtex_author_to_person(a)
+      self.authors << p
+    end
+    return true 
+  end
+
+  def self.bibtex_author_to_person(bibtex_author)
+    return false if bibtex_author.class != BibTeX::Name
+    Person.new(
+      first_name: bibtex_author.first, 
+      prefix: bibtex_author.prefix,
+      last_name: bibtex_author.last,
+      suffix: bibtex_author.suffix)
+  end
+
   def self.create_with_people(all_new_people)
     # parse the authors out of the author fields, and create the role linkages if the authors exist.
     return false if !self.valid?
@@ -110,16 +135,23 @@ class Source::Bibtex < Source
   protected
 
   def check_bibtex_type # must have a valid bibtex_type
-    VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+   errors.add(:bibtex_type, 'not a valid bibtex type') if !VALID_BIBTEX_TYPES.include?(self.bibtex_type)
   end
+
   def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
+    valid = false
     TW_REQ_FIELDS.each do |i| # for each i in the required fields list
-       # if i is not nil and not == "", it's valid
-      if (!self[i].nil?) && (self[i] != '')
-        return true
+      if !self[i].blank?
+        valid = true
+        break
       end
     end
-    return false # none of the required fields have a value
+    # if i is not nil and not == "", it's valid
+    #if (!self[i].nil?) && (self[i] != '')
+    #  return true
+    #end
+    errors.add(:base, 'no core data provided') if !valid
+    # return false # none of the required fields have a value
   end
 
 end

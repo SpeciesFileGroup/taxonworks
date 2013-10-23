@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CollectionObject::BiologicalCollectionObject do
+describe CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject do
 
    let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
 

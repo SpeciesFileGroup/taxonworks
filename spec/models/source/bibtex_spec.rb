@@ -4,16 +4,16 @@ describe Source::Bibtex do
 
   let(:bibtex) { Source::Bibtex.new }
 
-  before do
+  before(:all) do
     @bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/Taenionema.bib')
     @simple1 = BibTeX::Entry.new() 
     @simple2 = BibTeX::Entry.new() 
     @entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
     @entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
     @valid_bib = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
-                                          year: 1921, publisher: 'Test Books Inc.')
-    @inval_bib = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
-                                  year: 1921)
+                                   year: 1921, publisher: 'Test Books Inc.')
+    @invalid_bibtex = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
+                                        year: 1921)
   end
 
   context 'testing BibTeX capabilities' do 
@@ -102,14 +102,8 @@ describe Source::Bibtex do
     end
   end
 
-  context 'on save' do
-    before do
-      source.save
-    end
-  end
-
   context "instance methods" do
-    before do
+    before(:all) do
       @s = Source::Bibtex.new_from_bibtex(@entry1)
     end
 
@@ -123,15 +117,6 @@ describe Source::Bibtex do
     end
   end
 
-  context 'import from bibtex to Source::Bibtex' do
-    specify 'if we have an non-bibtex entry then #new_from_bibtex returns false' do
-      expect(Source::Bibtex.new_from_bibtex(1)).to eq(false)
-    end
-  end
-
-  pending "we should pretty print the source"
-  pending "it should have identifiers pointing to their sources"
-
   context "if I have a zotero bibliography" do
     context "and I import it to TW" do
       context "when I update a record in zotero" do
@@ -141,13 +126,7 @@ describe Source::Bibtex do
     end
   end
 
-  pending "it should compare their source fields to their persisted (TW) fields"
-
-  specify "if we have a bibtex record convert it to a taxonworks source" do
-    expect(Source::Bibtex.new_from_bibtex(@bibtex_bibliography[0]).valid?).to be(true)
-  end
-
-  context 'relations / associations' do
+  context 'associations' do
     context('roles') {
       before do
         # create & save 3 people
@@ -169,21 +148,28 @@ describe Source::Bibtex do
       specify 'After save on new bibtex records, populate author/editor roles' do
         pending # bs1 was saved in the "before", since the authors already exist in the db,
         # the roles should be automatially set
-
       end
-      specify 'bibtex.authors should be ordered based on roles' do
+
+      specify 'bibtex.authors should be ordered by roles.position' do
         # assign author roles
         pending
       end
-      pending "editors should be ordered"
-      pending "If authors/editors roles exist and bibtex author/editor is empty, populate bibtex author/editor"
-      pending "On bibtex save, validate author vs. authors"
-      pending "On bibtex save, validate editor vs. editors"
-      pending "If updated a person, then update bibtex authors/editors"
+
+      pending "editors should be ordered by roles.position"
+    
+      context 'on validation' do
+        # Force the user to interact through authors first, then back save to author 
+        pending 'invalidate if authors exist and author has changed, and no longer matches'
+
+        # ditto for editors
+        pending 'invalidate if editors exist and editor has changed, and no longer matches'
+      end 
+    
+      # TODO: This is a person-side test, should cascade update 
+      # pending "If updated a person, then update bibtex authors/editors"
 
       valid_person = FactoryGirl.create(:valid_person)
       %w{author editor}.each do |i|
-
         specify "#{i}s" do
           method = "#{i}s"
           expect(bibtex).to respond_to(method)
@@ -211,45 +197,122 @@ describe Source::Bibtex do
     }
   end
 
+  context('Beth') do 
 
-context('Beth') {
-
-  context 'define valid active record bibtex source' do
-    specify 'a valid bibtex source must have a bibtex type' do
-      localSrc = Source::Bibtex.new_from_bibtex(@valid_bib)
-      expect(localSrc.valid?).to be_true
-      localSrc.bibtex_type = 'test'
-      expect(localSrc.valid?).to be_false
-      localSrc.bibtex_type = nil
-      expect(localSrc.valid?).to be_false
-    end
-    pending 'a valid bibtex source must have one of the following fields: :author, :booktitle, :editor, :journal,
+    context 'a valid Source::Bibtex' do
+      specify 'must have a valid bibtex_type' do
+        local_src = FactoryGirl.create(:valid_bibtex_source) 
+        expect(local_src.valid?).to be_true
+        local_src.bibtex_type = 'test'
+        expect(local_src.valid?).to be_false
+        expect(local_src.errors.include?(:bibtex_type)).to be_true
+        local_src.bibtex_type = nil
+        expect(local_src.valid?).to be_false
+        expect(local_src.errors.include?(:bibtex_type)).to be_true
+      end
+      specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :URL, :stated_year' do
-      localSrc = Source::Bibtex.new()
-      expect(localSrc.valid?).to be_false
-      localSrc.title = 'Test article'
+        error_message = 'no core data provided' 
+        local_src = Source::Bibtex.new()
+        expect(local_src.valid?).to be_false
+        expect(local_src.errors.messages[:base].include?(error_message)).to be_true
+        local_src.title = 'Test book'
+        local_src.valid?
+        expect(local_src.errors.full_messages.include?(error_message)).to be_false
+      end
+    end
+
+    context 'class methods' do
+      specify 'bibtex_author_to_person' do
+        pending 'write me'
+      end
+
+      context 'create_with_people (from BibTeX::Entry)' do
+        context 'parameters' do
+          specify 'bibtex: BibTex::Entry - passes the bibtex to import from' do
+            pending
+          end
+
+          specify 'people: :create -  is default, creates new people for all roles' do
+            pending 
+          end
+
+          specify 'people: :match_exact - uses exactly matching Person::Unvetted when found, otherwise creates new editors/authors' do
+            pending 
+          end
+        end
+
+        specify 'returns false if pre-save Source::Bibtex is !valid?' do
+          pending
+        end
+
+        specify 'instantiates if BibTeX::Entry is not valid but Source::Bibtex is' do
+          pending
+        end
+
+        specify 'instantiates without BibTeX::Entry.author or BibtexEntry.editor populated' do
+          pending
+        end
+
+        specify 'instantiates with BibTeX::Entry.author' do
+          pending
+        end
+
+        specify 'instantiates with BibTeX::Entry.editor' do
+          pending
+        end
+      end
+    end 
+
+    context 'with an existing instance with authors' do
+      let(:bibtex_source)  { 
+        FactoryGirl.build(:valid_bibtex_source) 
+      }
+
+      context 'create_related_people()' do
+        specify 'can not be run when .new_record?' do
+          expect(bibtex_source.new_record?).to be_true
+          expect(bibtex_source.valid?).to be_true
+          bibtex_source.author = 'Smith, James' 
+          expect(bibtex_source.create_related_people).to be_false
+        end 
+
+        # NOTE: Be aware of possible translator roles, we don't handle this
+        specify 'returns false when author.nil? || editor.nil?' do
+          expect(bibtex_source.create_related_people).to be_false
+        end
+
+        specify 'can not be run when authors or editors exist' do
+          bibtex_source.author = 'Smith, James' 
+          bibtex_source.save
+          expect(bibtex_source.create_related_people).to be_true
+          expect(bibtex_source.create_related_people).to be_false
+        end
+
+        specify 'returns false when instance.valid? is false' do
+          s = FactoryGirl.build(:bibtex_source)
+          expect(s.create_related_people).to be_false
+        end
+
+        specify 'creates people for authors' do
+          bibtex_source.author = 'Smith, Bill' 
+          bibtex_source.save
+          expect(bibtex_source.authors.size).to eq(0)
+          expect(bibtex_source.create_related_people).to be_true
+          bibtex_source.reload
+          expect(bibtex_source.authors.to_a).to have(1).things 
+          expect(bibtex_source.authors.first.last_name).to eq('Smith')
+          expect(bibtex_source.authors.first.first_name).to eq('Bill')
+        end
+
+        pending 'creates people for editors' 
+      end
+    end
+
+    context "concerns" do
+      it_behaves_like "identifiable"
+      it_behaves_like "has_roles"
     end
   end
-
-  context 'on create_with_people' do
-    specify 'If I am not a valid bibtex source, do not save - return error' do
-      pending 'bibsrc = Source::Bibtex.new()'
-    end
-
-    pending 'If passed true, parse and create all new people from authors and editors'
-    pending 'If passed false, check for existing people and create only those who do not exist'
-    pending 'If passed false, and mult. people match an author or editor - return error'
-  end
-
-
-}
-
-
-
-  context "concerns" do
-    it_behaves_like "identifiable"
-    it_behaves_like "has_roles"
-  end
-
 end
 
