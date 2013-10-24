@@ -8,6 +8,7 @@ class TaxonName < ActiveRecord::Base
   belongs_to :source 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  has_many :taxon_name_classifications
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -82,7 +83,7 @@ class TaxonName < ActiveRecord::Base
       species = ''
       cached_name = nil
       (self.ancestors + [self]).each do |i|
-        if GENUS_AND_SPECIES_RANKS.include?(Object.const_get(i.rank_class.to_s))
+        if GENUS_AND_SPECIES_RANKS.include?(i.rank_class)
           case i.rank
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '
