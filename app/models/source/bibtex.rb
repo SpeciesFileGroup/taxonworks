@@ -12,7 +12,7 @@ class Source::Bibtex < Source
   has_many :editors, through: :editor_roles, source: :person
   #  accepts_nested_attributes_for :authors, :author_roles, :editors, :editor_roles
 
-    BIBTEX_FIELDS = [
+  BIBTEX_FIELDS = [
     :address,
     :annote,             
     :author,
@@ -51,7 +51,8 @@ class Source::Bibtex < Source
   ]
 
   # The following list is from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
-  VALID_BIBTEX_TYPES = %w{article
+  VALID_BIBTEX_TYPES = %w{
+      article
       book
       booklet
       conference
@@ -135,8 +136,8 @@ class Source::Bibtex < Source
 
   protected
 
-  def check_bibtex_type # must have a validly_published bibtex_type
-   errors.add(:bibtex_type, 'not a validly_published bibtex type') if !VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+  def check_bibtex_type # must have a valid bibtex_type
+   errors.add(:bibtex_type, 'not a valid bibtex type') if !VALID_BIBTEX_TYPES.include?(self.bibtex_type)
   end
 
   def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
@@ -147,7 +148,7 @@ class Source::Bibtex < Source
         break
       end
     end
-    # if i is not nil and not == "", it's validly_published
+    # if i is not nil and not == "", it's valid
     #if (!self[i].nil?) && (self[i] != '')
     #  return true
     #end

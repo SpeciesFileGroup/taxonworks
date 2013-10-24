@@ -8,7 +8,9 @@ class TaxonName < ActiveRecord::Base
   belongs_to :source 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-  has_many :taxon_name_classifications
+
+  has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor', as: :role_object
+  has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -75,7 +77,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-    if !GENUS_AND_SPECIES_RANKS.include?(self.rank_class)
+    if !GENUS_AND_SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
       cached_name = nil
     else
       genus = ''
@@ -83,7 +85,7 @@ class TaxonName < ActiveRecord::Base
       species = ''
       cached_name = nil
       (self.ancestors + [self]).each do |i|
-        if GENUS_AND_SPECIES_RANKS.include?(i.rank_class)
+        if GENUS_AND_SPECIES_RANKS_NAMES.include?(i.rank_class.to_s)
           case i.rank
             when "genus" then genus = i.name + ' '
             when "subgenus" then subgenus += i.name + ' '
@@ -132,7 +134,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS.include?(i.rank_class)}.collect{|i| i.name}.join(':')
+    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 
