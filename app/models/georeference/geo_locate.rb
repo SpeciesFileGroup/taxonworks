@@ -71,6 +71,9 @@ g.locate('USA', 'Champaign', 'IL')
       fmt:          'json'
     }.merge!(@request)
 
+    # store the complete request to be evaluated to parse results later
+    @request = opts
+
     # TODO: write actual validation
     # if valid == true
     self.api_request = opts.collect { |key, value| "#{key}=#{value}" }.join('&')
@@ -97,21 +100,31 @@ g.locate('USA', 'Champaign', 'IL')
   end
 
   def make_error_geographic_item
-    self.error_radius = @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
-    # Build the error geographic shape
-    # isolate the array of points from the response, and build the polygon from a line_string
-    # made out of the points
-    p                 = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
-    # build an array of Georeference::FACTORY.points from p
 
-    # TODO: could benchmark 
-    # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
-    # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+    # evaluate for error_radius only if called for (default)
+    self.error_radius = @request[:doUncert] ? @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters'] : 0.0
 
-    err_array         = []
-    p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
-    self.error_geographic_item         = GeographicItem.new
-    self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
+    #evaluate for error polygon only if called for (non-default)
+    if @request[:doPoly]
+      # Build the error geographic shape
+      # isolate the array of points from the response, and build the polygon from a line_string
+      # made out of the points
+      p         = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
+      # build an array of Georeference::FACTORY.points from p
+
+      # TODO: could benchmark
+      # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
+      # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+
+      err_array = []
+      p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+      self.error_geographic_item         = GeographicItem.new
+      self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
+    else
+      # this may not be strictly necessary...
+      self.error_geographic_item = nil
+    end
+
   end
 
   def build
@@ -121,10 +134,10 @@ g.locate('USA', 'Champaign', 'IL')
         make_geographic_item
         make_error_geographic_item
       else
-        errors.add(:api_request, 'requested parameters returned no results')
+        errors.add(:api_request, 'requested parameters returned no results.')
       end
     else
-      errors.add(:base, 'no request parameters provided')
+      errors.add(:base, 'no request parameters provided.')
     end
   end
 

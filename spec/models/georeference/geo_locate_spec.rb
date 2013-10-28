@@ -50,10 +50,10 @@ describe Georeference::GeoLocate do
     end
 
     specify '.build wraps the whole process' do
-      set_request {
+      set_request
         geo_locate.build
         expect(geo_locate.valid?).to be_true
-      }
+
     end
 
   end # end of 'methods'
@@ -86,14 +86,43 @@ describe Georeference::GeoLocate do
       set_request
       geo_locate.request['state'] = nil
       geo_locate.build
-      expect(geo_locate.errors[:api_request]).to eq ['requested parameters returned no results']
+      expect(geo_locate.errors[:api_request]).to eq ['requested parameters returned no results.']
 
+      geo_locate.request =  {}
+      geo_locate.build
+      expect(geo_locate.errors[:base]).to eq ['no request parameters provided.']
     end
   end
 
-  context 'request contains doPoly = false' do
-    specify '' do
-      pending
+  context 'request contains doPoly = false (default)' do
+    specify '.error_geographic_item is nil.' do
+
+      geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
+      geo_locate_2.build
+
+      set_request
+      geo_locate.request[:doPoly] = false
+      geo_locate.build
+
+      expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
+      expect(geo_locate.error_geographic_item).to be_nil
+    end
+  end
+
+  context 'request contains doUncert = false (non-default)' do
+    specify 'that .error_radius is zero' do
+
+      geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
+      geo_locate_2.build
+
+      set_request
+      geo_locate.request[:doUncert] = false
+      geo_locate.build
+
+      # make sure they are the same point
+      expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
+      expect(geo_locate.error_radius).not_to eq geo_locate_2.error_radius
+      expect(geo_locate.error_radius).to eq 0
     end
   end
 
