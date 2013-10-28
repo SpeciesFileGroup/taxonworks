@@ -9,65 +9,10 @@ class Source::Bibtex < Source
 
   #has_many :authors, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
-  has_many :editors, through: :editor_roles, source: :person
+  has_many :editors, -> {order("roles.position ASC")}, through: :editor_roles, source: :person
   #  accepts_nested_attributes_for :authors, :author_roles, :editors, :editor_roles
 
-  BIBTEX_FIELDS = [
-    :address,
-    :annote,             
-    :author,
-    :booktitle,          
-    :chapter,           
-    :crossref,           
-    :edition,            
-    :editor,             
-    :howpublished,       
-    :institution,        
-    :journal,            
-    :key,                
-    :month,              
-    :note,               
-    :number,             
-    :organization,       
-    :pages,              
-    :publisher,          
-    :school,             
-    :series,             
-    :title,              
-    :volume,             
-    :year,               
-    :URL,                
-    :ISBN,               
-    :ISSN,               
-    :LCCN,              
-    :abstract,           
-    :keywords,           
-    :price,              
-    :copyright,          
-    :language,           
-    :contents,           
-    :stated_year,        
-    :bibtex_type       
-  ]
-
-  # The following list is from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
-  VALID_BIBTEX_TYPES = %w{
-      article
-      book
-      booklet
-      conference
-      inbook
-      incollection
-      inproceedings
-      manual
-      mastersthesis
-      misc
-      phdthesis
-      proceedings
-      techreport
-      unpublished}
-
-  # TW required fields (must have one of these fields filled in)
+    # TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
       :author,
       :editor,
@@ -81,7 +26,7 @@ class Source::Bibtex < Source
 
   def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
-    BIBTEX_FIELDS.each do |f|
+    ::BIBTEX_FIELDS.each do |f|
       if !(f == :bibtex_type) && (!self[f].blank?)
         b[f] = self.send(f) 
       end
@@ -110,6 +55,25 @@ class Source::Bibtex < Source
       (self.author.blank? && self.editor.blank?) ||
       self.roles.count > 0 
 
+   #if !self.valid
+   #   errors.add(:base, 'invalid source')
+   #   return false
+   # end
+   #
+   # if self.new_record?
+   #   errors.add(:base, 'unsaved source')
+   #   return false
+   # end
+   #
+   # if (self.author.blank? && self.editor.blank?)
+   #   errors.add(:base, 'no people to create')
+   #   return false
+   # end
+   #
+   # if self.roles.count > 0
+   #   errors.add(:base, 'this source already has people attached to it via roles')
+   # end
+
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
@@ -128,16 +92,16 @@ class Source::Bibtex < Source
       suffix: bibtex_author.suffix)
   end
 
-  def self.create_with_people(all_new_people)
-    # parse the authors out of the author fields, and create the role linkages if the authors exist.
-    return false if !self.valid?
-    # if all_new_people
-  end
+  #def self.create_with_people(all_new_people)
+  #  # parse the authors out of the author fields, and create the role linkages if the authors exist.
+  #  return false if !self.valid?
+  #  # if all_new_people
+  #end
 
   protected
 
   def check_bibtex_type # must have a valid bibtex_type
-   errors.add(:bibtex_type, 'not a valid bibtex type') if !VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+   errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
   end
 
   def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
@@ -148,7 +112,7 @@ class Source::Bibtex < Source
         break
       end
     end
-    # if i is not nil and not == "", it's valid
+    # if i is not nil and not == "", it's validly_published
     #if (!self[i].nil?) && (self[i] != '')
     #  return true
     #end
