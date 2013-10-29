@@ -2,8 +2,8 @@
 module SoftValidation
 
   # A SoftValidations instance contains a set of SoftValidations
-  #   and some code that tracks whether those validations have
-  #   been fixed, etc.
+  # and some code that tracks whether those validations have
+  # been fixed, etc.
   # 
   # @!attribute soft_validations
   #   @return [Array]
@@ -43,9 +43,9 @@ module SoftValidation
     #     # etc...
     #   end
     #
-    # @param[Symbol] a column attribute or :base
-    # @param[String] a message describing the soft validation to the user, i.e. what has gone wrong
-    # @param[Hash{fix: :method_name, success_message: String, failure_message: String }] options.  The method identified by :fix should fully resolve the SoftValidation. 
+    # @attribute[Symbol] a column attribute or :base
+    # @message[String] a message describing the soft validation to the user, i.e. what has gone wrong
+    # @options[Hash{fix: :method_name, success_message: String, failure_message: String }] options.  The method identified by :fix should fully resolve the SoftValidation. 
     def add(attribute, message, options = {})
       # TODO: Stub a generic TW Error and raise it instead
       raise "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + @instance.class.column_names).include?(attribute.to_s)
