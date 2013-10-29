@@ -166,6 +166,7 @@ module SoftValidation
     @soft_validation_result = nil 
   end 
 
+  # @param [Symbol] set the set of soft validations to run
   def soft_validate(set = :all)
     soft_validations
     sets = case set.class.name
