@@ -1,2 +1,2 @@
-class TaxonNameClass::Icn::EffectivelyPublished::Valid::Illegitimate::Homonym < TaxonNameClass::Icn::EffectivelyPublished::Valid::Illegitimate
+class TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym < TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate
 end

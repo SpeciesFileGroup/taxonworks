@@ -1,2 +1,2 @@
-class TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate::AdoptedByFries < TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate
+class TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::AdoptedByFries < TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
 end

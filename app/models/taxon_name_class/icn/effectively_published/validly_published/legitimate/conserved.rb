@@ -1,2 +1,2 @@
-class TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate::Conserved < TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate
+class TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Conserved < TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
 end

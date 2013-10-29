@@ -1,2 +1,2 @@
-class TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate::Nothotaxon < TaxonNameClass::Icn::EffectivelyPublished::Valid::Legitimate
+class TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Nothotaxon < TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
 end

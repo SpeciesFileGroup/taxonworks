@@ -1,2 +1,2 @@
-class TaxonNameClass::Iczn::Available::Valid::NomenDubium < TaxonNameClass::Iczn::Available::Valid
+class TaxonNameClass::Iczn::Available::ValidlyPublished::NomenDubium < TaxonNameClass::Iczn::Available::ValidlyPublished
 end
