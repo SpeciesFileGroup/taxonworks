@@ -57,7 +57,6 @@ module SoftValidation
     attr_accessor :attribute, :message, :success_message, :failure_message, :fix
   end
 
-  
   extend ActiveSupport::Concern
  
   included do
@@ -134,9 +133,4 @@ class ActiveRecord::Base
   include SoftValidation
 end
 
-# self fix
-# soft validations
-#
-# soft_fix_all
-# soft_fix(:author, :name)
-# soft_fix 
+
