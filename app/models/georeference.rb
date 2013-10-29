@@ -1,26 +1,36 @@
-=begin
-# TODO: Move these into YARD doc format as in the example below
-    geographic_item_id [integer]
-    collecting_event_id [integer]
-    error_radius (meters [reflects horizontal]) [real/decimal]
-    error_depth (meters, [reflects vertical]) [real/decimal]
-    error_geographic_item_id (restricted to type polygon [reflects horizontal]) [integer]
-    type [string, references a class name that defines the method used]
-    source_id [integer]
-    position [integer
-    request [string]
-
-# @!attribute geographic_item_id 
-#   @return [Integer] 
-#    the id of a GeographicItem the represents the (non-error) representation of this georeference defintion  
-# @!attribute collecting_event_id 
-#   @return [Integer] 
-#    the id of a CollectingEvent
-# ....
-=end
 class Georeference < ActiveRecord::Base
+# Contains information about a location on the face of the Earth, consisting of:
+#
+# @!attribute geographic_item_id
+#   @return [Integer]
+#    the id of a GeographicItem that represents the (non-error) representation of this georeference definition
+# @!attribute collecting_event_id
+#   @return [Integer]
+#    the id of a CollectingEvent that represents the event of this georeference definition
+# @!attribute error_radius
+#   @return [Integer]
+#    the distance in meters of the radius of the area of horizontal uncertainty of the accuracy of the location of this georeference definition
+# @!attribute error_depth
+#   @return [Integer]
+#    the distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of this georeference definition
+# @!attribute error_geographic_item_id
+#   @return [Integer]
+#    the id of a GeographicItem that represents the (error) representation of this georeference definition
+# @!attribute type
+#   @return [String]
+#    the type name of the this georeference definition
+# @!attribute source_id
+#   @return [Integer]
+#    the id of the source of this georeference definition
+# @!attribute position
+#   @return [Integer]
+#    the position of this georeference definition
+# @!attribute request
+#   @return [String]
+#    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
 
-  FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
+
+FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
 
   # 'belongs_to' indicates that there is a record ID for this type of object (collecting_event) in *this* table, which
   # is used to find the object we want, 'collecting_event_id' is the column name, and refers to the 'collecting_events'
