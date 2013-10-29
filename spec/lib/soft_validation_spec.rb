@@ -64,14 +64,14 @@ describe 'SoftValidation' do
     specify 'softy.soft_validate' do
       expect(softy.soft_validate).to be_true
       expect(softy.soft_validations.class).to eq(SoftValidation::SoftValidations)
-      expect(softy.soft_validations.fixed?).to be_false
+      expect(softy.soft_validations.fixes_run?).to be_false
     end
 
     specify 'softy.fix_soft_validations' do
-      expect(softy.soft_validate).to be_true              # you must validated before you fix
+      expect(softy.soft_validate).to be_true             
       expect(softy.fix_soft_validations).to be_true      
-      expect(softy.soft_validations.fixed?).to be_true 
-      expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["was fixed (no message provided)"])
+      expect(softy.soft_validations.fixes_run?).to be_true 
+      expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["no fix is available"])
     end
 
     specify 'softy.soft_validated?' do
@@ -114,7 +114,6 @@ describe 'SoftValidations' do
 
   specify 'complete?' do
     soft_validations.validated = true 
-    soft_validations.fixed = true 
     expect(soft_validations.complete?).to be_true
   end
 end
@@ -142,10 +141,23 @@ describe 'SoftValidation' do
     specify 'failure_message' do
       expect(soft_validation).to respond_to(:failure_message)
     end
+
+    specify 'fixed' do
+      expect(soft_validation).to respond_to(:fixed) 
+      soft_validation.fixed = true
+      expect(soft_validation.fixed?).to be_true 
+    end
+
+
   end
+
+  specify 'result_message()' do
+    soft_validation.failure_message = 'a'
+    soft_validation.success_message = 'a'
+    expect(soft_validation).to respond_to(:result_message) 
+  end
+
 end
-
-
 
 
 # Stub class for testing.  Mimics only
@@ -171,8 +183,7 @@ class Softy
 
   def cook_cheezburgers
     $hungry = false
+    true
   end 
 end
-
-
 
