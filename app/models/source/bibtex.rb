@@ -5,7 +5,8 @@ class Source::Bibtex < Source
   # have some authors and editors
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
   # eef - The following is trying to order the author list based on the order in SourceAuthor.
-  has_many :authors, -> {order("roles.position ASC")}, through: :author_roles, source: :person #TODO: It works, but :order depends on table name. Check if something can be done about this.
+  has_many :authors, -> {order("roles.position ASC")}, through: :author_roles, source: :person
+  #TODO: It works, but :order depends on table name. Check if something can be done about this.
 
   #has_many :authors, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
@@ -77,8 +78,14 @@ class Source::Bibtex < Source
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
-      p = Source::Bibtex.bibtex_author_to_person(a)
-      self.authors << p
+      p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+      if bibtex.author
+        self.authors << p if bibtex.author.include?(a)
+      end
+      if bibtex.editor
+        self.editors << p if bibtex.editor.include?(a)
+      end
+#      q=1
     end
     return true 
   end

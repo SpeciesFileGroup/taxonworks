@@ -11,12 +11,12 @@ describe Source::Bibtex do
     @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
     @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
     @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
-                                   year: 1921, publisher: 'Test Books Inc.')
+                                                 year: 1921, publisher: 'Test Books Inc.')
     @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
-                                        year: 1921)
+                                                 year: 1921)
   end
 
-  context 'testing BibTeX capabilities' do 
+  context 'testing BibTeX capabilities' do
     specify 'the test file should have 42 records' do
       expect(@gem_bibtex_bibliography.size).to eq(42)
     end
@@ -102,7 +102,17 @@ describe Source::Bibtex do
     end
   end
 
-  context 'instance methods' do
+  context 'if I have a zotero bibliography' do
+    context 'and I import it to TW' do
+      context 'when I update a record in zotero' do
+        specify 'then TW should be aware and notify me of discrepancies' do
+          pending 'not implemented yet'
+        end
+      end
+    end
+  end
+
+  context 'Ruby BibTeX related instance methods' do
     before(:all) do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
     end
@@ -117,17 +127,7 @@ describe Source::Bibtex do
     end
   end
 
-  context 'if I have a zotero bibliography' do
-    context 'and I import it to TW' do
-      context 'when I update a record in zotero' do
-        specify 'then TW should be aware and notify me of discrepancies' do
-          pending 'not implemented yet'
-        end
-      end
-    end
-  end
-
-  context 'a valid Source::Bibtex' do
+  context 'validation - a valid Source::Bibtex' do
     specify 'must have a valid bibtex_type' do
       local_src = FactoryGirl.create(:valid_bibtex_source)
       expect(local_src.valid?).to be_true
@@ -150,24 +150,144 @@ describe Source::Bibtex do
     end
   end
 
+  context 'instance methods - ' do
+    context 'with an existing instance of Source::Bibtex' do
+      before(:each) {
+        # this is a TW Source::Bibtex - type article, with just a title
+        @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
+        #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
+      }
+
+      context 'create_related_people()' do
+        specify 'can not be run when .new_record?' do
+          expect(@bibtex_source.new_record?).to be_true
+          expect(@bibtex_source.valid?).to be_true
+          @bibtex_source.author = 'Smith, James'
+          expect(@bibtex_source.create_related_people).to be_false
+        end
+
+        # NOTE: Be aware of possible translator roles, we don't handle this
+        specify 'returns false when author.nil? && editor.nil?' do
+          expect(@bibtex_source.create_related_people).to be_false
+        end
+
+        specify 'returns false when instance.valid? is false' do
+          s = FactoryGirl.build(:bibtex_source)
+          expect(s.create_related_people).to be_false
+        end
+
+        %w{author editor}.each do |a|
+          context "creates people for #{a}s" do
+            specify "single #{a}" do
+              method = "#{a}s"
+              @bibtex_source.send("#{a}=".to_sym, 'Smith, Bill')
+              @bibtex_source.save
+              expect(@bibtex_source.send(method.to_sym).size).to eq(0)
+              expect(@bibtex_source.create_related_people).to be_true
+              @bibtex_source.reload
+              expect(@bibtex_source.send(method.to_sym).size).to eq(1)
+              #@bibtex_source.reload
+              expect(@bibtex_source.send(method.to_sym).to_a).to have(1).things
+              expect((@bibtex_source.send(method.to_sym)).first.last_name).to eq('Smith')
+              expect((@bibtex_source.send(method.to_sym)).first.first_name).to eq('Bill')
+            end
+
+            specify "multiple #{a}s" do
+              method = "#{a}s"
+              @bibtex_source.send("#{a}=".to_sym,'Thomas, D. and Fowler, Chad and Hunt, Andy')
+              @bibtex_source.save
+              expect(@bibtex_source.send(method.to_sym).size).to eq(0)
+              expect(@bibtex_source.create_related_people).to be_true
+              @bibtex_source.reload
+
+              expect(@bibtex_source.send(method.to_sym).to_a).to have(3).things
+              expect(@bibtex_source.send(method.to_sym).first.last_name).to eq('Thomas')
+              expect(@bibtex_source.send(method.to_sym).first.first_name).to eq('D.')
+              author1_id = @bibtex_source.send(method.to_sym).first.id
+              author1    = Person.find(author1_id)
+              expect(author1).to be_instance_of(Person::Unvetted)
+              expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
+
+              expect(@bibtex_source.send(method.to_sym).last.last_name).to eq('Hunt')
+              expect(@bibtex_source.send(method.to_sym).last.first_name).to eq('Andy')
+            end
+          end
+
+
+          context "creates #{a}s in the correct order" do
+            specify "#{a}s returns correctly ordered arrays" do
+              pending 'put order test here'
+            end
+          end
+        end
+
+        specify 'successfully creats a combination of authors & editors' do
+          @bibtex_source.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
+          @bibtex_source.save
+          @bibtex_source.editor = 'Smith, Bill'
+          expect(@bibtex_source.authors.size).to eq(0)
+          expect(@bibtex_source.editors.size).to eq(0)
+          expect(@bibtex_source.create_related_people).to be_true
+          @bibtex_source.reload
+
+          expect(@bibtex_source.authors.to_a).to have(3).things
+          expect(@bibtex_source.authors.first.last_name).to eq('Thomas')
+          expect(@bibtex_source.authors.first.first_name).to eq('D.')
+          author1_id = @bibtex_source.authors.first.id
+          author1 = Person.find(author1_id)
+          expect(author1).to be_instance_of(Person::Unvetted)
+          expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
+
+          expect(@bibtex_source.authors.last.last_name).to eq('Hunt')
+          expect(@bibtex_source.authors.last.first_name).to eq('Andy')
+
+          expect(@bibtex_source.editors.to_a).to have(1).things
+          expect(@bibtex_source.editors.first.last_name).to eq('Smith')
+          expect(@bibtex_source.editors.first.first_name).to eq('Bill')
+        end
+
+        context 'can not run on a source with existing roles' do
+          %w{author editor}.each do |a|
+            specify "can not be run when #{a} exists" do
+              @bibtex_source.send("#{a}=".to_sym, 'Smith, Bill and Jones, Jane')
+              @bibtex_source.save
+              expect(@bibtex_source.create_related_people).to be_true #saves the roles
+              @bibtex_source.reload
+              if a == 'author'
+                expect(@bibtex_source.valid? && @bibtex_source.authors.count == 2).to be_true
+                expect(@bibtex_source.editors.count == 0).to be_true
+              else # editor
+                expect(@bibtex_source.valid? && @bibtex_source.editors.count == 2).to be_true
+                expect(@bibtex_source.authors.count == 0).to be_true
+              end
+              expect(@bibtex_source.create_related_people).to be_false #roles/people already exist
+            end
+          end
+        end
+
+      end
+    end
+
+  end
+
   context 'associations' do
     context('roles') {
-      before do
-        # create & save 3 people
-        p1 = Person.new(last_name: 'Aus')
-        p1.save
-        p2 = Person.new(last_name: 'Bus')
-        p2.save
-        p3 = Person.new(last_name: 'Cus')
-        p3.save
-        # create 3 bibtex sources
-        bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-        bs1.save
-        bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-        bs2.save
-        bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-        bs3.save
-      end
+      #before do
+      #  # create & save 3 people
+      #  p1 = Person.new(last_name: 'Aus')
+      #  p1.save
+      #  p2 = Person.new(last_name: 'Bus')
+      #  p2.save
+      #  p3 = Person.new(last_name: 'Cus')
+      #  p3.save
+      #  # create 3 bibtex sources
+      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
+      #  bs1.save
+      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
+      #  bs2.save
+      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
+      #  bs3.save
+      #end
 
       specify 'After save on new bibtex records, populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
@@ -181,15 +301,15 @@ describe Source::Bibtex do
       end
 
       pending 'editors should be ordered by roles.position'
-    
+
       context 'on validation' do
         # Force the user to interact through authors first, then back save to author 
         pending 'invalidate if authors exist and author has changed, and no longer matches'
 
         # ditto for editors
         pending 'invalidate if editors exist and editor has changed, and no longer matches'
-      end 
-    
+      end
+
       # TODO: This is a person-side test, should cascade update 
       # pending "If updated a person, then update bibtex authors/editors"
 
@@ -199,11 +319,11 @@ describe Source::Bibtex do
           method = "#{i}s"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title = 'valid record'
+          bibtex.title       = 'valid record'
           bibtex.bibtex_type = 'book'
-          expect(bibtex.save).to be_true # save record to get an ID
+          expect(bibtex.save).to be_true                         # save record to get an ID
           expect(bibtex.send(method) << valid_person).to be_true # assigns author but doesn't save role
-          expect(bibtex.save).to be_true # saving bibtex also saves role
+          expect(bibtex.save).to be_true                         # saving bibtex also saves role
           expect(bibtex.send(method).first).to eq(valid_person)
         end
 
@@ -211,7 +331,7 @@ describe Source::Bibtex do
           method = "#{i}_roles"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title = 'valid record'
+          bibtex.title       = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true
           expect(bibtex.send("#{i}s") << valid_person).to be_true
@@ -222,9 +342,9 @@ describe Source::Bibtex do
     }
   end
 
-  context('Beth') do 
+  context('Beth') do
 
-    context 'class methods' do
+    context 'class methods' do #nothing implemented here
       specify 'bibtex_author_to_person' do
         pending 'write me'
       end
@@ -236,11 +356,11 @@ describe Source::Bibtex do
           end
 
           specify 'people: :create -  is default, creates new people for all roles' do
-            pending 
+            pending
           end
 
           specify 'people: :match_exact - uses exactly matching Person::Unvetted when found, otherwise creates new editors/authors' do
-            pending 
+            pending
           end
         end
 
@@ -264,115 +384,8 @@ describe Source::Bibtex do
           pending
         end
       end
-    end 
-
-    context 'with an existing instance with authors' do
-      before(:each) {# this is a TW Source::Bibtex - type article, with just a title
-        @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
-        @bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
-      }
-
-      context 'create_related_people()' do
-        specify 'can not be run when .new_record?' do
-          expect(@bibtex_source.new_record?).to be_true
-          expect(@bibtex_source.valid?).to be_true
-          @bibtex_source.author = 'Smith, James'
-          expect(@bibtex_source.create_related_people).to be_false
-        end 
-
-        # NOTE: Be aware of possible translator roles, we don't handle this
-        specify 'returns false when author.nil? || editor.nil?' do
-          expect(@bibtex_source.create_related_people).to be_false
-        end
-
-        specify 'can not be run when authors or editors exist' do
-          @bibtex_source.author = 'Smith, James'
-          @bibtex_source.save
-          expect(@bibtex_source.create_related_people).to be_true #saves the roles
-          @bibtex_source.reload
-          expect(@bibtex_source.valid? && @bibtex_source.authors.count == 1).to be_true
-          expect(@bibtex_source.create_related_people).to be_false #roles/people already exist
-        end
-
-        specify 'returns false when instance.valid? is false' do
-          s = FactoryGirl.build(:bibtex_source)
-          expect(s.create_related_people).to be_false
-        end
-        %w{author editor}.each do |a|
-        context "creates people for #{a}s" do
-            specify "single #{a}" do
-              method = "#{a}s"
-              @bibtex_source.send("#{a}=".to_sym,'Smith, Bill')
-              @bibtex_source.save
-              expect(@bibtex_source.send(method.to_sym).size).to eq(0)
-              expect(@bibtex_source.create_related_people).to be_true
-             # expect(@bibtex_source.send(method.to_sym).size).to eq(1)
-              @bibtex_source.reload
-             # expect(@bibtex_source.send(method.to_sym).to_a).to have(1).things
-             # expect(@bibtex_source.method.to_sym.first.last_name).to eq('Smith')
-             # expect(@bibtex_source.method.to_sym.first.first_name).to eq('Bill')
-            end
-
-            #specify "multiple #{a}s" do
-            #  #@bibtex_source.send(a.to_sym) = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
-            #  @bibtex_source.save
-            #  expect(@bibtex_source.authors.size).to eq(0)
-            #  expect(@bibtex_source.create_related_people).to be_true
-            #  @bibtex_source.reload
-            #
-            #  expect(@bibtex_source.authors.to_a).to have(3).things
-            #  expect(@bibtex_source.authors.first.last_name).to eq('Thomas')
-            #  expect(@bibtex_source.authors.first.first_name).to eq('D.')
-            #  author1_id = @bibtex_source.authors.first.id
-            #  author1    = Person.find(author1_id)
-            #  expect(author1).to be_instance_of(Person::Unvetted)
-            #  expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
-            #
-            #  expect(@bibtex_source.authors.last.last_name).to eq('Hunt')
-            #  expect(@bibtex_source.authors.last.first_name).to eq('Andy')
-            #end
-
-        end
-          #specify 'single author' do
-          #  @bibtex_source.author = 'Smith, Bill'
-          #  @bibtex_source.save
-          #  expect(@bibtex_source.authors.size).to eq(0)
-          #  expect(@bibtex_source.create_related_people).to be_true
-          #  expect(@bibtex_source.authors.size).to eq(1)
-          #  @bibtex_source.reload
-          #  expect(@bibtex_source.authors.to_a).to have(1).things
-          #  expect(@bibtex_source.authors.first.last_name).to eq('Smith')
-          #  expect(@bibtex_source.authors.first.first_name).to eq('Bill')
-          #end
-
-          #specify 'multiple authors' do
-          #  @bibtex_source.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
-          #  @bibtex_source.save
-          #  expect(@bibtex_source.authors.size).to eq(0)
-          #  expect(@bibtex_source.create_related_people).to be_true
-          #  @bibtex_source.reload
-          #
-          #  expect(@bibtex_source.authors.to_a).to have(3).things
-          #  expect(@bibtex_source.authors.first.last_name).to eq('Thomas')
-          #  expect(@bibtex_source.authors.first.first_name).to eq('D.')
-          #  author1_id = @bibtex_source.authors.first.id
-          #  author1 = Person.find(author1_id)
-          #  expect(author1).to be_instance_of(Person::Unvetted)
-          #  expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
-          #
-          #  expect(@bibtex_source.authors.last.last_name).to eq('Hunt')
-          #  expect(@bibtex_source.authors.last.first_name).to eq('Andy')
-          #end
-      end
-
-        #pending 'creates people for editors'
-    end
     end
 
-    context 'concerns' do
-      it_behaves_like "identifiable"
-      it_behaves_like "has_roles"
-    end
   end
 
   context 'Hackathon requirements' do
@@ -383,6 +396,12 @@ describe Source::Bibtex do
     pending 'Should be able to round trip data '
     #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
 
+  end
+
+
+  context 'concerns' do
+    it_behaves_like "identifiable"
+    it_behaves_like "has_roles"
   end
 end
 

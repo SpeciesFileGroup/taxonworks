@@ -11,4 +11,10 @@ FactoryGirl.define do
     association :role_object, factory: :valid_bibtex_source 
   end
 
+  factory :source_source_role, class: Role::SourceSource do
+    association :person, factory: :valid_person
+    association :role_object, factory: :valid_human_source
+  end
+
+
 end

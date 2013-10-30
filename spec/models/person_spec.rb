@@ -6,6 +6,9 @@ describe Person do
   let(:bibtex_source) {
     FactoryGirl.create(:valid_bibtex_source)
   }
+  let(:human_source) {
+    FactoryGirl.create(:human_source)
+  }
 
   context 'validation' do
     before do
@@ -30,31 +33,27 @@ describe Person do
     end
   end
 
+
   context 'associations' do
 
-    #role orders: source_authors, source_editors, collectors, (type_)designators, determinators, taxon_name_authors, source_sources
+    #role orders: source_authors, source_editors, source_sources, collectors, (taxon_)determiners, taxon_name_authors, type_designators
 
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
       end
 
-      #     context 'sources' do
       specify 'authored_sources' do
-        #         b = FactoryGirl.create(:valid_bibtex_source)
-        expect(person).to respond_to(:authored_sources)
-        #         b.authors << person
-        #         b.save
-        #         expect(person.authored_sources.to_a).to eq([b])
+         expect(person).to respond_to(:authored_sources)
       end
 
       specify 'edited_sources' do
         expect(person).to respond_to(:edited_sources)
-#          bibtex_source.editors << person
-#          bibtex_source.save
-#          expect(person.edited_sources.to_a).to eq([bibtex_source])
       end
-      #    end
+
+      specify 'human_source' do
+        expect(person).to respond_to(:human_source)
+      end
 
       specify 'collecting_events' do
         expect(person).to respond_to(:collecting_events)
@@ -64,15 +63,14 @@ describe Person do
         expect(person).to respond_to(:taxon_determinations)
       end
 
-      specify 'type_designations' # need type specimen class
-
       specify 'taxon_name_author' do
         expect(person).to respond_to(:taxon_name_authors)
       end
 
-      specify 'source_sources'
-
-    end
+      specify 'type_designations' do
+        expect(person).to respond_to(:type_specimens)
+      end
+     end
 
 
     context 'usage and rendering' do
@@ -138,11 +136,19 @@ describe Person do
         @vp.reload
         expect(@vp.is_editor?).to be_true
       end
-      specify 'is_type_designator?'
-      specify 'is_taxon_name_author?'
+      specify 'is_source?' do
+        @vp.save
+        expect(@vp).to respond_to(:is_source?)
+        expect(@vp.is_source?).to be_false
+        human_source.person = @vp
+        human_source.save!
+        @vp.reload
+        expect(@vp.is_source?).to be_true
+      end
       specify 'is_collector?'
       specify 'is_determiner?'
-      specify 'is_source_source?'
+      specify 'is_taxon_name_author?'
+      specify 'is_type_designator?'
 
     end
 
