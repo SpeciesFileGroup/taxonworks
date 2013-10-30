@@ -20,7 +20,7 @@ describe Source::Human do
         expect(source_human).to respond_to(:person)
       end
       specify 'source_source' do
-        expect(source_human).to respond_to(:source_source)
+        expect(source_human).to respond_to(:source_source_role)
       end
       specify 'role' do
         expect(source_human).to respond_to(:role)
