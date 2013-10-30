@@ -133,7 +133,17 @@ describe Person do
         @vp.reload
         expect(@vp.is_editor?).to be_true
       end
-      specify 'is_source_source?'
+      specify 'is_human?' do
+        @vp.save
+        expect(@vp).to respond_to(:is_human?)
+        expect(@vp.is_human?).to be_false
+=begin
+        human_source.humans << @vp
+        human_source.save!
+        @vp.reload
+        expect(@vp.is_human?).to be_true
+=end
+      end
       specify 'is_collector?'
       specify 'is_determiner?'
       specify 'is_taxon_name_author?'
