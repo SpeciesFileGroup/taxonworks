@@ -197,59 +197,93 @@ describe GeographicItem do
 
   context 'that each type of item knows how to emits its own array' do
     specify 'that represents a point' do
-      p1                    = @tw_factory.point(-88.241413, 40.091655, 757)
-      geographic_item.point = p1
-      geographic_item.save
-      # also 'respond_to'
-      # after the save, the default factory type of geographic_item is
-      # #<RGeo::Geographic::Factory> and the
-      # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
-      # See the model for a method to change the default factory for a given
-      # column (in our case, all).
-      expect(geographic_item.object.to_a).to eq []
+
+      expect(@r2024.to_a).to eq [-88.241413, 40.091655]
 
     end
   end
-end
 
-=begin
-      g1 = GeographicItem.new
-      g2 = GeographicItem.new
-      g3 = GeographicItem.new
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a line_string' do
 
-      m = ::RGeo::Geographic.simple_mercator_factory(
-        :has_z_coordinate => true,
-        :has_m_coordinate => true
-      )
-      # -------------------  Long,     Lat,       Z,   M
-      g1.a_point = m.point(-88.241413, 40.091655, 757, 2024)
-      g2.a_point = m.point(-88.241421, 40.091565, 757, 2020)
-      g3.a_point = m.point(
-        (g2.a_point.x + ((g1.a_point.x - g2.a_point.x) / 2)),
-        (g2.a_point.y + ((g1.a_point.y - g2.a_point.y) / 2)),
-        (g2.a_point.z + ((g1.a_point.z - g2.a_point.z) / 2)),
-        2022
-      )
-      g1.a_polygon = g1.a_point.buffer(1)
-      g1.a_simple_line = m.line(g1.a_point, g2.a_point)
-      g1.a_complex_line = m.line_string(g1.a_polygon)
-      g1.a_linear_ring = m.linear_ring(g1.a_polygon)
+      expect(@a.to_a).to eq [[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]
 
-      g1.save
-      g2.save
-      g3.save
+    end
+  end
 
-      before do
-        g1.a_point = m.point(-88.241413, 40.091655, 757, 2024)
-        g1.save
-      end
-=end
-=begin
-      specify 'At least one point or one line or one polygon or one multi_polygon is provided' do
-        expect(geographic_item.errors.include?(:cashed_display)).to be_true
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a polygon' do
+
+      expect(@k.to_a).to eq [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]
+
+    end
+  end
+
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a multi_point' do
+
+      expect(@rooms.to_a).to eq [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]]
+
+    end
+  end
+
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a multi_line_string' do
+
+      expect(@c.to_a).to eq [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]]
+
+    end
+  end
+
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a multi_polygon' do
+
+      expect(@g.to_a).to eq [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]]
+
+    end
+  end
+
+  context 'that each type of item knows how to emits its own hash' do
+    specify 'for a point' do
+
+      expect(@r2024.render_hash).to eq(points: [[-88.241413, 40.091655]])
+    end
+  end
+
+  context 'that each type of item knows how to emits its own hash' do
+    specify 'for a line_string' do
+
+      expect(@a.render_hash).to eq(lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]])
+    end
+  end
+
+  context 'that each type of item knows how to emits its own hash' do
+    specify 'for a polygon' do
+
+      expect(@k.render_hash).to eq(polygons: [[[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]])
+    end
+    context 'that each type of item knows how to emits its own hash' do
+      specify 'for a multi_point' do
+
+        expect(@rooms.render_hash).to eq(points: [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]])
       end
     end
-=end
+
+    context 'that each type of item knows how to emits its own hash' do
+      specify 'for a multi_line_string' do
+
+        expect(@c.render_hash).to eq(lines: [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]])
+      end
+    end
+
+    context 'that each type of item knows how to emits its own hash' do
+      specify 'for a multi_polygon' do
+
+        expect(@g.render_hash).to eq(polygons: [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]])
+      end
+    end
+  end
+end
 
 def build_RGeo_objects()
 
@@ -260,6 +294,10 @@ def build_RGeo_objects()
   @room2022 = @tw_factory.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
                                 (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
                                 (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
+
+  @rooms20 = @tw_factory.multi_point([@room2020,
+                                      @room2022,
+                                      @room2024])
 
   @point0  = @tw_factory.point(0, 0)
   @point1  = @tw_factory.point(-29, -16)
@@ -318,7 +356,7 @@ def build_RGeo_objects()
                                     @tw_factory.point(26, 12.6),
                                     @tw_factory.point(22, 17.6)])
 
-  @shapeC = @tw_factory.multi_line_string([listC1, listC2, listC3])
+  @shapeC  = @tw_factory.multi_line_string([listC1, listC2, listC3])
   @shapeC1 = @shapeC.geometry_n(0)
   @shapeC2 = @shapeC.geometry_n(1)
   @shapeC3 = @shapeC.geometry_n(2)
@@ -518,6 +556,11 @@ def gen_db_objects()
   point_in  = @point1
   point_out = @point17
 
+  @r2020 = GeographicItem.new
+  @r2022 = GeographicItem.new
+  @r2024 = GeographicItem.new
+  @rooms = GeographicItem.new
+
   @p1  = GeographicItem.new
   @p10 = GeographicItem.new
   @p16 = GeographicItem.new
@@ -535,6 +578,11 @@ def gen_db_objects()
 
   @all_items = GeographicItem.new
 
+  @r2020.point = @room2020
+  @r2022.point = @room2022
+  @r2024.point = @room2024
+  @rooms.multi_point = @rooms20
+
   @p1.point  = point_in
   @p10.point = @point10
   @p16.point = @point16
@@ -550,6 +598,11 @@ def gen_db_objects()
   @k.polygon                     = @shapeK
   @l.line_string                 = @shapeL
   @all_items.geometry_collection = @everything
+
+  @r2020.save!
+  @r2022.save!
+  @r2024.save!
+  @rooms.save!
 
   @p1.save!
   @p10.save!
@@ -597,7 +650,7 @@ def gen_wkt_files()
       when 'MultiPoint'
         # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
         f_type = $stdout
-      when /^Line[S]*/  #when 'Line' or 'LineString'
+      when /^Line[S]*/ #when 'Line' or 'LineString'
         f_type = f_line
       when 'MultiLineString'
         # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
@@ -657,3 +710,43 @@ end
 def collection_methods()
   [:num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :factory, :z_geometry, :m_geometry, :dimension, :geometry_type, :srid, :envelope, :as_text, :as_binary, :is_empty?, :is_simple?, :boundary, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :union, :difference, :sym_difference, :rep_equals?, :-, :+, :*, :_copy_state_from, :marshal_dump, :marshal_load, :encode_with, :init_with]
 end
+
+=begin
+      g1 = GeographicItem.new
+      g2 = GeographicItem.new
+      g3 = GeographicItem.new
+
+      m = ::RGeo::Geographic.simple_mercator_factory(
+        :has_z_coordinate => true,
+        :has_m_coordinate => true
+      )
+      # -------------------  Long,     Lat,       Z,   M
+      g1.a_point = m.point(-88.241413, 40.091655, 757, 2024)
+      g2.a_point = m.point(-88.241421, 40.091565, 757, 2020)
+      g3.a_point = m.point(
+        (g2.a_point.x + ((g1.a_point.x - g2.a_point.x) / 2)),
+        (g2.a_point.y + ((g1.a_point.y - g2.a_point.y) / 2)),
+        (g2.a_point.z + ((g1.a_point.z - g2.a_point.z) / 2)),
+        2022
+      )
+      g1.a_polygon = g1.a_point.buffer(1)
+      g1.a_simple_line = m.line(g1.a_point, g2.a_point)
+      g1.a_complex_line = m.line_string(g1.a_polygon)
+      g1.a_linear_ring = m.linear_ring(g1.a_polygon)
+
+      g1.save
+      g2.save
+      g3.save
+
+      before do
+        g1.a_point = m.point(-88.241413, 40.091655, 757, 2024)
+        g1.save
+      end
+=end
+=begin
+      specify 'At least one point or one line or one polygon or one multi_polygon is provided' do
+        expect(geographic_item.errors.include?(:cashed_display)).to be_true
+      end
+    end
+=end
+

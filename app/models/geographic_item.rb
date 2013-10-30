@@ -15,10 +15,10 @@ class GeographicItem < ActiveRecord::Base
                 :geometry_collection]
 
   column_factory = RGeo::Geos.factory(
-    native_interface: :ffi,
-    srid:             4326,
-    has_z_coordinate: true,
-    has_m_coordinate: false)
+      native_interface: :ffi,
+      srid:             4326,
+      has_z_coordinate: true,
+      has_m_coordinate: false)
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
@@ -64,6 +64,39 @@ class GeographicItem < ActiveRecord::Base
       return item if !self.send(item).nil? }
   end
 
+  def render_hash
+    # get our object and return the set of points as a hash with object type as key
+    we_are = self.object
+
+=begin
+    if we_are
+      {self.data_type? => self.to_a}
+    else
+      {}
+    end
+=end
+    if we_are
+      data = {}
+      case self.data_type?
+        when :point
+          data = {points: [self.to_a]}
+        when :line_string
+          data = {lines: [self.to_a]}
+        when :polygon
+          data = {polygons: [self.to_a]}
+        when :multi_point
+          data = {points: self.to_a}
+        when :multi_line_string
+          data = {lines: self.to_a}
+        when :multi_polygon
+          data = {polygons: self.to_a}
+      end
+      data
+    else
+      {}
+    end
+  end
+
   def to_a
     # get our object and return the set of points as an array
     we_are = self.object
@@ -74,17 +107,30 @@ class GeographicItem < ActiveRecord::Base
         when :point
           data.push(self.point.x, point.y)
         when :line_string
-          self.line_string.points.each {|point|
-            data.push([point.x, point.y])}
+          self.line_string.points.each { |point|
+            data.push([point.x, point.y]) }
         when :polygon
-          self.polygon.exterior_ring.points.each {|point|
-            data.push(point.x, point.y)}
+          self.polygon.exterior_ring.points.each { |point|
+            data.push([point.x, point.y]) }
         when :multi_point
+          self.multi_point.each { |point|
+            data.push([point.x, point.y]) }
         when :multi_line_string
+          self.multi_line_string.each { |line_string|
+            line_data = []
+            line_string.points.each { |point|
+              line_data.push([point.x, point.y]) }
+            data.push(line_data)
+          }
         when :multi_polygon
-
+          self.multi_polygon.each { |polygon|
+            polygon_data = []
+            polygon.exterior_ring.points.each { |point|
+              polygon_data.push([point.x, point.y]) }
+            data.push(polygon_data)
+          }
       end
-        data
+      data
     else
       []
     end
