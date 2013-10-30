@@ -68,13 +68,6 @@ class GeographicItem < ActiveRecord::Base
     # get our object and return the set of points as a hash with object type as key
     we_are = self.object
 
-=begin
-    if we_are
-      {self.data_type? => self.to_a}
-    else
-      {}
-    end
-=end
     if we_are
       data = {}
       case self.data_type?
@@ -90,6 +83,8 @@ class GeographicItem < ActiveRecord::Base
           data = {lines: self.to_a}
         when :multi_polygon
           data = {polygons: self.to_a}
+        when :geometry_collection
+          data = self.geometry_collection_to_hash(self.geometry_collection)
       end
       data
     else
@@ -105,30 +100,19 @@ class GeographicItem < ActiveRecord::Base
       data = []
       case self.data_type?
         when :point
-          data.push(self.point.x, point.y)
+          data = point_to_a(self.point)
         when :line_string
-          self.line_string.points.each { |point|
-            data.push([point.x, point.y]) }
+          data = line_string_to_a(self.line_string)
         when :polygon
-          self.polygon.exterior_ring.points.each { |point|
-            data.push([point.x, point.y]) }
+          data = polygon_to_a(self.polygon)
         when :multi_point
-          self.multi_point.each { |point|
-            data.push([point.x, point.y]) }
+          data = multi_point_to_a(self.multi_point)
         when :multi_line_string
-          self.multi_line_string.each { |line_string|
-            line_data = []
-            line_string.points.each { |point|
-              line_data.push([point.x, point.y]) }
-            data.push(line_data)
-          }
+          data = multi_line_string_to_a(self.multi_line_string)
         when :multi_polygon
-          self.multi_polygon.each { |polygon|
-            polygon_data = []
-            polygon.exterior_ring.points.each { |point|
-              polygon_data.push([point.x, point.y]) }
-            data.push(polygon_data)
-          }
+          data = multi_polygon_to_a(self.multi_polygon)
+        #when :geometry_collection
+        #  data = geometry_collection_to_a(self.geometry_collection)
       end
       data
     else
@@ -137,6 +121,109 @@ class GeographicItem < ActiveRecord::Base
   end
 
   protected
+
+  def point_to_a(point)
+    data = []
+    data.push(point.x, point.y)
+    data
+  end
+
+  def line_string_to_a(line_string)
+    data = []
+    line_string.points.each { |point|
+      data.push([point.x, point.y]) }
+    data
+  end
+
+  def polygon_to_a(polygon)
+    # todo: handle other parts of the polygon; i.e., the interior_rings (if they exist)
+    data = []
+    polygon.exterior_ring.points.each { |point|
+      data.push([point.x, point.y]) }
+    data
+  end
+
+  def multi_point_to_a(multi_point)
+    data = []
+    multi_point.each { |point|
+      data.push([point.x, point.y]) }
+    data
+  end
+
+  def multi_line_string_to_a(multi_line_string)
+    data = []
+    multi_line_string.each { |line_string|
+      line_data = []
+      line_string.points.each { |point|
+        line_data.push([point.x, point.y]) }
+      data.push(line_data)
+    }
+    data
+  end
+
+  def multi_polygon_to_a(multi_polygon)
+    data = []
+    multi_polygon.each { |polygon|
+      polygon_data = []
+      polygon.exterior_ring.points.each { |point|
+        polygon_data.push([point.x, point.y]) }
+      data.push(polygon_data)
+    }
+    data
+  end
+
+  def geometry_collection_to_hash(geometry_collection)
+    # start by constructing the general case
+    data = {
+        points:  [],
+        lines:   [],
+        polygons: []
+    }
+    geometry_collection.each { |it|
+      case it.geometry_type.type_name
+        when 'Point'
+          data[:points].push([it.x, it.y])
+          data
+        when 'MultiPoint'
+          # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+          it.each { |point|
+            data[:points].push([point.x, point.y])
+          }
+          data
+        when /^Line[S]*/ #when 'Line' or 'LineString'
+          line_string_data = []
+          it.points.each { |point|
+            line_string_data.push([point.x, point.y]) }
+          data[:lines].push(line_string_data)
+          data
+        when 'MultiLineString'
+          # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+          it.each { |line_string|
+            line_string_data = []
+            line_string.points.each { |point|
+              line_string_data.push([point.x, point.y]) }
+            data[:lines].push(line_string_data)
+          }
+          data
+        when 'Polygon'
+          # POLYGON ((-14.0 23.0 0.0, -14.0 11.0 0.0, -2.0 11.0 0.0, -2.0 23.0 0.0, -8.0 21.0 0.0, -14.0 23.0 0.0), (-11.0 18.0 0.0, -8.0 17.0 0.0, -6.0 20.0 0.0, -4.0 16.0 0.0, -7.0 13.0 0.0, -11.0 14.0 0.0, -11.0 18.0 0.0))
+          # note: only the exterior_ring is processed
+          polygon_data = []
+          it.exterior_ring.points.each { |point|
+            polygon_data.push([point.x, point.y]) }
+          data[:polygons].push(polygon_data)
+          data
+        when 'MultiPolygon'
+          # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        when 'GeometryCollection'
+          # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        else
+          # ignore it for now
+      end
+    }
+    data.delete_if{|key, value| value == []}
+    data
+  end
 
   def proper_data_is_provided
     data = []
