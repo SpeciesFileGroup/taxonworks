@@ -194,7 +194,7 @@ describe Source::Bibtex do
 
             specify "multiple #{a}s" do
               method = "#{a}s"
-              @bibtex_source.send("#{a}=".to_sym,'Thomas, D. and Fowler, Chad and Hunt, Andy')
+              @bibtex_source.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
               @bibtex_source.save
               expect(@bibtex_source.send(method.to_sym).size).to eq(0)
               expect(@bibtex_source.create_related_people).to be_true
@@ -213,12 +213,39 @@ describe Source::Bibtex do
             end
           end
 
+          specify "#{a}s returns correctly ordered arrays" do
+            method = "#{a}s"
+            method_roles = "#{a}_roles"
+            @bibtex_source.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
+            @bibtex_source.save
+            expect(@bibtex_source.send(method.to_sym).size).to eq(0)
+            expect(@bibtex_source.create_related_people).to be_true
+            @bibtex_source.reload
 
-          context "creates #{a}s in the correct order" do
-            specify "#{a}s returns correctly ordered arrays" do
-              pending 'put order test here'
-            end
+            expect(@bibtex_source.send(method.to_sym).to_a).to have(3).things
+
+            a_id = @bibtex_source.send(method.to_sym).first.id
+            a_role_obj = @bibtex_source.send(method_roles.to_sym)[0]
+            expect(@bibtex_source.send(method.to_sym)[0].last_name).to eq('Thomas')
+            expect(@bibtex_source.send(method.to_sym)[0].first_name).to eq('D.')
+            expect(a_role_obj.position).to eq(1)
+            expect(a_role_obj.person_id).to eq(a_id)
+
+            a_id = @bibtex_source.send(method.to_sym)[1].id
+            a_role_obj = @bibtex_source.send(method_roles.to_sym)[1]
+            expect(@bibtex_source.send(method.to_sym)[1].last_name).to eq('Fowler')
+            expect(@bibtex_source.send(method.to_sym)[1].first_name).to eq('Chad')
+            expect(a_role_obj.position).to eq(2)
+            expect(a_role_obj.person_id).to eq(a_id)
+
+            a_id = @bibtex_source.send(method.to_sym).last.id
+            a_role_obj = @bibtex_source.send(method_roles.to_sym)[2]
+            expect(@bibtex_source.send(method.to_sym)[2].last_name).to eq('Hunt')
+            expect(@bibtex_source.send(method.to_sym)[2].first_name).to eq('Andy')
+            expect(a_role_obj.position).to eq(3)
+            expect(a_role_obj.person_id).to eq(a_id)
           end
+
         end
 
         specify 'successfully creats a combination of authors & editors' do
@@ -234,7 +261,7 @@ describe Source::Bibtex do
           expect(@bibtex_source.authors.first.last_name).to eq('Thomas')
           expect(@bibtex_source.authors.first.first_name).to eq('D.')
           author1_id = @bibtex_source.authors.first.id
-          author1 = Person.find(author1_id)
+          author1    = Person.find(author1_id)
           expect(author1).to be_instance_of(Person::Unvetted)
           expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
 
