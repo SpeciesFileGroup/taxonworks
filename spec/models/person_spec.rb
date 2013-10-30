@@ -6,6 +6,9 @@ describe Person do
   let(:bibtex_source) {
     FactoryGirl.create(:valid_bibtex_source)
   }
+  let(:human_source) {
+    FactoryGirl.create(:human_source)
+  }
 
   context 'validation' do
     before do
@@ -48,8 +51,8 @@ describe Person do
         expect(person).to respond_to(:edited_sources)
       end
 
-      specify 'source_sources' do
-        expect(person).to respond_to(:source_sources)
+      specify 'human_source' do
+        expect(person).to respond_to(:human_source)
       end
 
       specify 'collecting_events' do
@@ -133,16 +136,14 @@ describe Person do
         @vp.reload
         expect(@vp.is_editor?).to be_true
       end
-      specify 'is_human?' do
+      specify 'is_source?' do
         @vp.save
-        expect(@vp).to respond_to(:is_human?)
-        expect(@vp.is_human?).to be_false
-=begin
-        human_source.humans << @vp
+        expect(@vp).to respond_to(:is_source?)
+        expect(@vp.is_source?).to be_false
+        human_source.person = @vp
         human_source.save!
         @vp.reload
-        expect(@vp.is_human?).to be_true
-=end
+        expect(@vp.is_source?).to be_true
       end
       specify 'is_collector?'
       specify 'is_determiner?'
