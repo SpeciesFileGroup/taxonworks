@@ -16,7 +16,7 @@ describe Source::Bibtex do
                                         year: 1921)
   end
 
-  context 'testing BibTeX capabilities' do 
+  context 'testing BibTeX capabilities' do
     specify 'the test file should have 42 records' do
       expect(@gem_bibtex_bibliography.size).to eq(42)
     end
@@ -152,22 +152,22 @@ describe Source::Bibtex do
 
   context 'associations' do
     context('roles') {
-      before do
-        # create & save 3 people
-        p1 = Person.new(last_name: 'Aus')
-        p1.save
-        p2 = Person.new(last_name: 'Bus')
-        p2.save
-        p3 = Person.new(last_name: 'Cus')
-        p3.save
-        # create 3 bibtex sources
-        bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-        bs1.save
-        bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-        bs2.save
-        bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-        bs3.save
-      end
+      #before do
+      #  # create & save 3 people
+      #  p1 = Person.new(last_name: 'Aus')
+      #  p1.save
+      #  p2 = Person.new(last_name: 'Bus')
+      #  p2.save
+      #  p3 = Person.new(last_name: 'Cus')
+      #  p3.save
+      #  # create 3 bibtex sources
+      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
+      #  bs1.save
+      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
+      #  bs2.save
+      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
+      #  bs3.save
+      #end
 
       specify 'After save on new bibtex records, populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
@@ -181,15 +181,15 @@ describe Source::Bibtex do
       end
 
       pending 'editors should be ordered by roles.position'
-    
+
       context 'on validation' do
         # Force the user to interact through authors first, then back save to author 
         pending 'invalidate if authors exist and author has changed, and no longer matches'
 
         # ditto for editors
         pending 'invalidate if editors exist and editor has changed, and no longer matches'
-      end 
-    
+      end
+
       # TODO: This is a person-side test, should cascade update 
       # pending "If updated a person, then update bibtex authors/editors"
 
@@ -222,7 +222,7 @@ describe Source::Bibtex do
     }
   end
 
-  context('Beth') do 
+  context('Beth') do
 
     context 'class methods' do
       specify 'bibtex_author_to_person' do
@@ -236,11 +236,11 @@ describe Source::Bibtex do
           end
 
           specify 'people: :create -  is default, creates new people for all roles' do
-            pending 
+            pending
           end
 
           specify 'people: :match_exact - uses exactly matching Person::Unvetted when found, otherwise creates new editors/authors' do
-            pending 
+            pending
           end
         end
 
@@ -264,10 +264,11 @@ describe Source::Bibtex do
           pending
         end
       end
-    end 
+    end
 
     context 'with an existing instance with authors' do
-      before(:each) {# this is a TW Source::Bibtex - type article, with just a title
+      before(:each) {
+        # this is a TW Source::Bibtex - type article, with just a title
         @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
         @bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
       }
@@ -278,26 +279,36 @@ describe Source::Bibtex do
           expect(@bibtex_source.valid?).to be_true
           @bibtex_source.author = 'Smith, James'
           expect(@bibtex_source.create_related_people).to be_false
-        end 
+        end
 
         # NOTE: Be aware of possible translator roles, we don't handle this
         specify 'returns false when author.nil? || editor.nil?' do
           expect(@bibtex_source.create_related_people).to be_false
         end
 
-        specify 'can not be run when authors or editors exist' do
-          @bibtex_source.author = 'Smith, James'
-          @bibtex_source.save
-          expect(@bibtex_source.create_related_people).to be_true #saves the roles
-          @bibtex_source.reload
-          expect(@bibtex_source.valid? && @bibtex_source.authors.count == 1).to be_true
-          expect(@bibtex_source.create_related_people).to be_false #roles/people already exist
-        end
+        context 'can not be run when' do
+          %w{author editor}.each do |a|
+            specify "can not be run when #{a} exists" do
+              @bibtex_source.send("#{a}=".to_sym,'Smith, Bill and Jones, Jane')
+              @bibtex_source.save
+              expect(@bibtex_source.create_related_people).to be_true #saves the roles
+              @bibtex_source.reload
+              if a == 'author'
+                expect(@bibtex_source.valid? && @bibtex_source.authors.count == 2).to be_true
+                expect(@bibtex_source.editors.count == 0).to be_true
+              else # editor
+                expect(@bibtex_source.valid? && @bibtex_source.editors.count == 2).to be_true
+                expect(@bibtex_source.authors.count == 0).to be_true
+              end
+            end
+          end
+       end
 
         specify 'returns false when instance.valid? is false' do
           s = FactoryGirl.build(:bibtex_source)
           expect(s.create_related_people).to be_false
         end
+
         %w{author editor}.each do |a|
         context "creates people for #{a}s" do
             specify "single #{a}" do

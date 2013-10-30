@@ -77,8 +77,14 @@ class Source::Bibtex < Source
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
-      p = Source::Bibtex.bibtex_author_to_person(a)
-      self.authors << p
+      p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+      if bibtex.author
+        self.authors << p if bibtex.author.include?(a)
+      end
+      if bibtex.editor
+        self.editors << p if bibtex.editor.include?(a)
+      end
+#      q=1
     end
     return true 
   end
