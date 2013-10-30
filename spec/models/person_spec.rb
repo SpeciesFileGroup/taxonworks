@@ -30,9 +30,10 @@ describe Person do
     end
   end
 
+
   context 'associations' do
 
-    #role orders: source_authors, source_editors, source_sources, collectors, (type_)designators, determinators, taxon_name_authors
+    #role orders: source_authors, source_editors, source_sources, collectors, (taxon_)determiners, taxon_name_authors, type_designators
 
     context 'has_many' do
       specify 'roles' do
@@ -59,15 +60,14 @@ describe Person do
         expect(person).to respond_to(:taxon_determinations)
       end
 
-      specify 'type_designations' do
-        expect(person).to respond_to(:type_specimens)
-      end
-
       specify 'taxon_name_author' do
         expect(person).to respond_to(:taxon_name_authors)
       end
 
-    end
+      specify 'type_designations' do
+        expect(person).to respond_to(:type_specimens)
+      end
+     end
 
 
     context 'usage and rendering' do
@@ -133,11 +133,11 @@ describe Person do
         @vp.reload
         expect(@vp.is_editor?).to be_true
       end
-      specify 'is_type_designator?'
-      specify 'is_taxon_name_author?'
+      specify 'is_source_source?'
       specify 'is_collector?'
       specify 'is_determiner?'
-      specify 'is_source_source?'
+      specify 'is_taxon_name_author?'
+      specify 'is_type_designator?'
 
     end
 

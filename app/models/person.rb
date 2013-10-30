@@ -10,6 +10,9 @@ class Person < ActiveRecord::Base
   has_many :editor_roles, class_name: 'Role::SourceEditor'
   has_many :human_roles, class_name: 'Role::SourceSource'
   has_many :collector_roles, class_name: 'Role::Collector'
+  has_many :determiner_roles, class_name: 'Role::Determiner'
+  has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor'
+  has_many :type_designator_roles, class_name: 'Role::TypeDesignator'
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
