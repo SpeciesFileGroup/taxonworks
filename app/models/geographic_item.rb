@@ -1,6 +1,6 @@
 class GeographicItem < ActiveRecord::Base
 
-  belongs_to  :georeference
+  belongs_to :georeference
 
   # Where would one put such code?
   # RGeo::Geos.preferred_native_interface = :ffi
@@ -14,11 +14,11 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
- column_factory = RGeo::Geos.factory(
-                                     native_interface: :ffi,
-                                     srid: 4326,
-                                     has_z_coordinate: true,
-                                     has_m_coordinate: false)
+  column_factory = RGeo::Geos.factory(
+    native_interface: :ffi,
+    srid:             4326,
+    has_z_coordinate: true,
+    has_m_coordinate: false)
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
@@ -56,6 +56,38 @@ class GeographicItem < ActiveRecord::Base
 
   def far(item, distance)
     !self.near(item, distance)
+  end
+
+  def data_type?
+    # what data type am I?
+    DATA_TYPES.each { |item|
+      return item if !self.send(item).nil? }
+  end
+
+  def to_a
+    # get our object and return the set of points as an array
+    we_are = self.object
+
+    if we_are
+      data = []
+      case self.data_type?
+        when :point
+          data.push(self.point.x, point.y)
+        when :line_string
+          self.line_string.points.each {|point|
+            data.push([point.x, point.y])}
+        when :polygon
+          self.polygon.exterior_ring.points.each {|point|
+            data.push(point.x, point.y)}
+        when :multi_point
+        when :multi_line_string
+        when :multi_polygon
+
+      end
+        data
+    else
+      []
+    end
   end
 
   protected

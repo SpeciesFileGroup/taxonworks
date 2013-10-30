@@ -194,6 +194,22 @@ describe GeographicItem do
       expect(geographic_item.object).to eq p1
     end
   end
+
+  context 'that each type of item knows how to emits its own array' do
+    specify 'that represents a point' do
+      p1                    = @tw_factory.point(-88.241413, 40.091655, 757)
+      geographic_item.point = p1
+      geographic_item.save
+      # also 'respond_to'
+      # after the save, the default factory type of geographic_item is
+      # #<RGeo::Geographic::Factory> and the
+      # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
+      # See the model for a method to change the default factory for a given
+      # column (in our case, all).
+      expect(geographic_item.object.to_a).to eq []
+
+    end
+  end
 end
 
 =begin
@@ -488,53 +504,6 @@ end
 
 #.methods - Kernel.methods
 
-def gen_wkt_files()
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
-  f_point = File.new('RGeoPoints.wkt', 'w+')
-  f_line  = File.new('RGeoLines.wkt', 'w+')
-  f_poly  = File.new('RGeoPolygons.wkt', 'w+')
-
-  col_header = "id : wkt : name\n"
-
-  f_point.write(col_header)
-  f_line.write(col_header)
-  f_poly.write(col_header)
-
-
-  @all_wkt_names.each_with_index do |it, index|
-    wkt  = it[0].as_text
-    name = it[1]
-    case it[0].geometry_type.type_name
-      when 'Point'
-        f_type = f_point
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-        f_type = $stdout
-      when /^Line[S]*/  #when 'Line' or 'LineString'
-        f_type = f_line
-      when 'MultiLineString'
-        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-        f_type = $stdout
-      when 'Polygon'
-        f_type = f_poly
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        f_type = $stdout
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-        f_type = $stdout
-      else
-        f_type = $stdout
-      # ignore it for now
-    end
-    f_type.write("#{index} : #{wkt}: #{name}\n")
-  end
-
-  f_point.close
-  f_line.close
-  f_poly.close
-end
-
 def gen_db_objects()
   #build_RGeo_objects()
   #gen_wkt_files()
@@ -598,6 +567,59 @@ def gen_db_objects()
   @l.save!
   @all_items.save!
 
+end
+
+def prep
+  build_RGeo_objects
+  gen_db_objects
+  @a
+end
+
+def gen_wkt_files()
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  f_point = File.new('RGeoPoints.wkt', 'w+')
+  f_line  = File.new('RGeoLines.wkt', 'w+')
+  f_poly  = File.new('RGeoPolygons.wkt', 'w+')
+
+  col_header = "id : wkt : name\n"
+
+  f_point.write(col_header)
+  f_line.write(col_header)
+  f_poly.write(col_header)
+
+
+  @all_wkt_names.each_with_index do |it, index|
+    wkt  = it[0].as_text
+    name = it[1]
+    case it[0].geometry_type.type_name
+      when 'Point'
+        f_type = f_point
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+        f_type = $stdout
+      when /^Line[S]*/  #when 'Line' or 'LineString'
+        f_type = f_line
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+        f_type = $stdout
+      when 'Polygon'
+        f_type = f_poly
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        f_type = $stdout
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        f_type = $stdout
+      else
+        f_type = $stdout
+      # ignore it for now
+    end
+    f_type.write("#{index} : #{wkt}: #{name}\n")
+  end
+
+  f_point.close
+  f_line.close
+  f_poly.close
 end
 
 def point_methods()

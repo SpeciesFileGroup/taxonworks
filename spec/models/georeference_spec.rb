@@ -7,7 +7,7 @@ describe Georeference do
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
   }
 
-  context 'associations' do
+  context 'has associations where' do
     context 'belongs_to' do
 
       specify 'geographic_item' do
@@ -25,7 +25,7 @@ describe Georeference do
 
   end
 
-  context 'comparison of two adjacent location polygons' do
+  context 'in which comparison of two adjacent location polygons' do
     specify 'have certain relationships.' do
       c_locator = Georeference::GeoLocate.new(request: request_params)
       c_locator.locate
@@ -45,11 +45,11 @@ describe Georeference do
     context 'the object returns a type' do
       specify 'which is GeoLocate' do
 
-        georeference = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
-        georeference.build
-        georeference.save
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate.build
+        geo_locate.save
 
-        expect(georeference.type).to eq 'Georeference::GeoLocate'
+        expect(geo_locate.type).to eq 'Georeference::GeoLocate'
       end
 
       specify 'which is Verbatim' do
@@ -58,7 +58,40 @@ describe Georeference do
         expect(georeference.type).to eq 'Georeference::VerbatimData'
       end
     end
+
+    context 'the GeographicItem.object.to_a returns a properly formed array' do
+      specify 'for point' do
+
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate.build
+        geo_locate.save
+
+        expect(geo_locate.geographic_item.object.to_a).to eq []
+      end
+      specify 'for line_string' do
+        pending
+      end
+      specify 'for polygon' do
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate.build
+        geo_locate.save
+
+        expect(geo_locate.geographic_item.object.to_a).to eq []
+      end
+      specify 'for multi_point' do
+        pending
+      end
+      specify 'for multi_line_string' do
+        pending
+      end
+      specify 'for multi_polygon' do
+        pending
+      end
+      specify 'for geometry_collection' do
+        pending
+      end
+    end
   end
-
-
 end
+
+
