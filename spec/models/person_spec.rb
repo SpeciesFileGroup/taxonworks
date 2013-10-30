@@ -32,29 +32,24 @@ describe Person do
 
   context 'associations' do
 
-    #role orders: source_authors, source_editors, collectors, (type_)designators, determinators, taxon_name_authors, source_sources
+    #role orders: source_authors, source_editors, source_sources, collectors, (type_)designators, determinators, taxon_name_authors
 
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
       end
 
-      #     context 'sources' do
       specify 'authored_sources' do
-        #         b = FactoryGirl.create(:valid_bibtex_source)
-        expect(person).to respond_to(:authored_sources)
-        #         b.authors << person
-        #         b.save
-        #         expect(person.authored_sources.to_a).to eq([b])
+         expect(person).to respond_to(:authored_sources)
       end
 
       specify 'edited_sources' do
         expect(person).to respond_to(:edited_sources)
-#          bibtex_source.editors << person
-#          bibtex_source.save
-#          expect(person.edited_sources.to_a).to eq([bibtex_source])
       end
-      #    end
+
+      specify 'source_sources' do
+        expect(person).to respond_to(:source_sources)
+      end
 
       specify 'collecting_events' do
         expect(person).to respond_to(:collecting_events)
@@ -64,13 +59,13 @@ describe Person do
         expect(person).to respond_to(:taxon_determinations)
       end
 
-      specify 'type_designations' # need type specimen class
+      specify 'type_designations' do
+        expect(person).to respond_to(:type_specimens)
+      end
 
       specify 'taxon_name_author' do
         expect(person).to respond_to(:taxon_name_authors)
       end
-
-      specify 'source_sources'
 
     end
 
