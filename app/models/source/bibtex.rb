@@ -2,27 +2,21 @@ class Source::Bibtex < Source
 
   before_validation :check_bibtex_type, :check_has_field
 
-  # have some authors and editors
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
-  # eef - The following is trying to order the author list based on the order in SourceAuthor.
-  has_many :authors, -> {order("roles.position ASC")}, through: :author_roles, source: :person
-  #TODO: It works, but :order depends on table name. Check if something can be done about this.
-
-  #has_many :authors, through: :author_roles, source: :person
+  has_many :authors, -> {order('roles.position ASC')}, through: :author_roles, source: :person
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
   has_many :editors, -> {order("roles.position ASC")}, through: :editor_roles, source: :person
-  #  accepts_nested_attributes_for :authors, :author_roles, :editors, :editor_roles
-
-    # TW required fields (must have one of these fields filled in)
+  
+  # TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
-      :author,
-      :editor,
-      :booktitle,
-      :title,
-      :URL,
-      :journal,
-      :year,
-      :stated_year
+    :author,
+    :editor,
+    :booktitle,
+    :title,
+    :URL,
+    :journal,
+    :year,
+    :stated_year
   ]
 
   def to_bibtex
@@ -56,24 +50,24 @@ class Source::Bibtex < Source
       (self.author.blank? && self.editor.blank?) ||
       self.roles.count > 0 
 
-   #if !self.valid
-   #   errors.add(:base, 'invalid source')
-   #   return false
-   # end
-   #
-   # if self.new_record?
-   #   errors.add(:base, 'unsaved source')
-   #   return false
-   # end
-   #
-   # if (self.author.blank? && self.editor.blank?)
-   #   errors.add(:base, 'no people to create')
-   #   return false
-   # end
-   #
-   # if self.roles.count > 0
-   #   errors.add(:base, 'this source already has people attached to it via roles')
-   # end
+    # if !self.valid
+    #   errors.add(:base, 'invalid source')
+    #   return false
+    # end
+    #
+    # if self.new_record?
+    #   errors.add(:base, 'unsaved source')
+    #   return false
+    # end
+    #
+    # if (self.author.blank? && self.editor.blank?)
+    #   errors.add(:base, 'no people to create')
+    #   return false
+    # end
+    #
+    # if self.roles.count > 0
+    #   errors.add(:base, 'this source already has people attached to it via roles')
+    # end
 
     bibtex = to_bibtex
     bibtex.parse_names
@@ -85,7 +79,6 @@ class Source::Bibtex < Source
       if bibtex.editor
         self.editors << p if bibtex.editor.include?(a)
       end
-#      q=1
     end
     return true 
   end

@@ -425,7 +425,6 @@ describe Source::Bibtex do
 
   end
 
-
   context 'concerns' do
     it_behaves_like "identifiable"
     it_behaves_like "has_roles"

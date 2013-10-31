@@ -8,12 +8,15 @@ describe Citation do
       specify 'citation_object' do
         expect(citation).to respond_to(:citation_object)
       end
-    
+
       specify 'source' do
         expect(citation).to respond_to(:source)
       end
     end
   end
 
+  context 'concerns' do
+    specify 'isolate and create concern citable (see identifiable concern)' 
+  end
 
 end

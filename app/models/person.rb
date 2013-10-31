@@ -8,7 +8,7 @@ class Person < ActiveRecord::Base
   has_many :roles 
   has_many :author_roles, class_name: 'Role::SourceAuthor'
   has_many :editor_roles, class_name: 'Role::SourceEditor'
-  has_one :source_source_role, class_name: 'Role::SourceSource'
+  has_many :source_source_roles, class_name: 'Role::SourceSource'
   has_many :collector_roles, class_name: 'Role::Collector'
   has_many :determiner_roles, class_name: 'Role::Determiner'
   has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor'
@@ -16,7 +16,7 @@ class Person < ActiveRecord::Base
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
-  has_one :human_source, through: :source_source_role, source: :role_object, source_type: 'Source::Human'
+  has_many :human_sources, through: :source_source_role, source: :role_object, source_type: 'Source::Human'
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
@@ -35,7 +35,7 @@ class Person < ActiveRecord::Base
   end
 
   def is_source?
-    self.source_source_role
+    self.source_source_roles.to_a.length > 0
   end
 
   def is_collector?

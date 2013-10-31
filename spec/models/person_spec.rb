@@ -53,7 +53,7 @@ describe Person do
       end
 
       specify 'human_source' do
-        expect(person).to respond_to(:human_source)
+        expect(person).to respond_to(:human_sources)
       end
 
       specify 'collecting_events' do
@@ -141,7 +141,7 @@ describe Person do
         @vp.save
         expect(@vp).to respond_to(:is_source?)
         expect(@vp.is_source?).to be_false
-        human_source.person = @vp
+        human_source.people << @vp
         human_source.save!
         @vp.reload
         expect(@vp.is_source?).to be_true

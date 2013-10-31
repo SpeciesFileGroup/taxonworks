@@ -3,9 +3,16 @@ require 'spec_helper'
 describe Source do
   let(:source) { Source.new }
 
+
+
   context "concerns" do
     it_behaves_like 'identifiable'
     it_behaves_like 'has_roles'
+  end
+
+  context 'after save' do
+    pending 'it should set a cached value'
+    pending 'it should set a cached author year ?! Bibtex'
   end
 
   context 'tests based on hackathon requirments' do
