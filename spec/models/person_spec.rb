@@ -9,6 +9,7 @@ describe Person do
   let(:human_source) {
     FactoryGirl.create(:human_source)
   }
+  #let(:coll_event) { CollectingEvent.new }
 
   context 'validation' do
     before do
@@ -145,7 +146,17 @@ describe Person do
         @vp.reload
         expect(@vp.is_source?).to be_true
       end
-      specify 'is_collector?'
+      specify 'is_collector?' do
+        coll_event = CollectingEvent.new
+        coll_event.save
+        @vp.save
+        expect(@vp).to respond_to(:is_collector?)
+        expect(@vp.is_collector?).to be_false
+        coll_event.collectors << @vp
+        coll_event.save!
+        @vp.reload
+        expect(@vp.is_collector?).to be_true
+      end
       specify 'is_determiner?'
       specify 'is_taxon_name_author?'
       specify 'is_type_designator?'
