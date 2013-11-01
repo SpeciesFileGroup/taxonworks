@@ -6,12 +6,12 @@ describe Source::Bibtex do
 
   before(:all) do
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/Taenionema.bib')
-    @simple1_gem_bibtex = BibTeX::Entry.new()
-    @simple2_gem_bibtex = BibTeX::Entry.new()
-    @gem_bibtex_entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @gem_bibtex_entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @valid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
-                                               year: 1921, publisher: 'Test Books Inc.')
+    @simple1_gem_bibtex      = BibTeX::Entry.new()
+    @simple2_gem_bibtex      = BibTeX::Entry.new()
+    @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+    @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+    @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+                                                 year: 1921, publisher: 'Test Books Inc.')
     @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
                                                  year: 1921)
   end
