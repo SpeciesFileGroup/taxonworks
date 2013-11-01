@@ -5,7 +5,7 @@ describe Source::Bibtex do
   let(:bibtex) { Source::Bibtex.new }
 
   before(:all) do
-    @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/Taenionema.bib')
+    @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
     @simple1_gem_bibtex      = BibTeX::Entry.new()
     @simple2_gem_bibtex      = BibTeX::Entry.new()
     @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
