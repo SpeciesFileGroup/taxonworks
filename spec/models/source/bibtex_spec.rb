@@ -5,15 +5,17 @@ describe Source::Bibtex do
   let(:bibtex) { Source::Bibtex.new }
 
   before(:all) do
-    @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/Taenionema.bib')
-    @simple1_gem_bibtex      = BibTeX::Entry.new()
-    @simple2_gem_bibtex      = BibTeX::Entry.new()
-    @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
-                                                 year: 1921, publisher: 'Test Books Inc.')
-    @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
-                                                 year: 1921)
+    @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
+    @simple1_gem_bibtex = BibTeX::Entry.new()
+    @simple2_gem_bibtex = BibTeX::Entry.new()
+    @gem_bibtex_entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                           year: 1921)
+    @gem_bibtex_entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                           year: 1921)
+    @valid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+                                               year: 1921, publisher: 'Test Books Inc.')
+    @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America',
+                                                 author: 'Smith, James', year: 1921)
   end
 
   context 'testing BibTeX capabilities' do
@@ -313,22 +315,6 @@ describe Source::Bibtex do
 
   context 'associations' do
     context('roles') {
-      #before do
-      #  # create & save 3 people
-      #  p1 = Person.new(last_name: 'Aus')
-      #  p1.save
-      #  p2 = Person.new(last_name: 'Bus')
-      #  p2.save
-      #  p3 = Person.new(last_name: 'Cus')
-      #  p3.save
-      #  # create 3 bibtex sources
-      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-      #  bs1.save
-      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-      #  bs2.save
-      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-      #  bs3.save
-      #end
 
       specify 'After save on new bibtex records, populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
@@ -384,6 +370,32 @@ describe Source::Bibtex do
   end
 
   context('Beth') do
+=begin
+    notes/things to do:
+      Document bibtex source using YardTags - se example in root\lib\soft_validation.rb
+      Formatting -
+        Rendering code will go in a helper
+        Check out what formatting is provided by BibTex gem - do we additional formats?
+      Set the cached fields in the bibtex records on save
+=end
+
+    # from context 'roles'
+      #before do
+      #  # create & save 3 people
+      #  p1 = Person.new(last_name: 'Aus')
+      #  p1.save
+      #  p2 = Person.new(last_name: 'Bus')
+      #  p2.save
+      #  p3 = Person.new(last_name: 'Cus')
+      #  p3.save
+      #  # create 3 bibtex sources
+      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
+      #  bs1.save
+      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
+      #  bs2.save
+      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
+      #  bs3.save
+      #end
 
     context 'class methods' do #nothing implemented here
       specify 'bibtex_author_to_person' do
