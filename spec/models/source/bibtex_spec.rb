@@ -153,12 +153,12 @@ describe Source::Bibtex do
   end
 
   context 'instance methods - ' do
+    before(:each) {
+      # this is a TW Source::Bibtex - type article, with just a title
+      @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
+      #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
+    }
     context 'with an existing instance of Source::Bibtex' do
-      before(:each) {
-        # this is a TW Source::Bibtex - type article, with just a title
-        @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
-        #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
-      }
 
       context 'create_related_people()' do
         specify 'can not be run when .new_record?' do
