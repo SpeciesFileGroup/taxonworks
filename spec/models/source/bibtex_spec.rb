@@ -104,16 +104,6 @@ describe Source::Bibtex do
     end
   end
 
-  context 'if I have a zotero bibliography' do
-    context 'and I import it to TW' do
-      context 'when I update a record in zotero' do
-        specify 'then TW should be aware and notify me of discrepancies' do
-          pending 'not implemented yet'
-        end
-      end
-    end
-  end
-
   context 'Ruby BibTeX related instance methods' do
     before(:all) do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
@@ -160,6 +150,7 @@ describe Source::Bibtex do
     }
     context 'with an existing instance of Source::Bibtex' do
 
+      # TODO: Update to create_roles for instance methods
       context 'create_related_people()' do
         specify 'can not be run when .new_record?' do
           expect(@bibtex_source.new_record?).to be_true
@@ -247,7 +238,6 @@ describe Source::Bibtex do
             expect(a_role_obj.position).to eq(3)
             expect(a_role_obj.person_id).to eq(a_id)
           end
-
         end
 
         specify 'successfully creates a combination of authors & editors' do
@@ -313,21 +303,25 @@ describe Source::Bibtex do
     end
   end
 
+  context 'attributes' do
+    pending 'Must facilitate letter annotations on year'
+  end
+
   context 'associations' do
-    context('roles') {
-
-      specify 'After save on new bibtex records, populate author/editor roles' do
+    context 'roles' do 
+      specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
-        # the roles should be automatially set?
+        # the roles should be automatially set? (Yes)
         pending
       end
 
-      specify 'bibtex.authors should be ordered by roles.position' do
-        # assign author roles
+      specify 'after create/saved author/editor fields are cached versions of (="verbatim_" of TW) of authors/editors' do
         pending
       end
 
-      pending 'editors should be ordered by roles.position'
+      specify 'if authors/editors are updated'  do
+        pending
+      end
 
       context 'on validation' do
         # Force the user to interact through authors first, then back save to author 
@@ -336,9 +330,6 @@ describe Source::Bibtex do
         # ditto for editors
         pending 'invalidate if editors exist and editor has changed, and no longer matches'
       end
-
-      # TODO: This is a person-side test, should cascade update 
-      # pending "If updated a person, then update bibtex authors/editors"
 
       valid_person = FactoryGirl.create(:valid_person)
       %w{author editor}.each do |i|
@@ -366,8 +357,9 @@ describe Source::Bibtex do
           expect(bibtex.send(method).size).to eq(1)
         end
       end
-    }
+    end
   end
+  
 
   context('Beth') do
 =begin
@@ -380,80 +372,64 @@ describe Source::Bibtex do
 =end
 
     # from context 'roles'
-      #before do
-      #  # create & save 3 people
-      #  p1 = Person.new(last_name: 'Aus')
-      #  p1.save
-      #  p2 = Person.new(last_name: 'Bus')
-      #  p2.save
-      #  p3 = Person.new(last_name: 'Cus')
-      #  p3.save
-      #  # create 3 bibtex sources
-      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-      #  bs1.save
-      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-      #  bs2.save
-      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-      #  bs3.save
-      #end
+    #before do
+    #  # create & save 3 people
+    #  p1 = Person.new(last_name: 'Aus')
+    #  p1.save
+    #  p2 = Person.new(last_name: 'Bus')
+    #  p2.save
+    #  p3 = Person.new(last_name: 'Cus')
+    #  p3.save
+    #  # create 3 bibtex sources
+    #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
+    #  bs1.save
+    #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
+    #  bs2.save
+    #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
+    #  bs3.save
+    #end
 
-    context 'class methods' do #nothing implemented here
-      specify 'bibtex_author_to_person' do
-        pending 'write me'
-      end
+    context 'class methods' do
+      # create_with_roles(bibtex_entry, opts = {})
+      #    opts = {
+      #      use_vetted_people: false
+      #    }.merge!(opts)
+      context 'create_with_roles(BibTeX::Entry instance)' do
 
-      context 'create_with_people (from BibTeX::Entry)' do
+        specify 'creates author/editor roles with Person::Unvetted by default' do
+          pending
+        end
+
         context 'parameters' do
-          specify 'bibtex: BibTex::Entry - passes the bibtex to import from' do
+          specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
             pending
           end
-
-          specify 'people: :create -  is default, creates new people for all roles' do
-            pending
-          end
-
-          specify 'people: :match_exact - uses exactly matching Person::Unvetted when found, otherwise creates new editors/authors' do
-            pending
-          end
-        end
-
-        specify 'returns false if pre-save Source::Bibtex is !valid?' do
-          pending
-        end
-
-        specify 'instantiates if BibTeX::Entry is not valid but Source::Bibtex is' do
-          pending
-        end
-
-        specify 'instantiates without BibTeX::Entry.author or BibtexEntry.editor populated' do
-          pending
-        end
-
-        specify 'instantiates with BibTeX::Entry.author' do
-          pending
-        end
-
-        specify 'instantiates with BibTeX::Entry.editor' do
-          pending
         end
       end
     end
 
-  end
+    context 'supporting libs' do
+      context 'if I have a zotero bibliography' do
+        context 'and I import it to TW' do
+          context 'when I update a record in zotero' do
+            specify 'then TW should be aware and notify me of discrepancies' do
+              pending 'not implemented yet'
+            end
+          end
+        end
+      end
 
-  context 'Hackathon requirements' do
-    # these tests should be included somewhere above. Once completed move to the appropriate place.
-    # when this is context is empty - delete it.
-    pending 'Must allow letters after the year'
-
-    pending 'Should be able to round trip data '
-    #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
-
+      context 'Hackathon requirements' do
+        # TODO: code lib/bibtex
+        pending 'Should be able to round trip data a whole file '
+        #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
+      end
+    end
   end
 
   context 'concerns' do
     it_behaves_like "identifiable"
     it_behaves_like "has_roles"
   end
-end
 
+end

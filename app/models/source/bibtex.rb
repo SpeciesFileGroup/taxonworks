@@ -1,6 +1,7 @@
 class Source::Bibtex < Source 
 
   before_validation :check_bibtex_type, :check_has_field
+  #TODO: :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
   has_many :authors, -> {order('roles.position ASC')}, through: :author_roles, source: :person
@@ -99,7 +100,8 @@ class Source::Bibtex < Source
     return false if self.new_record?
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
-    end
+  end
+
   def has_editors?
     return true if !(self.editor.blank?)
     # editor attribute is empty

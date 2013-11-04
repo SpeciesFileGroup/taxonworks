@@ -2,6 +2,9 @@ class Person < ActiveRecord::Base
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
+
+  # after_save :update_bibtex_sources
+
   validates :type, inclusion: { in: ['Person::Vetted', 'Person::Unvetted'],
                                 message: "%{value} is not a validly_published type" }
 
@@ -14,6 +17,7 @@ class Person < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor'
   has_many :type_designator_roles, class_name: 'Role::TypeDesignator'
 
+  has_many :sources, through: :roles   # TODO: test
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :human_sources, through: :source_source_role, source: :role_object, source_type: 'Source::Human'

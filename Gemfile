@@ -86,9 +86,8 @@ gem 'acts_as_list'
 # becomes
 #     bcrypt-ruby (3.0.1-x86-mingw32)
 #     bcrypt-ruby (3.0.1-x64-mingw32)
-#
 
-gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt-ruby', '~> 3.1.0'
 
 # gem for dumping DwC-A archives
 gem "dwc-archive", "~> 0.9.6" if not win_os

@@ -160,8 +160,11 @@ describe Person do
       specify 'is_determiner?'
       specify 'is_taxon_name_author?'
       specify 'is_type_designator?'
-
     end
-
   end
+
+  context 'cascading updates of sources' do
+    pending "If person is updated then udpate their Bibtex::Author/Editor fields"
+  end
+
 end
