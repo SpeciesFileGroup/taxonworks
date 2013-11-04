@@ -164,7 +164,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def polygon_to_hash(polygon)
-    {polygons: [self.to_a]}
+    {polygons: [polygon_to_a(polygon)]}
   end
 
   def multi_point_to_a(multi_point)
@@ -212,6 +212,7 @@ class GeographicItem < ActiveRecord::Base
 
   def geometry_collection_to_hash(geometry_collection)
     # start by constructing the general case
+    # TODO: this method does *not* use the object_to_hash method, expect for the recursive geometry_collection.
     data = {
       points:   [],
       lines:    [],
@@ -221,6 +222,8 @@ class GeographicItem < ActiveRecord::Base
       case it.geometry_type.type_name
         when 'Point'
           # POINT (-88.241421 40.091565 757.0)
+          point = point_to_hash(it)[:points]
+          # TODO: would it really be better to use object_to_hash here?  Structure-wise, perhaps, but it really is faster to do it here directly, I think...
           data[:points].push(point_to_a(it))
         when /^Line[S]*/ #when 'Line' or 'LineString'
           # LINESTRING (-32.0 21.0 0.0, -25.0 21.0 0.0, -25.0 16.0 0.0, -21.0 20.0 0.0)
