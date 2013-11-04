@@ -92,11 +92,22 @@ class Source::Bibtex < Source
       suffix: bibtex_author.suffix)
   end
 
-  #def self.create_with_people(all_new_people)
-  #  # parse the authors out of the author fields, and create the role linkages if the authors exist.
-  #  return false if !self.valid?
-  #  # if all_new_people
-  #end
+  def has_authors?
+    # return true if !(self.author.to_s.strip.length == 0)
+    return true if !(self.author.blank?)
+    # author attribute is empty
+    return false if self.new_record?
+    # self exists in the db
+    (self.authors.count > 0) ? (return true) : (return false)
+    end
+  def has_editors?
+    return true if !(self.editor.blank?)
+    # editor attribute is empty
+    return false if self.new_record?
+    # self exists in the db
+    (self.editors.count > 0) ? (return true) : (return false)
+  end
+
 
   protected
 

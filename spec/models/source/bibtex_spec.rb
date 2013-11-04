@@ -6,14 +6,16 @@ describe Source::Bibtex do
 
   before(:all) do
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
-    @simple1_gem_bibtex      = BibTeX::Entry.new()
-    @simple2_gem_bibtex      = BibTeX::Entry.new()
-    @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-    @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
-                                                 year: 1921, publisher: 'Test Books Inc.')
-    @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America', author: 'Smith, James',
-                                                 year: 1921)
+    @simple1_gem_bibtex = BibTeX::Entry.new()
+    @simple2_gem_bibtex = BibTeX::Entry.new()
+    @gem_bibtex_entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                           year: 1921)
+    @gem_bibtex_entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                           year: 1921)
+    @valid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+                                               year: 1921, publisher: 'Test Books Inc.')
+    @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America',
+                                                 author: 'Smith, James', year: 1921)
   end
 
   context 'testing BibTeX capabilities' do
@@ -93,11 +95,11 @@ describe Source::Bibtex do
       expect(@gem_bibtex_bibliography[-1].urldate).to eq('2010-12-06')
     end
 
-    specify "simple identity" do
+    specify 'simple identity' do
       expect(@simple1_gem_bibtex).to eq(@simple2_gem_bibtex)
     end
 
-    specify "simple complex entity" do
+    specify 'simple complex entity' do
       expect(@gem_bibtex_entry1).to eq(@gem_bibtex_entry2)
     end
   end
@@ -141,7 +143,7 @@ describe Source::Bibtex do
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :URL, :stated_year' do
       error_message = 'no core data provided'
-      local_src     = Source::Bibtex.new()
+      local_src = Source::Bibtex.new()
       expect(local_src.valid?).to be_false
       expect(local_src.errors.messages[:base].include?(error_message)).to be_true
       local_src.title = 'Test book'
@@ -151,12 +153,12 @@ describe Source::Bibtex do
   end
 
   context 'instance methods - ' do
+    before(:each) {
+      # this is a TW Source::Bibtex - type article, with just a title
+      @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
+      #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
+    }
     context 'with an existing instance of Source::Bibtex' do
-      before(:each) {
-        # this is a TW Source::Bibtex - type article, with just a title
-        @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
-        #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
-      }
 
       context 'create_related_people()' do
         specify 'can not be run when .new_record?' do
@@ -204,7 +206,7 @@ describe Source::Bibtex do
               expect(@bibtex_source.send(method.to_sym).first.last_name).to eq('Thomas')
               expect(@bibtex_source.send(method.to_sym).first.first_name).to eq('D.')
               author1_id = @bibtex_source.send(method.to_sym).first.id
-              author1    = Person.find(author1_id)
+              author1 = Person.find(author1_id)
               expect(author1).to be_instance_of(Person::Unvetted)
               expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
 
@@ -248,10 +250,10 @@ describe Source::Bibtex do
 
         end
 
-        specify 'successfully creats a combination of authors & editors' do
+        specify 'successfully creates a combination of authors & editors' do
           @bibtex_source.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
-          @bibtex_source.save
           @bibtex_source.editor = 'Smith, Bill'
+          @bibtex_source.save
           expect(@bibtex_source.authors.size).to eq(0)
           expect(@bibtex_source.editors.size).to eq(0)
           expect(@bibtex_source.create_related_people).to be_true
@@ -261,7 +263,7 @@ describe Source::Bibtex do
           expect(@bibtex_source.authors.first.last_name).to eq('Thomas')
           expect(@bibtex_source.authors.first.first_name).to eq('D.')
           author1_id = @bibtex_source.authors.first.id
-          author1    = Person.find(author1_id)
+          author1 = Person.find(author1_id)
           expect(author1).to be_instance_of(Person::Unvetted)
           expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_true
 
@@ -295,26 +297,24 @@ describe Source::Bibtex do
       end
     end
 
+    %w{author editor}.each do |a|
+      specify "has_#{a}s? should evaluate both the #{a} attribute & roles" do
+        has_method = "has_#{a}s?"
+        expect(@bibtex_source.send(has_method)).to be_false # returns false if neither exist
+        @bibtex_source.send("#{a}=".to_sym, 'Smith, Bill')
+        expect(@bibtex_source.send(has_method)).to be_true # returns true if has author attribute with a value
+        @bibtex_source.save
+        @bibtex_source.create_related_people
+        @bibtex_source.reload
+        expect(@bibtex_source.send(has_method)).to be_true # returns true if has both
+        @bibtex_source.send("#{a}=".to_sym, '')
+        expect(@bibtex_source.send(has_method)).to be_true # returns true if has only author roles
+      end
+    end
   end
 
   context 'associations' do
     context('roles') {
-      #before do
-      #  # create & save 3 people
-      #  p1 = Person.new(last_name: 'Aus')
-      #  p1.save
-      #  p2 = Person.new(last_name: 'Bus')
-      #  p2.save
-      #  p3 = Person.new(last_name: 'Cus')
-      #  p3.save
-      #  # create 3 bibtex sources
-      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-      #  bs1.save
-      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-      #  bs2.save
-      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-      #  bs3.save
-      #end
 
       specify 'After save on new bibtex records, populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
@@ -346,11 +346,11 @@ describe Source::Bibtex do
           method = "#{i}s"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title       = 'valid record'
+          bibtex.title = 'valid record'
           bibtex.bibtex_type = 'book'
-          expect(bibtex.save).to be_true                         # save record to get an ID
+          expect(bibtex.save).to be_true # save record to get an ID
           expect(bibtex.send(method) << valid_person).to be_true # assigns author but doesn't save role
-          expect(bibtex.save).to be_true                         # saving bibtex also saves role
+          expect(bibtex.save).to be_true # saving bibtex also saves role
           expect(bibtex.send(method).first).to eq(valid_person)
         end
 
@@ -358,7 +358,7 @@ describe Source::Bibtex do
           method = "#{i}_roles"
           expect(bibtex).to respond_to(method)
           expect(bibtex.send(method)).to eq([])
-          bibtex.title       = 'valid record'
+          bibtex.title = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true
           expect(bibtex.send("#{i}s") << valid_person).to be_true
@@ -370,6 +370,32 @@ describe Source::Bibtex do
   end
 
   context('Beth') do
+=begin
+    notes/things to do:
+      Document bibtex source using YardTags - se example in root\lib\soft_validation.rb
+      Formatting -
+        Rendering code will go in a helper
+        Check out what formatting is provided by BibTex gem - do we additional formats?
+      Set the cached fields in the bibtex records on save
+=end
+
+    # from context 'roles'
+      #before do
+      #  # create & save 3 people
+      #  p1 = Person.new(last_name: 'Aus')
+      #  p1.save
+      #  p2 = Person.new(last_name: 'Bus')
+      #  p2.save
+      #  p3 = Person.new(last_name: 'Cus')
+      #  p3.save
+      #  # create 3 bibtex sources
+      #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
+      #  bs1.save
+      #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
+      #  bs2.save
+      #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
+      #  bs3.save
+      #end
 
     context 'class methods' do #nothing implemented here
       specify 'bibtex_author_to_person' do
