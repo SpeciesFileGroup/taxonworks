@@ -86,9 +86,12 @@ g.locate('USA', 'Champaign', 'IL')
 
   def get_response
     @response = JSON.parse(self.call_api)
+    # TODO: remove the following line after debugging
+    @response
   end
 
   def call_api
+    # TODO: remove 'part' after debugging
     part = Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
     part
   end
