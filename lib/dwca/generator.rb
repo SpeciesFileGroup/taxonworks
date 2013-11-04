@@ -1,4 +1,4 @@
-module DwcaGenerator
+module Dwca::Generator
   
   # Generates a DwC-A from database data  
   def self.get_archive
