@@ -8,14 +8,14 @@ describe Dwca::Import do
 
   context 'incoming archive' do
     specify 'can be opened with read_dwc()' do
-      expect(a = Dwca::Import.read_dwc(@archive_path.to_s)).to be_true
+      expect(a = Dwca::Import.new_dwc(@archive_path.to_s)).to be_true
       expect(a.class).to eq(DarwinCore)
     end
   end
 
   context 'open archive' do
     before(:all) {
-      @dwc = Dwca::Import.read_dwc(@archive_path.to_s)
+      @dwc = Dwca::Import.new_dwc(@archive_path.to_s)
       @data, @errors = @dwc.core.read 
     }
     specify 'has 5000 records' do
@@ -24,27 +24,25 @@ describe Dwca::Import do
     specify 'has 0 errors' do
       expect(@errors.size).to eq(0) 
     end
+  end
 
-    context 'TW objects' do
-      specify 'Dwc::Import::Data' do
-        d = Dwca::Import::Data.new
-        Dwca::Import::DWC2TW.keys.each do |m|
-          expect(d).to respond_to("#{m}s".to_sym)
-        end
+
+  context 'TW objects' do
+    specify 'Dwc::Import::TwObjects' do
+      d = Dwca::Import::TwObjects.new
+      Dwca::Import::DWC2TW.keys.each do |m|
+        expect(d).to respond_to("#{m}s".to_sym)
       end
-
-      specify 'referenced_models' do
-        expect( Dwca::Import.referenced_models(@dwc.core)).to eq([:biocuration_classification, :biological_association, :collecting_event, :collection_object, :georeference, :identifier, :otu, :taxon_determination, :taxon_name, :type_specimen])
-      end 
-
-      specify 'row_object'
-
     end
+  end
+end
 
-    context 'persistance' do
 
-    end
+describe Dwca::Import::Manger do
+  let(:manager) {Dwca::Import::Manger.new}
 
+  specify 'attributes' do
+    expect(manager).to respond_to(:field_index, :available_objects, :row_number, :i, :data, :errors, :tw_objects)
   end
 
 end

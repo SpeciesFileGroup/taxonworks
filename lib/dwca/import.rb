@@ -1,44 +1,76 @@
 module Dwca::Import 
 
-  def self.read_dwc(path_to_archive)
+  def self.new_dwc(path_to_archive)
     DarwinCore.new(path_to_archive)   
   end
 
-  def self.get_data(darwin_core_archive)
-    data, errors = darwin_core_archive.core.read
+  class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
   end
 
+  class Manager 
+  
+    attr_accessor :field_index # {uri: integer ... }
+    attr_accessor :available_objects
+    attr_accessor :row_number
+    alias(:row_number :i)
+    attr_accessor :data, :errors
+    attr_accessor :tw_objects
 
-  # Given the row headers what rows are possible
-  # very crude right now
-  def self.referenced_models(core)
-    core_fields =core.fields.collect{|i| i[:term]}
-    models = []
-    DWC2TW.keys.each do |k|
-      if (core_fields & DWC2TW[k].keys) != []
-        models.push k 
+    def initialize(opts = {})
+      opts = {
+        data: [],
+        errors: [],
+        core_fields: {},
+        row_number: 1
+      }.merge!(opts)
+      @data, @errors, @row_number = opts[:data], opts[:errors], opts[:row_number]
+      @available_objects = referenced_models(opts[:core_fields]) 
+      @tw_objects = TwObjects.new()
+    end
+
+    # Given the core_fields what TW objects are possible
+    def referenced_models(core_fields)
+      core_fields = core_fields.collect{|i| i[:term]}
+      models = []
+      DWC2TW.keys.each do |k|
+        if (core_fields & DWC2TW[k].keys) != []
+          models.push k 
+        end
+      end
+      models.sort
+    end
+
+    # data that is not null
+    def row_objects(row)
+    end
+
+    def row_collection_object(row)
+    end
+
+    def row_otu(row, twobjects)
+      o = Otu.new()
+      values = get_values(o, row)
+      o.update_attributes(values) 
+    end
+
+    def get_values(object, row)
+      object.send(DWC2TW[object.class.name.downcase][:in], row[ ])
+    end
+
+    def self.build(data)
+      data.rows[0..10].each do |row|
+        puts ro
       end
     end
-    models.sort
   end
 
-  # data that is not null
-  def row_objects(row)
-
-  end
-
-  def row_collection_object(row)
-
-  end
-
-  def row_otu(row)
-
-  end
-
-  def self.build(data)
-    data.rows[0..10].each do |row|
-        puts row
-    end
+  def self.new_manager(darwin_core_archive)
+    data, errors = darwin_core_archive.core.read
+    Manger.new(
+      data: data,
+      errors: errors,
+      core_fields: darwin_core_archive.core.fields 
+    )
   end
 
   RUNTIME =  {
@@ -52,7 +84,7 @@ module Dwca::Import
 
   DWC2TW = {
     otu: {
-      'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: name, out: nil},
+      'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
     },
 
     biological_association: {
@@ -79,14 +111,14 @@ module Dwca::Import
     collection_object: { 
       'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil, out: nil},               # Who owns it
       'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil, out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
-      'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total, out: :total},
-      'http://rs.tdwg.org/dwc/terms/sex'               => {in: :sex, out: :sex},
+      'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total=, out: :total},
+      'http://rs.tdwg.org/dwc/terms/sex'               => {in: :sex=, out: :sex},
     },
 
     collecting_event: {
-      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method, out: :verbatim_method},
+      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=, out: :verbatim_method},
       'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: :dwc_parse_EventDate, out: :verbatim_method},   
-      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat, out: :habitat},
+      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=, out: :habitat},
       'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality, out: :verbatim_locality},
       'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: :dwc_parse_verbatimElevation, out: :elevation},
       'http://rs.tdwg.org/dwc/terms/country'           => {in: nil, out: :country},
@@ -120,8 +152,6 @@ module Dwca::Import
   }
 
 
-  class Data < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
-  end
 
 end
 
