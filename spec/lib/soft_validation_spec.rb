@@ -47,7 +47,7 @@ describe 'SoftValidation' do
     end
   end
 
-  context 'example  usage' do
+  context 'example usage' do
     before(:all) do 
       # Stub the validation methods 
       Softy.soft_validation_methods = {all: []}
@@ -117,7 +117,6 @@ describe 'SoftValidations' do
     expect(soft_validations.complete?).to be_true
   end
 end
-
 
 describe 'SoftValidation' do
   let(:soft_validation) {SoftValidation::SoftValidation.new}
