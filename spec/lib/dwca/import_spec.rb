@@ -37,9 +37,8 @@ describe Dwca::Import do
   end
 end
 
-
-describe Dwca::Import::Manger do
-  let(:manager) {Dwca::Import::Manger.new}
+describe Dwca::Import::Manager do
+  let(:manager) {Dwca::Import::Manager.new}
 
   specify 'attributes' do
     expect(manager).to respond_to(:field_index, :available_objects, :row_number, :i, :data, :errors, :tw_objects)

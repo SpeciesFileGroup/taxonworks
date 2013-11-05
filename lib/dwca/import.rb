@@ -4,15 +4,11 @@ module Dwca::Import
     DarwinCore.new(path_to_archive)   
   end
 
-  class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
-  end
-
   class Manager 
-  
     attr_accessor :field_index # {uri: integer ... }
     attr_accessor :available_objects
     attr_accessor :row_number
-    alias(:row_number :i)
+    alias_method  :i, :row_number 
     attr_accessor :data, :errors
     attr_accessor :tw_objects
 
@@ -152,8 +148,12 @@ module Dwca::Import
   }
 
 
+class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
+end
+
 
 end
+
 
 # methods parse dwcDate => returns month day year
 # migrations collection_objects => home_repository, current_repository
