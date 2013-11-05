@@ -4,6 +4,14 @@ describe Source do
   let(:source) { Source.new }
 
 
+  context 'associtations' do
+    specify 'sources have citations' do
+      expect(source).to respond_to(:citations)
+    end
+    specify 'sources have cited_objects' do
+      expect(source).to respond_to(:cited_objects)
+    end
+  end
 
   context "concerns" do
     it_behaves_like 'identifiable'

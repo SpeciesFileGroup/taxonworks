@@ -1,4 +1,7 @@
 class CollectingEvent < ActiveRecord::Base
+
+  include Shared::Citable  # ?
+
   # several lines commented out per Matt ('old stuff')
   # belongs_to :geographic_area
   # belongs_to :confidence

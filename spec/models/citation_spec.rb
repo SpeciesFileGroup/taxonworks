@@ -4,6 +4,7 @@ describe Citation do
   let(:citation) {Citation.new}
 
   context 'associations' do
+
     context 'belongs_to' do
       specify 'citation_object' do
         expect(citation).to respond_to(:citation_object)
@@ -13,6 +14,10 @@ describe Citation do
         expect(citation).to respond_to(:source)
       end
     end
+  end
+
+  context 'validations' do
+    # check for all required fields.
   end
 
   context 'concerns' do

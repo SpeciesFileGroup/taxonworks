@@ -7,4 +7,5 @@ Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {
 
 
 module TaxonWorks
+  require 'activerecord_utilities'
 end
