@@ -4,6 +4,8 @@ require 'dwca/import'
 describe Dwca::Import do
   before(:all) {
     @archive_path = (Rails.root + 'spec/files/dwca/insects_5k.tar.gz')
+    @dwc = Dwca::Import.new_dwc(@archive_path.to_s)
+    @data, @errors = @dwc.core.read 
   }
 
   context 'incoming archive' do
@@ -14,10 +16,6 @@ describe Dwca::Import do
   end
 
   context 'open archive' do
-    before(:all) {
-      @dwc = Dwca::Import.new_dwc(@archive_path.to_s)
-      @data, @errors = @dwc.core.read 
-    }
     specify 'has 5000 records' do
       expect(@data.size).to eq(5000) 
     end
@@ -43,5 +41,10 @@ describe Dwca::Import::Manager do
   specify 'attributes' do
     expect(manager).to respond_to(:field_index, :available_objects, :row_number, :i, :data, :errors, :tw_objects)
   end
+
+  specify '' do
+
+  end
+
 
 end
