@@ -34,14 +34,35 @@ module SoftValidation
     #     add(:a_soft_validation_method, 'message indicating the problem')
     #     add(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
     #     add(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
-    #   
+    #  
+    #     $hungry = true 
     # 
     #     def a_soft_validation_method
-    #      # ... 
+    #       soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if $hungry 
     #     end
-    #
-    #     # etc...
+    #     
+    #     def cook_cheezburgers
+    #       $hungry = false
+    #     end
     #   end
+    #
+    #   f = Foo.new
+    #   f.soft_validations.validated?             # => false
+    #   f.soft_validations.fixes_run?             # => false
+    #   f.soft_validations.fixed?                 # => false 
+    #   f.soft_validations.complete?              # => false
+    #   f.soft_validate                           # => true 
+    #   f.soft_validations.size                   # => 1
+    #   f.soft_validations.first.fixed?           # => false
+    #   f.soft_validations.first.result_message   # => 'fixes not yet run'
+    #  
+    #   f.fix_soft_validations                    # => true
+    #   f.soft_validations.fixes_run              # => true
+    #   f.soft_validations.first.fixed?           # => true
+    #   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
+    # 
+    #   f.clear_soft_validations  
+    #   
     #
     # @param [Symbol] attribute a column attribute or :base
     # @param [String] message a message describing the soft validation to the user, i.e. what has gone wrong
@@ -132,7 +153,7 @@ module SoftValidation
     def result_message
       case fixed?
       when nil
-        'no fix is available'
+        'fixes not yet run'
       when true
         self.success_message.nil? ? "'#{message}' was fixed (no result message provided)" : self.success_message
       when false
