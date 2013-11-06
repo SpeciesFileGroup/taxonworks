@@ -24,7 +24,6 @@ describe Dwca::Import do
     end
   end
 
-
   context 'TW objects' do
     specify 'Dwc::Import::TwObjects' do
       d = Dwca::Import::TwObjects.new
@@ -33,18 +32,53 @@ describe Dwca::Import do
       end
     end
   end
-end
 
-describe Dwca::Import::Manager do
-  let(:manager) {Dwca::Import::Manager.new}
 
-  specify 'attributes' do
-    expect(manager).to respond_to(:field_index, :available_objects, :row_number, :i, :data, :errors, :tw_objects)
+  context 'Dwca::Import::Manager' do
+    let(:manager) {Dwca::Import::Manager.new(data: @data, errors: @errors, core_fields: @dwc.core.fields)}
+
+    specify 'attributes' do
+      expect(manager).to respond_to(:field_index, :available_objects, :row_number, :i, :data, :errors, :tw_objects)
+    end
+
+    context 'referenced_models' do
+      before(:all) {
+        @result = [:biocuration_classification, :biological_association, :collecting_event, :collection_object, :georeference, :identifier, :otu, :taxon_determination, :taxon_name, :type_specimen]
+      }
+      specify 'referenced_models()' do
+        expect(manager.send(:referenced_models, @dwc.core.fields)).to eq(@result)
+      end
+      specify '#available_objects' do
+        expect(manager.available_objects).to eq(@result)
+      end
+    end
+
+    specify 'field_index' do
+      expect(manager.field_index["http://rs.tdwg.org/dwc/terms/samplingProtocol"]).to eq(1)
+    end
+
+    specify 'cell' do
+      expect(manager.cell(@data.first, 'http://rs.tdwg.org/dwc/terms/eventDate')).to eq('1994-4-21')
+    end
+
+    specify 'row_id' do
+      expect(manager.row_id(@data.last)).to eq('73117')
+    end
+
+    specify 'build_object' do
+      expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
+    end
+
+    specify 'build_otu' do
+      expect(manager.build_otu(@data.first).class).to eq(Otu)
+      expect(manager.build_otu(@data.first).name).to eq('Stenacron carolina (Banks 1914)')
+    end
+
+    specify 'build_row_objects' do
+      expect(manager.build_row_objects([], [:a, :b])).to eq(a: nil, b: nil)
+    end
+
+
+
   end
-
-  specify '' do
-
-  end
-
-
 end

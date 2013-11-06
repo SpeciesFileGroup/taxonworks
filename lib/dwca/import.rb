@@ -5,7 +5,7 @@ module Dwca::Import
   end
 
   class Manager 
-    attr_accessor :field_index # {uri: integer ... }
+    attr_accessor :field_index 
     attr_accessor :available_objects
     attr_accessor :row_number
     alias_method  :i, :row_number 
@@ -14,16 +14,66 @@ module Dwca::Import
 
     def initialize(opts = {})
       opts = {
-        data: [],
-        errors: [],
-        core_fields: {},
-        row_number: 1
+        data: [],        # dwc.core.read[0] 
+        errors: [],      # dwc.core.read[1]
+        core_fields: {}, # dwc.core.fields
+        row_number: 1    # default starting row index
       }.merge!(opts)
       @data, @errors, @row_number = opts[:data], opts[:errors], opts[:row_number]
       @available_objects = referenced_models(opts[:core_fields]) 
       @tw_objects = TwObjects.new()
+      @field_index = opts[:core_fields].inject({}){|hsh, a| hsh.merge(a[:term] => (a[:index]) )} 
     end
 
+    def row_id(row)
+      row[0] 
+    end
+
+    def cell(row, attribute)
+      row[@field_index[attribute]]
+    end
+
+    def build_object(row, object)
+      object.assign_attributes(row, object)
+      # other stuff!?
+      object
+    end
+
+    def assign_attributes(row, object)
+      DWC2TW[object.class.name.downcase].each do |attr|
+        object.send(DWC2TW[object.class.name.downcase][:in], cell(row, attr))
+      end
+      object
+    end
+
+    # data that is not null
+    def row_objects(row)
+
+    end
+
+    def build_row_objects(row, row_objects)
+      result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
+      row_objects.each do |r|
+        result[r] = self.send("build_#{r}", row)
+      end
+      result 
+    end
+
+    def build_otu(row) 
+      assign_attributes(row, Otu.new())
+    end
+
+    # 2nd pass
+    def relate_otu(row)
+    end
+
+      def self.build(data)
+      data.rows[0..10].each do |row|
+        puts ro
+      end
+    end
+
+    protected
     # Given the core_fields what TW objects are possible
     def referenced_models(core_fields)
       core_fields = core_fields.collect{|i| i[:term]}
@@ -34,29 +84,6 @@ module Dwca::Import
         end
       end
       models.sort
-    end
-
-    # data that is not null
-    def row_objects(row)
-    end
-
-    def row_collection_object(row)
-    end
-
-    def row_otu(row, twobjects)
-      o = Otu.new()
-      values = get_values(o, row)
-      o.update_attributes(values) 
-    end
-
-    def get_values(object, row)
-      object.send(DWC2TW[object.class.name.downcase][:in], row[ ])
-    end
-
-    def self.build(data)
-      data.rows[0..10].each do |row|
-        puts ro
-      end
     end
   end
 
@@ -80,7 +107,7 @@ module Dwca::Import
 
   DWC2TW = {
     otu: {
-      'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
+      'http://rs.tdwg.org/dwc/terms/scientificName'           => {in: :name=, out: nil},
     },
 
     biological_association: {
@@ -88,6 +115,7 @@ module Dwca::Import
     },
 
     taxon_name: {
+      'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
       'http://rs.tdwg.org/dwc/terms/taxonID'                  => {in: :dwc_parse_taxon_id, out: :id},
       'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: nil, out: nil},
       'http://rs.tdwg.org/dwc/terms/kingdom'                  => {in: nil, out: nil},
