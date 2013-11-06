@@ -41,6 +41,7 @@ gem 'rails', '~> 4.0'
 #
 
 gem 'ffi-geos'
+gem 'rgeo-shapefile'
 gem 'pg', '~> 0.17.0'
 gem 'activerecord-postgis-adapter'
 

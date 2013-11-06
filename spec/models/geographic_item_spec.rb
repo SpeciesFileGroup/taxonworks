@@ -655,7 +655,7 @@ def build_RGeo_objects()
 
   @convex_hull = @everything.convex_hull()
 
-  @all_wkt_names = [[@convex_hull, 'Outer Limits'],
+  @all_wkt_names = [[@convex_hull.exterior_ring, 'Outer Limits'],
                     [@shapeA, 'A'],
                     [@shapeB, 'B'],
                     [@shapeC1, 'C1'],
@@ -766,8 +766,7 @@ def gen_db_objects()
   @k.polygon                     = @shapeK
   @l.line_string                 = @shapeL
   @all_items.geometry_collection = @everything
-  @outer_limits.polygon          = @convex_hull
-
+  @outer_limits.line_string      = @convex_hull.exterior_ring
 
   @r2020.save!
   @r2022.save!
@@ -789,13 +788,13 @@ def gen_db_objects()
   @k.save!
   @l.save!
   @all_items.save!
+  @outer_limits.save!
 
 end
 
 def prep
   build_RGeo_objects
   gen_db_objects
-  @a
 end
 
 def gen_wkt_files()
@@ -804,7 +803,7 @@ def gen_wkt_files()
   f_line  = File.new('RGeoLines.wkt', 'w+')
   f_poly  = File.new('RGeoPolygons.wkt', 'w+')
 
-  col_header = "id : wkt : name\n"
+  col_header = "id:wkt:name\n"
 
   f_point.write(col_header)
   f_line.write(col_header)
@@ -837,7 +836,7 @@ def gen_wkt_files()
         f_type = $stdout
       # ignore it for now
     end
-    f_type.write("#{index} : #{wkt}: #{name}\n")
+    f_type.write("#{index}:#{wkt}: #{name}\n")
   end
 
   f_point.close
