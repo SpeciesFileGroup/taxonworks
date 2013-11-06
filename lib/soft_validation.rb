@@ -47,9 +47,16 @@
 #   f.soft_validations.soft_validations                        # => [soft_validation, soft_validation1 ... ] 
 #   f.soft_validations.soft_validations.size                   # => 1
 #   f.soft_validations.soft_validations.first                  # => A SoftValidation instance
+#
+#   # SoftValidation attributes
+#   f.soft_validations.soft_validations.first.attribute          # => :base 
+#   f.soft_validations.soft_validations.first.message            # => 'hungry!'
+#   f.soft_validations.soft_validations.first.success_message    # => 'no longer hungry, cooked a cheezeburger'
+#   f.soft_validations.soft_validations.first.failure_message    # => 'oh no, cat ate your cheezeburger' 
+#
 #   f.soft_validations.soft_validations.first.fixed?           # => false
-#   f.soft_validations.soft_validations.first.result_message   # => 'fixes not yet run'
-#  
+#   f.soft_validations.soft_validations.first.result_message     # => 'fix not yet run'
+#   
 #   f.fix_soft_validations                    # => true
 #   f.soft_fixed?                             # => true
 #   f.soft_valid?                             # => false !! There is still a SoftValidation generated, will be true next time it's run
