@@ -102,10 +102,10 @@ gem 'acts_as_list'
 #
 # The bcrypt-ruby gem suffers a problem similar to that of the mysql2 gem, but with different specifics:
 #
-#     bcrypt-ruby (3.0.1-x86-mingw32)
+#     bcrypt-ruby (3.1.2-x86-mingw32)
 # becomes
-#     bcrypt-ruby (3.0.1-x86-mingw32)
-#     bcrypt-ruby (3.0.1-x64-mingw32)
+#     bcrypt-ruby (3.1.2-x86-mingw32)
+#     bcrypt-ruby (3.1.2-x64-mingw32)
 #
 #
 gem 'bcrypt-ruby', '~> 3.1.2'
