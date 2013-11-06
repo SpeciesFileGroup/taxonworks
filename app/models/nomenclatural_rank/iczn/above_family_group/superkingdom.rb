@@ -4,4 +4,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superkingdom <  NomenclaturalRa
     NomenclaturalRank::Iczn
   end
 
+  COMMON = false
+
 end

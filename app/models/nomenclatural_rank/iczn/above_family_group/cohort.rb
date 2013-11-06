@@ -4,5 +4,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Cohort < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::AboveFamilyGroup::Supercohort
   end
 
+  COMMON = false
 
 end

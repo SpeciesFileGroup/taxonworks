@@ -4,5 +4,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superclass  <  NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Infraphylum
   end
 
+  COMMON = false
 
 end

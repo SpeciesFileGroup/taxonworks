@@ -8,4 +8,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom
   end
 
+  COMMON = false
+
 end

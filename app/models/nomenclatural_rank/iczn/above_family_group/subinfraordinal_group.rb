@@ -4,5 +4,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::SubinfraordinalGroup < Nomencla
     NomenclaturalRank::Iczn::AboveFamilyGroup::Infraorder
   end
 
+  COMMON = false
 
 end

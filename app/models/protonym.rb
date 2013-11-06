@@ -1,5 +1,7 @@
 class Protonym < TaxonName 
 
+  has_many :taxon_name_classifications
+
   alias_method :original_combination_source, :source
 
   # subject                      object

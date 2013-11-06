@@ -13,4 +13,6 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infratribe < NomenclaturalRank::Iczn
     NomenclaturalRank::Iczn::FamilyGroup::Subtribe
   end
 
+  COMMON = false
+
 end

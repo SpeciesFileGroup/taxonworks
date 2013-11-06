@@ -7,4 +7,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Supertribe < NomenclaturalRank::Iczn
   def self.valid_parents
     NomenclaturalRank::Iczn::FamilyGroup::Subfamily
   end
+
+  COMMON = false
+
 end
