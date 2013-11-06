@@ -38,9 +38,10 @@
 #   f.soft_validations.fixed?                 # => false 
 #   f.soft_validations.complete?              # => false
 #   f.soft_validate                           # => true 
-#   f.soft_validations.size                   # => 1
-#   f.soft_validations.first.fixed?           # => false
-#   f.soft_validations.first.result_message   # => 'fixes not yet run'
+#
+#   f.soft_validations.soft_validations.size                   # => 1
+#   f.soft_validations.soft_validations.first.fixed?           # => false
+#   f.soft_validations.soft_validations.first.result_message   # => 'fixes not yet run'
 #  
 #   f.fix_soft_validations                    # => true
 #   f.soft_validations.fixes_run              # => true
