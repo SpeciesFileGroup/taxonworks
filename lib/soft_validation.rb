@@ -1,15 +1,55 @@
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
 #
-# Soft validation assumes that
-#   soft validations do not prevent saving.
-#   an instance is .valid? and !.new_record?
+# Soft validations are a means to tie warnings or suggestions to instances of data.
+# Soft validations do not prevent an instance from being saved.  They are not intended
+# to be bound to AR callbacks, but this may be possible.  They may be used to 
+# alert the user to data issues that need to be addressed, or alert the programmer
+# who is batch parsing data as to the quality of the incoming data etc.
 #
-# Soft validations are run on static data
-# For the user interface, they should be invoked through the contoller -
-# eg. user clicks save, the record is saved, and then soft validations are run and problems displayed.
-# The goal is to avoid running soft validations on bulk imports and only run them when there is a user
-# to see the results.
-
+# For example, soft validations could be shown on #show controller methods.
+#
+#
+#
+# Usage:
+#
+#   class Foo < ActiveRecord::Base
+#     soft_validate(:a_soft_validation_method )
+#     soft_validate(:other_soft_validation_method, set: :some_set)
+#     soft_validate(:yet_another_method, set: :some_other_set )
+#  
+#     $hungry = true 
+# 
+#     def a_soft_validation_method
+#       soft_validations.add(:base, 'hungry!',
+#         fix: :cook_cheezburgers,
+#         success_message: 'no longer hungry, cooked a cheezeburger',
+#         failure_message: 'oh no, cat ate your cheezeburger' 
+#       ) if $hungry 
+#     end
+#     
+#     def cook_cheezburgers
+#       $hungry = false
+#     end
+#   end
+#
+#   f = Foo.new
+#   f.soft_validations.validated?             # => false
+#   f.soft_validations.fixes_run?             # => false
+#   f.soft_validations.fixed?                 # => false 
+#   f.soft_validations.complete?              # => false
+#   f.soft_validate                           # => true 
+#   f.soft_validations.size                   # => 1
+#   f.soft_validations.first.fixed?           # => false
+#   f.soft_validations.first.result_message   # => 'fixes not yet run'
+#  
+#   f.fix_soft_validations                    # => true
+#   f.soft_validations.fixes_run              # => true
+#   f.soft_validations.first.fixed?           # => true
+#   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
+# 
+#   f.clear_soft_validations  
+#   
+#
 module SoftValidation
 
   # A SoftValidations instance contains a set of SoftValidations
@@ -38,47 +78,6 @@ module SoftValidation
       @soft_validations = []
     end
 
-    # Identifies/adds a soft validation method.
-    # Usage:
-    #
-    #   class Foo < ActiveRecord::Base
-    #     soft_validate(:a_soft_validation_method )
-    #     soft_validate(:other_soft_validation_method, set: :some_set)
-    #     soft_validate(:yet_another_method, set: :some_other_set )
-    #  
-    #     $hungry = true 
-    # 
-    #     def a_soft_validation_method
-    #       soft_validations.add(:base, 'hungry!',
-    #         fix: :cook_cheezburgers,
-    #         success_message: 'no longer hungry, cooked a cheezeburger',
-    #         failure_message: 'oh no, cat ate your cheezeburger' 
-    #       ) if $hungry 
-    #     end
-    #     
-    #     def cook_cheezburgers
-    #       $hungry = false
-    #     end
-    #   end
-    #
-    #   f = Foo.new
-    #   f.soft_validations.validated?             # => false
-    #   f.soft_validations.fixes_run?             # => false
-    #   f.soft_validations.fixed?                 # => false 
-    #   f.soft_validations.complete?              # => false
-    #   f.soft_validate                           # => true 
-    #   f.soft_validations.size                   # => 1
-    #   f.soft_validations.first.fixed?           # => false
-    #   f.soft_validations.first.result_message   # => 'fixes not yet run'
-    #  
-    #   f.fix_soft_validations                    # => true
-    #   f.soft_validations.fixes_run              # => true
-    #   f.soft_validations.first.fixed?           # => true
-    #   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
-    # 
-    #   f.clear_soft_validations  
-    #   
-    #
     # @param [Symbol] attribute a column attribute or :base
     # @param [String] message a message describing the soft validation to the user, i.e. what has gone wrong
     # @param [Hash{fix: :method_name, success_message: String, failure_message: String }] options the method identified by :fix should fully resolve the SoftValidation. 
