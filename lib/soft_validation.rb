@@ -48,7 +48,8 @@
 #   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
 # 
 #   f.clear_soft_validations  
-#   
+#  
+#   f.soft_validate(:some_other_set)          # only run this set of validations
 #
 module SoftValidation
 
