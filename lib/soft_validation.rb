@@ -1,10 +1,21 @@
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
+#
+# Soft validation assumes that
+#   soft validations do not prevent saving.
+#   an instance is .valid? and !.new_record?
+#
+# Soft validations are run on static data
+# For the user interface, they should be invoked through the contoller -
+# eg. user clicks save, the record is saved, and then soft validations are run and problems displayed.
+# The goal is to avoid running soft validations on bulk imports and only run them when there is a user
+# to see the results.
+
 module SoftValidation
 
   # A SoftValidations instance contains a set of SoftValidations
   # and some code that tracks whether those validations have
   # been fixed, etc.
-  # 
+  #
   # @!attribute soft_validations
   #   @return [Array]
   #   the set of SoftValidations (i.e. problems with a record/instance)
@@ -31,7 +42,7 @@ module SoftValidation
     # Usage:
     #
     #   class Foo < ActiveRecord::Base
-    #     soft_validate(:a_soft_validation_method, 'message indicating the problem')
+    #     soft_validate(:a_soft_validation_method, 'message decribing the validation set')
     #     soft_validate(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
     #     soft_validate(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
     #  
