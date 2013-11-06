@@ -65,7 +65,9 @@
 #   f.soft_validations.fixes_run                               # => true
 #   f.soft_validations.soft_validations.first.fixed?           # => true
 #   f.soft_validations.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
-#   f.soft_validations.validations_on(:base)  # => [soft_validations ... ] 
+#   f.soft_validations.on(:base)               # => [soft_validation, ... ] 
+#   f.soft_validations.messages                # => ['hungry!'] 
+#   f.soft_validations.messages_on(:base)      # => ['hungry!'] 
 #
 #   f.clear_soft_validations  
 #  
