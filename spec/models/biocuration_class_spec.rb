@@ -17,7 +17,7 @@ describe BiocurationClass do
   end
 
   context 'validations' do
-    before(:all) do
+    before(:each) do
       biocuration_class.valid?
     end
     specify 'name is required' do

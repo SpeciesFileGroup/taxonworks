@@ -71,7 +71,7 @@ describe 'SoftValidation' do
       expect(softy.soft_validate).to be_true             
       expect(softy.fix_soft_validations).to be_true      
       expect(softy.soft_validations.fixes_run?).to be_true 
-      expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["no fix is available"])
+      expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
     end
 
     specify 'softy.soft_validated?' do
@@ -143,11 +143,9 @@ describe 'SoftValidation' do
 
     specify 'fixed' do
       expect(soft_validation).to respond_to(:fixed) 
-      soft_validation.fixed = true
+      soft_validation.fixed = :fixed
       expect(soft_validation.fixed?).to be_true 
     end
-
-
   end
 
   specify 'result_message()' do
