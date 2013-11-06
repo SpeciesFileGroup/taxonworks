@@ -799,9 +799,9 @@ end
 
 def gen_wkt_files()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
-  f_point = File.new('RGeoPoints.wkt', 'w+')
-  f_line  = File.new('RGeoLines.wkt', 'w+')
-  f_poly  = File.new('RGeoPolygons.wkt', 'w+')
+  f_point = File.new('.\tmp\RGeoPoints.wkt', 'w+')
+  f_line  = File.new('.\tmp\RGeoLines.wkt', 'w+')
+  f_poly  = File.new('.\tmp\RGeoPolygons.wkt', 'w+')
 
   col_header = "id:wkt:name\n"
 
