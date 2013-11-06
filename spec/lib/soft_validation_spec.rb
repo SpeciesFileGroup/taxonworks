@@ -67,12 +67,16 @@ describe 'SoftValidation' do
       expect(softy.soft_validations.fixes_run?).to be_false
     end
 
-    specify 'softy.fix_soft_validations' do
+     specify 'softy.fix_soft_validations' do
       expect(softy.soft_validate).to be_true             
       expect(softy.fix_soft_validations).to be_true      
       expect(softy.soft_validations.fixes_run?).to be_true 
       expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
-      expect(softy.soft_validations.validations_on(:mohr).size).to eq(1)
+   
+      # TODO: Move out  
+      expect(softy.soft_validations.on(:mohr).size).to eq(1)
+      expect(softy.soft_validations.messages).to eq(["hungry (for cheez)!", "hungry!"] ) 
+      expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
     end
 
     specify 'softy.soft_validated?' do
@@ -118,10 +122,19 @@ describe 'SoftValidations' do
     expect(soft_validations.complete?).to be_true
   end
 
-  specify 'validations_on' do
-    expect(soft_validations).to respond_to(:validations_on)
-    expect(soft_validations.validations_on(:base).to eq([])
+  specify 'on' do
+    expect(soft_validations).to respond_to(:on)
+    expect(soft_validations.on(:base)).to eq([])
   end
+
+  specify 'messages' do
+    expect(soft_validations).to respond_to(:messages)
+  end
+
+  specify 'messages_on' do
+    expect(soft_validations).to respond_to(:messages)
+  end
+
 end
 
 describe 'SoftValidation' do

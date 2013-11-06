@@ -13,7 +13,8 @@
 #   class Foo < ActiveRecord::Base
 #     soft_validate(:a_soft_validation_method )
 #
-#     # Validations can be assigned to a set, and set called individually.
+#     # Validations can be assigned to a set (only one), and validations in a set
+#     # can be called individually.
 #     soft_validate(:other_soft_validation_method, set: :some_set)
 #     soft_validate(:yet_another_method, set: :some_other_set )
 #  
@@ -146,8 +147,16 @@ module SoftValidation
       messages
     end
 
-    def validations_on(attribute)
-      @soft_validations.select{|s| s.attribute == attribute} 
+    def on(attribute)
+      @soft_validations.select{|v| v.attribute == attribute} 
+    end
+
+    def messages
+      @soft_validations.collect{ |v| v.message}
+    end
+
+    def messages_on(attribute)
+      on(attribute).collect{|v| v.message}
     end
   end
 
