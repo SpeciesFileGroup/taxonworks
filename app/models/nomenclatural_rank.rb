@@ -10,7 +10,7 @@ class NomenclaturalRank
 
   # TODO: refactor/clarify 
   # Should the rank be displayed in "typical" use?
-  COMMON     = true
+  COMMON = true
 
   def self.top_rank(rank)
     all = rank.descendants

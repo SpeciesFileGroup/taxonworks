@@ -13,4 +13,6 @@ class NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup < NomenclaturalRank::
     NomenclaturalRank::Iczn::FamilyGroup::Family
   end
 
+  COMMON = false
+
 end
