@@ -1,19 +1,15 @@
 require 'spec_helper'
 
 describe Person do
-  FactoryGirl.define do
-    factory :person do
-    end
-  end
 
   let(:person) { FactoryGirl.build(:person) }
-  let(:save_person) {
-    person.last_name = 'Smith' 
-    person.save
-  }
   let(:bibtex_source) {
-    FactoryGirl.create(:bibtex_source) 
+    FactoryGirl.create(:valid_bibtex_source)
   }
+  let(:human_source) {
+    FactoryGirl.create(:human_source)
+  }
+  #let(:coll_event) { CollectingEvent.new }
 
   context 'validation' do
     before do
@@ -28,7 +24,7 @@ describe Person do
       expect(person.type).to eq('Person::Unvetted')
     end
 
-    specify 'valid type is either vetted or unvetted' do
+    specify 'validly_published type is either vetted or unvetted' do
       #expect(person.type).to eq('Person::Vetted' or 'Person::Unvetted')
       #expect(['Person::Vetted', 'Person::Unvetted'].include?(person.type)).to be_true
       expect(person.errors.include?(:type)).to be_false
@@ -38,85 +34,137 @@ describe Person do
     end
   end
 
+
   context 'associations' do
+
+    #role orders: source_authors, source_editors, source_sources, collectors, (taxon_)determiners, taxon_name_authors, type_designators
 
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
       end
 
-      context 'sources' do
-        specify 'authored_sources' do
-          expect(person).to respond_to(:authored_sources)
-          save_person {
-            bibtex_source.authors << person
-            bibtex_source.save
-            expect(person.authored_sources.to_a).to eq([bibtex_source])
-          }
-        end
-
-        specify 'edited_sources' do
-          expect(person).to respond_to(:edited_sources)
-          save_person {
-            bibtex_source.editors << person
-            bibtex_source.save
-            expect(person.edited_sources.to_a).to eq([bibtex_source])
-          }
-        end 
-
+      specify 'authored_sources' do
+         expect(person).to respond_to(:authored_sources)
       end
 
-    end
-  end
-
-  context 'usage and rendering' do
-
-    let(:build_people) {
-      @person1 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith')
-      @person2 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald')
-      @person3 = FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan')
-      @person4 = FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn')
-    }
-
-    before do
-      build_people
-    end
-
-    context 'usage' do
-      specify 'initials and last name only' do
-        expect(@person1.valid?).to be_true
+      specify 'edited_sources' do
+        expect(person).to respond_to(:edited_sources)
       end
 
-      specify 'camel cased last name and initials' do
-        expect(@person2.valid?).to be_true
+      specify 'human_source' do
+        expect(person).to respond_to(:human_sources)
       end
 
-      specify 'cased last initials and last name only' do
-        expect(@person3.valid?).to be_true
+      specify 'collecting_events' do
+        expect(person).to respond_to(:collecting_events)
       end
 
-      specify 'last name, dashed first name' do
-        expect(@person4.valid?).to be_true
+      specify 'taxon_determinations' do
+        expect(person).to respond_to(:taxon_determinations)
       end
 
-      context 'rendering' do
-        specify "initials, last name only" do
-          expect(@person1.name).to eq("J. Smith")
-        end
+      specify 'taxon_name_author' do
+        expect(person).to respond_to(:taxon_name_authors)
       end
-    end
-  end
 
-  context 'roles' do
-    specify 'is_author?' do
-      save_person {
-        expect(person).to respond_to(:is_author?)
-        expect(person.is_author?).to be_false
-        bibtex_source.authors << person
-        bibtex_source.save!
-        expect(person.is_author?).to be_true
+      specify 'type_designations' do
+        expect(person).to respond_to(:type_specimens)
+      end
+     end
+
+
+    context 'usage and rendering' do
+
+      let(:build_people) {
+        @person1 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith')
+        @person2 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald')
+        @person3 = FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan')
+        @person4 = FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn')
       }
+
+      before do
+        build_people
+      end
+
+      context 'usage' do
+        specify 'initials and last name only' do
+          expect(@person1.valid?).to be_true
+        end
+
+        specify 'camel cased last name and initials' do
+          expect(@person2.valid?).to be_true
+        end
+
+        specify 'cased last initials and last name only' do
+          expect(@person3.valid?).to be_true
+        end
+
+        specify 'last name, dashed first name' do
+          expect(@person4.valid?).to be_true
+        end
+
+        context 'rendering' do
+          specify "initials, last name only" do
+            expect(@person1.name).to eq("J. Smith")
+          end
+        end
+      end
     end
+
+    context 'roles' do
+      before(:each) do
+        @vp = FactoryGirl.build(:valid_person)
+      end
+      specify '@vp is valid person' do
+        expect(@vp.valid?).to be_true
+      end
+      specify 'is_author?' do
+        @vp.save
+        expect(@vp).to respond_to(:is_author?)
+        expect(@vp.is_author?).to be_false
+        bibtex_source.authors << @vp
+        bibtex_source.save!
+        @vp.reload
+        expect(@vp.is_author?).to be_true
+      end
+      specify 'is_editor?' do
+        @vp.save
+        expect(@vp).to respond_to(:is_editor?)
+        expect(@vp.is_editor?).to be_false
+        bibtex_source.editors << @vp
+        bibtex_source.save!
+        @vp.reload
+        expect(@vp.is_editor?).to be_true
+      end
+      specify 'is_source?' do
+        @vp.save
+        expect(@vp).to respond_to(:is_source?)
+        expect(@vp.is_source?).to be_false
+        human_source.people << @vp
+        human_source.save!
+        @vp.reload
+        expect(@vp.is_source?).to be_true
+      end
+      specify 'is_collector?' do
+        coll_event = CollectingEvent.new
+        coll_event.save
+        @vp.save
+        expect(@vp).to respond_to(:is_collector?)
+        expect(@vp.is_collector?).to be_false
+        coll_event.collectors << @vp
+        coll_event.save!
+        @vp.reload
+        expect(@vp.is_collector?).to be_true
+      end
+      specify 'is_determiner?'
+      specify 'is_taxon_name_author?'
+      specify 'is_type_designator?'
+    end
+  end
+
+  context 'cascading updates of sources' do
+    pending "If person is updated then udpate their Bibtex::Author/Editor fields"
   end
 
 end

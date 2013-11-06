@@ -16,7 +16,7 @@ end
 puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.0'
+gem 'rails', '4.0.1'
 
 # Database
 #JDT 20131007
@@ -104,10 +104,13 @@ gem 'acts_as_list'
 #
 #     bcrypt-ruby (3.1.2-x86-mingw32)
 # becomes
-#     bcrypt-ruby (3.1.2-x86-mingw32)
+#     bcrypt-ruby (3.0.1-x86-mingw32)
+#     bcrypt-ruby (3.0.1-x64-mingw32)
+# 11/4/13 - I think it now needs to be the following:
 #     bcrypt-ruby (3.1.2-x64-mingw32)
-#
-#
+#     bcrypt-ruby (3.1.2-x86-mingw32)
+
+
 gem 'bcrypt-ruby', '~> 3.1.2'
 
 # gem for dumping DwC-A archives

@@ -19,9 +19,12 @@
 class TaxonDetermination < ActiveRecord::Base
 
   include Shared::HasRoles
+  include Shared::Citable
 
   belongs_to :otu
   belongs_to :biological_collection_object
-  has_one :determiner, as: :role_object
+
+  has_one :determiner_roles, class_name: 'Role::Determiner', as: :role_object
+  has_one :determiner, through: :determiner_roles, source: :person
 
 end

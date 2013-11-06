@@ -16,7 +16,7 @@ namespace :tw do
 
         if not_done
           if line =~ /bcrypt-ruby/
-            new_lockfile <<  "    bcrypt-ruby (3.0.1-x64-mingw32)\n"
+            new_lockfile <<  "    bcrypt-ruby (3.1.2-x64-mingw32)\n"
           end
           if line =~ /mysql2/
             new_lockfile <<  "    mysql2 (0.3.11)\n"

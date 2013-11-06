@@ -79,14 +79,14 @@ describe TaxonName do
     end
 
     context 'rank_class' do
-      specify 'is valid when a NomenclaturalRank subclass' do
+      specify 'is validly_published when a NomenclaturalRank subclass' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-        taxon_name.name = "Aaa"
+        taxon_name.name = 'Aaa'
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
 
-      specify 'is invalid when not a NomenclaturalRank subclass' do
+      specify 'is invalidly_published when not a NomenclaturalRank subclass' do
         taxon_name.rank_class = 'foo'
         taxon_name.valid? 
         expect(taxon_name.errors.include?(:rank_class)).to be_true
@@ -95,19 +95,9 @@ describe TaxonName do
 
     context 'name (= latinized version)' do
       context 'format' do
-
-        specify "check format of name only when present" do
-          pending 
-        end
-
-        let(:subspecies) { FactoryGirl.create(:iczn_subspecies) }
-        let(:variety) { FactoryGirl.create(:icn_variety) }
-
-        context "double checking FactoryGirl" do
-          specify "is building all related names for respective models" do 
-            expect(subspecies.ancestors.length).to be >= 10
-            expect(variety.ancestors.length).to be >= 15
-          end
+        before(:all) do
+          @subspecies = FactoryGirl.create(:iczn_subspecies)
+          @variety = FactoryGirl.create(:icn_variety)
         end
 
         context 'before_validation' do
@@ -116,65 +106,71 @@ describe TaxonName do
             family.valid?
             expect(family.cached_higher_classification).to eq('Aidae')
           end
+        end
 
+        context 'double checking FactoryGirl' do
+          specify 'is building all related names for respective models' do
+            expect(@subspecies.ancestors.length).to be >= 10
+            expect(@variety.ancestors.length).to be >= 15
+          end
+        end
+
+        context 'after_validation' do
           specify 'cached_names are be set with ancestors' do
-            # Dmitry: We don't want to test that it starts with 'aaa' unless we *intend* for the record to be invalid by default,
-            # do we intend this? 
-            # expect(subspecies.cached_higher_classification).to eq('aaa')  # it is 'aaa' in FactoryGirl
-            subspecies.valid?
-            expect(subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
-            
-            expect(subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
-            variety.valid?
-            expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
-            expect(variety.cached_author_year).to eq('McAtee (1900)')
-            expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
+            @subspecies.valid?
+            expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+            expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
+            expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
+            @variety.valid?
+            expect(@variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
+            expect(@variety.cached_author_year).to eq('McAtee (1900)')
+            expect(@variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
           end
         end
       end
 
-      context "when rank ICZN family" do
-        specify "is valid when ending in '-idae'" do
-          taxon_name.name = "Fooidae"
+      context 'when rank ICZN family' do
+        specify "is validly_published when ending in '-idae'" do
+          taxon_name.name = 'Fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
-        specify "is invalid when not ending in '-idae'" do
-          taxon_name.name = "Aus"
+        specify "is invalidly_published when not ending in '-idae'" do
+          taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
-        specify "is valid when capitalized" do
-          taxon_name.name = "Fooidae"
+        specify 'is validly_published when capitalized' do
+          taxon_name.name = 'Fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
-        specify "is invalid when not capitalized" do
-          taxon_name.name = "fooidae"
+        specify 'is invalidly_published when not capitalized' do
+          taxon_name.name = 'fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
-      context "when rank ICN family" do
-        specify "is valid when ending in '-aceae'" do
-          taxon_name.name = "Fooaceae"
+      context 'when rank ICN family' do
+        specify "is validly_published when ending in '-aceae'" do
+          taxon_name.name = 'Fooaceae'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
-        specify "is invalid when not ending in '-aceae'" do
-          taxon_name.name = "Aus"
+        specify "is invalidly_published when not ending in '-aceae'" do
+          taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
     end
+
   end
 
   context 'methods' do
@@ -201,12 +197,12 @@ describe TaxonName do
     end
 
     context 'rank' do
-      specify 'returns nil when not a NomenclaturalRank (i.e. invalid)' do
+      specify 'returns nil when not a NomenclaturalRank (i.e. invalidly_published)' do
         taxon_name.rank_class = 'foo'
         expect(taxon_name.rank).to be_nil
       end
 
-      specify 'returns vernacular when rank_class is a NomenclaturalRank (i.e. valid)' do
+      specify 'returns vernacular when rank_class is a NomenclaturalRank (i.e. validly_published)' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         expect(taxon_name.rank).to eq('order')
         taxon_name.rank_class = Ranks.lookup(:icn, 'family')
@@ -268,7 +264,7 @@ describe TaxonName do
           expect(@species1.root).to eq(@root)
         end
 
-        specify "ancestors" do
+        specify 'ancestors' do
           expect(@root.ancestors.size).to eq(0)
           expect(@family.ancestors.size).to eq(1)
           expect(@family.ancestors).to eq([@root])
@@ -296,8 +292,8 @@ describe TaxonName do
   end
 
   context 'concerns' do
-    it_behaves_like "identifiable"
-    it_behaves_like "citable"
+    it_behaves_like 'identifiable'
+    it_behaves_like 'citable'
   end
 
 end

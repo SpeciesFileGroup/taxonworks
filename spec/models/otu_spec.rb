@@ -11,18 +11,18 @@ describe Otu do
         expect(otu).to respond_to(:taxon_determinations)
         expect(otu.taxon_determinations).to eq([])
       end
-      
+
       specify 'contents' do
         expect(otu).to respond_to(:contents)
-      end  
-     
+      end
+
       specify 'otu contents' do
         expect(otu).to respond_to(:otu_contents)
-      end  
-   
+      end
+
       specify 'topics' do
         expect(otu).to respond_to(:topics)
-      end  
+      end
 
     end
   end
@@ -47,5 +47,7 @@ describe Otu do
     end
   end
 
-
+  context 'concerns' do
+    it_behaves_like 'citable'
+  end
 end

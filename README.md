@@ -6,6 +6,7 @@ TaxonWorks
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
 
+
 Ruby version
 ------------
 2.0.0 -- also see .ruby-version file
@@ -15,24 +16,23 @@ System dependencies
 
 1. PostgreSQL, postgis, GEOS (Ultimate target, postgres branch)
   
-    # Ubuntu: 
+# Ubuntu: 
     sudo apt-get install libgeos-dev postgresql postgis
 
-    # Mac OS X assuming [brew][9] is installed:
+# Mac OS X assuming [brew][9] is installed:
     brew install postgresql 
-    #(follow after install instructions)
+
+# (follow after install instructions)
 
     brew install geos
     brew install postgis
 
 2. MySQL (paralell development at present, master branch)
-
  
 Configuration
 -------------
 
-* If you get 'library not loaded errors' You may need to rebuild the pg gem.
-* If you get 'json' related errors relinking with 'brew switch json-c 0.10' may help [see][10].
+Use config/database.yml.example for create and customize config/database.yml
 
 * Database permissions (MySQL)
 
@@ -59,8 +59,14 @@ How to run the test suite
     
     rake
 
-    spec spec/app
+or
 
+    rspec 
+
+Documentation
+-------------
+
+See the [wiki][11] for conceptual and general discussion.  Code is documented inline using [Yard tags][12], see [rdoc][10].
 
 [1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
 [2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
@@ -71,4 +77,6 @@ How to run the test suite
 [7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
 [8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
 [9]: http://brew.sh/
-[10]: http://stackoverflow.com/questions/18071946/rails-postgis-upgrade-issues
+[10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
+[11]: http://wiki.taxonworks.org/
+[12]: http://rdoc.info/gems/yard/file/docs/Tags.md

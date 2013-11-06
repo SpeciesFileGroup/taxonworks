@@ -1,4 +1,4 @@
-class Specimen < CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject
+class Specimen < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
 
   before_validation :check_and_set_total 
   before_validation 
