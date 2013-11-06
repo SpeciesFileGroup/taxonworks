@@ -1,44 +1,99 @@
 module Dwca::Import 
 
-  def self.read_dwc(path_to_archive)
+  def self.new_dwc(path_to_archive)
     DarwinCore.new(path_to_archive)   
   end
 
-  def self.get_data(darwin_core_archive)
-    data, errors = darwin_core_archive.core.read
-  end
+  class Manager 
+    attr_accessor :field_index 
+    attr_accessor :available_objects
+    attr_accessor :row_number
+    alias_method  :i, :row_number 
+    attr_accessor :data, :errors
+    attr_accessor :tw_objects
 
+    def initialize(opts = {})
+      opts = {
+        data: [],        # dwc.core.read[0] 
+        errors: [],      # dwc.core.read[1]
+        core_fields: {}, # dwc.core.fields
+        row_number: 1    # default starting row index
+      }.merge!(opts)
+      @data, @errors, @row_number = opts[:data], opts[:errors], opts[:row_number]
+      @available_objects = referenced_models(opts[:core_fields]) 
+      @tw_objects = TwObjects.new()
+      @field_index = opts[:core_fields].inject({}){|hsh, a| hsh.merge(a[:term] => (a[:index]) )} 
+    end
 
-  # Given the row headers what rows are possible
-  # very crude right now
-  def self.referenced_models(core)
-    core_fields =core.fields.collect{|i| i[:term]}
-    models = []
-    DWC2TW.keys.each do |k|
-      if (core_fields & DWC2TW[k].keys) != []
-        models.push k 
+    def row_id(row)
+      row[0] 
+    end
+
+    def cell(row, attribute)
+      row[@field_index[attribute]]
+    end
+
+    def build_object(row, object)
+      object.assign_attributes(row, object)
+      # other stuff!?
+      object
+    end
+
+    def assign_attributes(row, object)
+      DWC2TW[object.class.name.downcase].each do |attr|
+        object.send(DWC2TW[object.class.name.downcase][:in], cell(row, attr))
+      end
+      object
+    end
+
+    # data that is not null
+    def row_objects(row)
+
+    end
+
+    def build_row_objects(row, row_objects)
+      result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
+      row_objects.each do |r|
+        result[r] = self.send("build_#{r}", row)
+      end
+      result 
+    end
+
+    def build_otu(row) 
+      assign_attributes(row, Otu.new())
+    end
+
+    # 2nd pass
+    def relate_otu(row)
+    end
+
+      def self.build(data)
+      data.rows[0..10].each do |row|
+        puts ro
       end
     end
-    models.sort
-  end
 
-  # data that is not null
-  def row_objects(row)
-
-  end
-
-  def row_collection_object(row)
-
-  end
-
-  def row_otu(row)
-
-  end
-
-  def self.build(data)
-    data.rows[0..10].each do |row|
-        puts row
+    protected
+    # Given the core_fields what TW objects are possible
+    def referenced_models(core_fields)
+      core_fields = core_fields.collect{|i| i[:term]}
+      models = []
+      DWC2TW.keys.each do |k|
+        if (core_fields & DWC2TW[k].keys) != []
+          models.push k 
+        end
+      end
+      models.sort
     end
+  end
+
+  def self.new_manager(darwin_core_archive)
+    data, errors = darwin_core_archive.core.read
+    Manger.new(
+      data: data,
+      errors: errors,
+      core_fields: darwin_core_archive.core.fields 
+    )
   end
 
   RUNTIME =  {
@@ -52,7 +107,7 @@ module Dwca::Import
 
   DWC2TW = {
     otu: {
-      'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: name, out: nil},
+      'http://rs.tdwg.org/dwc/terms/scientificName'           => {in: :name=, out: nil},
     },
 
     biological_association: {
@@ -60,6 +115,7 @@ module Dwca::Import
     },
 
     taxon_name: {
+      'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
       'http://rs.tdwg.org/dwc/terms/taxonID'                  => {in: :dwc_parse_taxon_id, out: :id},
       'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: nil, out: nil},
       'http://rs.tdwg.org/dwc/terms/kingdom'                  => {in: nil, out: nil},
@@ -79,14 +135,14 @@ module Dwca::Import
     collection_object: { 
       'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil, out: nil},               # Who owns it
       'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil, out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
-      'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total, out: :total},
-      'http://rs.tdwg.org/dwc/terms/sex'               => {in: :sex, out: :sex},
+      'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total=, out: :total},
+      'http://rs.tdwg.org/dwc/terms/sex'               => {in: :sex=, out: :sex},
     },
 
     collecting_event: {
-      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method, out: :verbatim_method},
+      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=, out: :verbatim_method},
       'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: :dwc_parse_EventDate, out: :verbatim_method},   
-      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat, out: :habitat},
+      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=, out: :habitat},
       'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality, out: :verbatim_locality},
       'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: :dwc_parse_verbatimElevation, out: :elevation},
       'http://rs.tdwg.org/dwc/terms/country'           => {in: nil, out: :country},
@@ -120,10 +176,12 @@ module Dwca::Import
   }
 
 
-  class Data < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
-  end
+class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
+end
+
 
 end
+
 
 # methods parse dwcDate => returns month day year
 # migrations collection_objects => home_repository, current_repository

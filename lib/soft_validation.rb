@@ -14,7 +14,7 @@ module SoftValidation
   #   @return [Boolean] 
   #   True if the soft validations methods have been called.
   # @!attribute fixed
-  #   @return [Boolean]
+  #   @return [Symbol]
   #   True if fix() has been called. Note that this does not imply that all SoftValidations have been fixed!
   class SoftValidations
     attr_accessor :soft_validations, :instance, :validated, :fixes_run
@@ -34,14 +34,35 @@ module SoftValidation
     #     add(:a_soft_validation_method, 'message indicating the problem')
     #     add(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
     #     add(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
-    #   
+    #  
+    #     $hungry = true 
     # 
     #     def a_soft_validation_method
-    #      # ... 
+    #       soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if $hungry 
     #     end
-    #
-    #     # etc...
+    #     
+    #     def cook_cheezburgers
+    #       $hungry = false
+    #     end
     #   end
+    #
+    #   f = Foo.new
+    #   f.soft_validations.validated?             # => false
+    #   f.soft_validations.fixes_run?             # => false
+    #   f.soft_validations.fixed?                 # => false 
+    #   f.soft_validations.complete?              # => false
+    #   f.soft_validate                           # => true 
+    #   f.soft_validations.size                   # => 1
+    #   f.soft_validations.first.fixed?           # => false
+    #   f.soft_validations.first.result_message   # => 'fixes not yet run'
+    #  
+    #   f.fix_soft_validations                    # => true
+    #   f.soft_validations.fixes_run              # => true
+    #   f.soft_validations.first.fixed?           # => true
+    #   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
+    # 
+    #   f.clear_soft_validations  
+    #   
     #
     # @param [Symbol] attribute a column attribute or :base
     # @param [String] message a message describing the soft validation to the user, i.e. what has gone wrong
@@ -116,26 +137,33 @@ module SoftValidation
   #   @return [String]
   #     Optional.  Requires a fix method.  A short message describing the message provided when the soft validation was NOT successfully fixed. 
   # @!attribute fixed 
-  #   @return [Boolean]
-  #     A flag storing whether the fix method was run successfully (true) or not (false), or has not been run (nil)
+  #   @return [Symbol]
+  #     Stores a state with one of 
+  #     :fixed                  (fixes run and SoftValidation was fixed), 
+  #     :fix_error              (fixes run and SoftValidation fix failed), 
+  #     :fix_not_yet_run        (there is a fix method available, but it hasn't been run)
+  #     :no_fix_available       (no fix method was provided)
   class SoftValidation
     attr_accessor :attribute, :message, :fix, :success_message, :failure_message, :fixed
 
     def initialize
-      @fixed = nil 
+      @fixed = :fix_not_yet_run
     end
 
     def fixed?
-      @fixed
+      return true if @fixed == :fixed
+      false
     end
 
     def result_message
-      case fixed?
-      when nil
-        'no fix is available'
-      when true
+      case fixed
+      when :no_fix_available
+        'fix not run, no fix available'
+      when :fix_not_yet_run
+        'fix not yet run'
+      when :fixed 
         self.success_message.nil? ? "'#{message}' was fixed (no result message provided)" : self.success_message
-      when false
+      when :fix_error 
         self.failure_message.nil? ? "'#{message}' was NOT fixed (no result message provided)" : self.failure_message
       end
     end
@@ -193,11 +221,13 @@ module SoftValidation
     return false if !soft_validated?
     soft_validations.soft_validations.each do |v|
       if v.fix
-        if  self.send(v.fix) 
-          v.fixed = true
+        if self.send(v.fix) 
+          v.fixed = :fixed 
         else
-          v.fixed = false
+          v.fixed = :fix_error
         end
+      else
+        v.fixed = :no_fix_available
       end
     end
     soft_validations.fixes_run = true
