@@ -120,7 +120,7 @@ describe 'SoftValidations' do
 
   specify 'validations_on' do
     expect(soft_validations).to respond_to(:validations_on)
-    expect(soft_validations.validations_on(:base)).to eq([])
+    expect(soft_validations.validations_on(:base).to eq([])
   end
 end
 

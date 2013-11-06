@@ -47,7 +47,8 @@
 #   f.soft_validations.fixes_run              # => true
 #   f.soft_validations.first.fixed?           # => true
 #   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
-# 
+#   f.soft_validations.validations_on(:base)  # => [soft_validations ... ] 
+#
 #   f.clear_soft_validations  
 #  
 #   f.soft_validate(:some_other_set)          # only run this set of validations
