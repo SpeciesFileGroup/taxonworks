@@ -42,14 +42,18 @@ module SoftValidation
     # Usage:
     #
     #   class Foo < ActiveRecord::Base
-    #     soft_validate(:a_soft_validation_method, 'message decribing the validation set')
-    #     soft_validate(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
-    #     soft_validate(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
+    #     soft_validate(:a_soft_validation_method )
+    #     soft_validate(:other_soft_validation_method, set: :some_set)
+    #     soft_validate(:yet_another_method, set: :some_other_set )
     #  
     #     $hungry = true 
     # 
     #     def a_soft_validation_method
-    #       soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if $hungry 
+    #       soft_validations.add(:base, 'hungry!',
+    #         fix: :cook_cheezburgers,
+    #         success_message: 'no longer hungry, cooked a cheezeburger',
+    #         failure_message: 'oh no, cat ate your cheezeburger' 
+    #       ) if $hungry 
     #     end
     #     
     #     def cook_cheezburgers
