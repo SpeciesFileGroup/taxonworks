@@ -26,10 +26,10 @@ gem 'rails', '~> 4.0'
 # the current fix is to add a line to the Gemfile.lock file to augment the file with the answer which is given by
 # the ffi gem when asked what it's name is.  Thus, we make the following substitution:
 #
-#     ffi (1.9.0-x86-mingw32)
+#     ffi (1.9.3-x86-mingw32)
 # becomes
-#     ffi (1.9.0-x86-mingw32)
-#     ffi (1.9.0)
+#     ffi (1.9.3-x86-mingw32)
+#     ffi (1.9.3-x64-mingw32)
 #
 # The pg gem suffers a similar problem, but with different specifics:
 #
@@ -108,7 +108,7 @@ gem 'acts_as_list'
 #     bcrypt-ruby (3.0.1-x64-mingw32)
 #
 #
-gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt-ruby', '~> 3.1.2'
 
 # gem for dumping DwC-A archives
 gem "dwc-archive", "~> 0.9.6" if not win_os
