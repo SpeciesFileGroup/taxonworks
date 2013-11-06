@@ -3,7 +3,7 @@ require 'spec_helper'
 describe GeographicArea do
 
   before :all do
-    read_shape('..\shapes\USA_adm\USA_adm1.shp')
+    # read_shape('..\shapes\USA_adm\USA_adm1.shp')
     # read_csv('..\shapes\USA_adm\USA_adm1.csv')
   end
   context 'Shape files' do
