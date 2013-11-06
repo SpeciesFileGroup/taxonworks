@@ -33,20 +33,30 @@
 #   end
 #
 #   f = Foo.new
+#
 #   f.soft_validations.validated?             # => false
 #   f.soft_validations.fixes_run?             # => false
 #   f.soft_validations.fixed?                 # => false 
 #   f.soft_validations.complete?              # => false
-#   f.soft_validate                           # => true 
 #
+#   f.soft_validate                           # => true 
+#   f.soft_validated?                         # => true
+#   f.soft_fixed?                             # => false   
+#   f.soft_valid?                             # => false  # true if there are no SoftValidations produced
+#
+#   f.soft_validations.soft_validations                        # => [soft_validation, soft_validation1 ... ] 
 #   f.soft_validations.soft_validations.size                   # => 1
+#   f.soft_validations.soft_validations.first                  # => A SoftValidation instance
 #   f.soft_validations.soft_validations.first.fixed?           # => false
 #   f.soft_validations.soft_validations.first.result_message   # => 'fixes not yet run'
 #  
 #   f.fix_soft_validations                    # => true
-#   f.soft_validations.fixes_run              # => true
-#   f.soft_validations.first.fixed?           # => true
-#   f.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
+#   f.soft_fixed?                             # => true
+#   f.soft_valid?                             # => false !! There is still a SoftValidation generated, will be true next time it's run
+#
+#   f.soft_validations.fixes_run                               # => true
+#   f.soft_validations.soft_validations.first.fixed?           # => true
+#   f.soft_validations.soft_validations.first.result_message   # => 'no longer hungry, cooked a cheezeburger'
 #   f.soft_validations.validations_on(:base)  # => [soft_validations ... ] 
 #
 #   f.clear_soft_validations  
