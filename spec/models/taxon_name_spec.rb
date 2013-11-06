@@ -81,7 +81,7 @@ describe TaxonName do
     context 'rank_class' do
       specify 'is validly_published when a NomenclaturalRank subclass' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-        taxon_name.name = "Aaa"
+        taxon_name.name = 'Aaa'
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_false
       end
@@ -108,8 +108,8 @@ describe TaxonName do
           end
         end
 
-        context "double checking FactoryGirl" do
-          specify "is building all related names for respective models" do 
+        context 'double checking FactoryGirl' do
+          specify 'is building all related names for respective models' do
             expect(@subspecies.ancestors.length).to be >= 10
             expect(@variety.ancestors.length).to be >= 15
           end
@@ -129,47 +129,48 @@ describe TaxonName do
         end
       end
 
-      context "when rank ICZN family" do
+      context 'when rank ICZN family' do
         specify "is validly_published when ending in '-idae'" do
-          taxon_name.name = "Fooidae"
+          taxon_name.name = 'Fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
         specify "is invalidly_published when not ending in '-idae'" do
-          taxon_name.name = "Aus"
+          taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family') 
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
-        specify "is validly_published when capitalized" do
-          taxon_name.name = "Fooidae"
+        specify 'is validly_published when capitalized' do
+          taxon_name.name = 'Fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
-        specify "is invalidly_published when not capitalized" do
-          taxon_name.name = "fooidae"
+        specify 'is invalidly_published when not capitalized' do
+          taxon_name.name = 'fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
-      context "when rank ICN family" do
+      context 'when rank ICN family' do
         specify "is validly_published when ending in '-aceae'" do
-          taxon_name.name = "Fooaceae"
+          taxon_name.name = 'Fooaceae'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_false
         end
         specify "is invalidly_published when not ending in '-aceae'" do
-          taxon_name.name = "Aus"
+          taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
     end
+
   end
 
   context 'methods' do
@@ -263,7 +264,7 @@ describe TaxonName do
           expect(@species1.root).to eq(@root)
         end
 
-        specify "ancestors" do
+        specify 'ancestors' do
           expect(@root.ancestors.size).to eq(0)
           expect(@family.ancestors.size).to eq(1)
           expect(@family.ancestors).to eq([@root])
@@ -291,8 +292,8 @@ describe TaxonName do
   end
 
   context 'concerns' do
-    it_behaves_like "identifiable"
-    it_behaves_like "citable"
+    it_behaves_like 'identifiable'
+    it_behaves_like 'citable'
   end
 
 end
