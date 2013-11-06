@@ -19,6 +19,7 @@
 class TaxonDetermination < ActiveRecord::Base
 
   include Shared::HasRoles
+  include Shared::Citable
 
   belongs_to :otu
   belongs_to :biological_collection_object

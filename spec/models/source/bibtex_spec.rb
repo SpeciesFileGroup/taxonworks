@@ -359,8 +359,44 @@ describe Source::Bibtex do
       end
     end
   end
-  
 
+
+  context 'class methods' do
+    # create_with_roles(bibtex_entry, opts = {})
+    #    opts = {
+    #      use_vetted_people: false
+    #    }.merge!(opts)
+    context 'create_with_roles(BibTeX::Entry instance)' do
+
+      specify 'creates author/editor roles with Person::Unvetted by default' do
+        pending
+      end
+
+      context 'parameters' do
+        specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
+          pending
+        end
+      end
+    end
+  end
+
+  context 'supporting libs' do
+    context 'if I have a zotero bibliography' do
+      context 'and I import it to TW' do
+        context 'when I update a record in zotero' do
+          specify 'then TW should be aware and notify me of discrepancies' do
+            pending 'not implemented yet'
+          end
+        end
+      end
+    end
+
+    context 'Hackathon requirements' do
+      # TODO: code lib/bibtex
+      pending 'Should be able to round trip data a whole file '
+      #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
+    end
+  end
   context('Beth') do
 =begin
     notes/things to do:
@@ -389,42 +425,6 @@ describe Source::Bibtex do
     #  bs3.save
     #end
 
-    context 'class methods' do
-      # create_with_roles(bibtex_entry, opts = {})
-      #    opts = {
-      #      use_vetted_people: false
-      #    }.merge!(opts)
-      context 'create_with_roles(BibTeX::Entry instance)' do
-
-        specify 'creates author/editor roles with Person::Unvetted by default' do
-          pending
-        end
-
-        context 'parameters' do
-          specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
-            pending
-          end
-        end
-      end
-    end
-
-    context 'supporting libs' do
-      context 'if I have a zotero bibliography' do
-        context 'and I import it to TW' do
-          context 'when I update a record in zotero' do
-            specify 'then TW should be aware and notify me of discrepancies' do
-              pending 'not implemented yet'
-            end
-          end
-        end
-      end
-
-      context 'Hackathon requirements' do
-        # TODO: code lib/bibtex
-        pending 'Should be able to round trip data a whole file '
-        #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
-      end
-    end
   end
 
   context 'concerns' do

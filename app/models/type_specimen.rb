@@ -1,4 +1,7 @@
 class TypeSpecimen < ActiveRecord::Base
+
+  include Shared::Citable
+
   belongs_to :biological_object
   belongs_to :taxon_name
 

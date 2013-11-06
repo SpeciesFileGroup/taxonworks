@@ -1,6 +1,8 @@
 class Otu < ActiveRecord::Base
 
   include Shared::Identifiable
+  include Shared::Citable        # ?
+
   has_many :taxon_determinations
 
   has_many :contents
