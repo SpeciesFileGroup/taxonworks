@@ -14,9 +14,9 @@ class Source::Bibtex < Source
   soft_validate(:sv_authors_exist)
   soft_validate(:sv_year_exists)
   soft_validate(:sv_date_exists, set: :recommended_fields)
-  #soft_validate(:no_writer, set: :recommended_fields)
+  soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   #soft_validate(:no_title, set: :recommended_fields)
-  #soft_validate(:sv_journal_exists, set: :recommended_fields)
+  soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   #soft_validate(:sv_URL_exists, set: :recommended_fields)
   #endregion
 
@@ -107,8 +107,8 @@ class Source::Bibtex < Source
         suffix:     bibtex_author.suffix)
   end
 
-  def has_authors?
-    # return true if there is a bibtex author or if author roles exist.
+  #region has_<attribute>? section
+  def has_authors? # is there a bibtex author or author roles?
 
     # return true if !(self.author.to_s.strip.length == 0)
     return true if !(self.author.blank?)
@@ -126,11 +126,19 @@ class Source::Bibtex < Source
     (self.editors.count > 0) ? (return true) : (return false)
   end
 
+  def has_writer? # contains either an author or editor
+    (has_authors?) || (has_editors?) ? true : false
+  end
+
   def has_date? # is there a year or stated year?
     return true if !(self.year.blank?)
     return true if !(self.stated_year.blank?)
     return false
   end
+
+  #TODO write has_note?
+
+#endregion
 
   protected
 
@@ -161,8 +169,8 @@ class Source::Bibtex < Source
     end
   end
 
-  def no_writer # neither author nor editor
-    if !(has_authors?) && !(has_editors?)
+  def sv_contains_a_writer # neither author nor editor
+    if !has_writer?
       soft_validations.add(:author, 'There is neither an author,nor editor associated with this source')
       soft_validations.add(:editor, 'There is neither an author,nor editor associated with this source')
     end
@@ -191,7 +199,7 @@ class Source::Bibtex < Source
     soft_validations.add(:bibtex_type, 'The source is missing a journal name') if self.journal.blank?
   end
 
-  def article_missing_journal
+  def sv_is_article_missing_journal
     if (self.bibtex_type == 'article')
       if (self.journal.blank?)
         soft_validations.add(:bibtex_type, 'The article is missing a journal name')
@@ -226,7 +234,7 @@ class Source::Bibtex < Source
         article_missing_journal
         sv_year_exists
       when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
-        self.no_writer
+        sv_contains_a_writer
         self.no_title
         self.no_publisher
         sv_year_exists
@@ -238,7 +246,7 @@ class Source::Bibtex < Source
         self.no_booktitle
         sv_year_exists
       when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
-        self.no_writer
+        sv_contains_a_writer
         self.no_title
         self.no_included
         self.no_publisher
@@ -264,14 +272,15 @@ class Source::Bibtex < Source
       when 'proceedings' #    :proceedings   => [:title,:year],
       when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
       when 'unpublished' #    :unpublished   => [:author,:title,:note]
-        sv_author_exists
+        sv_authors_exist
         no_title
-        #check for note
+      #check for note
 
     end
 
   end
 
   #endregion
+
 end
 
