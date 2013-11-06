@@ -7,12 +7,12 @@ module ActiverecordUtilities
     # these are the extensions (like has_many)
     before_validation :trim_attributes
     class_attribute :attributes_to_trim
-
   end
 
   module ClassMethods
     # any def inside here is a class method
     def nil_trim_attributes(*attributes) # this assigns the attributes to be trimmed
+      raise if (attributes.map(&:to_s) - self.column_names) != []
       self.attributes_to_trim = attributes
     end
   end

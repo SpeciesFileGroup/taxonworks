@@ -31,9 +31,9 @@ module SoftValidation
     # Usage:
     #
     #   class Foo < ActiveRecord::Base
-    #     add(:a_soft_validation_method, 'message indicating the problem')
-    #     add(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
-    #     add(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
+    #     soft_validate(:a_soft_validation_method, 'message indicating the problem')
+    #     soft_validate(:other_soft_validation_method, 'message', fix: :method_name_that_resolves_problem)
+    #     soft_validate(:yet_another_method, 'message', fix: :fix_it, success_message: 'yay, fixed!', failure_message: 'boo, fix failed')
     #  
     #     $hungry = true 
     # 
