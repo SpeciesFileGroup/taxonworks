@@ -8,6 +8,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraorder < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Suborder
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

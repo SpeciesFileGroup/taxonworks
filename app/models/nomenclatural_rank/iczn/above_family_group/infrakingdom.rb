@@ -8,6 +8,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infrakingdom < NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

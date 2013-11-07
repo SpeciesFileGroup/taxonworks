@@ -4,4 +4,8 @@ class TaxonNameRelationship::Typification::Genus::SubsequentDesignation < TaxonN
     :type_species_by_subsequent_designation
   end
 
+  def assignable
+    true
+  end
+
 end

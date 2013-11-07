@@ -162,7 +162,6 @@ class TaxonName < ActiveRecord::Base
       self.rank_class.validate_name_format(self)
     end
   end
-
 end
 
 

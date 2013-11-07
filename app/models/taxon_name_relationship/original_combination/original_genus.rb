@@ -11,15 +11,18 @@ class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelat
   end
 
   def self.assignment_method
-    # aus.original_combination_form = bus
+    # aus.original_combination_genus = bus
     :original_combination_genus
   end
 
   # as. 
   def self.inverse_assignment_method
-    # bus.set_as_form_in_original_combination(aus)
+    # bus.set_as_genus_in_original_combination(aus)
     :genus_in_original_combination
   end
 
+  def assignable
+    true
+  end
 
 end

@@ -8,6 +8,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraphylum  < NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subphylum
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

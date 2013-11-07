@@ -4,4 +4,8 @@ class TaxonNameRelationship::Typification::Genus::Monotypy < TaxonNameRelationsh
     :type_species_by_monotypy 
   end
 
+  def assignable
+    true
+  end
+
 end

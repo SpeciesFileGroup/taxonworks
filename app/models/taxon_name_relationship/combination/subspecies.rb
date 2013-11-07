@@ -10,4 +10,8 @@ class TaxonNameRelationship::Combination::Subspecies < TaxonNameRelationship::Co
     NomenclaturalRank::Iczn::SpeciesGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
+  def assignable
+    true
+  end
+
 end

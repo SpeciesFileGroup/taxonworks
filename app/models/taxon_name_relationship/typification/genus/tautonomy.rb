@@ -2,4 +2,9 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
   def self.assignment_method
     :type_species_by_tautonomy
   end
+
+  def assignable
+    true
+  end
+
 end

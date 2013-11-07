@@ -8,6 +8,8 @@ class NomenclaturalRank::Iczn::GenusGroup::Infragenus < NomenclaturalRank::Iczn:
     NomenclaturalRank::Iczn::GenusGroup::Subgenus
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

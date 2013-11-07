@@ -19,5 +19,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubgenus < TaxonNameRe
     :subgenus_in_original_combination
   end
 
+  def assignable
+    true
+  end
 
 end

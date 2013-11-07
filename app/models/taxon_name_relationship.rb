@@ -19,12 +19,16 @@ class TaxonNameRelationship < ActiveRecord::Base
   def self.subject_properties
     []
   end
-  
+
+  def assignable
+    false
+  end
+
   protected
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
-    errors.add(:type, "'#{type}' is not a validly_published taxon name relationship") if !::TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+    errors.add(:type, "'#{type}' is not a validly_published taxon name relationship") if !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
   end
 
   def validate_subject_and_object_share_code
@@ -32,7 +36,5 @@ class TaxonNameRelationship < ActiveRecord::Base
       errors.add(:object_id, "The related taxon is from different nomenclatural code") if subject.rank_class.nomenclatural_code != object.rank_class.nomenclatural_code
     end
   end
-
-
 
 end

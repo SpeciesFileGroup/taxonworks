@@ -22,5 +22,9 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
     :form_in_original_combination
   end
 
+  def assignable
+    true
+  end
+
 end
 

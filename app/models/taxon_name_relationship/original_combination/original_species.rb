@@ -20,4 +20,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSpecies < TaxonNameRel
     :species_in_original_combination
   end
 
+  def assignable
+    true
+  end
+
 end

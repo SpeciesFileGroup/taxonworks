@@ -9,6 +9,8 @@ class NomenclaturalRank::Iczn::FamilyGroup::Epifamily < NomenclaturalRank::Iczn:
     taxon_name.errors.add(:name, 'name must end in -oidae') if not(taxon_name.name =~ /.*oidae\Z/)
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

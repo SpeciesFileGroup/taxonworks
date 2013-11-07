@@ -20,4 +20,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubsection < TaxonName
     :subsection_in_original_combination
   end
 
+  def assignable
+    true
+  end
+
 end

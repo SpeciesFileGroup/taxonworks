@@ -10,4 +10,8 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
     NomenclaturalRank::Iczn::FamilyGroup.descendants
   end
 
+  def assignable
+    true
+  end
+
 end

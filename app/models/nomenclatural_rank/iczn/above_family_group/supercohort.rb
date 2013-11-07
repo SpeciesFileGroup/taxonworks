@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Supercohort < NomenclaturalRank
     NomenclaturalRank::Iczn::AboveFamilyGroup::Infraclass
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

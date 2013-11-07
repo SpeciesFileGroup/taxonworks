@@ -13,6 +13,8 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infratribe < NomenclaturalRank::Iczn
     NomenclaturalRank::Iczn::FamilyGroup::Subtribe
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

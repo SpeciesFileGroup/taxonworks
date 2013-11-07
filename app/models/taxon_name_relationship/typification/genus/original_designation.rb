@@ -4,4 +4,8 @@ class TaxonNameRelationship::Typification::Genus::OriginalDesignation < TaxonNam
     :type_species_by_original_designation 
   end
 
+  def assignable
+    true
+  end
+
 end

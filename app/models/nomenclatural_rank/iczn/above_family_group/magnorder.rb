@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Magnorder < NomenclaturalRank::
     NomenclaturalRank::Iczn::AboveFamilyGroup::Cohort
   end
 
-  COMMON = false
+  def self.common
+    false
+  end
 
 end

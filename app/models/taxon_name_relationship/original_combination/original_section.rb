@@ -21,5 +21,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSection < TaxonNameRel
     :section_in_original_combination
   end
 
+  def assignable
+    true
+  end
 
 end

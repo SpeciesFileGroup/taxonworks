@@ -20,6 +20,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSeries < TaxonNameRela
     :series_in_original_combination
   end
 
-
+  def assignable
+    true
+  end
 
 end

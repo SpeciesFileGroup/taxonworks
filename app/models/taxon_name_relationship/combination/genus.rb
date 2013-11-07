@@ -19,4 +19,8 @@ class TaxonNameRelationship::Combination::Genus < TaxonNameRelationship::Combina
     :genus_in_combination
   end
 
+  def assignable
+    true
+  end
+
 end

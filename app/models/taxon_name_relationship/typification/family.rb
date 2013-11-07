@@ -14,4 +14,8 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
     :type_genus
   end
 
+  def assignable
+    true
+  end
+
 end
