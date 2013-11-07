@@ -11,12 +11,12 @@ describe Protonym do
       @species_type_of_genus = FactoryGirl.create(:taxon_name_relationship,
                                                   subject: @protonym,
                                                   object: @genus, 
-                                                  type: TaxonNameRelationship::Typification::Genus::Monotypy::Original)
+                                                  type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
 
       @genus_type_of_family = FactoryGirl.create(:taxon_name_relationship,
                                                  subject: @genus,
                                                  object: @family, 
-                                                 type: TaxonNameRelationship::Typification::Family)
+                                                 type: 'TaxonNameRelationship::Typification::Family')
     end
 
     context 'has_many' do
