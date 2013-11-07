@@ -11,7 +11,6 @@ ICZN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Iczn.descendants.col
 ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s} 
 
 # Array of all assignable TaxonNameRelationship classes, as Strings
-# TODO: Why this does not work???????
-#TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|r| r.to_s}
-TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.collect{|r| r.to_s}
+TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}
+
 

@@ -3,7 +3,7 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
     :type_species_by_tautonomy
   end
 
-  def assignable
+  def self.assignable
     true
   end
 

@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::Icn::Unaccepting
 
-  def assignable
+  def self.assignable
     true
   end
 

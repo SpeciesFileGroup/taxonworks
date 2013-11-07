@@ -10,7 +10,7 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
     NomenclaturalRank::Iczn::FamilyGroup.descendants
   end
 
-  def assignable
+  def self.assignable
     true
   end
 

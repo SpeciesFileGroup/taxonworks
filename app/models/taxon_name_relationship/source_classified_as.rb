@@ -10,7 +10,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
     NomenclaturalRank::Iczn::AboveFamilyGroup.descendants + NomenclaturalRank::Iczn::FamilyGroup.descendants + NomenclaturalRank::Icn::AboveFamilyGroup.descendants + NomenclaturalRank::Icn::FamilyGroup.descendants
   end
 
-  def assignable
+  def self.assignable
     true
   end
 

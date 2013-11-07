@@ -10,7 +10,7 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
     NomenclaturalRank::Iczn.descendants
   end
 
-  def assignable
+  def self.assignable
     false
   end
 

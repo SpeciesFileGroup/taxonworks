@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Accepting::SanctionedName < TaxonNameRelationship::Icn::Accepting
 
-  def assignable
+  def self.assignable
     true
   end
 

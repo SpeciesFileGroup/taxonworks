@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Validating::ReplacementName < TaxonNameRelationship::Iczn::Validating
 
-  def assignable
+  def self.assignable
     true
   end
 

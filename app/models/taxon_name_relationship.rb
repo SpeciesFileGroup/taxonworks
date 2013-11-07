@@ -20,7 +20,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
-  def assignable
+  def self.assignable
     false
   end
 

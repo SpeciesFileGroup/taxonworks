@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship::Iczn::Invalidating
 
-  def assignable
+  def self.assignable
     true
   end
 

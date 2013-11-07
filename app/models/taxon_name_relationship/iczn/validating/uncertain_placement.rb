@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRelationship::Iczn::Validating
 
-  def assignable
+  def self.assignable
     true
   end
 

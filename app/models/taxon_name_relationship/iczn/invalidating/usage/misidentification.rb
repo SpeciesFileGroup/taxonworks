@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < TaxonNameRelationship::Iczn::Invalidating::Usage
 
-  def assignable
+  def self.assignable
     true
   end
 

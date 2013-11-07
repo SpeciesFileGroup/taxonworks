@@ -1,6 +1,6 @@
 class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
-  def assignable
+  def self.assignable
     false
   end
 

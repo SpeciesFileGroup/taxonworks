@@ -10,7 +10,7 @@ class TaxonNameRelationship::Combination::Subseries < TaxonNameRelationship::Com
     NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
-  def assignable
+  def self.assignable
     true
   end
 

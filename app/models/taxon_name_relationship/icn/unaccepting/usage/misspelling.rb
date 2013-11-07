@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRelationship::Icn::Unaccepting::Usage
 
-  def assignable
+  def self.assignable
     true
   end
 

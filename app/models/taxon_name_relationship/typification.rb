@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Typification < TaxonNameRelationship
 
-  def assignable
+  def self.assignable
     false
   end
 

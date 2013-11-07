@@ -21,7 +21,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelat
     :genus_in_original_combination
   end
 
-  def assignable
+  def self.assignable
     true
   end
 
