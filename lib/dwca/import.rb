@@ -33,22 +33,17 @@ module Dwca::Import
       row[@field_index[attribute]]
     end
 
+    # assign_attributes is loaded
     def build_object(row, object)
-      object.assign_attributes(row, object)
-      # other stuff!?
-      object
-    end
-
-    def assign_attributes(row, object)
-      DWC2TW[object.class.name.downcase].each do |attr|
-        object.send(DWC2TW[object.class.name.downcase][:in], cell(row, attr))
+      klass = object.class.name.downcase.to_sym
+      DWC2TW[klass].keys.each do |attr|
+        object.send(DWC2TW[klass][attr][:in], cell(row, attr))
       end
       object
     end
 
     # data that is not null
     def row_objects(row)
-
     end
 
     def build_row_objects(row, row_objects)
@@ -59,15 +54,11 @@ module Dwca::Import
       result 
     end
 
-    def build_otu(row) 
-      assign_attributes(row, Otu.new())
-    end
-
     # 2nd pass
     def relate_otu(row)
     end
 
-      def self.build(data)
+    def self.build(data)
       data.rows[0..10].each do |row|
         puts ro
       end

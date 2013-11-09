@@ -65,20 +65,10 @@ describe Dwca::Import do
       expect(manager.row_id(@data.last)).to eq('73117')
     end
 
-    specify 'build_object' do
-      expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
+    context 'build_object' do
+      specify 'otu' do
+        expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
+      end
     end
-
-    specify 'build_otu' do
-      expect(manager.build_otu(@data.first).class).to eq(Otu)
-      expect(manager.build_otu(@data.first).name).to eq('Stenacron carolina (Banks 1914)')
-    end
-
-    specify 'build_row_objects' do
-      expect(manager.build_row_objects([], [:a, :b])).to eq(a: nil, b: nil)
-    end
-
-
-
   end
 end
