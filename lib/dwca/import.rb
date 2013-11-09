@@ -44,10 +44,6 @@ module Dwca::Import
       object
     end
 
-    # data that is not null
-    def row_objects(row)
-    end
-
     def build_row_objects(row, row_objects)
       result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
       row_objects.each do |r|
@@ -57,12 +53,16 @@ module Dwca::Import
     end
 
     # 2nd pass
-    def relate_otu(row)
+    def relate_row_objects(row, row_objects)
+      # specimen -> identifier, collecting_event, biocuration_classification, taxon_determination, type_specimen
+      # otu -> taxon_name, biological_association
+      # collecting_event -> georeference
+      # taxon_name -> taxon_name
     end
 
     def self.build(data)
       data.rows[0..10].each do |row|
-        puts ro
+        puts row
       end
     end
 
@@ -130,7 +130,6 @@ module Dwca::Import
       'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil, out: nil},               # Who owns it
       'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil, out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
       'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total=, out: :total},
-      'http://rs.tdwg.org/dwc/terms/sex'               => {in: :sex=, out: :sex},
     },
 
     collecting_event: {
@@ -152,11 +151,12 @@ module Dwca::Import
     },
 
     biocuration_classification: {
-      'http://rs.tdwg.org/dwc/terms/lifeStage' => {in: nil, out: nil}
+      'http://rs.tdwg.org/dwc/terms/lifeStage' => {in: :dwc_parse_life_stage, out: nil},
+      'http://rs.tdwg.org/dwc/terms/sex'       => {in: :dwc_parse_sex, out: :sex},
     },
 
     identifier: {
-      'http://rs.tdwg.org/dwc/terms/catalogNumber' => {in: nil, out: nil},
+      'http://rs.tdwg.org/dwc/terms/catalogNumber' => {in: :identifier=, out: nil},
     },
 
     taxon_determination: {
@@ -169,13 +169,10 @@ module Dwca::Import
     },
   }
 
-
 class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
 end
 
-
 end
-
 
 # methods parse dwcDate => returns month day year
 # migrations collection_objects => home_repository, current_repository
