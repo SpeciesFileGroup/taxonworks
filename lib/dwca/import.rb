@@ -33,11 +33,13 @@ module Dwca::Import
       row[@field_index[attribute]]
     end
 
-    # assign_attributes is loaded
     def build_object(row, object)
-      klass = object.class.name.downcase.to_sym
+      klass = object.class.name.underscore.to_sym
       DWC2TW[klass].keys.each do |attr|
-        object.send(DWC2TW[klass][attr][:in], cell(row, attr))
+        method = DWC2TW[klass][attr][:in]
+        if object.respond_to?(method)
+          object.send(method, cell(row, attr))
+        end
       end
       object
     end
@@ -49,7 +51,7 @@ module Dwca::Import
     def build_row_objects(row, row_objects)
       result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
       row_objects.each do |r|
-        result[r] = self.send("build_#{r}", row)
+        result[r] = build_object(row, r.to_s.classify.constantize.new)
       end
       result 
     end
@@ -65,6 +67,7 @@ module Dwca::Import
     end
 
     protected
+
     # Given the core_fields what TW objects are possible
     def referenced_models(core_fields)
       core_fields = core_fields.collect{|i| i[:term]}

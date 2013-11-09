@@ -70,5 +70,12 @@ describe Dwca::Import do
         expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
       end
     end
+
+    specify 'build_row_objects' do
+      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object])).to be_true
+      expect(result[:otu].name).to eq('Stenacron carolina (Banks 1914)')
+      expect(result[:collection_object].total).to eq(3)
+    end
+
   end
 end
