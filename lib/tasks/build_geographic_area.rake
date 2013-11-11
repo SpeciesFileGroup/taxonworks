@@ -15,7 +15,7 @@ namespace :tw do
       not_done = true
     end
     desc 'Generate GeographicAreaType table.'
-    task GenGeoATTable do
+    task :gen_geo_a_t_table do
       ['Continent',
        'Country',
        'State',
@@ -25,7 +25,7 @@ namespace :tw do
        'Province',
        'Ward',
        'Prefecture'].each { |item|
-        record = GeograhpicAreaType.new(name: item)
+        record = GeographicAreaType.new(name: item)
         record.save
       }
     end
