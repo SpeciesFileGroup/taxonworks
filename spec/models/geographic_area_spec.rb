@@ -134,8 +134,11 @@ def read_csv(file)
      'Ward',
      'Prefecture'].each { |item|
 
-      record = GeographicAreaType.new(name: item)
-      record.save
+      area_type = GeographicAreaType.where(name: item)[0]
+      if area_type.nil?
+        at = GeographicAreaType.new(name: item)
+        at.save
+      end
     }
   end
 
