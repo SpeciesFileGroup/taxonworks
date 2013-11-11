@@ -54,4 +54,16 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
   class UmbiguousGenericPlacement < TaxonNameClass::Iczn::Unavailable::NomenNudum
   end
 
+  class ElectronicOnlyPublicationBefore2012 < TaxonNameClass::Iczn::Unavailable::NomenNudum
+  end
+
+  class ElectronicPublicationNotInPdfFormat < TaxonNameClass::Iczn::Unavailable::NomenNudum
+  end
+
+  class ElectronicPublicationWithoutIssnOrIsbn < TaxonNameClass::Iczn::Unavailable::NomenNudum
+  end
+
+  class ElectronicPublicationNotRegisteredInZoobank < TaxonNameClass::Iczn::Unavailable::NomenNudum
+  end
+
 end
