@@ -14,5 +14,21 @@ namespace :tw do
       }
       not_done = true
     end
+    desc 'Generate GeographicAreaType table.'
+    task GenGeoATTable do
+      ['Continent',
+       'Country',
+       'State',
+       'Federal District',
+       'County',
+       'Parrish',
+       'Province',
+       'Ward',
+       'Prefecture'].each { |item|
+        record = GeograhpicAreaType.new(name: item)
+        record.save
+      }
+    end
+
   end
 end
