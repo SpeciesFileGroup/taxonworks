@@ -68,34 +68,50 @@ def read_csv(file)
 
   data = CSV.read(file, options = {headers: true})
 
+  record    = GeographicArea.new
+  area_type = GeographicAreaType.new
   data.each { |row|
-    stuff = {}
-    stuff = row
-    puts stuff
 
-    # record = GeographicArea.new
+    puts row
+
     case file
       when /0/
-        record                      = GeographicArea.new(parent_id:  0,
-                                                         name:       row.field('NAME_ENGLISH'),
-                                                         country_id: row.field('PID'))
-        record.geographic_area_type = GeographicAreaType.where(name: 'Country')[0]
+        record    = GeographicArea.new(parent_id:  0,
+                                       name:       row.field('NAME_ENGLISH'),
+                                       country_id: row.field('PID'))
+        area_type = GeographicAreaType.where(name: 'Country')[0]
+        if area_type.nil?
+          at = GeographicAreaType.new(name: 'Country')
+          at.save
+          area_type = at
+        end
       when /1/
-        record                      = GeographicArea.new(parent_id:  row.field('ID_0'),
-                                                         name:       row.field('NAME_1'),
-                                                         state_id:   row.field('ID_1'),
-                                                         country_id: row.field('ID_0'))
-        record.geographic_area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
+        record    = GeographicArea.new(parent_id:  row.field('ID_0'),
+                                       name:       row.field('NAME_1'),
+                                       state_id:   row.field('ID_1'),
+                                       country_id: row.field('ID_0'))
+        area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
+        if area_type.nil?
+          at = GeographicAreaType.new(name: row.field('TYPE_1'))
+          at.save
+          area_type = at
+        end
       when /2/
-        record                      = GeographicArea.new(parent_id:  row.field('ID_1'),
-                                                         name:       row.field('NAME_2'),
-                                                         state_id:   row.field('ID_1'),
-                                                         country_id: row.field('ID_0'),
-                                                         county_id:  row.field('ID_2'))
-        record.geographic_area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
+        record    = GeographicArea.new(parent_id:  row.field('ID_1'),
+                                       name:       row.field('NAME_2'),
+                                       state_id:   row.field('ID_1'),
+                                       country_id: row.field('ID_0'),
+                                       county_id:  row.field('ID_2'))
+        area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
+        if area_type.nil?
+          at = GeographicAreaType.new(name: row.field('TYPE_2'))
+          at.save
+          area_type = at
+        end
       else
 
     end
+    record.geographic_area_type = area_type
     record.save
   }
 
@@ -105,10 +121,19 @@ def read_csv(file)
      'State',
      'Federal District',
      'County',
+     'Borough',
+     'Census Area',
+     'Municipality',
+     'City and Borough',
+     'City And County',
+     'District',
+     'Water body',
      'Parrish',
+     'Independent City',
      'Province',
      'Ward',
      'Prefecture'].each { |item|
+
       record = GeographicAreaType.new(name: item)
       record.save
     }
