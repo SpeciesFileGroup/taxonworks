@@ -109,7 +109,7 @@ def read_csv(file)
      'Province',
      'Ward',
      'Prefecture'].each { |item|
-      record = GeograhpicAreaType.new(name: item)
+      record = GeographicAreaType.new(name: item)
       record.save
     }
   end
