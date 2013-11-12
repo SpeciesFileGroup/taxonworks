@@ -31,7 +31,7 @@ end
 def read_shape(filename)
 
   RGeo::Shapefile::Reader.open(filename) { |file|
-    puts "File contains #{file.num_records} items."
+    puts "#{filename} contains #{file.num_records} items."
 
     record    = GeographicArea.new
     area_type = GeographicAreaType.new
@@ -74,7 +74,7 @@ def read_shape(filename)
         else
 
       end
-      record.geographic_area_type          = area_type
+      record.geographic_area_type          = area_type[0]
       record.geographic_item               = GeographicItem.new
       record.geographic_item.multi_polygon = item.geometry
       record.save
@@ -82,7 +82,7 @@ def read_shape(filename)
       ess   = (count == 1) ? '' : 's'
       puts "#{item.index + 1}:  #{record.name} (#{record.parent_id}:#{record.state_id} => #{count} polygon#{ess}.)"
     }
-  }
+  } if !(filename =~ /0/)
 
 end
 
