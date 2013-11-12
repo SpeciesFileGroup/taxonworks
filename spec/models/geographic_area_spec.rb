@@ -31,10 +31,15 @@ end
 def read_shape(filename)
 
   RGeo::Shapefile::Reader.open(filename) { |file|
-    puts "#{filename} contains #{file.num_records} items."
+
+    count = file.num_records
+    ess   = (count == 1) ? '' : 's'
+    puts "#{filename} contains #{count} item#{ess}."
 
     record    = GeographicArea.new
     area_type = GeographicAreaType.new
+    id_p = 0
+    id_me = 0
 
     file.each { |item|
       case filename
@@ -48,6 +53,7 @@ def read_shape(filename)
             at.save
             area_type = at
           end
+          id_me = record.country_id
         when /1/
           record    = GeographicArea.new(parent_id:  item[:ID_0],
                                          name:       item[:NAME_1],
@@ -59,6 +65,7 @@ def read_shape(filename)
             at.save
             area_type = at
           end
+          id_me = item[:ID_1]
         when /2/
           record    = GeographicArea.new(parent_id:  item[:ID_1],
                                          name:       item[:NAME_2],
@@ -71,6 +78,7 @@ def read_shape(filename)
             at.save
             area_type = at
           end
+          ip_me = item[:ID_2]
         else
 
       end
@@ -78,9 +86,10 @@ def read_shape(filename)
       record.geographic_item               = GeographicItem.new
       record.geographic_item.multi_polygon = item.geometry
       record.save
+      id_p = record.parent_id
       count = record.geographic_item.multi_polygon.num_geometries
       ess   = (count == 1) ? '' : 's'
-      puts "#{item.index + 1}:  #{record.name} (#{record.parent_id}:#{record.state_id} => #{count} polygon#{ess}.)"
+      puts "#{item.index + 1}:  #{record.name} (#{id_p}:#{id_me} => #{count} polygon#{ess}.)"
     }
   } if !(filename =~ /0/)
 
