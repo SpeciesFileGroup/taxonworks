@@ -1,19 +1,23 @@
 require 'spec_helper'
 
-DoShape = false
-BaseDir = '../shapes/USA_adm/'
+GenTable = true
+DoShape  = true
+BaseDir  = '../shapes/USA_adm/'
 
 describe GeographicArea do
 
   before :all do
-    if DoShape
-      Dir.glob(BaseDir + '*.shp').each { |filename|
-        read_shape(filename)
-      }
-    else
-      Dir.glob(BaseDir + '*.csv').each { |filename|
-        read_csv(filename)
-      }
+    if GenTable
+      build_gat_table
+      if DoShape
+        Dir.glob(BaseDir + '*.shp').each { |filename|
+          read_shape(filename)
+        }
+      else
+        Dir.glob(BaseDir + '*.csv').each { |filename|
+          read_csv(filename)
+        }
+      end
     end
   end
   context 'Shape files' do
@@ -28,29 +32,49 @@ def read_shape(filename)
 
   RGeo::Shapefile::Reader.open(filename) { |file|
     puts "File contains #{file.num_records} items."
+
+    record    = GeographicArea.new
+    area_type = GeographicAreaType.new
+
     file.each { |item|
       case filename
         when /0/
-          record                      = GeorgaphicArea.new(parent_id:  0,
-                                                           name:       item[:NAME_ENGLISH],
-                                                           country_id: item[:PID])
-          record.geographic_area_type = GeographicAreaType.where(name: 'Country')[0]
+          record    = GeorgaphicArea.new(parent_id:  0,
+                                         name:       item[:NAME_ENGLISH],
+                                         country_id: item[:PID])
+          area_type = GeographicAreaType.where(name: 'Country')[0]
+          if area_type.nil?
+            at = GeographicAreaType.new(name: 'Country')
+            at.save
+            area_type = at
+          end
         when /1/
-          record                      = GeographicArea.new(parent_id:  item[:ID_0],
-                                                           name:       item[:NAME_1],
-                                                           state_id:   item[:ID_1],
-                                                           country_id: item[:ID_0])
-          record.geographic_area_type = GeographicAreaType.where(name: item[:TYPE_1])[0]
+          record    = GeographicArea.new(parent_id:  item[:ID_0],
+                                         name:       item[:NAME_1],
+                                         state_id:   item[:ID_1],
+                                         country_id: item[:ID_0])
+          area_type = GeographicAreaType.where(name: item[:TYPE_1])
+          if area_type.nil?
+            at = GeographicAreaType.new(name: item[:TYPE_1])
+            at.save
+            area_type = at
+          end
         when /2/
-          record                      = GeographicArea.new(parent_id:  item[:ID_1],
-                                                           name:       item[:NAME_2],
-                                                           state_id:   item[:ID_1],
-                                                           country_id: item[:ID_0],
-                                                           county_id:  item[:ID_2])
-          record.geographic_area_type = GeographicAreaType.where(name: item[:TYPE_2])[0]
+          record    = GeographicArea.new(parent_id:  item[:ID_1],
+                                         name:       item[:NAME_2],
+                                         state_id:   item[:ID_1],
+                                         country_id: item[:ID_0],
+                                         county_id:  item[:ID_2])
+          area_type = GeographicAreaType.where(name: item[:TYPE_2])
+          if area_type.nil?
+            at = GeographicAreaType.new(name: item[:TYPE_2])
+            at.save
+            area_type = at
+          end
         else
 
       end
+      record.geographic_area_type          = area_type
       record.geographic_item               = GeographicItem.new
       record.geographic_item.multi_polygon = item.geometry
       record.save
@@ -114,32 +138,31 @@ def read_csv(file)
     record.geographic_area_type = area_type
     record.save
   }
+end
 
-  def build_gat_table
-    ['Continent',
-     'Country',
-     'State',
-     'Federal District',
-     'County',
-     'Borough',
-     'Census Area',
-     'Municipality',
-     'City And Borough',
-     'City And County',
-     'District',
-     'Water body',
-     'Parish',
-     'Independent City',
-     'Province',
-     'Ward',
-     'Prefecture'].each { |item|
+def build_gat_table
+  ['Continent',
+   'Country',
+   'State',
+   'Federal District',
+   'County',
+   'Borough',
+   'Census Area',
+   'Municipality',
+   'City And Borough',
+   'City And County',
+   'District',
+   'Water body',
+   'Parish',
+   'Independent City',
+   'Province',
+   'Ward',
+   'Prefecture'].each { |item|
 
-      area_type = GeographicAreaType.where(name: item)[0]
-      if area_type.nil?
-        at = GeographicAreaType.new(name: item)
-        at.save
-      end
-    }
-  end
-
+    area_type = GeographicAreaType.where(name: item)[0]
+    if area_type.nil?
+      at = GeographicAreaType.new(name: item)
+      at.save
+    end
+  }
 end

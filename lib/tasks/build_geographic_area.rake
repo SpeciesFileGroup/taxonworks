@@ -20,17 +20,25 @@ namespace :tw do
        'Country',
        'State',
        'Federal District',
-       'City and Borough',
-       'Municipality',
+       'County',
        'Borough',
        'Census Area',
-       'County',
-       'Parrish',
+       'Municipality',
+       'City And Borough',
+       'City And County',
+       'District',
+       'Water body',
+       'Parish',
+       'Independent City',
        'Province',
        'Ward',
        'Prefecture'].each { |item|
-        record = GeographicAreaType.new(name: item)
-        record.save
+
+        area_type = GeographicAreaType.where(name: item)[0]
+        if area_type.nil?
+          at = GeographicAreaType.new(name: item)
+          at.save
+        end
       }
     end
 
