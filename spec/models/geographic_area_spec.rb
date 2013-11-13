@@ -107,7 +107,7 @@ def read_shape(filename)
       end
       count = record.geographic_item.multi_polygon.num_geometries
       ess   = (count == 1) ? '' : 's'
-      puts "#{item.index + 1}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}.)"
+      puts "#{'% 4d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
     }
   } if !(filename =~ /[0]/)
 
