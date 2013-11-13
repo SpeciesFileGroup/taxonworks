@@ -2,7 +2,7 @@ require 'spec_helper'
 
 GenTable = true
 DoShape  = true
-BaseDir  = '../shapes/USA_adm/'
+BaseDir  = '../shapes/'
 
 describe GeographicArea do
 
@@ -10,16 +10,24 @@ describe GeographicArea do
     if GenTable
       build_gat_table
       if DoShape
-        Dir.glob(BaseDir + '*.shp').each { |filename|
+        # since we are going to have to skip XXX_adm0, we need to build a master records for North America,
+        # the USA by hand
+        mr = GeographicArea.new(name:                 'United States',
+                                country_id:           240,
+                                parent_id:            0,
+                                geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
+        mr.save
+        Dir.glob(BaseDir + '**/*.shp').each { |filename|
           read_shape(filename)
         }
       else
-        Dir.glob(BaseDir + '*.csv').each { |filename|
+        Dir.glob(BaseDir + '**/*.csv').each { |filename|
           read_csv(filename)
         }
       end
     end
   end
+
   context 'Shape files' do
     specify 'that a shapefile can be read.' do
       expect(true).to eq true
@@ -38,8 +46,6 @@ def read_shape(filename)
 
     record    = GeographicArea.new
     area_type = GeographicAreaType.new
-    id_p = 0
-    id_me = 0
 
     file.each { |item|
       case filename
@@ -53,7 +59,6 @@ def read_shape(filename)
             at.save
             area_type = at
           end
-          id_me = record.country_id
         when /1/
           record    = GeographicArea.new(parent_id:  item[:ID_0],
                                          name:       item[:NAME_1],
@@ -65,7 +70,6 @@ def read_shape(filename)
             at.save
             area_type = at
           end
-          id_me = item[:ID_1]
         when /2/
           record    = GeographicArea.new(parent_id:  item[:ID_1],
                                          name:       item[:NAME_2],
@@ -78,7 +82,6 @@ def read_shape(filename)
             at.save
             area_type = at
           end
-          ip_me = item[:ID_2]
         else
 
       end
@@ -86,12 +89,27 @@ def read_shape(filename)
       record.geographic_item               = GeographicItem.new
       record.geographic_item.multi_polygon = item.geometry
       record.save
-      id_p = record.parent_id
+
+      case filename
+        when /0/
+          # when country, find parent continent
+          # parent_record = GeographicArea.where({parent_id: 0, country_id: 0})[0]
+          parent_record =  GeographicArea.new(name: 'North America',
+                                              geographic_area_type: GeographicAreaType.where(name: 'Continent')[0])
+        when /1/
+          # when state, find parent country
+          parent_record = GeographicArea.where({state_id: nil, country_id: record.country_id})[0]
+        when /2/
+          # when county, find parent state
+          parent_record = GeographicArea.where({state_id: record.parent_id})[0]
+        else
+
+      end
       count = record.geographic_item.multi_polygon.num_geometries
       ess   = (count == 1) ? '' : 's'
-      puts "#{item.index + 1}:  #{record.name} (#{id_p}:#{id_me} => #{count} polygon#{ess}.)"
+      puts "#{item.index + 1}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}.)"
     }
-  } if !(filename =~ /0/)
+  } if !(filename =~ /[0]/)
 
 end
 
