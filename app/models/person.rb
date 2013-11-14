@@ -50,6 +50,10 @@ class Person < ActiveRecord::Base
     self.determiner_roles.to_a.length > 0
   end
 
+  def is_taxon_name_author?
+    self.taxon_name_author_roles.to_a.length > 0
+  end
+
   protected
 
   def set_type_if_blank

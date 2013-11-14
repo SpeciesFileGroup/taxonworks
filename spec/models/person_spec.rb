@@ -168,7 +168,17 @@ describe Person do
         @vp.reload
         expect(@vp.is_determiner?).to be_true
       end
-      specify 'is_taxon_name_author?'
+      specify 'is_taxon_name_author?' do
+        taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
+        taxon_name.save
+        @vp.save
+        expect(@vp).to respond_to(:is_taxon_name_author?)
+        expect(@vp.is_taxon_name_author?).to be_false
+        taxon_name.taxon_name_authors << @vp
+        taxon_name.save!
+        @vp.reload
+        expect(@vp.is_taxon_name_author?).to be_true
+      end
       specify 'is_type_designator?'
     end
   end
