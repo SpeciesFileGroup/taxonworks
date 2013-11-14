@@ -157,7 +157,17 @@ describe Person do
         @vp.reload
         expect(@vp.is_collector?).to be_true
       end
-      specify 'is_determiner?'
+      specify 'is_determiner?' do
+        taxon_determination = TaxonDetermination.new
+        taxon_determination.save
+        @vp.save
+        expect(@vp).to respond_to(:is_determiner?)
+        expect(@vp.is_determiner?).to be_false
+        taxon_determination.determiner = @vp
+        taxon_determination.save!
+        @vp.reload
+        expect(@vp.is_determiner?).to be_true
+      end
       specify 'is_taxon_name_author?'
       specify 'is_type_designator?'
     end

@@ -46,6 +46,10 @@ class Person < ActiveRecord::Base
     self.collector_roles.to_a.length > 0
   end
 
+  def is_determiner?
+    self.determiner_roles.to_a.length > 0
+  end
+
   protected
 
   def set_type_if_blank
