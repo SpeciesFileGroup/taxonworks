@@ -54,6 +54,10 @@ class Person < ActiveRecord::Base
     self.taxon_name_author_roles.to_a.length > 0
   end
 
+  def is_type_designator?
+    self.type_designator_roles.to_a.length > 0
+  end
+
   protected
 
   def set_type_if_blank

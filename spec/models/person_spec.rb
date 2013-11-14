@@ -61,7 +61,7 @@ describe Person do
       end
 
       specify 'taxon_determinations' do
-        expect(person).to respond_to(:taxon_determinations)
+        expect(person).to respond_to(:taxon_determinations)    # determinations plural?
       end
 
       specify 'taxon_name_author' do
@@ -179,7 +179,17 @@ describe Person do
         @vp.reload
         expect(@vp.is_taxon_name_author?).to be_true
       end
-      specify 'is_type_designator?'
+      specify 'is_type_designator?' do
+        type_specimen = FactoryGirl.create(:type_specimen)
+        type_specimen.save
+        @vp.save
+        expect(@vp).to respond_to(:is_type_designator?)
+        expect(@vp.is_type_designator?).to be_false
+        type_specimen.type_designators << @vp
+        type_specimen.save!
+        @vp.reload
+        expect(@vp.is_type_designator?).to be_true
+      end
     end
   end
 
