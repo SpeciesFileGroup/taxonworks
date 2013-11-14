@@ -11,13 +11,15 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
   #region soft_validate calls
-  soft_validate(:sv_authors_exist)
+  soft_validate(:sv_has_authors)
   soft_validate(:sv_year_exists)
-  soft_validate(:sv_date_exists, set: :recommended_fields)
+  soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
-  #soft_validate(:no_title, set: :recommended_fields)
+  soft_validate(:sv_has_title, set: :recommended_fields)
+  soft_validate(:sv_has_year, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
-  #soft_validate(:sv_URL_exists, set: :recommended_fields)
+  soft_validate(:sv_has_URL, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_URL
+  soft_validate(:missing_required_bibtex_fields)
   #endregion
 
   #region constants
@@ -163,29 +165,29 @@ class Source::Bibtex < Source
   end
 
   #region Soft_validation_methods
-  def sv_authors_exist
+  def sv_has_authors
     if !(has_authors?)
-      soft_validations.add(:author, 'There is no author associated with this source')
+      soft_validations.add(:author, 'There is no author associated with this source.')
     end
   end
 
   def sv_contains_a_writer # neither author nor editor
     if !has_writer?
-      soft_validations.add(:author, 'There is neither an author,nor editor associated with this source')
-      soft_validations.add(:editor, 'There is neither an author,nor editor associated with this source')
+      soft_validations.add(:author, 'There is neither an author,nor editor associated with this source.')
+      soft_validations.add(:editor, 'There is neither an author,nor editor associated with this source.')
     end
   end
 
-  def no_title
+  def sv_has_title
     if (self.title.blank?)
-      soft_validations.add(:title, 'There is no title associated with this source')
+      soft_validations.add(:title, 'There is no title associated with this source.')
     end
   end
 
-  def sv_date_exists
+  def sv_has_a_date
     if (has_date?)
-      soft_validations.add(:year, 'There is no year or stated year associated with this source')
-      soft_validations.add(:stated_year, 'There is no or stated year year associated with this source')
+      soft_validations.add(:year, 'There is no year or stated year associated with this source.')
+      soft_validations.add(:stated_year, 'There is no or stated year year associated with this source.')
     end
   end
 
@@ -195,85 +197,121 @@ class Source::Bibtex < Source
     end
   end
 
-  def no_journal
-    soft_validations.add(:bibtex_type, 'The source is missing a journal name') if self.journal.blank?
+  def sv_missing_journal
+    soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
   end
 
   def sv_is_article_missing_journal
     if (self.bibtex_type == 'article')
       if (self.journal.blank?)
-        soft_validations.add(:bibtex_type, 'The article is missing a journal name')
+        soft_validations.add(:bibtex_type, 'The article is missing a journal name.')
       end
     end
   end
 
-  def no_publisher
+  def sv_has_a_publisher
     if (self.publisher.blank?)
-      soft_validations.add(:publisher, 'There is no publisher associated with this source')
+      soft_validations.add(:publisher, 'There is no publisher associated with this source.')
     end
   end
 
-  def no_booktitle
+  def sv_has_booktitle
     if (self.booktitle.blank?)
-      soft_validations.add(:booktitle, 'There is no book title associated with this source')
+      soft_validations.add(:booktitle, 'There is no book title associated with this source.')
     end
   end
 
-  def no_included
+  def sv_is_contained_has_chapter_or_pages
     if self.chapter.blank? && self.pages.blank?
-      soft_validations.add(:chapter, 'There is neither a chapter nor pages with this source')
-      soft_validations.add(:pages, 'There is neither a chapter nor pages with this source')
+      soft_validations.add(:chapter, 'There is neither a chapter nor pages with this source.')
+      soft_validations.add(:pages, 'There is neither a chapter nor pages with this source.')
+    end
+  end
+
+  def sv_has_school
+    if (self.school.blank?)
+      soft_validations.add(:school, 'There is no school associated with this thesis.')
+    end
+  end
+
+  def sv_has_institution
+    if (self.institution.blank?)
+      soft_validations.add(:institution, 'There is not institution associated with this  tech report.')
+    end
+  end
+
+  def sv_has_identifier
+    #  TODO write linkage to identifiers (rather than local field save)
+    # we have URL, ISBN, ISSN & LCCN as bibtex fields, but they are also identifiers.
+    # do need to make the linkages to identifiers as well as save in the local field?
+  end
+
+  def sv_has_URL
+    if (self.URL.blank?)
+      soft_validations.add(:URL, 'There is no URL associated with this source.')
     end
   end
 
   def missing_required_bibtex_fields
     case self.bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
-        sv_authors_exist
-        no_title
-        article_missing_journal
+        sv_has_authors
+        sv_has_title
+        sv_is_article_missing_journal
         sv_year_exists
       when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
         sv_contains_a_writer
-        self.no_title
-        self.no_publisher
+        sv_has_title
+        sv_has_a_publisher
         sv_year_exists
       when 'booklet' #    :booklet       => [:title],
-        self.no_title
+        sv_has_title
       when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
-        sv_authors_exist
-        self.no_title
-        self.no_booktitle
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
         sv_year_exists
       when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
         sv_contains_a_writer
-        self.no_title
-        self.no_included
-        self.no_publisher
+        sv_has_title
+        sv_is_contained_has_chapter_or_pages
+        sv_has_a_publisher
         sv_year_exists
       when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
-        sv_authors_exist
-        self.no_title
-        self.no_booktitle
-        self.no_publisher
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
+        sv_has_a_publisher
         sv_year_exists
       when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
-        sv_author_exists
-        no_title
-        no_booktitle
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
         sv_year_exists
       when 'manual' #    :manual        => [:title],
-        self.no_title
+        sv_has_title
       when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
-        sv_authors_exist
-        self.no_title
+        sv_has_authors
+        sv_has_title
+        sv_has_school
+        sv_year_exists
       #    :misc          => [],
       when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_school
+        sv_year_exists
       when 'proceedings' #    :proceedings   => [:title,:year],
+        sv_has_title
+        sv_year_exists
       when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_institution
+        sv_year_exists
       when 'unpublished' #    :unpublished   => [:author,:title,:note]
-        sv_authors_exist
-        no_title
+        sv_has_authors
+        sv_has_title
       #check for note
 
     end
