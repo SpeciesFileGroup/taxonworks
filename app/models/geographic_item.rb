@@ -101,6 +101,9 @@ class GeographicItem < ActiveRecord::Base
     data.delete_if { |key, value| value == [] }
     data
   end
+  def to_geo_json
+    RGeo::GeoJSON.encode(self.object)
+  end
 
   def to_a
     # get our object and return the set of points as an array

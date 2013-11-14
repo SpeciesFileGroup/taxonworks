@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+# Georeference::GeoLocate.new(request: {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'})
+
 describe Georeference::GeoLocate do
 
   let(:geo_locate) { Georeference::GeoLocate.new }

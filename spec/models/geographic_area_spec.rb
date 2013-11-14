@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 GenTable = true
-DoShape  = true
+DoShape  = false
 BaseDir  = '../shapes/'
 
 describe GeographicArea do
@@ -109,7 +109,7 @@ def read_shape(filename)
       ess   = (count == 1) ? '' : 's'
       puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
     }
-  } if !(filename =~ /[01]/)
+  } if !(filename =~ /[0]/)
 
 end
 
@@ -123,7 +123,7 @@ def read_csv(file)
   area_type = GeographicAreaType.new
   data.each { |row|
 
-    puts row
+    # puts row
 
     case file
       when /0/
