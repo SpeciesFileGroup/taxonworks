@@ -4,7 +4,7 @@ namespace :tw do
   namespace :init do
 
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
-    task :build_geographic_areas do
+    task :build_geographic_areas => :environment do
 
       place    = ENV['place']
       # build csv file list from 'place'
@@ -13,7 +13,7 @@ namespace :tw do
       GenTable = true
       # DoShape: set to true to include the reading og the shapes into the GeographicItem table;
       #          Otherwise, only the CSV files are used to populate the GeographicArea table
-      DoShape  = true
+      DoShape  = false
       # BaseDir: where to find the tables to be used
       BaseDir  = '../shapes/'
 
