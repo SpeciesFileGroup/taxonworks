@@ -7,6 +7,7 @@ namespace :tw do
     task :build_geographic_areas => :environment do
 
       place    = ENV['place']
+      shapes   = ENV['shapes']
       # build csv file list from 'place'
 
       # GenTable: set to true to generate the GeographicAreaType table here
@@ -20,19 +21,28 @@ namespace :tw do
       if place.nil?
         base_dir = BaseDir
       else
-        base_dir = place
+        base_dir = place.gsub('\\', '/')
+      end
+
+      if shapes.nil?
+        do_shape = DoShape
+      else
+        do_shape = (shapes == 'true')
       end
 
       if GenTable
         build_gat_table
         # since we are going to have to skip XXX_adm0, we need to build a master records for North America,
         # the USA by hand
-        mr = GeographicArea.new(name:                 'United States',
-                                country_id:           240,
-                                parent_id:            0,
-                                geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
-        mr.save
-        if DoShape
+        mr = GeographicArea.where(name: 'United States')
+        if mr[0].nil?
+          mr = GeographicArea.new(name:                 'United States',
+                                  country_id:           240,
+                                  parent_id:            0,
+                                  geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
+          mr.save
+        end
+        if do_shape
           Dir.glob(base_dir + '**/*.shp').each { |filename|
             read_shape(filename)
           }
@@ -58,8 +68,12 @@ def read_shape(filename)
     area_type = GeographicAreaType.new
 
     file.each { |item|
+      record = nil
+
+      # todo: This processing is *very* specific, and currently only handles the USA_adm shape file case: it must be made to handle a more general case of GADM, and/or TDWG
+
       case filename
-        when /0/
+        when /USA_adm0/
           record    = GeorgaphicArea.new(parent_id:  0,
                                          name:       item[:NAME_ENGLISH],
                                          country_id: item[:PID])
@@ -69,7 +83,7 @@ def read_shape(filename)
             at.save
             area_type = at
           end
-        when /1/
+        when /USA_adm1/
           record    = GeographicArea.new(parent_id:  item[:ID_0],
                                          name:       item[:NAME_1],
                                          state_id:   item[:ID_1],
@@ -80,7 +94,7 @@ def read_shape(filename)
             at.save
             area_type = at
           end
-        when /2/
+        when /USA_adm2/
           record    = GeographicArea.new(parent_id:  item[:ID_1],
                                          name:       item[:NAME_2],
                                          state_id:   item[:ID_1],
@@ -93,31 +107,53 @@ def read_shape(filename)
             area_type = at
           end
         else
-
+=begin
+          record    = GeographicArea.new(parent_id:  item[:ID_1],
+                                         name:       item[:NAME_2],
+                                         state_id:   item[:ID_1],
+                                         country_id: item[:ID_0],
+                                         county_id:  item[:ID_2])
+          area_type = GeographicAreaType.where(name: item[:TYPE_2])
+          if area_type.nil?
+            at = GeographicAreaType.new(name: item[:TYPE_2])
+            at.save
+            area_type = at
+          end
+=end
       end
-      record.geographic_area_type          = area_type[0]
-      record.geographic_item               = GeographicItem.new
-      record.geographic_item.multi_polygon = item.geometry
-      record.save
+      if !(record.nil?)
+        record.geographic_area_type          = area_type[0]
+        record.geographic_item               = GeographicItem.new
+        record.geographic_item.multi_polygon = item.geometry
+        record.save
 
-      case filename
-        when /0/
-          # when country, find parent continent
-          # parent_record = GeographicArea.where({parent_id: 0, country_id: 0})[0]
-          parent_record =  GeographicArea.new(name: 'North America',
-                                              geographic_area_type: GeographicAreaType.where(name: 'Continent')[0])
-        when /1/
-          # when state, find parent country
-          parent_record = GeographicArea.where({state_id: nil, country_id: record.country_id})[0]
-        when /2/
-          # when county, find parent state
-          parent_record = GeographicArea.where({state_id: record.parent_id})[0]
-        else
+        case filename
+          when /USA_adm0/
+            # when country, find parent continent
+            # parent_record = GeographicArea.where({parent_id: 0, country_id: 0})[0]
+            parent_record = GeographicArea.new(name:                 'North America',
+                                               geographic_area_type: GeographicAreaType.where(name: 'Continent')[0])
+          when /USA_adm1/
+            # when state, find parent country
+            parent_record = GeographicArea.where({state_id: nil, country_id: record.country_id})[0]
+          when /USA_adm2/
+            # when county, find parent state
+            parent_record = GeographicArea.where({state_id: record.parent_id})[0]
+          else
 
+        end
+        count = record.geographic_item.multi_polygon.num_geometries
+        ess   = (count == 1) ? '' : 's'
+        puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
+      else
+        count_geo = item.geometry.num_geometries
+        ess       = (count_geo == 1) ? 'y' : 'ies'
+        i1 = item['NAME_1']
+        s1 = (i1.nil?) ? '' : (i1 + ', ')
+        i2 = item['NAME_2']
+        s2 = (i2.nil?) ? '' : (i2 + ', ')
+        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} of #{count} items (#{count_geo} geometr#{ess}) is called #{s2}#{s1}#{item['NAME_0']}."
       end
-      count = record.geographic_item.multi_polygon.num_geometries
-      ess   = (count == 1) ? '' : 's'
-      puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
     }
   } if !(filename =~ /[0]/)
 
@@ -136,7 +172,7 @@ def read_csv(file)
     puts row
 
     case file
-      when /0/
+      when /USA_adm0/
         record    = GeographicArea.new(parent_id:  0,
                                        name:       row.field('NAME_ENGLISH'),
                                        country_id: row.field('PID'))
@@ -146,7 +182,7 @@ def read_csv(file)
           at.save
           area_type = at
         end
-      when /1/
+      when /USA_adm1/
         record    = GeographicArea.new(parent_id:  row.field('ID_0'),
                                        name:       row.field('NAME_1'),
                                        state_id:   row.field('ID_1'),
@@ -157,7 +193,7 @@ def read_csv(file)
           at.save
           area_type = at
         end
-      when /2/
+      when /USA_adm2/
         record    = GeographicArea.new(parent_id:  row.field('ID_1'),
                                        name:       row.field('NAME_2'),
                                        state_id:   row.field('ID_1'),
