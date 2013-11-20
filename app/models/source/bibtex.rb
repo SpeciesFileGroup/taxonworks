@@ -1,6 +1,6 @@
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
 #
-# @abstract Subclass of Source that represents most references.
+# Bibtex - Subclass of Source that represents most references.
 #
 #   Taxonworks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies, and has a strict
 #   list of required fields. TW itself only requires that :bibtex_type be valid and that
@@ -9,22 +9,82 @@
 #   be added to a BibTeX bibliography.
 #
 class Source::Bibtex < Source
-   include SoftValidation
-# @!attribute id
-#   @return [Integer] the unique identifier of this record in the Source table.
-#   @return [nil] means the record does not exist in the database.
+  include SoftValidation
+  # @!group Ruby standard attributes & our added housekeeping fields
+  # @!attribute id
+  #   @return [Fixnum] the unique identifier of this record in the Source table.
+  #   @return [nil] means the record does not exist in the database.
+  #
+  # @!attribute serial_id
+  #   @note not yet implemented!
+  #   @return [Fixnum] the unique identifier of the serial record in the Serial? table.
+  #   @return [nil] means the record does not exist in the database.
+  #
+  # @!endgroup
+  #
+  # @!group TW needed attributes
+  # @!endgroup
+  #
+  # @!group BibTeX attributes (based on BibTeX fields)
+  # @!endgroup
+  #
+# @!attribute address
 #
-# @!attribute serial_id
-#   @note not yet implemented!
-#   @return [Integer] the unique identifier of the serial record in the Serial? table.
-#   @return [nil] means the record does not exist in the database.
+# @!attribute annote
+# @!attribute author
+# @!attribute booktitle
+# @!attribute chapter
+# @!attribute crossref
+# @!attribute edition
+# @!attribute editor
+# @!attribute howpublished
+# @!attribute institution
+# @!attribute journal
+# @!attribute key
+# @!attribute month
+# @!attribute note
+# @!attribute number
+# @!attribute organization
+# @!attribute pages
+# @!attribute publisher
+# @!attribute school
+# @!attribute series
+# @!attribute title
+# @!attribute type
+# @!attribute volume
+# @!attribute year
+# @!attribute URL
+# @!attribute ISBN
+# @!attribute ISSN
+# @!attribute LCCN
+# @!attribute abstract
+# @!attribute keywords
+# @!attribute price
+# @!attribute copyright
+# @!attribute language
+# @!attribute contents
+# @!attribute stated_year
+# @!attribute verbatim
+# @!attribute cached
+# @!attribute cached_author_year
+# @!attribute created_at
+# @!attribute created_by - not yet implemented
+# @!attribute updated_at
+# @!attribute updated_by - not yet implemented
+# @!attribute bibtex_type
 #
+  # @!group associations
+  # @!endgroup
+  # @!group identifiers
+  # @!endgroup
+
 
   before_validation :check_bibtex_type, :check_has_field
 
   #TODO add linkage to serials ==> belongs_to serial
   #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
-
+  # @associations  authors
+  #   linkage to author roles
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person
   # self.author & self.authors should match or one of them should be empty
@@ -38,7 +98,7 @@ class Source::Bibtex < Source
   soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_has_year, set: :recommended_fields)
+  soft_validate(:sv_has_date, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_URL, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_URL
   soft_validate(:missing_required_bibtex_fields)
