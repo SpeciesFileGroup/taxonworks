@@ -3,4 +3,6 @@ class TaxonNameClassification < ActiveRecord::Base
 
   validates_presence_of  :taxon_name_id, :type
 
+
+
 end
