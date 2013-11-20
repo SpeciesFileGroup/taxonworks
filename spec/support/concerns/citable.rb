@@ -1,15 +1,24 @@
-shared_examples "citable" do
+# CITABLE SPEC
 
-  let(:class_with_citations) {described_class.new()}
+shared_examples 'citable' do
 
-  context "reflections / foreign keys" do
-    specify "has many citations" do
-      expect(class_with_citations).to respond_to(:citations)
+  # let(:class_with_citations) {described_class.new()}
+ # let(:class_with_citations) {FactoryGirl.build("valid_#{described_class.name.underscore}".to_sym)}
+  let(:class_with_citations) {FactoryGirl.build(:valid_taxon_name)}
+
+  context 'associations' do
+    specify 'has many citations - includes creating a citation' do
+      expect(class_with_citations).to respond_to(:citations) # tests that the method citations exists
+      expect(class_with_citations.citations.to_a).to eq([]) # there are no citations yet.
+      # create some citations
+      expect(class_with_citations.citations << Citation.new(source: FactoryGirl.build(:valid_bibtex_source)) ).to be_true
+      expect(class_with_citations.citations).to have(1).things
+      expect(class_with_citations.save).to be_true
     end
   end
 
-  context "methods" do
-    specify "cited?" do
+  context 'methods' do
+    specify 'cited?' do
       expect(class_with_citations.cited?).to eq(false)
     end
 
