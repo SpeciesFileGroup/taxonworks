@@ -19,9 +19,24 @@ describe TaxonNameClassification do
       specify "type" do
         expect(taxon_name_classification.errors.include?(:type)).to be_true
       end
+    end
 
+  end
+
+  context "validate type" do
+    specify "invalid type" do
+      taxon_name_classification.type = 'aaa'
+      taxon_name_classification.valid?
+      expect(taxon_name_classification.errors.include?(:type)).to be_true
+    end
+    specify "invalid type" do
+      taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum
+      taxon_name_classification.valid?
+      expect(taxon_name_classification.errors.include?(:type)).to be_false
     end
   end
+
+
 end
  
 
