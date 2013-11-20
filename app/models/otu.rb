@@ -1,7 +1,7 @@
 class Otu < ActiveRecord::Base
 
   include Shared::Identifiable
-  include Shared::Citable        # ?
+  # include Shared::Citable        # TODO: have to think hard about this vs. using Nico's framework
 
   has_many :taxon_determinations
 
