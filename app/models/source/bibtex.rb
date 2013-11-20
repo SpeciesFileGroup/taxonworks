@@ -98,7 +98,7 @@ class Source::Bibtex < Source
   soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_has_date, set: :recommended_fields)
+  soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_URL, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_URL
   soft_validate(:missing_required_bibtex_fields)
