@@ -149,10 +149,10 @@ def read_shape(filename)
         count_geo = item.geometry.num_geometries
         ess       = (count_geo == 1) ? 'y' : 'ies'
         i1 = item['NAME_1']
-        s1 = (i1.nil?) ? '' : (i1 + ', ')
+        s1 = i1.nil? ? '' : (i1 + '(1) ')
         i2 = item['NAME_2']
-        s2 = (i2.nil?) ? '' : (i2 + ', ')
-        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} of #{count} items (#{count_geo} geometr#{ess}) is called #{s2}#{s1}#{item['NAME_0']}."
+        s2 = i2.nil? ? '' : (i2 + '(2) ')
+        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called #{s2}#{s1}#{item['NAME_0']}."
       end
     }
   } if !(filename =~ /[0]/)
