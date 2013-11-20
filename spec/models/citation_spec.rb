@@ -17,7 +17,7 @@ describe Citation do
   end
 
   context 'validations' do
-    # check for all required fields.
+    # check for all required fields (:citation_object_id, :citation_object_type, :source_id).
   end
 
   context 'concerns' do

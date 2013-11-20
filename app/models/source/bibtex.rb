@@ -1,16 +1,39 @@
-# self.author & self.authors should match or one of them should be empty
+# @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
+# @author Matt Yoder <>
 
 class Source::Bibtex < Source
 
+# @abstract Subclass of Source that represents most references.
+#
+#   Taxonworks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies, and has a strict
+#   list of required fields. TW itself only requires that :bibtex_type be valid and that
+#   one of the attributes in TW_REQ_FIELDS be defined.
+#   This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex objects can
+#   be added to a BibTeX bibliography.
+#
+# @!attribute id
+#   @return [Integer] the unique identifier of this record in the Source table.
+#   @return [nil] means the record does not exist in the database.
+#
+# @!attribute serial_id
+#   @note not yet implemented!
+#   @return [Integer] the unique identifier of the serial record in the Serial? table.
+#   @return [nil] means the record does not exist in the database.
+#
+
   before_validation :check_bibtex_type, :check_has_field
-  #TODO: :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+
+  #TODO add linkage to serials ==> belongs_to serial
+  #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person
+  # self.author & self.authors should match or one of them should be empty
+  # ditto for self.editor & self.editors
   has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
-  #region soft_validate calls
+                                                       #region soft_validate calls
   soft_validate(:sv_has_authors)
   soft_validate(:sv_year_exists)
   soft_validate(:sv_has_a_date, set: :recommended_fields)
@@ -20,10 +43,10 @@ class Source::Bibtex < Source
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_URL, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_URL
   soft_validate(:missing_required_bibtex_fields)
-  #endregion
+                                                       #endregion
 
-  #region constants
-  # TW required fields (must have one of these fields filled in)
+                                                       #region constants
+                                                       # TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
       :author,
       :editor,
@@ -34,7 +57,7 @@ class Source::Bibtex < Source
       :year,
       :stated_year
   ]
-  #endregion
+                                                       #endregion
 
   def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
@@ -141,7 +164,7 @@ class Source::Bibtex < Source
   #TODO write has_note?
   #TODO write has_identifiers?
 
-#endregion
+  #endregion
 
   protected
 
