@@ -102,7 +102,7 @@ class GeographicItem < ActiveRecord::Base
     data
   end
   def to_geo_json
-    RGeo::GeoJSON.encode(self.object)
+    RGeo::GeoJSON.encode(self.object).to_json
   end
 
   def to_a

@@ -8,6 +8,10 @@ namespace :tw do
 
       place    = ENV['place']
       shapes   = ENV['shapes']
+
+      # index is only expected to work for the GADM V2 shape file set: intended as a short-cut to a problem record.
+      index = ENV['index']
+
       # build csv file list from 'place'
 
       # GenTable: set to true to generate the GeographicAreaType table here
@@ -30,6 +34,8 @@ namespace :tw do
         do_shape = (shapes == 'true')
       end
 
+      index = index.nil? ? 0 : index.to_i
+
       if GenTable
         build_gat_table
         # since we are going to have to skip XXX_adm0, we need to build a master records for North America,
@@ -44,7 +50,7 @@ namespace :tw do
         end
         if do_shape
           Dir.glob(base_dir + '**/*.shp').each { |filename|
-            read_shape(filename)
+            read_shape(filename, index)
           }
         else
           Dir.glob(base_dir + '**/*.csv').each { |filename|
@@ -56,10 +62,11 @@ namespace :tw do
   end
 end
 
-def read_shape(filename)
+def read_shape(filename, index)
 
   RGeo::Shapefile::Reader.open(filename) { |file|
 
+    file.seek_index(index)
     count = file.num_records
     ess   = (count == 1) ? '' : 's'
     puts "#{filename} contains #{count} item#{ess}."
@@ -146,6 +153,7 @@ def read_shape(filename)
         ess   = (count == 1) ? '' : 's'
         puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
       else
+        # this processing is specifically for GADM2
         count_geo = item.geometry.num_geometries
         ess       = (count_geo == 1) ? 'y' : 'ies'
         i5 = item['NAME_5']

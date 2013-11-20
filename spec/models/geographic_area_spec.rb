@@ -2,6 +2,12 @@ require 'spec_helper'
 
 BaseDir = '../shapes/'
 
+# TODO: RGeo Shapefile processing: Conversations about the following issues:
+# TODO:   Use of PID from the USA or GADM shape files: include it in the GeographicArea model?
+# TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
+# TODO:   Our TDWG shape files are *not* in the form readable by RGeo::Shapefile::Reader, because they lack the attending index and attribute files.  The question becomes "Do we write a reader in Ruby, or is there a better (perhaps existing) choice?"
+# TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
+
 describe GeographicArea do
 
   before :all do
