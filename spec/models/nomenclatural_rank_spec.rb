@@ -23,7 +23,7 @@ describe NomenclaturalRank do
     end
 
     specify "common?" do
-      expect(NomenclaturalRank).to respond_to(:common?)
+      expect(NomenclaturalRank).to respond_to(:common)
     end
 
     specify "parent_rank" do

@@ -67,13 +67,4 @@ class NomenclaturalRank
     nil
   end
 
-  def self.common?
-    self::COMMON
-  end
-
-  # TODO: Think about this?
-  # def year_of_applicability?
-  #   nil
-  # end
-
 end
