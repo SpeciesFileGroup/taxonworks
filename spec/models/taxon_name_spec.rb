@@ -295,5 +295,4 @@ describe TaxonName do
     it_behaves_like 'identifiable'
     it_behaves_like 'citable'
   end
-
 end

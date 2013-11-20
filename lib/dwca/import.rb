@@ -134,7 +134,7 @@ module Dwca::Import
 
     collecting_event: {
       'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=,            out: :verbatim_method},
-      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: nil,                          out: nil},   
+      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: nil,                          out: nil},  # out: date_range 
       'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=,              out: :habitat},
       'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality=,          out: :verbatim_locality},
       'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: nil,                          out: :elevation},

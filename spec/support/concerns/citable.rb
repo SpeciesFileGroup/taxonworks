@@ -1,10 +1,6 @@
-# CITABLE SPEC
-
 shared_examples 'citable' do
-
-  # let(:class_with_citations) {described_class.new()}
- # let(:class_with_citations) {FactoryGirl.build("valid_#{described_class.name.underscore}".to_sym)}
-  let(:class_with_citations) {FactoryGirl.build(:valid_taxon_name)}
+  
+  let(:class_with_citations) {FactoryGirl.build("valid_#{described_class.name.underscore}".to_sym)}
 
   context 'associations' do
     specify 'has many citations - includes creating a citation' do
