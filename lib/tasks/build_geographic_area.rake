@@ -148,11 +148,17 @@ def read_shape(filename)
       else
         count_geo = item.geometry.num_geometries
         ess       = (count_geo == 1) ? 'y' : 'ies'
-        i1 = item['NAME_1']
-        s1 = i1.nil? ? '' : (i1 + '(1) ')
+        i5 = item['NAME_5']
+        s5 = i5.empty? ? '' : (i5 + ', ')
+        i4 = item['NAME_4']
+        s4 = i4.empty? ? '' : (i4 + ', ')
+        i3 = item['NAME_3']
+        s3 = i3.empty? ? '' : (i3 + ', ')
         i2 = item['NAME_2']
-        s2 = i2.nil? ? '' : (i2 + '(2) ')
-        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called #{s2}#{s1}#{item['NAME_0']}."
+        s2 = i2.empty? ? '' : (i2 + ', ')
+        i1 = item['NAME_1']
+        s1 = i1.empty? ? '' : (i1 + ', ')
+        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
       end
     }
   } if !(filename =~ /[0]/)
@@ -222,6 +228,7 @@ def build_gat_table
    'Borough',
    'Census Area',
    'Municipality',
+   'Municipality/Municipal Council',
    'City And Borough',
    'City And County',
    'District',
@@ -230,7 +237,9 @@ def build_gat_table
    'Independent City',
    'Province',
    'Ward',
-   'Prefecture'].each { |item|
+   'Prefecture',
+  'Unknown',
+  'Shire'].each { |item|
 
     area_type = GeographicAreaType.where(name: item)[0]
     if area_type.nil?
