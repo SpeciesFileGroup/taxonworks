@@ -139,6 +139,7 @@ class Source::Bibtex < Source
   end
 
   #TODO write has_note?
+  #TODO write has_identifiers?
 
 #endregion
 
@@ -252,6 +253,14 @@ class Source::Bibtex < Source
     end
   end
 
+  def sv_has_note
+    # TODO we may need to check of a note in the TW sense as well - has_note? above.
+    if (self.note.blank?)
+      soft_validations.add(:note, 'There is no note associated with this source.')
+    end
+
+  end
+
   def missing_required_bibtex_fields
     case self.bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
@@ -295,7 +304,7 @@ class Source::Bibtex < Source
         sv_has_title
         sv_has_school
         sv_year_exists
-      #    :misc          => [],
+      #    :misc          => [],  (no required fields)
       when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
         sv_has_authors
         sv_has_title
@@ -312,7 +321,7 @@ class Source::Bibtex < Source
       when 'unpublished' #    :unpublished   => [:author,:title,:note]
         sv_has_authors
         sv_has_title
-      #check for note
+        sv_has_note
 
     end
 
