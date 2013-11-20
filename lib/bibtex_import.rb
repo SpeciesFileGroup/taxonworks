@@ -15,13 +15,31 @@ class BibtexImport
 # this returns BibTex-ruby bibliography hash
   end
 
-  # Move the BibTeX records into TaxonWorks records
+  # Move the BibTeX bibliography into TaxonWorks records
   # @note Not yet implemented!
-  def bibtex2tw
+  # @param input_bibliography [BibTeX::Bibliography] the set of BibTeX records to be converted to TW records.
+  # @return [Array<Source::Bibtex>] a set of TW Source::Bibtex records (records may or may not exist in the database.)
+  def bibtex_biblio_2_tw(input_bibliography)
     # input BibTeX-ruby bibliography (hash)
     # output TaxonWorks source records (hash?, array?)
   end
 
-  # Save a TaxonWorks record
+  # Save a BibTeX::Entry object as a Source::Bibtex record
+  # @note Not yet implemented
+  # @param bibtex_entry [BibTeX::Entry] bibtex object to be converted and saved to the database
+  # @param tw_entry [Source::Bibtex] will be overwritten with a new Source::Bibtex.
+  # @return [Boolean] True if successfully saved to the database; False if not saved.
+  def save_bibtex_entry_as_tw(bibtex_entry, tw_entry)
+    # Save a TaxonWorks record
+  end
+
+  # Create a Source::Bibtex object from a BibTeX::Entry object
+  # @note Note yet implemented
+  # @param bibtex_entry [BibTeX::Entry] bibtex object to be converted
+  # @return [Source::Bibtex] a TW bibtex source object (which may or may not be valid.)
+  def create_tw_source_from_bibtex(bibtex_entry)
+    #return Source::Bibtex
+  end
+
   # SourceClass function should write to db
 end
