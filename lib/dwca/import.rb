@@ -111,37 +111,37 @@ module Dwca::Import
     taxon_name: {
       'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
       'http://rs.tdwg.org/dwc/terms/taxonID'                  => {in: :dwc_parse_taxon_id, out: :id},
-      'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/kingdom'                  => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/phylum'                   => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/class'                    => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/order'                    => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/family'                   => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/genus'                    => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/subgenus'                 => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/specificEpithet'          => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/infraspecificEpithet'     => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/scientificName'           => {in: nil, out: nil},
-      'http://rs.tdwg.org/dwc/terms/nomenclaturalCode'        => {in: nil, out: :iczn_code?}
+      'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/kingdom'                  => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/phylum'                   => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/class'                    => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/order'                    => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/family'                   => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/genus'                    => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/subgenus'                 => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/specificEpithet'          => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/infraspecificEpithet'     => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/scientificName'           => {in: nil,                 out: nil},
+      'http://rs.tdwg.org/dwc/terms/nomenclaturalCode'        => {in: nil,                 out: :iczn_code?}
     },
 
     collection_object: { 
-      'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil, out: nil},               # Who owns it
-      'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil, out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
+      'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil,     out: nil},             # Who owns it
+      'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil,     out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
       'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total=, out: :total},
     },
 
     collecting_event: {
-      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=, out: :verbatim_method},
-      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: :dwc_parse_EventDate, out: :verbatim_method},   
-      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=, out: :habitat},
-      'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality, out: :verbatim_locality},
-      'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: :dwc_parse_verbatimElevation, out: :elevation},
-      'http://rs.tdwg.org/dwc/terms/country'           => {in: nil, out: :country},
-      'http://rs.tdwg.org/dwc/terms/stateProvince'     => {in: nil, out: :state},
-      'http://rs.tdwg.org/dwc/terms/county'            => {in: nil, out: :county},
-      'http://rs.tdwg.org/dwc/terms/waterBody'         => {in: nil, out: :water_body}                                    
+      'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=,            out: :verbatim_method},
+      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: nil,                          out: nil},   
+      'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=,              out: :habitat},
+      'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality=,          out: :verbatim_locality},
+      'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: nil,                          out: :elevation},
+      'http://rs.tdwg.org/dwc/terms/country'           => {in: nil,                          out: :country},
+      'http://rs.tdwg.org/dwc/terms/stateProvince'     => {in: nil,                          out: :state},
+      'http://rs.tdwg.org/dwc/terms/county'            => {in: nil,                          out: :county},
+      'http://rs.tdwg.org/dwc/terms/waterBody'         => {in: nil,                          out: :water_body}                                    
     },
 
     georeference: {  
@@ -152,7 +152,7 @@ module Dwca::Import
 
     biocuration_classification: {
       'http://rs.tdwg.org/dwc/terms/lifeStage' => {in: :dwc_parse_life_stage, out: nil},
-      'http://rs.tdwg.org/dwc/terms/sex'       => {in: :dwc_parse_sex, out: :sex},
+      'http://rs.tdwg.org/dwc/terms/sex'       => {in: :dwc_parse_sex,        out: :sex},
     },
 
     identifier: {
@@ -160,7 +160,7 @@ module Dwca::Import
     },
 
     taxon_determination: {
-      'http://rs.tdwg.org/dwc/terms/identifiedBy'   => {in: :dwc_parse_identifiedBy, out: :identified_by},
+      'http://rs.tdwg.org/dwc/terms/identifiedBy'   => {in: :dwc_parse_identifiedBy,   out: :identified_by},
       'http://rs.tdwg.org/dwc/terms/dateIdentified' => {in: :dwc_parse_dateIdentified, out: :date_identified}
     },
 
@@ -169,7 +169,7 @@ module Dwca::Import
     },
   }
 
-class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows );
+class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows);
 end
 
 end

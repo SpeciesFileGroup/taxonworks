@@ -25,6 +25,23 @@ describe 'SoftValidation' do
         expect(Softy.soft_validation_methods[:cheezy]).to eq([:needs_moar_cheez?])
       end
     end
+
+    context 'soft_validations between classes' do
+      before(:all) {
+        Softy.soft_validation_methods = {all: []}
+        OtherSofty.soft_validation_methods = {all: []}
+      }
+
+      specify 'methods assigned to one class are not available to another' do
+        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_true
+        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+        expect(OtherSofty.soft_validation_methods[:all]).to eq([])
+        expect(OtherSofty.soft_validate(:foo)).to be_true
+        expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
+        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+      end
+
+    end
   end
 
   context 'instance methods' do
@@ -87,7 +104,6 @@ describe 'SoftValidation' do
   end
 end
 
-
 describe 'SoftValidations' do
   let(:soft_validations) {SoftValidation::SoftValidations.new(Softy.new)}
 
@@ -134,7 +150,6 @@ describe 'SoftValidations' do
   specify 'messages_on' do
     expect(soft_validations).to respond_to(:messages)
   end
-
 end
 
 describe 'SoftValidation' do
@@ -175,6 +190,8 @@ describe 'SoftValidation' do
 
 end
 
+#
+
 
 # Stub class for testing.  Mimics only
 # the ActiveRecord Model methods we need to test.
@@ -187,6 +204,7 @@ class Softy
 
   # These are called in the tests 
   # soft_validate :has_cheezburgers?
+
 
   $hungry = true
   def haz_cheezburgers?
@@ -202,4 +220,14 @@ class Softy
     true
   end 
 end
+
+# Stub class for testing, used to ensure that soft validation
+# methods are specific to a class
+class OtherSofty < Softy
+  # soft_validate(:bar)
+  def self.column_names
+    ['lezz']
+  end 
+end
+
 

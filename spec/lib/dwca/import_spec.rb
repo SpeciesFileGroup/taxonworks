@@ -72,10 +72,14 @@ describe Dwca::Import do
     end
 
     specify 'build_row_objects' do
-      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object])).to be_true
+      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object, :collecting_event])).to be_true
       expect(result[:otu].name).to eq('Stenacron carolina (Banks 1914)')
       expect(result[:collection_object].total).to eq(3)
-    end
+      expect(result[:collecting_event].verbatim_method).to eq(nil)
 
+      expect(result[:collecting_event].start_date_year).to eq('1994')
+      expect(result[:collecting_event].start_date_month).to eq('4')
+      expect(result[:collecting_event].start_date_day).to eq('21')
+    end
   end
 end

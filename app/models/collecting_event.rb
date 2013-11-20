@@ -10,7 +10,6 @@ class CollectingEvent < ActiveRecord::Base
   has_many :collectors, through: :collector_roles, source: :person
 
   # validate :minimal_data_is_provided
-
   # protected
 
 =begin

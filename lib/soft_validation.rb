@@ -11,6 +11,7 @@
 # Usage:
 #
 #   class Foo < ActiveRecord::Base
+#     include SoftValidation
 #     soft_validate(:a_soft_validation_method )
 #
 #     # Validations can be assigned to a set (only one), and validations in a set
@@ -222,6 +223,7 @@ module SoftValidation
   included do
     attr_accessor :soft_validation_result
     class_attribute :soft_validation_methods, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
+    # @soft_validation_methods = {all: []} 
     self.soft_validation_methods = {all: []} 
   end
 
@@ -296,8 +298,9 @@ module SoftValidation
 
 end
 
-class ActiveRecord::Base
-  include SoftValidation
-end
+# Original version was an AR extension, might revert to this at some point.
+# class ActiveRecord::Base
+#   include SoftValidation
+# end
 
 

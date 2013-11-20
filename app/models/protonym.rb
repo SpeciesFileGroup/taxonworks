@@ -1,5 +1,6 @@
 class Protonym < TaxonName 
 
+
   has_many :taxon_name_classifications
 
   alias_method :original_combination_source, :source
@@ -8,6 +9,7 @@ class Protonym < TaxonName
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
 
+  include SoftValidation
   soft_validate(:sv_missing_fields )
   soft_validate(:sv_missing_relationships)
 

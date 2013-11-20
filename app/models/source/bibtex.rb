@@ -1,6 +1,7 @@
 # self.author & self.authors should match or one of them should be empty
 
 class Source::Bibtex < Source
+   include SoftValidation
 
   before_validation :check_bibtex_type, :check_has_field
   #TODO: :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
