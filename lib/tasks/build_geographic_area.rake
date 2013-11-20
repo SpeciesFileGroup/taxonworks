@@ -154,7 +154,13 @@ def read_shape(filename, index)
         puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
       else
         # this processing is specifically for GADM2
-        count_geo = item.geometry.num_geometries
+        if item.geometry.nil?
+          item_type = 'Unk. geometry'
+          count_geo = 0
+        else
+          item_type = item.geometry.geometry_type
+          count_geo = item.geometry.num_geometries
+        end
         ess       = (count_geo == 1) ? 'y' : 'ies'
         i5 = item['NAME_5']
         s5 = i5.empty? ? '' : (i5 + ', ')
@@ -166,7 +172,7 @@ def read_shape(filename, index)
         s2 = i2.empty? ? '' : (i2 + ', ')
         i1 = item['NAME_1']
         s1 = i1.empty? ? '' : (i1 + ', ')
-        puts "#{item.geometry.geometry_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
+        puts "#{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
       end
     }
   } if !(filename =~ /[0]/)
