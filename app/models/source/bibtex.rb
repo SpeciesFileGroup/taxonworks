@@ -1,9 +1,5 @@
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
-# @author Matt Yoder <>
-
-class Source::Bibtex < Source
-   include SoftValidation
-
+#
 # @abstract Subclass of Source that represents most references.
 #
 #   Taxonworks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies, and has a strict
@@ -12,6 +8,8 @@ class Source::Bibtex < Source
 #   This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex objects can
 #   be added to a BibTeX bibliography.
 #
+class Source::Bibtex < Source
+   include SoftValidation
 # @!attribute id
 #   @return [Integer] the unique identifier of this record in the Source table.
 #   @return [nil] means the record does not exist in the database.
