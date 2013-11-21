@@ -1,3 +1,5 @@
+#test
+
 class TaxonName < ActiveRecord::Base
 
   include Shared::Identifiable
@@ -11,6 +13,10 @@ class TaxonName < ActiveRecord::Base
 
   has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor', as: :role_object
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+
+  include SoftValidation
+  soft_validate(:sv_missing_fields)
+  soft_validate(:sv_missing_relationships)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -75,6 +81,8 @@ class TaxonName < ActiveRecord::Base
     self.type = 'Protonym' if self.type.nil?
   end
 
+  #region Set cached fields
+
   def set_cached_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
     if !GENUS_AND_SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
@@ -111,22 +119,22 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_author_year
     if self.rank.nil?
-      ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(', ')
+      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
     else
       rank = Object.const_get(self.rank_class.to_s)
       if rank.nomenclatural_code == :iczn
-        ay = ([self.verbatim_author.to_s] + [self.year_of_publication.to_s]).compact.join(', ')
+        ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
         if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
           if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.to_s.empty?
             ay = '(' + ay + ')' unless ay.empty?
           end
        end
       elsif rank.nomenclatural_code == :icn
-        t = [self.verbatim_author.to_s]
+        t = [self.verbatim_author]
         t += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
         ay = t.compact.join(' ')
       else
-        ay = ([self.verbatim_author.to_s] + [self.year_of_publication]).compact.join(' ')
+        ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(' ')
       end
     end
     self.cached_author_year = ay
@@ -137,6 +145,10 @@ class TaxonName < ActiveRecord::Base
     hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
+
+  #endregion
+
+   #region Validation
 
   def validate_parent_rank_is_higher
     return true if self.parent.nil? || self.parent.rank_class == NomenclaturalRank
@@ -162,6 +174,25 @@ class TaxonName < ActiveRecord::Base
       self.rank_class.validate_name_format(self)
     end
   end
+
+  #endregion
+
+  #region Soft validation
+
+  def sv_missing_fields
+    soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
+    soft_validations.add(:verbatim_author, 'Author is missing') if self.verbatim_author.blank?
+    soft_validations.add(:year_of_publication, 'Year is missing') if self.year_of_publication.nil?
+  end
+
+  def sv_missing_relationships
+    if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
+    end
+  end
+
+  #endregion
+
 end
 
 
