@@ -1,5 +1,9 @@
 # INIT tasks for RGeo, PostGIS, shape files (GADM and TDWG)
 
+# TODO: Problems with GADM V2
+#    nnnnn: Not a valid geometry.
+#   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
+
 namespace :tw do
   namespace :init do
 
