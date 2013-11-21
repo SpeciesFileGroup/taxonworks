@@ -1,9 +1,7 @@
 class BiologicalAssociationsGraph < ActiveRecord::Base
 
-  include Shared::Citable
+  # include Shared::Citable
 
   has_many :biological_associations
-
-  
 
 end

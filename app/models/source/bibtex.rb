@@ -2,20 +2,20 @@
 #
 # Bibtex - Subclass of Source that represents most references.
 #
-#   Taxonworks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies, and has a strict
-#   list of required fields. TW itself only requires that :bibtex_type be valid and that
-#   one of the attributes in TW_REQ_FIELDS be defined.
-#   This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex objects can
-#   be added to a BibTeX bibliography.
+#   TaxonWorks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies,
+#     and has a strict list of required fields. TW itself only requires that :bibtex_type
+#     be valid and that one of the attributes in TW_REQ_FIELDS be defined.
+#     This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
+#     objects can be added to a BibTeX bibliography.
 #
 class Source::Bibtex < Source
   include SoftValidation
   # @!group Ruby standard attributes & our added housekeeping fields
-  # @!attribute id
+  # @!attribute id [Fixnum]
   #   @return [Fixnum] the unique identifier of this record in the Source table.
   #   @return [nil] means the record does not exist in the database.
   #
-  # @!attribute serial_id
+  # @!attribute serial_id [Fixnum]
   #   @note not yet implemented!
   #   @return [Fixnum] the unique identifier of the serial record in the Serial? table.
   #   @return [nil] means the record does not exist in the database.
@@ -98,7 +98,7 @@ class Source::Bibtex < Source
   soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_has_date, set: :recommended_fields)
+  soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_URL, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_URL
   soft_validate(:missing_required_bibtex_fields)

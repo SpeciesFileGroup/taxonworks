@@ -48,6 +48,6 @@ describe Otu do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+   #  it_behaves_like 'citable' # - maybe.
   end
 end

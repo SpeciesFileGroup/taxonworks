@@ -19,9 +19,6 @@ describe BiologicalProperty do
       specify "definition" do
         expect(biological_property.errors.include?(:name)).to be_true
       end
-
     end
-
-
   end
 end
