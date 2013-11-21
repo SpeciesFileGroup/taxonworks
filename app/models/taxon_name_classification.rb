@@ -27,8 +27,9 @@ class TaxonNameClassification < ActiveRecord::Base
   #region Soft validation
 
   def sv_proper_classification
-    if TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
-      t = self.type.constantize
+    t = self.type.to_s
+    if TAXON_NAME_CLASS_NAMES.include?(t)
+      t = t.constantize
       if !t.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
         soft_validation.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
       end

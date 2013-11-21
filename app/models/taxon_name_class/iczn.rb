@@ -4,10 +4,6 @@ class TaxonNameClass::Iczn < TaxonNameClass
     1758
   end
 
-  def self.code_applicability_end_year
-    9999
-  end
-
   def self.applicable_ranks
     ICZN.to_s
   end
