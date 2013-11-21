@@ -238,7 +238,7 @@ module SoftValidation
     end
   end
 
-  def soft_validations
+  def soft_validations    
     @soft_validation_result ||= SoftValidations.new(self)    
   end
 
@@ -248,6 +248,7 @@ module SoftValidation
 
   # @param [Symbol] set the set of soft validations to run
   def soft_validate(set = :all)
+    clear_soft_validations
     soft_validations
     sets = case set.class.name
     when 'Array'
