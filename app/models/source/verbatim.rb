@@ -1,2 +1,2 @@
-class Source::Verbatim < ActiveRecord::Base
+class Source::Verbatim < Source 
 end

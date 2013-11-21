@@ -64,6 +64,7 @@ gem 'debugger', group: [:development, :test] if not win_os
 
 group :development do 
   gem 'awesome_print'
+  gem 'foreigner', '~> 1.6'
 end
 
 gem "rspec-rails", :group => [:development, :test]
@@ -89,7 +90,6 @@ gem 'acts_as_list'
 # 11/4/13 - I think it now needs to be the following:
 #     bcrypt-ruby (3.1.2-x64-mingw32)
 #     bcrypt-ruby (3.1.2-x86-mingw32)
-
 
 gem 'bcrypt-ruby', '~> 3.1.2'
 
