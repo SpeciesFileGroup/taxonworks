@@ -1,7 +1,7 @@
 # INIT tasks for RGeo, PostGIS, shape files (GADM and TDWG)
 
 # TODO: Problems with GADM V2
-#    nnnnn: Not a valid geometry.
+#    28758: Not a valid geometry.
 #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
 
 namespace :tw do
@@ -159,7 +159,7 @@ def read_shape(filename, index)
       else
         # this processing is specifically for GADM2
         if item.geometry.nil?
-          item_type = 'Unk. geometry'
+          item_type = 'Bad geometry'
           count_geo = 0
         else
           item_type = item.geometry.geometry_type
@@ -176,7 +176,7 @@ def read_shape(filename, index)
         s2 = i2.empty? ? '' : (i2 + ', ')
         i1 = item['NAME_1']
         s1 = i1.empty? ? '' : (i1 + ', ')
-        puts "#{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
+        puts "#{Time.now.strftime "%H:%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
       end
     }
   } if !(filename =~ /[0]/)
