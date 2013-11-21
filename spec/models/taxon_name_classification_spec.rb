@@ -36,19 +36,20 @@ describe TaxonNameClassification do
   end
 
   context "soft_validation" do
-    before do
+    before(:each) do
       @species = FactoryGirl.create(:iczn_species)
-      taxon_name_classification.taxon_name = @species
+      @taxon_name_classification = TaxonNameClassification.new(taxon_name: @species) 
     end
-    specify "applicable type" do
-      taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum
-      taxon_name_classification.soft_validate
-      expect(taxon_name_classification.soft_validations.messages_on(:type)).to eq([])
-    end
-    specify "upapplicable type" do
-      taxon_name_classification.type = 'TaxonNameClass::Iczn::Unavailable::NomenNudum::NotFromGenusName'
-      taxon_name_classification.soft_validate
-      expect(taxon_name_classification.soft_validations.messages_on(:type)).to be_true
+   specify "applicable type" do
+     @taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum
+     expect(@taxon_name_classification.soft_validate).to be_true
+     expect(@taxon_name_classification.soft_validations.messages_on(:type)).to eq([])
+   end
+    specify "unapplicable type" do
+      @taxon_name_classification.type = 'TaxonNameClass::Iczn::Unavailable::NomenNudum::NotFromGenusName'
+      expect(@taxon_name_classification.valid?).to be_true
+      expect(@taxon_name_classification.soft_validate).to be_true
+      expect(@taxon_name_classification.soft_validations.messages_on(:type)).to be_true
     end
   end
 end

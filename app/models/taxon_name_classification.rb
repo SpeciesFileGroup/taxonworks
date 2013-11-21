@@ -2,9 +2,9 @@ class TaxonNameClassification < ActiveRecord::Base
   belongs_to :taxon_name
 
   validates_presence_of  :taxon_name_id, :type
+  before_validation :validate_taxon_name_class_class
 
   include SoftValidation
-  before_validation :validate_taxon_name_class_class
   soft_validate(:sv_proper_classification)
 
   def type_name
@@ -27,11 +27,11 @@ class TaxonNameClassification < ActiveRecord::Base
   #region Soft validation
 
   def sv_proper_classification
-    t = self.type.to_s
-    if TAXON_NAME_CLASS_NAMES.include?(t)
-      t = t.constantize
-      if !t.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
-        soft_validation.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
+    # type is a string already 
+    if TAXON_NAME_CLASS_NAMES.include?(self.type)
+      # self.type_class is a Class
+      if !self.type_class.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
+        soft_validations.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
       end
     end
   end
