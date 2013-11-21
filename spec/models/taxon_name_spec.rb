@@ -126,6 +126,11 @@ describe TaxonName do
             expect(@variety.cached_author_year).to eq('McAtee (1900)')
             expect(@variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
           end
+          specify 'nil author and year - cashed value should be empty' do
+            t = FactoryGirl.build(:iczn_kingdom)
+            t.valid?
+            expect(t.cached_author_year).to eq('')
+          end
         end
       end
 
@@ -171,6 +176,29 @@ describe TaxonName do
       end
     end
 
+  end
+
+  context 'soft_validations' do
+    before(:all) do
+      @species = FactoryGirl.create(:iczn_species)
+    end
+    context 'missing_fields' do
+      specify "source is missing" do
+        @species.soft_validate
+        expect(@species.soft_validations.messages_on(:source_id)).to be_true
+        expect(@species.soft_validations.messages_on(:verbatim_author)).to eq([])
+        expect(@species.soft_validations.messages_on(:year_of_publication)).to eq([])
+      end
+      specify "author and year are missing" do
+        kingdom = @species.ancestor_at_rank('kingdom')
+        kingdom.soft_validate
+        expect(kingdom.soft_validations.messages_on(:verbatim_author)).to be_true
+        expect(kingdom.soft_validations.messages_on(:year_of_publication)).to be_true
+      end
+      specify "missing relationships" do
+        expect(@species.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+      end
+    end
   end
 
   context 'methods' do

@@ -1,4 +1,3 @@
-#test
 
 class TaxonName < ActiveRecord::Base
 
