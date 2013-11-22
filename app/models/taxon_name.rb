@@ -21,8 +21,8 @@ class TaxonName < ActiveRecord::Base
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
 
     # !! If self relatinships are every made possiblepossible this needs a DISTINCT clause
-    TaxonNameRelationship.find_by_sql("SELECT `taxon_name_relationships`.* FROM `taxon_name_relationships` WHERE `taxon_name_relationships`.`subject_taxon_name_id` = #{self.id} UNION
-                         SELECT `taxon_name_relationships`.* FROM `taxon_name_relationships` WHERE `taxon_name_relationships`.`object_taxon_name_id` = #{self.id}")
+    TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
+                         SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
   def all_related_taxon_names

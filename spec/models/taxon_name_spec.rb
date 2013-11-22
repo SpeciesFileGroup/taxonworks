@@ -19,20 +19,20 @@ describe TaxonName do
         @type_of_genus = FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
         @original_genus = FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: @taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'taxon_name_relationships' do
           expect(taxon_name).to respond_to (:taxon_name_relationships)
-          expect(@taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
+          expect(@taxon_name.taxon_name_relationships.to_a).to eq( [@relationship1.becomes(@relationship1.type.constantize) ] )
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'all_taxon_name_relationships' do
           expect(taxon_name).to respond_to (:all_taxon_name_relationships)
-          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
+          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type.constantize), @relationship2.becomes(@relationship2.type.constantize)])
         end
 
         # TaxonNames related by all_taxon_name_relationships
