@@ -195,6 +195,21 @@ describe TaxonName do
         expect(kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
         expect(kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
       end
+      specify "fix author and year" do
+        s = Source.new(year: 1950, author: 'aaa')
+        s.save
+        t = TaxonName.new
+        t.source = s
+        t.soft_validate
+        expect(t.soft_validations.messages_on(:verbatim_author).count).to be > 0
+        expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
+        t.fix_soft_validations
+        t.soft_validate
+        expect(t.soft_validations.messages_on(:verbatim_author).count).to eq(0)
+        expect(t.soft_validations.messages_on(:year_of_publication).count).to eq(0)
+        expect(t.verbatim_author).to eq('aaa')
+        expect(t.year_of_publication).to eq(1950)
+      end
       specify "missing relationships" do
         expect(@species.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
       end
