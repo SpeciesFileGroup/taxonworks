@@ -43,3 +43,22 @@ RSpec.configure do |config|
   #     --seed 1234
   # config.order = "random"
 end
+
+
+# A Model helper for testing concerns in models that have no tables.
+# Example use:
+#
+#    class WithUser < ActiveRecord::Base
+#      include SomeConcern 
+#      extend FakeTable 
+#    end
+#
+module FakeTable
+  def columns
+    @columns ||= []
+  end
+
+  def column(name, sql_type = nil, default = nil, null = true)
+    columns << ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default, sql_type.to_s, null)
+  end
+end
