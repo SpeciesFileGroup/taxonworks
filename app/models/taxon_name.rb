@@ -181,7 +181,17 @@ class TaxonName < ActiveRecord::Base
   def sv_missing_fields
     soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
     soft_validations.add(:verbatim_author, 'Author is missing') if self.verbatim_author.blank?
-    soft_validations.add(:year_of_publication, 'Year is missing') if self.year_of_publication.nil?
+    soft_validations.add(:year_of_publication, 'Year is missing',
+                         fix: :sv_fix_missing_year,
+                         success_message: 'Year was updated') if self.year_of_publication.nil?
+  end
+
+  def sv_fix_missing_year
+    if !self.source_id.nil?
+      if !self.source_id.year.nil?
+        self.year_of_publication = self.source_id.year
+      end
+    end
   end
 
   def sv_missing_relationships

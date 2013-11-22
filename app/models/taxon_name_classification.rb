@@ -30,8 +30,14 @@ class TaxonNameClassification < ActiveRecord::Base
     # type is a string already 
     if TAXON_NAME_CLASS_NAMES.include?(self.type)
       # self.type_class is a Class
-      if !self.type_class.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
+      if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
         soft_validations.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
+      end
+    end
+    y = self.taxon_name.year_of_publication
+    if not y.nil?
+      if y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
+        soft_validations.add(:type, 'The status is unapplicable to the name published in ' + y.to_s)
       end
     end
   end
