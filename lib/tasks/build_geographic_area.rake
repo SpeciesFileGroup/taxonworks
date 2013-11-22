@@ -4,6 +4,11 @@
 #    28758: Not a valid geometry.
 #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
 
+
+# Jim:  Look into how to pass arguments to a rake task, then use this to point to an (external) directory that includes the data to import.
+#   somthing like  :build_geographic_areas => [:environment] do |argv| and called like 
+#   rake tw:init:build_geographic_areas data_path=/some/path
+#
 namespace :tw do
   namespace :init do
 

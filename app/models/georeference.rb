@@ -1,4 +1,3 @@
-class Georeference < ActiveRecord::Base
 # Contains information about a location on the face of the Earth, consisting of:
 #
 # @!attribute geographic_item_id
@@ -28,7 +27,7 @@ class Georeference < ActiveRecord::Base
 # @!attribute request
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
-
+class Georeference < ActiveRecord::Base
 
 FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
 
