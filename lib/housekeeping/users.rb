@@ -6,6 +6,8 @@ module Housekeeping::Users
   included do
     belongs_to :creator, foreign_key: :created_by_id
     belongs_to :updater, foreign_key: :updated_by_id
+
+
   end
 
   module ClassMethods

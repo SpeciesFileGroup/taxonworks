@@ -4,7 +4,7 @@
 # Soft validations do not prevent an instance from being saved.  They are not intended
 # to be bound to AR callbacks, but this may be possible.  They may be used to 
 # alert the user to data issues that need to be addressed, or alert the programmer
-# who is batch parsing data as to the quality of the incoming data etc.
+# who is batch parsing data as to the quality of the incoming data, etc..
 #
 # For example, soft validations could be shown on #show controller methods.
 #
