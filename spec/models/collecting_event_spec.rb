@@ -1,9 +1,6 @@
 require 'spec_helper'
 
-# A class representing a single biological property. Examples: "male", "adult", "host", "parasite".
-
 describe CollectingEvent do
-
   let(:collecting_event) { CollectingEvent.new }
 
   context 'validation' do
@@ -17,12 +14,6 @@ describe CollectingEvent do
         # expect(collecting_event.errors.include?(:cached_display)).to be_true
       end
     end
-
-    # format?!
-    context 'property' do
-
-    end
-
   end
 
   context 'concerns' do
@@ -30,4 +21,3 @@ describe CollectingEvent do
   end
 
 end
-

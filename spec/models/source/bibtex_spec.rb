@@ -407,7 +407,7 @@ describe Source::Bibtex do
     specify 'missing authors' do
       @bibtex_source.soft_validate
       expect(@bibtex_source.soft_valid?).to be_false
-      expect(@bibtex_source.soft_validations.messages).to include 'There is no author associated with this source'
+      expect(@bibtex_source.soft_validations.messages).to include 'There is no author associated with this source.'
     end
   end
   context('Beth') do
