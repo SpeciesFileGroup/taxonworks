@@ -7,4 +7,10 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraclass < NomenclaturalRank:
   def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subclass
   end
+
+  def self.common
+    false
+  end
+
+
 end

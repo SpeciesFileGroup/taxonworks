@@ -1,2 +1,7 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRelationship::Icn::Unaccepting::Usage
+
+  def self.assignable
+    true
+  end
+
 end

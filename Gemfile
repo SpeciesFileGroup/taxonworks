@@ -5,14 +5,12 @@ ruby '2.0.0'
 # gem 'rack-webconsole', git: 'https://github.com/grappendorf/rack-webconsole.git'
 
 win_os = false
-
 if $LOAD_PATH[0] =~ /[A-Za-z]:[\/\\]/
   win_os = true
   os = 'Windows'
 else
   os = '*nix/os x'
 end
-
 puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -71,6 +69,8 @@ gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 1.0'
 
+gem 'chronic', '~> 0.10'
+
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
   gem 'sdoc', require: false
@@ -85,6 +85,7 @@ gem 'debugger', group: [:development, :test] if not win_os
 
 group :development do 
   gem 'awesome_print'
+  gem 'foreigner', '~> 1.6'
 end
 
 gem 'rspec-rails', group: [:development, :test]
@@ -110,7 +111,6 @@ gem 'acts_as_list'
 # 11/4/13 - I think it now needs to be the following:
 #     bcrypt-ruby (3.1.2-x64-mingw32)
 #     bcrypt-ruby (3.1.2-x86-mingw32)
-
 
 gem 'bcrypt-ruby', '~> 3.1.2'
 

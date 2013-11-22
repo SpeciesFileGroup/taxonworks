@@ -17,19 +17,8 @@ describe Citation do
   end
 
   context 'validations' do
-    # check for all required fields.
-  end
-
-  context 'concerns' do
-    specify 'isolate and create concern citable (see identifiable concern)' 
-  end
-
-  context 'Beth' do
-    context 'create a citation' do
-      # create a citation linking a specimen (collection_object?) to a source
-      # create a citation linking a nomenclatural act (what object represents this?) to a source.
-    end
-
+    pending ' for all required fields (:citation_object_id, :citation_object_type, :source_id).'
+    pending 'uniqueness'
   end
 
 end

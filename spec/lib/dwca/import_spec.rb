@@ -65,20 +65,21 @@ describe Dwca::Import do
       expect(manager.row_id(@data.last)).to eq('73117')
     end
 
-    specify 'build_object' do
-      expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
-    end
-
-    specify 'build_otu' do
-      expect(manager.build_otu(@data.first).class).to eq(Otu)
-      expect(manager.build_otu(@data.first).name).to eq('Stenacron carolina (Banks 1914)')
+    context 'build_object' do
+      specify 'otu' do
+        expect(manager.build_object(@data.first, Otu.new).name).to eq('Stenacron carolina (Banks 1914)')
+      end
     end
 
     specify 'build_row_objects' do
-      expect(manager.build_row_objects([], [:a, :b])).to eq(a: nil, b: nil)
+      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object, :collecting_event])).to be_true
+      expect(result[:otu].name).to eq('Stenacron carolina (Banks 1914)')
+      expect(result[:collection_object].total).to eq(3)
+      expect(result[:collecting_event].verbatim_method).to eq(nil)
+
+    # expect(result[:collecting_event].start_date_year).to eq('1994')
+    # expect(result[:collecting_event].start_date_month).to eq('4')
+    # expect(result[:collecting_event].start_date_day).to eq('21')
     end
-
-
-
   end
 end

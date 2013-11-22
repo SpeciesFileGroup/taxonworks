@@ -25,6 +25,23 @@ describe 'SoftValidation' do
         expect(Softy.soft_validation_methods[:cheezy]).to eq([:needs_moar_cheez?])
       end
     end
+
+    context 'soft_validations between classes' do
+      before(:all) {
+        Softy.soft_validation_methods = {all: []}
+        OtherSofty.soft_validation_methods = {all: []}
+      }
+
+      specify 'methods assigned to one class are not available to another' do
+        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_true
+        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+        expect(OtherSofty.soft_validation_methods[:all]).to eq([])
+        expect(OtherSofty.soft_validate(:foo)).to be_true
+        expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
+        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+      end
+
+    end
   end
 
   context 'instance methods' do
@@ -67,11 +84,16 @@ describe 'SoftValidation' do
       expect(softy.soft_validations.fixes_run?).to be_false
     end
 
-    specify 'softy.fix_soft_validations' do
+     specify 'softy.fix_soft_validations' do
       expect(softy.soft_validate).to be_true             
       expect(softy.fix_soft_validations).to be_true      
       expect(softy.soft_validations.fixes_run?).to be_true 
       expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
+   
+      # TODO: Move out  
+      expect(softy.soft_validations.on(:mohr).size).to eq(1)
+      expect(softy.soft_validations.messages).to eq(["hungry (for cheez)!", "hungry!"] ) 
+      expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
     end
 
     specify 'softy.soft_validated?' do
@@ -81,7 +103,6 @@ describe 'SoftValidation' do
     end
   end
 end
-
 
 describe 'SoftValidations' do
   let(:soft_validations) {SoftValidation::SoftValidations.new(Softy.new)}
@@ -115,6 +136,19 @@ describe 'SoftValidations' do
   specify 'complete?' do
     soft_validations.validated = true 
     expect(soft_validations.complete?).to be_true
+  end
+
+  specify 'on' do
+    expect(soft_validations).to respond_to(:on)
+    expect(soft_validations.on(:base)).to eq([])
+  end
+
+  specify 'messages' do
+    expect(soft_validations).to respond_to(:messages)
+  end
+
+  specify 'messages_on' do
+    expect(soft_validations).to respond_to(:messages)
   end
 end
 
@@ -156,6 +190,8 @@ describe 'SoftValidation' do
 
 end
 
+#
+
 
 # Stub class for testing.  Mimics only
 # the ActiveRecord Model methods we need to test.
@@ -168,6 +204,7 @@ class Softy
 
   # These are called in the tests 
   # soft_validate :has_cheezburgers?
+
 
   $hungry = true
   def haz_cheezburgers?
@@ -183,4 +220,14 @@ class Softy
     true
   end 
 end
+
+# Stub class for testing, used to ensure that soft validation
+# methods are specific to a class
+class OtherSofty < Softy
+  # soft_validate(:bar)
+  def self.column_names
+    ['lezz']
+  end 
+end
+
 

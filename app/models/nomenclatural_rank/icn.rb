@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icn < NomenclaturalRank 
+class NomenclaturalRank::Icn < NomenclaturalRank
 
 end
 

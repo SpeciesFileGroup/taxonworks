@@ -4,4 +4,6 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSeries < NomenclaturalRank::
     NomenclaturalRank::Iczn::GenusGroup::Infragenus
   end
 
+  COMMON = false
+
 end

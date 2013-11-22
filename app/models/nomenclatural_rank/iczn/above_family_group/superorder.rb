@@ -4,4 +4,6 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superorder < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Magnorder
   end
 
+  COMMON = false
+
 end

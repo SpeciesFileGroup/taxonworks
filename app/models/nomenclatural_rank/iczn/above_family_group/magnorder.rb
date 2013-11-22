@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Magnorder < NomenclaturalRank::
     NomenclaturalRank::Iczn::AboveFamilyGroup::Cohort
   end
 
+  def self.common
+    false
+  end
+
 end

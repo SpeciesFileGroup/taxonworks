@@ -397,6 +397,19 @@ describe Source::Bibtex do
       #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
     end
   end
+
+  context 'soft validations' do
+    before(:each) {
+      # this is a TW Source::Bibtex - type article, with just a title
+      @bibtex_source = FactoryGirl.build(:valid_bibtex_source)
+    }
+
+    specify 'missing authors' do
+      @bibtex_source.soft_validate
+      expect(@bibtex_source.soft_valid?).to be_false
+      expect(@bibtex_source.soft_validations.messages).to include 'There is no author associated with this source.'
+    end
+  end
   context('Beth') do
 =begin
     notes/things to do:
@@ -405,6 +418,7 @@ describe Source::Bibtex do
         Rendering code will go in a helper
         Check out what formatting is provided by BibTex gem - do we additional formats?
       Set the cached fields in the bibtex records on save
+      Has author role but no author field => bibtex should work
 =end
 
     # from context 'roles'
@@ -428,8 +442,8 @@ describe Source::Bibtex do
   end
 
   context 'concerns' do
-    it_behaves_like "identifiable"
-    it_behaves_like "has_roles"
+    it_behaves_like 'identifiable'
+    it_behaves_like 'has_roles'
   end
 
 end

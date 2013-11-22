@@ -19,4 +19,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubspecies < TaxonName
     :subspecies_in_original_combination
   end
 
+  def self.assignable
+    true
+  end
+
 end

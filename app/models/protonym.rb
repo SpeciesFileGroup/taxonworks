@@ -1,11 +1,12 @@
 class Protonym < TaxonName 
 
+  has_many :taxon_name_classifications
+
   alias_method :original_combination_source, :source
 
   # subject                      object
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
-
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method) 

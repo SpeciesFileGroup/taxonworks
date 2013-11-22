@@ -7,4 +7,9 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infrakingdom < NomenclaturalRan
   def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom
   end
+
+  def self.common
+    false
+  end
+
 end
