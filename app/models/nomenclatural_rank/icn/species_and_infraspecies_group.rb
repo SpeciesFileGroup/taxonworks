@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icn::InfraspecificGroup <  NomenclaturalRank::Icn
+class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup <  NomenclaturalRank::Icn
 
   def self.validate_name_format(taxon_name)
     taxon_name.errors.add(:name, 'name must be lower case') unless taxon_name.name == taxon_name.name.downcase
@@ -6,6 +6,6 @@ class NomenclaturalRank::Icn::InfraspecificGroup <  NomenclaturalRank::Icn
    end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::InfraspecificGroup.descendants + [NomenclaturalRank::Icn::Species]
+    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants + [NomenclaturalRank::Icn::Species]
   end
 end

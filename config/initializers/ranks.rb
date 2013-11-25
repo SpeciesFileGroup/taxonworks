@@ -31,10 +31,8 @@ FAMILY_AND_ABOVE_RANKS_NAMES = (NomenclaturalRank::Iczn::AboveFamilyGroup.descen
 GENUS_AND_SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::GenusGroup.descendants +
       NomenclaturalRank::Iczn::SpeciesGroup.descendants +
       NomenclaturalRank::Icn::GenusGroup.descendants +
-      [NomenclaturalRank::Icn::Species] +
-      NomenclaturalRank::Icn::InfraspecificGroup.descendants).collect{|i| i.to_s}
+      NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants).collect{|i| i.to_s}
 
 # All assignable ranks for species groups, for both ICN and ICZN
 SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::SpeciesGroup.descendants +
-    [NomenclaturalRank::Icn::Species] +
-    NomenclaturalRank::Icn::InfraspecificGroup.descendants).collect{|i| i.to_s}
+    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants).collect{|i| i.to_s}

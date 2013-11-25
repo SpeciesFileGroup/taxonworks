@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icn::Species < NomenclaturalRank::Icn
+class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species < NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup
 
   def self.validate_name_format(taxon_name)
     taxon_name.errors.add(:name, 'name must be lower case') unless taxon_name.name == taxon_name.name.downcase
