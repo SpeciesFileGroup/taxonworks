@@ -189,13 +189,13 @@ describe TaxonName do
         expect(@species.soft_validations.messages_on(:verbatim_author).count).to eq(0)
         expect(@species.soft_validations.messages_on(:year_of_publication).count).to eq(0)
       end
-      specify "author and year are missing" do
+      specify 'author and year are missing' do
         kingdom = @species.ancestor_at_rank('kingdom')
         kingdom.soft_validate
         expect(kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
         expect(kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
       end
-      specify "fix author and year" do
+      specify 'fix author and year' do
         s = Source.new(year: 1950, author: 'aaa')
         s.save
         t = TaxonName.new

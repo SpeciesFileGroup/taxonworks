@@ -36,4 +36,16 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
+  soft_validate(:sv_source_older_then_description)
+
+  #region Soft validation
+
+  def sv_source_older_then_description
+    if !self.source.nil? && !self.year_of_publication.nil?
+      soft_validations.add(:source_id, 'A taxon had not been described at the date of the reference') if self.source.year < self.year_of_publication
+    end
+  end
+
+  #endregion
+
 end

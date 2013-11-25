@@ -136,4 +136,18 @@ describe Protonym do
     end
   end
 
+  context 'soft_validation' do
+    specify 'A taxon had not been described at the date of the reference' do
+      p = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), year_of_publication: 2000)
+      s = Source.new(year: 1999, author: 'aaa')
+      s.save
+      p.source = s
+      p.soft_validate
+      expect(p.soft_validations.messages_on(:source_id).include?('A taxon had not been described at the date of the reference')).to be_true
+      p.year_of_publication = 1995
+      p.soft_validate
+      expect(p.soft_validations.messages_on(:source_id).include?('A taxon had not been described at the date of the reference')).to be_false
+    end
+  end
+
 end
