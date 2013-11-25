@@ -68,7 +68,10 @@ end
 
 def read_shape(filename, index)
 
-  RGeo::Shapefile::Reader.open(filename) { |file|
+  # TODO: For some reason, Georeference::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
+  # See http://dazuma.github.io/rgeo-shapefile/rdoc/RGeo/Shapefile/Reader.html for reader options.
+
+  RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY) { |file|
 
     file.seek_index(index)
     count = file.num_records

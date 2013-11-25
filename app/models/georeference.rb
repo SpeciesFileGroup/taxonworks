@@ -29,8 +29,13 @@ class Georeference < ActiveRecord::Base
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
 
-
-FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
+#  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
+# TODO: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
+# TODO: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_area.rake
+  FACTORY = ::RGeo::Geos.factory(native_interface:                      :ffi,
+                                 uses_lenient_multi_polygon_assertions: true,
+                                 srid:                                  4326,
+                                 has_z_coordinate:                      true)
 
   # 'belongs_to' indicates that there is a record ID for this type of object (collecting_event) in *this* table, which
   # is used to find the object we want, 'collecting_event_id' is the column name, and refers to the 'collecting_events'
@@ -50,17 +55,17 @@ FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordin
   protected
 
   def proper_data_is_provided
-   # case
-   # when GeographicItem.find(geographic_item_id) == nil
-     #  errors.add(:georef, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
-      # when CollectingEvent.find(collecting_event_id) == nil
-      #  errors.add(:georef, 'ID must be from item of class CollectingEvent.')
-      # when GeographicItem.find(error_geographic_item_id).object.geometry_type.type_name != 'Polygon'
-      #  errors.add(:georef, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
-      # when GeoreferenceHash[*arr]Type.find(type).to_s != 'Georeference::GeoreferenceType'
-      #  errors.add(:georef, 'type must be of class Georeference::GeoreferenceType.')
-   # else
-      true
-   # end
+    # case
+    # when GeographicItem.find(geographic_item_id) == nil
+    #  errors.add(:georef, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
+    # when CollectingEvent.find(collecting_event_id) == nil
+    #  errors.add(:georef, 'ID must be from item of class CollectingEvent.')
+    # when GeographicItem.find(error_geographic_item_id).object.geometry_type.type_name != 'Polygon'
+    #  errors.add(:georef, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
+    # when GeoreferenceHash[*arr]Type.find(type).to_s != 'Georeference::GeoreferenceType'
+    #  errors.add(:georef, 'type must be of class Georeference::GeoreferenceType.')
+    # else
+    true
+    # end
   end
 end
