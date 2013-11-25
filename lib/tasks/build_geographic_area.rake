@@ -19,7 +19,7 @@ namespace :tw do
       shapes   = ENV['shapes']
 
       # index is only expected to work for the GADM V2 shape file set: intended as a short-cut to a problem record.
-      index = ENV['index']
+      index    = ENV['index']
 
       # build csv file list from 'place'
 
@@ -81,11 +81,12 @@ def read_shape(filename, index)
     file.seek_index(index)
     count = file.num_records
     ess   = (count == 1) ? '' : 's'
-    puts "#{filename} contains #{count} item#{ess}."
+    puts "#{Time.now.strftime "%H:%M:%S"}: #{filename} contains #{count} item#{ess}."
 
     record    = GeographicArea.new
     area_type = GeographicAreaType.new
 
+    time_then = Time.now
     file.each { |item|
       record = nil
 
@@ -173,18 +174,36 @@ def read_shape(filename, index)
           item_type = item.geometry.geometry_type
           count_geo = item.geometry.num_geometries
         end
-        ess       = (count_geo == 1) ? 'y' : 'ies'
-        i5 = item['NAME_5']
-        s5 = i5.empty? ? '' : (i5 + ', ')
-        i4 = item['NAME_4']
-        s4 = i4.empty? ? '' : (i4 + ', ')
-        i3 = item['NAME_3']
-        s3 = i3.empty? ? '' : (i3 + ', ')
-        i2 = item['NAME_2']
-        s2 = i2.empty? ? '' : (i2 + ', ')
-        i1 = item['NAME_1']
-        s1 = i1.empty? ? '' : (i1 + ', ')
-        puts "#{Time.now.strftime "%H:%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
+        ess = (count_geo == 1) ? 'y' : 'ies'
+
+        snap = Time.now
+        elapsed = snap - time_then
+        time_then = snap
+        case filename
+          when /GADM/
+
+            i5 = item['NAME_5']
+            s5 = i5.empty? ? '' : (i5 + ', ')
+            i4 = item['NAME_4']
+            s4 = i4.empty? ? '' : (i4 + ', ')
+            i3 = item['NAME_3']
+            s3 = i3.empty? ? '' : (i3 + ', ')
+            i2 = item['NAME_2']
+            s2 = i2.empty? ? '' : (i2 + ', ')
+            i1 = item['NAME_1']
+            s1 = i1.empty? ? '' : (i1 + ', ')
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
+          when /level1/
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: LEVEL1_COD: #{item['LEVEL1_COD']}, Name: #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+          when /level2/
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: #{item['LEVEL1_COD']}-#{item['LEVEL2_COD']}, Name: #{item['LEVEL2_NAM']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+          when /level3/
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at.(elapsed).strftime "%M:%S"}: LEVEL3_COD: #{item['LEVEL3_COD']}, LEVEL3_NAME: #{item['LEVEL3_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+          when /level4/
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: LEVEL4_COD: #{item['LEVEL4_COD']}, LEVEL4_NAME: #{item['LEVEL4_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+          else
+        end
+
       end
     }
   } if !(filename =~ /[0]/)
@@ -264,8 +283,8 @@ def build_gat_table
    'Province',
    'Ward',
    'Prefecture',
-  'Unknown',
-  'Shire'].each { |item|
+   'Unknown',
+   'Shire'].each { |item|
 
     area_type = GeographicAreaType.where(name: item)[0]
     if area_type.nil?
