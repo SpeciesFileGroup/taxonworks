@@ -7,4 +7,9 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Mirorder < NomenclaturalRank::I
   def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Superorder
   end
+
+  def self.common
+    false
+  end
+
 end

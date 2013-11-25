@@ -7,4 +7,9 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraphylum  < NomenclaturalRan
   def self.valid_parents
     NomenclaturalRank::Iczn::AboveFamilyGroup::Subphylum
   end
+
+  def self.common
+    false
+  end
+
 end

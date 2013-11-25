@@ -10,4 +10,8 @@ class TaxonNameRelationship::Combination::Subform < TaxonNameRelationship::Combi
     [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::InfraspecificGroup.descendants
   end
 
+  def self.assignable
+    true
+  end
+
 end

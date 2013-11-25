@@ -13,4 +13,8 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infrafamily < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::FamilyGroup::Subfamily
   end
 
+  def self.common
+    false
+  end
+
 end

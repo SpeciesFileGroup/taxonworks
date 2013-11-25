@@ -28,6 +28,7 @@ class Georeference < ActiveRecord::Base
 # @!attribute request
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
+class Georeference < ActiveRecord::Base
 
 #  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
 # TODO: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
@@ -36,6 +37,8 @@ class Georeference < ActiveRecord::Base
                                  uses_lenient_multi_polygon_assertions: true,
                                  srid:                                  4326,
                                  has_z_coordinate:                      true)
+
+FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_z_coordinate: true)
 
   # 'belongs_to' indicates that there is a record ID for this type of object (collecting_event) in *this* table, which
   # is used to find the object we want, 'collecting_event_id' is the column name, and refers to the 'collecting_events'

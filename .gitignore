@@ -41,3 +41,5 @@ index.html
 .DS_store
 
 coverage/
+
+*.wkt

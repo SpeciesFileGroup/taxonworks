@@ -10,4 +10,8 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
     NomenclaturalRank::Icn.descendants
   end
 
+  def self.assignable
+    false
+  end
+
 end

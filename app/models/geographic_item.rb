@@ -19,6 +19,7 @@ class GeographicItem < ActiveRecord::Base
     srid:             4326,
     has_z_coordinate: true,
     has_m_coordinate: false)
+
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
@@ -101,6 +102,7 @@ class GeographicItem < ActiveRecord::Base
     data.delete_if { |key, value| value == [] }
     data
   end
+
   def to_geo_json
     RGeo::GeoJSON.encode(self.object).to_json
   end

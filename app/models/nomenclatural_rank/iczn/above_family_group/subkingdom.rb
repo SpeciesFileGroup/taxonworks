@@ -8,4 +8,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom < NomenclaturalRank:
     NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom
   end
 
+  def self.common
+    false
+  end
+
 end

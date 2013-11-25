@@ -21,4 +21,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalVariety < TaxonNameRel
     :variety_in_original_combination
   end
 
+  def self.assignable
+    true
+  end
+
 end

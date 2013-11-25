@@ -19,20 +19,20 @@ describe TaxonName do
         @type_of_genus = FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
         @original_genus = FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: @taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'taxon_name_relationships' do
           expect(taxon_name).to respond_to (:taxon_name_relationships)
-          expect(@taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
+          expect(@taxon_name.taxon_name_relationships.to_a).to eq( [@relationship1.becomes(@relationship1.type.constantize) ] )
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'all_taxon_name_relationships' do
           expect(taxon_name).to respond_to (:all_taxon_name_relationships)
-          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
+          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type.constantize), @relationship2.becomes(@relationship2.type.constantize)])
         end
 
         # TaxonNames related by all_taxon_name_relationships
@@ -126,6 +126,11 @@ describe TaxonName do
             expect(@variety.cached_author_year).to eq('McAtee (1900)')
             expect(@variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
           end
+          specify 'nil author and year - cashed value should be empty' do
+            t = FactoryGirl.build(:iczn_kingdom)
+            t.valid?
+            expect(t.cached_author_year).to eq('')
+          end
         end
       end
 
@@ -171,6 +176,44 @@ describe TaxonName do
       end
     end
 
+  end
+
+  context 'soft_validations' do
+    before(:all) do
+      @species = FactoryGirl.create(:iczn_species, source_id: nil)
+    end
+    context 'missing_fields' do
+      specify "source is missing" do
+        @species.soft_validate
+        expect(@species.soft_validations.messages_on(:source_id).count).to be > 0
+        expect(@species.soft_validations.messages_on(:verbatim_author).count).to eq(0)
+        expect(@species.soft_validations.messages_on(:year_of_publication).count).to eq(0)
+      end
+      specify "author and year are missing" do
+        kingdom = @species.ancestor_at_rank('kingdom')
+        kingdom.soft_validate
+        expect(kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
+        expect(kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
+      end
+      specify "fix author and year" do
+        s = Source.new(year: 1950, author: 'aaa')
+        s.save
+        t = TaxonName.new
+        t.source = s
+        t.soft_validate
+        expect(t.soft_validations.messages_on(:verbatim_author).count).to be > 0
+        expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
+        t.fix_soft_validations
+        t.soft_validate
+        expect(t.soft_validations.messages_on(:verbatim_author).count).to eq(0)
+        expect(t.soft_validations.messages_on(:year_of_publication).count).to eq(0)
+        expect(t.verbatim_author).to eq('aaa')
+        expect(t.year_of_publication).to eq(1950)
+      end
+      specify "missing relationships" do
+        expect(@species.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+      end
+    end
   end
 
   context 'methods' do
@@ -295,5 +338,4 @@ describe TaxonName do
     it_behaves_like 'identifiable'
     it_behaves_like 'citable'
   end
-
 end

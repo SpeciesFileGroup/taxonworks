@@ -61,7 +61,7 @@ describe Person do
       end
 
       specify 'taxon_determinations' do
-        expect(person).to respond_to(:taxon_determinations)
+        expect(person).to respond_to(:taxon_determinations)    # determinations plural?
       end
 
       specify 'taxon_name_author' do
@@ -157,9 +157,39 @@ describe Person do
         @vp.reload
         expect(@vp.is_collector?).to be_true
       end
-      specify 'is_determiner?'
-      specify 'is_taxon_name_author?'
-      specify 'is_type_designator?'
+      specify 'is_determiner?' do
+        taxon_determination = TaxonDetermination.new
+        taxon_determination.save
+        @vp.save
+        expect(@vp).to respond_to(:is_determiner?)
+        expect(@vp.is_determiner?).to be_false
+        taxon_determination.determiner = @vp
+        taxon_determination.save!
+        @vp.reload
+        expect(@vp.is_determiner?).to be_true
+      end
+      specify 'is_taxon_name_author?' do
+        taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
+        taxon_name.save
+        @vp.save
+        expect(@vp).to respond_to(:is_taxon_name_author?)
+        expect(@vp.is_taxon_name_author?).to be_false
+        taxon_name.taxon_name_authors << @vp
+        taxon_name.save!
+        @vp.reload
+        expect(@vp.is_taxon_name_author?).to be_true
+      end
+      specify 'is_type_designator?' do
+        type_specimen = FactoryGirl.create(:type_specimen)
+        type_specimen.save
+        @vp.save
+        expect(@vp).to respond_to(:is_type_designator?)
+        expect(@vp.is_type_designator?).to be_false
+        type_specimen.type_designators << @vp
+        type_specimen.save!
+        @vp.reload
+        expect(@vp.is_type_designator?).to be_true
+      end
     end
   end
 

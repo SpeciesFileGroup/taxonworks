@@ -10,7 +10,9 @@ class NomenclaturalRank
 
   # TODO: refactor/clarify 
   # Should the rank be displayed in "typical" use?
-  COMMON     = true
+  def self.common
+    true
+  end
 
   def self.top_rank(rank)
     all = rank.descendants
@@ -64,14 +66,5 @@ class NomenclaturalRank
   def self.valid_parents
     nil
   end
-
-  def self.common?
-    self::COMMON
-  end
-
-  # TODO: Think about this?
-  # def year_of_applicability?
-  #   nil
-  # end
 
 end

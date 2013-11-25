@@ -29,4 +29,8 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
     :type_of_genus
   end
 
+  def self.assignable
+    true
+  end
+
 end

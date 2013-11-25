@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superkingdom <  NomenclaturalRa
     NomenclaturalRank::Iczn
   end
 
+  def self.common
+    false
+  end
+
 end

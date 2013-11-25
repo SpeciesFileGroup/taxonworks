@@ -1,6 +1,6 @@
 class BiologicalAssociation < ActiveRecord::Base
 
-  include Shared::Citable
+  # include Shared::Citable
 
   belongs_to :biological_relationship
 

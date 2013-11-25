@@ -1,6 +1,6 @@
 class CollectingEvent < ActiveRecord::Base
 
-  include Shared::Citable  # ?
+  include Shared::Citable  
 
   # several lines commented out per Matt ('old stuff')
   # belongs_to :geographic_area
@@ -10,7 +10,6 @@ class CollectingEvent < ActiveRecord::Base
   has_many :collectors, through: :collector_roles, source: :person
 
   # validate :minimal_data_is_provided
-
   # protected
 
 =begin
