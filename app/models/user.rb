@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
 
   # TODO: downcase does not work for non-ascii characters which means our
-  #       validation for uniqueness will fail
+  #       validation for uniqueness will fail ... why?
   # SEE: http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # SEE: http://unicode-utils.rubyforge.org/
   before_validation { self.email = email.downcase }
@@ -11,6 +11,6 @@ class User < ActiveRecord::Base
                     format:     { with: VALID_EMAIL_REGEX },
                     uniqueness: { case_sensitive: true }
   has_secure_password
-  validates :password, length: { minimum: 6 }
+  validates :password, length: { minimum: 8 }
 
 end
