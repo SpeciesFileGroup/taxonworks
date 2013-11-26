@@ -9,6 +9,12 @@ describe CollectionObject do
       specify 'preparation_type' do
         expect(collection_object).to respond_to(:preparation_type)
       end
+
+      specify 'repository' do
+        expect(collection_object).to respond_to(:repository)
+      end
+
+
     end
   end
 
