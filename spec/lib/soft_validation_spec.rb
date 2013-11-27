@@ -190,11 +190,10 @@ describe 'SoftValidation' do
 
 end
 
-#
 
-
-# Stub class for testing.  Mimics only
-# the ActiveRecord Model methods we need to test.
+# Stub class for testing. Mimics only
+# the ActiveRecord Model methods we need to test, but see also FakeTable for
+# future refactoring.
 class Softy 
   include SoftValidation
 
@@ -202,9 +201,8 @@ class Softy
     ['mohr']
   end 
 
-  # These are called in the tests 
+  # This is called in test
   # soft_validate :has_cheezburgers?
-
 
   $hungry = true
   def haz_cheezburgers?
