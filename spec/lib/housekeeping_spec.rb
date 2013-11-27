@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe 'Housekeeping::User' do
 
   context 'Users' do
