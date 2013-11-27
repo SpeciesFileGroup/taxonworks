@@ -45,8 +45,6 @@ describe 'Housekeeping::User' do
         @i.valid? 
         expect(@i.errors.include?(:updater)).to be_true  # there is no project with id 1 in the present paradigm
       end
-
-
     end
   end
   
@@ -95,6 +93,26 @@ describe 'Housekeeping::User' do
           expect(@i.errors.include?(:project)).to be_true  # there is no project with id 1 in the present paradigm
         end
 
+        context 'belonging to a project' do
+          before(:all) {
+            @project1 = FactoryGirl.create(:valid_project)
+            @project2 = FactoryGirl.create(:valid_project)
+          }
+          after(:all) {
+            $project_id = 1 # now return to our regular scheduled programming
+          }
+
+          specify 'instance must belong to the project before save' do
+            $project_id = @project1.id
+            expect(@i.valid?).to be_true
+            expect(@i.project_id).to eq(@project1.id)
+            expect(@i.save).to be_true
+
+            @i.project_id = @project2.id 
+            expect{@i.save}.to raise_error
+          end
+
+        end
       end
     end
   end
