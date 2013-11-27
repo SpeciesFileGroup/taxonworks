@@ -2,6 +2,13 @@
 #  - type will be set to Protonym when not provided
 #  - if you want to .create a protonym and not build the related ancestors ancestors set the parent to nil
 FactoryGirl.define do
+
+  factory :valid_protonym, class: Protonym do
+    name 'Aidae'
+    rank_class Ranks.lookup(:iczn, 'Family')
+    association :parent, factory: :root_taxon_name
+  end
+
   factory :protonym do
   end
 

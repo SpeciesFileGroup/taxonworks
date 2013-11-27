@@ -169,7 +169,7 @@ describe Person do
         expect(@vp.is_determiner?).to be_true
       end
       specify 'is_taxon_name_author?' do
-        taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
+        taxon_name = FactoryGirl.create(:valid_protonym)
         taxon_name.save
         @vp.save
         expect(@vp).to respond_to(:is_taxon_name_author?)
