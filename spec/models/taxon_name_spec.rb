@@ -15,9 +15,9 @@ describe TaxonName do
       end 
 
       before(:all) do
-        @taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus')
-        @type_of_genus = FactoryGirl.create(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
-        @original_genus = FactoryGirl.create(:protonym, name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'))
+        @type_of_genus = FactoryGirl.create(:iczn_genus, name: 'Bus')
+        @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
+        @taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: @type_of_genus)
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject: @taxon_name, object: @type_of_genus )
         @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
@@ -98,14 +98,6 @@ describe TaxonName do
         before(:all) do
           @subspecies = FactoryGirl.create(:iczn_subspecies)
           @variety = FactoryGirl.create(:icn_variety)
-        end
-
-        context 'before_validation' do
-          specify 'cached_higher_name is set when it stands alone' do
-            family = TaxonName.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'))
-            family.valid?
-            expect(family.cached_higher_classification).to eq('Aidae')
-          end
         end
 
         context 'double checking FactoryGirl' do

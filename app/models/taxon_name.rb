@@ -150,8 +150,13 @@ class TaxonName < ActiveRecord::Base
    #region Validation
 
   def validate_parent_rank_is_higher
-    return true if self.type == 'Combination' || self.parent.nil? || self.parent.rank_class == NomenclaturalRank
-    if RANKS.index(self.rank_class) < RANKS.index(self.parent.rank_class)
+    if self.rank_class == NomenclaturalRank
+      true
+    elsif self.parent.nil?
+      errors.add(:parent_id, 'Parent is not selected')
+    elsif self.type == 'Combination' || self.parent.rank_class == NomenclaturalRank
+      true
+    elsif RANKS.index(self.rank_class) < RANKS.index(self.parent.rank_class)
       errors.add(:parent_id, "Parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
     end
   end

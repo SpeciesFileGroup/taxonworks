@@ -5,14 +5,9 @@ FactoryGirl.define do
 
   # ICZN taxa
 
-  factory :relationship_family, class: Protonym do
-    name 'Erythroneuridae'
-    rank_class Ranks.lookup(:iczn, 'Family')
-  end
-
   factory :relationship_genus, class: Protonym do
     name 'Erythroneura'
-    association :parent, factory: :relationship_family
+    association :parent, factory: :iczn_family
     year_of_publication 1850
     verbatim_author 'Say'
     rank_class Ranks.lookup(:iczn, 'Genus')

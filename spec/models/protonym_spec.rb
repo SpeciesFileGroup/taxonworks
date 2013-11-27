@@ -5,9 +5,10 @@ describe Protonym do
 
   context 'associations' do
     before(:all) do
-      @protonym = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus' )
-      @genus = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus' )
-      @family = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae') 
+      @order = FactoryGirl.create(:iczn_order)
+      @family = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: @order)
+      @genus = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: @family)
+      @protonym = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: @genus)
       @species_type_of_genus = FactoryGirl.create(:taxon_name_relationship,
                                                   subject: @protonym,
                                                   object: @genus, 
@@ -104,10 +105,11 @@ describe Protonym do
 
   context 'usage' do
     before do
-      @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'))
-      @s = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'))
-      @o = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'))
-      @f = Protonym.new(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'))
+      @order = FactoryGirl.create(:iczn_order)
+      @f = Protonym.new(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: @order)
+      @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
+      @o = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
+      @s = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: @g)
       @g.save
       @s.save
       @o.save
