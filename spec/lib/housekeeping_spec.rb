@@ -46,7 +46,22 @@ describe 'Housekeeping::User' do
        expect(instance).to respond_to(:updater)
      end
    end
+
+
+
+
+   context 'Project extensions' do
+     before(:all) {
+       HousekeepingTestClass::WithBoth.new # Force Project extensions by instantiating an instance of the extended class
+       @p = Project.new 
+     }
+
+     specify 'has_many :related_instances' do
+        expect(@p).to respond_to(:with_projects)
+     end
+   end
   end
+
 
 end
 

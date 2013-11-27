@@ -1,5 +1,9 @@
 require 'spec_helper'
 
+# Projects are extended by various related concerns.  When 
+# we get to testing them we will have to do this here:
+#   Rails.application.eager_load!
+
 describe Project do
 
   let(:project) {Project.new}

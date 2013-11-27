@@ -14,7 +14,7 @@ namespace :tw do
 
       mf =  File.new(Rails.root + 'tmp/migration.tmp', 'w')
 
-      puts "# known subclasses of ActiveRecord::Base  #{ActiveRecord::Base.subclasses.collect{|a| a.name}.join(", ")}"
+      puts "# known subclasses of ActiveRecord::Base  #{ActiveRecord::Base.subclasses.collect{|a| a.name}.join(", ").sort} \n"
 
       ActiveRecord::Base.subclasses.each do |d|
         if d.ancestors.include?(Housekeeping::Users)
