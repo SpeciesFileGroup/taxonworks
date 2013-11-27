@@ -6,6 +6,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup <  NomenclaturalRank::
    end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants + [NomenclaturalRank::Icn::Species]
+    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants
   end
 end

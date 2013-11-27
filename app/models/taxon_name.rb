@@ -150,22 +150,24 @@ class TaxonName < ActiveRecord::Base
    #region Validation
 
   def validate_parent_rank_is_higher
-    return true if self.parent.nil? || self.parent.rank_class == NomenclaturalRank
+    return true if self.type == 'Combination' || self.parent.nil? || self.parent.rank_class == NomenclaturalRank
     if RANKS.index(self.rank_class) < RANKS.index(self.parent.rank_class)
-      errors.add(:parent_id, "parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+      errors.add(:parent_id, "Parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
     end
   end
 
   def validate_source_type
-    if !self.source.nil?
-      errors.add(:source_id, "source must be a Bibtex") if self.source.type != 'Source::Bibtex'
+    if self.source
+      errors.add(:source_id, "Source must be a Bibtex") if self.source.type != 'Source::Bibtex'
     end
   end
 
   def validate_rank_class_class
-    # TODO: refactor properly
-    return true if self.class == Combination && self.rank_class.nil?
-    errors.add(:rank_class, "rank not found") if !Ranks.valid?(rank_class)
+    if self.type == 'Combination'
+      errors.add(:rank_class, "Combination should not have rank") if self.rank_class
+    elsif self.type == 'Protonym'
+      errors.add(:rank_class, "Rank not found") if !Ranks.valid?(rank_class)
+    end
   end
 
   def check_format_of_name
@@ -189,15 +191,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_fix_missing_author
-    if !self.source_id.nil?
+    if self.source_id
       if !self.source.author.blank?
         self.verbatim_author = self.source.author
       end
     end
   end
   def sv_fix_missing_year
-    if !self.source_id.nil?
-      if !self.source.year.nil?
+    if self.source_id
+      if self.source.year
         self.year_of_publication = self.source.year
       end
     end
@@ -210,6 +212,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_source_older_then_description
+    nil
   end
 
   #endregion

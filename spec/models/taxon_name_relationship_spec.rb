@@ -4,21 +4,21 @@ describe TaxonNameRelationship do
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
-  context "validation" do 
-    context "requires" do
+  context 'validation' do
+    context 'requires' do
       before do
         taxon_name_relationship.valid?
       end
 
-      specify "subject_taxon_name_id" do
+      specify 'subject_taxon_name_id' do
         expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_true
       end
 
-      specify "object_taxon_name_id" do
+      specify 'object_taxon_name_id' do
         expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_true
       end
 
-      specify "type" do
+      specify 'type' do
         expect(taxon_name_relationship.errors.include?(:type)).to be_true
       end
 
@@ -26,23 +26,29 @@ describe TaxonNameRelationship do
         pending
       end
 
-      context "object and subject should share the same nomenclatural code" do
-        specify "same code" do
+      context 'object and subject should share the same nomenclatural code' do
+        specify 'same code' do
           r = FactoryGirl.build(:type_species_relationship)
           r.valid?
           expect(r.errors.include?(:object_id)).to be_false
         end
 
-        specify "different code" do
-         # r = FactoryGirl.build(:type_species_relationship_faulty_object)
+        specify 'different code' do
           r = FactoryGirl.build(:type_species_relationship, object: FactoryGirl.build(:icn_genus))
           r.valid?
           expect(r.errors.include?(:object_id)).to be_true
         end
+
+        specify 'valid object rank' do
+          r = FactoryGirl.build(:type_species_relationship)
+          r.valid?
+          expect(r.errors.include?(:object_id)).to be_false
+          expect(r.errors.include?(:subject_id)).to be_false
+        end
       end
 
-      context "type" do
-        specify "invalidly_published when not a TaxonNameRelationship" do
+      context 'type' do
+        specify 'invalidly_published when not a TaxonNameRelationship' do
           taxon_name_relationship.type = "foo"
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:type)).to be_true
@@ -51,7 +57,7 @@ describe TaxonNameRelationship do
           expect(taxon_name_relationship.errors.include?(:type)).to be_true
         end
 
-        specify "validly_published when a TaxonNameRelationship" do
+        specify 'validly_published when a TaxonNameRelationship' do
           taxon_name_relationship.type = TaxonNameRelationship::Combination::Genus
           taxon_name_relationship.valid?
           expect(taxon_name_relationship.errors.include?(:typification)).to be_false
@@ -60,13 +66,13 @@ describe TaxonNameRelationship do
     end
   end
 
-  context "associations" do
-    context "belongs_to" do
-      specify "subject (TaxonName)" do
+  context 'associations' do
+    context 'belongs_to' do
+      specify 'subject (TaxonName)' do
         expect(taxon_name_relationship).to respond_to (:subject)
       end
 
-      specify "object (TaxonName)" do
+      specify 'object (TaxonName)' do
         expect(taxon_name_relationship).to respond_to (:object)
       end
     end

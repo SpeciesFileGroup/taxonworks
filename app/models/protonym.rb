@@ -38,6 +38,8 @@ class Protonym < TaxonName
 
   soft_validate(:sv_source_older_then_description)
 
+  #TODO: validate if the rank can change, only within one group.
+
   #region Soft validation
 
   def sv_source_older_then_description

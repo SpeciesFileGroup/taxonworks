@@ -50,9 +50,18 @@ describe Combination do
     end
 
     context "usage" do
+      before(:all) do
+        @genus = FactoryGirl.create(:relationship_genus, name: 'Aus')
+        @subgenus = FactoryGirl.create(:relationship_genus, name: 'Bus')
+        @species = FactoryGirl.create(:relationship_species, name: 'bus')
+      end
+
       context "subgeneric placement" do
         specify "a genus group name used as a subgenus" do
-          c = FactoryGirl.create(:subgenus_combination)
+          c = FactoryGirl.create(:combination, parent: @subgenus)
+          c.genus = @genus
+          c.subgenus = @subgenus
+          expect(c.valid?).to be_true
           expect(c.genus.name).to eq('Aus')
           expect(c.subgenus.name).to eq('Bus')
         end
@@ -60,7 +69,10 @@ describe Combination do
 
       context "species group names" do
         specify "a species group named used under a different genus" do
-          c = FactoryGirl.create(:species_combination)
+          c = FactoryGirl.create(:combination, parent: @species)
+          c.genus = @genus
+          c.species = @species
+          expect(c.valid?).to be_true
           expect(c.genus.name).to eq('Aus')
           expect(c.species.name).to eq('bus')
         end

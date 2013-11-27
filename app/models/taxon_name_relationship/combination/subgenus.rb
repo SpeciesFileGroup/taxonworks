@@ -7,7 +7,7 @@ class TaxonNameRelationship::Combination::Subgenus < TaxonNameRelationship::Comb
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + [NomenclaturalRank::Icn::Species] + NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants
+    NomenclaturalRank::Iczn::GenusGroup.descendants + NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::GenusGroup.descendants + NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants
   end
 
   def self.assignable

@@ -25,13 +25,13 @@ describe TaxonName do
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'taxon_name_relationships' do
-          expect(taxon_name).to respond_to (:taxon_name_relationships)
+          expect(@taxon_name).to respond_to (:taxon_name_relationships)
           expect(@taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'all_taxon_name_relationships' do
-          expect(taxon_name).to respond_to (:all_taxon_name_relationships)
+          expect(@taxon_name).to respond_to (:all_taxon_name_relationships)
           expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
         end
 
@@ -186,8 +186,8 @@ describe TaxonName do
       specify "source is missing" do
         @species.soft_validate
         expect(@species.soft_validations.messages_on(:source_id).count).to be > 0
-        expect(@species.soft_validations.messages_on(:verbatim_author).count).to eq(0)
-        expect(@species.soft_validations.messages_on(:year_of_publication).count).to eq(0)
+        expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
       end
       specify 'author and year are missing' do
         kingdom = @species.ancestor_at_rank('kingdom')
@@ -205,8 +205,8 @@ describe TaxonName do
         expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
         t.fix_soft_validations
         t.soft_validate
-        expect(t.soft_validations.messages_on(:verbatim_author).count).to eq(0)
-        expect(t.soft_validations.messages_on(:year_of_publication).count).to eq(0)
+        expect(t.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(t.soft_validations.messages_on(:year_of_publication).empty?).to be_true
         expect(t.verbatim_author).to eq('aaa')
         expect(t.year_of_publication).to eq(1950)
       end

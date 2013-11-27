@@ -5,7 +5,7 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
 
    # left side
   def self.valid_subject_ranks
-    NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::SpeciesGroup.descendants
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants + NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants
   end
 
    # right_side
