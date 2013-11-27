@@ -139,17 +139,26 @@ describe Protonym do
   end
 
   context 'soft_validation' do
-    specify 'A taxon had not been described at the date of the reference' do
-      p = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), year_of_publication: 2000)
-      s = Source.new(year: 1999, author: 'aaa')
-      s.save
-      p.source = s
-      p.soft_validate
-      expect(p.soft_validations.messages_on(:source_id).include?('A taxon had not been described at the date of the reference')).to be_true
-      p.year_of_publication = 1995
-      p.soft_validate
-      expect(p.soft_validations.messages_on(:source_id).include?('A taxon had not been described at the date of the reference')).to be_false
+    before(:all) do
+      @s = Source.new(year: 1940, author: 'aaa')
+      @p = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), year_of_publication: 2000, source: @s)
+      @s.save
     end
+    specify 'A taxon had not been described at the date of the reference' do
+      @p.soft_validate
+      expect(@p.soft_validations.messages_on(:source_id).include?('The year of publication and the year of reference do not match')).to be_true
+      @p.year_of_publication = 1940
+      @p.soft_validate
+      expect(@p.soft_validations.messages_on(:source_id).include?('The year of publication and the year of reference do not match')).to be_false
+    end
+    specify 'A combination is older than the taxon' do
+      c = Combination.new(year_of_publication: 1930, parent: @p, source: @s)
+      c.soft_validate
+      expect(c.soft_validations.messages_on(:source_id).include?('The year of publication and the year of reference do not match')).to be_true
+      #expect(c.soft_validations.messages_on(:source_id).include?('The citation is older than the taxon')).to be_true
+      #expect(c.soft_validations.messages_on(:year_of_publication).include?('The combination is older than the taxon')).to be_true
+    end
+
   end
 
 end

@@ -43,8 +43,8 @@ class Protonym < TaxonName
   #region Soft validation
 
   def sv_source_older_then_description
-    if !self.source.nil? && !self.year_of_publication.nil?
-      soft_validations.add(:source_id, 'A taxon had not been described at the date of the reference') if self.source.year < self.year_of_publication
+    if self.source && self.year_of_publication
+      soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
     end
   end
 

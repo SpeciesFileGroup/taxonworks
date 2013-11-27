@@ -17,4 +17,14 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object    
   end
 
+  def sv_source_older_then_description
+    if self.source && self.year_of_publication
+      soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
+      if self.parent.year_of_publication
+        soft_validations.add(:source_id, 'The citation is older than the taxon') if self.source.year < self.parent.year_of_publication
+        soft_validations.add(:year_of_publication, 'The combination is older than the taxon') if self.year_of_publication < self.parent.year_of_publication
+      end
+    end
+  end
+
 end
