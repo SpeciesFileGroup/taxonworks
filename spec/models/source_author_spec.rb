@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Role::TaxonNameAuthor do
+describe SourceAuthor do
   pending "add some examples to (or delete) #{__FILE__}"
 end

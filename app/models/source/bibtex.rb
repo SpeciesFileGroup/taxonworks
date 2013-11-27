@@ -85,11 +85,11 @@ class Source::Bibtex < Source
   #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
   # @associations  authors
   #   linkage to author roles
-  has_many :author_roles, class_name: 'Role::SourceAuthor', as: :role_object
+  has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person
   # self.author & self.authors should match or one of them should be empty
   # ditto for self.editor & self.editors
-  has_many :editor_roles, class_name: 'Role::SourceEditor', as: :role_object
+  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
                                                        #region soft_validate calls

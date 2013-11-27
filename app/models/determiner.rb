@@ -1,4 +1,4 @@
-class Role::Determiner < Role
+class Determiner < Role::ProjectRole
 
   has_many :taxon_determinations
   has_many :determined_otus, through: :taxon_determinations, source: :otu

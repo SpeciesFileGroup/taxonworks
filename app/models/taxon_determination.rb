@@ -26,7 +26,7 @@ class TaxonDetermination < ActiveRecord::Base
   belongs_to :biological_collection_object
 
 
-  has_one :determiner_role, class_name: 'Role::Determiner', as: :role_object
+  has_one :determiner_role, class_name: 'Determiner', as: :role_object
   has_one :determiner, through: :determiner_role, source: :person
 
 end

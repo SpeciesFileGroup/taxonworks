@@ -27,10 +27,10 @@ describe Role do
       specify 'one person can not have two identical roles' do
         person = FactoryGirl.create(:valid_person)
         role_object = FactoryGirl.create(:valid_bibtex_source)
-        role1 = Role.new(person: person, role_object:  role_object, type: 'Role::SourceAuthor')
+        role1 = Role.new(person: person, role_object:  role_object, type: 'SourceAuthor')
         expect(role1.valid?).to be_true
         role1.save
-        role2 = Role.new(person: person, role_object:  role_object, type: 'Role::SourceAuthor')
+        role2 = Role.new(person: person, role_object:  role_object, type: 'SourceAuthor')
         expect(role2.valid?).to be_false
         expect(role2.errors.include?(:person_id)).to be_true
       end

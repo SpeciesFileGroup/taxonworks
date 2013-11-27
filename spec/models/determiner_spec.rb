@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Role::Determiner do
-  let(:determiner) {Role::Determiner.new}
+describe Determiner do
+  let(:determiner) {Determiner.new}
 
   context 'associations' do
     context 'has_many' do

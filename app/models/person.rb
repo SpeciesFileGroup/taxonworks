@@ -9,13 +9,13 @@ class Person < ActiveRecord::Base
                                 message: "%{value} is not a validly_published type" }
 
   has_many :roles 
-  has_many :author_roles, class_name: 'Role::SourceAuthor'
-  has_many :editor_roles, class_name: 'Role::SourceEditor'
-  has_many :source_source_roles, class_name: 'Role::SourceSource'
-  has_many :collector_roles, class_name: 'Role::Collector'
-  has_many :determiner_roles, class_name: 'Role::Determiner'
-  has_many :taxon_name_author_roles, class_name: 'Role::TaxonNameAuthor'
-  has_many :type_designator_roles, class_name: 'Role::TypeDesignator'
+  has_many :author_roles, class_name: 'SourceAuthor'
+  has_many :editor_roles, class_name: 'SourceEditor'
+  has_many :source_source_roles, class_name: 'SourceSource'
+  has_many :collector_roles, class_name: 'Collector'
+  has_many :determiner_roles, class_name: 'Determiner'
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor'
+  has_many :type_designator_roles, class_name: 'TypeDesignator' 
 
   has_many :sources, through: :roles   # TODO: test
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'

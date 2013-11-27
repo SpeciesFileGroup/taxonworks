@@ -6,7 +6,7 @@ class CollectingEvent < ActiveRecord::Base
   # belongs_to :geographic_area
   # belongs_to :confidence
 
-  has_many :collector_roles, class_name: 'Role::Collector', as: :role_object
+  has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
 
   # validate :minimal_data_is_provided
