@@ -1,3 +1,4 @@
+
 class TaxonName < ActiveRecord::Base
 
   include Shared::Identifiable
@@ -227,10 +228,9 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
- #def sv_s
- #  # self.parent.rank_class.to_sourcself.rank_classe_older_then_description
- #  true
- #end
+  def sv_source_older_then_description
+    true
+  end
 
   #endregion
 

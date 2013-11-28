@@ -6,6 +6,6 @@ class NomenclaturalRank::Iczn::SpeciesGroup < NomenclaturalRank::Iczn
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s + NomenclaturalRank::Iczn::GenusGroup.descendants.to_s
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
   end
 end

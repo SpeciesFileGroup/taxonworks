@@ -20,13 +20,13 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
       2000
     end
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.to_s
+      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class InterpolatedName < TaxonNameClass::Iczn::Unavailable::NomenNudum
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -44,7 +44,7 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
       2000
     end
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -53,7 +53,7 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
       1931
     end
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.to_s
+      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -62,7 +62,7 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
       2000
     end
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -72,19 +72,19 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotBasedOnAvailableGenusName < TaxonNameClass::Iczn::Unavailable::NomenNudum
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotFromGenusName < TaxonNameClass::Iczn::Unavailable::NomenNudum
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -111,13 +111,13 @@ class TaxonNameClass::Iczn::Unavailable::NomenNudum < TaxonNameClass::Iczn::Unav
       1931
     end
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.to_s
+      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class UmbiguousGenericPlacement < TaxonNameClass::Iczn::Unavailable::NomenNudum
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 

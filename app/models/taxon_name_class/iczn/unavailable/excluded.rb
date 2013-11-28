@@ -2,7 +2,7 @@ class TaxonNameClass::Iczn::Unavailable::Excluded < TaxonNameClass::Iczn::Unavai
 
   class BasedOnFossilGenusFormula < TaxonNameClass::Iczn::Unavailable::Excluded
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -11,7 +11,7 @@ class TaxonNameClass::Iczn::Unavailable::Excluded < TaxonNameClass::Iczn::Unavai
 
   class Infrasubspecific < TaxonNameClass::Iczn::Unavailable::Excluded
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 

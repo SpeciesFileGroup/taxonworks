@@ -2,7 +2,7 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
 
   class BasedOnSuppressedGenus < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -21,7 +21,7 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -31,31 +31,31 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotNominativePlural < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotNounInNominativeSingular < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.to_s
+      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotNounOrAdjective < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class NotScientificPlural < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -75,7 +75,7 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -89,7 +89,7 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.to_s
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
@@ -102,7 +102,7 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     end
 
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.to_s
+      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
     end
 
   end
