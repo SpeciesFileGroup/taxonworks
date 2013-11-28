@@ -157,8 +157,8 @@ describe Protonym do
       c.save
       c.soft_validate
       expect(c.soft_validations.messages_on(:source_id).include?('The year of publication and the year of reference do not match')).to be_true
-      expect(c.soft_validations.messages_on(:source_id).include?('The citation is older than the taxon')).to be_false
       expect(c.soft_validations.messages_on(:year_of_publication).include?('The combination is older than the taxon')).to be_true
+      expect(c.soft_validations.messages_on(:source_id).include?('The citation is older than the taxon')).to be_false
     end
 
   end

@@ -8,7 +8,6 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   before_validation :validate_type,
                     :validate_subject_and_object_share_code,
-                    :validate_combination_relationships,
                     :validate_valid_subject_and_object
 
   def aliases

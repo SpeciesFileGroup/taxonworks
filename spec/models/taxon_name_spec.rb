@@ -134,6 +134,11 @@ describe TaxonName do
                 expect(t.soft_validations.messages_on(:rank_class).empty?).to be_true
               end
             end
+            specify 'invalid parent rank' do
+              t = FactoryGirl.create(:iczn_subgenus, parent: @subspecies.ancestor_at_rank('family'))
+              t.soft_validate
+              expect(t.soft_validations.messages_on(:rank_class).empty?).to be_false
+            end
           end
 
           context 'missing_fields' do

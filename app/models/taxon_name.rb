@@ -219,16 +219,16 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_validate_parent_rank
-    if self.type == 'Combination' || self.rank_class == NomenclaturalRank
+    if self.type == 'Combination' || self.rank_class.to_s == 'NomenclaturalRank'
       true
-    elsif self.parent.rank_class == NomenclaturalRank
+    elsif self.parent.rank_class.to_s == 'NomenclaturalRank'
       true
-    elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.rank_name)
-      errors.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
+    elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
+      soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
     end
   end
 
-  def sv_source_older_then_description
+  def sv_sself.parent.rank_class.to_sourcself.rank_classe_older_then_description
     true
   end
 
