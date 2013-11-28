@@ -93,7 +93,7 @@ describe TaxonName do
       end
     end
 
-    context 'name (= latinized version)' do
+    context 'name' do
       context 'format' do
         before(:all) do
           @subspecies = FactoryGirl.create(:iczn_subspecies)
@@ -124,6 +124,53 @@ describe TaxonName do
             expect(t.cached_author_year).to eq('')
           end
         end
+
+        context 'soft_validations' do
+          context 'valid parent rank' do
+            specify 'parent rank should be valid' do
+              taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
+              taxa.each do |t|
+                t.soft_validate
+                expect(t.soft_validations.messages_on(:rank_class).empty?).to be_true
+              end
+            end
+          end
+
+          context 'missing_fields' do
+            specify "source is missing" do
+              species = @subspecies.ancestor_at_rank('species')
+              species.soft_validate
+              expect(species.soft_validations.messages_on(:source_id).empty?).to be_false
+              expect(species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+              expect(species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+            end
+            specify 'author and year are missing' do
+              kingdom = @subspecies.ancestor_at_rank('kingdom')
+              kingdom.soft_validate
+              expect(kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+              expect(kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+            end
+            specify 'fix author and year' do
+              s = Source.new(year: 1950, author: 'aaa')
+              s.save
+              t = FactoryGirl.build(:iczn_kingdom)
+              t.source = s
+              t.soft_validate
+              expect(t.soft_validations.messages_on(:verbatim_author).count).to be > 0
+              expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
+              t.fix_soft_validations
+              t.soft_validate
+              expect(t.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+              expect(t.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+              expect(t.verbatim_author).to eq('aaa')
+              expect(t.year_of_publication).to eq(1950)
+            end
+            specify "missing relationships" do
+              expect(@subspecies.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+            end
+          end
+        end
+
       end
 
       context 'when rank ICZN family' do
@@ -152,6 +199,7 @@ describe TaxonName do
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
+
       context 'when rank ICN family' do
         specify "is validly_published when ending in '-aceae'" do
           taxon_name.name = 'Fooaceae'
@@ -166,45 +214,7 @@ describe TaxonName do
           expect(taxon_name.errors.include?(:name)).to be_true
         end
       end
-    end
 
-  end
-
-  context 'soft_validations' do
-    before(:all) do
-      @species = FactoryGirl.create(:iczn_species, source_id: nil)
-    end
-    context 'missing_fields' do
-      specify "source is missing" do
-        @species.soft_validate
-        expect(@species.soft_validations.messages_on(:source_id).count).to be > 0
-        expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-        expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-      end
-      specify 'author and year are missing' do
-        kingdom = @species.ancestor_at_rank('kingdom')
-        kingdom.soft_validate
-        expect(kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
-        expect(kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
-      end
-      specify 'fix author and year' do
-        s = Source.new(year: 1950, author: 'aaa')
-        s.save
-        t = TaxonName.new
-        t.source = s
-        t.soft_validate
-        expect(t.soft_validations.messages_on(:verbatim_author).count).to be > 0
-        expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
-        t.fix_soft_validations
-        t.soft_validate
-        expect(t.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-        expect(t.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        expect(t.verbatim_author).to eq('aaa')
-        expect(t.year_of_publication).to eq(1950)
-      end
-      specify "missing relationships" do
-        expect(@species.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
-      end
     end
   end
 

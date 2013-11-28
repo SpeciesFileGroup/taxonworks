@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subphylum < NomenclaturalRank::
     NomenclaturalRank::Iczn::AboveFamilyGroup::Phylum
   end
 
+  def self.valid_parents
+    [NomenclaturalRank::Iczn::AboveFamilyGroup::Phylum.to_s]
+  end
+
 end

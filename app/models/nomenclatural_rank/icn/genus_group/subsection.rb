@@ -5,7 +5,7 @@ class NomenclaturalRank::Icn::GenusGroup::Subsection < NomenclaturalRank::Icn::G
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::GenusGroup::Section
+    [NomenclaturalRank::Icn::GenusGroup::Section.to_s]
   end
 
   def self.abbreviation

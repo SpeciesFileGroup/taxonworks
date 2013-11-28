@@ -16,6 +16,7 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   soft_validate(:sv_missing_fields)
   soft_validate(:sv_missing_relationships)
+  soft_validate(:sv_validate_parent_rank)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -42,8 +43,6 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :type
   validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
   validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
-
-  # TODO: validates_format_of :name, with: "something", if: "some proc"
 
   before_validation :set_type_if_empty,
                     :check_format_of_name,
@@ -147,7 +146,7 @@ class TaxonName < ActiveRecord::Base
 
   #endregion
 
-   #region Validation
+  #region Validation
 
   def validate_parent_rank_is_higher
     if self.rank_class == NomenclaturalRank
@@ -161,17 +160,19 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def validate_source_type
-    if self.source
-      errors.add(:source_id, "Source must be a Bibtex") if self.source.type != 'Source::Bibtex'
-    end
-  end
-
   def validate_rank_class_class
     if self.type == 'Combination'
       errors.add(:rank_class, "Combination should not have rank") if self.rank_class
     elsif self.type == 'Protonym'
-      errors.add(:rank_class, "Rank not found") if !Ranks.valid?(rank_class)
+      if !Ranks.valid?(rank_class)
+        errors.add(:rank_class, "Rank not found")
+      end
+    end
+  end
+
+  def validate_source_type
+    if self.source
+      errors.add(:source_id, "Source must be a Bibtex") if self.source.type != 'Source::Bibtex'
     end
   end
 
@@ -202,6 +203,7 @@ class TaxonName < ActiveRecord::Base
       end
     end
   end
+
   def sv_fix_missing_year
     if self.source_id
       if self.source.year
@@ -216,8 +218,18 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def sv_validate_parent_rank
+    if self.type == 'Combination' || self.rank_class == NomenclaturalRank
+      true
+    elsif self.parent.rank_class == NomenclaturalRank
+      true
+    elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.rank_name)
+      errors.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
+    end
+  end
+
   def sv_source_older_then_description
-    nil
+    true
   end
 
   #endregion

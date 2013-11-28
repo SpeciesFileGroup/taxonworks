@@ -10,6 +10,6 @@ class NomenclaturalRank::Icn::AboveFamilyGroup::Subphylum < NomenclaturalRank::I
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::AboveFamilyGroup::Phylum
+    [NomenclaturalRank::Icn::AboveFamilyGroup::Phylum.to_s]
   end
 end

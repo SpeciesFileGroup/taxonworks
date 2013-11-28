@@ -5,7 +5,7 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subspecies < Nomencla
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species
+    [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species.to_s]
   end
 
   def self.abbreviation

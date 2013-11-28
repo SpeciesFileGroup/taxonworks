@@ -5,7 +5,7 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subform < Nomenclatur
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Form
+    [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Form.to_s]
   end
 
   def self.abbreviation

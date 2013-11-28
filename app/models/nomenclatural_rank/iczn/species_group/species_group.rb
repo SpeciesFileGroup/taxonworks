@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup < NomenclaturalRank::I
     NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSeries
   end
 
+  def self.typical_use
+    true
+  end
+
 end

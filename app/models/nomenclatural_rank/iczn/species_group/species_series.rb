@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSeries < NomenclaturalRank::
     NomenclaturalRank::Iczn::GenusGroup::Infragenus
   end
 
-  COMMON = false
+  def self.typical_use
+    false
+  end
 
 end

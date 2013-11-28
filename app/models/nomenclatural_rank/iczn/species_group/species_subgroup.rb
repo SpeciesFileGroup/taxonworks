@@ -4,8 +4,12 @@ class NomenclaturalRank::Iczn::SpeciesGroup::SpeciesSubgroup < NomenclaturalRank
     NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup
   end
 
+  def self.typical_use
+    false
+  end
+
   def self.valid_parents
-    NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup
+    [NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup.to_s]
   end
 
 end

@@ -5,6 +5,6 @@ class NomenclaturalRank::Icn::AboveFamilyGroup::Subkingdom < NomenclaturalRank::
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::AboveFamilyGroup::Kingdom
+    [NomenclaturalRank::Icn::AboveFamilyGroup::Kingdom.to_s]
   end
 end

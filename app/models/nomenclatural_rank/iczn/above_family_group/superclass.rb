@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superclass  <  NomenclaturalRan
     NomenclaturalRank::Iczn::AboveFamilyGroup::Infraphylum
   end
 
-  COMMON = false
+  def self.typical_use
+    false
+  end
 
 end

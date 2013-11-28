@@ -9,10 +9,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species < Nomenclatur
     NomenclaturalRank::Icn::GenusGroup::Subseries
   end
 
-  def self.valid_parents
-    NomenclaturalRank::Icn::GenusGroup.descendants
-  end
-
   def self.abbreviation
     "sp."
   end

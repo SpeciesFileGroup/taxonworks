@@ -11,6 +11,6 @@ class NomenclaturalRank::Icn::AboveFamilyGroup::Suborder < NomenclaturalRank::Ic
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::AboveFamilyGroup::Order
+    [NomenclaturalRank::Icn::AboveFamilyGroup::Order.to_s]
   end
 end

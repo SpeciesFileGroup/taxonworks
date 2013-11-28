@@ -78,9 +78,4 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  def validate_combination_relationships
-    true
-    # chrisonym only have relationships to combination.
-  end
-
 end

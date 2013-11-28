@@ -5,10 +5,10 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Infraorder < NomenclaturalRank:
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::AboveFamilyGroup::Suborder
+    [NomenclaturalRank::Iczn::AboveFamilyGroup::Suborder.to_s]
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

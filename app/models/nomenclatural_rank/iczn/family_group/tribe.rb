@@ -10,7 +10,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Tribe < NomenclaturalRank::Iczn::Fam
   end
 
   def self.valid_parents
-    [NomenclaturalRank::Iczn::FamilyGroup::Supertribe, NomenclaturalRank::Iczn::FamilyGroup::Subfamily]
+    [NomenclaturalRank::Iczn::FamilyGroup::Supertribe.to_s, NomenclaturalRank::Iczn::FamilyGroup::Subfamily.to_s]
   end
 
   def self.abbreviation

@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::SubinfraordinalGroup < Nomencla
     NomenclaturalRank::Iczn::AboveFamilyGroup::Infraorder
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

@@ -10,8 +10,9 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subtribe < NomenclaturalRank::Iczn::
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::FamilyGroup::Tribe
+    [NomenclaturalRank::Iczn::FamilyGroup::Tribe.to_s]
   end
+
   def self.abbreviation
     "subtr."
   end

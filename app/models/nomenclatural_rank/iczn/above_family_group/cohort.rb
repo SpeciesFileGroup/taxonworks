@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Cohort < NomenclaturalRank::Icz
     NomenclaturalRank::Iczn::AboveFamilyGroup::Supercohort
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

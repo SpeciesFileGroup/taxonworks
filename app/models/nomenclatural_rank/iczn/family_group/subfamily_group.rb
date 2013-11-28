@@ -9,12 +9,12 @@ class NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup < NomenclaturalRank::
     taxon_name.errors.add(:name, 'name must end in -inae') if not(taxon_name.name =~ /.*inae\Z/)
   end
 
-  def self.valid_parents
-    NomenclaturalRank::Iczn::FamilyGroup::Family
+  def self.typical_use
+    false
   end
 
-  def self.common
-    false
+  def self.valid_parents
+    [NomenclaturalRank::Iczn::FamilyGroup::Family.to_s]
   end
 
 end

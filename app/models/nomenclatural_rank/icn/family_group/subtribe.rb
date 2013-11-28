@@ -11,7 +11,7 @@ class NomenclaturalRank::Icn::FamilyGroup::Subtribe < NomenclaturalRank::Icn::Fa
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::FamilyGroup::Tribe
+    [NomenclaturalRank::Icn::FamilyGroup::Tribe.to_s]
   end
 
   def self.abbreviation

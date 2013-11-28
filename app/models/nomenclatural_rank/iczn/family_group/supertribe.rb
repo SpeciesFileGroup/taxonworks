@@ -5,10 +5,10 @@ class NomenclaturalRank::Iczn::FamilyGroup::Supertribe < NomenclaturalRank::Iczn
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::FamilyGroup::Subfamily
+    [NomenclaturalRank::Iczn::FamilyGroup::Subfamily.to_s]
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

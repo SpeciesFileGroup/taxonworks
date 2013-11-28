@@ -10,7 +10,7 @@ class NomenclaturalRank::Icn::FamilyGroup::Subfamily < NomenclaturalRank::Icn::F
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::FamilyGroup::Family
+    [NomenclaturalRank::Icn::FamilyGroup::Family.to_s]
   end
 
   def self.abbreviation

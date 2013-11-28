@@ -8,9 +8,8 @@ class NomenclaturalRank
   # These Constants must be accessed by their corresponding 
   # class method.
 
-  # TODO: refactor/clarify 
   # Should the rank be displayed in "typical" use?
-  def self.common
+  def self.typical_use
     true
   end
 
@@ -64,7 +63,7 @@ class NomenclaturalRank
   end
 
   def self.valid_parents
-    nil
+    []
   end
 
 end

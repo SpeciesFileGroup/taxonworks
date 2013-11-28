@@ -4,7 +4,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Superkingdom <  NomenclaturalRa
     NomenclaturalRank::Iczn
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

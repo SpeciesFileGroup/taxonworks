@@ -147,7 +147,7 @@ FactoryGirl.define do
     cached_name 'Erythroneura (Erythroneura) aaa'
     cached_author_year 'McAtee, 1900'
     cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
-    source_id 10
+    association :source, factory: :valid_bibtex_source
     year_of_publication 1900
     verbatim_author 'McAtee'
     rank_class Ranks.lookup(:iczn, 'SPECIES')

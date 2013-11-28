@@ -15,7 +15,7 @@ class TaxonNameClass
   end
 
   def self.applicable_ranks
-    nil
+    []
   end
 
 end

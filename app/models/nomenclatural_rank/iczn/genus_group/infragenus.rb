@@ -4,11 +4,11 @@ class NomenclaturalRank::Iczn::GenusGroup::Infragenus < NomenclaturalRank::Iczn:
     NomenclaturalRank::Iczn::GenusGroup::Subgenus
   end
 
-  def self.available_parent
-    NomenclaturalRank::Iczn::GenusGroup::Subgenus
+  def self.valid_parents
+    [NomenclaturalRank::Iczn::GenusGroup::Subgenus.to_s]
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 

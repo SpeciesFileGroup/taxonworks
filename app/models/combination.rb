@@ -17,6 +17,10 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object    
   end
 
+  soft_validate(:sv_validate_parent_rank)
+
+  #region Soft validation
+
   def sv_source_older_then_description
     if self.source && self.year_of_publication
       soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
@@ -26,5 +30,7 @@ class Combination < TaxonName
       end
     end
   end
+
+  #endregion
 
 end

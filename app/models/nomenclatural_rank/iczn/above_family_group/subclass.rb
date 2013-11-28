@@ -5,7 +5,7 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subclass < NomenclaturalRank::I
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::AboveFamilyGroup::ClassRank
+    [NomenclaturalRank::Iczn::AboveFamilyGroup::ClassRank.to_s]
   end
 
 end

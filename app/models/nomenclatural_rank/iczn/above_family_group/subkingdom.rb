@@ -5,10 +5,10 @@ class NomenclaturalRank::Iczn::AboveFamilyGroup::Subkingdom < NomenclaturalRank:
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom
+    [NomenclaturalRank::Iczn::AboveFamilyGroup::Kingdom.to_s]
   end
 
-  def self.common
+  def self.typical_use
     false
   end
 
