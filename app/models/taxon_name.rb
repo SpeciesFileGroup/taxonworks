@@ -1,4 +1,3 @@
-
 class TaxonName < ActiveRecord::Base
 
   include Shared::Identifiable
@@ -45,10 +44,10 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
 
   before_validation :set_type_if_empty,
-                    :check_format_of_name,
-                    :validate_rank_class_class,
-                    :validate_source_type,
-                    :validate_parent_rank_is_higher
+    :check_format_of_name,
+    :validate_rank_class_class,
+    :validate_source_type,
+    :validate_parent_rank_is_higher
 
   before_validation :set_cached_name,
     :set_cached_author_year,
@@ -93,19 +92,19 @@ class TaxonName < ActiveRecord::Base
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANKS_NAMES.include?(i.rank_class.to_s)
           case i.rank
-            when "genus" then genus = i.name + ' '
-            when "subgenus" then subgenus += i.name + ' '
-            when "section" then subgenus += 'sect. ' + i.name + ' '
-            when "subsection" then subgenus += 'subsect. ' + i.name + ' '
-            when "series" then subgenus += 'ser. ' + i.name + ' '
-            when "subseries" then subgenus += 'subser. ' + i.name + ' '
-            when "species" then species += i.name + ' '
-            when "subspecies" then species += i.name + ' '
-            when "variety" then species += 'var. ' + i.name + ' '
-            when "subvariety" then species += 'subvar. ' + i.name + ' '
-            when "form" then species += 'f. ' + i.name + ' '
-            when "subform" then species += 'subf. ' + i.name + ' '
-            else
+          when "genus" then genus = i.name + ' '
+          when "subgenus" then subgenus += i.name + ' '
+          when "section" then subgenus += 'sect. ' + i.name + ' '
+          when "subsection" then subgenus += 'subsect. ' + i.name + ' '
+          when "series" then subgenus += 'ser. ' + i.name + ' '
+          when "subseries" then subgenus += 'subser. ' + i.name + ' '
+          when "species" then species += i.name + ' '
+          when "subspecies" then species += i.name + ' '
+          when "variety" then species += 'var. ' + i.name + ' '
+          when "subvariety" then species += 'subvar. ' + i.name + ' '
+          when "form" then species += 'f. ' + i.name + ' '
+          when "subform" then species += 'subf. ' + i.name + ' '
+          else
           end
         end
       end
@@ -126,7 +125,7 @@ class TaxonName < ActiveRecord::Base
           if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.to_s.empty?
             ay = '(' + ay + ')' unless ay.empty?
           end
-       end
+        end
       elsif rank.nomenclatural_code == :icn
         t = [self.verbatim_author]
         t += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
@@ -228,9 +227,10 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def sv_sself.parent.rank_class.to_sourcself.rank_classe_older_then_description
-    true
-  end
+ #def sv_s
+ #  # self.parent.rank_class.to_sourcself.rank_classe_older_then_description
+ #  true
+ #end
 
   #endregion
 
