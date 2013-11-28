@@ -77,5 +77,4 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
     end
   end
-
 end
