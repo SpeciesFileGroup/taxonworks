@@ -115,6 +115,21 @@ class TaxonName < ActiveRecord::Base
     self.cached_name = cached_name
   end
 
+  def set_cached_original_combination
+    #TODO: set cached original combination
+    true
+  end
+
+  def set_cached_primary_homonym
+    #TODO: set cached primary homonym, including variable spelling
+    true
+  end
+
+  def set_cached_secondary_homonym
+    #TODO: set cached secondary homonym, including variable spelling
+    true
+  end
+
   def set_cached_author_year
     if self.rank.nil?
       ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')

@@ -22,7 +22,7 @@ describe Protonym do
 
     context 'has_many' do
       specify 'original_combination_relationships' do 
-        expect(protonym).to respond_to(:original_combination_relationships)
+        expect(@protonym).to respond_to(:original_combination_relationships) ###
       end
 
       specify 'type_of_relationships' do
@@ -39,11 +39,11 @@ describe Protonym do
         if d.respond_to?(:assignment_method) 
           relationship = "#{d.assignment_method}_relationship".to_sym
           specify relationship do
-            expect(protonym).to respond_to(relationship)
+            expect(@protonym).to respond_to(relationship)  ###
           end 
 
           specify d.assignment_method.to_s do
-            expect(protonym).to respond_to(d.assignment_method.to_sym)
+            expect(@protonym).to respond_to(d.assignment_method.to_sym) ###
           end
         end
       end
@@ -56,7 +56,7 @@ describe Protonym do
         end 
 
         specify 'type_taxon_name_relationship' do
-          expect(protonym).to respond_to(:type_taxon_name_relationship)
+          expect(@protonym).to respond_to(:type_taxon_name_relationship) ###
           expect(@genus.type_taxon_name_relationship.id).to eq(@species_type_of_genus.id)
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
         end 
@@ -73,20 +73,20 @@ describe Protonym do
 
       context 'original description' do
         specify 'original_combination_source' do
-          expect(protonym).to respond_to(:original_combination_source)
+          expect(@protonym).to respond_to(:original_combination_source)   ###
         end
 
         %w{genus subgenus species}.each do |rank|
           method = "original_combination_#{rank}_relationship" 
           specify method do
-            expect(protonym).to respond_to(method)
+            expect(@protonym).to respond_to(method) ###
           end 
         end
 
         %w{genus subgenus species}.each do |rank|
           method = "original_combination_#{rank}" 
           specify method do
-            expect(protonym).to respond_to(method)
+            expect(@protonym).to respond_to(method) ###
           end 
         end
       end
@@ -104,7 +104,7 @@ describe Protonym do
   end
 
   context 'usage' do
-    before do
+    before(:all) do
       @order = FactoryGirl.create(:iczn_order)
       @f = Protonym.new(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: @order)
       @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
@@ -122,6 +122,16 @@ describe Protonym do
       expect(@s.original_combination_genus_relationship.subject).to eq(@o)
       expect(@s.original_combination_genus_relationship.object).to eq(@s)
     end
+
+    specify 'has at most one original description genus' do
+      expect(@s.original_combination_genus_relationship.subject).to eq(@o)
+      extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
+                                              subject: @g,
+                                              object: @s,
+                                              type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+      expect(extra_original_genus_relation.valid?).to be_false
+    end
+
 
     specify 'assign a type species to a genus' do
       expect(@g.type_species = @s).to be_true

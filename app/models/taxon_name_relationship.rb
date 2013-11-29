@@ -68,11 +68,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     elsif self.object.nil?
       errors.add(:object_id, "Please select a taxon")
     elsif self.subject && self.object
-      errors.add(:subject_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject.rank_class)
+      errors.add(:subject_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject.rank_class.to_s)
       if object.class == Protonym
-        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.rank_class)
+        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.rank_class.to_s)
       else
-        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.parent.rank_class)
+        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.parent.rank_class.to_s)
       end
     end
   end

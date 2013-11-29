@@ -36,6 +36,10 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
+#  %w(genus subgenus series subseries section subsection species subspecies variety subvariety form).each do |d|
+#    has_one "original_combination_#{d}".to_sym, through: :original_combination_relationships, source: :subject
+#  end
+
   soft_validate(:sv_source_older_then_description)
 
   #TODO: validate if the rank can change, only within one group.

@@ -5,6 +5,6 @@ class TaxonNameClass::Iczn < TaxonNameClass
   end
 
   def self.applicable_ranks
-    ICZN.to_s
+    ICZN.collect{|t| t.to_s}
   end
 end
