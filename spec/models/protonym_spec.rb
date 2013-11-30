@@ -121,6 +121,7 @@ describe Protonym do
       expect(@s.original_combination_genus_relationship.class).to eq(TaxonNameRelationship::OriginalCombination::OriginalGenus)
       expect(@s.original_combination_genus_relationship.subject).to eq(@o)
       expect(@s.original_combination_genus_relationship.object).to eq(@s)
+      expect(@s.original_combination_relationships).to eq([1])
     end
 
     specify 'has at most one original description genus' do
@@ -129,7 +130,8 @@ describe Protonym do
                                               subject: @g,
                                               object: @s,
                                               type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      expect(extra_original_genus_relation.valid?).to be_false
+      expect(extra_original_genus_relation.save).to be_true
+      expect(@s.original_combination_relationships.collect{|t| t.to_s}).to eq([])
     end
 
 

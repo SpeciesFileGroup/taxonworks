@@ -1,6 +1,7 @@
 class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
-  validates_uniqueness_of :type, scope: :object_taxon_name_id
+  #validates :name, uniqueness: { scope: :year, message: "should happen once per year" }
+  validates_uniqueness_of :object_taxon_name_id, scope: :type
 
   def self.assignable
     false

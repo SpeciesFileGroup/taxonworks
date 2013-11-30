@@ -28,17 +28,17 @@ class Protonym < TaxonName
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+    }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object
 
   has_many :original_combination_relationships, -> {
-    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+    where type: 'TaxonNameRelationship::OriginalCombination::%'
+    }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
-#  %w(genus subgenus series subseries section subsection species subspecies variety subvariety form).each do |d|
-#    has_one "original_combination_#{d}".to_sym, through: :original_combination_relationships, source: :subject
-#  end
+#  has_many :original_combination_relationships, -> {
+#    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
+#  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   soft_validate(:sv_source_older_then_description)
 
