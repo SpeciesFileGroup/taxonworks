@@ -129,19 +129,20 @@ describe Protonym do
                                                         subject: @o,
                                                         object: @s,
                                                         type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      expect(first_original_genus_relation.save).to be_true
+      first_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(1)
       first_original_subgenus_relation = FactoryGirl.build(:taxon_name_relationship,
                                                            subject: @g,
                                                            object: @s,
                                                            type: TaxonNameRelationship::OriginalCombination::OriginalSubgenus)
-      expect(first_original_subgenus_relation.save).to be_true
+      first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
       extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
                                               subject: @g,
                                               object: @s,
                                               type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      expect(extra_original_genus_relation.save).to be_true
+      expect(extra_original_genus_relation.valid?).to be_false
+      extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 
