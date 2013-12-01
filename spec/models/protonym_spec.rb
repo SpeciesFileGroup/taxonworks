@@ -124,23 +124,34 @@ describe Protonym do
     end
 
     specify 'has at most one original description genus' do
+      # Dmitry- The problem is that your variables were instances of TaxonNameRelationship, this class doesn't have the pertinent validation.
+      # When you return them in the future they will be cast as the subclass, and they will have the validations. To solve, use 
+      # 1) or 2) examples below (2 is preferred)
+      
       expect(@s.original_combination_relationships.count).to eq(0)
-      first_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
+
+      # Example 1) recasting
+      temp_relation = FactoryGirl.build(:taxon_name_relationship,
                                                         subject: @o,
                                                         object: @s,
-                                                        type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      first_original_genus_relation.save
+                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      temp_relation.save # note that you have to save this, not the recast version
+
+      # recast as the subclass
+      first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
-      first_original_subgenus_relation = FactoryGirl.build(:taxon_name_relationship,
+
+      # Example 2) just use the right subclass to start
+      first_original_subgenus_relation = FactoryGirl.build(:original_combination_relationship,
                                                            subject: @g,
                                                            object: @s,
-                                                           type: TaxonNameRelationship::OriginalCombination::OriginalSubgenus)
+                                                           type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
-      extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
+      extra_original_genus_relation = FactoryGirl.build(:original_combination_relationship,
                                               subject: @g,
                                               object: @s,
-                                              type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+                                              type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_false
       extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
