@@ -192,14 +192,14 @@ def read_shape(filename, index)
             s2 = i2.empty? ? '' : (i2 + ', ')
             i1 = item['NAME_1']
             s1 = i1.empty? ? '' : (i1 + ', ')
-            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).getgm.strftime "%H:%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
           when /level1/
-            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: #{item['LEVEL1_COD']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).getgm.strftime "%H:%M:%S"}: #{item['LEVEL1_COD']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
           when /level2/
-            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).strftime "%M:%S"}: #{item['LEVEL2_COD']}, #{item['LEVEL2_NAM']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
+            puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).getgm.strftime "%H:%M:%S"}: #{item['LEVEL2_COD']}, #{item['LEVEL2_NAM']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
           when /level3/
             o1 = Time.at(time_then).strftime "%T"
-            o2 = Time.at(elapsed).strftime "%M:%S"
+            o2 = Time.at(elapsed).getgm.strftime "%H:%M:%S"
             o3 = item['LEVEL2_COD']
             o4 = item['LEVEL3_COD']
             o5 = item['LEVEL3_NAM']
@@ -210,7 +210,7 @@ def read_shape(filename, index)
           when /level4/
             # "ISO_Code","Level_4_Na","Level4_cod","Level4_2","Level3_cod","Level2_cod","Level1_cod"
             o1 = Time.at(time_then).strftime "%T"
-            o2 = Time.at(elapsed).strftime "%M:%S"
+            o2 = Time.at(elapsed).getgm.strftime "%H:%M:%S"
             o3 = item['ISO_Code']
             o9 = item['Level2_cod']
             o4 = item['Level4_cod']
