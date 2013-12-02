@@ -180,7 +180,7 @@ def read_shape(filename, index)
         elapsed = snap - time_then
         time_then = snap
         case filename
-          when /GADM/
+          when /GADM/i
 
             i5 = item['NAME_5']
             s5 = i5.empty? ? '' : (i5 + ', ')
@@ -225,7 +225,7 @@ def read_shape(filename, index)
 
       end
     }
-  } if !(filename =~ /[012]/)
+  } if !(filename =~ /[01]/)
 
 end
 
