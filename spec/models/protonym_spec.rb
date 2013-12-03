@@ -10,13 +10,13 @@ describe Protonym do
       @genus = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: @family)
       @protonym = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: @genus)
       @species_type_of_genus = FactoryGirl.create(:taxon_name_relationship,
-                                                  subject: @protonym,
-                                                  object: @genus, 
+                                                  subject_taxon_name: @protonym,
+                                                  object_taxon_name: @genus,
                                                   type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
 
       @genus_type_of_family = FactoryGirl.create(:taxon_name_relationship,
-                                                 subject: @genus,
-                                                 object: @family, 
+                                                 subject_taxon_name: @genus,
+                                                 object_taxon_name: @family,
                                                  type: 'TaxonNameRelationship::Typification::Family')
     end
 
@@ -63,8 +63,8 @@ describe Protonym do
 
         specify 'has at most one has_type relationship' do
           extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
-                                                  subject: @genus,
-                                                  object: @family, 
+                                                  subject_taxon_name: @genus,
+                                                  object_taxon_name: @family,
                                                   type: TaxonNameRelationship::Typification::Family)
           # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
           expect(extra_type_relation.valid?).to be_false
@@ -119,12 +119,12 @@ describe Protonym do
       expect(@s.original_combination_genus = @o).to be_true
       expect(@s.save).to be_true
       expect(@s.original_combination_genus_relationship.class).to eq(TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      expect(@s.original_combination_genus_relationship.subject).to eq(@o)
-      expect(@s.original_combination_genus_relationship.object).to eq(@s)
+      expect(@s.original_combination_genus_relationship.subject_taxon_name).to eq(@o)
+      expect(@s.original_combination_genus_relationship.object_taxon_name).to eq(@s)
     end
 
     specify 'has at most one original description genus' do
-      # Dmitry- The problem is that your variables were instances of TaxonNameRelationship, this class doesn't have the pertinent validation.
+      # The problem is that your variables were instances of TaxonNameRelationship, this class doesn't have the pertinent validation.
       # When you return them in the future they will be cast as the subclass, and they will have the validations. To solve, use 
       # 1) or 2) examples below (2 is preferred)
       
@@ -132,8 +132,8 @@ describe Protonym do
 
       # Example 1) recasting
       temp_relation = FactoryGirl.build(:taxon_name_relationship,
-                                                        subject: @o,
-                                                        object: @s,
+                                                        subject_taxon_name: @o,
+                                                        object_taxon_name: @s,
                                                         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       temp_relation.save # note that you have to save this, not the recast version
 
@@ -143,14 +143,14 @@ describe Protonym do
 
       # Example 2) just use the right subclass to start
       first_original_subgenus_relation = FactoryGirl.build(:original_combination_relationship,
-                                                           subject: @g,
-                                                           object: @s,
+                                                           subject_taxon_name: @g,
+                                                           object_taxon_name: @s,
                                                            type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
-      extra_original_genus_relation = FactoryGirl.build(:original_combination_relationship,
-                                              subject: @g,
-                                              object: @s,
+      extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
+                                              subject_taxon_name: @g,
+                                              object_taxon_name: @s,
                                               type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_false
       extra_original_genus_relation.save
@@ -163,13 +163,13 @@ describe Protonym do
       expect(@g.save).to be_true
 
       expect(@g.type_species_relationship.class).to eq(TaxonNameRelationship::Typification::Genus)
-      expect(@g.type_species_relationship.subject).to eq(@s)
-      expect(@g.type_species_relationship.object).to eq(@g)
+      expect(@g.type_species_relationship.subject_taxon_name).to eq(@s)
+      expect(@g.type_species_relationship.object_taxon_name).to eq(@g)
       expect(@g.type_taxon_name_relationship.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@g.type_taxon_name.name).to eq('aus')
       expect(@s.type_of_relationships.to_a).to eq(@s.taxon_name_relationships.to_a)
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
-      expect(@s.type_of_relationships.first.object).to eq(@g)
+      expect(@s.type_of_relationships.first.object_taxon_name).to eq(@g)
     end
   end
 

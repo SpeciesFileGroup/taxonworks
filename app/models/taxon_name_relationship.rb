@@ -1,10 +1,18 @@
 class TaxonNameRelationship < ActiveRecord::Base
 
   validates_presence_of :type, :subject_taxon_name_id, :object_taxon_name_id
-  validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
 
-  belongs_to :subject, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
-  belongs_to :object, class_name: 'TaxonName', foreign_key: :object_taxon_name_id # right side
+
+  validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+
+  def is_combination?
+    !!/TaxonNameRelationship::(Original|)Combination/.match(self.type.to_s)
+  end
+  #validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id]
+
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id # right side
 
   before_validation :validate_type,
                     :validate_subject_and_object_share_code,
@@ -57,22 +65,22 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_subject_and_object_share_code
-    if object.class == Protonym && subject.class == Protonym
-      errors.add(:object_id, "The related taxon is from different nomenclatural code") if subject.rank_class.nomenclatural_code != object.rank_class.nomenclatural_code
+    if object_taxon_name.class == Protonym && subject_taxon_name.class == Protonym
+      errors.add(:object_taxon_name_id, "The related taxon is from different nomenclatural code") if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
   def validate_valid_subject_and_object
-    if self.subject.nil?
-      errors.add(:subject_id, "Please select a taxon")
-    elsif self.object.nil?
-      errors.add(:object_id, "Please select a taxon")
-    elsif self.subject && self.object
-      errors.add(:subject_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject.rank_class.to_s)
-      if object.class == Protonym
-        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.rank_class.to_s)
+    if self.subject_taxon_name.nil?
+      errors.add(:subject_taxon_name_id, "Please select a taxon")
+    elsif self.object_taxon_name.nil?
+      errors.add(:object_taxon_name_id, "Please select a taxon")
+    elsif self.subject_taxon_name && self.object_taxon_name
+      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject_taxon_name.rank_class.to_s)
+      if object_taxon_name.class == Protonym
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_class.to_s)
       else
-        errors.add(:object_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object.parent.rank_class.to_s)
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object_taxon_name.parent.rank_class.to_s)
       end
     end
   end

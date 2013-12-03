@@ -1,8 +1,5 @@
 class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typification
 
-  # write validation to be used only when a genus group name
-  # write validation so that the subject must be a species group name
-
    # left side
   def self.valid_subject_ranks
     NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|t| t.to_s}

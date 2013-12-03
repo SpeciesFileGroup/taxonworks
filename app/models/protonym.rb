@@ -12,7 +12,7 @@ class Protonym < TaxonName
     if d.respond_to?(:assignment_method) 
       relationship = "#{d.assignment_method}_relationship".to_sym
       has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
-      has_one d.assignment_method.to_sym, through: relationship, source: :subject
+      has_one d.assignment_method.to_sym, through: relationship, source: :subject_taxon_name
     end
 
     if d.respond_to?(:inverse_assignment_method)
@@ -24,13 +24,13 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
    
-  has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject
+  has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
-  has_many :type_of_taxon_names, through: :type_of_relationships, source: :object
+  has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
   has_many :original_combination_relationships, -> {
     where("taxon_Name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")

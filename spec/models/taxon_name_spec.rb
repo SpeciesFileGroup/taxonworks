@@ -18,8 +18,8 @@ describe TaxonName do
         @type_of_genus = FactoryGirl.create(:iczn_genus, name: 'Bus')
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus')
         @taxon_name = FactoryGirl.create(:protonym, rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: @type_of_genus)
-        @relationship1 = FactoryGirl.create(:type_species_relationship, subject: @taxon_name, object: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject: @original_genus, object: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        @relationship1 = FactoryGirl.create(:type_species_relationship, subject_taxon_name: @taxon_name, object_taxon_name: @type_of_genus )
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do

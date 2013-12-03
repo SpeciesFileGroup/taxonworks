@@ -14,7 +14,7 @@ class Combination < TaxonName
     has_one rank.to_sym, -> {
       joins( :combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"} )
-    }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object    
+    }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object_taxon_name
   end
 
   soft_validate(:sv_validate_parent_rank)

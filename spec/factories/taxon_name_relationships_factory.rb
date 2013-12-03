@@ -25,14 +25,14 @@ FactoryGirl.define do
   #relationships
 
   factory :type_genus_relationship, class: 'TaxonNameRelationship' do
-    association :subject, factory: :relationship_genus
-    association :object, factory: :relationship_family
+    association :subject_taxon_name, factory: :relationship_genus
+    association :object_taxon_name, factory: :relationship_family
     type TaxonNameRelationship::Typification::Family
   end
 
   factory :type_species_relationship, class: 'TaxonNameRelationship' do
-    association :subject, factory: :relationship_species
-    association :object, factory: :relationship_genus
+    association :subject_taxon_name, factory: :relationship_species
+    association :object_taxon_name, factory: :relationship_genus
     type TaxonNameRelationship::Typification::Genus::Monotypy::Original
   end
 

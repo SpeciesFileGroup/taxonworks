@@ -30,20 +30,20 @@ describe TaxonNameRelationship do
         specify 'same code' do
           r = FactoryGirl.build(:type_species_relationship)
           r.valid?
-          expect(r.errors.include?(:object_id)).to be_false
+          expect(r.errors.include?(:object_taxon_name_id)).to be_false
         end
 
         specify 'different code' do
-          r = FactoryGirl.build(:type_species_relationship, object: FactoryGirl.build(:icn_genus))
+          r = FactoryGirl.build(:type_species_relationship, object_taxon_name: FactoryGirl.build(:icn_genus))
           r.valid?
-          expect(r.errors.include?(:object_id)).to be_true
+          expect(r.errors.include?(:object_taxon_name_id)).to be_true
         end
 
         specify 'valid object rank' do
           r = FactoryGirl.build(:type_species_relationship)
           r.valid?
-          expect(r.errors.include?(:object_id)).to be_false
-          expect(r.errors.include?(:subject_id)).to be_false
+          expect(r.errors.include?(:object_taxon_name_id)).to be_false
+          expect(r.errors.include?(:subject_taxon_name_id)).to be_false
         end
       end
 
@@ -69,11 +69,11 @@ describe TaxonNameRelationship do
   context 'associations' do
     context 'belongs_to' do
       specify 'subject (TaxonName)' do
-        expect(taxon_name_relationship).to respond_to (:subject)
+        expect(taxon_name_relationship).to respond_to (:subject_taxon_name)
       end
 
       specify 'object (TaxonName)' do
-        expect(taxon_name_relationship).to respond_to (:object)
+        expect(taxon_name_relationship).to respond_to (:object_taxon_name)
       end
     end
   end
