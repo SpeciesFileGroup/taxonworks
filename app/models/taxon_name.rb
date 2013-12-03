@@ -167,11 +167,15 @@ class TaxonName < ActiveRecord::Base
     if self.rank_class == NomenclaturalRank
       true
     elsif self.parent.nil?
-      errors.add(:parent_id, 'Parent is not selected')
+      errors.add(:parent_id, 'A parent is not selected')
     elsif self.type == 'Combination' || self.parent.rank_class == NomenclaturalRank
       true
-    elsif RANKS.index(self.rank_class) < RANKS.index(self.parent.rank_class)
-      errors.add(:parent_id, "Parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+    elsif RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
+      errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+    elsif !self.children.empty?
+      if RANKS.index(self.rank_class) >= self.children.collect{|r| RANKS.index(r.rank_class)}.max
+        errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
+      end
     end
   end
 

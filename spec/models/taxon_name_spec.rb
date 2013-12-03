@@ -63,6 +63,14 @@ describe TaxonName do
         taxon_name.valid?
         expect(taxon_name.errors.include?(:parent_id)).to be_true
       end
+
+      specify 'child rank is lower' do
+        ord = FactoryGirl.create(:iczn_order)
+        cl = ord.ancestor_at_rank('class')
+        cl.rank_class = Ranks.lookup(:iczn, 'suborder')
+        cl.valid?
+        expect(cl.errors.include?(:rank_class)).to be_true
+      end
     end
 
     context 'source' do
