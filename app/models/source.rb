@@ -1,5 +1,7 @@
 class Source < ActiveRecord::Base
-  include Shared::Identifiable 
+
+  include Housekeeping::Users
+  include Shared::Identifiable
   include Shared::HasRoles
 
   has_many :citations, inverse_of: :source
