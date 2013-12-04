@@ -1,2 +1,2 @@
-class ControlledVocabularyTerm::Predicate < ActiveRecord::Base
+class ControlledVocabularyTerm::Predicate < ControlledVocabularyTerm
 end

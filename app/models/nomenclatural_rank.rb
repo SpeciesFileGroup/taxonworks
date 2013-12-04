@@ -2,8 +2,6 @@
 # !! See /lib/Ranks for related Constants and Hooks
 class NomenclaturalRank
 
-  include Housekeeping
-
   # self.descendants gets all descendant classes
   # self.subclasses gets immediate descendants
 

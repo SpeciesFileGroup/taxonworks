@@ -1,2 +1,2 @@
-class AlternateValue::Abbreviation < ActiveRecord::Base
+class AlternateValue::Abbreviation < AlternateValue
 end
