@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe ControlledVocabularyTerm::Keyword do
-  let(:topic) { ControlledVocabularyTerm::Keyword.new }
+describe Keyword do
+  let(:topic) { Keyword.new }
 
   context "associations" do
   end

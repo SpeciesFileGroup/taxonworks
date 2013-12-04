@@ -13,7 +13,6 @@ else
 end
 puts "\nBundling on #{os}(#{$LOAD_PATH[0]})."
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.2'
 
 # Database

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe ControlledVocabularyTerm::Topic do
-  let(:topic) { ControlledVocabularyTerm::Topic.new }
+describe Topic do
+  let(:topic) { Topic.new }
 
   # foreign key relationships
   context "reflections / foreign keys" do
