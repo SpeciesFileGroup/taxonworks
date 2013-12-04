@@ -8,20 +8,20 @@
 # This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
 # objects can be added to a BibTeX bibliography.
 #
-#  The following information is taken from _BibTeXing_, by Oren Patashnik, February 8, 1988
-#  http://ftp.math.purdue.edu/mirrors/ctan.org/biblio/bibtex/contrib/doc/btxdoc.pdf
-#  (and snippets are cut from this document for the attribute descriptions)
+# The following information is taken from _BibTeXing_, by Oren Patashnik, February 8, 1988
+# http://ftp.math.purdue.edu/mirrors/ctan.org/biblio/bibtex/contrib/doc/btxdoc.pdf
+# (and snippets are cut from this document for the attribute descriptions)
 #
-#  BibTeX fields in a BibTex bibliography are treated in one of three ways:
-#   REQUIRED - Omitting the field will produce a warning message and, rarely, a
+#   BibTeX fields in a BibTex bibliography are treated in one of three ways:
+#     REQUIRED - Omitting the field will produce a warning message and, rarely, a
 #       badly formatted bibliography entry. If the required information is not
 #       meaningful, you are using the wrong entry type. However, if the required
 #       information is meaningful but, say, already included is some other field,
 #       simply ignore the warning.
-#   OPTIONAL - The field's information will be used if present, but can be omitted
+#     OPTIONAL - The field's information will be used if present, but can be omitted
 #       without causing any formatting problems. You should include the optional
 #       field if it will help the reader.
-#   IGNORED - The field is ignored. BibTEX ignores any field that is not required or
+#     IGNORED - The field is ignored. BibTEX ignores any field that is not required or
 #       optional, so you can include any fields you want in a bib file entry. It's a
 #       good idea to put all relevant information about a reference in its bib file
 #       entry - even information that may never appear in the bibliography.
@@ -92,7 +92,6 @@ class Source::Bibtex < Source
 # @!attribute chapter
 # @!attribute crossref
 # @!attribute edition
-# @!attribute editor
 # @!attribute howpublished
 # @!attribute institution
 # @!attribute journal
