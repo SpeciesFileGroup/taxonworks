@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
   #       validation for uniqueness will fail ... why?
   # SEE: http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # SEE: http://unicode-utils.rubyforge.org/
+
+  include Housekeeping::Users
+
   before_validation { self.email = email.downcase }
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i

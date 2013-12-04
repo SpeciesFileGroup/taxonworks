@@ -1,5 +1,6 @@
 class TypeSpecimen < ActiveRecord::Base
 
+  include Housekeeping
   include Shared::Citable
 
   belongs_to :biological_object
