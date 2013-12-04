@@ -1,5 +1,7 @@
 class Role < ActiveRecord::Base
 
+  include Housekeeping
+
   acts_as_list scope: [ :role_object_id, :role_object_type, :type]
 
   belongs_to :role_object, polymorphic: :true

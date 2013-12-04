@@ -1,6 +1,8 @@
 # The base Class for all Nomenclature classes. The class of a TaxonName root. 
 # !! See /lib/Ranks for related Constants and Hooks
-class NomenclaturalRank 
+class NomenclaturalRank
+
+  include Housekeeping
 
   # self.descendants gets all descendant classes
   # self.subclasses gets immediate descendants

@@ -1,5 +1,7 @@
 class RangedLotCategory < ActiveRecord::Base
 
+  include Housekeeping
+
   validates_presence_of :name 
   before_validation :validate_values
   validates :minimum_value, numericality: {greater_than: 0, only_integer: true}, allow_nil: true
