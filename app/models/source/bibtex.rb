@@ -2,32 +2,32 @@
 #
 # Bibtex - Subclass of Source that represents most references.
 #
-#   TaxonWorks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies,
-#     and has a strict list of required fields. TW itself only requires that :bibtex_type
-#     be valid and that one of the attributes in TW_REQ_FIELDS be defined.
-#     This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
-#     objects can be added to a BibTeX bibliography.
+# TaxonWorks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies,
+#   and has a strict list of required fields. TW itself only requires that :bibtex_type
+#   be valid and that one of the attributes in TW_REQ_FIELDS be defined.
+#   This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
+#   objects can be added to a BibTeX bibliography.
 #
-#     The following information is taken from _BibTeXing_, by Oren Patashnik, February 8, 1988
+#  The following information is taken from _BibTeXing_, by Oren Patashnik, February 8, 1988
 #     http://ftp.math.purdue.edu/mirrors/ctan.org/biblio/bibtex/contrib/doc/btxdoc.pdf
 #     (and snippets are cut from this document for the attribute descriptions)
 #
-#     BibTeX fields in a BibTex bibliography are treated in one of three ways:
-#     REQUIRED - Omitting the field will produce a warning message and, rarely, a
+#  BibTeX fields in a BibTex bibliography are treated in one of three ways:
+#   REQUIRED - Omitting the field will produce a warning message and, rarely, a
 #       badly formatted bibliography entry. If the required information is not
 #       meaningful, you are using the wrong entry type. However, if the required
 #       information is meaningful but, say, already included is some other field,
 #       simply ignore the warning.
-#     OPTIONAL - The field's information will be used if present, but can be omitted
+#   OPTIONAL - The field's information will be used if present, but can be omitted
 #       without causing any formatting problems. You should include the optional
 #       field if it will help the reader.
-#     IGNORED - The field is ignored. BibTEX ignores any field that is not required or
+#   IGNORED - The field is ignored. BibTEX ignores any field that is not required or
 #       optional, so you can include any fields you want in a bib file entry. It's a
 #       good idea to put all relevant information about a reference in its bib file
 #       entry - even information that may never appear in the bibliography.
 #
-#     TW will add all non-standard or housekeeping attributes to the bibliography even though
-#       the data may be ignored.
+# TW will add all non-standard or housekeeping attributes to the bibliography even though
+# the data may be ignored.
 #
 # @!group Ruby standard attributes & our added housekeeping fields
 # @!attribute id [Fixnum]
@@ -42,13 +42,12 @@
 #
 # @!endgroup
 #
-# @!group TW needed attributes
-# @!endgroup
-#
 # @!group BibTeX attributes (based on BibTeX fields)
 # @!attribute address
 #   BibTeX standard field (optional for types: book, inbook, incollection, inproceedings, manual, mastersthesis,
-#   phdthesis, proceedings, techreport)- Usually the address of the publisher or other type of institution.
+#   phdthesis, proceedings, techreport)
+#   A TW required field (TW requires a value in one of the required fields.)
+#   Usually the address of the publisher or other type of institution.
 #   For major publishing houses, van Leunen recommends omitting the information
 #   entirely. For small publishers, on the other hand, you can help the reader by giving the complete address.
 #   @return [String] the address
@@ -59,19 +58,25 @@
 #   @return [String] the annotation
 #   @return [nil] means the field is not stored in the database.
 # @!attribute author
-#   BibTeX standard field (required for types: )(optional for types:)
-#   The name(s) of the author(s), in the format described in the LaTeX book. Names should be formatted as
-#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple authors,
-#    each author name should be separated by the word " and ". It should be noted that all the names before the
-#   comma are treated as a single last name.
-#   @return [String] the list of author names in BibTeX format
+# @!attribute editor
+# BibTeX standard field (required for types: )(optional for types:)
+# A TW required field (TW requires a value in one of the required fields.)
+# The name(s) of the author(s) or editor(s), in the format described in the LaTeX book. Names should be formatted as
+# "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple authors,
+# each author name should be separated by the word " and ". It should be noted that all the names before the
+# comma are treated as a single last name.
+#   @return [String] the list of author or editor names in BibTeX format
 #   @return [nil] means the field is not stored in the database.
 # @!attribute booktitle
 #   BibTeX standard field (required for types: )(optional for types:)
+#   A TW required field (TW requires a value in one of the required fields.)
 #   Title of a book, part of which is being cited. See the LaTEX book for how to type titles.
 #   For book entries, use the title field instead.
 #
 # @!endgroup
+# @!group TW add attributes that are not part of the standard attribute list
+# @!endgroup
+#
 #
 
 class Source::Bibtex < Source
@@ -84,8 +89,10 @@ class Source::Bibtex < Source
 # @!attribute howpublished
 # @!attribute institution
 # @!attribute journal
+#   A TW required field (TW requires a value in one of the required fields.)
 # @!attribute key
-# @!attribute month
+#   Used by bibtex-ruby gem method identifier
+# @!attribute month (use 3 letter abbreviation. see bibtex-ruby.MONTHS)
 # @!attribute note
 # @!attribute number
 # @!attribute organization
@@ -94,12 +101,21 @@ class Source::Bibtex < Source
 # @!attribute school
 # @!attribute series
 # @!attribute title
+#   A TW required field (TW requires a value in one of the required fields.)
 # @!attribute type
+# @!attribute translator - not yet implemented
+#   bibtex-ruby gem supports translator, it's not clear whether TW will or not.
 # @!attribute volume
 # @!attribute year
+#   A TW required field (TW requires a value in one of the required fields.)
 # @!attribute URL
+#   A TW required field (TW requires a value in one of the required fields.)
+# @!attribute doi - not implemented yet
+#   Used by bibtex-ruby gem method identifier
 # @!attribute ISBN
+#   Used by bibtex-ruby gem method identifier
 # @!attribute ISSN
+#   Used by bibtex-ruby gem method identifier
 # @!attribute LCCN
 # @!attribute abstract
 # @!attribute keywords
@@ -108,6 +124,7 @@ class Source::Bibtex < Source
 # @!attribute language
 # @!attribute contents
 # @!attribute stated_year
+#   A TW required field (TW requires a value in one of the required fields.)
 # @!attribute verbatim
 # @!attribute cached
 # @!attribute cached_author_year
