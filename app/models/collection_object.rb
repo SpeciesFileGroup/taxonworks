@@ -1,5 +1,6 @@
 class CollectionObject < ActiveRecord::Base
 
+  include Housekeeping
   include Shared::Identifiable
   include Shared::Containable
   include Shared::Citable

@@ -2,6 +2,8 @@
 # (Assertion that the subject was referenced in a source)
 class Citation < ActiveRecord::Base
 
+  include Housekeeping
+
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
 

@@ -1,4 +1,7 @@
 class CitationTopic < ActiveRecord::Base
+
+  include Housekeeping
+
   belongs_to :topic, inverse_of: :citation_topics
   belongs_to :citation, inverse_of: :citation_topics
 
