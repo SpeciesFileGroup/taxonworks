@@ -285,15 +285,18 @@ def read_dbf(filenames)
     end
   }
 
-  lvl1_items = {}
-  lvl2_items = {}
-  lvl3_items = {}
-  lvl4_items = {}
+  lvl1_items     = {}
+  lvl2_items     = {}
+  lvl3_items     = {}
+  lvl4_items     = {}
+  orphaned_items = {}
 
   gat1 = GeographicAreaType.where(name: 'Level I').first
   gat2 = GeographicAreaType.where(name: 'Level II').first
   gat3 = GeographicAreaType.where(name: 'Level III').first
   gat4 = GeographicAreaType.where(name: 'Level IV').first
+  gat5 = GeographicAreaType.where(name: 'Country').first
+
 
   lvl1.each { |item|
     puts item.attributes
@@ -334,32 +337,51 @@ def read_dbf(filenames)
     if line.strip!.length > 6
 
       parts = line.split(';')
-      parts[0].downcase!
       parts[1].strip!
-      puts "'#{parts[1]}' for #{parts[0].capitalize}"
+      match = false
       lvl1_items.each { |record|
-        if record[1].name.downcase == parts[0]
+        if parts[0] =~ /#{record[1].name}/i
           record[1].iso_3166_1_alpha_1 = parts[1]
+          match                        = true
         end
       }
       lvl2_items.each { |record|
-        if record[1].name.downcase == parts[0]
+        if record[1].name.upcase == parts[0]
           record[1].iso_3166_1_alpha_1 = parts[1]
+          match                        = true
         end
       }
       lvl3_items.each { |record|
-        if record[1].name.downcase == parts[0]
+        if record[1].name.upcase == parts[0]
           record[1].iso_3166_1_alpha_1 = parts[1]
+          match                        = true
         end
       }
       lvl4_items.each { |record|
-        if record[1].name.downcase == parts[0]
+        if record[1].name.upcase == parts[0]
           record[1].iso_3166_1_alpha_1 = parts[1]
+          match                        = true
         end
       }
+
+      if match
+        puts "'#{parts[1]}' for #{parts[0]}"
+      else
+        if !(parts[0] =~ /country name/i)
+          puts "'#{parts[1]}' for #{parts[0]}\t\tOrphaned!"
+          ga = GeographicArea.new(parent:               earth,
+                                  name:                 parts[0],
+                                  iso_3166_1_alpha_2:   parts[1],
+                                  geographic_area_type: gat5)
+
+          ga.country = ga
+          orphaned_items.merge!(parts[1] => ga)
+        end
+      end
     end
   }
 
+  breakpoint.save
 
   lvl1_items.each { |area|
     area[1].save
@@ -367,6 +389,10 @@ def read_dbf(filenames)
 
   lvl2_items.each { |area|
     area[1].save
+  }
+
+  orphaned_items.each { |country|
+    country[1].save
   }
 
   lvl3_items.each { |area|
