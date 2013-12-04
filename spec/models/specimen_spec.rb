@@ -1,15 +1,10 @@
 require 'spec_helper'
 
-# A class representing a single, physical, and biological individual that has been collected.  Used when the curator has enumerated something to 1.
-
 describe Specimen do
-
   let(:specimen) { Specimen.new }
 
   context "validation" do
-    
-    # Trigger the callbacks
-    before do 
+    before(:each) do 
       specimen.save
     end
 

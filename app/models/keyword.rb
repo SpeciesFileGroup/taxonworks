@@ -1,0 +1,2 @@
+class Keyword < ControlledVocabularyTerm 
+end
