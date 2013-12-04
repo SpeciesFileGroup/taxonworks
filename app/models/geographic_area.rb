@@ -1,6 +1,6 @@
 class GeographicArea < ActiveRecord::Base
 
-  # acts_as_nested_set
+  acts_as_nested_set
 
   # internal references
 

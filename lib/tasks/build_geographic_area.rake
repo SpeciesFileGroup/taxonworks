@@ -289,6 +289,8 @@ def read_dbf(filenames)
   lvl2_items     = {}
   lvl3_items     = {}
   lvl4_items     = {}
+  lvl4_not_items = {}
+  global         = {}
   orphaned_items = {}
 
   gat1 = GeographicAreaType.where(name: 'Level I').first
@@ -297,29 +299,33 @@ def read_dbf(filenames)
   gat4 = GeographicAreaType.where(name: 'Level IV').first
   gat5 = GeographicAreaType.where(name: 'Country').first
 
+  # processing the TDWG2 level files into memory
 
   lvl1.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               earth,
-                            name:                 item['LEVEL1_NAM'],
+                            name:                 item['LEVEL1_NAM'].titlecase,
                             geographic_area_type: gat1)
     lvl1_items.merge!(item['LEVEL1_COD'] => ga)
+    global.merge!(ga.name => ga)
   }
 
   lvl2.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               lvl1_items[item['LEVEL1_COD']],
-                            name:                 item['LEVEL2_NAM'],
+                            name:                 item['LEVEL2_NAM'].titlecase,
                             geographic_area_type: gat2)
     lvl2_items.merge!(item['LEVEL2_COD'] => ga)
+    global.merge!(ga.name => ga)
   }
 
   lvl3.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               lvl2_items[item['LEVEL2_COD']],
-                            name:                 item['LEVEL3_NAM'],
+                            name:                 item['LEVEL3_NAM'].titlecase,
                             geographic_area_type: gat3)
     lvl3_items.merge!(item['LEVEL3_COD'] => ga)
+    global.merge!(ga.name => ga)
   }
 
   lvl4.each { |item|
@@ -327,11 +333,16 @@ def read_dbf(filenames)
     if (item.attributes['Level4_2'] != 'OO')
       puts item.attributes
       ga = GeographicArea.new(parent:               lvl3_items[item['Level3_cod']],
-                              name:                 item['Level_4_Na'],
+                              name:                 item['Level_4_Na'].titlecase,
                               geographic_area_type: gat4)
-      lvl4_items.merge!(item['LEVEL4_COD'] => ga)
+      lvl4_items.merge!(item['Level4_cod'] => ga)
+      global.merge!(ga.name => ga)
+    else
+      lvl4_not_items.merge!(item['Level4_cod'] => item.attributes)
     end
   }
+
+  # add, where possible, ISO 3166 country codes
 
   iso.each { |line|
     if line.strip!.length > 6
@@ -340,27 +351,40 @@ def read_dbf(filenames)
       parts[1].strip!
       match = false
       lvl1_items.each { |record|
-        if parts[0] =~ /#{record[1].name}/i
-          record[1].iso_3166_1_alpha_1 = parts[1]
-          match                        = true
+        if  (record[1].name.length == parts[0].length) &&
+            (record[1].name =~ /#{Regexp.escape(parts[0])}/i)
+          record[1].iso_3166_1_alpha_2   = parts[1]
+          record[1].geographic_area_type = gat5
+          record[1].country              = record[1]
+          match                          = true
         end
       }
       lvl2_items.each { |record|
-        if record[1].name.upcase == parts[0]
-          record[1].iso_3166_1_alpha_1 = parts[1]
-          match                        = true
+        if  (record[1].name.length == parts[0].length) &&
+            (record[1].name =~ /#{Regexp.escape(parts[0])}/i)
+          record[1].iso_3166_1_alpha_2   = parts[1]
+          record[1].geographic_area_type = gat5
+          record[1].country              = record[1]
+          match                          = true
         end
       }
       lvl3_items.each { |record|
-        if record[1].name.upcase == parts[0]
-          record[1].iso_3166_1_alpha_1 = parts[1]
-          match                        = true
+        if  (record[1].name.length == parts[0].length) &&
+            (record[1].name =~ /#{Regexp.escape(parts[0])}/i)
+
+          record[1].iso_3166_1_alpha_2   = parts[1]
+          record[1].geographic_area_type = gat5
+          record[1].country              = record[1]
+          match                          = true
         end
       }
       lvl4_items.each { |record|
-        if record[1].name.upcase == parts[0]
-          record[1].iso_3166_1_alpha_1 = parts[1]
-          match                        = true
+        if  (record[1].name.length == parts[0].length) &&
+            (record[1].name =~ /#{Regexp.escape(parts[0])}/i)
+          record[1].iso_3166_1_alpha_2   = parts[1]
+          record[1].geographic_area_type = gat5
+          record[1].country              = record[1]
+          match                          = true
         end
       }
 
@@ -370,18 +394,34 @@ def read_dbf(filenames)
         if !(parts[0] =~ /country name/i)
           puts "'#{parts[1]}' for #{parts[0]}\t\tOrphaned!"
           ga = GeographicArea.new(parent:               earth,
-                                  name:                 parts[0],
+                                  name:                 parts[0].titlecase,
                                   iso_3166_1_alpha_2:   parts[1],
                                   geographic_area_type: gat5)
 
           ga.country = ga
           orphaned_items.merge!(parts[1] => ga)
+          global.merge!(ga.name => ga)
         end
       end
     end
   }
 
-  breakpoint.save
+  # re-process lvl4 for ISO Country Code to set country for any records that match the ISO Code
+
+  lvl4_not_items.each { |item|
+    # find the name in the global table, and set this record.country to the country which has the corresponding country code.
+
+    puts item[1]
+    global.each {|record|
+      if record[1].iso_3166_1_alpha_2 == item[1]['ISO_Code']
+        global[item[1]['Level_4_Na']].country = record[1]
+        break
+      end
+    }
+  }
+
+  puts "There are #{orphaned_items.count} orphans."
+  # breakpoint.save
 
   lvl1_items.each { |area|
     area[1].save
