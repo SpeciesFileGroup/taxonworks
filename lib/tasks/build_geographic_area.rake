@@ -25,8 +25,8 @@ namespace :tw do
 
       # GenTable: set to true to generate the GeographicAreaType table here
       GenTable = true
-      # DoShape: set to true to include the reading og the shapes into the GeographicItem table;
-      #          Otherwise, only the CSV files are used to populate the GeographicArea table
+      # DoShape: set to true to include the reading of the shapes into the GeographicItem table;
+      #          Otherwise, only the DBF files are used to populate the GeographicArea table
       DoShape  = false
       # BaseDir: where to find the tables to be used
       BaseDir  = '../shapes/'
@@ -47,24 +47,14 @@ namespace :tw do
 
       if GenTable
         build_gat_table
-        # since we are going to have to skip XXX_adm0, we need to build a master records for North America,
-        # the USA by hand
-        mr = GeographicArea.where(name: 'United States')
-        if mr[0].nil?
-          mr = GeographicArea.new(name:                 'United States',
-                                  country_id:           240,
-                                  parent_id:            0,
-                                  geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
-          mr.save
-        end
         if do_shape
+          # we use the entire shape file constellation
           Dir.glob(base_dir + '**/*.shp').each { |filename|
             read_shape(filename, index)
           }
         else
-          Dir.glob(base_dir + '**/*.csv').each { |filename|
-            read_csv(filename)
-          }
+          # process all available files at the same time
+          read_dbf(Dir.glob(base_dir + '**/*.dbf') + (Dir.glob(base_dir + '**/*.txt')))
         end
       end
     end
@@ -83,8 +73,37 @@ def read_shape(filename, index)
     ess   = (count == 1) ? '' : 's'
     puts "#{Time.now.strftime "%H:%M:%S"}: #{filename} contains #{count} item#{ess}."
 
-    record    = GeographicArea.new
-    area_type = GeographicAreaType.new
+    # things to do before each file
+
+    case filename
+      when /adm1/i
+        # since we are going to have to skip XXX_adm0, we need to build a master records for North America,
+        # the USA by hand
+        mr = GeographicArea.where(name: 'United States')
+        if mr[0].nil?
+          mr = GeographicArea.new(name:                 'United States',
+                                  country_id:           240,
+                                  parent_id:            0,
+                                  geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
+          mr.save
+        end
+      when /level1/i
+        record = GeographicArea.where(name: 'Earth')
+        if record.count == 0
+          record    = GeographicArea.new(parent_id: nil,
+                                         name:      'Earth')
+          area_type = GeographicAreaType.where(name: 'Planet')[0]
+          # save this record for later
+          earth     = record.save
+        else
+          earth = record[0]
+        end
+      else
+        # nothing to do
+    end
+
+    # record    = GeographicArea.new
+    # area_type = GeographicAreaType.new
 
     time_then = Time.now
     file.each { |item|
@@ -98,22 +117,22 @@ def read_shape(filename, index)
                                          name:       item[:NAME_ENGLISH],
                                          country_id: item[:PID])
           area_type = GeographicAreaType.where(name: 'Country')[0]
-          if area_type.nil?
-            at = GeographicAreaType.new(name: 'Country')
-            at.save
-            area_type = at
-          end
+        #if area_type.nil?
+        #  at = GeographicAreaType.new(name: 'Country')
+        #  at.save
+        #  area_type = at
+        #end
         when /USA_adm1/
           record    = GeographicArea.new(parent_id:  item[:ID_0],
                                          name:       item[:NAME_1],
                                          state_id:   item[:ID_1],
                                          country_id: item[:ID_0])
           area_type = GeographicAreaType.where(name: item[:TYPE_1])
-          if area_type.nil?
-            at = GeographicAreaType.new(name: item[:TYPE_1])
-            at.save
-            area_type = at
-          end
+        #if area_type.nil?
+        #  at = GeographicAreaType.new(name: item[:TYPE_1])
+        #  at.save
+        #  area_type = at
+        #end
         when /USA_adm2/
           record    = GeographicArea.new(parent_id:  item[:ID_1],
                                          name:       item[:NAME_2],
@@ -121,25 +140,20 @@ def read_shape(filename, index)
                                          country_id: item[:ID_0],
                                          county_id:  item[:ID_2])
           area_type = GeographicAreaType.where(name: item[:TYPE_2])
-          if area_type.nil?
-            at = GeographicAreaType.new(name: item[:TYPE_2])
-            at.save
-            area_type = at
-          end
+        #if area_type.nil?
+        #  at = GeographicAreaType.new(name: item[:TYPE_2])
+        #  at.save
+        #  area_type = at
+        #end
+        when /GADM/i
+        when /level1/
+          record = GeographicArea.new(parent_id: earth.id,
+                                      name:      item['LEVEL1_NAM'])
+          GeographicAreaType.where(name: item[''])
+        when /level2/
+        when /level3/
+        when /level4/
         else
-=begin
-          record    = GeographicArea.new(parent_id:  item[:ID_1],
-                                         name:       item[:NAME_2],
-                                         state_id:   item[:ID_1],
-                                         country_id: item[:ID_0],
-                                         county_id:  item[:ID_2])
-          area_type = GeographicAreaType.where(name: item[:TYPE_2])
-          if area_type.nil?
-            at = GeographicAreaType.new(name: item[:TYPE_2])
-            at.save
-            area_type = at
-          end
-=end
       end
       if !(record.nil?)
         record.geographic_area_type          = area_type[0]
@@ -176,8 +190,8 @@ def read_shape(filename, index)
         end
         ess = (count_geo == 1) ? 'y' : 'ies'
 
-        snap = Time.now
-        elapsed = snap - time_then
+        snap      = Time.now
+        elapsed   = snap - time_then
         time_then = snap
         case filename
           when /GADM/i
@@ -225,7 +239,143 @@ def read_shape(filename, index)
 
       end
     }
-  } if !(filename =~ /[01]/)
+  } if !(filename =~ /[0]/)
+
+end
+
+def read_dbf(filenames)
+
+  # things to do before any file
+
+  # make sure the earth record exists and is available
+
+  earth = GeographicArea.where(name: 'Earth')
+  if earth.count == 0
+    # create the record
+    earth                      = GeographicArea.new(parent_id: nil,
+                                                    name:      'Earth')
+    earth.geographic_area_type = GeographicAreaType.where(name: 'Planet').first
+    # save this record for later
+    earth.save
+  else
+    # use the (first) record we found
+    earth = earth.first
+  end
+
+  iso, lvl1, lvl2, lvl3, lvl4 = nil, nil, nil, nil, nil
+
+  filenames.sort!
+
+  filenames.each { |filename|
+
+    puts filename
+
+    case filename
+      when /level1/i
+        lvl1 = DBF::Table.new(filename)
+      when /level2/i
+        lvl2 = DBF::Table.new(filename)
+      when /level3/i
+        lvl3 = DBF::Table.new(filename)
+      when /level4/i
+        lvl4 = DBF::Table.new(filename)
+      when /country_names_and_code_elements/i
+        iso = File.open(filename)
+      else
+    end
+  }
+
+  lvl1_items = {}
+  lvl2_items = {}
+  lvl3_items = {}
+  lvl4_items = {}
+
+  gat1 = GeographicAreaType.where(name: 'Level I').first
+  gat2 = GeographicAreaType.where(name: 'Level II').first
+  gat3 = GeographicAreaType.where(name: 'Level III').first
+  gat4 = GeographicAreaType.where(name: 'Level IV').first
+
+  lvl1.each { |item|
+    puts item.attributes
+    ga = GeographicArea.new(parent:               earth,
+                            name:                 item['LEVEL1_NAM'],
+                            geographic_area_type: gat1)
+    lvl1_items.merge!(item['LEVEL1_COD'] => ga)
+  }
+
+  lvl2.each { |item|
+    puts item.attributes
+    ga = GeographicArea.new(parent:               lvl1_items[item['LEVEL1_COD']],
+                            name:                 item['LEVEL2_NAM'],
+                            geographic_area_type: gat2)
+    lvl2_items.merge!(item['LEVEL2_COD'] => ga)
+  }
+
+  lvl3.each { |item|
+    puts item.attributes
+    ga = GeographicArea.new(parent:               lvl2_items[item['LEVEL2_COD']],
+                            name:                 item['LEVEL3_NAM'],
+                            geographic_area_type: gat3)
+    lvl3_items.merge!(item['LEVEL3_COD'] => ga)
+  }
+
+  lvl4.each { |item|
+
+    if (item.attributes['Level4_2'] != 'OO')
+      puts item.attributes
+      ga = GeographicArea.new(parent:               lvl3_items[item['Level3_cod']],
+                              name:                 item['Level_4_Na'],
+                              geographic_area_type: gat4)
+      lvl4_items.merge!(item['LEVEL4_COD'] => ga)
+    end
+  }
+
+  iso.each { |line|
+    if line.strip!.length > 6
+
+      parts = line.split(';')
+      parts[0].downcase!
+      parts[1].strip!
+      puts "'#{parts[1]}' for #{parts[0].capitalize}"
+      lvl1_items.each { |record|
+        if record[1].name.downcase == parts[0]
+          record[1].iso_3166_1_alpha_1 = parts[1]
+        end
+      }
+      lvl2_items.each { |record|
+        if record[1].name.downcase == parts[0]
+          record[1].iso_3166_1_alpha_1 = parts[1]
+        end
+      }
+      lvl3_items.each { |record|
+        if record[1].name.downcase == parts[0]
+          record[1].iso_3166_1_alpha_1 = parts[1]
+        end
+      }
+      lvl4_items.each { |record|
+        if record[1].name.downcase == parts[0]
+          record[1].iso_3166_1_alpha_1 = parts[1]
+        end
+      }
+    end
+  }
+
+
+  lvl1_items.each { |area|
+    area[1].save
+  }
+
+  lvl2_items.each { |area|
+    area[1].save
+  }
+
+  lvl3_items.each { |area|
+    area[1].save
+  }
+
+  lvl4_items.each { |area|
+    area[1].save
+  }
 
 end
 
@@ -284,9 +434,15 @@ def read_csv(file)
 end
 
 def build_gat_table
-  ['Continent',
+  ['Planet',
+   'Continent',
+   'Level I',
+   'Subcontinent',
+   'Level II',
    'Country',
+   'Level III',
    'State',
+   'Level IV',
    'Federal District',
    'County',
    'Borough',
