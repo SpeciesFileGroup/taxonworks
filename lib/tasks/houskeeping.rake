@@ -21,7 +21,7 @@ namespace :tw do
         if d.ancestors.include?(Housekeeping::Users)
           hit = true
           puts "add_column :#{d.name.demodulize.underscore}s, :created_by_id, :integer, index: true"  
-          puts "add_column :#{d.name.underscore}s, :updated_by_id, :integer, index: true"  
+          puts "add_column :#{d.name.underscore.pluralize}, :updated_by_id, :integer, index: true"  
         end
 
         if d.ancestors.include?(Housekeeping::Projects) 
