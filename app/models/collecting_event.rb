@@ -1,6 +1,7 @@
 class CollectingEvent < ActiveRecord::Base
 
-  include Shared::Citable  
+  include Housekeeping
+  include Shared::Citable
 
   # several lines commented out per Matt ('old stuff')
   # belongs_to :geographic_area

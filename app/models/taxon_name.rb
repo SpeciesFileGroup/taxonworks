@@ -1,6 +1,7 @@
 
 class TaxonName < ActiveRecord::Base
 
+  include Housekeeping
   include Shared::Identifiable
   include Shared::Citable
 

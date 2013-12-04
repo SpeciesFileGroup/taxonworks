@@ -1,4 +1,7 @@
 class ContainerItem < ActiveRecord::Base
+
+  include Housekeeping
+
   belongs_to :container
   belongs_to :containable, polymorphic: true
 

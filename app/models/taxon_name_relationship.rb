@@ -1,5 +1,7 @@
 class TaxonNameRelationship < ActiveRecord::Base
 
+  include Housekeeping
+
   validates_presence_of :type, :subject_taxon_name_id, :object_taxon_name_id
 
 

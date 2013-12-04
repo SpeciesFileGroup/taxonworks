@@ -1,4 +1,7 @@
 class Identifier < ActiveRecord::Base
+
+  include Housekeeping::Users
+
   belongs_to :identifiable, polymorphic: :true
   validates_presence_of :identifier, :identifiable_id, :identifiable_type, :type
 

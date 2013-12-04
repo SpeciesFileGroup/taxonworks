@@ -18,7 +18,7 @@
 #   the day of the month the determination was made 
 class TaxonDetermination < ActiveRecord::Base
 
-
+  include Housekeeping
   include Shared::HasRoles
   include Shared::Citable
 

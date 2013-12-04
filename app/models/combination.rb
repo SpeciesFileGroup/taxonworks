@@ -1,5 +1,7 @@
 class Combination < TaxonName
 
+  include Housekeeping
+
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")},

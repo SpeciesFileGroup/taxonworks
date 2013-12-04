@@ -1,4 +1,7 @@
 class TaxonNameClassification < ActiveRecord::Base
+
+  include Housekeeping
+
   belongs_to :taxon_name
 
   validates_presence_of  :taxon_name_id, :type
