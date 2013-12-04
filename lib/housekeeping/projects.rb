@@ -12,7 +12,7 @@ module Housekeeping::Projects
     belongs_to :project, inverse_of: related_instances 
 
     before_validation :set_project_id, on: :create
-    validates :project, presence: true
+#    validates :project, presence: true
 
     before_save :prevent_alteration_in_other_projects
     before_destroy :prevent_alteration_in_other_projects
