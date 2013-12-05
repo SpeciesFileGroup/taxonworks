@@ -267,6 +267,10 @@ class TaxonName < ActiveRecord::Base
   def sv_missing_relationships
     if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
+    elsif GENUS_RANKS_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
+    elsif FAMILY_RANKS_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
   end
 
@@ -318,7 +322,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_source_older_then_description
-    true
+    true  # see validation in Protonym.rb and Combination.rb
   end
 
   #endregion

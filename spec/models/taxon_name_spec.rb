@@ -116,7 +116,7 @@ describe TaxonName do
     end
 
     context 'name' do
-      context 'format' do
+      context 'validate format' do
         before(:all) do
           @subspecies = FactoryGirl.create(:iczn_subspecies)
           @variety = FactoryGirl.create(:icn_variety)
@@ -233,7 +233,16 @@ describe TaxonName do
             end
             context 'missing relationships' do
               specify 'original genus' do
+                @subspecies.soft_validate
                 expect(@subspecies.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+              end
+              specify 'type species or genus' do
+                genus = @subspecies.ancestor_at_rank('genus')
+                family = @subspecies.ancestor_at_rank('family')
+                genus.soft_validate
+                family.soft_validate
+                expect(genus.soft_validations.messages_on(:base).include?('Type species is not selected')).to be_true
+                expect(family.soft_validations.messages_on(:base).include?('Type genus is not selected')).to be_true
               end
             end
           end

@@ -7,11 +7,14 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, if: :is_typification?
 
   def is_combination?
     !!/TaxonNameRelationship::(Original|)Combination/.match(self.type.to_s)
   end
-  #validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id]
+  def is_typification?
+    self.type.to_s == TaxonNameRelationship::Typification.to_s
+  end
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id # right side

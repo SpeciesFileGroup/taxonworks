@@ -21,11 +21,19 @@
  # ICZN Rank Classes in a Hash with keys being the "human" name
  ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
 
-# All assignable ranks for family group and above names, for both ICN and ICZN
+# All assignable ranks for family group and above family names, for both ICN and ICZN
 FAMILY_AND_ABOVE_RANKS_NAMES = (NomenclaturalRank::Iczn::AboveFamilyGroup.descendants +
       NomenclaturalRank::Iczn::FamilyGroup.descendants +
       NomenclaturalRank::Icn::AboveFamilyGroup.descendants +
       NomenclaturalRank::Icn::FamilyGroup.descendants).collect{|i| i.to_s}
+
+# All assignable ranks for family group, for both ICN and ICZN
+FAMILY_RANKS_NAMES = (NomenclaturalRank::Iczn::FamilyGroup.descendants +
+    NomenclaturalRank::Icn::FamilyGroup.descendants).collect{|i| i.to_s}
+
+# All assignable ranks for genus groups, for both ICN and ICZN
+GENUS_RANKS_NAMES = (NomenclaturalRank::Iczn::GenusGroup.descendants +
+    NomenclaturalRank::Icn::GenusGroup.descendants).collect{|i| i.to_s}
 
 # All assignable ranks for genus and species groups, for both ICN and ICZN
 GENUS_AND_SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::GenusGroup.descendants +
