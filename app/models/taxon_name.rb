@@ -18,6 +18,7 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_missing_fields)
   soft_validate(:sv_missing_relationships)
   soft_validate(:sv_validate_parent_rank)
+  soft_validate(:sv_validate_coordinated_names)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -48,8 +49,10 @@ class TaxonName < ActiveRecord::Base
   before_validation :set_type_if_empty,
     :check_format_of_name,
     :validate_rank_class_class,
-    :validate_source_type,
-    :validate_parent_rank_is_higher
+    :validate_parent_rank_is_higher,
+    :check_new_rank_class,
+    :check_new_parent_class,
+    :validate_source_type
 
   before_validation :set_cached_name,
     :set_cached_author_year,
@@ -72,6 +75,15 @@ class TaxonName < ActiveRecord::Base
     r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
     return RANKS.index(r) >= RANKS.index(self.rank_class) ? nil :
       self.ancestors.detect { |ancestor| ancestor.rank_class == r }
+  end
+
+  def unavailable_or_invalid?
+    case self.rank_class.nomenclatural_code
+      when :iczn
+        !TaxonNameRelationship::Iczn::Invalidating.where_subject_is_taxon_name(self).empty?
+      when :icz
+        !TaxonNameRelationship::Icn::Unaccepting.where_subject_is_taxon_name(self).empty?
+    end
   end
 
   protected 
@@ -173,7 +185,7 @@ class TaxonName < ActiveRecord::Base
       true
     elsif RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
       errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
-    elsif !self.children.empty?
+    elsif !self.children.empty? && self.rank_class != self.rank_class_was
       if RANKS.index(self.rank_class) >= self.children.collect{|r| RANKS.index(r.rank_class)}.max
         errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
       end
@@ -190,17 +202,37 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def check_format_of_name
+    if self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+      self.rank_class.validate_name_format(self)
+    end
+  end
+
+  def check_new_rank_class
+    if self.rank_class != self.rank_class_was && !self.rank_class_was.nil?
+      old_rank_group = self.rank_class_was.constantize.parent
+      if self.rank_class.parent != old_rank_group
+        errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
+      end
+    end
+  end
+
+  def check_new_parent_class
+    if self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
+      old_parent = TaxonName.find_by_id(self.parent_id_was)
+      if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
+        errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
+      end
+    end
+  end
+
   def validate_source_type
     if self.source
       errors.add(:source_id, "Source must be a Bibtex") if self.source.type != 'Source::Bibtex'
     end
   end
 
-  def check_format_of_name
-    if self.rank_class && self.rank_class.respond_to?(:validate_name_format)
-      self.rank_class.validate_name_format(self)
-    end
-  end
+  #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)
 
   #endregion
 
@@ -235,6 +267,10 @@ class TaxonName < ActiveRecord::Base
   def sv_missing_relationships
     if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
+    elsif GENUS_RANKS_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
+    elsif FAMILY_RANKS_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
   end
 
@@ -248,8 +284,45 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def sv_validate_coordinated_names
+    if /NomenclaturalRank::Iczn::SpeciesGroup::+/.match(self.rank_class.to_s)
+      search_name = self.name
+      search_rank = 'NomenclaturalRank::Iczn::SpeciesGroup::'
+    elsif /NomenclaturalRank::Iczn::GenusGroup::+/.match(self.rank_class.to_s)
+      search_name = self.name
+      search_rank = 'NomenclaturalRank::Iczn::GenusGroup::'
+    elsif /NomenclaturalRank::Iczn::FamilyGroup::+/.match(self.rank_class.to_s)
+      z = self.name.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
+      if z.nil?
+        search_name = nil
+      else
+        search_name = z[1] + '(ini|ina|inae|idae|oidae|odd|ad|oidea)'
+      end
+      search_rank = 'NomenclaturalRank::Iczn::FamilyGroup::'
+    else
+      search_name = nil
+    end
+    unless search_name.nil?
+      list = self.ancestors.to_a + self.descendants.to_a
+      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)}
+      list = list.select{|i| /#{search_name}/.match(i.name)}
+      list = list.reject{|i| i.unavailable_or_invalid?}
+      list.each do |t|
+        #:TODO think about fixes to tests below
+        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}") if self.source_id != t.source_id
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}") if self.verbatim_author != t.verbatim_author
+        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}") if self.year_of_publication != t.year_of_publication
+        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}") if self.original_combination_genus != t.original_combination_genus
+        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}") if self.original_combination_subgenus != t.original_combination_subgenus
+        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}") if self.original_combination_species != t.original_combination_species
+        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}") if self.type_species != t.type_species
+        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}") if self.type_genus != t.type_genus
+      end
+    end
+  end
+
   def sv_source_older_then_description
-    true
+    true  # see validation in Protonym.rb and Combination.rb
   end
 
   #endregion
