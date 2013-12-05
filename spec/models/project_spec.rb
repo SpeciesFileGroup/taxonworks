@@ -8,17 +8,17 @@ describe Project do
 
   let(:project) {Project.new}
 
-  context 'associations' do
-    context 'has_many' do
-      specify 'project_members' do
-        expect(project).to respond_to(:project_members)
-      end
+  #context 'associations' do
+  #  context 'has_many' do
+  #    specify 'project_members' do
+  #      expect(project).to respond_to(:project_members)
+  #    end
 
-      specify 'users' do
-        expect(project).to respond_to(:users)
-      end
-    end
-  end
+  #    specify 'users' do
+  #      expect(project).to respond_to(:users)
+  #    end
+  #  end
+  #end
 
   context 'validation' do
     before(:each) do
@@ -26,6 +26,14 @@ describe Project do
     end
     specify 'name' do
       expect(project.errors.include?(:name)).to be_true
+    end
+  end
+
+  context 'valid_project factory' do
+    specify 'is a valid something or other' do
+      p = FactoryGirl.create(:basdf)
+      expect(p.valid?).to be_true
+      p.save!
     end
   end
 

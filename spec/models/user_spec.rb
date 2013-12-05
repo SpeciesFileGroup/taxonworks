@@ -40,15 +40,12 @@ describe User do
   context 'factory' do
     let(:factory_user) {FactoryGirl.build(:valid_user)}
     specify 'is valid' do
-      expect(factory_user.save).to be_true
+      expect(factory_user.valid?).to be_true
     end 
 
     specify 'login uses traits' do
       expect(factory_user.email).to eq('default@example.com')
     end
-
-
-
   end
 
 end
