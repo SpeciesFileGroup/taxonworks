@@ -5,13 +5,9 @@ FactoryGirl.define do
 
   factory :base_source_author_role, class: SourceAuthor do
 
-    ignore do
-      user 
-    end
-
-    association :creator, factory: :valid_user, strategy: :build
-    association :updater, factory: :valid_user, strategy: :build
-    association :project, factory: :valid_project, strategy: :build
+#   association :creator, factory: :valid_user, strategy: :build
+#   association :updater, factory: :valid_user, strategy: :build
+#   association :project, factory: :valid_project, strategy: :build
 
     factory :source_author_role do
       association :person, factory: :valid_person

@@ -6,9 +6,9 @@ FactoryGirl.define do
         
     end
 
-      association :creator, factory: :valid_user, strategy: :build
-      association :updater, factory: :valid_user, strategy: :build
-      association :project, factory: :valid_project, strategy: :build
+    # association :creator, factory: :valid_user, strategy: :build
+    # association :updater, factory: :valid_user, strategy: :build
+    # association :project, factory: :valid_project, strategy: :build
 
       factory :bibtex_source, class: 'Source::Bibtex' do
       end

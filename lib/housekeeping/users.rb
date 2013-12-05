@@ -6,8 +6,8 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    validates :creator, presence: true
-    validates :updater, presence: true
+ #  validates :creator, presence: true
+ #  validates :updater, presence: true
 
     before_validation(on: :create) do
       set_created_by_id

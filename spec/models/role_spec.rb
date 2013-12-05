@@ -44,7 +44,7 @@ describe Role do
     }
   end
 
-  context "reflections / foreign keys" do
+  context "associations" do
     context "belongs_to" do
       specify "person" do
         expect(role).to respond_to(:person)
