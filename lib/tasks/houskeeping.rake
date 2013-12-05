@@ -16,7 +16,7 @@ namespace :tw do
       puts "# known subclasses of ActiveRecord::Base  #{ActiveRecord::Base.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.each do |d|
+      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         hit = false
         if d.ancestors.include?(Housekeeping::Users)
           hit = true
