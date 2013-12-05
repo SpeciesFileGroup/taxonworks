@@ -27,6 +27,8 @@ class TaxonNameClassification < ActiveRecord::Base
     errors.add(:type, "status not found") if !TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
   end
 
+  #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
+
   #region Soft validation
 
   def sv_proper_classification

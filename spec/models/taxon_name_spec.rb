@@ -39,6 +39,13 @@ describe TaxonName do
         specify 'related_taxon_names' do
           expect(@taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
         end
+
+        specify 'taxon_name is_not_valid' do
+          relationship = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+          relationship.save
+          expect(@type_of_genus.unavailable_or_invalid?).to be_false
+          expect(@original_genus.unavailable_or_invalid?).to be_true
+        end
       end
     end
   end
@@ -70,6 +77,13 @@ describe TaxonName do
         cl.rank_class = Ranks.lookup(:iczn, 'suborder')
         cl.valid?
         expect(cl.errors.include?(:rank_class)).to be_true
+      end
+
+      specify 'a new taxon rank in the same group' do
+        t = FactoryGirl.create(:iczn_kingdom)
+        t.rank_class = Ranks.lookup(:iczn, 'genus')
+        t.valid?
+        expect(t.errors.include?(:rank_class)).to be_true
       end
     end
 
@@ -131,6 +145,13 @@ describe TaxonName do
             t.valid?
             expect(t.cached_author_year).to eq('')
           end
+          specify 'moving nominotypical taxon' do
+            g2 = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @subspecies.ancestor_at_rank('family'))
+            sgen = @subspecies.ancestor_at_rank('subgenus')
+            sgen.parent = g2
+            sgen.valid?
+            expect(sgen.errors.include?(:parent_id)).to be_true
+          end
         end
 
         context 'soft_validations' do
@@ -178,12 +199,45 @@ describe TaxonName do
               expect(t.verbatim_author).to eq('aaa')
               expect(t.year_of_publication).to eq(1950)
             end
-            specify "missing relationships" do
-              expect(@subspecies.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+            context 'coordinated taxa' do
+              before(:all) do
+                @subfamily = @subspecies.ancestor_at_rank('subfamily')
+                @tribe = @subspecies.ancestor_at_rank('tribe')
+                @genus = @subspecies.ancestor_at_rank('genus')
+                @subgenus = @subspecies.ancestor_at_rank('subgenus')
+              end
+              specify 'mismatching author in genus' do
+                @genus.verbatim_author = 'Foo'
+                @subgenus.original_combination_genus = @genus
+                @genus.save
+                @subgenus.save
+                @genus.soft_validate
+                @subgenus.soft_validate
+                expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+                expect(@subgenus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+                expect(@subgenus.soft_validations.messages_on(:base).empty?).to be_false
+              end
+              specify 'mismatching author, year and original genus in family' do
+                @subfamily.verbatim_author = 'Foo'
+                @tribe.verbatim_author = 'Aaa'
+                @tribe.name = 'Typhlocybini'
+                @tribe.year_of_publication = 2013
+                @subfamily.type_genus = @genus
+                @subfamily.save
+                @tribe.save
+                @subfamily.soft_validate
+                expect(@subfamily.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+                expect(@subfamily.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+                expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
+              end
+            end
+            context 'missing relationships' do
+              specify 'original genus' do
+                expect(@subspecies.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+              end
             end
           end
         end
-
       end
 
       context 'when rank ICZN family' do

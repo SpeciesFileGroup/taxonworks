@@ -16,9 +16,12 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id # right side
 
+
   before_validation :validate_type,
                     :validate_subject_and_object_share_code,
                     :validate_valid_subject_and_object
+
+  scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
 
   def aliases
     []
@@ -65,6 +68,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   def validate_type
     errors.add(:type, "'#{type}' is not a validly_published taxon name relationship") if !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
   end
+
+  #TODO: validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 
   def validate_subject_and_object_share_code
     if object_taxon_name.class == Protonym && subject_taxon_name.class == Protonym

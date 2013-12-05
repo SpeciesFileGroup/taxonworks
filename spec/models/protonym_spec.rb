@@ -135,8 +135,7 @@ describe Protonym do
                                                         subject_taxon_name: @o,
                                                         object_taxon_name: @s,
                                                         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      temp_relation.save # note that you have to save this, not the recast version
-
+      temp_relation.save
       # recast as the subclass
       first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
