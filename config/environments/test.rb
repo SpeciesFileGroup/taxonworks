@@ -35,5 +35,7 @@ TaxonWorks::Application.configure do
   config.active_support.deprecation = :stderr
 
 
+  # Post scaffolding changes 
   require 'taxonworks'
+  I18n.enforce_available_locales = false
 end

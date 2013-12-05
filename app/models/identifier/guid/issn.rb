@@ -1,2 +1,2 @@
-class Identifier::Guid::Issn < ActiveRecord::Base
+class Identifier::Guid::Issn < Identifier::Guid 
 end

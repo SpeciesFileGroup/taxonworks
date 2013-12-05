@@ -1,2 +1,2 @@
-class Identifier::LocalId < ActiveRecord::Base
+class Identifier::LocalId < Identifier 
 end

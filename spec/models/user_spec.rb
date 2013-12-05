@@ -3,8 +3,8 @@ require 'spec_helper'
 describe User do
 
   let(:user) { User.new password: 'password',
-                        password_confirmation: 'password',
-                        email: 'user@example.com'}
+               password_confirmation: 'password',
+               email: 'user@example.com'}
 
   subject { user }
 
@@ -35,6 +35,17 @@ describe User do
   describe "when email doesn't match expected format" do
     before { user.email = 'a b@c.d' }
     it { should be_invalid }
+  end
+
+  context 'factory' do
+    let(:factory_user) {FactoryGirl.build(:valid_user)}
+    specify 'is valid' do
+      expect(factory_user.save).to be_true
+    end 
+
+    specify 'login uses traits' do
+      expect(factory_user.email).to eq('default@example.com')
+    end
   end
 
 end

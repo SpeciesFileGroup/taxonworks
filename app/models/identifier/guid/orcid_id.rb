@@ -1,2 +1,2 @@
-class Identifier::Guid::OrcidId < ActiveRecord::Base
+class Identifier::Guid::OrcidId < Identifier::Guid 
 end

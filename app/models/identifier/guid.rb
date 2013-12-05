@@ -1,3 +1,4 @@
-class Identifier::Guid < ActiveRecord::Base
+class Identifier::Guid < Identifier 
+
 
 end

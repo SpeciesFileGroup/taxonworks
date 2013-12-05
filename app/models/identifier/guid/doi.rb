@@ -1,2 +1,2 @@
-class Identifier::Guid::Doi < ActiveRecord::Base
+class Identifier::Guid::Doi < Identifier::Guid 
 end

@@ -1,2 +1,2 @@
-class Identifier::LocalId::ImportId < ActiveRecord::Base
+class Identifier::LocalId::ImportId < Identifier::LocalId 
 end

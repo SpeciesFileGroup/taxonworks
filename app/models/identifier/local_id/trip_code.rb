@@ -1,2 +1,2 @@
-class Identifier::LocalId::TripCode < ActiveRecord::Base
+class Identifier::LocalId::TripCode < Identifier::LocalId 
 end
