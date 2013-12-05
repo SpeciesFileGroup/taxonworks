@@ -46,6 +46,9 @@ describe User do
     specify 'login uses traits' do
       expect(factory_user.email).to eq('default@example.com')
     end
+
+
+
   end
 
 end

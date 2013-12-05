@@ -2,6 +2,8 @@
 
 FactoryGirl.define do
 
+  
+
   sequence :email do |n|
     "person#{n}@example.com"
   end
@@ -12,8 +14,9 @@ FactoryGirl.define do
     password_confirmation 'abcdefgZ123*'
   end
 
-  factory :valid_user, class: User, traits: [:default_user_traits] do
+  factory :valid_user, class: User, aliases: [:creator, :updater], traits: [:default_user_traits] do
   end
+
 
 end
 
