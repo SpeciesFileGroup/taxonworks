@@ -8,20 +8,21 @@
 # This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
 # objects can be added to a BibTeX bibliography.
 #
-# The following information is taken from _BibTeXing_, by Oren Patashnik, February 8, 1988
+# The following information is taken from *BibTeXing*, by Oren Patashnik, February 8, 1988
 # http://ftp.math.purdue.edu/mirrors/ctan.org/biblio/bibtex/contrib/doc/btxdoc.pdf
 # (and snippets are cut from this document for the attribute descriptions)
 #
-#   BibTeX fields in a BibTex bibliography are treated in one of three ways:
-#     REQUIRED - Omitting the field will produce a warning message and, rarely, a
+# BibTeX fields in a BibTex bibliography are treated in one of three ways:
+#
+# [REQUIRED] Omitting the field will produce a warning message and, rarely, a
 #       badly formatted bibliography entry. If the required information is not
 #       meaningful, you are using the wrong entry type. However, if the required
 #       information is meaningful but, say, already included is some other field,
 #       simply ignore the warning.
-#     OPTIONAL - The field's information will be used if present, but can be omitted
+# [OPTIONAL] The field's information will be used if present, but can be omitted
 #       without causing any formatting problems. You should include the optional
 #       field if it will help the reader.
-#     IGNORED - The field is ignored. BibTEX ignores any field that is not required or
+# [IGNORED] The field is ignored. BibTEX ignores any field that is not required or
 #       optional, so you can include any fields you want in a bib file entry. It's a
 #       good idea to put all relevant information about a reference in its bib file
 #       entry - even information that may never appear in the bibliography.
@@ -35,6 +36,7 @@
 #   a cross reference is needed, this field will be used within the key.
 #   @return [Fixnum] the unique identifier of this record in the Source table.
 #   @return [nil] means the record does not exist in the database.
+#
 # @!attribute serial_id [Fixnum]
 #   @note not yet implemented!
 #   @return [Fixnum] the unique identifier of the serial record in the Serial? table.
@@ -43,6 +45,7 @@
 # @!endgroup
 #
 # @!group BibTeX attributes (based on BibTeX fields)
+#
 # @!attribute address
 #   BibTeX standard field (optional for types: book, inbook, incollection, inproceedings, manual, mastersthesis,
 #   phdthesis, proceedings, techreport)
@@ -51,11 +54,14 @@
 #   entirely. For small publishers, on the other hand, you can help the reader by giving the complete address.
 #   @return [String] the address
 #   @return [nil] means the field is not stored in the database.
+#
 # @!attribute annote
-#   BibTeX standard field - An annotation. It is not used by the standard bibliography styles, but
+#   BibTeX standard field (ignored by standard processors)
+#   An annotation. It is not used by the standard bibliography styles, but
 #   may be used by others that produce an annotated bibliography.
 #   @return [String] the annotation
 #   @return [nil] means the field is not stored in the database.
+#
 # @!attribute author
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required field (TW requires a value in one of any of the required fields.)
@@ -65,6 +71,7 @@
 #   comma are treated as a single last name.
 #   @return [String] the list of author names in BibTeX format
 #   @return [nil] means the field is not stored in the database.
+#
 # @!attribute editor
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required field (TW requires a value in one of any of the required fields.)
@@ -72,13 +79,119 @@
 #   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple editors,
 #   each editor name should be separated by the word " and ". It should be noted that all the names before the
 #   comma are treated as a single last name.
-#   @return [String] the list of eitor names in BibTeX format
+#
+#   If there is also an author field, then the editor field gives the editor of the book or collection in
+#   which the reference appears.
+#   @return [String] the list of editor names in BibTeX format
 #   @return [nil] means the field is not stored in the database.
+#
 # @!attribute booktitle
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required field (TW requires a value in one of the required fields.)
 #   Title of a book, part of which is being cited. See the LaTEX book for how to type titles.
 #   For book entries, use the title field instead.
+#   @return[String] the title of the book
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute chapter
+#   BibTeX standard field (required for types: )(optional for types:)
+#   A chapter (or section or whatever) number.
+#   @return [String] the chapter or section number.
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute crossref
+#   BibTeX standard field (ignored by standard processors)
+#   The database key(key attribute) of the entry being cross referenced.
+#   This attribute is only set (and saved) during the import process, and is only relevant
+#   in a specific bibliography.
+#   @return[String] the key of the cross referenced source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute edition
+#   BibTeX standard field (required for types: )(optional for types:)
+#   The edition of a book(for example, "Second"). This should be an ordinal, and should
+#   have the first letter capitalized, as shown here;
+#   the standard styles convert to lower case when necessary.
+#   @return[String] the edition of the book
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute howpublished
+#   BibTeX standard field (required for types: )(optional for types:)
+#   How something unusual has been published. The first word should be capitalized.
+#   @return[String] a description of how this source was published
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute institution
+#   BibTeX standard field (required for types: )(optional for types:)
+#   The sponsoring institution of a technical report
+#   @return[String] the name of the institution publishing this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute journal
+#   BibTeX standard field (required for types: )(optional for types:)
+#   A TW required field (TW requires a value in one of the required fields.)
+#   A journal name. Many BibTeX processors have standardized abbreviations for many journals
+#   which would be listed in your local BibTeX processor guide. Once this field has been
+#   normalized against TW Serials, this field will contain the full journal name as
+#   defined by the Serial object. If you want a preferred abbreviation associated with
+#   with this journal, add the abbreviation the serial object.
+#   @return[String] the name of the journal (serial) associated with this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute key
+#   BibTeX standard field (may be used in a bibliography for alphabetizing & cross referencing)
+#   Used by bibtex-ruby gem method _identifier_ as a default value when no other identifier is present.
+#   Used for alphabetizing, cross referencing, and creating a label when the "author" information
+#   is missing. This field should not be confused with the key that appears in the \cite (BibTeX/LaTeX)command and at
+#   the beginning of the bibliography entry.
+#
+#   This attribute is only set (and saved) during the import process. It may be generated for output when
+#   a bibtex-ruby bibliography is created, but is unlikely to be save to the db.
+#   @return[String] the key of this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute month
+#   BibTeX standard field (required for types: )(optional for types:)
+#   The month in which the work was published or, for an unpublished work, in which it was written.
+#   It should use the standard three-letter abbreviation, as described in Appendix B.1.3 of the LaTeX book.
+#   The three-letter lower-case abbreviations are available in _BibTeX::MONTHS_.
+#   @return[String] The three-letter lower-case abbreviation for the month in which this source was published.
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute note
+#   BibTeX standard field (required for types: )(optional for types:)
+#   Any additional information that can help the reader. The first word should be capitalized.
+#
+#   Once this record has been normalized, it is the concatenation of all associated Notes.
+#   This field is used on import and export, but is otherwise ignored.
+#   @return[String] the BibTeX note associated with this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute number
+#   BibTeX standard field (required for types: )(optional for types:)
+#   The number of a journal, magazine, technical report, or of a work in a series.
+#   An issue of a journal or magazine is usually identied by its volume and number;
+#   the organization that issues a technical report usually gives it a number;
+#   and sometimes books are given numbers in a named series.
+#
+#   This attribute is equivalent to the Species File reference issue.
+#   @return[String] the number in a series, issue or technical report number associated with this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute organization
+#   BibTeX standard field (required for types: )(optional for types:)
+#   The organization that sponsors a conference or that publishes a manual.
+#   @return[String] the organization associated with this source
+#   @return [nil] means the field is not stored in the database.
+#
+# @!attribute pages
+#   BibTeX standard field (required for types: )(optional for types:)
+#   One or more page numbers or range of numbers, such as 42--111 or
+#   7,41,73--97 or 43+ (the `+' in this last example indicates pages following
+#   that don't form a simple range). To make it easier to maintain Scribe-
+#   compatible databases, the standard styles convert a single dash (as in
+#   7-33) to the double dash used in TeX to denote number ranges (as in 7--33).
+#
 #
 # @!endgroup
 # @!group TW add attributes that are not part of the standard attribute list
@@ -89,21 +202,6 @@
 class Source::Bibtex < Source
   include SoftValidation
 #
-# @!attribute chapter
-# @!attribute crossref
-# @!attribute edition
-# @!attribute howpublished
-# @!attribute institution
-# @!attribute journal
-#   A TW required field (TW requires a value in one of the required fields.)
-# @!attribute key
-#   Used by bibtex-ruby gem method identifier
-# @!attribute month
-#   use 3 letter abbreviation. see bibtex-ruby.MONTHS
-# @!attribute note
-# @!attribute number
-# @!attribute organization
-# @!attribute pages
 # @!attribute publisher
 # @!attribute school
 # @!attribute series
@@ -160,7 +258,7 @@ class Source::Bibtex < Source
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
-                                                       #region soft_validate calls
+#region soft_validate calls
   soft_validate(:sv_has_authors)
   soft_validate(:sv_year_exists)
   soft_validate(:sv_has_a_date, set: :recommended_fields)
@@ -170,10 +268,10 @@ class Source::Bibtex < Source
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:missing_required_bibtex_fields)
-                                                       #endregion
+#endregion
 
-                                                       #region constants
-                                                       # TW required fields (must have one of these fields filled in)
+#region constants
+# TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
       :author,
       :editor,
@@ -184,7 +282,7 @@ class Source::Bibtex < Source
       :year,
       :stated_year
   ] # either year or stated_year is acceptable
-                                                       #endregion
+#endregion
 
   def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
