@@ -68,14 +68,14 @@ Documentation
 
 See the [wiki][11] for conceptual and general discussion.  Code is documented inline using [Yard tags][12], see [rdoc][10].
 
-[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
-[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
-[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=master
-[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=master
-[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=master
-[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=master
-[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
-[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
+[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=postgres
+[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=postgres
+[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=postgres
+[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=postgres
+[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=postgres
+[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=postgres
+[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=postgres
+[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=postgres
 [9]: http://brew.sh/
 [10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
 [11]: http://wiki.taxonworks.org/
