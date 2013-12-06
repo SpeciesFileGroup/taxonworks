@@ -276,7 +276,7 @@ class TaxonName < ActiveRecord::Base
     true # see Protonym.rb for validation
   end
 
-  def sv_type_species_placement
+  def sv_type_placement
     true  # see validation in Protonym.rb
   end
 
