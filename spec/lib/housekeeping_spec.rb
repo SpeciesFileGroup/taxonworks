@@ -3,6 +3,11 @@ require 'spec_helper'
 describe 'Housekeeping::User' do
 
   context 'Users' do
+
+    before(:all) do
+      User.delete_all # just to make sure they are really gone
+    end
+
     let(:instance) {
       stub_model HousekeepingTestClass::WithUser, id: 10
     }

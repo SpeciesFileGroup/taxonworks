@@ -22,7 +22,7 @@ FactoryGirl.define do
        u = user.first
      end
 
-     p = Project.where( FactoryGirl.attributes_for(:test_project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
+     p = Project.where( FactoryGirl.attributes_for(:project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
      if p.blank? 
        FactoryGirl.create(:valid_project)
      else
