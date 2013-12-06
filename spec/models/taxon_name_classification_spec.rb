@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe TaxonNameClassification do
 
-  let(:taxon_name_classification) { TaxonNameClassification.new }
+  let(:taxon_name_classification) { FactoryGirl.build(:taxon_name_classification) }
 
   context "validation" do
 
@@ -13,7 +13,7 @@ describe TaxonNameClassification do
 
     context "requires" do
       specify "taxon_name" do
-        expect(taxon_name_classification.errors.include?(:taxon_name_id)).to be_true
+        expect(taxon_name_classification.errors.include?(:taxon_name)).to be_true
       end
 
       specify "type" do
@@ -38,7 +38,7 @@ describe TaxonNameClassification do
   context "soft_validation" do
     before(:each) do
       @species = FactoryGirl.create(:iczn_species)
-      @taxon_name_classification = TaxonNameClassification.new(taxon_name: @species) 
+      @taxon_name_classification = FactoryGirl.build(:taxon_name_classification, taxon_name: @species) 
     end
    specify "applicable type and year" do
      @taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum

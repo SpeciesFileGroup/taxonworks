@@ -1,13 +1,11 @@
 class TaxonNameClassification < ActiveRecord::Base
-
   include Housekeeping
+  include SoftValidation
 
   belongs_to :taxon_name
 
-  validates_presence_of  :taxon_name_id, :type
   before_validation :validate_taxon_name_class_class
-
-  include SoftValidation
+  validates :taxon_name, presence: true
   soft_validate(:sv_proper_classification)
 
   def type_name
