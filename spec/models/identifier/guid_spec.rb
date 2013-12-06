@@ -11,10 +11,10 @@ describe Identifier::Guid do
     end
   end
 
-  specify 'namespace is nil' do
-    guid_identifier.namespace = FactoryGirl.build(:valid_namespace)
+  specify 'namespace_id is nil' do
+    guid_identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
     guid_identifier.valid?
-    expect(guid_identifier.errors.include?(:namespace)).to be_true
+    expect(guid_identifier.errors.include?(:namespace_id)).to be_true
   end
 
 end
