@@ -23,6 +23,21 @@ describe Protonym do
     context 'has_many' do
       specify 'original_combination_relationships' do 
         expect(@protonym).to respond_to(:original_combination_relationships)
+        expect(@genus).to respond_to(:type_species)
+        expect(@family).to respond_to(:type_genus)
+        #those tests fail, because the relationships was not been established yet.
+        #expect(@protonym).to respond_to(:original_genus)
+        #expect(@protonym).to respond_to(:original_subgenus)
+        #expect(@protonym).to respond_to(:original_section)
+        #expect(@protonym).to respond_to(:original_subsection)
+        #expect(@protonym).to respond_to(:original_series)
+        #expect(@protonym).to respond_to(:original_subseries)
+        #expect(@protonym).to respond_to(:original_species)
+        #expect(@protonym).to respond_to(:original_subspecies)
+        #expect(@protonym).to respond_to(:original_variety)
+        #expect(@protonym).to respond_to(:original_subvariety)
+        #expect(@protonym).to respond_to(:original_form)
+        #expect(@protonym).to respond_to(:source_classified_as)
       end
 
       specify 'type_of_relationships' do
@@ -174,6 +189,22 @@ describe Protonym do
 
   context 'soft_validation' do
     before(:all) do
+      @subspecies = FactoryGirl.create(:iczn_subspecies)
+      @variety = FactoryGirl.create(:icn_variety)
+
+      @family = @subspecies.ancestor_at_rank('family')
+      @subfamily = @subspecies.ancestor_at_rank('subfamily')
+      @tribe = @subspecies.ancestor_at_rank('tribe')
+      @genus = @subspecies.ancestor_at_rank('genus')
+      @subgenus = @subspecies.ancestor_at_rank('subgenus')
+      @species = @subspecies.ancestor_at_rank('species')
+      @family.soft_validate
+      @subfamily.soft_validate
+      @tribe.soft_validate
+      @genus.soft_validate
+      @subgenus.soft_validate
+      @species.soft_validate
+
       @s = Source.new(year: 1940, author: 'aaa')
       genus = FactoryGirl.build(:iczn_genus)
       @p = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), year_of_publication: 2000, source: @s, parent: genus)
@@ -194,6 +225,120 @@ describe Protonym do
       expect(c.soft_validations.messages_on(:year_of_publication).include?('The combination is older than the taxon')).to be_true
       expect(c.soft_validations.messages_on(:source_id).include?('The citation is older than the taxon')).to be_false
     end
+
+
+
+
+    context 'soft_validations' do
+      context 'valid parent rank' do
+        specify 'parent rank should be valid' do
+          taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
+          taxa.each do |t|
+            t.soft_validate
+            expect(t.soft_validations.messages_on(:rank_class).empty?).to be_true
+          end
+        end
+        specify 'invalid parent rank' do
+          t = FactoryGirl.create(:iczn_subgenus, parent: @subspecies.ancestor_at_rank('family'))
+          t.soft_validate
+          expect(t.soft_validations.messages_on(:rank_class).empty?).to be_false
+        end
+      end
+
+      context 'missing_fields' do
+        specify "source is missing" do
+          species = @subspecies.ancestor_at_rank('species')
+          species.soft_validate
+          expect(species.soft_validations.messages_on(:source_id).empty?).to be_false
+          expect(species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+          expect(species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+        end
+        specify 'author and year are missing' do
+          kingdom = @subspecies.ancestor_at_rank('kingdom')
+          kingdom.soft_validate
+          expect(kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+          expect(kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        end
+        specify 'fix author and year' do
+          s = Source.new(year: 1950, author: 'aaa')
+          s.save
+          t = FactoryGirl.build(:iczn_kingdom)
+          t.source = s
+          t.soft_validate
+          expect(t.soft_validations.messages_on(:verbatim_author).count).to be > 0
+          expect(t.soft_validations.messages_on(:year_of_publication).count).to be > 0
+          t.fix_soft_validations
+          t.soft_validate
+          expect(t.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+          expect(t.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+          expect(t.verbatim_author).to eq('aaa')
+          expect(t.year_of_publication).to eq(1950)
+        end
+      end
+
+      context 'coordinated taxa' do
+        specify 'mismatching author in genus' do
+          @genus.verbatim_author = 'Foo'
+          @subgenus.original_combination_genus = @genus
+          @genus.save
+          @subgenus.save
+          @genus.soft_validate
+          @subgenus.soft_validate
+          expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+          expect(@subgenus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+          expect(@subgenus.soft_validations.messages_on(:base).empty?).to be_false
+        end
+        specify 'mismatching author, year and original genus in family' do
+          @subfamily.verbatim_author = 'Foo'
+          @tribe.verbatim_author = 'Aaa'
+          @tribe.name = 'Typhlocybini'
+          @tribe.year_of_publication = 2013
+          @subfamily.type_genus = @genus
+          @subfamily.save
+          @tribe.save
+          @subfamily.soft_validate
+          expect(@subfamily.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+          expect(@subfamily.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+          expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
+        end
+      end
+
+      context 'missing relationships' do
+        specify 'original genus' do
+          expect(@subspecies.soft_validations.messages_on(:base).include?('Original genus is missing')).to be_true
+        end
+        specify 'type species or genus' do
+          expect(@genus.soft_validations.messages_on(:base).include?('Type species is not selected')).to be_true
+          expect(@family.soft_validations.messages_on(:base).include?('Type genus is not selected')).to be_true
+        end
+      end
+
+      context 'problematic relationships' do
+        specify 'inapropriate type genus' do
+          @family.type_genus = @genus
+          @family.soft_validate
+          expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_true
+          @genus.name = 'Cus'
+          @genus.save
+          @family.save
+          @family.soft_validate
+          expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
+        end
+        specify 'type genus in wrong subfamily' do
+          other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
+          other_subfamily.type_genus = @genus
+          other_subfamily.save
+          other_subfamily.soft_validate
+          @genus.soft_validate
+          expect(other_subfamily.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
+        end
+      end
+    end
+
+
+
+
+
 
   end
 

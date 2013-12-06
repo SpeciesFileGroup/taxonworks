@@ -237,7 +237,7 @@ describe TaxonName do
         specify 'ICZN family' do
           @family.valid?
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
-          expect(@family.cached_author_year.nil?).to be_true
+          expect(@family.cached_author_year).to eq('Say, 1800')
           expect(@family.cached_name.nil?).to be_true
         end
         specify 'ICN' do

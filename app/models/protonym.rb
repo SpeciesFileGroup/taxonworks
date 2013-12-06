@@ -116,14 +116,9 @@ class Protonym < TaxonName
   end
 
   def sv_type_species_placement
-    if !!self.type_species
+    if !!self.type_taxon_name
       unless self.unavailable_or_invalid?
-        soft_validations.add(:base, "The type species should be included in the #{self.rank_class.rank_name}") unless self.type_species.ancestors.include?(self)
-      else
-      end
-    elsif !!self.type_genus && !self.unavailable_or_invalid?
-      unless self.unavailable_or_invalid?
-        soft_validations.add(:base, "The type genus should be included in the #{self.rank_class.rank_name}") unless self.type_genus.ancestors.include?(self)
+        soft_validations.add(:base, "The type should be included in the #{self.rank_class.rank_name}") unless self.type_taxon_name.ancestors.include?(self)
       else
       end
     end
