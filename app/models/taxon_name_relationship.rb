@@ -3,27 +3,27 @@ class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
 
   validates_presence_of :type, :subject_taxon_name_id, :object_taxon_name_id
-
-
   validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, if: :is_typification?
+  before_validation :validate_type,
+    :validate_subject_and_object_share_code,
+    :validate_valid_subject_and_object 
+
+  # TODO: refactor once housekeeping stabilizes
+  before_validation :assign_houskeeping_if_possible, on: :create
 
   def is_combination?
     !!/TaxonNameRelationship::(Original|)Combination/.match(self.type.to_s)
   end
+
   def is_typification?
     self.type.to_s == TaxonNameRelationship::Typification.to_s
   end
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id # right side
-
-
-  before_validation :validate_type,
-                    :validate_subject_and_object_share_code,
-                    :validate_valid_subject_and_object
-
+  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
+  
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
 
   def aliases
@@ -64,8 +64,15 @@ class TaxonNameRelationship < ActiveRecord::Base
     TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
   end
 
-
   protected
+
+  # TODO: ! remove once housekeepign stabilizes
+  def assign_houskeeping_if_possible
+    self.creator = self.subject_taxon_name.creator if self.creator.nil? && self.subject_taxon_name.creator
+    self.updater = self.subject_taxon_name.updater if self.updater.nil? && self.subject_taxon_name.updater
+    self.project = self.subject_taxon_name.project if self.project.nil? && self.subject_taxon_name.project
+  end
+
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type

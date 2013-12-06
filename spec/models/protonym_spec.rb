@@ -118,10 +118,10 @@ describe Protonym do
   context 'usage' do
     before(:all) do
       @order = FactoryGirl.create(:iczn_order)
-      @f = Protonym.new(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: @order)
-      @g = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
-      @o = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
-      @s = Protonym.new(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: @g)
+      @f = FactoryGirl.build(:protonym, name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: @order)
+      @g = FactoryGirl.build(:protonym, name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
+      @o = FactoryGirl.build(:protonym, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: @f)
+      @s = FactoryGirl.build(:protonym, name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: @g)
       @g.save
       @s.save
       @o.save
@@ -139,14 +139,14 @@ describe Protonym do
       # The problem is that your variables were instances of TaxonNameRelationship, this class doesn't have the pertinent validation.
       # When you return them in the future they will be cast as the subclass, and they will have the validations. To solve, use 
       # 1) or 2) examples below (2 is preferred)
-      
+
       expect(@s.original_combination_relationships.count).to eq(0)
 
       # Example 1) recasting
       temp_relation = FactoryGirl.build(:taxon_name_relationship,
-                                                        subject_taxon_name: @o,
-                                                        object_taxon_name: @s,
-                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+                                        subject_taxon_name: @o,
+                                        object_taxon_name: @s,
+                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       temp_relation.save
       # recast as the subclass
       first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
@@ -157,26 +157,35 @@ describe Protonym do
                                                            subject_taxon_name: @g,
                                                            object_taxon_name: @s,
                                                            type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      first_original_subgenus_relation.save
-      expect(@s.original_combination_relationships.count).to eq(2)
+
+      expect(first_original_subgenus_relation.save).to be_true
+      expect(@s.original_combination_relationships.reload.count).to eq(2)
+
       extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
-                                              subject_taxon_name: @g,
-                                              object_taxon_name: @s,
-                                              type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+                                                        subject_taxon_name: @g,
+                                                        object_taxon_name: @s,
+                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+
       expect(extra_original_genus_relation.valid?).to be_false
-      extra_original_genus_relation.save
+      expect(extra_original_genus_relation.save).to be_false
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 
     specify 'assign a type species to a genus' do
       expect(@g.type_species = @s).to be_true
       expect(@g.save).to be_true
+      expect(@g.type_taxon_name_relationship).to be_true
 
       expect(@g.type_species_relationship.class).to eq(TaxonNameRelationship::Typification::Genus)
+
       expect(@g.type_species_relationship.subject_taxon_name).to eq(@s)
       expect(@g.type_species_relationship.object_taxon_name).to eq(@g)
+
       expect(@g.type_taxon_name_relationship.class).to eq(TaxonNameRelationship::Typification::Genus)
+
+      expect(@g.type_taxon_name).to eq(@s)
       expect(@g.type_taxon_name.name).to eq('aus')
+
       expect(@s.type_of_relationships.to_a).to eq(@s.taxon_name_relationships.to_a)
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@s.type_of_relationships.first.object_taxon_name).to eq(@g)
@@ -253,9 +262,10 @@ describe Protonym do
           expect(kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
           expect(kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
         end
+
         specify 'fix author and year' do
-          s = Source.new(year: 1950, author: 'aaa')
-          s.save
+          s = FactoryGirl.build(:valid_bibtex_source,year: 1950, author: 'aaa')
+          expect(s.save).to be_true
           t = FactoryGirl.build(:iczn_kingdom)
           t.source = s
           t.soft_validate
