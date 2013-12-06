@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe AlternateValue do
-  let (:alternate_value) { AlternateValue.new }
+  let (:alternate_value) { FactoryGirl.build(:alternate_value)}
 
   context 'associations' do
     context 'belongs_to' do

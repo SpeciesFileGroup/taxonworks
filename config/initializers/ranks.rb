@@ -10,7 +10,6 @@
  RANKS = [NomenclaturalRank] + ICN + ICZN
 
  # All Ranks, as Strings
- # TODO: Is there a point to this?
  RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
 
  # ICN Rank Classes in a Hash with keys being the "human" name

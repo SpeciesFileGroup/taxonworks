@@ -112,15 +112,18 @@ describe Person do
       end
     end
 
+    # TODO: Fix. 
+    #  ... roles are not getting assigned creator/updater when << is used
     context 'roles' do
       before(:each) do
-        @vp = FactoryGirl.build(:valid_person)
+        @vp = FactoryGirl.create(:valid_person)
       end
+
       specify '@vp is valid person' do
         expect(@vp.valid?).to be_true
       end
+
       specify 'is_author?' do
-        @vp.save
         expect(@vp).to respond_to(:is_author?)
         expect(@vp.is_author?).to be_false
         bibtex_source.authors << @vp
@@ -129,7 +132,6 @@ describe Person do
         expect(@vp.is_author?).to be_true
       end
       specify 'is_editor?' do
-        @vp.save
         expect(@vp).to respond_to(:is_editor?)
         expect(@vp.is_editor?).to be_false
         bibtex_source.editors << @vp
@@ -138,7 +140,6 @@ describe Person do
         expect(@vp.is_editor?).to be_true
       end
       specify 'is_source?' do
-        @vp.save
         expect(@vp).to respond_to(:is_source?)
         expect(@vp.is_source?).to be_false
         human_source.people << @vp
@@ -147,44 +148,36 @@ describe Person do
         expect(@vp.is_source?).to be_true
       end
       specify 'is_collector?' do
-        coll_event = CollectingEvent.new
-        coll_event.save
-        @vp.save
         expect(@vp).to respond_to(:is_collector?)
         expect(@vp.is_collector?).to be_false
+        coll_event = FactoryGirl.create(:valid_collecting_event) 
         coll_event.collectors << @vp
         coll_event.save!
         @vp.reload
         expect(@vp.is_collector?).to be_true
       end
       specify 'is_determiner?' do
-        taxon_determination = TaxonDetermination.new
-        taxon_determination.save
-        @vp.save
         expect(@vp).to respond_to(:is_determiner?)
         expect(@vp.is_determiner?).to be_false
+        taxon_determination = FactoryGirl.create(:valid_taxon_determination)
         taxon_determination.determiner = @vp
         taxon_determination.save!
-        @vp.reload
+        @vp.reload # vp is getting set to 1, not @vp.id with this format
         expect(@vp.is_determiner?).to be_true
       end
       specify 'is_taxon_name_author?' do
-        taxon_name = FactoryGirl.create(:valid_protonym)
-        taxon_name.save
-        @vp.save
         expect(@vp).to respond_to(:is_taxon_name_author?)
         expect(@vp.is_taxon_name_author?).to be_false
+        taxon_name = FactoryGirl.create(:valid_protonym)
         taxon_name.taxon_name_authors << @vp
         taxon_name.save!
         @vp.reload
         expect(@vp.is_taxon_name_author?).to be_true
       end
       specify 'is_type_designator?' do
-        type_specimen = FactoryGirl.create(:type_specimen)
-        type_specimen.save
-        @vp.save
         expect(@vp).to respond_to(:is_type_designator?)
         expect(@vp.is_type_designator?).to be_false
+        type_specimen = FactoryGirl.create(:type_specimen)
         type_specimen.type_designators << @vp
         type_specimen.save!
         @vp.reload

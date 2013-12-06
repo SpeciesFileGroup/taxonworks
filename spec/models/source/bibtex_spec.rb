@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Source::Bibtex do
 
-  let(:bibtex) { Source::Bibtex.new }
+  let(:bibtex) { FactoryGirl.build(:bibtex_source) } 
 
   before(:all) do
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')

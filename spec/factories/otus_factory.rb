@@ -1,8 +1,7 @@
 FactoryGirl.define do
-  factory :otu do
-  end
-
-  factory :valid_otu, class: Otu do
-    name 'my concept'
+  factory :otu, traits: [:housekeeping] do
+    factory :valid_otu do
+      name 'my concept'
+    end
   end
 end

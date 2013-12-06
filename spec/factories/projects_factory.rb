@@ -1,14 +1,8 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
 FactoryGirl.define do
-
-  factory :base_project, class: Project do
-    name 'My Project'
-
-    factory :project do
-    end
-
+  factory :project, class: Project, traits: [:creator_and_updater] do
+    # Don't include a name here 
     factory :valid_project do
+      name 'My Project'
     end
   end
 end

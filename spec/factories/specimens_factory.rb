@@ -1,8 +1,7 @@
 FactoryGirl.define do
-  factory :specimen, class: Specimen do
-  end
-
-  factory :valid_specimen, class: Specimen do
-    total 1
-  end
+# factory :specimen, class: Specimen, traits: [:housekeeping] do
+#   factory :valid_specimen do
+#     total 1
+#   end
+# end
 end

@@ -5,7 +5,7 @@
 //	<script>
 //		CM_ATTR = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 //				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-//				'Imagery © <a href="http://cloudmade.com">CloudMade</a>';
+//				'Imagery Â© <a href="http://cloudmade.com">CloudMade</a>';
 
 //		CM_URL = 'http://{s}.tile.cloudmade.com/121c86d2baf84dd383f0f5d3eff472fb/{styleId}/256/{z}/{x}/{y}.png';
 
@@ -29,7 +29,7 @@
 		function leafInit() {
 			var LJSmap = L.map('Lmap').setView([document.form1.Slat.value, document.form1.Slon.value], 4);
 			L.tileLayer('http://{s}.tile.cloudmade.com/121c86d2baf84dd383f0f5d3eff472fb/997/256/{z}/{x}/{y}.png', {
-				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>[…]',
+				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Copyright <a href="http://cloudmade.com">CloudMade</a>[some bad character]',
 				maxZoom: 18
 			}).addTo(LJSmap);		//key following cloudmade.com is issued to jrflood@illinois.edu
 
@@ -275,3 +275,4 @@
 </body>
 </html>
 */
+

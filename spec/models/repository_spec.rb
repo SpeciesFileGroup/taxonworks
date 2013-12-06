@@ -2,12 +2,12 @@ require 'spec_helper'
 
 
 describe Repository do
-  let(:repository) {Repository.new}
+  let(:repository) {FactoryGirl.build(:repository)}
 
   context 'validation' do
     before(:each) {repository.valid?}
-    specify 'required attributes' do
-      expect(repository.errors.keys.sort).to eq([:acronym, :name,  :status, :url])
+    specify 'non collector/updater required attributes' do
+      expect(repository.errors.keys.sort).to eq([:acronym, :name,  :status, :url].sort)
     end
   end
 
