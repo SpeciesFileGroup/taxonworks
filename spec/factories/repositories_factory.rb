@@ -1,12 +1,11 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
 FactoryGirl.define do
-  factory :repository do
-    name "MyString"
-    url "MyString"
-    acronym "MyString"
-    status "MyString"
-    institutional_LSID "MyString"
-    is_index_herbarioum_record false
+  factory :repository, traits: [:creator_and_updater] do
+    factory :valid_repository do
+      name "Fort Knocks"
+      url "http://lotsof.gold.com"
+      acronym "SOHN"
+      status "boolean?"
+    end
   end
 end
+
