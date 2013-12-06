@@ -94,7 +94,6 @@ describe 'Housekeeping::User' do
 
         context 'belonging to a project' do
           before(:all) {
-            debugger
             @project1 = FactoryGirl.create(:valid_project)
             @project2 = FactoryGirl.create(:valid_project)
           }
