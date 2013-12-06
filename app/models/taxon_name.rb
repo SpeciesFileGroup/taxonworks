@@ -16,9 +16,6 @@ class TaxonName < ActiveRecord::Base
 
   include SoftValidation
   soft_validate(:sv_missing_fields)
-  soft_validate(:sv_missing_relationships)
-  soft_validate(:sv_validate_parent_rank)
-  soft_validate(:sv_validate_coordinated_names)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -102,10 +99,9 @@ class TaxonName < ActiveRecord::Base
       genus = ''
       subgenus = ''
       species = ''
-      cached_name = nil
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANKS_NAMES.include?(i.rank_class.to_s)
-          case i.rank
+          case i.rank_class.rank_name
           when "genus" then genus = i.name + ' '
           when "subgenus" then subgenus += i.name + ' '
           when "section" then subgenus += 'sect. ' + i.name + ' '
@@ -168,7 +164,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = self.self_and_ancestors.select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
+    hc = (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 
@@ -181,7 +177,7 @@ class TaxonName < ActiveRecord::Base
       true
     elsif self.parent.nil?
       errors.add(:parent_id, 'A parent is not selected')
-    elsif self.type == 'Combination' || self.parent.rank_class == NomenclaturalRank
+    elsif self.type == 'Combination' # || self.parent.rank_class == NomenclaturalRank
       true
     elsif RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
       errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
@@ -196,7 +192,7 @@ class TaxonName < ActiveRecord::Base
     if self.type == 'Combination'
       errors.add(:rank_class, "Combination should not have rank") if self.rank_class
     elsif self.type == 'Protonym'
-      if !Ranks.valid?(rank_class)
+      unless Ranks.valid?(rank_class)
         errors.add(:rank_class, "Rank not found")
       end
     end
@@ -264,65 +260,24 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def sv_missing_relationships
-    if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
-    elsif GENUS_RANKS_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
-    elsif FAMILY_RANKS_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
-    end
-  end
-
   def sv_validate_parent_rank
-    if self.type == 'Combination' || self.rank_class.to_s == 'NomenclaturalRank'
-      true
-    elsif self.parent.rank_class.to_s == 'NomenclaturalRank'
-      true
-    elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
-      soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
-    end
+    true # see Protonym.rb for validation
   end
 
-  def sv_validate_coordinated_names
-    if /NomenclaturalRank::Iczn::SpeciesGroup::+/.match(self.rank_class.to_s)
-      search_name = self.name
-      search_rank = 'NomenclaturalRank::Iczn::SpeciesGroup::'
-    elsif /NomenclaturalRank::Iczn::GenusGroup::+/.match(self.rank_class.to_s)
-      search_name = self.name
-      search_rank = 'NomenclaturalRank::Iczn::GenusGroup::'
-    elsif /NomenclaturalRank::Iczn::FamilyGroup::+/.match(self.rank_class.to_s)
-      z = self.name.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-      if z.nil?
-        search_name = nil
-      else
-        search_name = z[1] + '(ini|ina|inae|idae|oidae|odd|ad|oidea)'
-      end
-      search_rank = 'NomenclaturalRank::Iczn::FamilyGroup::'
-    else
-      search_name = nil
-    end
-    unless search_name.nil?
-      list = self.ancestors.to_a + self.descendants.to_a
-      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)}
-      list = list.select{|i| /#{search_name}/.match(i.name)}
-      list = list.reject{|i| i.unavailable_or_invalid?}
-      list.each do |t|
-        #:TODO think about fixes to tests below
-        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}") if self.source_id != t.source_id
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}") if self.verbatim_author != t.verbatim_author
-        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}") if self.year_of_publication != t.year_of_publication
-        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}") if self.original_combination_genus != t.original_combination_genus
-        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}") if self.original_combination_subgenus != t.original_combination_subgenus
-        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}") if self.original_combination_species != t.original_combination_species
-        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}") if self.type_species != t.type_species
-        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}") if self.type_genus != t.type_genus
-      end
-    end
+  def sv_missing_relationships
+    true # see Protonym.rb for validation
   end
 
   def sv_source_older_then_description
     true  # see validation in Protonym.rb and Combination.rb
+  end
+
+  def sv_validate_coordinated_names
+    true # see Protonym.rb for validation
+  end
+
+  def sv_type_species_placement
+    true  # see validation in Protonym.rb
   end
 
   #endregion

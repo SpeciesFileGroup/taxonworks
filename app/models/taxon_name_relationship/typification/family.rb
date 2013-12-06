@@ -14,6 +14,10 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
     :type_genus
   end
 
+  def self.inverse_assignment_method
+    :type_of_family
+  end
+
   def self.assignable
     true
   end

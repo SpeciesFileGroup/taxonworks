@@ -7,7 +7,7 @@ describe Combination do
   context "associations" do
     context "has_one" do
       context "taxon_name_relationships" do
-        %w{genus subgenus species subspecies}.each do |rank|
+        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
           method = "#{rank}_taxon_name_relationship" 
           specify method do
             expect(combination).to respond_to(method)
@@ -16,7 +16,7 @@ describe Combination do
       end
 
       context "taxon_names" do
-        %w{genus subgenus species subspecies}.each do |rank|
+        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
           specify rank do
             expect(combination).to respond_to(rank.to_sym)
           end 
@@ -45,8 +45,7 @@ describe Combination do
 
       specify 'specified Combination differs from Protonym original description for species-group names' do
         pending
-      end 
-
+      end
     end
 
     context "usage" do
@@ -55,27 +54,21 @@ describe Combination do
         @subgenus = FactoryGirl.create(:relationship_genus, name: 'Bus')
         @species = FactoryGirl.create(:relationship_species, name: 'bus')
       end
-
-      context "subgeneric placement" do
-        specify "a genus group name used as a subgenus" do
-          c = FactoryGirl.create(:combination, parent: @subgenus)
-          c.genus = @genus
-          c.subgenus = @subgenus
-          expect(c.valid?).to be_true
-          expect(c.genus.name).to eq('Aus')
-          expect(c.subgenus.name).to eq('Bus')
-        end
+      specify "a genus group name used as a subgenus" do
+        c = FactoryGirl.create(:combination, parent: @subgenus)
+        c.genus = @genus
+        c.subgenus = @subgenus
+        expect(c.valid?).to be_true
+        expect(c.genus.name).to eq('Aus')
+        expect(c.subgenus.name).to eq('Bus')
       end
-
-      context "species group names" do
-        specify "a species group named used under a different genus" do
-          c = FactoryGirl.create(:combination, parent: @species)
-          c.genus = @genus
-          c.species = @species
-          expect(c.valid?).to be_true
-          expect(c.genus.name).to eq('Aus')
-          expect(c.species.name).to eq('bus')
-        end
+      specify "species group names used under a different genus" do
+        c = FactoryGirl.create(:combination, parent: @species)
+        c.genus = @genus
+        c.species = @species
+        expect(c.valid?).to be_true
+        expect(c.genus.name).to eq('Aus')
+        expect(c.species.name).to eq('bus')
       end
     end
   end
