@@ -6,7 +6,7 @@ require 'spec_helper'
 
 describe Project do
 
-  let(:project) {Project.new}
+  let(:project) {FactoryGirl.build(:project)}
 
   context 'associations' do
     context 'has_many' do
@@ -37,14 +37,11 @@ describe Project do
     end
   end
 
- 
 
-  context 'valid_project factory' do
-    specify 'is a valid something or other' do
-      pr = FactoryGirl.create(:project)
-      expect(pr.valid?).to be_true
-      pr.save!
-    end
+  specify 'valid_project factory if valid' do
+    pr = FactoryGirl.build(:valid_project)
+    expect(pr.valid?).to be_true
+    pr.save!
   end
 
 end

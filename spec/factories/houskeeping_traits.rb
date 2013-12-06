@@ -2,6 +2,7 @@ FactoryGirl.define do
 
  trait :creator_and_updater do
    creator {
+     # build_stubbed(:valid_user)
      u = User.where( FactoryGirl.attributes_for(:test_user) )
      if u.blank? 
        user = FactoryGirl.create(:valid_user)
@@ -22,7 +23,7 @@ FactoryGirl.define do
        u = user.first
      end
 
-     p = Project.where( FactoryGirl.attributes_for(:project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
+     p = Project.where( FactoryGirl.attributes_for(:valid_project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
      if p.blank? 
        FactoryGirl.create(:valid_project)
      else

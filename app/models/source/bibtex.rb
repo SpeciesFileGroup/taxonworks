@@ -240,6 +240,13 @@ class Source::Bibtex < Source
     bibtex.parse_names
     bibtex.names.each do |a|
       p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+
+      # TODO: These are required in present FactoryGirl tests, but not
+      # in production, factor out when FactoryGirl + Housekeeping issues
+      # are resolved.
+      p.creator = self.creator
+      p.updater = self.updater
+      
       if bibtex.author
         self.authors << p if bibtex.author.include?(a)
       end
@@ -261,7 +268,6 @@ class Source::Bibtex < Source
 
   #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
-
     # return true if !(self.author.to_s.strip.length == 0)
     return true if !(self.author.blank?)
     # author attribute is empty
