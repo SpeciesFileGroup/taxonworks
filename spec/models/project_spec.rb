@@ -6,7 +6,7 @@ require 'spec_helper'
 
 describe Project do
 
-  let(:project) {Project.new}
+  let(:project) {FactoryGirl.build(:project)}
 
   context 'associations' do
     context 'has_many' do
@@ -24,9 +24,24 @@ describe Project do
     before(:each) do
       project.valid?
     end
-    specify 'name' do
-      expect(project.errors.include?(:name)).to be_true
+
+    context 'requires' do
+      specify 'name' do
+        expect(project.errors.include?(:name)).to be_true
+      end
+
+      specify 'valid with name' do
+        project.name = 'Project!'
+        expect(project.save).to be_true
+      end
     end
+  end
+
+
+  specify 'valid_project factory if valid' do
+    pr = FactoryGirl.build(:valid_project)
+    expect(pr.valid?).to be_true
+    pr.save!
   end
 
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe Identifier::Guid do
 
-  let(:guid_identifier) {Idenfier::Guid.new}
+  let(:guid_identifier) {Identifier::Guid.new}
 
   context 'validation' do
     context 'requires' do

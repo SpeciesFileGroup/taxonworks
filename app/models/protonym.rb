@@ -1,7 +1,5 @@
 class Protonym < TaxonName
 
-  include Housekeeping
-
   has_many :taxon_name_classifications
 
   alias_method :original_combination_source, :source

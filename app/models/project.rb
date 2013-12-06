@@ -1,6 +1,6 @@
 class Project < ActiveRecord::Base
 
-  include Housekeeping
+ include Housekeeping::Users
 
   has_many :project_members
   has_many :users, through: :project_members

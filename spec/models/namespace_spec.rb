@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Namespace do
-  let(:namespace) { Namespace.new }
+  let(:namespace) { FactoryGirl.build(:namespace)  }
 
   context 'validation' do
     context 'requires' do

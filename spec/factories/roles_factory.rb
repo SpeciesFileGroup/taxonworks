@@ -3,11 +3,7 @@ FactoryGirl.define do
   factory :role do
   end
 
-  factory :base_source_author_role, class: SourceAuthor do
-
-#   association :creator, factory: :valid_user, strategy: :build
-#   association :updater, factory: :valid_user, strategy: :build
-#   association :project, factory: :valid_project, strategy: :build
+  factory :base_source_author_role, class: SourceAuthor, traits: [:creator_and_updater] do
 
     factory :source_author_role do
       association :person, factory: :valid_person
