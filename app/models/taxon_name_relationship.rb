@@ -68,9 +68,11 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # TODO: ! remove once housekeepign stabilizes
   def assign_houskeeping_if_possible
-    self.creator = self.subject_taxon_name.creator if self.creator.nil? && self.subject_taxon_name.creator
-    self.updater = self.subject_taxon_name.updater if self.updater.nil? && self.subject_taxon_name.updater
-    self.project = self.subject_taxon_name.project if self.project.nil? && self.subject_taxon_name.project
+    if self.subject_taxon_name
+      self.creator = self.subject_taxon_name.creator if self.creator.nil?
+      self.updater = self.subject_taxon_name.updater if self.updater.nil?
+      self.project = self.subject_taxon_name.project if self.project.nil?
+    end
   end
 
 
