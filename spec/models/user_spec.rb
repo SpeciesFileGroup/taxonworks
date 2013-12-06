@@ -38,7 +38,10 @@ describe User do
   end
 
   context 'factory valid_user is valid' do
-    let(:factory_user) {FactoryGirl.build(:valid_user)}
+    let(:factory_user) {
+      User.destroy_all 
+      FactoryGirl.build(:valid_user)
+    }
     specify 'is valid' do
       expect(factory_user.valid?).to be_true
     end 
