@@ -69,13 +69,11 @@ describe Protonym do
           expect(@genus.type_taxon_name).to eq(@protonym)
           expect(@family.type_taxon_name).to eq(@genus)
         end 
-
         specify 'type_taxon_name_relationship' do
           expect(@protonym).to respond_to(:type_taxon_name_relationship)
           expect(@genus.type_taxon_name_relationship.id).to eq(@species_type_of_genus.id)
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
         end 
-
         specify 'has at most one has_type relationship' do
           extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
                                                   subject_taxon_name: @genus,
@@ -91,14 +89,14 @@ describe Protonym do
           expect(@protonym).to respond_to(:original_combination_source)
         end
 
-        %w{genus subgenus species}.each do |rank|
+        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
           method = "original_combination_#{rank}_relationship" 
           specify method do
             expect(@protonym).to respond_to(method)
           end 
         end
 
-        %w{genus subgenus species}.each do |rank|
+        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
           method = "original_combination_#{rank}" 
           specify method do
             expect(@protonym).to respond_to(method)
@@ -112,7 +110,6 @@ describe Protonym do
     before do
       protonym.valid?
     end
-
     specify 'name' do
       expect(protonym.errors.include?(:name)).to be_true
     end
@@ -171,7 +168,6 @@ describe Protonym do
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 
-
     specify 'assign a type species to a genus' do
       expect(@g.type_species = @s).to be_true
       expect(@g.save).to be_true
@@ -227,9 +223,7 @@ describe Protonym do
     end
 
 
-
-
-    context 'soft_validations' do
+    context 'soft_validations' do  ################################################
       context 'valid parent rank' do
         specify 'parent rank should be valid' do
           taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
@@ -334,12 +328,6 @@ describe Protonym do
         end
       end
     end
-
-
-
-
-
-
   end
 
 end
