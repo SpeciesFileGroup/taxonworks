@@ -5,7 +5,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Citable
 
-  acts_as_nested_set
+  acts_as_nested_set scope: [:project_id]
 
   belongs_to :source 
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
@@ -13,6 +13,10 @@ class TaxonName < ActiveRecord::Base
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+
+  scope :named, -> (name) {where(name: name)} 
+  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
 
   include SoftValidation
   soft_validate(:sv_missing_fields)
@@ -59,6 +63,10 @@ class TaxonName < ActiveRecord::Base
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
   end
 
+  def rank_string
+    self.rank_class.to_s
+  end
+
   def rank_class=(value)
     write_attribute(:rank_class, value.to_s)
   end
@@ -68,12 +76,15 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
+
+  # TODO: Add parallel scope here 
   def ancestor_at_rank(rank)
     r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
     return RANKS.index(r) >= RANKS.index(self.rank_class) ? nil :
       self.ancestors.detect { |ancestor| ancestor.rank_class == r }
   end
 
+  # TODO: Add parallel scope in TaxonName
   def unavailable_or_invalid?
     case self.rank_class.nomenclatural_code
       when :iczn

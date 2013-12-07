@@ -77,28 +77,27 @@ class Protonym < TaxonName
   end
 
   def sv_validate_coordinated_names
-    if /NomenclaturalRank::Iczn::SpeciesGroup::+/.match(self.rank_class.to_s)
-      search_name = self.name
-      search_rank = 'NomenclaturalRank::Iczn::SpeciesGroup::'
-    elsif /NomenclaturalRank::Iczn::GenusGroup::+/.match(self.rank_class.to_s)
-      search_name = self.name
-      search_rank = 'NomenclaturalRank::Iczn::GenusGroup::'
-    elsif /NomenclaturalRank::Iczn::FamilyGroup::+/.match(self.rank_class.to_s)
-      z = self.name.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-      if z.nil?
-        search_name = nil
+    search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+    if search_rank
+      if search_rank =~ /Family/ 
+        z = Protonym.family_group_base(self.name)
+        search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
       else
-        search_name = z[1] + '(ini|ina|inae|idae|oidae|odd|ad|oidea)'
+        search_name = self.name
       end
-      search_rank = 'NomenclaturalRank::Iczn::FamilyGroup::'
     else
       search_name = nil
     end
+
     unless search_name.nil?
-      list = self.ancestors.to_a + self.descendants.to_a
-      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)}
-      list = list.select{|i| /#{search_name}/.match(i.name)}
-      list = list.reject{|i| i.unavailable_or_invalid?}
+      list = self.ancestors_and_descendants                               # scope with parens
+      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class 
+      list = list.select{|i| /#{search_name}/.match(i.name)}              # scope on named 
+      list = list.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+
+      # Using scopes assignment will be done with single query rather than loops, and be something like:
+      #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
+
       list.each do |t|
         #:TODO think about fixes to tests below
         soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}") if self.source_id != t.source_id
@@ -111,6 +110,16 @@ class Protonym < TaxonName
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}") if self.type_genus != t.type_genus
       end
     end
+
+  end
+
+  def ancestors_and_descendants
+    self.ancestors.to_a + self.descendants.to_a
+  end
+
+  def self.family_group_base(name_string)
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
+    $1
   end
 
   def sv_type_placement
