@@ -14,26 +14,26 @@
 #
 # BibTeX fields in a BibTex bibliography are treated in one of three ways:
 #
-# [REQUIRED] Omitting the field will produce a warning message and, rarely, a
+# [REQUIRED] Omitting the field will produce a warning message and, rarely, a
 #       badly formatted bibliography entry. If the required information is not
 #       meaningful, you are using the wrong entry type. However, if the required
-#       information is meaningful but, say, already included is some other field,
+#       information is meaningful but, say, already included is some other field,
 #       simply ignore the warning.
-# [OPTIONAL] The field's information will be used if present, but can be omitted
+# [OPTIONAL] The field's information will be used if present, but can be omitted
 #       without causing any formatting problems. You should include the optional
-#       field if it will help the reader.
-# [IGNORED] The field is ignored. BibTEX ignores any field that is not required or
-#       optional, so you can include any fields you want in a bib file entry. It's a
-#       good idea to put all relevant information about a reference in its bib file
+#       field if it will help the reader.
+# [IGNORED] The field is ignored. BibTEX ignores any field that is not required or
+#       optional, so you can include any fields you want in a bib file entry. It's a
+#       good idea to put all relevant information about a reference in its bib file
 #       entry - even information that may never appear in the bibliography.
 #
 # TW will add all non-standard or housekeeping attributes to the bibliography even though
 # the data may be ignored.
 #
-# @!group Ruby standard attributes & our added housekeeping fields
+# @!group Ruby standard attributes & our added housekeeping attributes
 # @!attribute id [Fixnum]
-#   This is the Ruby Active Record ID. When no value is provided for the key field and
-#   a cross reference is needed, this field will be used within the key.
+#   This is the Ruby Active Record ID. When no value is provided for the key attribute and
+#   a cross reference is needed, this attribute may be used within the key.
 #   @return [Fixnum] the unique identifier of this record in the Source table.
 #   @return [nil] means the record does not exist in the database.
 #
@@ -53,28 +53,28 @@
 #   For major publishing houses, van Leunen recommends omitting the information
 #   entirely. For small publishers, on the other hand, you can help the reader by giving the complete address.
 #   @return [String] the address
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute annote
 #   BibTeX standard field (ignored by standard processors)
 #   An annotation. It is not used by the standard bibliography styles, but
 #   may be used by others that produce an annotated bibliography.
 #   @return [String] the annotation
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute author
 #   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required field (TW requires a value in one of any of the required fields.)
+#   A TW required attribute (TW requires a value in one of any of the required attributes.)
 #   The name(s) of the author(s), in the format described in the LaTeX book. Names should be formatted as
 #   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple authors,
 #   each author name should be separated by the word " and ". It should be noted that all the names before the
 #   comma are treated as a single last name.
 #   @return [String] the list of author names in BibTeX format
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute editor
 #   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required field (TW requires a value in one of any of the required fields.)
+#   A TW required attribute (TW requires a value in one of any of the required attributes.)
 #   The name(s) of the editor(s), in the format described in the LaTeX book. Names should be formatted as
 #   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple editors,
 #   each editor name should be separated by the word " and ". It should be noted that all the names before the
@@ -83,21 +83,21 @@
 #   If there is also an author field, then the editor field gives the editor of the book or collection in
 #   which the reference appears.
 #   @return [String] the list of editor names in BibTeX format
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute booktitle
 #   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 #   Title of a book, part of which is being cited. See the LaTEX book for how to type titles.
 #   For book entries, use the title field instead.
 #   @return[String] the title of the book
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute chapter
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A chapter (or section or whatever) number.
 #   @return [String] the chapter or section number.
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute crossref
 #   BibTeX standard field (ignored by standard processors)
@@ -105,50 +105,50 @@
 #   This attribute is only set (and saved) during the import process, and is only relevant
 #   in a specific bibliography.
 #   @return[String] the key of the cross referenced source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute edition
 #   BibTeX standard field (required for types: )(optional for types:)
 #   The edition of a book(for example, "Second"). This should be an ordinal, and should
-#   have the first letter capitalized, as shown here;
+#   have the first letter capitalized, as shown here;
 #   the standard styles convert to lower case when necessary.
 #   @return[String] the edition of the book
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute howpublished
 #   BibTeX standard field (required for types: )(optional for types:)
-#   How something unusual has been published. The first word should be capitalized.
+#   How something unusual has been published. The first word should be capitalized.
 #   @return[String] a description of how this source was published
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute institution
 #   BibTeX standard field (required for types: )(optional for types:)
 #   The sponsoring institution of a technical report
 #   @return[String] the name of the institution publishing this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute journal
 #   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 #   A journal name. Many BibTeX processors have standardized abbreviations for many journals
-#   which would be listed in your local BibTeX processor guide. Once this field has been
-#   normalized against TW Serials, this field will contain the full journal name as
+#   which would be listed in your local BibTeX processor guide. Once this attribute has been
+#   normalized against TW Serials, this attribute will contain the full journal name as
 #   defined by the Serial object. If you want a preferred abbreviation associated with
 #   with this journal, add the abbreviation the serial object.
 #   @return[String] the name of the journal (serial) associated with this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute key
 #   BibTeX standard field (may be used in a bibliography for alphabetizing & cross referencing)
 #   Used by bibtex-ruby gem method _identifier_ as a default value when no other identifier is present.
 #   Used for alphabetizing, cross referencing, and creating a label when the "author" information
-#   is missing. This field should not be confused with the key that appears in the \cite (BibTeX/LaTeX)command and at
+#   is missing. This field should not be confused with the key that appears in the \cite (BibTeX/LaTeX)command and at
 #   the beginning of the bibliography entry.
 #
 #   This attribute is only set (and saved) during the import process. It may be generated for output when
 #   a bibtex-ruby bibliography is created, but is unlikely to be save to the db.
 #   @return[String] the key of this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute month
 #   BibTeX standard field (required for types: )(optional for types:)
@@ -156,33 +156,33 @@
 #   It should use the standard three-letter abbreviation, as described in Appendix B.1.3 of the LaTeX book.
 #   The three-letter lower-case abbreviations are available in _BibTeX::MONTHS_.
 #   @return[String] The three-letter lower-case abbreviation for the month in which this source was published.
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute note
 #   BibTeX standard field (required for types: )(optional for types:)
-#   Any additional information that can help the reader. The first word should be capitalized.
+#   Any additional information that can help the reader. The first word should be capitalized.
 #
 #   Once this record has been normalized, it is the concatenation of all associated Notes.
-#   This field is used on import and export, but is otherwise ignored.
+#   This attribute is used on import and export, but is otherwise ignored.
 #   @return[String] the BibTeX note associated with this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute number
 #   BibTeX standard field (required for types: )(optional for types:)
 #   The number of a journal, magazine, technical report, or of a work in a series.
-#   An issue of a journal or magazine is usually identied by its volume and number;
+#   An issue of a journal or magazine is usually identified by its volume and number;
 #   the organization that issues a technical report usually gives it a number;
 #   and sometimes books are given numbers in a named series.
 #
 #   This attribute is equivalent to the Species File reference issue.
 #   @return[String] the number in a series, issue or technical report number associated with this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute organization
 #   BibTeX standard field (required for types: )(optional for types:)
 #   The organization that sponsors a conference or that publishes a manual.
 #   @return[String] the organization associated with this source
-#   @return [nil] means the field is not stored in the database.
+#   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute pages
 #   BibTeX standard field (required for types: )(optional for types:)
@@ -206,15 +206,15 @@ class Source::Bibtex < Source
 # @!attribute school
 # @!attribute series
 # @!attribute title
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute type
 # @!attribute translator - not yet implemented
 #   bibtex-ruby gem supports translator, it's not clear whether TW will or not.
 # @!attribute volume
 # @!attribute year
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute URL
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute doi - not implemented yet
 #   Used by bibtex-ruby gem method identifier
 # @!attribute ISBN
@@ -229,7 +229,7 @@ class Source::Bibtex < Source
 # @!attribute language
 # @!attribute contents
 # @!attribute stated_year
-#   A TW required field (TW requires a value in one of the required fields.)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute verbatim
 # @!attribute cached
 # @!attribute cached_author_year
@@ -239,13 +239,14 @@ class Source::Bibtex < Source
 # @!attribute updated_by - not yet implemented
 # @!attribute bibtex_type
 #
-  # @!group associations
-  # @!endgroup
-  # @!group identifiers
-  # @!endgroup
+# @!group associations
+# @!endgroup
+# @!group identifiers
+# @!endgroup
 
 
   before_validation :check_bibtex_type, :check_has_field
+  before_save :set_nomenclature_date
 
   #TODO add linkage to serials ==> belongs_to serial
   #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
@@ -257,6 +258,8 @@ class Source::Bibtex < Source
   # ditto for self.editor & self.editors
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
+
+
 
 #region soft_validate calls
   soft_validate(:sv_has_authors)
@@ -283,6 +286,8 @@ class Source::Bibtex < Source
       :stated_year
   ] # either year or stated_year is acceptable
 #endregion
+
+#region ruby-bibtex related
 
   def to_bibtex
     b = BibTeX::Entry.new(type: self.bibtex_type)
@@ -344,7 +349,7 @@ class Source::Bibtex < Source
       # are resolved.
       p.creator = self.creator
       p.updater = self.updater
-      
+
       if bibtex.author
         self.authors << p if bibtex.author.include?(a)
       end
@@ -359,14 +364,16 @@ class Source::Bibtex < Source
     return false if bibtex_author.class != BibTeX::Name
     Person.new(
         first_name: bibtex_author.first,
-        prefix:     bibtex_author.prefix,
-        last_name:  bibtex_author.last,
-        suffix:     bibtex_author.suffix)
+        prefix: bibtex_author.prefix,
+        last_name: bibtex_author.last,
+        suffix: bibtex_author.suffix)
   end
 
-  #region has_<attribute>? section
+#endregion
+
+#region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
-    # return true if !(self.author.to_s.strip.length == 0)
+                   # return true if !(self.author.to_s.strip.length == 0)
     return true if !(self.author.blank?)
     # author attribute is empty
     return false if self.new_record?
@@ -397,6 +404,41 @@ class Source::Bibtex < Source
 
   #endregion
 
+  # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
+  #   returns nil if there is no :year set.
+  def date
+    return(self.nomenclature_date) if !(self.nomenclature_date.nil?)
+    return(self.generate_nomenclature_date) if !(self.year.nil?)
+    return(nil)
+  end
+
+  # @return[Boolean] (Uses Time instead of Date so that it can be saved as a UTC object -
+  #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
+  #   sets and returns nomeclature_date based on computation of the values of :year, :month, :day.
+  #   If :year is empty, return nil
+  #   If :month is empty, returns UTC
+  def set_nomenclature_date
+    self.nomenclature_date = self.generate_nomenclature_date
+  end
+
+  def generate_nomenclature_date
+    if self.year.nil?
+      nil
+    elsif self.month.nil?
+      Time.utc(self.year, 12, 31)
+    elsif self.day.nil?
+      tmp = Time.utc(self.year, self.month)
+      if tmp.month == 12  # want the last day of december
+        Time.utc(self.year, 12, 31)
+      else # time + 1 month - 1 day (60 sec * 60 min *24 hours)
+        Time.utc(self.year, tmp.month + 1) -86400
+      end
+    else
+      Time.utc(self.year, self.month, self.day)
+    end
+  end
+
+  # TODO add notes method which returns an array of all associated notes.
   protected
 
   def check_bibtex_type # must have a valid bibtex_type
@@ -419,7 +461,7 @@ class Source::Bibtex < Source
                       # return false # none of the required fields have a value
   end
 
-  #region Soft_validation_methods
+#region Soft_validation_methods
   def sv_has_authors
     if !(has_authors?)
       soft_validations.add(:author, 'There is no author associated with this source.')

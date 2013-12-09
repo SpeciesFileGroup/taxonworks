@@ -301,6 +301,36 @@ describe Source::Bibtex do
         expect(@bibtex_source.send(has_method)).to be_true # returns true if has only author roles
       end
     end
+
+    specify 'test nomeclature_date generation' do
+      @bibtex_source.year = '1984'
+      expect(@bibtex_source.save).to be_true
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,12,31))
+      @bibtex_source.month = 'feb'
+      @bibtex_source.save
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,2,29))
+      @bibtex_source.day = '12'
+      @bibtex_source.save
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,2,12))
+      # Times before before 1823, after 2116 are handled differently.
+      @bibtex_source.year = '1775'
+      @bibtex_source.month = nil
+      @bibtex_source.day = nil
+      @bibtex_source.save
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,12,31))
+      @bibtex_source.month = 'feb'
+      @bibtex_source.save
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,2,28))
+      @bibtex_source.day = '12'
+      @bibtex_source.save
+      @bibtex_source.reload
+      expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,2,12))
+    end
   end
 
   context 'attributes' do
