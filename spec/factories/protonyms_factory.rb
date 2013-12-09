@@ -13,9 +13,17 @@ FactoryGirl.define do
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
     # Relationship provided
+    factory :relationship_family, class: Protonym do
+      name 'Erythroneuridae'
+      association :parent, factory: :iczn_kingdom
+      year_of_publication 1850
+      verbatim_author 'Say'
+      rank_class Ranks.lookup(:iczn, 'family')
+    end
+
     factory :relationship_genus do
       name 'Erythroneura'
-      association :parent, factory: :iczn_family
+      association :parent, factory: :relationship_family
       year_of_publication 1850
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Genus')
@@ -24,7 +32,6 @@ FactoryGirl.define do
     factory :relationship_species do
       name 'vitis'
       association :parent, factory: :relationship_genus
-      source_id 10
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:iczn, 'SPECIES')

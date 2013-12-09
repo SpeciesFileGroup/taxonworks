@@ -444,6 +444,7 @@ describe Source::Bibtex do
   context 'concerns' do
     it_behaves_like 'identifiable'
     it_behaves_like 'has_roles'
+    # it_behaves_like 'notable'
   end
 
 end
