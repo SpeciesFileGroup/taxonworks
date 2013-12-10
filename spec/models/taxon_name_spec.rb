@@ -231,7 +231,7 @@ describe TaxonName do
       context 'validate cashed values' do
         specify 'ICZN subspecies' do
           @subspecies.valid?
-          expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+          expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
           expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
         end
