@@ -23,12 +23,12 @@ class Protonym < TaxonName
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
-   
+
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-    }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
@@ -37,46 +37,20 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   scope :named, -> (name) {where(name: name)}
-
-  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
-
-  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
-  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
- 
-  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-
-  scope :with_taxon_name_relationships_as_subject, -> {
-    joins(:taxon_name_relationships)
+  scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
+  scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
+  scope :with_taxon_name_relationships, -> {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL') 
   }
- scope :with_taxon_name_relationships_as_object, -> {
-    joins(:related_taxon_name_relationships)
+  scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
+  scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
+  scope :without_taxon_name_relationships, -> { 
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL') 
   }
-
- # Or ('|') returns an array, not an AREL
- scope :with_taxon_name_relationships, -> {self.with_taxon_name_relationships_as_subject | self.with_taxon_name_relationships_as_object }
-
- scope :without_subject_taxon_name_relationships, -> {
-   includes(:taxon_name_relationships).
-   where(taxon_name_relationships: {subject_taxon_name_id: nil})
- }
- scope :without_object_taxon_name_relationships, -> {
-   includes(:related_taxon_name_relationships).
-   where(taxon_name_relationships: {object_taxon_name_id: nil})
- }
- 
- scope :without_taxon_name_relationships, -> { self.without_subject_taxon_name_relationships.merge(self.without_object_taxon_name_relationships) }
-
-
-  # scope :without_relationships, -> {
-  #   joins( [:taxon_name_relationships, :related_taxon_name_relationships] ).
-  #   where( {:taxon_name_relationships => { subject_taxon_name_id: nil }, :related_taxon_name_relationships => { object_taxon_name_id: nil }} )
-  # }
-
-  # scope :with_relationships, -> {
-  #   includes(:taxon_name_relationships, :related_taxon_name_relationships). 
-  #   where( :taxon_name_relationships => { subject_taxon_name_id: !nil }, :related_taxon_name_relationships => { object_taxon_name_id: !nil } )
-  # }
 
   soft_validate(:sv_source_older_then_description)
   soft_validate(:sv_validate_parent_rank)

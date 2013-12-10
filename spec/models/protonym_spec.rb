@@ -363,6 +363,7 @@ describe Protonym do
     end
   end
 
+  specify 'restrict combination relationships to Combination' 
 
   context 'scopes' do
     before(:all) {
@@ -375,10 +376,10 @@ describe Protonym do
     before(:each) {
       TaxonNameRelationship.delete_all
     }
-  
+
     specify 'named' do
       expect(Protonym.named('vitis')).to have(1).things
-end
+    end
 
     specify 'with_rank_class' do
       expect(Protonym.with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus')).to have(1).things
@@ -410,31 +411,58 @@ end
       before(:each) do
         @s =  Protonym.named('vitis').first
         @g =  Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').first
-        @s.combination_genus = @g
+        @s.original_combination_genus = @g
         @s.save
         @s.reload
       end
 
+
+      specify 'as_subject_of_taxon_name_relationship' do
+
+      end
+
+      specify 'as_object_of_taxon_name_relationship' do
+      end
+
+      specify 'anywhere_in_taxon_name_relationship' do
+      end
+
+
+
       specify 'with_taxon_name_relationships_as_subject' do
-        expect(Protonym.named('vitis').with_taxon_name_relationships_as_subject).to have(1).things
+        expect(@g.all_taxon_name_relationships).to have(1).things
+        expect(Protonym.named('Erythroneura').with_taxon_name_relationships_as_subject).to have(1).things
       end
 
       specify 'with_taxon_name_relationships_as_object' do
-        expect(Protonym.named('vitis').with_taxon_name_relationships_as_object).to have(0).things
-        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object).to have(1).things
+        expect(Protonym.named('vitis').with_taxon_name_relationships_as_object).to have(1).things
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object).to have(0).things
       end
 
+      # TODO: Refactor to make raw AREL  
       specify 'with_taxon_name_relationships' do 
+        expect(Protonym.with_taxon_name_relationships).to have(2).things
         expect(Protonym.named('vitis').with_taxon_name_relationships).to have(1).things
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships).to have(1).things
-        expect(Protonym.named('Aaina').with_taxon_name_relationships).to have(0).things
+        expect(Protonym.named('Erythroneurini').with_taxon_name_relationships).to have(0).things
       end
 
-      specify 'without_taxon_name_relationships' do
-        expect(Protonym.named('vitis').without_taxon_name_relationships).to have(0).things
-        expect(Protonym.named('Aaina').without_taxon_name_relationships).to have(1).things
+      specify 'without_subject_taxon_name_relationships' do
+        expect(Protonym.named('vitis').without_subject_taxon_name_relationships).to have(1).things
+        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_subject_taxon_name_relationships).to have(0).things
       end
 
+      specify 'without_object_taxon_name_relationships' do
+        expect(Protonym.named('vitis').without_object_taxon_name_relationships).to have(0).things
+        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_object_taxon_name_relationships).to have(1).things
+      end
+
+      specify 'without_taxon_name_relationships' do 
+        expect(Protonym.without_taxon_name_relationships).to have(Protonym.all.count - 2).things
+        expect(Protonym.without_taxon_name_relationships.named('vitis')).to have(0).things
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
+        expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
+      end
   
     end
   end
