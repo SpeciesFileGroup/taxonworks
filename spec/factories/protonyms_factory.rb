@@ -65,7 +65,6 @@ FactoryGirl.define do
     # ICZN names
 
     factory :iczn_kingdom, traits: [:parent_is_root] do
-      mostly_empty_protonym
       name 'Animalia'
       cached_higher_classification 'Animalia'
       rank_class Ranks.lookup(:iczn, 'kingdom')
@@ -165,7 +164,6 @@ FactoryGirl.define do
 
     factory :icn_kingdom, traits: [:parent_is_root] do
       name 'Plantae'
-      association :parent, factory: :root_taxon_name
       rank_class Ranks.lookup(:icn, 'kingdom')
     end
 
