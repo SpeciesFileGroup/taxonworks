@@ -38,7 +38,17 @@ class Protonym < TaxonName
 
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
-  
+
+  scope :on_subject_without_taxon_name_relationship_base, -> (string) {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    where('tnr1.type NOT LIKE ?', "#{string}%") 
+  }
+
+  scope :on_subject_with_taxon_name_relationship_base, -> (string) {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    where('tnr1.type LIKE ?', "#{string}%") 
+  }
+
   scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
   scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
   scope :with_taxon_name_relationships, -> {
