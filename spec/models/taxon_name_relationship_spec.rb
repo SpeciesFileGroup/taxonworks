@@ -45,6 +45,9 @@ describe TaxonNameRelationship do
           expect(r.errors.include?(:object_taxon_name_id)).to be_false
           expect(r.errors.include?(:subject_taxon_name_id)).to be_false
         end
+
+        specify 'protonym does not have a combination relationship'
+
       end
 
       context 'type' do

@@ -8,10 +8,10 @@ describe Protonym do
     @order = FactoryGirl.create(:iczn_order)
   end
 
-  after(:all) {
+  after(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
-  }
+  end
 
   context 'associations' do
     before(:all) do
@@ -34,19 +34,18 @@ describe Protonym do
         expect(@protonym).to respond_to(:original_combination_relationships)
         expect(@genus).to respond_to(:type_species)
         expect(@family).to respond_to(:type_genus)
-        #those tests fail, because the relationships was not been established yet.
-        #expect(@protonym).to respond_to(:original_genus)
-        #expect(@protonym).to respond_to(:original_subgenus)
-        #expect(@protonym).to respond_to(:original_section)
-        #expect(@protonym).to respond_to(:original_subsection)
-        #expect(@protonym).to respond_to(:original_series)
-        #expect(@protonym).to respond_to(:original_subseries)
-        #expect(@protonym).to respond_to(:original_species)
-        #expect(@protonym).to respond_to(:original_subspecies)
-        #expect(@protonym).to respond_to(:original_variety)
-        #expect(@protonym).to respond_to(:original_subvariety)
-        #expect(@protonym).to respond_to(:original_form)
-        #expect(@protonym).to respond_to(:source_classified_as)
+        expect(@protonym).to respond_to(:original_combination_genus)
+        expect(@protonym).to respond_to(:original_combination_subgenus)
+        expect(@protonym).to respond_to(:original_combination_section)
+        expect(@protonym).to respond_to(:original_combination_subsection)
+        expect(@protonym).to respond_to(:original_combination_series)
+        expect(@protonym).to respond_to(:original_combination_subseries)
+        expect(@protonym).to respond_to(:original_combination_species)
+        expect(@protonym).to respond_to(:original_combination_subspecies)
+        expect(@protonym).to respond_to(:original_combination_variety)
+        expect(@protonym).to respond_to(:original_combination_subvariety)
+        expect(@protonym).to respond_to(:original_combination_form)
+        expect(@protonym).to respond_to(:source_classified_as)
       end
       specify 'type_of_relationships' do
         expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
@@ -246,7 +245,7 @@ describe Protonym do
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
       end
-      specify 'fix author and year' do
+      specify 'fix author and year from the source' do
           @source.update(year: 1758, author: 'Linnaeus')
           @source.save
           @kingdom.source = @source
@@ -278,6 +277,9 @@ describe Protonym do
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_false
         #genus and subgenus have different original Genus
         expect(sgen.soft_validations.messages_on(:base).count).to be(2)
+
+        sgen.fix_soft_validations
+
         sgen.verbatim_author = @genus.verbatim_author
         sgen.year_of_publication = @genus.year_of_publication
         sgen.original_combination_genus = nil
