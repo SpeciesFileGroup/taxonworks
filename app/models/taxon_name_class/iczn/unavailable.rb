@@ -1,5 +1,9 @@
 class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
 
+  class Homonym < TaxonNameClass::Iczn::Unavailable
+
+  end
+
   class BasedOnSuppressedGenus < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
       NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}

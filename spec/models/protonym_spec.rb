@@ -230,7 +230,7 @@ describe Protonym do
     end
 
     context 'missing_fields' do
-      specify "source is missing" do
+      specify "source author, year are missing" do
           expect(@species.soft_validations.messages_on(:source_id).empty?).to be_false
           expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
@@ -246,7 +246,7 @@ describe Protonym do
           @kingdom.soft_validate
           expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
           expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-          @kingdom.fix_soft_validations
+          @kingdom.fix_soft_validations  # get author and year from the source
           @kingdom.soft_validate
           expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
@@ -264,9 +264,12 @@ describe Protonym do
         expect(sgen.save).to be_true
         @genus.soft_validate
         sgen.soft_validate
+        #genus and subgenus have different author
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        #genus and subgenus have different year
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        #genus and subgenus have different original Genus
         expect(sgen.soft_validations.messages_on(:base).count).to be(2)
         sgen.verbatim_author = @genus.verbatim_author
         sgen.year_of_publication = @genus.year_of_publication
@@ -284,8 +287,11 @@ describe Protonym do
           genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
           @subfamily.soft_validate
           tribe.soft_validate
+          #author in tribe and subfamily are different
           expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+          #year in tribe and subfamily are different
           expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+          #type in tribe and subfamily are different
           expect(tribe.soft_validations.messages_on(:base).empty?).to be_false
           tribe.type_genus = genus
           tribe.verbatim_author = 'Dmitriev'
@@ -300,6 +306,7 @@ describe Protonym do
 
     context 'missing relationships' do
       specify 'original genus' do
+        #missing original genus
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
         g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba')
         @subfamily.type_genus = g
@@ -315,9 +322,10 @@ describe Protonym do
 
     context 'problematic relationships' do
       specify 'inapropriate type genus' do
-        gen = FactoryGirl.create(:iczn_genus, name: 'Aus')
+        gen = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
         @family.type_genus = gen
         @family.soft_validate
+        #family and type genus start in different first leter
         expect(@family.soft_validations.messages_on(:base).empty?).to be_false
         gen.name = 'Cus'
         expect(gen.save).to be_true
@@ -333,15 +341,17 @@ describe Protonym do
         expect(other_subfamily.save).to be_true
         other_subfamily.soft_validate
         @genus.soft_validate
+        #type genus of subfamily is not included in this subfamily
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_false
+        #genus is a type for subfamily, but is not included there
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_false
         other_subfamily.type_genus = gen
         expect(other_subfamily.save).to be_true
-        other_subfamily.soft_validate
         expect(gen.save).to be_true
+        other_subfamily.reload
+        other_subfamily.soft_validate
         gen.soft_validate
-        expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_false
-        expect(gen.soft_validations.messages_on(:base).empty?).to be_false
+        expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
   end
