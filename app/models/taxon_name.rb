@@ -14,10 +14,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
-  scope :named, -> (name) {where(name: name)} 
-  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-
   include SoftValidation
   soft_validate(:sv_missing_fields)
 

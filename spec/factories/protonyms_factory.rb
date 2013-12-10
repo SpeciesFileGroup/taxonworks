@@ -10,6 +10,18 @@ FactoryGirl.define do
     verbatim_author nil
   end
 
+  trait :parent_is_root do
+    parent {
+      p =  Protonym.where(parent_id: nil) 
+      if p.blank?
+        name = FactoryGirl.create(:root_taxon_name)
+      else
+        name = p.first
+      end
+      name 
+    }
+  end
+
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
     # Relationship provided
@@ -23,7 +35,7 @@ FactoryGirl.define do
 
     factory :relationship_genus do
       name 'Erythroneura'
-      association :parent, factory: :relationship_family
+      association :parent, factory: :relationshroot_taxon_nameip_family
       year_of_publication 1850
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Genus')
@@ -52,10 +64,9 @@ FactoryGirl.define do
 
     # ICZN names
 
-    factory :iczn_kingdom, traits: [ ] do
+    factory :iczn_kingdom, traits: [:parent_is_root] do
       mostly_empty_protonym
       name 'Animalia'
-      association :parent, factory: :root_taxon_name
       cached_higher_classification 'Animalia'
       rank_class Ranks.lookup(:iczn, 'kingdom')
     end
@@ -118,12 +129,12 @@ FactoryGirl.define do
       association :source, factory: :valid_bibtex_source
       year_of_publication 1800
       verbatim_author 'Say'
-      rank_class Ranks.lookup(:iczn, 'Tribe')
+      rank_class Ranks.lookup(:iczn, 'Subtribe')
     end
 
     factory :iczn_genus do
       name 'Erythroneura'
-      association :parent, factory: :iczn_tribe
+      association :parent, factory: :iczn_subtribe # was :iczn_tribe
       cached_higher_classification 'Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini'
       association :source, factory: :valid_bibtex_source
       year_of_publication 1850
@@ -169,9 +180,8 @@ FactoryGirl.define do
 
     #ICN name
 
-    factory :icn_kingdom do
+    factory :icn_kingdom, traits: [:parent_is_root] do
       name 'Plantae'
-      association :parent, factory: :root_taxon_name
       cached_higher_classification 'Plantae'
       rank_class Ranks.lookup(:icn, 'kingdom')
     end

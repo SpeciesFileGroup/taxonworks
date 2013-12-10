@@ -36,15 +36,57 @@ class Protonym < TaxonName
     where("taxon_Name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
+  scope :named, -> (name) {where(name: name)}
+
+  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
+
+  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
+  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
+ 
+  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+
+  scope :with_taxon_name_relationships_as_subject, -> {
+    joins(:taxon_name_relationships)
+  }
+ scope :with_taxon_name_relationships_as_object, -> {
+    joins(:related_taxon_name_relationships)
+  }
+
+ # Or ('|') returns an array, not an AREL
+ scope :with_taxon_name_relationships, -> {self.with_taxon_name_relationships_as_subject | self.with_taxon_name_relationships_as_object }
+
+ scope :without_subject_taxon_name_relationships, -> {
+   includes(:taxon_name_relationships).
+   where(taxon_name_relationships: {subject_taxon_name_id: nil})
+ }
+ scope :without_object_taxon_name_relationships, -> {
+   includes(:related_taxon_name_relationships).
+   where(taxon_name_relationships: {object_taxon_name_id: nil})
+ }
+ 
+ scope :without_taxon_name_relationships, -> { self.without_subject_taxon_name_relationships.merge(self.without_object_taxon_name_relationships) }
+
+
+  # scope :without_relationships, -> {
+  #   joins( [:taxon_name_relationships, :related_taxon_name_relationships] ).
+  #   where( {:taxon_name_relationships => { subject_taxon_name_id: nil }, :related_taxon_name_relationships => { object_taxon_name_id: nil }} )
+  # }
+
+  # scope :with_relationships, -> {
+  #   includes(:taxon_name_relationships, :related_taxon_name_relationships). 
+  #   where( :taxon_name_relationships => { subject_taxon_name_id: !nil }, :related_taxon_name_relationships => { object_taxon_name_id: !nil } )
+  # }
+
   soft_validate(:sv_source_older_then_description)
   soft_validate(:sv_validate_parent_rank)
   soft_validate(:sv_missing_relationships)
   soft_validate(:sv_type_placement)
   soft_validate(:sv_validate_coordinated_names)
 
-  #TODO: validate if the rank can change, only within one group.
+  # TODO: validate if the rank can change, only within one group.
 
-  #region Soft validation
+  # region Soft validation
 
   def sv_source_older_then_description
     if self.source && self.year_of_publication

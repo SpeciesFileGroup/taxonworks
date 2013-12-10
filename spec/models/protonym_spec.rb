@@ -25,7 +25,7 @@ describe Protonym do
         expect(@protonym).to respond_to(:original_combination_relationships)
         expect(@genus).to respond_to(:type_species)
         expect(@family).to respond_to(:type_genus)
-        #those tests fail, because the relationships was not been established yet.
+        #those tests fail, because the relationships has not been established yet.
         #expect(@protonym).to respond_to(:original_genus)
         #expect(@protonym).to respond_to(:original_subgenus)
         #expect(@protonym).to respond_to(:original_section)
@@ -103,6 +103,12 @@ describe Protonym do
     end
   end
 
+  context 'scopes' do
+    before(:all) do
+      @species = FactoryGirl.create(:iczn_species)
+    end
+  end
+
   context 'usage' do
     before(:all) do
       @f = FactoryGirl.create(:relationship_family, name: 'Aidae')
@@ -122,11 +128,11 @@ describe Protonym do
       expect(@s.original_combination_relationships.count).to eq(0)
       # Example 1) recasting
       temp_relation = FactoryGirl.build(:taxon_name_relationship,
-                                                        subject_taxon_name: @o,
-                                                        object_taxon_name: @s,
-                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+                                        subject_taxon_name: @o,
+                                        object_taxon_name: @s,
+                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       temp_relation.save
-      # recast as the subclass
+      # Recast as the subclass
       first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
 
@@ -138,9 +144,9 @@ describe Protonym do
       first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
       extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
-                                              subject_taxon_name: @g,
-                                              object_taxon_name: @s,
-                                              type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+                                                        subject_taxon_name: @g,
+                                                        object_taxon_name: @s,
+                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_false
       extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
@@ -217,37 +223,37 @@ describe Protonym do
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_true
       end
       specify 'A combination is older than the taxon' do
-      c = FactoryGirl.create(:species_combination, year_of_publication: 1850, source: @source)
-      c.soft_validate
+        c = FactoryGirl.create(:species_combination, year_of_publication: 1850, source: @source)
+        c.soft_validate
         expect(c.soft_validations.messages_on(:source_id).empty?).to be_false
         expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-    end
+      end
     end
 
     context 'missing_fields' do
       specify "source is missing" do
-          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_false
-          expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-          expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        end
+        expect(@species.soft_validations.messages_on(:source_id).empty?).to be_false
+        expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+      end
       specify 'author and year are missing' do
-          expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
-          expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-        end
+        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+      end
       specify 'fix author and year' do
-          @source.update(year: 1758, author: 'Linnaeus')
-          @source.save
-          @kingdom.source = @source
-          @kingdom.soft_validate
-          expect(@kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
-          expect(@kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
-          @kingdom.fix_soft_validations
-          @kingdom.soft_validate
-          expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-          expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-          expect(@kingdom.verbatim_author).to eq('Linnaeus')
-          expect(@kingdom.year_of_publication).to eq(1758)
-        end
+        @source.update(year: 1758, author: 'Linnaeus')
+        @source.save
+        @kingdom.source = @source
+        @kingdom.soft_validate
+        expect(@kingdom.soft_validations.messages_on(:verbatim_author).count).to be > 0
+        expect(@kingdom.soft_validations.messages_on(:year_of_publication).count).to be > 0
+        @kingdom.fix_soft_validations
+        @kingdom.soft_validate
+        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+        expect(@kingdom.verbatim_author).to eq('Linnaeus')
+        expect(@kingdom.year_of_publication).to eq(1758)
+      end
     end
 
     context 'coordinated taxa' do
@@ -263,18 +269,18 @@ describe Protonym do
         expect(@subgenus.soft_validations.messages_on(:base).empty?).to be_false
       end
       specify 'mismatching author, year and original genus in family' do
-          @subfamily.verbatim_author = 'Foo'
-          @tribe.verbatim_author = 'Aaa'
-          @tribe.name = 'Typhlocybini'
-          @tribe.year_of_publication = 2013
-          @subfamily.type_genus = @genus
-          @subfamily.save
-          @tribe.save
-          @subfamily.soft_validate
-          expect(@subfamily.soft_validations.messages_on(:verbatim_author).empty?).to be_false
-          expect(@subfamily.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-          expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
-        end
+        @subfamily.verbatim_author = 'Foo'
+        @tribe.verbatim_author = 'Aaa'
+        @tribe.name = 'Typhlocybini'
+        @tribe.year_of_publication = 2013
+        @subfamily.type_genus = @genus
+        @subfamily.save
+        @tribe.save
+        @subfamily.soft_validate
+        expect(@subfamily.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        expect(@subfamily.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
+      end
     end
 
     context 'missing relationships' do
@@ -289,23 +295,101 @@ describe Protonym do
 
     context 'problematic relationships' do
       specify 'inapropriate type genus' do
-          @family.type_genus = @genus
-          @family.soft_validate
-          expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_true
-          @genus.name = 'Cus'
-          @genus.save
-          @family.save
-          @family.soft_validate
-          expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
-        end
+        @family.type_genus = @genus
+        @family.soft_validate
+        expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_true
+        @genus.name = 'Cus'
+        @genus.save
+        @family.save
+        @family.soft_validate
+        expect(@family.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
+      end
       specify 'type genus in wrong subfamily' do
-          other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
-          other_subfamily.type_genus = @genus
-          other_subfamily.save
-          other_subfamily.soft_validate
-          @genus.soft_validate
-          expect(other_subfamily.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
-        end
+        other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
+        other_subfamily.type_genus = @genus
+        other_subfamily.save
+        other_subfamily.soft_validate
+        @genus.soft_validate
+        expect(other_subfamily.soft_validations.messages_on(:base).include?('Type genus should have the same initial letters as the family-group name')).to be_false
+      end
+    end  
+  end
+
+
+  context 'scopes' do
+    before(:all) {
+      TaxonName.delete_all 
+      @species = FactoryGirl.create(:iczn_species)
+    }
+    after(:all) {
+      TaxonName.delete_all
+    }
+    before(:each) {
+      TaxonNameRelationship.delete_all
+    }
+  
+    specify 'named' do
+      expect(Protonym.named('vitis')).to have(1).things
+    end
+
+    specify 'with_rank_class' do
+      expect(Protonym.with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus')).to have(1).things
+    end  
+
+    specify 'with_base_of_rank_class' do
+      expect(Protonym.with_base_of_rank_class('NomenclaturalRank::Iczn')).to have(11).things
+      expect(Protonym.with_base_of_rank_class('FamilyGroup')).to have(0).things
+    end
+
+    specify 'with_rank_class_including' do
+      expect(Protonym.with_rank_class_including('Iczn')).to have(11).things
+      expect(Protonym.with_rank_class_including('GenusGroup')).to have(2).things
+      expect(Protonym.with_rank_class_including('FamilyGroup')).to have(4).things # When we rename Higher this will work
+    end
+
+    specify 'descendants_of' do
+      expect(Protonym.descendants_of(Protonym.named('vitis').first)).to have(0).things 
+      expect( Protonym.descendants_of(Protonym.named('Erythroneura').with_rank_class_including('GenusGroup::Genus').first) ).to have(2).things 
+    end
+
+    specify 'ancestors_of' do
+      expect(Protonym.ancestors_of(Protonym.named('vitis').first)).to have(11).things 
+      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first) ).to have(5).things 
+      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first).named('Arthropoda')).to have(1).things 
+    end
+
+    context 'relationships' do
+      before(:each) do
+        @s =  Protonym.named('vitis').first
+        @g =  Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').first
+        @s.combination_genus = @g
+        @s.save
+        @s.reload
+      end
+
+      specify 'with_taxon_name_relationships_as_subject' do
+        expect(Protonym.named('vitis').with_taxon_name_relationships_as_subject).to have(1).things
+      end
+
+      specify 'with_taxon_name_relationships_as_object' do
+        expect(Protonym.named('vitis').with_taxon_name_relationships_as_object).to have(0).things
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object).to have(1).things
+      end
+
+      specify 'with_taxon_name_relationships' do 
+        expect(Protonym.named('vitis').with_taxon_name_relationships).to have(1).things
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships).to have(1).things
+        expect(Protonym.named('Aaina').with_taxon_name_relationships).to have(0).things
+      end
+
+      specify 'without_taxon_name_relationships' do
+        expect(Protonym.named('vitis').without_taxon_name_relationships).to have(0).things
+        expect(Protonym.named('Aaina').without_taxon_name_relationships).to have(1).things
+      end
+
+  
     end
   end
+
+
 end
