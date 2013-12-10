@@ -5,6 +5,6 @@ class NomenclaturalRank::Iczn::FamilyGroup < NomenclaturalRank::Iczn
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::AboveFamilyGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
+    NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
   end
 end
