@@ -40,8 +40,8 @@ class Protonym < TaxonName
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
   scope :on_subject_without_taxon_name_relationship_base, -> (string) {
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    where('tnr1.type NOT LIKE ?', "#{string}%") 
+    joins('LEFT JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    where('tnr1.type IS NULL OR tnr1.type NOT LIKE ?', "#{string}%")
   }
 
   scope :on_subject_with_taxon_name_relationship_base, -> (string) {
@@ -108,7 +108,8 @@ class Protonym < TaxonName
     if search_rank
       if search_rank =~ /Family/ 
         z = Protonym.family_group_base(self.name)
-        search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+        #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
       else
         search_name = self.name
       end
@@ -117,10 +118,14 @@ class Protonym < TaxonName
     end
 
     unless search_name.nil?
-      list = self.ancestors_and_descendants                               # scope with parens
-      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class 
-      list = list.select{|i| /#{search_name}/.match(i.name)}              # scope on named 
-      list = list.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+      list = Protonym.ancestors_and_descendants_of(self).
+          with_rank_class_including(search_rank).
+          with_name_in_array(search_name).
+          on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
+      list1 = self.ancestors_and_descendants                               # scope with parens
+      list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+      list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+      list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
 
       # Using scopes assignment will be done with single query rather than loops, and be something like:
       #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
@@ -128,7 +133,7 @@ class Protonym < TaxonName
       list.each do |t|
         #:TODO think about fixes to tests below
         soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
+                             fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Author was updated') if self.verbatim_author != t.verbatim_author
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
