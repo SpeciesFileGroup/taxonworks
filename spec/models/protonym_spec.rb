@@ -3,14 +3,14 @@ require 'spec_helper'
 describe Protonym do
   let(:protonym) { Protonym.new }
   before(:all) do
-    TaxonName.destroy_all
+    TaxonName.delete_all
     TaxonNameRelationship.destroy_all
     @order = FactoryGirl.create(:iczn_order)
   end
 
   after(:all) {
-    TaxonName.destroy_all
-    TaxonNameRelationship.destroy_all
+    TaxonName.delete_all
+    TaxonNameRelationship.delete_all
   }
 
   context 'associations' do
@@ -109,12 +109,6 @@ describe Protonym do
           end
         end
       end
-    end
-  end
-
-  context 'scopes' do
-    before(:all) do
-      @species = FactoryGirl.create(:iczn_species)
     end
   end
 

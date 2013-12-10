@@ -8,4 +8,5 @@ class NomenclaturalRank::Icn::AboveFamilyGroup < NomenclaturalRank::Icn
   def self.valid_parents
     NomenclaturalRank::Icn::AboveFamilyGroup.descendants.collect{|t| t.to_s}
   end
+
 end
