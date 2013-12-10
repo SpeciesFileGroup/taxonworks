@@ -257,20 +257,27 @@ describe Protonym do
 
     context 'coordinated taxa' do
       specify 'mismatching author in genus' do
-        expect(@genus.descendants.count).to be(3)
-        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: 'Dmitriev', parent: @genus)
-        expect(sgen.parent).to eq(@genus)
-        expect(@genus.descendants.count).to be(4)
+        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: 'Dmitriev', year_of_publication: 1999, parent: @genus)
+        @genus.reload
         sgen.original_combination_genus = @genus
         sgen.type_species = @genus.type_species
         expect(sgen.save).to be_true
-        expect(@genus.save).to be_true
         @genus.soft_validate
         sgen.soft_validate
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-        expect(sgen.soft_validations.messages_on(:base).empty?).to be_false
+        expect(sgen.soft_validations.messages_on(:base).count).to be(2)
+        sgen.verbatim_author = @genus.verbatim_author
+        sgen.year_of_publication = @genus.year_of_publication
+        sgen.original_combination_genus = nil
+        expect(sgen.save).to be_true
+        @genus.soft_validate
+        sgen.soft_validate
+        expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+        expect(sgen.soft_validations.messages_on(:base).count).to be(1)
       end
       specify 'mismatching author, year and type genus in family' do
           tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @family)
