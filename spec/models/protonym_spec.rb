@@ -413,23 +413,22 @@ describe Protonym do
       before(:each) do
         @s =  Protonym.named('vitis').first
         @g =  Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').first
-        @s.original_combination_genus = @g
+        @s.original_combination_genus = @g   # @g 'TaxonNameRelationship::Combination::Genus' @s
         @s.save
         @s.reload
       end
 
-
       specify 'as_subject_of_taxon_name_relationship' do
-
+        expect(Protonym.as_subject_of_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
       end
 
       specify 'as_object_of_taxon_name_relationship' do
+        expect(Protonym.as_object_of_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
       end
 
       specify 'anywhere_in_taxon_name_relationship' do
+        expect(Protonym.anywhere_in_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
       end
-
-
 
       specify 'with_taxon_name_relationships_as_subject' do
         expect(@g.all_taxon_name_relationships).to have(1).things

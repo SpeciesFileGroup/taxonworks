@@ -60,6 +60,14 @@ class TaxonName < ActiveRecord::Base
   scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
   scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
   scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_and_descendants_of, -> (taxon_name) {
+    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR 
+           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
+           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
+           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )
+  }
+  
+  
 
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil

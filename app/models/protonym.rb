@@ -37,6 +37,8 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   scope :named, -> (name) {where(name: name)}
+  scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
+  
   scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
   scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
   scope :with_taxon_name_relationships, -> {
@@ -59,6 +61,7 @@ class Protonym < TaxonName
   soft_validate(:sv_validate_coordinated_names)
 
   #region Soft validation
+
 
   def sv_source_older_then_description
     if self.source && self.year_of_publication
@@ -137,12 +140,6 @@ class Protonym < TaxonName
   def sv_fix_coordinated_names
     #TODO: how to get
   end
-
-
-
-
-
-
 
   def ancestors_and_descendants
     self.ancestors.to_a + self.descendants.to_a

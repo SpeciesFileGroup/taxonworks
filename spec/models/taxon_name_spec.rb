@@ -9,8 +9,7 @@ describe TaxonName do
     @species = @subspecies.ancestor_at_rank('species')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
-     #@var1 = FactoryGirl.create(:icn_variety)
-
+    #@var1 = FactoryGirl.create(:icn_variety)
   end
 
   after(:all) do
