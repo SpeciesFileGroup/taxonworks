@@ -406,22 +406,24 @@ class Source::Bibtex < Source
   #endregion
 
   # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
-  #   returns nil if there is no :year set.
+  #   returns nil if there is no :year set. Does NOT set nomenclature_date in the object.
   def date
     return(self.nomenclature_date) if !(self.nomenclature_date.nil?)
     return(self.generate_nomenclature_date) if !(self.year.nil?)
     return(nil)
   end
 
-  # @return[Boolean] (Uses Time instead of Date so that it can be saved as a UTC object -
-  #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
-  #   sets and returns nomeclature_date based on computation of the values of :year, :month, :day.
-  #   If :year is empty, return nil
-  #   If :month is empty, returns UTC
+  # @return[Boolean] sets the nomenclature_date within the object.
   def set_nomenclature_date
     self.nomenclature_date = self.generate_nomenclature_date
   end
 
+  # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
+  #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
+  #   returns nomenclature_date based on computation of the values of :year, :month, :day.
+  #   If :year is empty, return nil
+  #   If :month is empty, returns 12/31/:year
+  #   IF :day is empty, returns the last day of the month
   def generate_nomenclature_date
     if self.year.nil?
       nil
