@@ -7,6 +7,7 @@ describe TaxonName do
     @species = @subspecies.ancestor_at_rank('species')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
+    #@var1 = FactoryGirl.create(:icn_variety)
   end
 
   context 'double checking FactoryGirl' do
@@ -79,7 +80,7 @@ describe TaxonName do
       end
       specify 'returns a NomenclaturalRank when available' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::AboveFamilyGroup::Order)
+        expect(taxon_name.rank_class).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Order)
         taxon_name.rank_class = Ranks.lookup(:icn, 'family')
         expect(taxon_name.rank_class).to eq(NomenclaturalRank::Icn::FamilyGroup::Family)
       end
@@ -112,7 +113,7 @@ describe TaxonName do
           expect(@genus.ancestor_at_rank('species')).to be_nil
         end
         specify 'returns nil when given rank is not present in the parent chain' do
-          expect(@genus.ancestor_at_rank('subtribe')).to be_nil
+          expect(@genus.ancestor_at_rank('epifamily')).to be_nil
         end
       end
     end
@@ -230,7 +231,7 @@ describe TaxonName do
       context 'validate cashed values' do
         specify 'ICZN subspecies' do
           @subspecies.valid?
-          expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini')
+          expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
           expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
         end

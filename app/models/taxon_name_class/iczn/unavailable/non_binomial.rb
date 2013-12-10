@@ -2,7 +2,7 @@ class TaxonNameClass::Iczn::Unavailable::NonBinomial < TaxonNameClass::Iczn::Una
 
   class NotUninomial < TaxonNameClass::Iczn::Unavailable::NonBinomial
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::AboveFamilyGroup.descendants.collect{|t| t.to_s} +
+      NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s} +
           NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s} +
           NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end

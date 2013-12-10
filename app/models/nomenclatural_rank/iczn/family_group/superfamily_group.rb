@@ -1,7 +1,7 @@
 class NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup < NomenclaturalRank::Iczn::FamilyGroup
 
   def self.parent_rank
-    NomenclaturalRank::Iczn::AboveFamilyGroup::SubinfraordinalGroup
+    NomenclaturalRank::Iczn::HigherClassificationGroup::SubinfraordinalGroup
   end
 
   def self.validate_name_format(taxon_name)
