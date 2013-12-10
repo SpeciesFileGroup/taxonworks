@@ -7,6 +7,7 @@ describe TaxonName do
     @species = @subspecies.ancestor_at_rank('species')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
+    #@var1 = FactoryGirl.create(:icn_variety)
   end
 
   context 'double checking FactoryGirl' do
@@ -112,7 +113,7 @@ describe TaxonName do
           expect(@genus.ancestor_at_rank('species')).to be_nil
         end
         specify 'returns nil when given rank is not present in the parent chain' do
-          expect(@genus.ancestor_at_rank('subtribe')).to be_nil
+          expect(@genus.ancestor_at_rank('epifamily')).to be_nil
         end
       end
     end

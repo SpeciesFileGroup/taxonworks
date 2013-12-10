@@ -9,5 +9,21 @@ FactoryGirl.define do
       bibtex_type 'book'
       title 'valid book with just a title'
     end
+
+    factory :valid_thesis do
+      bibtex_type 'phdthesis'
+      title 'Bugs by Beth'
+      author 'Jones, Beth'
+      year '1982'
+      month 'jun'
+    end
+
+    factory :valid_misc do
+      bibtex_type 'misc'
+      title 'misc source'
+      year '2010'
+      month 'jul'
+      day 4
+    end
   end
 end
