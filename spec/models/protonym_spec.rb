@@ -4,7 +4,7 @@ describe Protonym do
   let(:protonym) { Protonym.new }
   before(:all) do
     TaxonName.delete_all
-    TaxonNameRelationship.destroy_all
+    TaxonNameRelationship.delete_all
     @order = FactoryGirl.create(:iczn_order)
   end
 
