@@ -68,7 +68,6 @@ FactoryGirl.define do
       mostly_empty_protonym
       name 'Animalia'
       cached_higher_classification 'Animalia'
-      association :parent, factory: :root_taxon_name
       rank_class Ranks.lookup(:iczn, 'kingdom')
     end
 
