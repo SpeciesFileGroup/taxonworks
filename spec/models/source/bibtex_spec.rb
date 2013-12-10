@@ -302,17 +302,17 @@ describe Source::Bibtex do
       end
     end
 
-    specify 'test nomeclature_date generation' do
+    specify 'test nomenclature_date generation' do
       @bibtex_source.year = '1984'
       expect(@bibtex_source.save).to be_true
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,12,31))
       @bibtex_source.month = 'feb'
-      @bibtex_source.save
+      expect(@bibtex_source.save).to be_true
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,2,29))
       @bibtex_source.day = '12'
-      @bibtex_source.save
+      expect(@bibtex_source.save).to be_true
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1984,2,12))
       # Times before before 1823, after 2116 are handled differently.
@@ -323,13 +323,36 @@ describe Source::Bibtex do
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,12,31))
       @bibtex_source.month = 'feb'
-      @bibtex_source.save
+      expect(@bibtex_source.save).to be_true
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,2,28))
       @bibtex_source.day = '12'
-      @bibtex_source.save
+      expect(@bibtex_source.save).to be_true
       @bibtex_source.reload
       expect(@bibtex_source.nomenclature_date).to eq(Time.utc(1775,2,12))
+    end
+
+    specify 'sort an array of source by nomenclatural date' do
+      @bibtex_source.year = 2002 # bibtex_source has no date
+      expect(@bibtex_source.save).to be_true
+      @bibtex_source = FactoryGirl.build(:valid_bibtex_source_book_title_only)  # no date
+      expect(@bibtex_source.save).to be_true
+      @bibtex_source = FactoryGirl.build(:valid_thesis) # june 1982
+      expect(@bibtex_source.save).to be_true
+      @bibtex_source = FactoryGirl.build(:valid_misc)  # july 4 2010
+      expect(@bibtex_source.save).to be_true
+      @sources = Source::Bibtex.all
+      expect(@sources).to have(4).things
+      expect(@sources[0].title).to eq('article 1 just title')
+      expect(@sources[1].title).to eq('valid book with just a title')
+      expect(@sources[2].title).to eq('Bugs by Beth')
+      expect(@sources[3].title).to eq('misc source')
+      @source2 = @sources.order_by_nomenclature_date
+      expect(@source2).to have(4).things
+      expect(@source2[0].title).to eq('valid book with just a title')
+      expect(@source2[1].title).to eq('Bugs by Beth')
+      expect(@source2[2].title).to eq('article 1 just title')
+      expect(@source2[3].title).to eq('misc source')
     end
   end
 

@@ -259,7 +259,8 @@ class Source::Bibtex < Source
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
-
+  scope :order_by_nomenclature_date,
+        -> {order(:nomenclature_date).where(!(:nomenclature_date.nil?))}
 
 #region soft_validate calls
   soft_validate(:sv_has_authors)
