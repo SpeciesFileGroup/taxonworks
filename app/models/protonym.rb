@@ -140,18 +140,35 @@ class Protonym < TaxonName
 
       list.each do |t|
         #:TODO think about fixes to tests below
-        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}") if self.source_id != t.source_id
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}") if self.verbatim_author != t.verbatim_author
-        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}") if self.year_of_publication != t.year_of_publication
-        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}") if self.original_combination_genus != t.original_combination_genus
-        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}") if self.original_combination_subgenus != t.original_combination_subgenus
-        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}") if self.original_combination_species != t.original_combination_species
-        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}") if self.type_species != t.type_species
-        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}") if self.type_genus != t.type_genus
+        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') if self.verbatim_author != t.verbatim_author
+        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') if self.year_of_publication != t.year_of_publication
+        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_combination_genus != t.original_combination_genus
+        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_combination_subgenus != t.original_combination_subgenus
+        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_combination_species != t.original_combination_species
+        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species
+        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') if self.type_genus != t.type_genus
       end
     end
-
   end
+
+  def sv_fix_coordinated_names
+    #TODO: how to get
+  end
+
+
+
+
+
+
 
   def ancestors_and_descendants
     self.ancestors.to_a + self.descendants.to_a
@@ -178,7 +195,7 @@ class Protonym < TaxonName
           soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.ancestors.include?(t)
         end
       else
-        #extend to cover synonyms
+        #TODO: extend to cover synonyms
       end
     end
   end
