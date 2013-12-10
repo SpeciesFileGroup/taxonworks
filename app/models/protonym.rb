@@ -42,8 +42,6 @@ class Protonym < TaxonName
   soft_validate(:sv_type_placement)
   soft_validate(:sv_validate_coordinated_names)
 
-  #TODO: validate if the rank can change, only within one group.
-
   #region Soft validation
 
   def sv_source_older_then_description
@@ -128,15 +126,17 @@ class Protonym < TaxonName
       unless self.unavailable_or_invalid?
         soft_validations.add(:base, "The type should be included in this #{self.rank_class.rank_name}") unless self.type_taxon_name.ancestors.include?(self)
       else
+        #TODO: extend to cover synonyms
       end
     end
     # this taxon is a type, but not included in nominal taxon
     if !!self.type_of_taxon_names
       unless self.unavailable_or_invalid?
         self.type_of_taxon_names.each do |t|
-          soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.type_taxon_name.ancestors.include?(t)
+          soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.ancestors.include?(t)
         end
       else
+        #extend to cover synonyms
       end
     end
   end
