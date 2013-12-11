@@ -23,15 +23,11 @@ class Protonym < TaxonName
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
-
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
-
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
-
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
-
   has_many :original_combination_relationships, -> {
     where("taxon_Name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -39,16 +35,20 @@ class Protonym < TaxonName
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
-  scope :on_subject_without_taxon_name_relationship_base, -> (string) {
-    joins('LEFT JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    where('tnr1.type IS NULL OR tnr1.type NOT LIKE ?', "#{string}%")
-  }
+  scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
 
-  scope :on_subject_with_taxon_name_relationship_base, -> (string) {
+  scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
+  scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
+
+  scope :with_taxon_name_relationship, -> (relationship) { 
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    where('tnr1.type LIKE ?', "#{string}%") 
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship) 
   }
-
+  
   scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
   scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
   scope :with_taxon_name_relationships, -> {
@@ -119,9 +119,9 @@ class Protonym < TaxonName
 
     unless search_name.nil?
       list = Protonym.ancestors_and_descendants_of(self).
-          with_rank_class_including(search_rank).
-          with_name_in_array(search_name).
-          on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
+        with_rank_class_including(search_rank).
+        with_name_in_array(search_name).
+        on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
       list1 = self.ancestors_and_descendants                               # scope with parens
       list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
       list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
@@ -158,7 +158,6 @@ class Protonym < TaxonName
 
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).to_a
- #    self.ancestors.to_a + self.descendants.to_a
   end
 
   def self.family_group_base(name_string)

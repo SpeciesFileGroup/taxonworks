@@ -64,8 +64,7 @@ class TaxonName < ActiveRecord::Base
     where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR 
            ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
            (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )
-  }
+           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  ) }
 
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil

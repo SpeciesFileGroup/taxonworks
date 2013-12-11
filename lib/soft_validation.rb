@@ -251,13 +251,13 @@ module SoftValidation
     clear_soft_validations
     soft_validations
     sets = case set.class.name
-    when 'Array'
-      set
-    when 'Symbol'
-      [set]
-    when 'String'
-      [set.to_sym]
-    end
+           when 'Array'
+             set
+           when 'Symbol'
+             [set]
+           when 'String'
+             [set.to_sym]
+           end
 
     sets.each do |set| 
       self.class.soft_validation_methods[set].each do |s|
