@@ -1,4 +1,5 @@
 FactoryGirl.define do
+
   factory :bibtex_source, class: Source::Bibtex, traits: [:creator_and_updater] do 
     factory :valid_bibtex_source do
       bibtex_type 'article'

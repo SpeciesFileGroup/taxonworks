@@ -487,14 +487,17 @@ describe Protonym do
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
         expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
       end
+
+      specify 'as_subject_without_taxon_name_relationship_base' do
+        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship')).to have(Protonym.all.count - 1).things
+      end
+
     end
 
     context 'classifications' do
       before(:all) do
-        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available', taxon_name_id: @s.id )
-        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available::Valid', taxon_name: @g )
-        # hmm- this doesn't work @g.taxon_name_classifications << FactoryGirl.build(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available' )
-        
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available, taxon_name: @s)
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available::Valid, taxon_name: @g )
       end
 
       after(:all) do
@@ -509,7 +512,8 @@ describe Protonym do
       end
 
       specify 'without_taxon_name_classification' do
-        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available').to have(Protonym.all.count -1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available')).to have(Protonym.count - 1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available::Valid')).to have(Protonym.count - 1).things
       end
  
       specify 'with_taxon_name_classification_base' do
