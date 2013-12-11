@@ -1,24 +1,5 @@
 class Protonym < TaxonName
-
-  has_many :taxon_name_classifications
-
   alias_method :original_combination_source, :source
-
-  # subject                      object
-  # Aus      original_genus of   bus
-  # aus      type_species of     Bus
-
-  TaxonNameRelationship.descendants.each do |d|
-    if d.respond_to?(:assignment_method) 
-      relationship = "#{d.assignment_method}_relationship".to_sym
-      has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
-      has_one d.assignment_method.to_sym, through: relationship, source: :subject_taxon_name
-    end
-
-    if d.respond_to?(:inverse_assignment_method)
-      # eval inverse method here
-    end
-  end
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
@@ -32,23 +13,41 @@ class Protonym < TaxonName
     where("taxon_Name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
+
+  # subject                      object
+  # Aus      original_genus of   bus
+  # aus      type_species of     Bus
+  
+  TaxonNameRelationship.descendants.each do |d|
+    if d.respond_to?(:assignment_method) 
+      relationship = "#{d.assignment_method}_relationship".to_sym
+      has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
+      has_one d.assignment_method.to_sym, through: relationship, source: :subject_taxon_name
+    end
+
+    if d.respond_to?(:inverse_assignment_method)
+      # TODO: eval inverse method here
+    end
+  end
+
+
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
+  # A specific relationship
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
-
   scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
-
   scope :with_taxon_name_relationship, -> (relationship) { 
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
     joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
     where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship) 
   }
-  
+ 
+  # *Any* relationship where there IS a relationship for a subject/object/both 
   scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
   scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
   scope :with_taxon_name_relationships, -> {
@@ -56,6 +55,8 @@ class Protonym < TaxonName
     joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
     where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL') 
   }
+
+  # *Any* relationship where there is NOT a relationship for a subject/object/both 
   scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
   scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
   scope :without_taxon_name_relationships, -> { 
@@ -63,6 +64,13 @@ class Protonym < TaxonName
     joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
     where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL') 
   }
+  scope :with_taxon_name_classifications, -> { joins(:taxon_name_classifications) }
+  scope :with_taxon_name_classification, -> (taxon_name_class_name) { includes(:taxon_name_classifications).where('taxon_name_classifications.type = ?', taxon_name_class_name).references(:taxon_name_classifications) }
+  scope :with_taxon_name_classification_base, -> (taxon_name_class_name_base) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "#{taxon_name_class_name_base}%").references(:taxon_name_classifications) }
+  scope :with_taxon_name_classification_containing, -> (taxon_name_class_name_fragment) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "%#{taxon_name_class_name_fragment}%").references(:taxon_name_classifications) }
+
+  scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
+
 
   soft_validate(:sv_source_older_then_description)
   soft_validate(:sv_validate_parent_rank)

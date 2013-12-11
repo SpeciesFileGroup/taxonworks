@@ -8,7 +8,10 @@ class TaxonName < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
   belongs_to :source 
+ 
+  has_many :taxon_name_classifications
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
+
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object

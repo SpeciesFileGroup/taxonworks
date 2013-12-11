@@ -5,7 +5,10 @@ class TaxonNameClassification < ActiveRecord::Base
   belongs_to :taxon_name
 
   before_validation :validate_taxon_name_class_class
-  validates :taxon_name, presence: true
+  validates_presence_of :taxon_name, presence: true
+
+  # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
+
   soft_validate(:sv_proper_classification)
 
   def type_name

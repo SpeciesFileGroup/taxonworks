@@ -371,6 +371,8 @@ describe Protonym do
     before(:all) {
       TaxonName.delete_all 
       @species = FactoryGirl.create(:iczn_species)
+      @s =  Protonym.where(name: 'vitis').first
+      @g =  Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
     after(:all) {
       TaxonName.delete_all
@@ -416,11 +418,13 @@ describe Protonym do
 
     context 'relationships' do
       before(:each) do
-        @s =  Protonym.named('vitis').first
-        @g =  Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').first
         @s.original_combination_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
         @s.save
         @s.reload
+      end
+
+      after(:all) do
+        TaxonNameRelationships.delete_all
       end
 
       # Has *a* relationship
@@ -483,7 +487,35 @@ describe Protonym do
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
         expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
       end
-  
+    end
+
+    context 'classifications' do
+      before(:all) do
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available', taxon_name_id: @s.id )
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available::Valid', taxon_name: @g )
+        # hmm- this doesn't work @g.taxon_name_classifications << FactoryGirl.build(:taxon_name_classification, type: 'TaxonNameClass::Iczn::Available' )
+        
+      end
+
+      after(:all) do
+        TaxonNameClassification.delete_all
+      end
+
+      specify 'with_taxon_name_classifications' do
+        expect(Protonym.with_taxon_name_classifications).to have(2).things
+      end
+      specify 'without_taxon_name_classifications' do
+        expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.count - 2).things
+      end
+      specify 'with_taxon_name_classification_base' do
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available::Valid') ).to have(1).things
+      end
+      specify 'with_taxon_name_classification_containing' do
+        expect(Protonym.with_taxon_name_classification_containing('Iczn') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_containing('Valid') ).to have(1).things
+      end
     end
   end
 
