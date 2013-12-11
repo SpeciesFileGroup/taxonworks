@@ -7,4 +7,6 @@ class NomenclaturalRank::Iczn::FamilyGroup < NomenclaturalRank::Iczn
   def self.valid_parents
     NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
   end
+
+  ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 end

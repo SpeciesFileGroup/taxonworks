@@ -55,6 +55,18 @@ class TaxonName < ActiveRecord::Base
     :set_cached_author_year,
     :set_cached_higher_classification
 
+  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
+  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
+  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
+  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_and_descendants_of, -> (taxon_name) {
+    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR 
+           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
+           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
+           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )
+  }
+
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
   end
@@ -72,12 +84,8 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
-
-  # TODO: Add parallel scope here 
   def ancestor_at_rank(rank)
-    r = Ranks.lookup(self.rank_class.nomenclatural_code, rank)
-    return RANKS.index(r) >= RANKS.index(self.rank_class) ? nil :
-      self.ancestors.detect { |ancestor| ancestor.rank_class == r }
+   TaxonName.ancestors_of(self).with_rank_class( Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
 
   # TODO: Add parallel scope in TaxonName

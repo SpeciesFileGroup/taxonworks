@@ -23,12 +23,12 @@ class Protonym < TaxonName
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
-   
+
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-    }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
@@ -37,46 +37,32 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   scope :named, -> (name) {where(name: name)}
+  scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
-  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
-
-  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
-  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
- 
-  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-
-  scope :with_taxon_name_relationships_as_subject, -> {
-    joins(:taxon_name_relationships)
-  }
- scope :with_taxon_name_relationships_as_object, -> {
-    joins(:related_taxon_name_relationships)
+  scope :on_subject_without_taxon_name_relationship_base, -> (string) {
+    joins('LEFT JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    where('tnr1.type IS NULL OR tnr1.type NOT LIKE ?', "#{string}%")
   }
 
- # Or ('|') returns an array, not an AREL
- scope :with_taxon_name_relationships, -> {self.with_taxon_name_relationships_as_subject | self.with_taxon_name_relationships_as_object }
+  scope :on_subject_with_taxon_name_relationship_base, -> (string) {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    where('tnr1.type LIKE ?', "#{string}%") 
+  }
 
- scope :without_subject_taxon_name_relationships, -> {
-   includes(:taxon_name_relationships).
-   where(taxon_name_relationships: {subject_taxon_name_id: nil})
- }
- scope :without_object_taxon_name_relationships, -> {
-   includes(:related_taxon_name_relationships).
-   where(taxon_name_relationships: {object_taxon_name_id: nil})
- }
- 
- scope :without_taxon_name_relationships, -> { self.without_subject_taxon_name_relationships.merge(self.without_object_taxon_name_relationships) }
-
-
-  # scope :without_relationships, -> {
-  #   joins( [:taxon_name_relationships, :related_taxon_name_relationships] ).
-  #   where( {:taxon_name_relationships => { subject_taxon_name_id: nil }, :related_taxon_name_relationships => { object_taxon_name_id: nil }} )
-  # }
-
-  # scope :with_relationships, -> {
-  #   includes(:taxon_name_relationships, :related_taxon_name_relationships). 
-  #   where( :taxon_name_relationships => { subject_taxon_name_id: !nil }, :related_taxon_name_relationships => { object_taxon_name_id: !nil } )
-  # }
+  scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
+  scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
+  scope :with_taxon_name_relationships, -> {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL') 
+  }
+  scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
+  scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
+  scope :without_taxon_name_relationships, -> { 
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL') 
+  }
 
   soft_validate(:sv_source_older_then_description)
   soft_validate(:sv_validate_parent_rank)
@@ -85,6 +71,7 @@ class Protonym < TaxonName
   soft_validate(:sv_validate_coordinated_names)
 
   #region Soft validation
+
 
   def sv_source_older_then_description
     if self.source && self.year_of_publication
@@ -121,7 +108,8 @@ class Protonym < TaxonName
     if search_rank
       if search_rank =~ /Family/ 
         z = Protonym.family_group_base(self.name)
-        search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+        #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
       else
         search_name = self.name
       end
@@ -130,31 +118,47 @@ class Protonym < TaxonName
     end
 
     unless search_name.nil?
-      list = self.ancestors_and_descendants                               # scope with parens
-      list = list.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class 
-      list = list.select{|i| /#{search_name}/.match(i.name)}              # scope on named 
-      list = list.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+      list = Protonym.ancestors_and_descendants_of(self).
+          with_rank_class_including(search_rank).
+          with_name_in_array(search_name).
+          on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
+      list1 = self.ancestors_and_descendants                               # scope with parens
+      list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+      list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+      list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
 
       # Using scopes assignment will be done with single query rather than loops, and be something like:
       #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
 
       list.each do |t|
         #:TODO think about fixes to tests below
-        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}") if self.source_id != t.source_id
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}") if self.verbatim_author != t.verbatim_author
-        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}") if self.year_of_publication != t.year_of_publication
-        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}") if self.original_combination_genus != t.original_combination_genus
-        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}") if self.original_combination_subgenus != t.original_combination_subgenus
-        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}") if self.original_combination_species != t.original_combination_species
-        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}") if self.type_species != t.type_species
-        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}") if self.type_genus != t.type_genus
+        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') if self.verbatim_author != t.verbatim_author
+        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') if self.year_of_publication != t.year_of_publication
+        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_combination_genus != t.original_combination_genus
+        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_combination_subgenus != t.original_combination_subgenus
+        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_combination_species != t.original_combination_species
+        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species
+        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
+                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') if self.type_genus != t.type_genus
       end
     end
+  end
 
+  def sv_fix_coordinated_names
+    #TODO: how to get
   end
 
   def ancestors_and_descendants
-    self.ancestors.to_a + self.descendants.to_a
+    Protonym.ancestors_and_descendants_of(self).to_a
+ #    self.ancestors.to_a + self.descendants.to_a
   end
 
   def self.family_group_base(name_string)
@@ -178,7 +182,7 @@ class Protonym < TaxonName
           soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.ancestors.include?(t)
         end
       else
-        #extend to cover synonyms
+        #TODO: extend to cover synonyms
       end
     end
   end

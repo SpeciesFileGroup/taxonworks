@@ -3,11 +3,18 @@ describe TaxonName do
 
   let(:taxon_name) { TaxonName.new }
   before(:all) do
+    TaxonName.delete_all
+    TaxonNameRelationship.delete_all
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species = @subspecies.ancestor_at_rank('species')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
     #@var1 = FactoryGirl.create(:icn_variety)
+  end
+
+  after(:all) do
+    TaxonName.delete_all
+    TaxonNameRelationship.delete_all
   end
 
   context 'double checking FactoryGirl' do
@@ -23,10 +30,6 @@ describe TaxonName do
 
     context 'taxon_name_relationships' do
 
-      specify 'respond to taxon_name_relationships' do
-        expect(taxon_name).to respond_to(:taxon_name_relationships)
-      end 
-
       before(:all) do
         @type_of_genus = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: @family)
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
@@ -34,6 +37,10 @@ describe TaxonName do
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject_taxon_name: @taxon_name, object_taxon_name: @type_of_genus )
         @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
       end
+
+      specify 'respond to taxon_name_relationships' do
+        expect(taxon_name).to respond_to(:taxon_name_relationships)
+      end 
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
@@ -244,6 +251,7 @@ describe TaxonName do
         specify 'ICN' do
           variety = FactoryGirl.create(:icn_variety)
           expect(variety.ancestors.length).to be >= 17
+          expect(variety.root.id).to be_eq(@species.root.id)
           variety.save
 
           expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
