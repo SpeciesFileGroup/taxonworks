@@ -213,7 +213,7 @@ describe TaxonName do
         taxon_name.source = h
         taxon_name.valid?
         expect(taxon_name.errors.include?(:source_id)).to be_true
-        b = FactoryGirl.build(:bibtex_source)
+        b = FactoryGirl.build(:source_bibtex)
         taxon_name.source = b
         taxon_name.valid?
         expect(taxon_name.errors.include?(:source_id)).to be_false

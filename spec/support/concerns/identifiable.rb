@@ -4,7 +4,7 @@ shared_examples "identifiable" do
 
   context "reflections / foreign keys" do
     specify "has many identifiers" do
-      expect(identifiable_class).to respond_to(:identifier)
+      expect(identifiable_class).to respond_to(:identifiers)
     end
   end
 
