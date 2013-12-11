@@ -1,6 +1,6 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :identifier_local_id_trip_code, :class => 'Identifier::LocalId::TripCode' do
+  factory :identifier_guid_doi, :class => 'Identifier::Guid::Doi', traits: [:housekeeping] do
   end
 end
