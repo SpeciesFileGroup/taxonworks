@@ -305,6 +305,7 @@ def read_dbf(filenames)
   lvl1.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               earth,
+                            tdwg_parent:          earth,
                             name:                 item['LEVEL1_NAM'].titlecase,
                             geographic_area_type: gat1)
     lvl1_items.merge!(item['LEVEL1_COD'] => ga)
@@ -314,6 +315,7 @@ def read_dbf(filenames)
   lvl2.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               lvl1_items[item['LEVEL1_COD']],
+                            tdwg_parent:          lvl1_items[item['LEVEL1_COD']],
                             name:                 item['LEVEL2_NAM'].titlecase,
                             geographic_area_type: gat2)
     lvl2_items.merge!(item['LEVEL2_COD'] => ga)
@@ -323,6 +325,7 @@ def read_dbf(filenames)
   lvl3.each { |item|
     puts item.attributes
     ga = GeographicArea.new(parent:               lvl2_items[item['LEVEL2_COD']],
+                            tdwg_parent:          lvl2_items[item['LEVEL2_COD']],
                             name:                 item['LEVEL3_NAM'].titlecase,
                             geographic_area_type: gat3)
     lvl3_items.merge!(item['LEVEL3_COD'] => ga)
@@ -338,7 +341,7 @@ def read_dbf(filenames)
     if line.strip!.length > 6 # minimum line size to contain useful data
 
       # break down the useful data
-      parts = line.split(';')
+      parts       = line.split(';')
       nation_code = parts[1].strip # clean off the line extraneous white space
       nation_name = parts[0].titlecase
 
@@ -398,20 +401,20 @@ def read_dbf(filenames)
     # have to hot-wire some country codes on the fly
     # when the TDWG country code differs from the ISO code,
     # convert TDWG to ISO
+=begin
     case country_code
       when 'UK' # United Kingdom => Great Britain
         country_code = 'GB'
 
-=begin
       when 'AN' # todo: check on Netherlands Leeward Is. belong to NETHERLANDS
         country_code = 'NL'
       when 'TP' # todo: check on East Timor refers to TIMOR-LESTE
         country_code = 'TL'
-=end
 
       else
         # leave it alone
     end
+=end
 
     # find the nation by its country code
     nation         = nil
@@ -428,10 +431,11 @@ def read_dbf(filenames)
       # failed to find an area by this name, so we need to create one
       # so we set the parent to the object pointed to by the level 3 code
       ga = GeographicArea.new(parent:               lvl3_items[item['Level3_cod']],
+                              tdwg_parent:          lvl3_items[item['Level3_cod']],
                               name:                 this_area_name,
                               geographic_area_type: gat4,
                               # even if nation is nil, this will do what we want.
-                              country: nation)
+                              country:              nation)
       lvl4_items.merge!(item['Level4_cod'] => ga)
       global.merge!(ga.name => ga)
     else

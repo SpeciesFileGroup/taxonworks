@@ -8,6 +8,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :country, class_name: "GeographicArea", foreign_key: :country_id
   belongs_to :state, class_name: "GeographicArea", foreign_key: :state
   belongs_to :county, class_name: "GeographicArea", foreign_key: :county_id
+  belongs_to :tdwg_parent, class_name: "GeographicArea", foreign_key: :tdwg_parent_id
 
   # external references
 
