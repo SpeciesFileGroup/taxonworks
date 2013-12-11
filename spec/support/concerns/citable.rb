@@ -1,7 +1,8 @@
 shared_examples 'citable' do
   
   # use, create (class_with_citations has to have an ID)
-  let(:class_with_citations) {FactoryGirl.create("valid_#{described_class.name.underscore}".to_sym)}
+  let(:class_with_citations) {FactoryGirl.create("valid_#{described_class.name.tableize.singularize.gsub('/', '_')}".to_sym)}
+  # above modefies n = "ClassName::SubclassName" to "class_name_subclass_name"
 
   context 'associations' do
     specify 'has many citations - includes creating a citation' do

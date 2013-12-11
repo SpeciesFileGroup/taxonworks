@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Person do
 
   let(:person) { FactoryGirl.build(:person) }
-  let(:bibtex_source) {
+  let(:source_bibtex) {
     FactoryGirl.create(:valid_bibtex_source)
   }
   let(:human_source) {
@@ -126,16 +126,16 @@ describe Person do
       specify 'is_author?' do
         expect(@vp).to respond_to(:is_author?)
         expect(@vp.is_author?).to be_false
-        bibtex_source.authors << @vp
-        bibtex_source.save!
+        source_bibtex.authors << @vp
+        source_bibtex.save!
         @vp.reload
         expect(@vp.is_author?).to be_true
       end
       specify 'is_editor?' do
         expect(@vp).to respond_to(:is_editor?)
         expect(@vp.is_editor?).to be_false
-        bibtex_source.editors << @vp
-        bibtex_source.save!
+        source_bibtex.editors << @vp
+        source_bibtex.save!
         @vp.reload
         expect(@vp.is_editor?).to be_true
       end

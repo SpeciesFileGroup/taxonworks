@@ -1,6 +1,6 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :identifier_guid_doi, :class => 'Identifier::Guid::Doi' do
+  factory :attribute_import, :class => 'Attribute::Import', traits: [:creator_and_updater] do
   end
 end
