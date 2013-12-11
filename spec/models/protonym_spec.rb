@@ -507,6 +507,11 @@ describe Protonym do
       specify 'without_taxon_name_classifications' do
         expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.count - 2).things
       end
+
+      specify 'without_taxon_name_classification' do
+        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available').to have(Protonym.all.count -1).things
+      end
+ 
       specify 'with_taxon_name_classification_base' do
         expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn') ).to have(2).things
         expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available') ).to have(2).things
