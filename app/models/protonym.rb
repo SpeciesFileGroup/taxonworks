@@ -40,7 +40,7 @@ class Protonym < TaxonName
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
   scope :on_subject_without_taxon_name_relationship_base, -> (string) {
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+    joins('LEFT JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
     where('tnr1.type NOT LIKE ?', "#{string}%") 
   }
 
@@ -152,7 +152,8 @@ class Protonym < TaxonName
   end
 
   def ancestors_and_descendants
-    self.ancestors.to_a + self.descendants.to_a
+    Protonym.ancestors_and_descendants_of(self).to_a
+ #    self.ancestors.to_a + self.descendants.to_a
   end
 
   def self.family_group_base(name_string)
