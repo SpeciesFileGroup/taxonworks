@@ -188,6 +188,7 @@ describe Protonym do
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
+
       @kingdom.soft_validate
       @family.soft_validate
       @subfamily.soft_validate
@@ -237,7 +238,7 @@ describe Protonym do
 
     context 'missing_fields' do
       specify "source author, year are missing" do
-          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_false
+          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_true
           expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
         end
@@ -263,37 +264,34 @@ describe Protonym do
 
     context 'coordinated taxa' do
       specify 'mismatching author in genus' do
-        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: 'Dmitriev', year_of_publication: 1999, parent: @genus)
-        @genus.reload
+        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
         sgen.original_combination_genus = @genus
-        sgen.type_species = @genus.type_species
         expect(sgen.save).to be_true
+        @genus.reload
+        #sgen.type_species = @genus.type_species
         @genus.soft_validate
         sgen.soft_validate
         #genus and subgenus have different author
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        #genus and subgenus have different year
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         #genus and subgenus have different year
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-        #genus and subgenus have different original Genus
-        expect(sgen.soft_validations.messages_on(:base).count).to be(2)
 
         sgen.fix_soft_validations
 
-        sgen.verbatim_author = @genus.verbatim_author
-        sgen.year_of_publication = @genus.year_of_publication
-        sgen.original_combination_genus = nil
-        expect(sgen.save).to be_true
+        #@genus.reload
         @genus.soft_validate
         sgen.soft_validate
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        expect(sgen.soft_validations.messages_on(:base).count).to be(1)
       end
       specify 'mismatching author, year and type genus in family' do
-          tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @family)
+          tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
           genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+          @subfamily.type_genus = genus
+          expect(@subfamily.save).to be_true
           @subfamily.soft_validate
           tribe.soft_validate
           #author in tribe and subfamily are different
@@ -302,10 +300,9 @@ describe Protonym do
           expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_false
           #type in tribe and subfamily are different
           expect(tribe.soft_validations.messages_on(:base).empty?).to be_false
-          tribe.type_genus = genus
-          tribe.verbatim_author = 'Dmitriev'
-          tribe.year_of_publication = 2003
-          expect(tribe.save).to be_true
+
+          tribe.fix_soft_validations
+
           tribe.soft_validate
           expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_true

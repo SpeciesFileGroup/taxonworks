@@ -133,10 +133,10 @@ class Protonym < TaxonName
         with_name_in_array(search_name).
         as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
         # was on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
-      list1 = self.ancestors_and_descendants                               # scope with parens
-      list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
-      list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
-      list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+        #list1 = self.ancestors_and_descendants                               # scope with parens
+        #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+        #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+        #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
 
       # Using scopes assignment will be done with single query rather than loops, and be something like:
       #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
@@ -164,8 +164,71 @@ class Protonym < TaxonName
   end
 
   def sv_fix_coordinated_names
-    #TODO: how to get
+    search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+    fixed = false
+    if search_rank
+      if search_rank =~ /Family/
+        z = Protonym.family_group_base(self.name)
+        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+        #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+      else
+        search_name = self.name
+      end
+    else
+      search_name = nil
+    end
+
+    unless search_name.nil?
+      list = Protonym.ancestors_and_descendants_of(self).
+          with_rank_class_including(search_rank).
+          with_name_in_array(search_name).
+          as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
+
+      list.each do |t|
+        if self.source_id.nil? && self.source_id != t.source_id
+          self.source_id = t.source_id
+          fixed = true
+        end
+        if self.verbatim_author.nil? && self.verbatim_author != t.verbatim_author
+          self.verbatim_author = t.verbatim_author
+          fixed = true
+        end
+        if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
+          self.year_of_publication = t.year_of_publication
+          fixed = true
+        end
+        if self.original_combination_genus.nil? && self.original_combination_genus != t.original_combination_genus
+          self.original_combination_genus = t.original_combination_genus
+          fixed = true
+        end
+        if self.original_combination_subgenus.nil? && self.original_combination_subgenus != t.original_combination_subgenus
+          self.original_combination_subgenus = t.original_combination_subgenus
+          fixed = true
+        end
+        if self.original_combination_species.nil? && self.original_combination_species != t.original_combination_species
+          self.original_combination_species = t.original_combination_species
+          fixed = true
+        end
+        if self.type_species.nil? && self.type_species != t.type_species
+          self.type_species = t.type_species
+          fixed = true
+        end
+        if self.type_genus.nil? && self.type_genus != t.type_genus
+          self.type_genus = t.type_genus
+          fixed = true
+        end
+      end
+      begin
+        Protonym.transaction do
+          self.save
+        end
+      rescue
+        return false
+      end
+      return fixed
+    end
   end
+
 
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).to_a

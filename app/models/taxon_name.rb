@@ -265,16 +265,32 @@ class TaxonName < ActiveRecord::Base
     if self.source_id
       if !self.source.author.blank?
         self.verbatim_author = self.source.author
+        begin
+          TaxonName.transaction do
+            self.save
+          end
+        rescue
+          return false
+        end
       end
     end
+    return true
   end
 
   def sv_fix_missing_year
     if self.source_id
       if self.source.year
         self.year_of_publication = self.source.year
+        begin
+          TaxonName.transaction do
+            self.save
+          end
+        rescue
+          return false
+        end
       end
     end
+    return true
   end
 
   def sv_validate_parent_rank
