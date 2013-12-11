@@ -2,7 +2,9 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   include Housekeeping
 
-  validates_presence_of :type, :subject_taxon_name_id, :object_taxon_name_id
+  validates_presence_of :type, message: 'Relationship type should be specified'
+  validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
+  validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, if: :is_typification?
@@ -78,7 +80,9 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
-    if !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+    if type.nil?
+      true
+    elsif !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     elsif object_taxon_name.class == Protonym
       errors.add(:type, "'#{type}' is not a valid taxon name relationship") if /TaxonNameRelationship::Combination::/.match(self.type.to_s)
@@ -96,10 +100,10 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_valid_subject_and_object
-    if self.subject_taxon_name.nil?
-      errors.add(:subject_taxon_name_id, "Please select a taxon")
-    elsif self.object_taxon_name.nil?
-      errors.add(:object_taxon_name_id, "Please select a taxon")
+    if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
+      true
+    elsif self.object_taxon_name_id == self.subject_taxon_name_id
+      errors.add(:object_taxon_name_id, "Taxon should not relate to itself")
     elsif self.subject_taxon_name && self.object_taxon_name
       errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject_taxon_name.rank_class.to_s)
       if object_taxon_name.class == Protonym
