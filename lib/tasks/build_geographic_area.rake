@@ -206,6 +206,7 @@ def read_shape(filename, index)
             s2 = i2.empty? ? '' : (i2 + ', ')
             i1 = item['NAME_1']
             s1 = i1.empty? ? '' : (i1 + ', ')
+            puts item.attributes
             puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).getgm.strftime "%H:%M:%S"}: #{item_type}#{'% 5d' % (item.index + 1)} (of #{count} items)(#{count_geo} geometr#{ess}) is called \'#{s5}#{s4}#{s3}#{s2}#{s1}#{item['NAME_0']}\'."
           when /level1/
             puts "#{Time.at(time_then).strftime "%T"}: #{Time.at(elapsed).getgm.strftime "%H:%M:%S"}: #{item['LEVEL1_COD']}, #{item['LEVEL1_NAM']}:  #{item_type}, (#{count_geo} geometr#{ess})"
