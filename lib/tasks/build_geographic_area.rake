@@ -4,10 +4,20 @@
 #    28758: Not a valid geometry.
 #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
 
+# ISO Country Codes:
+# See http://www.iso.org/iso/home/standards/country_codes.htm
 
-# Jim:  Look into how to pass arguments to a rake task, then use this to point to an (external) directory that includes the data to import.
-#   somthing like  :build_geographic_areas => [:environment] do |argv| and called like 
-#   rake tw:init:build_geographic_areas data_path=/some/path
+ISO_YEAR_1_2 = 'ISO 3166-1-alpha-2' # ISO 3166-1:2006 two-letter country abbreviations
+ISO_YEAR_1_3 = 'ISO 3166-1-alpha-3' # ISO 3166-1:2006 three-letter country abbreviations
+# Other current choices are:
+ISO_YEAR_3   = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
+ISO_YEAR_2   = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
+
+TDWG2_L1 = 'TDWG2 Level 1'
+TDWG2_L2 = 'TDWG2 Level 2'
+TDWG2_L3 = 'TDWG2 Level 3'
+TDWG2_L4 = 'TDWG2 Level 4'
+
 #
 namespace :tw do
   namespace :init do
@@ -308,6 +318,7 @@ def read_dbf(filenames)
     ga = GeographicArea.new(parent:               earth,
                             tdwg_parent:          earth,
                             name:                 item['LEVEL1_NAM'].titlecase,
+                            iso_source:           TDWG2_L1,
                             geographic_area_type: gat1)
     lvl1_items.merge!(item['LEVEL1_COD'] => ga)
     global.merge!(ga.name => ga)
@@ -318,6 +329,7 @@ def read_dbf(filenames)
     ga = GeographicArea.new(parent:               lvl1_items[item['LEVEL1_COD']],
                             tdwg_parent:          lvl1_items[item['LEVEL1_COD']],
                             name:                 item['LEVEL2_NAM'].titlecase,
+                            iso_source:           TDWG2_L2,
                             geographic_area_type: gat2)
     lvl2_items.merge!(item['LEVEL2_COD'] => ga)
     global.merge!(ga.name => ga)
@@ -328,6 +340,7 @@ def read_dbf(filenames)
     ga = GeographicArea.new(parent:               lvl2_items[item['LEVEL2_COD']],
                             tdwg_parent:          lvl2_items[item['LEVEL2_COD']],
                             name:                 item['LEVEL3_NAM'].titlecase,
+                            iso_source:           TDWG2_L3,
                             geographic_area_type: gat3)
     lvl3_items.merge!(item['LEVEL3_COD'] => ga)
     global.merge!(ga.name => ga)
@@ -354,8 +367,11 @@ def read_dbf(filenames)
         if !(nation_name =~ /Country Name/) # drop the headers on the floor
           puts "'#{nation_code}' for #{nation_name}\t\tAdded."
           ga = GeographicArea.new(parent:               earth,
+                                  # if we create records here, they will specifically *not* be TDWG records
+                                  tdwg_parent:          nil,
                                   name:                 nation_name,
-                                  iso_3166_1_alpha_2:   nation_code,
+                                  iso_3166:             nation_code,
+                                  iso_source:           ISO_YEAR_1_2,
                                   geographic_area_type: gat5)
 
           ga.country = ga
@@ -364,7 +380,8 @@ def read_dbf(filenames)
       else
         # found a record with the right name
         puts "'#{nation_code}' for #{nation_name}\t\tMatched."
-        ga.iso_3166_1_alpha_2   = nation_code
+        ga.iso_3166             = nation_code
+        ga.iso_source           = ISO_YEAR_1_2
         ga.geographic_area_type = gat5
         # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
         ga.country              = ga
@@ -420,7 +437,7 @@ def read_dbf(filenames)
     # find the nation by its country code
     nation         = nil
     global.each { |key, area|
-      if area.iso_3166_1_alpha_2 == country_code
+      if area.iso_3166 == country_code
         nation = area
         break #
       end
@@ -429,14 +446,19 @@ def read_dbf(filenames)
     # find the matching global record by name
     ga = global[this_area_name]
     if ga.nil?
-      # failed to find an area by this name, so we need to create one
+      l3_code = item['Level3_cod']
+      l3_ga   = lvl3_items[l3_code]
+      # failed to find an area by this name in the TDWG data, so we need to create one
       # so we set the parent to the object pointed to by the level 3 code
-      ga = GeographicArea.new(parent:               lvl3_items[item['Level3_cod']],
-                              tdwg_parent:          lvl3_items[item['Level3_cod']],
-                              name:                 this_area_name,
-                              geographic_area_type: gat4,
-                              # even if nation is nil, this will do what we want.
-                              country:              nation)
+      ga      = GeographicArea.new(parent:               l3_ga,
+                                   tdwg_parent:          l3_ga,
+                                   name:                 this_area_name,
+                                   iso_3166:             nil,
+                                   # we show this is from the TDWG data, *not* the iso data
+                                   iso_source:           TDWG2_L4,
+                                   geographic_area_type: gat4,
+                                   # even if nation is nil, this will do what we want.
+                                   country:              nation)
       lvl4_items.merge!(item['Level4_cod'] => ga)
       global.merge!(ga.name => ga)
     else
