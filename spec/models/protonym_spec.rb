@@ -139,7 +139,7 @@ describe Protonym do
       expect(@s.original_combination_relationships.count).to eq(1)
 
       # Example 2) just use the right subclass to start
-      first_original_subgenus_relation = FactoryGirl.build(:original_combination_relationship,
+      first_original_subgenus_relation = FactoryGirl.build(:taxon_name_relationship_original_combination,
                                                            subject_taxon_name: @g,
                                                            object_taxon_name: @s,
                                                            type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
