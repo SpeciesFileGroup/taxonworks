@@ -18,6 +18,8 @@ TDWG2_L2 = 'TDWG2 Level 2'
 TDWG2_L3 = 'TDWG2 Level 3'
 TDWG2_L4 = 'TDWG2 Level 4'
 
+GADM2 = 'GADM2'
+
 #
 namespace :tw do
   namespace :init do
@@ -28,7 +30,8 @@ namespace :tw do
       place    = ENV['place']
       shapes   = ENV['shapes']
 
-      # index is only expected to work for the GADM V2 shape file set: intended as a short-cut to a problem record.
+      # index is only expected to work for the GADM V2 shape file set: intended *only* as a
+      # short-cut to a problem record.
       index    = ENV['index']
 
       # build csv file list from 'place'
@@ -273,7 +276,7 @@ def read_dbf(filenames)
     earth = earth.first
   end
 
-  iso, lvl1, lvl2, lvl3, lvl4 = nil, nil, nil, nil, nil
+  iso, lvl1, lvl2, lvl3, lvl4, gadm2 = nil, nil, nil, nil, nil, nil
 
   filenames.sort!
 
@@ -298,107 +301,108 @@ def read_dbf(filenames)
     end
   }
 
-  lvl1_items = {}
-  lvl2_items = {}
-  lvl3_items = {}
-  lvl4_items = {}
-  # global will be filled such that ga.name is the key for easier location later
-  global     = {}
+  @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}
 
-  gat1 = GeographicAreaType.where(name: 'Level I').first
-  gat2 = GeographicAreaType.where(name: 'Level II').first
-  gat3 = GeographicAreaType.where(name: 'Level III').first
-  gat4 = GeographicAreaType.where(name: 'Level IV').first
-  gat5 = GeographicAreaType.where(name: 'Country').first
+  #@global will be filled such that ga.name is the key for easier location later
+  @global                                                                      = {}
+  gat5                                                                         = GeographicAreaType.where(name: 'Country').first
 
-  # processing the TDWG2 level files into memory
+  if lvl1 != nil
 
-  lvl1.each { |item|
-    puts item.attributes
-    ga = GeographicArea.new(parent:               earth,
-                            tdwg_parent:          earth,
-                            name:                 item['LEVEL1_NAM'].titlecase,
-                            iso_source:           TDWG2_L1,
-                            geographic_area_type: gat1)
-    lvl1_items.merge!(item['LEVEL1_COD'] => ga)
-    global.merge!(ga.name => ga)
-  }
+    gat1 = GeographicAreaType.where(name: 'Level 1').first
+    gat2 = GeographicAreaType.where(name: 'Level 2').first
+    gat3 = GeographicAreaType.where(name: 'Level 3').first
+    gat4 = GeographicAreaType.where(name: 'Level 4').first
 
-  lvl2.each { |item|
-    puts item.attributes
-    ga = GeographicArea.new(parent:               lvl1_items[item['LEVEL1_COD']],
-                            tdwg_parent:          lvl1_items[item['LEVEL1_COD']],
-                            name:                 item['LEVEL2_NAM'].titlecase,
-                            iso_source:           TDWG2_L2,
-                            geographic_area_type: gat2)
-    lvl2_items.merge!(item['LEVEL2_COD'] => ga)
-    global.merge!(ga.name => ga)
-  }
 
-  lvl3.each { |item|
-    puts item.attributes
-    ga = GeographicArea.new(parent:               lvl2_items[item['LEVEL2_COD']],
-                            tdwg_parent:          lvl2_items[item['LEVEL2_COD']],
-                            name:                 item['LEVEL3_NAM'].titlecase,
-                            iso_source:           TDWG2_L3,
-                            geographic_area_type: gat3)
-    lvl3_items.merge!(item['LEVEL3_COD'] => ga)
-    global.merge!(ga.name => ga)
-  }
+    # processing the TDWG2 level files into memory
 
-  # Before we process the lvl4 data, we will process the iso codes information, so that the iso codes in lvl4 will
-  # have some meaning when we process *them*.
+    lvl1.each { |item|
+      puts item.attributes
+      ga = GeographicArea.new(parent:               earth,
+                              tdwg_parent:          earth,
+                              name:                 item['LEVEL1_NAM'].titlecase,
+                              iso_verified:         false,
+                              geographic_area_type: gat1)
+      @lvl1_items.merge!(item['LEVEL1_COD'] => ga)
+      @global.merge!(ga.name => ga)
+    }
 
-  # add, where possible, ISO 3166 country codes
+    lvl2.each { |item|
+      puts item.attributes
+      ga = GeographicArea.new(parent:               @lvl1_items[item['LEVEL1_COD']],
+                              tdwg_parent:          @lvl1_items[item['LEVEL1_COD']],
+                              name:                 item['LEVEL2_NAM'].titlecase,
+                              iso_verified:         false,
+                              geographic_area_type: gat2)
+      @lvl2_items.merge!(item['LEVEL2_COD'] => ga)
+      @global.merge!(ga.name => ga)
+    }
 
-  iso.each { |line|
-    if line.strip!.length > 6 # minimum line size to contain useful data
+    lvl3.each { |item|
+      puts item.attributes
+      ga = GeographicArea.new(parent:               @lvl2_items[item['LEVEL2_COD']],
+                              tdwg_parent:          @lvl2_items[item['LEVEL2_COD']],
+                              name:                 item['LEVEL3_NAM'].titlecase,
+                              iso_verified:         false,
+                              geographic_area_type: gat3)
+      lvl3_items.merge!(item['LEVEL3_COD'] => ga)
+      @global.merge!(ga.name => ga)
+    }
 
-      # break down the useful data
-      parts       = line.split(';')
-      nation_code = parts[1].strip # clean off the line extraneous white space
-      nation_name = parts[0].titlecase
+    # Before we process the lvl4 data, we will process the iso codes information, so that the iso codes in lvl4 will
+    # have some meaning when we process *them*.
 
-      ga = global[nation_name]
-      if ga.nil?
-        # We will need to create new global records so that we can check for typing anomalies and
-        # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
+    # add, where possible, ISO 3166 country codes
 
-        if !(nation_name =~ /Country Name/) # drop the headers on the floor
-          puts "'#{nation_code}' for #{nation_name}\t\tAdded."
-          ga = GeographicArea.new(parent:               earth,
-                                  # if we create records here, they will specifically *not* be TDWG records
-                                  tdwg_parent:          nil,
-                                  name:                 nation_name,
-                                  iso_3166:             nation_code,
-                                  iso_source:           ISO_YEAR_1_2,
-                                  geographic_area_type: gat5)
+    iso.each { |line|
+      if line.strip!.length > 6 # minimum line size to contain useful data
 
-          ga.country = ga
-          global.merge!(ga.name => ga)
+        # break down the useful data
+        parts       = line.split(';')
+        nation_code = parts[1].strip # clean off the line extraneous white space
+        nation_name = parts[0].titlecase
+
+        ga =@global[nation_name]
+        if ga.nil?
+          # We will need to create new@global records so that we can check for typing anomalies and
+          # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
+
+          if !(nation_name =~ /Country Name/) # drop the headers on the floor
+            puts "'#{nation_code}' for #{nation_name}\t\tAdded."
+            ga = GeographicArea.new(parent:               earth,
+                                    # if we create records here, they will specifically *not* be TDWG records
+                                    tdwg_parent:          nil,
+                                    name:                 nation_name,
+                                    iso_3166_a2:          nation_code,
+                                    iso_verified:         true,
+                                    geographic_area_type: gat5)
+
+            ga.country = ga
+            @global.merge!(ga.name => ga)
+          end
+        else
+          # found a record with the right name
+          puts "'#{nation_code}' for #{nation_name}\t\tMatched."
+          ga.iso_3166_a2          = nation_code
+          ga.iso_verified         = true
+          ga.geographic_area_type = gat5
+          # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
+          ga.country              = ga
         end
-      else
-        # found a record with the right name
-        puts "'#{nation_code}' for #{nation_name}\t\tMatched."
-        ga.iso_3166             = nation_code
-        ga.iso_source           = ISO_YEAR_1_2
-        ga.geographic_area_type = gat5
-        # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
-        ga.country              = ga
       end
-    end
-  }
+    }
 
-  lvl4.each { |item|
-    # When processing lvl4, there are two different ways we need to process the line data:
-    #   If this entry has a sub-code of 'OO', it should be represented in one of the earlier levels
+    lvl4.each { |item|
+      # When processing lvl4, there are two different ways we need to process the line data:
+      #   If this entry has a sub-code of 'OO', it should be represented in one of the earlier levels
 
-    # puts item.attributes
+      # puts item.attributes
 
-    # isolate the name
-    this_area_name = item['Level_4_Na'].titlecase
-    # and the iso code of this area
-    country_code   = item['ISO_Code']
+      # isolate the name
+      this_area_name = item['Level_4_Na'].titlecase
+      # and the iso code of this area
+      country_code   = item['ISO_Code']
 
 =begin
 # here are spme problem level 4 records:
@@ -416,92 +420,325 @@ def read_dbf(filenames)
 {"ISO_Code"=>"YU", "Level_4_Na"=>"Serbia", "Level4_cod"=>"YUG-SE", "Level4_2"=>"SE", "Level3_cod"=>"YUG", "Level2_cod"=>13, "Level1_cod"=>1}
 =end
 
-    # have to hot-wire some country codes on the fly
-    # when the TDWG country code differs from the ISO code,
-    # convert TDWG to ISO
-=begin
-    case country_code
-      when 'UK' # United Kingdom => Great Britain
-        country_code = 'GB'
+      # find the nation by its country code
+      nation         = nil
+      @global.each { |key, area|
+        if area.iso_3166_a2 == country_code
+          nation = area
+          break #
+        end
+      }
 
-      when 'AN' # todo: check on Netherlands Leeward Is. belong to NETHERLANDS
-        country_code = 'NL'
-      when 'TP' # todo: check on East Timor refers to TIMOR-LESTE
-        country_code = 'TL'
-
+      # find the matching@global record by name
+      ga =@global[this_area_name]
+      if ga.nil?
+        l3_code = item['Level3_cod']
+        l3_ga   = lvl3_items[l3_code]
+        # failed to find an area by this name in the TDWG data, so we need to create one
+        # so we set the parent to the object pointed to by the level 3 code
+        ga      = GeographicArea.new(parent:               l3_ga,
+                                     tdwg_parent:          l3_ga,
+                                     name:                 this_area_name,
+                                     iso_3166_a2:          nil,
+                                     # we show this is from the TDWG data, *not* the iso data
+                                     iso_verified:         true,
+                                     geographic_area_type: gat4,
+                                     # even if nation is nil, this will do what we want.
+                                     country:              nation)
+        @lvl4_items.merge!(item['Level4_cod'] => ga)
+        @global.merge!(ga.name => ga)
       else
-        # leave it alone
-    end
-=end
+        # ga is the named area we are looking for
+        ga.country = nation
+        nation
+      end
 
-    # find the nation by its country code
-    nation         = nil
-    global.each { |key, area|
-      if area.iso_3166 == country_code
-        nation = area
-        break #
+      if nation.nil?
+
+        puts "#{nation.nil? ? 'Unmatchable record' : nation.name}::#{item.attributes}"
+      else
+        # puts nation.name
       end
     }
 
-    # find the matching global record by name
-    ga = global[this_area_name]
-    if ga.nil?
-      l3_code = item['Level3_cod']
-      l3_ga   = lvl3_items[l3_code]
-      # failed to find an area by this name in the TDWG data, so we need to create one
-      # so we set the parent to the object pointed to by the level 3 code
-      ga      = GeographicArea.new(parent:               l3_ga,
-                                   tdwg_parent:          l3_ga,
-                                   name:                 this_area_name,
-                                   iso_3166:             nil,
-                                   # we show this is from the TDWG data, *not* the iso data
-                                   iso_source:           TDWG2_L4,
-                                   geographic_area_type: gat4,
-                                   # even if nation is nil, this will do what we want.
-                                   country:              nation)
-      lvl4_items.merge!(item['Level4_cod'] => ga)
-      global.merge!(ga.name => ga)
-    else
-      # ga is the named area we are looking for
-      ga.country = nation
-      nation
-    end
+  else
+    # we are processing non-TDWG data; right now, that is gadm data
+    # this processing is specifically for GADM2
 
-    if nation.nil?
+    gadm_example = {"OBJECTID"   => 1,
+                    "ID_0"       => 1,
+                    "ISO"        => "AFG",
 
-      puts "#{nation.nil? ? 'Unmatchable record' : nation.name}::#{item.attributes}"
-    else
-      # puts nation.name
-    end
+                    "NAME_0"     => "Afghanistan",
+
+                    "ID_1"       => 12,
+                    "NAME_1"     => "Jawzjan",
+                    "VARNAME_1"  => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
+                    "NL_NAME_1"  => "",
+                    "HASC_1"     => "AF.JW",
+                    "CC_1"       => "",
+                    "TYPE_1"     => "Velayat",
+                    "ENGTYPE_1"  => "Province",
+                    "VALIDFR_1"  => "19640430",
+                    "VALIDTO_1"  => "198804",
+                    "REMARKS_1"  => "",
+
+                    "ID_2"       => 129,
+                    "NAME_2"     => "Khamyab",
+                    "VARNAME_2"  => "",
+                    "NL_NAME_2"  => "",
+                    "HASC_2"     => "AF.JW.KM",
+                    "CC_2"       => "",
+                    "TYPE_2"     => "",
+                    "ENGTYPE_2"  => "",
+                    "VALIDFR_2"  => "Unknown",
+                    "VALIDTO_2"  => "Present",
+                    "REMARKS_2"  => "",
+
+                    "ID_3"       => 0,
+                    "NAME_3"     => "",
+                    "VARNAME_3"  => "",
+                    "NL_NAME_3"  => "",
+                    "HASC_3"     => "",
+                    "TYPE_3"     => "",
+                    "ENGTYPE_3"  => "",
+                    "VALIDFR_3"  => "",
+                    "VALIDTO_3"  => "",
+                    "REMARKS_3"  => "",
+
+                    "ID_4"       => 0,
+                    "NAME_4"     => "",
+                    "VARNAME_4"  => "",
+                    "TYPE4"      => "",
+                    "ENGTYPE4"   => "",
+                    "TYPE_4"     => "",
+                    "ENGTYPE_4"  => "",
+                    "VALIDFR_4"  => "",
+                    "VALIDTO_4"  => "",
+                    "REMARKS_4"  => "",
+
+                    "ID_5"       => 0,
+                    "NAME_5"     => "",
+                    "TYPE_5"     => "",
+                    "ENGTYPE_5"  => "",
+
+                    "Shape_Leng" => 1.30495037416,
+                    "Shape_Area" => 0.0798353069113}
+
+    gadm2.each { |item|
+
+      puts item.attributes
+
+      l0_name = item['NAME_0'].titlecase
+
+      l1_name = item['ID_1'].nil? ? '' : item['NAME_1'].titlecase
+      l2_name = item['ID_2'].nil? ? '' : item['NAME_2'].titlecase
+      l3_name = item['ID_3'].nil? ? '' : item['NAME_3'].titlecase
+      l4_name = item['ID_4'].nil? ? '' : item['NAME_4'].titlecase
+      l5_name = item['ID_5'].nil? ? '' : item['NAME_5'].titlecase
+
+      i5 = l5_name
+      s5 = i5.empty? ? '' : (i5 + ', ')
+      i4 = l4_name
+      s4 = i4.empty? ? '' : (i4 + ', ')
+      i3 = l3_name
+      s3 = i3.empty? ? '' : (i3 + ', ')
+      i2 = l2_name
+      s2 = i2.empty? ? '' : (i2 + ', ')
+      i1 = l1_name
+      s1 = i1.empty? ? '' : (i1 + ', ')
+      a1 = "\'#{s5}#{s4}#{s3}#{s2}#{s1}#{l0_name}\'."
+      puts a1
+
+      # look for a country named in the zero level
+      l0 = @lvl0_items[l0_name]
+
+      if l0.nil?
+        # create a record for the zero level, and the @global list
+        ga    = GeographicArea.new(parent:               earth,
+                                   name:                 l0_name,
+                                   iso_3166_a3:          item['ISO'],
+                                   iso_verified:         true,
+                                   geographic_area_type: gat5)
+        # put the item in the lvl0 list
+        place = {l0_name => ga}
+        @lvl0_items.merge!(place)
+        # and the @global list
+        @global.merge!(place)
+        l0 = ga
+      else
+        # nothing to do
+      end
+
+      if l1_name.empty?
+        # nothing to do
+      else
+        # process level 1, using level 0 as parent
+
+        l1 = @lvl1_items[l1_name]
+        if l1.nil?
+          # create a record for level 1, and the @global list
+          ga    = GeographicArea.new(parent:               l0,
+                                     name:                 l1_name,
+                                     iso_3166_a3:          item['ISO'],
+                                     iso_verified:         true,
+                                     geographic_area_type: add_gat(item['ENGTYPE_1']))
+          # put the item in the lvl0 list
+          place = {l1_name => ga}
+          @lvl1_items.merge!(place)
+          # and the @global list
+          @global.merge!(place)
+          l1 = ga
+        else
+          # nothing to do
+        end
+      end
+
+      if l2_name.empty?
+        # nothing to do
+      else
+        # process level 2, using level 1 as parent
+
+        l2 = @lvl2_items[l1_name]
+        if l2.nil?
+          # create a record for level 2, and the @global list
+          add_gat(item['ENGTYPE_2'])
+          ga    = GeographicArea.new(parent:               l1,
+                                     name:                 l2_name,
+                                     iso_3166_a3:          item['ISO'],
+                                     iso_verified:         true,
+                                     geographic_area_type: add_gat(item['ENGTYPE_2']))
+          # put the item in the lvl0 list
+          place = {l2_name => ga}
+          @lvl2_items.merge!(place)
+          # and the @global list
+          @global.merge!(place)
+          l2 = ga
+        else
+          # nothing to do
+        end
+      end
+
+      if l3_name.empty?
+        # nothing to do
+      else
+        # process level 3, using level 2 as parent
+
+        l3 = @lvl3_items[l2_name]
+        if l3.nil?
+          # create a record for level 3, and the @global list
+          ga    = GeographicArea.new(parent:               l2,
+                                     name:                 l3_name,
+                                     iso_3166_a3:          item['ISO'],
+                                     iso_verified:         true,
+                                     geographic_area_type: add_gat(item['ENGTYPE_3']))
+          # put the item in the lvl0 list
+          place = {l3_name => ga}
+          @lvl3_items.merge!(place)
+          # and the @global list
+          @global.merge!(place)
+          l3 = ga
+        else
+          # nothing to do
+        end
+      end
+
+      if l4_name.empty?
+        # nothing to do
+      else
+        # process level 4, using level 3 as parent
+
+        l4 = @lvl4_items[l4_name]
+        if l4.nil?
+          # create a record for level 4, and the @global list
+          ga    = GeographicArea.new(parent:               l3,
+                                     name:                 l4_name,
+                                     iso_3166_a3:          item['ISO'],
+                                     iso_verified:         true,
+                                     geographic_area_type: add_gat(item['ENGTYPE_4']))
+          # put the item in the lvl0 list
+          place = {l4_name => ga}
+          @lvl4_items.merge!(place)
+          # and the @global list
+          @global.merge!(place)
+          l4 = ga
+        else
+          # nothing to do
+        end
+      end
+
+      if l5_name.empty?
+        # nothing to do
+      else
+        # process level 5, using level 4 as parent
+
+        l5 = @lvl5_items[l5_name]
+        if l5.nil?
+          # create a record for level 5, and the @global list
+          ga    = GeographicArea.new(parent:               l4,
+                                     name:                 l5_name,
+                                     iso_3166_a3:          item['ISO'],
+                                     iso_verified:         true,
+                                     geographic_area_type: add_gat(item['ENGTYPE_5']))
+          # put the item in the lvl0 list
+          place = {l5_name => ga}
+          @lvl5_items.merge!(place)
+          # and the @global list
+          @global.merge!(place)
+          l5 = ga
+        else
+          # nothing to do
+        end
+      end
+    }
+  end # of GADM processing
+
+  # breakpoint.save
+
+  # save the g_a_types, so that they will be ready for the area record save.
+  @gat_list.each {|key, value|
+    value.save
+  }
+
+  puts 'Saving Level 0 areas.'
+  @lvl0_items.each { |key, area|
+    area.save
+    @global.delete(area.name)
   }
 
   puts 'Saving Level 1 areas.'
-  lvl1_items.each { |key, area|
+  @lvl1_items.each { |key, area|
     area.save
-    global.delete(area.name)
+    @global.delete(area.name)
   }
 
   puts 'Saving Level 2 areas.'
-  lvl2_items.each { |key, area|
+  @lvl2_items.each { |key, area|
     area.save
-    global.delete(area.name)
+    @global.delete(area.name)
   }
 
   puts 'Saving Level 3 areas.'
-  lvl3_items.each { |key, area|
+  @lvl3_items.each { |key, area|
     area.save
-    global.delete(area.name)
+    @global.delete(area.name)
   }
 
   puts 'Saving Level 4 areas.'
-  lvl4_items.each { |key, area|
+  @lvl4_items.each { |key, area|
     area.save
-    global.delete(area.name)
+    @global.delete(area.name)
+  }
+
+  puts 'Saving Level 5 areas.'
+  @lvl5_items.each { |key, area|
+    area.save
+    @global.delete(area.name)
   }
 
   # what is left over?
-  puts 'Saving non-Level( 1, 2, 3, 4 ) areas.'
-  global.each { |key, area|
+  puts 'Saving non-Level(0, 1, 2, 3, 4, 5) areas.'
+  @global.each { |key, area|
     area.save
   }
 
@@ -561,16 +798,30 @@ def read_csv(file)
   }
 end
 
+def add_gat(gat)
+  # extracted out to enable single insert
+
+  area_type = @gat_list[gat]
+  if area_type.nil?
+    area_type = GeographicAreaType.new(name: gat)
+    @gat_list.merge!(gat => area_type)
+  end
+  area_type
+end
+
 def build_gat_table
+  l_var     = 'Unknown'
+  @gat_list = {}
+
   ['Planet',
    'Continent',
-   'Level I',
+   'Level 1',
    'Subcontinent',
-   'Level II',
+   'Level 2',
    'Country',
-   'Level III',
+   'Level 3',
    'State',
-   'Level IV',
+   'Level 4',
    'Federal District',
    'County',
    'Borough',
@@ -586,13 +837,15 @@ def build_gat_table
    'Province',
    'Ward',
    'Prefecture',
-   'Unknown',
+   l_var,
    'Shire'].each { |item|
-
-    area_type = GeographicAreaType.where(name: item)[0]
+    area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
-      at = GeographicAreaType.new(name: item)
-      at.save
+      area_type = GeographicAreaType.new(name: item)
+      area_type.save
     end
+    @gat_list.merge!(item => area_type)
   }
+  @gat_list.merge!('' => @gat_list[l_var])
+  @gat_list.merge!(nil => @gat_list[l_var])
 end
