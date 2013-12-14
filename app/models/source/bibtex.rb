@@ -14,16 +14,16 @@
 #
 # BibTeX fields in a BibTex bibliography are treated in one of three ways:
 #
-# [REQUIRED] Omitting the field will produce a warning message and, rarely, a
-#       badly formatted bibliography entry. If the required information is not
+# [REQUIRED] Omitting the field will produce a warning message and, rarely, a badly formatted bibliography entry.
+# If the required information is not
 #       meaningful, you are using the wrong entry type. However, if the required
 #       information is meaningful but, say, already included is some other field,
 #       simply ignore the warning.
 # [OPTIONAL] The field's information will be used if present, but can be omitted
-#       without causing any formatting problems. You should include the optional
+#  without causing any formatting problems. You should include the optional
 #       field if it will help the reader.
 # [IGNORED] The field is ignored. BibTEX ignores any field that is not required or
-#       optional, so you can include any fields you want in a bib file entry. It's a
+#optional, so you can include any fields you want in a bib file entry. It's a
 #       good idea to put all relevant information about a reference in its bib file
 #       entry - even information that may never appear in the bibliography.
 #
@@ -52,7 +52,7 @@
 #   Usually the address of the publisher or other type of institution.
 #   For major publishing houses, van Leunen recommends omitting the information
 #   entirely. For small publishers, on the other hand, you can help the reader by giving the complete address.
-#   @return [String] the address
+#   @return [#String] the address
 #   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute annote
