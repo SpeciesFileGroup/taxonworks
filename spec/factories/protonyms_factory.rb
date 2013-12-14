@@ -145,8 +145,8 @@ FactoryGirl.define do
     factory :iczn_species do
       name 'vitis'
       association :parent, factory: :iczn_subgenus
-      association :source, factory: :valid_bibtex_source, year: 1900
-      year_of_publication 1900
+      association :source, factory: :valid_bibtex_source, year: 1830
+      year_of_publication 1830
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:iczn, 'SPECIES')
     end

@@ -294,11 +294,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_validate_parent_rank
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_missing_relationships
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_source_older_then_description
@@ -306,12 +306,17 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_validate_coordinated_names
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_type_placement
     true  # see validation in Protonym.rb
   end
+
+  def sv_type_relationship
+    true  # see validation in Protonym.rb
+  end
+
 
   #endregion
 

@@ -79,6 +79,7 @@ class Protonym < TaxonName
   soft_validate(:sv_missing_relationships)
   soft_validate(:sv_type_placement)
   soft_validate(:sv_validate_coordinated_names)
+  soft_validate(:sv_type_relationship)
 
   #region Soft validation
 
@@ -142,7 +143,7 @@ class Protonym < TaxonName
       #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
 
       list.each do |t|
-        #:TODO think about fixes to tests below
+        foo = 0
         soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
@@ -159,6 +160,12 @@ class Protonym < TaxonName
                             fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') if self.type_genus != t.type_genus
+        sttnr = self.type_taxon_name_relationship
+        tttnr = t.type_taxon_name_relationship
+        unless sttnr.nil? || tttnr.nil?
+          soft_validations.add(:base, "The type species relationship does not match with the relationship of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless sttnr.type = tttnr.type
+        end
       end
     end
   end
@@ -217,6 +224,16 @@ class Protonym < TaxonName
           self.type_genus = t.type_genus
           fixed = true
         end
+
+        sttnr = self.type_taxon_name_relationship
+        tttnr = t.type_taxon_name_relationship
+        unless sttnr.nil? || tttnr.nil?
+          if sttnr.type != sttnr.type && sttnr.type.descendants.collect{|i| i.to_s}.include?(sttnr.type.to_s)
+            sttnr.type = tttnr.type
+            fixed = true
+          end
+        end
+
       end
       begin
         Protonym.transaction do
@@ -256,6 +273,19 @@ class Protonym < TaxonName
         end
       else
         #TODO: extend to cover synonyms
+      end
+    end
+  end
+
+  def sv_type_relationship
+    unless self.type_taxon_name_relationship.nil?
+      case self.type_taxon_name_relationship.type.to_s
+        when TaxonNameRelationship::Typification::Genus
+          soft_validations.add(:base, "Please specify if the type designation is original or subsequent") unless self.ancestors.include?(t)
+        when TaxonNameRelationship::Typification::Genus::Monotypy
+          soft_validations.add(:base, "Please specify if the monotypy is original or subsequent") unless self.ancestors.include?(t)
+        when TaxonNameRelationship::Typification::Genus::Tautonomy
+          soft_validations.add(:base, "Please specify if the tautonomy is absolute or Linnean") unless self.ancestors.include?(t)
       end
     end
   end

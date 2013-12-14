@@ -185,9 +185,14 @@ describe Protonym do
       @family = @subspecies.ancestor_at_rank('family')
       @subfamily = @subspecies.ancestor_at_rank('subfamily')
       @tribe = @subspecies.ancestor_at_rank('tribe')
+      @subtribe = @subspecies.ancestor_at_rank('subtribe')
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
+      @subtribe.source = @tribe.source
+      @subtribe.save
+      @subgenus.source = @genus.source
+      @subgenus.save
 
       @kingdom.soft_validate
       @family.soft_validate
@@ -359,10 +364,27 @@ describe Protonym do
         gen.soft_validate
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
+      specify 'mismatching or not specific type genus relationships' do
+        @genus.type_species_by_monotypy = @species
+        @subgenus.type_species_by_original_monotypy = @species
+        expect(@genus.save).to be_true
+        expect(@subgenus.save).to be_true
+        @genus.reload
+        @subgenus.reload
+        @genus.soft_validate
+        @subgenus.soft_validate
+        errors_on_genus_base = @genus.soft_validations.messages_on(:base).count
+        errors_on_subgenus_base = @subgenus.soft_validations.messages_on(:base).count
+
+        @genus.fix_soft_validations
+
+        @genus.soft_validate
+        @subgenus.soft_validate
+        expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
+        expect(errors_on_subgenus_base - @subgenus.soft_validations.messages_on(:base).count).to eq(1)
+      end
     end
   end
-
-  specify 'restrict combination relationships to Combination' 
 
   context 'scopes' do
     before(:all) {
@@ -421,7 +443,7 @@ describe Protonym do
       end
 
       after(:all) do
-        TaxonNameRelationships.delete_all
+        TaxonNameRelationship.delete_all
       end
 
       # Has *a* relationship
