@@ -115,64 +115,94 @@ class Protonym < TaxonName
   end
 
   def sv_validate_coordinated_names
-    search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
-    if search_rank
-      if search_rank =~ /Family/ 
-        z = Protonym.family_group_base(self.name)
-        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
-        #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
-      else
-        search_name = self.name
-      end
-    else
-      search_name = nil
-    end
-
-    unless search_name.nil?
-      list = Protonym.ancestors_and_descendants_of(self).
-        with_rank_class_including(search_rank).
-        with_name_in_array(search_name).
-        as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
-        # was on_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').to_a
-        #list1 = self.ancestors_and_descendants                               # scope with parens
-        #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
-        #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
-        #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
-
-      # Using scopes assignment will be done with single query rather than loops, and be something like:
-      #  list = TaxonName.ancestors_and_descendants_of(self).with_rank_of(search_rank).named(<something?!>).unavailable.invalid
-
-      list.each do |t|
-        foo = 0
+      list_of_coordinated_names.each do |t|
         soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Source was updated') if self.source_id != t.source_id
+                             fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') if self.verbatim_author != t.verbatim_author
+                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') if self.year_of_publication != t.year_of_publication
+                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_combination_genus != t.original_combination_genus
+                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_combination_genus == t.original_combination_genus
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_combination_subgenus != t.original_combination_subgenus
+                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_combination_subgenus == t.original_combination_subgenus
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_combination_species != t.original_combination_species
+                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_combination_species == t.original_combination_species
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species
+                            fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') if self.type_genus != t.type_genus
+                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
         sttnr = self.type_taxon_name_relationship
         tttnr = t.type_taxon_name_relationship
         unless sttnr.nil? || tttnr.nil?
           soft_validations.add(:base, "The type species relationship does not match with the relationship of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless sttnr.type = tttnr.type
+                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless sttnr.type == tttnr.type
         end
       end
-    end
+
   end
 
   def sv_fix_coordinated_names
-    search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
     fixed = false
+    list_of_coordinated_names.each do |t|
+      if self.source_id.nil? && self.source_id != t.source_id
+        self.source_id = t.source_id
+        fixed = true
+      end
+      if self.verbatim_author.nil? && self.verbatim_author != t.verbatim_author
+        self.verbatim_author = t.verbatim_author
+        fixed = true
+      end
+      if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
+        self.year_of_publication = t.year_of_publication
+        fixed = true
+      end
+      if self.original_combination_genus.nil? && self.original_combination_genus != t.original_combination_genus
+        self.original_combination_genus = t.original_combination_genus
+        fixed = true
+      end
+      if self.original_combination_subgenus.nil? && self.original_combination_subgenus != t.original_combination_subgenus
+        self.original_combination_subgenus = t.original_combination_subgenus
+        fixed = true
+      end
+      if self.original_combination_species.nil? && self.original_combination_species != t.original_combination_species
+        self.original_combination_species = t.original_combination_species
+        fixed = true
+      end
+      if self.type_species.nil? && self.type_species != t.type_species
+        self.type_species = t.type_species
+        fixed = true
+      end
+      if self.type_genus.nil? && self.type_genus != t.type_genus
+        self.type_genus = t.type_genus
+        fixed = true
+      end
+
+      sttnr = self.type_taxon_name_relationship
+      tttnr = t.type_taxon_name_relationship
+      unless sttnr.nil? || tttnr.nil?
+        if sttnr.type != tttnr.type && sttnr.type.constantize.descendants.collect{|i| i.to_s}.include?(tttnr.type.to_s)
+          self.type_taxon_name_relationship.type = t.type_taxon_name_relationship.type
+          fixed = true
+        end
+      end
+
+    end
+    foo = 0
+    if fixed
+      begin
+        Protonym.transaction do
+          self.save
+        end
+      rescue
+        return false
+      end
+    end
+    return fixed
+  end
+
+  def list_of_coordinated_names
+    search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
     if search_rank
       if search_rank =~ /Family/
         z = Protonym.family_group_base(self.name)
@@ -190,62 +220,15 @@ class Protonym < TaxonName
           with_rank_class_including(search_rank).
           with_name_in_array(search_name).
           as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
-
-      list.each do |t|
-        if self.source_id.nil? && self.source_id != t.source_id
-          self.source_id = t.source_id
-          fixed = true
-        end
-        if self.verbatim_author.nil? && self.verbatim_author != t.verbatim_author
-          self.verbatim_author = t.verbatim_author
-          fixed = true
-        end
-        if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
-          self.year_of_publication = t.year_of_publication
-          fixed = true
-        end
-        if self.original_combination_genus.nil? && self.original_combination_genus != t.original_combination_genus
-          self.original_combination_genus = t.original_combination_genus
-          fixed = true
-        end
-        if self.original_combination_subgenus.nil? && self.original_combination_subgenus != t.original_combination_subgenus
-          self.original_combination_subgenus = t.original_combination_subgenus
-          fixed = true
-        end
-        if self.original_combination_species.nil? && self.original_combination_species != t.original_combination_species
-          self.original_combination_species = t.original_combination_species
-          fixed = true
-        end
-        if self.type_species.nil? && self.type_species != t.type_species
-          self.type_species = t.type_species
-          fixed = true
-        end
-        if self.type_genus.nil? && self.type_genus != t.type_genus
-          self.type_genus = t.type_genus
-          fixed = true
-        end
-
-        sttnr = self.type_taxon_name_relationship
-        tttnr = t.type_taxon_name_relationship
-        unless sttnr.nil? || tttnr.nil?
-          if sttnr.type != sttnr.type && sttnr.type.descendants.collect{|i| i.to_s}.include?(sttnr.type.to_s)
-            sttnr.type = tttnr.type
-            fixed = true
-          end
-        end
-
-      end
-      begin
-        Protonym.transaction do
-          self.save
-        end
-      rescue
-        return false
-      end
-      return fixed
+      #list1 = self.ancestors_and_descendants                               # scope with parens
+      #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+      #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+      #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+    else
+      list = []
     end
+    return list
   end
-
 
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).to_a
@@ -278,14 +261,15 @@ class Protonym < TaxonName
   end
 
   def sv_type_relationship
+
     unless self.type_taxon_name_relationship.nil?
       case self.type_taxon_name_relationship.type.to_s
-        when TaxonNameRelationship::Typification::Genus
-          soft_validations.add(:base, "Please specify if the type designation is original or subsequent") unless self.ancestors.include?(t)
-        when TaxonNameRelationship::Typification::Genus::Monotypy
-          soft_validations.add(:base, "Please specify if the monotypy is original or subsequent") unless self.ancestors.include?(t)
-        when TaxonNameRelationship::Typification::Genus::Tautonomy
-          soft_validations.add(:base, "Please specify if the tautonomy is absolute or Linnean") unless self.ancestors.include?(t)
+        when 'TaxonNameRelationship::Typification::Genus'
+          soft_validations.add(:base, "Please specify if the type designation is original or subsequent")
+        when 'TaxonNameRelationship::Typification::Genus::Monotypy'
+          soft_validations.add(:base, "Please specify if the monotypy is original or subsequent")
+        when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
+          soft_validations.add(:base, "Please specify if the tautonomy is absolute or Linnean")
       end
     end
   end

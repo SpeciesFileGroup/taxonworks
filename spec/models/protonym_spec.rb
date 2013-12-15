@@ -372,16 +372,12 @@ describe Protonym do
         @genus.reload
         @subgenus.reload
         @genus.soft_validate
-        @subgenus.soft_validate
         errors_on_genus_base = @genus.soft_validations.messages_on(:base).count
-        errors_on_subgenus_base = @subgenus.soft_validations.messages_on(:base).count
 
         @genus.fix_soft_validations
 
         @genus.soft_validate
-        @subgenus.soft_validate
         expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
-        expect(errors_on_subgenus_base - @subgenus.soft_validations.messages_on(:base).count).to eq(1)
       end
     end
   end
