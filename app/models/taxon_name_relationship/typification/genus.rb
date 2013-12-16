@@ -10,6 +10,11 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
     NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::GenusGroup.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_taxon_name_relationships
+    self.parent.disjoint_taxon_name_relationships +
+    [TaxonNameRelationship::Typification::Family.to_s]
+  end
+
   def self.assignment_method
     # used like:
     #

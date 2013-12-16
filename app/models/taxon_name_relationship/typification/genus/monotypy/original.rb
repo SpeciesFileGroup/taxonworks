@@ -4,4 +4,11 @@ class TaxonNameRelationship::Typification::Genus::Monotypy::Original < TaxonName
     :type_species_by_original_monotypy
   end
 
+  def self.disjoint_taxon_name_relationships
+    self.parent.disjoint_taxon_name_relationships +
+        [TaxonNameRelationship::Typification::Genus::Monotypy.to_s] +
+        [TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent.to_s]
+  end
+
+
 end

@@ -4,7 +4,8 @@ class TaxonNameClass::Iczn < TaxonNameClass
     1758
   end
 
-  def self.applicable_ranks
-    ICZN.collect{|t| t.to_s}
+  def self.disjoint_taxon_name_classes
+    TaxonNameClass::Icn.descendants.collect{|t| t.to_s}
   end
+
 end

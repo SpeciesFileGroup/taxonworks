@@ -12,6 +12,10 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
     NomenclaturalRank::Iczn.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_taxon_name_relationships
+    TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
+  end
+
   def self.assignment_method
     :source_classified_as
   end

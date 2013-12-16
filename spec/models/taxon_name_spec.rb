@@ -251,7 +251,7 @@ describe TaxonName do
         specify 'ICN' do
           variety = FactoryGirl.create(:icn_variety)
           expect(variety.ancestors.length).to be >= 17
-          expect(variety.root.id).to be_eq(@species.root.id)
+          expect(variety.root.id).to eq(@species.root.id)
           variety.save
 
           expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')

@@ -2,7 +2,7 @@ class TaxonNameClass
 
   # Return a String with the "common" name for this class.
   def self.class_name
-    n = self.name.demodulize.underscore.humanize.downcase
+    self.name.demodulize.underscore.humanize.downcase
   end
 
   # years of applicability for each class
@@ -15,6 +15,10 @@ class TaxonNameClass
   end
 
   def self.applicable_ranks
+    []
+  end
+
+  def self.disjoint_taxon_name_classes
     []
   end
 

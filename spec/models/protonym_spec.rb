@@ -185,9 +185,15 @@ describe Protonym do
       @family = @subspecies.ancestor_at_rank('family')
       @subfamily = @subspecies.ancestor_at_rank('subfamily')
       @tribe = @subspecies.ancestor_at_rank('tribe')
+      @subtribe = @subspecies.ancestor_at_rank('subtribe')
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
+      @subtribe.source = @tribe.source
+      @subtribe.save
+      @subgenus.source = @genus.source
+      @subgenus.save
+
       @kingdom.soft_validate
       @family.soft_validate
       @subfamily.soft_validate
@@ -237,7 +243,7 @@ describe Protonym do
 
     context 'missing_fields' do
       specify "source author, year are missing" do
-          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_false
+          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_true
           expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
         end
@@ -263,37 +269,34 @@ describe Protonym do
 
     context 'coordinated taxa' do
       specify 'mismatching author in genus' do
-        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: 'Dmitriev', year_of_publication: 1999, parent: @genus)
-        @genus.reload
+        sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
         sgen.original_combination_genus = @genus
-        sgen.type_species = @genus.type_species
         expect(sgen.save).to be_true
+        @genus.reload
+        #sgen.type_species = @genus.type_species
         @genus.soft_validate
         sgen.soft_validate
         #genus and subgenus have different author
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        #genus and subgenus have different year
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         #genus and subgenus have different year
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-        #genus and subgenus have different original Genus
-        expect(sgen.soft_validations.messages_on(:base).count).to be(2)
 
         sgen.fix_soft_validations
 
-        sgen.verbatim_author = @genus.verbatim_author
-        sgen.year_of_publication = @genus.year_of_publication
-        sgen.original_combination_genus = nil
-        expect(sgen.save).to be_true
+        #@genus.reload
         @genus.soft_validate
         sgen.soft_validate
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        expect(sgen.soft_validations.messages_on(:base).count).to be(1)
       end
       specify 'mismatching author, year and type genus in family' do
-          tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @family)
+          tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
           genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+          @subfamily.type_genus = genus
+          expect(@subfamily.save).to be_true
           @subfamily.soft_validate
           tribe.soft_validate
           #author in tribe and subfamily are different
@@ -302,10 +305,9 @@ describe Protonym do
           expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_false
           #type in tribe and subfamily are different
           expect(tribe.soft_validations.messages_on(:base).empty?).to be_false
-          tribe.type_genus = genus
-          tribe.verbatim_author = 'Dmitriev'
-          tribe.year_of_publication = 2003
-          expect(tribe.save).to be_true
+
+          tribe.fix_soft_validations
+
           tribe.soft_validate
           expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_true
@@ -362,15 +364,30 @@ describe Protonym do
         gen.soft_validate
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
+      specify 'mismatching or not specific type genus relationships' do
+        @genus.type_species_by_monotypy = @species
+        @subgenus.type_species_by_original_monotypy = @species
+        expect(@genus.save).to be_true
+        expect(@subgenus.save).to be_true
+        @genus.reload
+        @subgenus.reload
+        @genus.soft_validate
+        errors_on_genus_base = @genus.soft_validations.messages_on(:base).count
+
+        @genus.fix_soft_validations
+
+        @genus.soft_validate
+        expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
+      end
     end
   end
-
-  specify 'restrict combination relationships to Combination' 
 
   context 'scopes' do
     before(:all) {
       TaxonName.delete_all 
       @species = FactoryGirl.create(:iczn_species)
+      @s =  Protonym.where(name: 'vitis').first
+      @g =  Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
     after(:all) {
       TaxonName.delete_all
@@ -381,6 +398,11 @@ describe Protonym do
 
     specify 'named' do
       expect(Protonym.named('vitis')).to have(1).things
+    end
+
+    specify 'with_name_in_array' do
+      expect(Protonym.with_name_in_array(['vitis'])).to have(1).things
+      expect(Protonym.with_name_in_array(['vitis', 'Erythroneura' ])).to have(3).things # genus 2x
     end
 
     specify 'with_rank_class' do
@@ -411,36 +433,24 @@ describe Protonym do
 
     context 'relationships' do
       before(:each) do
-        @s =  Protonym.named('vitis').first
-        @g =  Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').first
-        @s.original_combination_genus = @g   # @g 'TaxonNameRelationship::Combination::Genus' @s
+        @s.original_combination_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
         @s.save
         @s.reload
       end
 
-      specify 'as_subject_of_taxon_name_relationship' do
-        expect(Protonym.as_subject_of_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
+      after(:all) do
+        TaxonNameRelationship.delete_all
       end
 
-      specify 'as_object_of_taxon_name_relationship' do
-        expect(Protonym.as_object_of_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
-      end
-
-      specify 'anywhere_in_taxon_name_relationship' do
-        expect(Protonym.anywhere_in_taxon_name_relationship('TaxonNameRelationship::Combination::Genus')).to have(1).things
-      end
-
+      # Has *a* relationship
       specify 'with_taxon_name_relationships_as_subject' do
         expect(@g.all_taxon_name_relationships).to have(1).things
         expect(Protonym.named('Erythroneura').with_taxon_name_relationships_as_subject).to have(1).things
       end
-
       specify 'with_taxon_name_relationships_as_object' do
         expect(Protonym.named('vitis').with_taxon_name_relationships_as_object).to have(1).things
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object).to have(0).things
       end
-
-      # TODO: Refactor to make raw AREL  
       specify 'with_taxon_name_relationships' do 
         expect(Protonym.with_taxon_name_relationships).to have(2).things
         expect(Protonym.named('vitis').with_taxon_name_relationships).to have(1).things
@@ -448,23 +458,88 @@ describe Protonym do
         expect(Protonym.named('Erythroneurini').with_taxon_name_relationships).to have(0).things
       end
 
+      # Specific relationship exists
+      specify 'as_subject_with_taxon_name_relationship' do
+        expect(Protonym.as_subject_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(1).things
+        expect(Protonym.as_subject_with_taxon_name_relationship('blorf')).to have(0).things
+      end
+      specify 'as_subject_with_taxon_name_relationship_base' do
+        expect(Protonym.as_subject_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination')).to have(1).things
+        expect(Protonym.as_subject_with_taxon_name_relationship_base('blorf')).to have(0).things
+      end
+      specify 'as_subject_with_taxon_name_relationship_containing' do
+        expect(Protonym.as_subject_with_taxon_name_relationship_containing('OriginalCombination')).to have(1).things
+        expect(Protonym.as_subject_with_taxon_name_relationship_containing('blorf')).to have(0).things
+      end
+      specify 'as_object_with_taxon_name_relationship' do
+        expect(Protonym.as_object_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(1).things
+        expect(Protonym.as_object_with_taxon_name_relationship('blorf')).to have(0).things
+      end
+      specify 'as_object_with_taxon_name_relationship_base' do
+        expect(Protonym.as_object_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination')).to have(1).things
+        expect(Protonym.as_object_with_taxon_name_relationship_base('blorf')).to have(0).things
+      end
+      specify 'as_object_with_taxon_name_relationship_containing' do
+        expect(Protonym.as_object_with_taxon_name_relationship_containing('OriginalCombination')).to have(1).things
+        expect(Protonym.as_object_with_taxon_name_relationship_containing('blorf')).to have(0).things
+      end
+      specify 'with_taxon_name_relationship' do
+        expect(Protonym.with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(2).things
+      end
+
+      # Any relationship doesn't exists
       specify 'without_subject_taxon_name_relationships' do
         expect(Protonym.named('vitis').without_subject_taxon_name_relationships).to have(1).things
         expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_subject_taxon_name_relationships).to have(0).things
       end
-
       specify 'without_object_taxon_name_relationships' do
         expect(Protonym.named('vitis').without_object_taxon_name_relationships).to have(0).things
         expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_object_taxon_name_relationships).to have(1).things
       end
-
       specify 'without_taxon_name_relationships' do 
         expect(Protonym.without_taxon_name_relationships).to have(Protonym.all.count - 2).things
         expect(Protonym.without_taxon_name_relationships.named('vitis')).to have(0).things
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
         expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
       end
-  
+
+      specify 'as_subject_without_taxon_name_relationship_base' do
+        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship')).to have(Protonym.all.count - 1).things
+      end
+
+    end
+
+    context 'classifications' do
+      before(:all) do
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available, taxon_name: @s)
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available::Valid, taxon_name: @g )
+      end
+
+      after(:all) do
+        TaxonNameClassification.delete_all
+      end
+
+      specify 'with_taxon_name_classifications' do
+        expect(Protonym.with_taxon_name_classifications).to have(2).things
+      end
+      specify 'without_taxon_name_classifications' do
+        expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.count - 2).things
+      end
+
+      specify 'without_taxon_name_classification' do
+        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available')).to have(Protonym.count - 1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available::Valid')).to have(Protonym.count - 1).things
+      end
+ 
+      specify 'with_taxon_name_classification_base' do
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available::Valid') ).to have(1).things
+      end
+      specify 'with_taxon_name_classification_containing' do
+        expect(Protonym.with_taxon_name_classification_containing('Iczn') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_containing('Valid') ).to have(1).things
+      end
     end
   end
 

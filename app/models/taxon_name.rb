@@ -8,7 +8,10 @@ class TaxonName < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
   belongs_to :source 
+ 
+  has_many :taxon_name_classifications
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
+
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
@@ -64,8 +67,7 @@ class TaxonName < ActiveRecord::Base
     where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR 
            ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
            (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )
-  }
+           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  ) }
 
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
@@ -263,24 +265,40 @@ class TaxonName < ActiveRecord::Base
     if self.source_id
       if !self.source.author.blank?
         self.verbatim_author = self.source.author
+        begin
+          TaxonName.transaction do
+            self.save
+          end
+        rescue
+          return false
+        end
       end
     end
+    return true
   end
 
   def sv_fix_missing_year
     if self.source_id
       if self.source.year
         self.year_of_publication = self.source.year
+        begin
+          TaxonName.transaction do
+            self.save
+          end
+        rescue
+          return false
+        end
       end
     end
+    return true
   end
 
   def sv_validate_parent_rank
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_missing_relationships
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_source_older_then_description
@@ -288,12 +306,17 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_validate_coordinated_names
-    true # see Protonym.rb for validation
+    true  # see validation in Protonym.rb
   end
 
   def sv_type_placement
     true  # see validation in Protonym.rb
   end
+
+  def sv_type_relationship
+    true  # see validation in Protonym.rb
+  end
+
 
   #endregion
 
