@@ -18,4 +18,8 @@ class TaxonNameClass
     []
   end
 
+  def self.disjoint_taxon_name_classes
+    []
+  end
+
 end

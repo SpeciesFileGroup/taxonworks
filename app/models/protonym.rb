@@ -269,7 +269,7 @@ class Protonym < TaxonName
         when 'TaxonNameRelationship::Typification::Genus::Monotypy'
           soft_validations.add(:base, "Please specify if the monotypy is original or subsequent")
         when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
-          soft_validations.add(:base, "Please specify if the tautonomy is absolute or Linnean")
+          soft_validations.add(:base, "Please specify if the tautonomy is absolute or Linnaean")
       end
     end
   end

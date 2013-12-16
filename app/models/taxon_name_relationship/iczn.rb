@@ -10,6 +10,11 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
     NomenclaturalRank::Iczn.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_taxon_name_relationships
+    TaxonNameRelationship::Icn.descendants.collect{|t| t.to_s} +
+    TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
+  end
+
   def self.assignable
     false
   end

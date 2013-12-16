@@ -7,20 +7,16 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, if: :is_typification?
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
-    :validate_valid_subject_and_object 
+    :validate_valid_subject_and_object
+    :validate_typification
 
   # TODO: refactor once housekeeping stabilizes
   before_validation :assign_houskeeping_if_possible, on: :create
 
   def is_combination?
-    !!/TaxonNameRelationship::(Original|)Combination/.match(self.type.to_s)
-  end
-
-  def is_typification?
-    self.type.to_s == TaxonNameRelationship::Typification.to_s
+    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
   end
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
@@ -40,12 +36,18 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
+  # left side
   def self.valid_subject_ranks
     []
   end
 
   # right_side
   def self.valid_object_ranks
+    []
+  end
+
+  # disjoint relationships for the taxon as a subject
+  def self.disjoint_taxon_name_relationships
     []
   end
 
@@ -113,4 +115,10 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
     end
   end
+
+  def validate_typification
+    #TODO: finish this (single typyfication per taxon)
+    Protonym.find(self_object_taxon_name_id).as_object_with_taxon_name_relationship_base('TaxonNameRelationship::Typification')
+  end
+
 end

@@ -1,5 +1,7 @@
 class TaxonNameClass::Icn < TaxonNameClass
-  def self.applicable_ranks
-    ICN.collect{|t| t.to_s}
+
+  def self.disjoint_taxon_name_classes
+    TaxonNameClass::Iczn.descendants.collect{|t| t.to_s}
   end
+
 end
