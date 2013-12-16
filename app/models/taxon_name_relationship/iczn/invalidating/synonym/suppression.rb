@@ -10,4 +10,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.to_s]
   end
 
+  def self.assignment_method
+    # aus.iczn_suppression = bus
+    :iczn_suppression
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_suppression_of(aus)
+    :set_as_iczn_suppression_of
+  end
+
 end

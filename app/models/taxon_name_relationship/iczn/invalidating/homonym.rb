@@ -8,8 +8,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
         [TaxonNameRelationship::Iczn::Invalidating.to_s]
   end
 
-  def self.assignable
-    true
+  def self.assignment_method
+    # aus.iczn_homonym = bus
+    :iczn_homonym
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_homonym_of(aus)
+    :set_as_iczn_homonym_of
   end
 
 end

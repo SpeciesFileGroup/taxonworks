@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Typification < TaxonNameRelationship
 
+  validates_uniqueness_of :object_taxon_name_id
+
   def self.assignable
     false
   end

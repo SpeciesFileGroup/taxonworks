@@ -10,7 +10,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object
-    :validate_typification
+
 
   # TODO: refactor once housekeeping stabilizes
   before_validation :assign_houskeeping_if_possible, on: :create
@@ -56,7 +56,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_name
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type) ? self.type.to_s : nil
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
   end
 
   def type_class=(value)
@@ -116,9 +116,5 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  def validate_typification
-    #TODO: finish this (single typyfication per taxon)
-    Protonym.find(self_object_taxon_name_id).as_object_with_taxon_name_relationship_base('TaxonNameRelationship::Typification')
-  end
 
 end

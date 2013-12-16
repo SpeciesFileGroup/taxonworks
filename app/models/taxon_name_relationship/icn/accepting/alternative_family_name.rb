@@ -14,4 +14,15 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
     true
   end
 
+  def self.assignment_method
+    # aus.icn_alternative_family_name = bus
+    :icn_alternative_family_name
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_icn_alternative_family_name_of(aus)
+    :set_as_icn_alternative_family_name_of
+  end
+
 end

@@ -9,4 +9,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
         [TaxonNameRelationship::Iczn::Invalidating.to_s]
   end
 
+  def self.assignable
+    false
+  end
+
 end

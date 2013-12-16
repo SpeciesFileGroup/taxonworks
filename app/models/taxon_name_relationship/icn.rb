@@ -1,4 +1,5 @@
 class TaxonNameRelationship::Icn < TaxonNameRelationship
+  validates_uniqueness_of :subject_taxon_name_id, scope: :type
 
   # left_side
   def self.valid_subject_ranks
@@ -13,10 +14,6 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
   def self.disjoint_taxon_name_relationships
     TaxonNameRelationship::Iczn.descendants.collect{|t| t.to_s} +
     TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
-  end
-
-  def self.assignable
-    false
   end
 
 end

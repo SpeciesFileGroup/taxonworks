@@ -165,6 +165,14 @@ describe Protonym do
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@s.type_of_relationships.first.object_taxon_name).to eq(@g)
     end
+    specify 'synonym has at most one valid name' do
+      genus = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @f)
+      @o.iczn_subjective_synonym = genus
+      expect(@g.save).to be_true
+      @g.iczn_synonym = genus
+      expect(@g.save).to be_true
+      expect(TaxonNameRelationship.where_subject_is_taxon_name(genus).count).to be(1)
+    end
   end
 
   context 'validation' do

@@ -5,4 +5,15 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
         TaxonNameRelationship::Icn::Unaccepting::Usage.descendants.collect{|t| t.to_s}
   end
 
+  def self.assignment_method
+    # aus.icn_homonym = bus
+    :icn_homonym
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_icn_homonym_of(aus)
+    :set_as_icn_homonym_of
+  end
+
 end

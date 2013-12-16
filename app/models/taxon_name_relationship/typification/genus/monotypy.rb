@@ -19,13 +19,8 @@ class TaxonNameRelationship::Typification::Genus::Monotypy < TaxonNameRelationsh
         [TaxonNameRelationship::Typification::Genus::SubsequentDesignation.to_s]
   end
 
-
   def self.assignment_method
     :type_species_by_monotypy 
-  end
-
-  def self.assignable
-    true
   end
 
 end

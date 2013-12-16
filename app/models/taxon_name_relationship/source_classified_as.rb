@@ -1,6 +1,6 @@
 class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNameRelationship::OriginalCombination
 
-  validates_uniqueness_of :object_taxon_name_id, scope: :type
+  validates_uniqueness_of :subject_taxon_name_id
 
   # left_side
   def self.valid_subject_ranks

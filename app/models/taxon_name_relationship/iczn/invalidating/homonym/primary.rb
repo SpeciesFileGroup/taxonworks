@@ -7,4 +7,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
         [TaxonNameRelationship::Iczn::Invalidating::Homonym.to_s]
   end
 
+  def self.assignment_method
+    # aus.iczn_primary_homonym = bus
+    :iczn_primary_homonym
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_primary_homonym_of(aus)
+    :set_as_iczn_primary_homonym_of
+  end
+
 end

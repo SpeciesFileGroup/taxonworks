@@ -7,4 +7,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.to_s]
   end
 
+  def self.assignment_method
+    # aus.iczn_unjustified_emendation = bus
+    :iczn_unjustified_emendation
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_unjustified_emendation_of(aus)
+    :set_as_iczn_unjustified_emendation
+  end
+
 end

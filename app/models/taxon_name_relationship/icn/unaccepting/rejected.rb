@@ -5,4 +5,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Rejected < TaxonNameRelationship:
         TaxonNameRelationship::Icn::Unaccepting::Usage.descendants.collect{|t| t.to_s}
   end
 
+  def self.assignment_method
+    # aus.icn_rejected = bus
+    :icn_rejected
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_icn_rejected_of(aus)
+    :set_as_icn_rejected_of
+  end
+
 end

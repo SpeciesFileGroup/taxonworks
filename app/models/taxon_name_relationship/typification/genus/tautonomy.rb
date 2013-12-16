@@ -19,13 +19,8 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
         [TaxonNameRelationship::Typification::Genus::SubsequentDesignation.to_s]
   end
 
-
   def self.assignment_method
     :type_species_by_tautonomy
-  end
-
-  def self.assignable
-    true
   end
 
 end

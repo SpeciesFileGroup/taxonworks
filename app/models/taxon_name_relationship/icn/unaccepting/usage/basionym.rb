@@ -6,8 +6,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelati
         [TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication.to_s]
   end
 
-  def self.assignable
-    true
+  def self.assignment_method
+    # aus.icn_basionym = bus
+    :icn_basionym
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_icn_basionym_of(aus)
+    :set_as_icn_basionym_of
   end
 
 end

@@ -4,4 +4,9 @@ class TaxonNameRelationship::Iczn::Validating::ReinstatedName < TaxonNameRelatio
     true
   end
 
+  def self.assignment_method
+    # aus.iczn_reinstated_name = bus
+    :iczn_reinstated_name
+  end
+
 end

@@ -10,4 +10,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
   end
 
+  def self.assignment_method
+    # aus.iczn_subjective_synonym = bus
+    :iczn_subjective_synonym
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_subjective_synonym_of(aus)
+    :set_as_iczn_subjective_synonym_of
+  end
+
 end

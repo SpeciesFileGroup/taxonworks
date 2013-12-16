@@ -4,4 +4,9 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
     true
   end
 
+  def self.assignment_method
+    # aus.iczn_uncertain_placement = Family
+    :iczn_uncertain_placement
+  end
+
 end

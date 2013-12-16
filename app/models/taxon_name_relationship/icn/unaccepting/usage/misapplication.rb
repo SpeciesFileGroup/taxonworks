@@ -6,8 +6,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
         [TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling.to_s]
   end
 
-  def self.assignable
-    true
+  def self.assignment_method
+    # aus.icn_misapplication = bus
+    :icn_misapplication
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_icn_misapplication_of(aus)
+    :set_as_icn_misapplication_of
   end
 
 end

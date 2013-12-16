@@ -10,4 +10,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
   end
 
+  def self.assignment_method
+    # aus.iczn_forgotten_name = bus
+    :iczn_forgotten_name
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    # bus.set_as_iczn_forgotten_name_of(aus)
+    :set_as_iczn_forgotten_name_of
+  end
+
 end
