@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Attribute::Import do
-  let (:attribute) {Attribute::Import.new}
+describe DataAttribute::ImportAttribute do
+  let (:attribute) {DataAttribute::ImportAttribute.new}
 
   context 'validation' do
     before(:each) {
