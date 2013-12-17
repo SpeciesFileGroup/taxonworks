@@ -10,8 +10,11 @@ class TaxonName < ActiveRecord::Base
   belongs_to :source 
  
   has_many :taxon_name_classifications
+
+  #relationships as a subject
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
 
+  #relationships as an object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
@@ -19,6 +22,7 @@ class TaxonName < ActiveRecord::Base
 
   include SoftValidation
   soft_validate(:sv_missing_fields)
+  soft_validate(:sv_validate_disjoint_relationships)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -291,6 +295,14 @@ class TaxonName < ActiveRecord::Base
       end
     end
     return true
+  end
+
+  def sv_validate_disjoint_relationships
+    relationships = self.taxon_name_relationships
+    relationship_names = relationships.map{|i| i.type_name}
+    disjoint_relationships = relationships.map{|i| i.type_class.disjoint_taxon_name_relationships}.flatten
+    compare = disjoint_relationships & relationship_names
+    soft_validations.add(:base, 'Taxon has inappropriate relationships') if compare.count != 0
   end
 
   def sv_validate_parent_rank

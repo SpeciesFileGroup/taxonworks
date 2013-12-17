@@ -171,7 +171,7 @@ describe Protonym do
       expect(@g.save).to be_true
       @g.iczn_synonym = genus
       expect(@g.save).to be_true
-      expect(TaxonNameRelationship.where_subject_is_taxon_name(genus).count).to be(1)
+      expect(genus.taxon_name_relationships.count).to be(1)
     end
   end
 
