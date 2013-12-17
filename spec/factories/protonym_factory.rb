@@ -37,7 +37,7 @@ FactoryGirl.define do
     end
 
 
-    # Relationship provided
+    # Relationship provided factories with short hierarchy
     factory :relationship_family, class: Protonym do
       name 'Erythroneuridae'
       association :parent, factory: :iczn_kingdom
@@ -62,12 +62,7 @@ FactoryGirl.define do
       rank_class Ranks.lookup(:iczn, 'SPECIES')
     end
 
-    # ICZN taxa
-    factory :valid_protonym do
-      name 'Aidae'
-      rank_class Ranks.lookup(:iczn, 'Family')
-      association :parent, factory: :root_taxon_name
-    end
+    # root
 
     factory :root_taxon_name do
       name 'Root'
