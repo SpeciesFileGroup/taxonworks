@@ -6,7 +6,7 @@ shared_examples 'notable' do
   context 'associations' do
     context 'has_many' do 
       specify 'notes' do
-        expect(class_with_note).to respond_to(:notes) # tests that the method citations exists 
+        expect(class_with_note).to respond_to(:notes) # tests that the method notations exists
         expect(class_with_note.notes).to have(0).things
       end
     end

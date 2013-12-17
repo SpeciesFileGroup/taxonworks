@@ -290,13 +290,14 @@ class Source::Bibtex < Source
 
 #region ruby-bibtex related
 
-  def to_bibtex
+  def to_bibtex  # outputs BibTeX::Entry equivalent to me.
     b = BibTeX::Entry.new(type: self.bibtex_type)
     ::BIBTEX_FIELDS.each do |f|
       if !(f == :bibtex_type) && (!self[f].blank?)
         b[f] = self.send(f)
       end
     end
+    # TODO add conversion of identiifers to ruby-bibtex fields, & notations to notes field.
     b
   end
 
@@ -305,6 +306,7 @@ class Source::Bibtex < Source
   end
 
   def self.new_from_bibtex(bibtex_entry)
+# TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(
         bibtex_type: bibtex_entry.type.to_s,
@@ -359,7 +361,8 @@ class Source::Bibtex < Source
       end
     end
     return true
-  end
+
+   end
 
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
@@ -547,9 +550,10 @@ class Source::Bibtex < Source
   end
 
   def sv_has_url
-    if (self.URL.blank?)
-      soft_validations.add(:URL, 'There is no URL associated with this source.')
-    end
+    # TODO need to be converted to check for a URL identifier
+    #if (self.URL.blank?)
+    #  soft_validations.add(:URL, 'There is no URL associated with this source.')
+    #end
   end
 
   def sv_has_note

@@ -1,4 +1,5 @@
 # these are the bibtex fields that TW will support
+# TODO Check if the capitals need to be converted to lower case?
 BIBTEX_FIELDS = [
     :address,
     :annote,
