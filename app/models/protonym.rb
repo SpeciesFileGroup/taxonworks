@@ -74,6 +74,12 @@ class Protonym < TaxonName
 
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
 
+  scope :that_is_valid, -> { 
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
+    # joins('LEFT OUTER JOIN taxon_name_classifications tnc ON taxon_names.id = tnc.taxon_name_id').
+    where('( (tnr.type NOT LIKE "TaxonNameRelationship::Iczn::Invalidating%" AND tnr.type NOT LIKE "TaxonNameRelationship::Icn::Unaccepting%") OR tnr.type IS NULL )') # AND (( tnc.type NOT LIKE "" AND tnc.type NOT LIKE "") OR tnc.type is null)) OR (tnr.id IS NULL AND tnc.id IS NULL)
+  }
+
   soft_validate(:sv_source_older_then_description)
   soft_validate(:sv_validate_parent_rank)
   soft_validate(:sv_missing_relationships)
