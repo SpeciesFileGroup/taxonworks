@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Attribute::Internal do
-  let (:attribute) {Attribute::Internal.new}
+describe DataAttribute::InternalAttribute do
+  let (:attribute) {DataAttribute::InternalAttribute.new}
 
   context 'validation' do
     before(:each) {

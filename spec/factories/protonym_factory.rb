@@ -1,5 +1,10 @@
 # Notes:
-#  - if you want to .create a protonym and not build the related ancestors ancestors set the parent to nil
+# - if you want to .create a protonym and not build the related ancestors set the parent to nil
+# - parent is a required field, only rank_class NomenclaturalRank does not.
+# - Use     :valid_protonym - for basic relationships without hierarchy
+# - Use     :relationship_species, :relationship_genus, or :relationship_family for basic hierarchy.
+# - FactoryGirl.build(:relationship_species) will build a hierarchy with genus, family, kingdom and root relationships.
+
 FactoryGirl.define do
 
   trait :mostly_empty_protonym do
@@ -24,7 +29,15 @@ FactoryGirl.define do
 
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
-    # Relationship provided
+    #valid_protonym
+    factory :valid_protonym, traits: [:parent_is_root] do
+      name 'Root'
+      rank_class NomenclaturalRank
+      parent_id nil
+    end
+
+
+    # Relationship provided factories with short hierarchy
     factory :relationship_family, class: Protonym do
       name 'Erythroneuridae'
       association :parent, factory: :iczn_kingdom
@@ -49,16 +62,11 @@ FactoryGirl.define do
       rank_class Ranks.lookup(:iczn, 'SPECIES')
     end
 
-    # ICZN taxa
-    factory :valid_protonym do
-      name 'Aidae'
-      rank_class Ranks.lookup(:iczn, 'Family')
-      association :parent, factory: :root_taxon_name
-    end
+    # root
 
     factory :root_taxon_name do
       name 'Root'
-      rank_class  NomenclaturalRank
+      rank_class NomenclaturalRank
       parent_id nil
     end
 
@@ -66,7 +74,6 @@ FactoryGirl.define do
 
     factory :iczn_kingdom, traits: [:parent_is_root] do
       name 'Animalia'
-      cached_higher_classification 'Animalia'
       rank_class Ranks.lookup(:iczn, 'kingdom')
     end
 

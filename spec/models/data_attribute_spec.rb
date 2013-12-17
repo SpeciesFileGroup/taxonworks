@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Attribute do
-  let (:attribute) {Attribute.new}
+describe DataAttribute do
+  let (:attribute) {DataAttribute.new}
 
   context 'validation' do
     before(:each) {

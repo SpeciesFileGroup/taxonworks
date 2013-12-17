@@ -10,7 +10,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object
-
+    :validate_uniqueness_of_synonym_subject
 
   # TODO: refactor once housekeeping stabilizes
   before_validation :assign_houskeeping_if_possible, on: :create
@@ -23,6 +23,9 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
+  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :not_self, -> (id) {where('id != ?', self.id)}
 
   def aliases
     []
@@ -115,6 +118,13 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
     end
   end
+
+  def validate_uniqueness_of_synonym_subject
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self.count > 0
+      errors.add(:subject_taxon_name_id, "Only one synonym relationship is allowed")
+    end
+  end
+
 
 
 end

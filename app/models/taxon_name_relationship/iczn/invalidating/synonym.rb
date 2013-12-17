@@ -1,7 +1,5 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship::Iczn::Invalidating
 
-  validates_uniqueness_of :subject_taxon_name_id
-
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         TaxonNameRelationship::Iczn::Invalidating::Usage.descendants.collect{|t| t.to_s} +
