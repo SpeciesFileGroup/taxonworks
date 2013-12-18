@@ -61,8 +61,8 @@ describe TaxonName do
         end
 
         specify 'respond to unavailable_or_invalid' do
-          relationship = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
-          relationship.save
+          relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+          expect(relationship.save).to be_true
           expect(@type_of_genus.unavailable_or_invalid?).to be_false
           expect(@original_genus.unavailable_or_invalid?).to be_true
         end
@@ -314,24 +314,19 @@ describe TaxonName do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus)
         r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Validating::ReplacementName)
-
-        #s.original_combination_genus = g
-        #expect(s.save).to be_true
-        #s.reload
-        #g.type_species = s
-        #expect(g.save).to be_true
-        #@species.iczn_replacement_name = s
-        #expect(s.save).to be_true
-        expect(s.taxon_name_relationships.count).to be(2)
+        expect(r1.save).to be_true
+        expect(r2.save).to be_true
+        expect(r3.save).to be_true
+        expect(s.taxon_name_relationships.count).to eq(2)
         s.soft_validate
         expect(s.soft_validations.messages_on(:base).empty?).to be_true
         r4 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
-        #@species.iczn_synonym = s
-        #expect(s.save).to be_true
-        expect(s.taxon_name_relationships.count).to be(3)
+        expect(r4.save).to be_true
+        s.reload
+        expect(s.taxon_name_relationships.count).to eq(3)
         s.soft_validate
-        expect(s.soft_validations.messages_on(:base).count).to be(1)
-
+        expect(s.soft_validations.messages_on(:base).count).to eq(1)
+        r3.valid?
       end
     end
   end

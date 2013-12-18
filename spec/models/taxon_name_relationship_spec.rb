@@ -2,15 +2,20 @@ require 'spec_helper'
 
 describe TaxonNameRelationship do
 
-#  let(:taxon_name_relationship) { TaxonNameRelationship.new }
-
   context 'Taxon Name relationships' do
     context 'requires' do
       before(:all) do
+        TaxonName.delete_all
+        TaxonNameRelationship.delete_all
         @taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
         @taxon_name_relationship.valid?
         @species = FactoryGirl.create(:relationship_species)
         @genus = @species.ancestor_at_rank('genus')
+      end
+
+      after(:all) do
+        TaxonName.delete_all
+        TaxonNameRelationship.delete_all
       end
 
       context 'associations' do
@@ -87,6 +92,28 @@ describe TaxonNameRelationship do
             @taxon_name_relationship.valid?
             expect(@taxon_name_relationship.errors.include?(:typification)).to be_false
           end
+        end
+
+        context 'relationships' do
+          specify 'has only one synonym relationship' do
+            s = FactoryGirl.create(:iczn_species, parent: @genus)
+            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+            expect(r1.valid?).to be_true
+            expect(r1.errors.include?(:subject_taxon_name_id)).to be_false
+            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
+            r2.valid?
+            expect(r2.errors.include?(:subject_taxon_name_id)).to be_true
+          end
+          specify 'has only one type relationship' do
+            s = FactoryGirl.create(:iczn_species, parent: @genus)
+            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: TaxonNameRelationship::Typification::Genus)
+            expect(r1.valid?).to be_true
+            expect(r1.errors.include?(:object_taxon_name_id)).to be_false
+            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: TaxonNameRelationship::Typification::Genus::Monotypy)
+            r2.valid?
+            expect(r2.errors.include?(:object_taxon_name_id)).to be_true
+          end
+
         end
       end
     end
