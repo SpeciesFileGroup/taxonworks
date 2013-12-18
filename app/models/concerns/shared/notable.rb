@@ -2,18 +2,13 @@ module Shared::Notable
   extend ActiveSupport::Concern
 
   included do
-    has_many :notes
+    has_many :notes, as: :note_object
   end 
 
   module ClassMethods
-    def notes(notable_obj_id)
-      # return an array of notes attached to the notable obj
-      Note.where(:note_object_id => notable_obj_id)
-    end
   end
 
-  def has_notations?(notable_obj_id)
-    return true if notes(notable_obj_id).count > 0
-    return false
+  def has_notations?
+    self.notes.count > 0
   end
 end

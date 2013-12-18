@@ -306,6 +306,7 @@ describe Source::Bibtex do
       end
     end
 
+
     specify 'test nomenclature_date generation' do
       @source_bibtex.year = '1984'
       expect(@source_bibtex.save).to be_true
@@ -336,6 +337,7 @@ describe Source::Bibtex do
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775,2,12))
     end
 
+    Source.delete_all
     specify 'sort an array of source by nomenclatural date' do
       @source_bibtex.year = 2002 # source_bibtex has no date
       expect(@source_bibtex.save).to be_true
