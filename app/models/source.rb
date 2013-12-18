@@ -1,5 +1,4 @@
 class Source < ActiveRecord::Base
-
   include Housekeeping::Users
   include Shared::Identifiable
   include Shared::HasRoles
