@@ -44,7 +44,7 @@ describe Otu do
   end
 
   context 'concerns' do
-    # it_behaves_like 'citable' => maybe  
+    # it_behaves_like 'citable' # => maybe  
     it_behaves_like 'identifiable'
     it_behaves_like 'data_attributes'
   end

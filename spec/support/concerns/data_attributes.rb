@@ -6,18 +6,26 @@ shared_examples 'data_attributes' do
 
   context 'associations' do
     specify 'has many data_attributes - includes creating a data_attribute' do
-      expect(class_with_data_attributess).to respond_to(:data_attributes) 
-      expect(class_with_data_attributess.data_attributes.to_a).to eq([]) 
-
-      expect(class_with_data_attributess.data_attributes << FactoryGirl.build(:data_attribute, value: 10, import_predicate: 'foos')).to be_true
-      expect(class_with_data_attributess.data_attributes).to have(1).things
-      expect(class_with_data_attributess.save).to be_true
+      expect(class_with_data_attributes).to respond_to(:data_attributes) 
+      expect(class_with_data_attributes.data_attributes.to_a).to eq([]) 
+      expect(class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_true
+      expect(class_with_data_attributes.data_attributes).to have(1).things
+      expect(class_with_data_attributes.save).to be_true
     end
   end
 
   context 'methods' do
     specify 'has_data_attributes?' do
-      expect(class_with_data_attributess.has_data_attributes?).to eq(false)
+      expect(class_with_data_attributes.has_data_attributes?).to eq(false)
+    end
+
+    specify 'keyword_value_hash' do
+      class_with_data_attributes.data_attributes.delete_all # sanity
+      class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute_import_attribute, value: '10', import_predicate: 'legs')
+      expect(class_with_data_attributes.data_attributes).to have(1).things
+      expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10')
+      class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute)
+      expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10', 'Color' => 'purple')
     end
   end
 end

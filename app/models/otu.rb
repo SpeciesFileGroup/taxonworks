@@ -5,6 +5,7 @@ class Otu < ActiveRecord::Base
   # include Shared::Citable        # TODO: have to think hard about this vs. using Nico's framework
   include Shared::Notable
   include Shared::DataAttributes
+  include Shared::Citable
 
   has_many :taxon_determinations
 

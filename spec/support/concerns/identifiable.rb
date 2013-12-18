@@ -1,6 +1,6 @@
 shared_examples "identifiable" do
 
-  let(:identifiable_class) {described_class.new()}
+  let(:identifiable_class) {FactoryGirl.create("valid_#{described_class.name.tableize.singularize.gsub('/', '_')}".to_sym)}
 
   context "reflections / foreign keys" do
     specify "has many identifiers" do
@@ -12,7 +12,6 @@ shared_examples "identifiable" do
     specify "identified?" do
       expect(identifiable_class.identified?).to eq(false)
     end
-
   end
 end
 

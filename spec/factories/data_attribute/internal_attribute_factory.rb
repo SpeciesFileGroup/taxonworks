@@ -1,6 +1,8 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
 FactoryGirl.define do
-  factory :data_attribute_internal_attribute, :class => 'DataAttribute::InternalAttribute', traits: [:housekeeping] do
+  factory :data_attribute_internal_attribute, class: DataAttribute::InternalAttribute, traits: [:housekeeping] do
+    factory :valid_data_attribute_internal_attribute do
+      value 'purple'
+      association :predicate, factory: :valid_controlled_vocabulary_term_predicate
+    end
   end
 end

@@ -1,8 +1,8 @@
 FactoryGirl.define do
   factory :data_attribute do
-    factory :valid_attribute do
-      type "DataAttribute::Import"
-      association :attribute_subject, factory: :valid_specimen
+    factory :valid_data_attribute do
+      type "DataAttribute::ImportAttribute"
+      association :attribute_subject, factory: :valid_otu
       import_predicate "hair color"
       value "black"
     end
