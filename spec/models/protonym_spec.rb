@@ -202,15 +202,6 @@ describe Protonym do
       @subgenus.source = @genus.source
       @subgenus.save
 
-      @kingdom.soft_validate
-      @family.soft_validate
-      @subfamily.soft_validate
-      @tribe.soft_validate
-      @subtribe.soft_validate
-      @genus.soft_validate
-      @subgenus.soft_validate
-      @species.soft_validate
-
       @source = FactoryGirl.create(:valid_bibtex_source, year: 1940, author: 'Dmitriev')
     end
 
@@ -218,13 +209,13 @@ describe Protonym do
       specify 'parent rank should be valid' do
         taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
         taxa.each do |t|
-          t.soft_validate
+          t.soft_validate(:promblematic_relationships)
           expect(t.soft_validations.messages_on(:rank_class).empty?).to be_true
         end
       end
       specify 'invalid parent rank' do
         t = FactoryGirl.build(:iczn_subgenus, parent: @family)
-        t.soft_validate
+        t.soft_validate(:promblematic_relationships)
         expect(t.soft_validations.messages_on(:rank_class).empty?).to be_false
       end
     end
@@ -232,31 +223,33 @@ describe Protonym do
     context 'year and source do not match' do
       specify 'A taxon had not been described at the date of the reference' do
         p = FactoryGirl.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: @source, parent: @genus)
-        p.soft_validate
+        p.soft_validate(:promblematic_relationships)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_true
         p.year_of_publication = 2000
-        p.soft_validate
+        p.soft_validate(:promblematic_relationships)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_false
       end
       specify 'A combination is older than the taxon' do
         c = FactoryGirl.create(:species_combination, year_of_publication: 1850, source: @source)
-        c.soft_validate
+        c.soft_validate(:promblematic_relationships)
         expect(c.soft_validations.messages_on(:source_id).empty?).to be_false
         expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_false
         c.year_of_publication = 1940
         expect(c.save).to be_true
-        c.soft_validate
+        c.soft_validate(:promblematic_relationships)
         expect(c.soft_validations.messages_on(:source_id).empty?).to be_true
       end
     end
 
     context 'missing_fields' do
       specify "source author, year are missing" do
+          @species.soft_validate(:missing_fields)
           expect(@species.soft_validations.messages_on(:source_id).empty?).to be_true
           expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
         end
       specify 'author and year are missing' do
+        @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
       end
@@ -264,11 +257,11 @@ describe Protonym do
           @source.update(year: 1758, author: 'Linnaeus')
           @source.save
           @kingdom.source = @source
-          @kingdom.soft_validate
+          @kingdom.soft_validate(:missing_fields)
           expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
           expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
           @kingdom.fix_soft_validations  # get author and year from the source
-          @kingdom.soft_validate
+          @kingdom.soft_validate(:missing_fields)
           expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
           expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
           expect(@kingdom.verbatim_author).to eq('Linnaeus')
@@ -282,9 +275,8 @@ describe Protonym do
         sgen.original_combination_genus = @genus
         expect(sgen.save).to be_true
         @genus.reload
-        #sgen.type_species = @genus.type_species
-        @genus.soft_validate
-        sgen.soft_validate
+        @genus.soft_validate(:coordinated_names)
+        sgen.soft_validate(:coordinated_names)
         #genus and subgenus have different author
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         #genus and subgenus have different year
@@ -295,8 +287,8 @@ describe Protonym do
         sgen.fix_soft_validations
 
         #@genus.reload
-        @genus.soft_validate
-        sgen.soft_validate
+        @genus.soft_validate(:coordinated_names)
+        sgen.soft_validate(:coordinated_names)
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_true
@@ -306,8 +298,8 @@ describe Protonym do
         genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_true
-        @subfamily.soft_validate
-        tribe.soft_validate
+        @subfamily.soft_validate(:coordinated_names)
+        tribe.soft_validate(:coordinated_names)
         #author in tribe and subfamily are different
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         #year in tribe and subfamily are different
@@ -317,7 +309,7 @@ describe Protonym do
 
         tribe.fix_soft_validations
 
-        tribe.soft_validate
+        tribe.soft_validate(:coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_true
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_true
@@ -352,6 +344,8 @@ describe Protonym do
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'type species or genus' do
+        @genus.soft_validate(:missing_relationships)
+        @family.soft_validate(:missing_relationships)
         expect(@genus.soft_validations.messages_on(:base).include?('Type species is not selected')).to be_true
         expect(@family.soft_validations.messages_on(:base).include?('Type genus is not selected')).to be_true
       end
@@ -361,13 +355,13 @@ describe Protonym do
       specify 'inapropriate type genus' do
         gen = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
         @family.type_genus = gen
-        @family.soft_validate
+        @family.soft_validate(:missing_relationships)
         #family and type genus start in different first leter
         expect(@family.soft_validations.messages_on(:base).empty?).to be_false
         gen.name = 'Cus'
         expect(gen.save).to be_true
         expect(@family.save).to be_true
-        @family.soft_validate
+        @family.soft_validate(:missing_relationships)
         expect(@family.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'type genus in wrong subfamily' do
