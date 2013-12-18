@@ -308,10 +308,25 @@ class Protonym < TaxonName
     p = self.parent
     begin
       Protonym.transaction do
-        t = Protonym.new(name: p.name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source_id: p.source_id)
+        if rank =~ /Family/
+          name = Protonym.family_group_base(self.parent.name)
+          case self.rank_class.rank_name
+            when 'subfamily'
+              name += 'inae'
+            when 'tribe'
+              name += 'ini'
+            when 'subtribe'
+              name += 'ina'
+          end
+        else
+          name = [p.name]
+        end
+
+        t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source_id: p.source_id, parent: p)
         t.save
         t.soft_validate
         t.fix_soft_validations
+        foo = 0
         return true
       end
     rescue
