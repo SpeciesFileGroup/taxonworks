@@ -205,6 +205,12 @@ describe Protonym do
       @source = FactoryGirl.create(:valid_bibtex_source, year: 1940, author: 'Dmitriev')
     end
 
+    context 'validat project_id' do
+      specify 'project_id = 1' do
+        expect(@subspecies.project_id).to eq(1)
+      end
+    end
+
     context 'valid parent rank' do
       specify 'parent rank should be valid' do
         taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
