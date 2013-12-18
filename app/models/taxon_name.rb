@@ -21,8 +21,8 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   include SoftValidation
-  soft_validate(:sv_missing_fields)
-  soft_validate(:sv_validate_disjoint_relationships)
+  soft_validate(:sv_missing_fields, set: :missing_fields)
+  soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -272,13 +272,14 @@ class TaxonName < ActiveRecord::Base
         begin
           TaxonName.transaction do
             self.save
+            return true
           end
         rescue
           return false
         end
       end
     end
-    return true
+    return false
   end
 
   def sv_fix_missing_year
@@ -288,13 +289,14 @@ class TaxonName < ActiveRecord::Base
         begin
           TaxonName.transaction do
             self.save
+            return true
           end
         rescue
           return false
         end
       end
     end
-    return true
+    return false
   end
 
   def sv_validate_disjoint_relationships

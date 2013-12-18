@@ -332,8 +332,7 @@ class Protonym < TaxonName
     rescue
       return false
     end
-
-
+    return false
   end
 
 
