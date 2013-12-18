@@ -306,6 +306,7 @@ describe Source::Bibtex do
       end
     end
 
+
     specify 'test nomenclature_date generation' do
       @source_bibtex.year = '1984'
       expect(@source_bibtex.save).to be_true
@@ -337,6 +338,7 @@ describe Source::Bibtex do
     end
 
     specify 'sort an array of source by nomenclatural date' do
+      Source.delete_all
       @source_bibtex.year = 2002 # source_bibtex has no date
       expect(@source_bibtex.save).to be_true
       @source_bibtex = FactoryGirl.build(:valid_bibtex_source_book_title_only)  # no date

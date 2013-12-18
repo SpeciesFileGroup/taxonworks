@@ -201,7 +201,7 @@
 
 class Source::Bibtex < Source
   include SoftValidation
-  include Shared::Notable
+#  include Shared::Notable in source.rb
 #
 # @!attribute publisher
 # @!attribute school
