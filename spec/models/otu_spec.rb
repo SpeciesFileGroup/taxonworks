@@ -37,10 +37,6 @@ describe Otu do
     specify 'it should require a name or taxon_name_id'
   end
 
-  context 'concerns' do
-    it_behaves_like 'identifiable'
-  end
-
   context 'when I create a new OTU' do
     context 'and it only has taxon_name_id populated' do
       specify 'its cached_name should be the taxon name cached_name'
@@ -48,6 +44,8 @@ describe Otu do
   end
 
   context 'concerns' do
-   #  it_behaves_like 'citable' # - maybe.
+    # it_behaves_like 'citable' => maybe  
+    it_behaves_like 'identifiable'
+    it_behaves_like 'data_attributes'
   end
 end
