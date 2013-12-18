@@ -86,6 +86,7 @@ class Protonym < TaxonName
   soft_validate(:sv_type_placement)
   soft_validate(:sv_validate_coordinated_names)
   soft_validate(:sv_type_relationship)
+  soft_validate(:sv_single_sub_taxon)
 
   #region Soft validation
 
@@ -279,6 +280,47 @@ class Protonym < TaxonName
       end
     end
   end
+
+  def sv_single_sub_taxon
+    rank = self.rank_class.to_s
+    if rank != 'nomenclatural rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
+      sisters = self.parent.descendants.with_rank_class(rank)
+      if rank =~ /Family/
+        z = Protonym.family_group_base(self.name)
+        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+        a = sisters.collect{|i| Protonym.family_group_base(i.name) }
+        sister_names = a.collect{|z| NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i} }.flatten
+      else
+        search_name = [self.name]
+        sister_names = sisters.collect{|i| i.name }
+      end
+      if search_name.include?(self.parent.name) && sisters.count == 1
+        soft_validations.add(:base, "This taxon is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name}")
+      elsif !sister_names.include?(self.parent.name)
+        soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name}",
+                             fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} was added to nominal #{self.parent.rank_class.rank_name}")
+      end
+    end
+  end
+
+  def sv_fix_add_nominotypical_sub
+    rank = self.rank_class.to_s
+    p = self.parent
+    begin
+      Protonym.transaction do
+        t = Protonym.new(name: p.name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source_id: p.source_id)
+        t.save
+        t.soft_validate
+        t.fix_soft_validations
+        return true
+      end
+    rescue
+      return false
+    end
+
+
+  end
+
 
   #endregion
 

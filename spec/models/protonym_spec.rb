@@ -325,11 +325,14 @@ describe Protonym do
 
     context 'missing relationships' do
       specify 'original genus' do
-        #missing original genus
+        #missing original genus and nominotypical subfamily
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
         g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba')
         @subfamily.type_genus = g
         expect(@subfamily.save).to be_true
+        @subfamily.soft_validate
+        @subfamily.fix_soft_validations
+        @subfamily.reload
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
@@ -387,6 +390,10 @@ describe Protonym do
         @genus.soft_validate
         expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
       end
+    end
+
+    context 'single sub taxon in the nominal' do
+      specify 'single nominotypical taxon'
     end
   end
 

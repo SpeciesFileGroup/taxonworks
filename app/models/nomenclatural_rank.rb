@@ -21,10 +21,10 @@ class NomenclaturalRank
   # Return a String with the "common" name for this rank. 
   def self.rank_name
     n = self.name.demodulize.underscore.humanize.downcase
-    if n == "nomenclatural rank"
-      n = "root"
-    elsif n == "class rank"
-      n = "class"
+    if n == 'nomenclatural rank'
+      n = 'root'
+    elsif n == 'class rank'
+      n = 'class'
     end
     n
   end

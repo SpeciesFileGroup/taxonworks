@@ -329,6 +329,9 @@ class TaxonName < ActiveRecord::Base
     true  # see validation in Protonym.rb
   end
 
+  def sv_single_sub_taxon
+    true # see validation in Protonym.rb
+  end
 
   #endregion
 
