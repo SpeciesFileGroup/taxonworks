@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Iczn::Validating::FirstRevisorAction < TaxonNameRelationship::Iczn::Validating
+class TaxonNameRelationship::Iczn::Nomenclatural::FirstRevisorAction < TaxonNameRelationship::Iczn::Nomenclatural
 
   def self.assignable
     true

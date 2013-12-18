@@ -313,7 +313,7 @@ describe TaxonName do
         s = FactoryGirl.create(:iczn_species, parent: g)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus)
-        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Validating::ReplacementName)
+        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Validating::ConservedName)
         expect(r1.save).to be_true
         expect(r2.save).to be_true
         expect(r3.save).to be_true

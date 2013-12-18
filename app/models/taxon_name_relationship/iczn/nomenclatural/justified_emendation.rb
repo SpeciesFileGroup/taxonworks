@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Iczn::Validating::JustifiedEmendation < TaxonNameRelationship::Iczn::Validating
+class TaxonNameRelationship::Iczn::Nomenclatural::JustifiedEmendation < TaxonNameRelationship::Iczn::Nomenclatural
 
   def self.assignable
     true
