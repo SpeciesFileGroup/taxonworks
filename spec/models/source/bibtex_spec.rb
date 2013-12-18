@@ -4,7 +4,7 @@ describe Source::Bibtex do
 
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
-  before(:all) do
+  before(:each) do
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
     @simple1_gem_bibtex = BibTeX::Entry.new()
     @simple2_gem_bibtex = BibTeX::Entry.new()
@@ -18,7 +18,7 @@ describe Source::Bibtex do
                                                  author: 'Smith, James', year: 1921)
   end
 
-  context 'testing BibTeX capabilities' do
+  context 'testing BibTeX bibliography capabilities' do
     specify 'the test file should have 42 records' do
       expect(@gem_bibtex_bibliography.size).to eq(42)
     end
@@ -102,10 +102,11 @@ describe Source::Bibtex do
     specify 'simple complex entity' do
       expect(@gem_bibtex_entry1).to eq(@gem_bibtex_entry2)
     end
+
   end
 
   context 'Ruby BibTeX related instance methods' do
-    before(:all) do
+    before(:each) do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
     end
 
@@ -117,6 +118,9 @@ describe Source::Bibtex do
     specify 'valid_bibtex?' do
       expect(@s.valid_bibtex?).to be_false
     end
+
+    pending 'test conversion of BibTeX::Entry with note to Source::Bibtex'
+    pending 'test conversion of BibTeX::Entry identifiers (URL, ISBN, etc) to Source::Bibtex with identifiers'
   end
 
   context 'validation - a valid Source::Bibtex' do
@@ -497,7 +501,7 @@ describe Source::Bibtex do
   context 'concerns' do
     it_behaves_like 'identifiable'
     it_behaves_like 'has_roles'
-    # it_behaves_like 'notable'
+    it_behaves_like 'notable'
   end
 
 end

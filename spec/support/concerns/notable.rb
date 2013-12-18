@@ -1,12 +1,13 @@
 shared_examples 'notable' do
 
   # use, create (class_with_note has to have an ID)
-  let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.underscore}".to_sym) }
+  #let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.underscore}".to_sym) }
+  let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.parameterize(sep='_')}".to_sym) }
 
   context 'associations' do
     context 'has_many' do 
       specify 'notes' do
-        expect(class_with_note).to respond_to(:notes) # tests that the method citations exists 
+        expect(class_with_note).to respond_to(:notes) # tests that the method notations exists
         expect(class_with_note.notes).to have(0).things
       end
     end
