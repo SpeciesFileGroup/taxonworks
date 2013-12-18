@@ -18,7 +18,7 @@ FactoryGirl.define do
    project {
      user = User.where( FactoryGirl.attributes_for(:test_user))
      if user.blank? 
-       u = FactoryGirl.create(:valid_user)
+       u = FactoryGirl.create(:valid_user, id: 1)
      else
        u = user.first
      end
