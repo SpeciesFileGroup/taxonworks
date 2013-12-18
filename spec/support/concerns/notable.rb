@@ -48,7 +48,7 @@ shared_examples 'notable' do
       end
     end
 
-    specify 'can not add a note to a non-existant attribute (column)' do
+    specify 'can not add a note to a non-existent attribute (column)' do
       expect(class_with_note.save).to be_true
       expect(class_with_note.notes.count == 0).to be_true
       bad_note = FactoryGirl.build(:note, text: 'foo')
@@ -64,8 +64,8 @@ shared_examples 'notable' do
   end
 
   context 'methods' do
-    specify 'has_notes?' do
-      expect(class_with_note.has_notes?).to eq(false)
+    specify 'has_notations?' do
+      expect(class_with_note.has_notations?).to eq(false)
     end
   end
 

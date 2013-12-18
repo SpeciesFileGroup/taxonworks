@@ -500,10 +500,6 @@ describe Source::Bibtex do
 
   end
 
-  context 'concerns' do
-    it_behaves_like 'identifiable'
-    it_behaves_like 'has_roles'
-    it_behaves_like 'notable'
-  end
+  # no bibtex specific concerns - all at source level
 
 end

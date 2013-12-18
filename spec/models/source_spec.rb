@@ -13,11 +13,6 @@ describe Source do
     end
   end
 
-  context "concerns" do
-    it_behaves_like 'identifiable'
-    it_behaves_like 'has_roles'
-  end
-
   context 'after save' do
     pending 'it should set a cached value'
     pending 'it should set a cached author year ?! Bibtex'
@@ -63,4 +58,11 @@ describe Source do
     pending 'find an identical record'
     pending 'find a similar record'
   end
+
+  context 'concerns' do
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
+    it_behaves_like 'has_roles'
+  end
+
 end

@@ -3,7 +3,7 @@ FactoryGirl.define do
     factory :valid_source do
       bibtex_type 'article'
       title 'article 1 just title'
-      type 'Source::BibtexSource'
+      type 'Source::Bibtex'
     end
   end
 end

@@ -3,6 +3,7 @@ class Source < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::HasRoles
   include Shared::Notable
+  include Shared::AlternateValues
   
   has_many :citations, inverse_of: :source
   has_many :cited_objects, through: :citations, source: :citation_object # not ordered
