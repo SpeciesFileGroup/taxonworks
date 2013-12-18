@@ -5,7 +5,7 @@ FactoryGirl.define do
      # build_stubbed(:valid_user)
      u = User.where( FactoryGirl.attributes_for(:test_user) )
      if u.blank? 
-       user = FactoryGirl.create(:valid_user)
+       user = FactoryGirl.create(:valid_user, id: 1)
      else
        user = u.first
      end
@@ -25,7 +25,7 @@ FactoryGirl.define do
 
      p = Project.where( FactoryGirl.attributes_for(:valid_project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
      if p.blank? 
-       FactoryGirl.create(:valid_project)
+       FactoryGirl.create(:valid_project, id: 1)
      else
        p.first
      end
