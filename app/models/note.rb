@@ -2,7 +2,8 @@ class Note < ActiveRecord::Base
   include Housekeeping
 
   belongs_to :note_object, polymorphic: true
-  validates_presence_of :note_object, :text
+  validates_presence_of :text
+  validates :note_object, presence: true
 
   before_validation :not_a_housekeeping_field
 
