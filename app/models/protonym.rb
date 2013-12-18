@@ -80,13 +80,13 @@ class Protonym < TaxonName
     where('( (tnr.type NOT LIKE "TaxonNameRelationship::Iczn::Invalidating%" AND tnr.type NOT LIKE "TaxonNameRelationship::Icn::Unaccepting%") OR tnr.type IS NULL )') # AND (( tnc.type NOT LIKE "" AND tnc.type NOT LIKE "") OR tnc.type is null)) OR (tnr.id IS NULL AND tnc.id IS NULL)
   }
 
-  soft_validate(:sv_source_older_then_description)
-  soft_validate(:sv_validate_parent_rank)
-  soft_validate(:sv_missing_relationships)
-  soft_validate(:sv_type_placement)
-  soft_validate(:sv_validate_coordinated_names)
-  soft_validate(:sv_type_relationship)
-  soft_validate(:sv_single_sub_taxon)
+  soft_validate(:sv_source_older_then_description, set: :promblematic_relationships)
+  soft_validate(:sv_validate_parent_rank, set: :promblematic_relationships)
+  soft_validate(:sv_missing_relationships, set: :missing_relationships)
+  soft_validate(:sv_type_placement, set: :type)
+  soft_validate(:sv_type_relationship, set: :type)
+  soft_validate(:sv_validate_coordinated_names, set: :coordinated_names)
+  soft_validate(:sv_single_sub_taxon, set: :coordinated_names)
 
   #region Soft validation
 
