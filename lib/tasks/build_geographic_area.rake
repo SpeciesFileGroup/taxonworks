@@ -27,22 +27,27 @@ namespace :tw do
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
     task :build_geographic_areas => :environment do
 
-      place    = ENV['place']
-      shapes   = ENV['shapes']
+      place     = ENV['place']
+      shapes    = ENV['shapes']
 
       # index is only expected to work for the GADM V2 shape file set: intended *only* as a
       # short-cut to a problem record.
-      index    = ENV['index']
+      index     = ENV['index']
+
+      # divisions is used to select only the processing of the division names in the GADM file.
+      Divisions = false
+
+      divisions = ENV['divisions']
 
       # build csv file list from 'place'
 
       # GenTable: set to true to generate the GeographicAreaType table here
-      GenTable = true
+      GenTable  = true
       # DoShape: set to true to include the reading of the shapes into the GeographicItem table;
       #          Otherwise, only the DBF files are used to populate the GeographicArea table
-      DoShape  = false
+      DoShape   = false
       # BaseDir: where to find the tables to be used
-      BaseDir  = '../shapes/'
+      BaseDir   = '../shapes/'
 
       if place.nil?
         base_dir = BaseDir
@@ -57,6 +62,12 @@ namespace :tw do
       end
 
       index = index.nil? ? 0 : index.to_i
+
+      if divisions.nil?
+        @divisions = Divisions
+      else
+        @divisions = true
+      end
 
       if GenTable
         build_gat_table
@@ -260,6 +271,8 @@ end
 def read_dbf(filenames)
 
   # things to do before any file
+
+  divisions = false
 
   # make sure the earth record exists and is available
 
@@ -525,30 +538,111 @@ def read_dbf(filenames)
                     "Shape_Leng" => 1.30495037416,
                     "Shape_Area" => 0.0798353069113}
 
-    gadm2.each { |item|
+    if divisions == true
+      gadm2.each { |item|
 
-      puts item.attributes
+        s0 = "#{item['OBJECTID']}: "
+
+        lvl1_type = item['ENGTYPE_1']
+        if lvl1_type != ''
+          if @lvl0_items[lvl1_type].nil?
+            @lvl0_items[lvl1_type] = 1
+          else
+            @lvl0_items[lvl1_type] += 1
+          end
+          s1 = "\'#{lvl1_type}\': #{@lvl0_items[lvl1_type]}, "
+        else
+          s1 = ''
+        end
+
+        lvl2_type = item['ENGTYPE_2']
+        if lvl2_type != ''
+          if @lvl0_items[lvl2_type].nil?
+            @lvl0_items[lvl2_type] = 1
+          else
+            @lvl0_items[lvl2_type] += 1
+          end
+          s2 = "\'#{lvl2_type}\': #{@lvl0_items[lvl2_type]}, "
+        else
+          s2 = ''
+        end
+
+        lvl3_type = item['ENGTYPE_3']
+        if lvl3_type != ''
+          if @lvl0_items[lvl3_type].nil?
+            @lvl0_items[lvl3_type] = 1
+          else
+            @lvl0_items[lvl3_type] += 1
+          end
+          s3 = "\'#{lvl3_type}\': #{@lvl0_items[lvl3_type]}, "
+        else
+          s3 = ''
+        end
+
+        lvl4_type = item['ENGTYPE_4']
+        if lvl4_type != ''
+          if @lvl0_items[lvl4_type].nil?
+            @lvl0_items[lvl4_type] = 1
+          else
+            @lvl0_items[lvl4_type] += 1
+          end
+          s4 = "\'#{lvl4_type}\': #{@lvl0_items[lvl4_type]}, "
+        else
+          s4 = ''
+        end
+
+        lvl5_type = item['ENGTYPE_5']
+        if lvl5_type != ''
+          if @lvl0_items[lvl5_type].nil?
+            @lvl0_items[lvl5_type] = 1
+          else
+            @lvl0_items[lvl5_type] += 1
+          end
+          s5 = "\'#{lvl5_type}\': #{@lvl0_items[lvl5_type]}, "
+        else
+          s5 = ''
+        end
+
+        # puts "#{s0} #{item['NAME_0']} => #{s1}#{s2}#{s3}#{s4}#{s5}"
+      }
+
+      @lvl0_items.sort_by { |name, count| count }.each { |item| puts "\"#{item[0]}\": #{item[1]}" }
+      @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items= {}, {}, {}, {}, {}, {}
+      # breakpoint.save
+    end
+
+    gadm2.each { |item|
 
       l0_name = item['NAME_0'].titlecase
 
-      l1_name = item['ID_1'].nil? ? '' : item['NAME_1'].titlecase
-      l2_name = item['ID_2'].nil? ? '' : item['NAME_2'].titlecase
-      l3_name = item['ID_3'].nil? ? '' : item['NAME_3'].titlecase
-      l4_name = item['ID_4'].nil? ? '' : item['NAME_4'].titlecase
-      l5_name = item['ID_5'].nil? ? '' : item['NAME_5'].titlecase
+      l0_id = item['ID_0']
+      l1_id = item['ID_1']
+      l2_id = item['ID_2']
+      l3_id = item['ID_3']
+      l4_id = item['ID_4']
+      l5_id = item['ID_5']
+
+      id_vector = [l0_id, l1_id, l2_id, l3_id, l4_id, l5_id]
+
+      # l1 always has a name
+      l1_name = item['NAME_1'].titlecase
+      l2_name = (l2_id == 0) ? '' : item['NAME_2'].titlecase
+      l3_name = (l3_id == 0) ? '' : item['NAME_3'].titlecase
+      l4_name = (l4_id == 0) ? '' : item['NAME_4'].titlecase
+      l5_name = (l5_id == 0) ? '' : item['NAME_5'].titlecase
 
       i5 = l5_name
-      s5 = i5.empty? ? '' : (i5 + ', ')
+      s5 = i5.empty? ? '' : ("\"" + i5 + "\", ")
       i4 = l4_name
-      s4 = i4.empty? ? '' : (i4 + ', ')
+      s4 = i4.empty? ? '' : ("\"" + i4 + "\", ")
       i3 = l3_name
-      s3 = i3.empty? ? '' : (i3 + ', ')
+      s3 = i3.empty? ? '' : ("\"" + i3 + "\", ")
       i2 = l2_name
-      s2 = i2.empty? ? '' : (i2 + ', ')
+      s2 = i2.empty? ? '' : ("\"" + i2 + "\", ")
       i1 = l1_name
-      s1 = i1.empty? ? '' : (i1 + ', ')
-      a1 = "\'#{s5}#{s4}#{s3}#{s2}#{s1}#{l0_name}\'."
-      puts a1
+      s1 = i1.empty? ? '' : ("\"" + i1 + "\", ")
+      a1 = "#{s5}#{s4}#{s3}#{s2}#{s1}\"#{l0_name}\"."
+      puts "#{item['OBJECTID']}: #{a1}"
 
       # look for a country named in the zero level
       l0 = @lvl0_items[l0_name]
@@ -693,10 +787,10 @@ def read_dbf(filenames)
     }
   end # of GADM processing
 
-  # breakpoint.save
+  breakpoint.save
 
   # save the g_a_types, so that they will be ready for the area record save.
-  @gat_list.each {|key, value|
+  @gat_list.each { |key, value|
     value.save
   }
 
