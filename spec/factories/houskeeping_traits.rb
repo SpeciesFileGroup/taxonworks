@@ -26,6 +26,8 @@ FactoryGirl.define do
      p = Project.where( FactoryGirl.attributes_for(:valid_project).merge(created_by_id: u.id, updated_by_id: u.id)  ) 
      if p.blank? 
        FactoryGirl.create(:valid_project, id: 1)
+     elsif !p.map(&:id).include?(1)
+       FactoryGirl.create(:valid_project, id: 1)
      else
        p.first
      end
