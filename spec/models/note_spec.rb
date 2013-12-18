@@ -19,19 +19,12 @@ describe Note do
 
     context 'required' do
       specify 'note_object (the thing that has the note)' do 
-        expect(note.errors.include?(:notable_object)).to be_true 
+        expect(note.errors.include?(:note_object)).to be_true
       end
 
       specify 'text' do
         expect(note.errors.include?(:text)).to be_true 
       end
     end
-
-    specify 'a attribute is actually a attribute of the noted object'
   end
-
-  context 'concerns' do
-    specify 'isolate and create concern annotatable (see identifiable concern)' 
-  end
-
 end
