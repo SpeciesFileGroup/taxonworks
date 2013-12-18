@@ -201,6 +201,7 @@
 
 class Source::Bibtex < Source
   include SoftValidation
+  include Shared::Notable
 #
 # @!attribute publisher
 # @!attribute school
@@ -404,6 +405,11 @@ class Source::Bibtex < Source
   end
 
   #TODO write has_note?
+  def has_notes?
+    return true if !(self.note.blank?)
+    # return true if Notes.has_notations?(self.id)
+    return false
+  end
   #TODO write has_identifiers?
 
   #endregion

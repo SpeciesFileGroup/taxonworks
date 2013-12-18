@@ -1,7 +1,8 @@
 shared_examples 'notable' do
 
   # use, create (class_with_note has to have an ID)
-  let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.underscore}".to_sym) }
+  #let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.underscore}".to_sym) }
+  let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.parameterize(sep='_')}".to_sym) }
 
   context 'associations' do
     context 'has_many' do 

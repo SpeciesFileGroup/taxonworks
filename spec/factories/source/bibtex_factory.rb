@@ -25,5 +25,11 @@ FactoryGirl.define do
       month 'jul'
       day 4
     end
+
+    # for use with notable
+    factory :valid_source_bibtex do
+      bibtex_type 'article'
+      title 'article 1 just title'
+    end
   end
 end
