@@ -206,6 +206,7 @@ describe Protonym do
       @family.soft_validate
       @subfamily.soft_validate
       @tribe.soft_validate
+      @subtribe.soft_validate
       @genus.soft_validate
       @subgenus.soft_validate
       @species.soft_validate
@@ -230,7 +231,7 @@ describe Protonym do
 
     context 'year and source do not match' do
       specify 'A taxon had not been described at the date of the reference' do
-        p = FactoryGirl.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: @source)
+        p = FactoryGirl.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: @source, parent: @genus)
         p.soft_validate
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_true
         p.year_of_publication = 2000
@@ -301,40 +302,54 @@ describe Protonym do
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_true
       end
       specify 'mismatching author, year and type genus in family' do
-          tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
-          genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
-          @subfamily.type_genus = genus
-          expect(@subfamily.save).to be_true
-          @subfamily.soft_validate
-          tribe.soft_validate
-          #author in tribe and subfamily are different
-          expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_false
-          #year in tribe and subfamily are different
-          expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-          #type in tribe and subfamily are different
-          expect(tribe.soft_validations.messages_on(:base).empty?).to be_false
+        tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
+        genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        @subfamily.type_genus = genus
+        expect(@subfamily.save).to be_true
+        @subfamily.soft_validate
+        tribe.soft_validate
+        #author in tribe and subfamily are different
+        expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        #year in tribe and subfamily are different
+        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        #type in tribe and subfamily are different
+        expect(tribe.soft_validations.messages_on(:base).empty?).to be_false
 
-          tribe.fix_soft_validations
+        tribe.fix_soft_validations
 
-          tribe.soft_validate
-          expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-          expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-          expect(tribe.soft_validations.messages_on(:base).empty?).to be_true
-        end
+        tribe.soft_validate
+        expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+        expect(tribe.soft_validations.messages_on(:base).empty?).to be_true
+        @subfamily.type_genus = nil
+        expect(@subfamily.save).to be_true
+      end
     end
 
     context 'missing relationships' do
-      specify 'original genus' do
-        #missing original genus and nominotypical subfamily
+      specify 'type genus and nominotypical subfamily' do
+        #missing type genus and nominotypical subfamily
+        @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
-        g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba')
-        @subfamily.type_genus = g
-        expect(@subfamily.save).to be_true
+        g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: TaxonNameRelationship::Typification::Family )
+        expect(r.save).to be_true
         @subfamily.soft_validate
         @subfamily.fix_soft_validations
         @subfamily.reload
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'only one subtribe in a tribe' do
+        @subtribe.soft_validate(:coordinated_names)
+        expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_false
+        other_subtribe = FactoryGirl.create(:iczn_subtribe, name: 'Aina', parent: @tribe)
+        expect(other_subtribe.valid?).to be_true
+        @subtribe.reload
+        @subtribe.type_genus = @genus
+        @tribe.type_genus = @genus
+        @subtribe.soft_validate(:coordinated_names)
+        expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'type species or genus' do
         expect(@genus.soft_validations.messages_on(:base).include?('Type species is not selected')).to be_true
@@ -358,21 +373,21 @@ describe Protonym do
       specify 'type genus in wrong subfamily' do
         other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
         gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
-        gen.type_species = @species
-        other_subfamily.type_genus = @genus
-        expect(other_subfamily.save).to be_true
-        other_subfamily.soft_validate
-        @genus.soft_validate
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: TaxonNameRelationship::Typification::Family )
+
+        expect(r.save).to be_true
+        other_subfamily.reload
+        @genus.reload
+        other_subfamily.soft_validate(:type)
+        @genus.soft_validate(:type)
         #type genus of subfamily is not included in this subfamily
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_false
         #genus is a type for subfamily, but is not included there
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_false
-        other_subfamily.type_genus = gen
-        expect(other_subfamily.save).to be_true
-        expect(gen.save).to be_true
+        r.subject_taxon_name = gen
+        expect(r.save).to be_true
         other_subfamily.reload
-        other_subfamily.soft_validate
-        gen.soft_validate
+        other_subfamily.soft_validate(:type)
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'mismatching or not specific type genus relationships' do
