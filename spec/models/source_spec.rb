@@ -63,6 +63,7 @@ describe Source do
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'
     it_behaves_like 'has_roles'
+    it_behaves_like 'alternate_values'
   end
 
 end
