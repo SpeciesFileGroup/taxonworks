@@ -30,22 +30,11 @@ shared_examples 'notable' do
         @bad_note = FactoryGirl.build(:note, text: 'foo')
         expect(class_with_note.save).to be_true
         expect(class_with_note.notes.count == 0).to be_true
-        @error_message = 'can not add a note to a housekeeping field'
+        @error_message = 'can not add a note to this attribute (column)'
       }
-      specify 'can not add note to id' do
-        @bad_note.note_object_attribute = :id
-        @bad_note.text                  = 'foo1'
-        err = 'can not add a note to id field'
-        expect(class_with_note.notes << @bad_note).to be_false
-        expect(class_with_note.notes.count == 0).to be_true
-        expect(@bad_note.errors.messages[:note_object_attribute].include?(err)).to be_true
-        # now add note to a different column
-        @bad_note.note_object_attribute = described_class.columns[1].name
-        expect(@bad_note.errors.full_messages.include?(err)).to be_false
-      end
 
-      # for each column in ::HOUSEKEEPING_COLUMN_NAMES test that you can't add a note to it.
-      ::HOUSEKEEPING_COLUMN_NAMES.each do |attr|
+      # for each column in ::NON_ANNOTATABLE_COLUMNS test that you can't add a note to it.
+      ::NON_ANNOTATABLE_COLUMNS.each do |attr|
         specify "can not add a note to #{attr.to_s}" do
           @bad_note.note_object_attribute = attr
           @bad_note.text                  = "note to #{attr.to_s}"
@@ -57,8 +46,21 @@ shared_examples 'notable' do
           expect(@bad_note.errors.full_messages.include?(@error_message)).to be_false
         end
       end
+    end
 
-     end
+    specify 'can not add a note to a non-existant attribute (column)' do
+      expect(class_with_note.save).to be_true
+      expect(class_with_note.notes.count == 0).to be_true
+      bad_note = FactoryGirl.build(:note, text: 'foo')
+
+      bad_note.note_object_attribute = 'nonexistentColumn'
+      expect(class_with_note.notes << bad_note).to be_false
+      expect(class_with_note.notes.count == 0).to be_true
+      expect(bad_note.errors.messages[:note_object_attribute].include?('not a valid attribute (column)')).to be_true
+      # now add note to a different column
+      bad_note.note_object_attribute = described_class.columns[1].name
+      expect(bad_note.errors.full_messages.include?(@error_message)).to be_false
+    end
   end
 
   context 'methods' do
@@ -67,7 +69,7 @@ shared_examples 'notable' do
     end
   end
 
-  specify 'prevent notes attached to restricted_columns'
+  # specify 'prevent notes attached to restricted_columns'
 
 end
 
