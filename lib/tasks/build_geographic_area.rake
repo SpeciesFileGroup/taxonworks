@@ -420,7 +420,7 @@ def read_dbf(filenames)
         @global.merge!(ga.name => ga)
       else
         # ga is the named area we are looking for
-        ga.country = nation
+        ga.level0 = nation
         nation
       end
 
@@ -595,7 +595,7 @@ def read_dbf(filenames)
                                     iso_3166_a2:          nation_code,
                                     geographic_area_type: gat5)
 
-            ga.country = ga
+            ga.level0 = ga
           end
         else
           # found a record with the right name
@@ -618,9 +618,10 @@ def read_dbf(filenames)
     gadm2.each { |item|
 
       l0_name = item['NAME_0'].titlecase
+      l0_iso = item['ISO']
+      l0_id   = item['ID_0']
 
       gadm_id = item['OBJECTID']
-      l0_id   = item['ID_0']
       l1_id   = item['ID_1']
       l2_id   = item['ID_2']
       l3_id   = item['ID_3']
@@ -649,37 +650,41 @@ def read_dbf(filenames)
       a1 = "#{s5}#{s4}#{s3}#{s2}#{s1}\"#{l0_name}\"."
       puts "#{gadm_id}: #{a1}"
 
-      #build lvl0 key value from lvl0 data
+      # build lvl0 key value from lvl0 data
 
       l0_key = {
           'ID_0'   => l0_id,
-          'ISO'    => item['ISO'],
+          'ISO'    => l0_iso,
           'NAME_0' => l0_name
       }
 
       # look in iso_items for an existing record by name
       ga     = iso_items[l0_name]
       if ga.nil?
-        # no such record exists
+        # no such iso record exists
         # look for a record with this l0_id in the zero level list
         ga = @lvl0_items[l0_key]
 
         if ga.nil?
           # create a record for the zero level, and the @global list
           ga = GeographicArea.new(parent: earth,
+                                  iso_3166_a3: l0_iso,
                                   name:   l0_name)
         else
           # l0 is the object we want
-          l1 = ga
+          l0 = ga
         end
       else
         # ga is the object we want
         # lets fix it up
-        l1 = ga
+        ga.iso_3166_a3 = l0_iso
+        # we only want to fix the l0 record once, so we
+        # remove the iso record from the search list
+        iso_items.delete(l0_name)
       end
-      ga.iso_3166_a3 = item['ISO']
 
       if l1_name.empty?
+        puts item.attributes
         ga.gadmID = gadm_id
       end
 
@@ -691,6 +696,20 @@ def read_dbf(filenames)
       # yes, this *is* the same as parent
       ga.level0 = ga
       l0 = ga
+
+      if l1_name.empty?
+        # nothing to do
+        # make the parent of level 2 (extant?) the level 0 area
+        # thereby skipping the level 1 emptiness
+        l1 = l0
+
+        # special case for Nepal
+        if l2_name.empty?
+          l1.gadmID = gadm_id
+        end
+      else
+
+        # process level 1, using level 0 as parent
 
 =begin
                     "ID_1"       => 12,
@@ -706,7 +725,7 @@ def read_dbf(filenames)
                     "REMARKS_1"  => "",
 =end
 
-      l1_key = {
+        l1_key = {
           'ID_1'      => l1_id,
           'NAME_1'    => l1_name,
           'VARNAME_1' => item['VARNAME_1'],
@@ -718,20 +737,7 @@ def read_dbf(filenames)
           'VALIDFR_1' => item['VALIDFR_1'],
           'VALIDTO_1' => item['VALIDTO_1'],
           'REMARKS_1' => item['REMARKS_1']
-      }
-
-      if l1_name.empty?
-        # nothing to do
-        # make the parent of level 2 (extant?) the level 0 area
-        # thereby skipping the level 1 emptiness
-        l1 = l0
-
-        # special case for Nepal
-        if l2_name.empty?
-          l1.gadmID = gadm_id
-        end
-      else
-        # process level 1, using level 0 as parent
+        }
 
         ga = @lvl1_items[l1_key]
         if ga.nil?
@@ -748,18 +754,27 @@ def read_dbf(filenames)
           # nothing to do
           l1 = ga
         end
-        l1                 = ga
         ga.gadm_valid_from = item['VALIDFR_1']
         ga.gadm_valid_to   = item['VALIDTO_1']
+
         if l2_name.empty?
+          # if l2 is empty, this is the highest level, so this is the right shape
           ga.gadmID = gadm_id
         end
+
         ga.level0 = ga.parent
         ga.level1 = ga
-        l1 = ga
       end
+      l1                 = ga
 
-      l2_key = {
+      if l2_name.empty?
+        # nothing to do
+        l1.gadmID = gadm_id
+      else
+
+        # process level 2, using level 1 as parent
+
+        l2_key = {
           'ID_2'      => l2_id,
           'NAME_2'    => l2_name,
           'VARNAME_2' => item['VARNAME_2'],
@@ -771,14 +786,7 @@ def read_dbf(filenames)
           'VALIDFR_2' => item['VALIDFR_2'],
           'VALIDTO_2' => item['VALIDTO_2'],
           'REMARKS_2' => item['REMARKS_2']
-      }
-
-      if l2_name.empty?
-        # nothing to do
-        l1.gadmID = gadm_id
-      else
-
-        # process level 2, using level 1 as parent
+        }
 
         l2 = @lvl2_items[l2_key]
         if l2.nil?
@@ -786,26 +794,32 @@ def read_dbf(filenames)
           ga    = GeographicArea.new(parent:               l1,
                                      name:                 l2_name,
                                      geographic_area_type: add_gat(item['ENGTYPE_2']))
-          # put the item in the lvl0 list
+
+          ga.gadm_valid_from = item['VALIDFR_2']
+          ga.gadm_valid_to   = item['VALIDTO_2']
+          ga.level2 = ga.parent.parent
+          ga.level1 = ga.parent
+          ga.level0 = ga
+
+          # put the item in the lvl2 list
           place = {l2_key => ga}
           @lvl2_items.merge!(place)
           # and the @global list
           @global.merge!(place)
-          l2 = ga
+
         else
           # nothing to do
-          l2 = ga
+          l2 = l2
         end
+
         if l3_name.empty?
+          # if l3 is empty, this is the highest level, so this is the right shape
           ga.gadmID = gadm_id
         else
+          # nothing to do
           l3_id = l3_id
         end
-        ga.gadm_valid_from = item['VALIDFR_2']
-        ga.gadm_valid_to   = item['VALIDTO_2']
-        ga.level2 = ga.parent.parent
-        ga.level1 = ga.parent
-        ga.level0 = ga
+
       end
       l2 = ga
 
@@ -882,23 +896,26 @@ def read_dbf(filenames)
     }
   end # of GADM processing
 
-  breakpoint.save
+  # breakpoint.save
 
   puts 'Saving Level 0 areas.'
   @lvl0_items.each { |key, area|
     area.save
+    puts area.id
     @global.delete(area.name)
   }
 
   puts 'Saving Level 1 areas.'
   @lvl1_items.each { |key, area|
     area.save
+    puts area.id
     @global.delete(area.name)
   }
 
   puts 'Saving Level 2 areas.'
   @lvl2_items.each { |key, area|
     area.save
+    puts area.id
     @global.delete(area.name)
   }
 
@@ -925,6 +942,7 @@ def read_dbf(filenames)
   # what is left over?
   puts 'Saving non-Level(0, 1, 2) areas.'
   @global.each { |key, area|
+    puts area.id
     area.save
   }
 
