@@ -9,9 +9,9 @@
 
 ISO_YEAR_1_2 = 'ISO 3166-1-alpha-2' # ISO 3166-1:2006 two-letter country abbreviations
 ISO_YEAR_1_3 = 'ISO 3166-1-alpha-3' # ISO 3166-1:2006 three-letter country abbreviations
-# Other current choices are:
-ISO_YEAR_3   = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
-ISO_YEAR_2   = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
+                                    # Other current choices are:
+ISO_YEAR_3   = 'ISO 3166-3:1999'    # Country names which have been deleted from -1 since 1974
+ISO_YEAR_2   = 'ISO 3166-2:2007'    # State or Province level for country codes in 3166-1
 
 TDWG2_L1 = 'TDWG2 Level 1'
 TDWG2_L2 = 'TDWG2 Level 2'
@@ -276,7 +276,7 @@ def read_dbf(filenames)
 
   # make sure the earth record exists and is available
 
-  earth = GeographicArea.where(name: 'Earth')
+  earth     = GeographicArea.where(name: 'Earth')
   if earth.count == 0
     # create the record
     earth                      = GeographicArea.new(parent_id: nil,
@@ -316,8 +316,8 @@ def read_dbf(filenames)
 
   @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}
 
-  #@global will be filled such that ga.name is the key for easier location later
-  @global                                                                      = {}
+      # @global will be filled such that ga.name is the key for easier location later
+  iso_items, @global                                                           = {}, {}
   gat5                                                                         = GeographicAreaType.where(name: 'Country').first
 
   if lvl1 != nil
@@ -335,7 +335,6 @@ def read_dbf(filenames)
       ga = GeographicArea.new(parent:               earth,
                               tdwg_parent:          earth,
                               name:                 item['LEVEL1_NAM'].titlecase,
-                              iso_verified:         false,
                               geographic_area_type: gat1)
       @lvl1_items.merge!(item['LEVEL1_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -346,7 +345,6 @@ def read_dbf(filenames)
       ga = GeographicArea.new(parent:               @lvl1_items[item['LEVEL1_COD']],
                               tdwg_parent:          @lvl1_items[item['LEVEL1_COD']],
                               name:                 item['LEVEL2_NAM'].titlecase,
-                              iso_verified:         false,
                               geographic_area_type: gat2)
       @lvl2_items.merge!(item['LEVEL2_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -357,7 +355,6 @@ def read_dbf(filenames)
       ga = GeographicArea.new(parent:               @lvl2_items[item['LEVEL2_COD']],
                               tdwg_parent:          @lvl2_items[item['LEVEL2_COD']],
                               name:                 item['LEVEL3_NAM'].titlecase,
-                              iso_verified:         false,
                               geographic_area_type: gat3)
       lvl3_items.merge!(item['LEVEL3_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -367,44 +364,6 @@ def read_dbf(filenames)
     # have some meaning when we process *them*.
 
     # add, where possible, ISO 3166 country codes
-
-    iso.each { |line|
-      if line.strip!.length > 6 # minimum line size to contain useful data
-
-        # break down the useful data
-        parts       = line.split(';')
-        nation_code = parts[1].strip # clean off the line extraneous white space
-        nation_name = parts[0].titlecase
-
-        ga =@global[nation_name]
-        if ga.nil?
-          # We will need to create new@global records so that we can check for typing anomalies and
-          # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
-
-          if !(nation_name =~ /Country Name/) # drop the headers on the floor
-            puts "'#{nation_code}' for #{nation_name}\t\tAdded."
-            ga = GeographicArea.new(parent:               earth,
-                                    # if we create records here, they will specifically *not* be TDWG records
-                                    tdwg_parent:          nil,
-                                    name:                 nation_name,
-                                    iso_3166_a2:          nation_code,
-                                    iso_verified:         true,
-                                    geographic_area_type: gat5)
-
-            ga.country = ga
-            @global.merge!(ga.name => ga)
-          end
-        else
-          # found a record with the right name
-          puts "'#{nation_code}' for #{nation_name}\t\tMatched."
-          ga.iso_3166_a2          = nation_code
-          ga.iso_verified         = true
-          ga.geographic_area_type = gat5
-          # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
-          ga.country              = ga
-        end
-      end
-    }
 
     lvl4.each { |item|
       # When processing lvl4, there are two different ways we need to process the line data:
@@ -454,7 +413,6 @@ def read_dbf(filenames)
                                      name:                 this_area_name,
                                      iso_3166_a2:          nil,
                                      # we show this is from the TDWG data, *not* the iso data
-                                     iso_verified:         true,
                                      geographic_area_type: gat4,
                                      # even if nation is nil, this will do what we want.
                                      country:              nation)
@@ -567,6 +525,7 @@ def read_dbf(filenames)
           s2 = ''
         end
 
+=begin
         lvl3_type = item['ENGTYPE_3']
         if lvl3_type != ''
           if @lvl0_items[lvl3_type].nil?
@@ -602,34 +561,80 @@ def read_dbf(filenames)
         else
           s5 = ''
         end
+        puts "#{s0} #{item['NAME_0']} => #{s1}#{s2}#{s3}#{s4}#{s5}"
+=end
+        # puts "#{s0} #{item['NAME_0']} => #{s1}#{s2}"
 
-        # puts "#{s0} #{item['NAME_0']} => #{s1}#{s2}#{s3}#{s4}#{s5}"
       }
 
       @lvl0_items.sort_by { |name, count| count }.each { |item| puts "\"#{item[0]}\": #{item[1]}" }
-      @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items= {}, {}, {}, {}, {}, {}
-      # breakpoint.save
+      iso_items, @global, @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}, {}, {}
+      breakpoint.save
     end
+
+    iso.each { |line|
+      if line.strip!.length > 6 # minimum line size to contain useful data
+
+        # break down the useful data
+        parts       = line.split(';')
+        nation_code = parts[1].strip # clean off the line extraneous white space
+        nation_name = parts[0].titlecase
+
+        ga = GeographicArea.where(name: nation_name, iso_3166_a2: nation_code).first
+        if ga.nil?
+          # We will need to create new@global records so that we can check for typing anomalies and
+          # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
+
+          if !(nation_name =~ /Country Name/) # drop the headers on the floor
+            puts "'#{nation_code}' for #{nation_name}\t\tAdded."
+            ga = GeographicArea.new(parent:               earth,
+                                    # if we create records here, they will specifically *not* be TDWG records
+                                    # or GADM records
+                                    tdwg_parent:          nil,
+                                    name:                 nation_name,
+                                    iso_3166_a2:          nation_code,
+                                    geographic_area_type: gat5)
+
+            ga.country = ga
+          end
+        else
+          # found a record with the right name
+          puts "'#{nation_code}' for #{nation_name}\t\tMatched."
+          ga.iso_3166_a2          = nation_code
+          ga.geographic_area_type = gat5
+          # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
+          ga.level0              = ga
+        end
+        iso_items.merge!(ga.name => ga) if !(ga.nil?)
+      end
+    }
+
+    puts 'Saving ISO-3166-1-alpha-2 countries and codes.'
+    iso_items.each { |key, area|
+      puts "#{area.name}"
+      area.save
+    }
 
     gadm2.each { |item|
 
       l0_name = item['NAME_0'].titlecase
 
-      l0_id = item['ID_0']
-      l1_id = item['ID_1']
-      l2_id = item['ID_2']
-      l3_id = item['ID_3']
-      l4_id = item['ID_4']
-      l5_id = item['ID_5']
+      gadm_id = item['OBJECTID']
+      l0_id   = item['ID_0']
+      l1_id   = item['ID_1']
+      l2_id   = item['ID_2']
+      l3_id   = item['ID_3']
+      l4_id   = item['ID_4']
+      l5_id   = item['ID_5']
 
-      id_vector = [l0_id, l1_id, l2_id, l3_id, l4_id, l5_id]
+      id_vector = [l0_id, l1_id, l2_id]
 
-      # l1 always has a name
-      l1_name = item['NAME_1'].titlecase
-      l2_name = (l2_id == 0) ? '' : item['NAME_2'].titlecase
-      l3_name = (l3_id == 0) ? '' : item['NAME_3'].titlecase
-      l4_name = (l4_id == 0) ? '' : item['NAME_4'].titlecase
-      l5_name = (l5_id == 0) ? '' : item['NAME_5'].titlecase
+      # l0 always has a name
+      l1_name   = item['NAME_1'].titlecase
+      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].titlecase
+      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].titlecase
+      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].titlecase
+      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].titlecase
 
       i5 = l5_name
       s5 = i5.empty? ? '' : ("\"" + i5 + "\", ")
@@ -642,77 +647,169 @@ def read_dbf(filenames)
       i1 = l1_name
       s1 = i1.empty? ? '' : ("\"" + i1 + "\", ")
       a1 = "#{s5}#{s4}#{s3}#{s2}#{s1}\"#{l0_name}\"."
-      puts "#{item['OBJECTID']}: #{a1}"
+      puts "#{gadm_id}: #{a1}"
 
-      # look for a country named in the zero level
-      l0 = @lvl0_items[l0_name]
+      #build lvl0 key value from lvl0 data
 
-      if l0.nil?
-        # create a record for the zero level, and the @global list
-        ga    = GeographicArea.new(parent:               earth,
-                                   name:                 l0_name,
-                                   iso_3166_a3:          item['ISO'],
-                                   iso_verified:         true,
-                                   geographic_area_type: gat5)
-        # put the item in the lvl0 list
-        place = {l0_name => ga}
-        @lvl0_items.merge!(place)
-        # and the @global list
-        @global.merge!(place)
-        l0 = ga
+      l0_key = {
+          'ID_0'   => l0_id,
+          'ISO'    => item['ISO'],
+          'NAME_0' => l0_name
+      }
+
+      # look in iso_items for an existing record by name
+      ga     = iso_items[l0_name]
+      if ga.nil?
+        # no such record exists
+        # look for a record with this l0_id in the zero level list
+        ga = @lvl0_items[l0_key]
+
+        if ga.nil?
+          # create a record for the zero level, and the @global list
+          ga = GeographicArea.new(parent: earth,
+                                  name:   l0_name)
+        else
+          # l0 is the object we want
+          l1 = ga
+        end
       else
-        # nothing to do
+        # ga is the object we want
+        # lets fix it up
+        l1 = ga
       end
+      ga.iso_3166_a3 = item['ISO']
+
+      if l1_name.empty?
+        ga.gadmID = gadm_id
+      end
+
+      # put the item in the lvl0 list
+      place = {l0_key => ga}
+      @lvl0_items.merge!(place)
+      # and the @global list
+      @global.merge!(place)
+      # yes, this *is* the same as parent
+      ga.level0 = ga
+      l0 = ga
+
+=begin
+                    "ID_1"       => 12,
+                    "NAME_1"     => "Jawzjan",
+                    "VARNAME_1"  => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
+                    "NL_NAME_1"  => "",
+                    "HASC_1"     => "AF.JW",
+                    "CC_1"       => "",
+                    "TYPE_1"     => "Velayat",
+                    "ENGTYPE_1"  => "Province",
+                    "VALIDFR_1"  => "19640430",
+                    "VALIDTO_1"  => "198804",
+                    "REMARKS_1"  => "",
+=end
+
+      l1_key = {
+          'ID_1'      => l1_id,
+          'NAME_1'    => l1_name,
+          'VARNAME_1' => item['VARNAME_1'],
+          'NL_NAME_1' => item['NL_NAME_1'],
+          'HASC_1'    => item['HASC_1'],
+          'CC_1'      => item['CC_1'],
+          'TYPE_1'    => item['TYPE_1'],
+          'ENGTYPE_1' => item['ENGTYPE_1'],
+          'VALIDFR_1' => item['VALIDFR_1'],
+          'VALIDTO_1' => item['VALIDTO_1'],
+          'REMARKS_1' => item['REMARKS_1']
+      }
 
       if l1_name.empty?
         # nothing to do
+        # make the parent of level 2 (extant?) the level 0 area
+        # thereby skipping the level 1 emptiness
+        l1 = l0
+
+        # special case for Nepal
+        if l2_name.empty?
+          l1.gadmID = gadm_id
+        end
       else
         # process level 1, using level 0 as parent
 
-        l1 = @lvl1_items[l1_name]
-        if l1.nil?
+        ga = @lvl1_items[l1_key]
+        if ga.nil?
           # create a record for level 1, and the @global list
           ga    = GeographicArea.new(parent:               l0,
                                      name:                 l1_name,
-                                     iso_3166_a3:          item['ISO'],
-                                     iso_verified:         true,
                                      geographic_area_type: add_gat(item['ENGTYPE_1']))
           # put the item in the lvl0 list
-          place = {l1_name => ga}
+          place = {l1_key => ga}
           @lvl1_items.merge!(place)
           # and the @global list
           @global.merge!(place)
-          l1 = ga
         else
           # nothing to do
+          l1 = ga
         end
+        l1                 = ga
+        ga.gadm_valid_from = item['VALIDFR_1']
+        ga.gadm_valid_to   = item['VALIDTO_1']
+        if l2_name.empty?
+          ga.gadmID = gadm_id
+        end
+        ga.level0 = ga.parent
+        ga.level1 = ga
+        l1 = ga
       end
+
+      l2_key = {
+          'ID_2'      => l2_id,
+          'NAME_2'    => l2_name,
+          'VARNAME_2' => item['VARNAME_2'],
+          'NL_NAME_2' => item['NL_NAME_2'],
+          'HASC_2'    => item['HASC_2'],
+          'CC_2'      => item['CC_2'],
+          'TYPE_2'    => item['TYPE_2'],
+          'ENGTYPE_2' => item['ENGTYPE_2'],
+          'VALIDFR_2' => item['VALIDFR_2'],
+          'VALIDTO_2' => item['VALIDTO_2'],
+          'REMARKS_2' => item['REMARKS_2']
+      }
 
       if l2_name.empty?
         # nothing to do
+        l1.gadmID = gadm_id
       else
+
         # process level 2, using level 1 as parent
 
-        l2 = @lvl2_items[l1_name]
+        l2 = @lvl2_items[l2_key]
         if l2.nil?
           # create a record for level 2, and the @global list
-          add_gat(item['ENGTYPE_2'])
           ga    = GeographicArea.new(parent:               l1,
                                      name:                 l2_name,
-                                     iso_3166_a3:          item['ISO'],
-                                     iso_verified:         true,
                                      geographic_area_type: add_gat(item['ENGTYPE_2']))
           # put the item in the lvl0 list
-          place = {l2_name => ga}
+          place = {l2_key => ga}
           @lvl2_items.merge!(place)
           # and the @global list
           @global.merge!(place)
           l2 = ga
         else
           # nothing to do
+          l2 = ga
         end
+        if l3_name.empty?
+          ga.gadmID = gadm_id
+        else
+          l3_id = l3_id
+        end
+        ga.gadm_valid_from = item['VALIDFR_2']
+        ga.gadm_valid_to   = item['VALIDTO_2']
+        ga.level2 = ga.parent.parent
+        ga.level1 = ga.parent
+        ga.level0 = ga
       end
+      l2 = ga
 
+=begin
       if l3_name.empty?
         # nothing to do
       else
@@ -724,7 +821,6 @@ def read_dbf(filenames)
           ga    = GeographicArea.new(parent:               l2,
                                      name:                 l3_name,
                                      iso_3166_a3:          item['ISO'],
-                                     iso_verified:         true,
                                      geographic_area_type: add_gat(item['ENGTYPE_3']))
           # put the item in the lvl0 list
           place = {l3_name => ga}
@@ -748,7 +844,6 @@ def read_dbf(filenames)
           ga    = GeographicArea.new(parent:               l3,
                                      name:                 l4_name,
                                      iso_3166_a3:          item['ISO'],
-                                     iso_verified:         true,
                                      geographic_area_type: add_gat(item['ENGTYPE_4']))
           # put the item in the lvl0 list
           place = {l4_name => ga}
@@ -772,7 +867,6 @@ def read_dbf(filenames)
           ga    = GeographicArea.new(parent:               l4,
                                      name:                 l5_name,
                                      iso_3166_a3:          item['ISO'],
-                                     iso_verified:         true,
                                      geographic_area_type: add_gat(item['ENGTYPE_5']))
           # put the item in the lvl0 list
           place = {l5_name => ga}
@@ -784,15 +878,11 @@ def read_dbf(filenames)
           # nothing to do
         end
       end
+=end
     }
   end # of GADM processing
 
   breakpoint.save
-
-  # save the g_a_types, so that they will be ready for the area record save.
-  @gat_list.each { |key, value|
-    value.save
-  }
 
   puts 'Saving Level 0 areas.'
   @lvl0_items.each { |key, area|
@@ -812,6 +902,7 @@ def read_dbf(filenames)
     @global.delete(area.name)
   }
 
+=begin
   puts 'Saving Level 3 areas.'
   @lvl3_items.each { |key, area|
     area.save
@@ -829,9 +920,10 @@ def read_dbf(filenames)
     area.save
     @global.delete(area.name)
   }
+=end
 
   # what is left over?
-  puts 'Saving non-Level(0, 1, 2, 3, 4, 5) areas.'
+  puts 'Saving non-Level(0, 1, 2) areas.'
   @global.each { |key, area|
     area.save
   }
@@ -904,10 +996,13 @@ def add_gat(gat)
 end
 
 def build_gat_table
+
+  # create our list
   l_var     = 'Unknown'
   @gat_list = {}
 
   ['Planet',
+   'Level 0',
    'Continent',
    'Level 1',
    'Subcontinent',
@@ -940,6 +1035,200 @@ def build_gat_table
     end
     @gat_list.merge!(item => area_type)
   }
+  # add as required from GADM list
+  gadm_divisions
+
+  # make special cases
   @gat_list.merge!('' => @gat_list[l_var])
   @gat_list.merge!(nil => @gat_list[l_var])
+end
+
+def gadm_divisions
+  ['Reef',
+   'Metropolitan Borough (city)',
+   'Autonomous Okurg',
+   'Administrative Area',
+   'Territorial Unit',
+   'Autonomous Sector',
+   'Conservancy',
+   'City and County',
+   'National District',
+   'Capital City',
+   'Autonomous Commune',
+   'Commune and Prefecture',
+   'Capital',
+   'Capital Territory',
+   'Unitary Authority (county)',
+   'Autonomous Territory',
+   'National Territory',
+   'Neutral City',
+   'Capital District',
+   'City and Borough',
+   'Outlying Island',
+   'Island|Atoll',
+   'Autonomous Monastic State',
+   'Ward',
+   'London Borough (royal)',
+   'Directly Governed City',
+   'Island Area',
+   'London Borough (city)',
+   'City Municipality',
+   'Autonomous Island',
+   'Territorial Authority',
+   'Statutory city',
+   'Metropolitan District',
+   'Town Council',
+   'Municipal District',
+   'Autonomous City',
+   'Economic Prefecture',
+   'Préfecture',
+   'Unitary District (city)',
+   'Special Municipality',
+   'Independent Town',
+   'Lake',
+   'Dependency',
+   'Atoll',
+   'Island Group',
+   'Water Body',
+   'Special region',
+   'Area',
+   'Metropolitan County',
+   'Special Administrative Region',
+   'Special Region|Zone',
+   'Special City',
+   'Special district',
+   'National Park',
+   'Reserve',
+   'Island Council',
+   'Emirate',
+   'Urban',
+   'Municipality|Prefecture',
+   'Unitary Authority (city)',
+   'Quarter',
+   'Census Area',
+   'Assembly',
+   'Island',
+   'United County',
+   'Statutory City',
+   'Centrally Administered Area',
+   'Rural City',
+   'Municipality / Mun. Council',
+   'Automonous Region',
+   'Borough',
+   'United Counties',
+   'Corregimiento Departamento',
+   'Capital Region',
+   'League',
+   'Unitary Authority (wales',
+   'Principality',
+   'Waterbody',
+   'Special Ward',
+   'Capital Metropolitan City',
+   'Unitary District',
+   'Municipality/Municipal Council',
+   'London Borough',
+   'Commissiary',
+   'Raion',
+   'Municipality|Governarate',
+   'Mukim',
+   'Administrative County',
+   'Community Government Council',
+   'Sector',
+   'Federal District',
+   'Autonomous Republic',
+   'Municipal district',
+   'Unitary Authority',
+   'Aboriginal Council',
+   'Not Classified',
+   'Metropolitan City',
+   'Chef-Lieu-Wilaya',
+   'Regional Municipality',
+   'Independent City',
+   'District Municipality',
+   'Sub-prefecture',
+   'Sub-Province',
+   'District Council',
+   'Metropolis',
+   'Intendancy',
+   'Headquarter',
+   "Mis'ka Rada",
+   'Ressort',
+   'National Capital Area',
+   'Neighbourhood Democratic',
+   'District|Regencies',
+   'Urban Prefecture',
+   'State|Federal State',
+   'Water body',
+   'Union Territory',
+   'Sub-district',
+   'Indigenous Territory',
+   'City council',
+   'Constituency',
+   'Commune-Cotiere',
+   'Part',
+   'Minor district',
+   'Entity',
+   'Kingdom',
+   'Sub-region',
+   'Village',
+   'Subregion',
+   'Circuit',
+   'Town|Municipal',
+   'Commune|Municipality',
+   'Poblacion',
+   'Arrondissement',
+   'Autonomous region',
+   'Autonomous Prefecture',
+   'Delegation',
+   'Statistical Region',
+   'Sum',
+   'Regency',
+   'Magisterial District',
+   'Voivodeship|Province',
+   'Administrative Region',
+   'Shire',
+   'Regional Council',
+   'Republic',
+   'Municpality|City Council',
+   'Administrative State',
+   'Zone',
+   'Governorate',
+   'Territory',
+   'Sub-chief',
+   'Circle',
+   'Unknown',
+   'Local Authority',
+   'Regional District',
+   'City|Municipality|Thanh Pho',
+   'Town',
+   'Division',
+   'Regional County Municipality',
+   'Autonomous Province',
+   'Autonomous Region',
+   'Prefecture City',
+   'Census Division',
+   'Traditional Authority',
+   'Prefecture',
+   'Development Region',
+   'Administrative Zone',
+   'Canton',
+   'Parish',
+   'Autonomous Community',
+   'City',
+   'Commune',
+   'County',
+   'State',
+   'District',
+   'Department',
+   'Municipality',
+   'Region',
+   'Province'].each { |item|
+    area_type = GeographicAreaType.where(name: item).first
+    if area_type.nil?
+      area_type = GeographicAreaType.new(name: item)
+      area_type.save
+    end
+    @gat_list.merge!(item => area_type)
+  }
+
 end
