@@ -23,6 +23,9 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
+  soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
+  soft_validate(:sv_validate_disjoint_objects, set: :disjoint)
+  soft_validate(:sv_validate_disjoint_subjects, set: :disjoint)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -267,7 +270,7 @@ class TaxonName < ActiveRecord::Base
 
   def sv_fix_missing_author
     if self.source_id
-      if !self.source.author.blank?
+      unless self.source.author.blank?
         self.verbatim_author = self.source.author
         begin
           TaxonName.transaction do
@@ -279,7 +282,7 @@ class TaxonName < ActiveRecord::Base
         end
       end
     end
-    return false
+    false
   end
 
   def sv_fix_missing_year
@@ -296,7 +299,7 @@ class TaxonName < ActiveRecord::Base
         end
       end
     end
-    return false
+    false
   end
 
   def sv_validate_disjoint_relationships
@@ -304,7 +307,33 @@ class TaxonName < ActiveRecord::Base
     relationship_names = relationships.map{|i| i.type_name}
     disjoint_relationships = relationships.map{|i| i.type_class.disjoint_taxon_name_relationships}.flatten
     compare = disjoint_relationships & relationship_names
-    soft_validations.add(:base, 'Taxon has inappropriate relationships') if compare.count != 0
+    soft_validations.add(:base, 'Taxon has conflicting relationships') if compare.count != 0
+  end
+
+  def sv_validate_disjoint_classes
+    classifications = self.taxon_name_classifications
+    classification_names = classifications.map{|i| i.type_name}
+    disjoint_classifications = classifications.map{|i| i.type_class.disjoint_taxon_name_classes}.flatten
+    compare = disjoint_classifications & classification_names
+    soft_validations.add(:base, 'Taxon has conflicting statuses') if compare.count != 0
+  end
+
+  def sv_validate_disjoint_objects
+    relationships = self.related_taxon_name_relationships
+    classifications = self.taxon_name_classifications
+    classification_names = classifications.map{|i| i.type_name}
+    disjoint_object_classes = relationships.map{|i| i.type_class.disjoint_object_classes}.flatten
+    compare = disjoint_object_classes & classification_names
+    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
+  end
+
+  def sv_validate_disjoint_subjects
+    relationships = self.taxon_name_relationships
+    classifications = self.taxon_name_classifications
+    classification_names = classifications.map{|i| i.type_name}
+    disjoint_subject_classes = relationships.map{|i| i.type_class.disjoint_subject_classes}.flatten
+    compare = disjoint_subject_classes & classification_names
+    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
   end
 
   def sv_validate_parent_rank

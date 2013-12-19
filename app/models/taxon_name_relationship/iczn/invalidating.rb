@@ -11,8 +11,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
         TaxonNameClass::Iczn::Available::Valid.descendants.collect{|t| t.to_s} +
         [TaxonNameClass::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
         [TaxonNameClass::Iczn::Available::OfficialListOfAvailableNames.to_s] +
-        [TaxonNameClass::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s] +
-        [TaxonNameClass::Iczn::Available::ReplacementName.to_s]
+        [TaxonNameClass::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s]
   end
 
   def self.disjoint_object_classes
