@@ -5,11 +5,6 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
         [TaxonNameRelationship::Iczn::Validating::ConservedName.to_s]
   end
 
-  def self.disjoint_subject_classes
-    self.parent.disjoint_subject_classes +
-        [TaxonNameClass::Iczn::Available::Valid::NomenDubium.to_s]
-  end
-
   def self.assignable
     true
   end
