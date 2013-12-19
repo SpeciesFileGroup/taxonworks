@@ -57,6 +57,14 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
+  def self.disjoint_subject_classes
+    []
+  end
+
+  def self.disjoint_object_classes
+    []
+  end
+
   def self.assignable
     false
   end
@@ -103,7 +111,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_share_code
     if object_taxon_name.class == Protonym && subject_taxon_name.class == Protonym
-      errors.add(:object_taxon_name_id, "The related taxon is from different nomenclatural code") if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+      errors.add(:object_taxon_name_id, "The related taxon is from different potentially_validating code") if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 

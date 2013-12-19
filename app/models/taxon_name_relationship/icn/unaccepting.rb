@@ -5,6 +5,14 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
         TaxonNameRelationship::Icn::Accepting.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+        [TaxonNameClass::Icn::NotEffectivelyPublished.to_s] +
+        TaxonNameClass::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
+        TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
+  end
+
+
   def self.assignable
     true
   end

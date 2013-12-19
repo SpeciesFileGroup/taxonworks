@@ -48,7 +48,7 @@ describe TaxonNameRelationship do
           expect(@taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_true
         end
 
-        context 'object and subject should share the same nomenclatural code' do
+        context 'object and subject should share the same potentially_validating code' do
           specify 'same code' do
             r = FactoryGirl.build(:type_species_relationship)
             r.valid?

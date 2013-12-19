@@ -16,5 +16,4 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
     :set_as_icn_synonym_of
   end
 
-
 end

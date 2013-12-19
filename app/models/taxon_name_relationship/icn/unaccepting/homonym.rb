@@ -5,6 +5,13 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
         TaxonNameRelationship::Icn::Unaccepting::Usage.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_subject_classes
+    self.parent.disjoint_subbject_classes +
+        [TaxonNameClass::Icn::NotEffectivelyPublished.to_s] +
+        TaxonNameClass::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
+        TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Legitimate.descendants.collect{|t| t.to_s}
+  end
+
   def self.assignment_method
     # aus.icn_homonym = bus
     :icn_homonym

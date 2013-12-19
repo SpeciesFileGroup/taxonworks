@@ -21,7 +21,7 @@ class NomenclaturalRank
   # Return a String with the "common" name for this rank. 
   def self.rank_name
     n = self.name.demodulize.underscore.humanize.downcase
-    if n == 'nomenclatural rank'
+    if n == 'potentially_validating rank'
       n = 'root'
     elsif n == 'class rank'
       n = 'class'
@@ -29,7 +29,7 @@ class NomenclaturalRank
     n
   end
 
-  # returns a nomenclatural code name for this taxon
+  # returns a potentially_validating code name for this taxon
   def self.nomenclatural_code
     if ::ICZN.include?(self)
       return :iczn
@@ -40,7 +40,7 @@ class NomenclaturalRank
     end
   end
 
-  # returns a nomenclatural code class for this taxon
+  # returns a potentially_validating code class for this taxon
   def self.nomenclatural_code_class
     if ::ICZN.include?(self)
       return NomenclaturalRank::Iczn

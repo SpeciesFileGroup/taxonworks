@@ -8,6 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
         [TaxonNameRelationship::Iczn::Invalidating.to_s]
   end
 
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+        [TaxonNameClass::Iczn::Available::Invalid.to_s]
+  end
+
   def self.assignment_method
          # aus.iczn_synonym = bus
     :iczn_synonym

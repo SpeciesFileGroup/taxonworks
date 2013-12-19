@@ -6,6 +6,21 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
         [TaxonNameRelationship::Iczn::Validating.to_s]
   end
 
+  def self.disjoint_subject_classes
+    self.parent.disjoint_subject_classes +
+        TaxonNameClass::Iczn::Available::Valid.descendants.collect{|t| t.to_s} +
+        [TaxonNameClass::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
+        [TaxonNameClass::Iczn::Available::OfficialListOfAvailableNames.to_s] +
+        [TaxonNameClass::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s] +
+        [TaxonNameClass::Iczn::Available::ReplacementName.to_s]
+  end
+
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+        TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s}
+  end
+
+
   def self.assignable
     true
   end

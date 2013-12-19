@@ -5,6 +5,17 @@ class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelation
         [TaxonNameRelationship::Iczn::Validating::UncertainPlacement.to_s]
   end
 
+  def self.disjoint_subject_classes
+    self.parent.disjoint_subject_classes +
+        [TaxonNameClass::Iczn::Available::Valid::NomenDubium.to_s]
+  end
+
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+        [TaxonNameClass::Iczn::Available::Invalid.to_s] +
+        [TaxonNameClass::Iczn::Available::Valid.to_s]
+  end
+
   def self.assignable
     true
   end

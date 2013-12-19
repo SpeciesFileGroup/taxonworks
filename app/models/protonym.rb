@@ -283,7 +283,7 @@ class Protonym < TaxonName
 
   def sv_single_sub_taxon
     rank = self.rank_class.to_s
-    if rank != 'nomenclatural rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
+    if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
       sisters = self.parent.descendants.with_rank_class(rank)
       if rank =~ /Family/
         z = Protonym.family_group_base(self.name)

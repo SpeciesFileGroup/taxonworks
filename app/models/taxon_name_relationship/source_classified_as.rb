@@ -16,6 +16,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
     TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
   end
 
+  def self.disjoint_subject_classes
+    [TaxonNameClass::Icn::NotEffectivelyPublished.to_s] +
+        TaxonNameClass::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
+        TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s}
+  end
+
   def self.assignment_method
     :source_classified_as
   end
