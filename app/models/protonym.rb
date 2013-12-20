@@ -10,7 +10,7 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
   has_many :original_combination_relationships, -> {
-    where("taxon_Name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
 
