@@ -15,6 +15,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
         TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished.Legitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'misspelling'
+  end
+
+  def self.object_relationship_name
+    'correct spelling'
+  end
+
+
   def self.assignment_method
     # aus.icn_misspelling = bus
     :icn_misspelling

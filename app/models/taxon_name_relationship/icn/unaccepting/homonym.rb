@@ -12,6 +12,15 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
         TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Legitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'homonym'
+  end
+
+  def self.object_relationship_name
+    'senior homonym'
+  end
+
+
   def self.assignment_method
     # aus.icn_homonym = bus
     :icn_homonym

@@ -5,6 +5,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
         TaxonNameRelationship::Icn::Unaccepting::Usage.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'synonym'
+  end
+
+  def self.object_relationship_name
+    'senior synonym'
+  end
+
+
   def self.assignment_method
     # aus.icn_synonym = bus
     :icn_synonym

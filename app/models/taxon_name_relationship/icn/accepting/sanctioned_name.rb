@@ -4,6 +4,15 @@ class TaxonNameRelationship::Icn::Accepting::SanctionedName < TaxonNameRelations
     true
   end
 
+  def self.subject_relationship_name
+    'sanctioned name'
+  end
+
+  def self.object_relationship_name
+    'rejected name'
+  end
+
+
   def self.assignment_method
     # aus.icn_sanctioned_name = bus
     :icn_sanctioned_name

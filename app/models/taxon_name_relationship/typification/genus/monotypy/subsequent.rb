@@ -6,6 +6,10 @@ class TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent < TaxonNa
         [TaxonNameRelationship::Typification::Genus::Monotypy::Original.to_s]
   end
 
+  def self.subject_relationship_name
+    'type species by subsequent monotypy'
+  end
+
   def self.assignment_method
     :type_species_by_subsequent_monotypy
   end

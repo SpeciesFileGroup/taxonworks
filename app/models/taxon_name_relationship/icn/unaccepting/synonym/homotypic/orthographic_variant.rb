@@ -7,6 +7,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicV
         [TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym.to_s]
   end
 
+  def self.subject_relationship_name
+    'orthographic variant'
+  end
+
   def self.assignment_method
     # aus.icn_orthographic_variant = bus
     :icn_orthographic_variant

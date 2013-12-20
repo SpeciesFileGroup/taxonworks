@@ -6,6 +6,10 @@ class TaxonNameRelationship::Typification::Genus::Monotypy::Original < TaxonName
         [TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent.to_s]
   end
 
+  def self.subject_relationship_name
+    'type species by original monotypy'
+  end
+
   def self.assignment_method
     :type_species_by_original_monotypy
   end

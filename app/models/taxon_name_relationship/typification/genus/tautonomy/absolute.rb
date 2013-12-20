@@ -6,6 +6,10 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute < TaxonNam
         [TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean.to_s]
   end
 
+  def self.subject_relationship_name
+    'type species by absolute tautonomy'
+  end
+
   def self.assignment_method
     :type_species_by_absolute_tautonomy
   end

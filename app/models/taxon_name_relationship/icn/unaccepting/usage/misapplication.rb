@@ -13,6 +13,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
         TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'misapplication'
+  end
+
   def self.assignment_method
     # aus.icn_misapplication = bus
     :icn_misapplication

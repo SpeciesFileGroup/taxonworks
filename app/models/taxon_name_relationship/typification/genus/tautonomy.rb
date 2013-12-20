@@ -19,6 +19,10 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
         [TaxonNameRelationship::Typification::Genus::SubsequentDesignation.to_s]
   end
 
+  def self.subject_relationship_name
+    'type species by tautonomy'
+  end
+
   def self.assignment_method
     :type_species_by_tautonomy
   end

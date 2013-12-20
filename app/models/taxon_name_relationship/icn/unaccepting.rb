@@ -12,6 +12,13 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
         TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'unaccepted name'
+  end
+
+  def self.object_relationship_name
+    'accepted name'
+  end
 
   def self.assignable
     true

@@ -7,6 +7,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeNa
         [TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant.to_s]
   end
 
+  def self.subject_relationship_name
+    'alternative name'
+  end
+
   def self.assignment_method
     # aus.icn_alternative_name = bus
     :icn_alternative_name

@@ -16,6 +16,10 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
     [TaxonNameRelationship::Typification::Genus.to_s]
   end
 
+  def self.subject_relationship_name
+    'type genus'
+  end
+
   def self.assignment_method
     :type_genus
   end

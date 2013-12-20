@@ -20,6 +20,10 @@ class TaxonNameRelationship::Typification::Genus::OriginalDesignation < TaxonNam
         [TaxonNameRelationship::Typification::Genus::SubsequentDesignation.to_s]
   end
 
+  def self.subject_relationship_name
+    'type species by original designation'
+  end
+
   def self.assignment_method
     :type_species_by_original_designation 
   end

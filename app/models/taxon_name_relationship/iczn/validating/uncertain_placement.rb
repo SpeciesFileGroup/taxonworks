@@ -14,7 +14,7 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
     :iczn_uncertain_placement
   end
 
-  def self.subject_relationship_name
+  def self.object_relationship_name
     'incertae sedis'
   end
 

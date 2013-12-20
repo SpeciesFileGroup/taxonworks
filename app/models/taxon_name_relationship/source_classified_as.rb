@@ -22,6 +22,10 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
         TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s}
   end
 
+  def self.object_relationship_name
+    'classified as'
+  end
+
   def self.assignment_method
     :source_classified_as
   end

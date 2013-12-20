@@ -4,6 +4,15 @@ class TaxonNameRelationship::Icn::Accepting::ConservedName < TaxonNameRelationsh
     true
   end
 
+  def self.subject_relationship_name
+    'conserved name'
+  end
+
+  def self.object_relationship_name
+    'rejected name'
+  end
+
+
   def self.assignment_method
     # aus.icn_conserved_name = bus
     :icn_conserved_name

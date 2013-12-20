@@ -12,6 +12,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Rejected < TaxonNameRelationship:
         TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Legitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'rejected'
+  end
+
+  def self.object_relationship_name
+    'conserved'
+  end
+
+
   def self.assignment_method
     # aus.icn_rejected = bus
     :icn_rejected

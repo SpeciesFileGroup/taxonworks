@@ -13,6 +13,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelati
         TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'basionym'
+  end
+
   def self.assignment_method
     # aus.icn_basionym = bus
     :icn_basionym

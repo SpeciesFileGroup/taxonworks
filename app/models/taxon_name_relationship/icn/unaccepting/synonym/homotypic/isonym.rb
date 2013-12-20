@@ -7,6 +7,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym < Taxo
         [TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant.to_s]
   end
 
+  def self.subject_relationship_name
+    'isonym'
+  end
+
+
   def self.assignment_method
     # aus.icn_isonym = bus
     :icn_isonym

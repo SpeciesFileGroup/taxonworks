@@ -6,6 +6,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic < TaxonNameR
         TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'heterotypic synonym'
+  end
+
+  def self.object_relationship_name
+    'heterotypic senior synonym'
+  end
+
+
   def self.assignment_method
     # aus.icn_heterotypic_synonym = bus
     :icn_heterotypic_synonym

@@ -10,6 +10,10 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
     NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'alternative family name'
+  end
+
   def self.assignable
     true
   end
