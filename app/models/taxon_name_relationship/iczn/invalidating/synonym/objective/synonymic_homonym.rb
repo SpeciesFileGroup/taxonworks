@@ -7,6 +7,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHo
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.to_s]
   end
 
+  def self.subject_relationship_name
+    'synonymic homonym'
+  end
+
+  def self.object_relationship_name
+    'senior synonymic homonym'
+  end
+
   def self.assignment_method
     # aus.iczn_synonymic_homonym = bus
     :iczn_synonymic_homonym

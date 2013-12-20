@@ -11,8 +11,17 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
         TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
-        [TaxonNameClass::Iczn::Available::Invalid.to_s]
+        TaxonNameClass::Iczn::Available::Invalid.descendants.collect{|t| t.to_s}
   end
+
+  def self.subject_relationship_name
+    'homonym'
+  end
+
+  def self.object_relationship_name
+    'senior homonym'
+  end
+
 
   def self.assignment_method
     # aus.iczn_homonym = bus

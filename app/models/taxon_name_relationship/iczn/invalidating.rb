@@ -35,5 +35,14 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     :set_as_iczn_invalid_of
   end
 
+  def self.subject_relationship_name
+    'invalid name'
+  end
+
+  def self.object_relationship_name
+    'valid name'
+  end
+
+
 
 end

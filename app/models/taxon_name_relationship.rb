@@ -69,6 +69,14 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
+  def self.subject_relationship_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
+  def self.object_relationship_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
   def type_name
     TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
   end

@@ -7,6 +7,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Condition
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total.to_s]
   end
 
+  def self.subject_relationship_name
+    'conditionaly suppressed name'
+  end
+
   def self.assignment_method
     # aus.iczn_conditional_suppression = bus
     :iczn_conditional_suppression

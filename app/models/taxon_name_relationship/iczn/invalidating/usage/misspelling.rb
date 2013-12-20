@@ -5,6 +5,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
         TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'misspelling'
+  end
+
+  def self.object_relationship_name
+    'correct spelling'
+  end
+
+
   def self.assignment_method
     # aus.misspelling = bus
     :iczn_misspelling

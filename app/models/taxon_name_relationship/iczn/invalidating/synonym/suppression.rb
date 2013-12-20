@@ -10,6 +10,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.to_s]
   end
 
+  def self.subject_relationship_name
+    'suppressed name'
+  end
+
+  def self.object_relationship_name
+    'conserved name'
+  end
+
+
   def self.assignment_method
     # aus.iczn_suppression = bus
     :iczn_suppression

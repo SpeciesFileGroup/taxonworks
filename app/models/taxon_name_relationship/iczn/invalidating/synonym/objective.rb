@@ -9,6 +9,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
   end
 
+  def self.subject_relationship_name
+    'objective synonym'
+  end
+
+  def self.object_relationship_name
+    'objective senior synonym'
+  end
+
+
   def self.assignment_method
     # aus.iczn_objective_synonym = bus
     :iczn_objective_synonym

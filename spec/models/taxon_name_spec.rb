@@ -325,7 +325,7 @@ describe TaxonName do
         s.reload
         expect(s.taxon_name_relationships.count).to eq(3)
         s.soft_validate
-        expect(s.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s.soft_validations.messages_on(:base).count).to eq(2)
         r3.valid?
       end
     end

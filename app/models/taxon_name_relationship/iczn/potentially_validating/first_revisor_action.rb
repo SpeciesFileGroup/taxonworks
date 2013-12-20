@@ -4,6 +4,10 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     true
   end
 
+  def self.subject_relationship_name
+    'first revisor action'
+  end
+
   def self.assignment_method
     # aus.iczn_first_revisor_action = bus
     :iczn_first_revisor_action

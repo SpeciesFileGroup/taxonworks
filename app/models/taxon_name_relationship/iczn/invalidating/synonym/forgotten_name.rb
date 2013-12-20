@@ -10,6 +10,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
   end
 
+  def self.subject_relationship_name
+    'nomen oblitum'
+  end
+
+  def self.object_relationship_name
+    'nomen protectum'
+  end
+
   def self.assignment_method
     # aus.iczn_forgotten_name = bus
     :iczn_forgotten_name

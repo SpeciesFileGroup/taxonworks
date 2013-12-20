@@ -5,6 +5,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < Taxo
         TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'misidentification'
+  end
+
+  def self.object_relationship_name
+    'correct identification'
+  end
+
+
   def self.assignment_method
     # aus.iczn_misidentification = bus
     :iczn_misidentification

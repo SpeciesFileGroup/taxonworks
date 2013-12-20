@@ -13,6 +13,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
         [TaxonNameClass::Iczn::Available::Invalid.to_s]
   end
 
+  def self.subject_relationship_name
+    'synonym'
+  end
+
+  def self.object_relationship_name
+    'senior synonym'
+  end
+
+
   def self.assignment_method
          # aus.iczn_synonym = bus
     :iczn_synonym

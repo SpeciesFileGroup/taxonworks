@@ -4,6 +4,15 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
     true
   end
 
+  def self.subject_relationship_name
+    'nomen novum'
+  end
+
+  def self.object_relationship_name
+    'homonym'
+  end
+
+
   def self.assignment_method
     # aus.iczn_replacement_name = bus
     :iczn_replacement_name

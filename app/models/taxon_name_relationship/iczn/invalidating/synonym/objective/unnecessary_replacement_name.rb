@@ -7,6 +7,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym.to_s]
   end
 
+  def self.subject_relationship_name
+    'unnecessary replacement name'
+  end
+
   def self.assignment_method
     # aus.iczn_unnecessary_replacement_name = bus
     :iczn_unnecessary_replacement_name

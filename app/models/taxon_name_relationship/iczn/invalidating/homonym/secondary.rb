@@ -16,6 +16,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
         [TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary.to_s]
   end
 
+  def self.subject_relationship_name
+    'secondary homonym'
+  end
+
+  def self.object_relationship_name
+    'senior secondary homonym'
+  end
+
+
   def self.assignment_method
     # aus.iczn_secondary_homonym = bus
     :iczn_secondary_homonym

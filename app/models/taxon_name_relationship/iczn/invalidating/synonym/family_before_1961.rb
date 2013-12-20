@@ -20,6 +20,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961 < Tax
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
   end
 
+  def self.subject_relationship_name
+    'family name based on genus synonym replaced before 1961'
+  end
+
   def self.assignment_method
     # aus.iczn_family_before_1961 = bus
     :iczn_family_before_1961

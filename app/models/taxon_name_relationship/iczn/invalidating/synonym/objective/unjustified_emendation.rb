@@ -7,6 +7,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
         [TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.to_s]
   end
 
+  def self.subject_relationship_name
+    'unjustified emendation'
+  end
+
+  def self.object_relationship_name
+    'correct original spelling'
+  end
+
   def self.assignment_method
     # aus.iczn_unjustified_emendation = bus
     :iczn_unjustified_emendation

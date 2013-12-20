@@ -15,4 +15,8 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating < TaxonNameRelationship
         TaxonNameClass::Iczn::Available::Valid.descendants.collect{|t| t.to_s}
   end
 
+  def self.subject_relationship_name
+    'potentially valid'
+  end
+
 end

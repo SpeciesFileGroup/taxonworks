@@ -12,6 +12,14 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
         [TaxonNameClass::Iczn::Available::Invalid.to_s]
   end
 
+  def self.subject_relationship_name
+    'valid name'
+  end
+
+  def self.subject_relationship_name
+    'invalid name'
+  end
+
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
         TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
