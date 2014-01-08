@@ -38,7 +38,7 @@ describe GeographicArea do
             puts "#{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
           }
 =end
-          expect(file.num_records).to eq 3145
+          expect(file.num_records).to eq 218238
         } if !(filename =~ /[01]/) # just read the counties
       }
 
