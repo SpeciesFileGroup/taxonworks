@@ -344,7 +344,7 @@ class TaxonName < ActiveRecord::Base
     compare = disjoint_subject_classes & classification_names
     compare.each do |i|
       relationships.each do |j|
-        disjoint_subject_classes j.type_class.disjoint_subject_classes
+        disjoint_subject_classes = j.type_class.disjoint_subject_classes
         soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
       end
     end
