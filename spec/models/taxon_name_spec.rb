@@ -328,15 +328,23 @@ describe TaxonName do
         expect(s.soft_validations.messages_on(:base).count).to eq(2)
         expect(r3.valid?).to be_true
       end
-
       specify 'disjoint classes' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable::NonBinomial)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable)
         c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames)
         s.soft_validate
         expect(s.soft_validations.messages_on(:base).count).to eq(2)
+      end
+      specify 'disjoint objects' do
+        g = FactoryGirl.create(:iczn_genus, parent: @family)
+        s = FactoryGirl.create(:iczn_species, parent: g)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable)
+        g.soft_validate
+        expect(g.soft_validations.messages_on(:base).count).to eq(1)
       end
     end
   end

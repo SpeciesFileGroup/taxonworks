@@ -9,6 +9,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
         TaxonNameClassification::Iczn::Available::Valid.descendants.collect{|t| t.to_s} +
+        [TaxonNameClassification::Iczn::Available.to_s] +
         [TaxonNameClassification::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
         [TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames.to_s] +
         [TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s]

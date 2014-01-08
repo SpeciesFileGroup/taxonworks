@@ -330,8 +330,8 @@ class TaxonName < ActiveRecord::Base
     compare = disjoint_object_classes & classification_names
     compare.each do |i|
       relationships.each do |j|
-        disjoint_object_classes j.type_class.disjoint_object_classes
-        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.constantize.object_relationship_name}'") if disjoint_object_classes & [i] != 0
+        disjoint_object_classes = j.type_class.disjoint_object_classes
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.object_relationship_name}'") if disjoint_object_classes & [i] != 0
       end
     end
   end
@@ -345,7 +345,7 @@ class TaxonName < ActiveRecord::Base
     compare.each do |i|
       relationships.each do |j|
         disjoint_subject_classes j.type_class.disjoint_subject_classes
-        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
       end
     end
   end
