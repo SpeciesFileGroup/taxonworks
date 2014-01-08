@@ -6,13 +6,14 @@ class TaxonNameClassification < ActiveRecord::Base
 
   before_validation :validate_taxon_name_class_class
   validates_presence_of :taxon_name, presence: true
+  validates_uniqueness_of :taxon_name_id, scope: :type
 
   # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
 
   soft_validate(:sv_proper_classification)
 
   def type_name
-    TAXON_NAME_CLASS_NAMES.include?(self.type) ? self.type.to_s : nil
+    TAXON_NAME_CLASS_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
   end
 
   def type_class=(value)

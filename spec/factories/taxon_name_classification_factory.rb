@@ -1,5 +1,3 @@
 FactoryGirl.define do
-  factory :taxon_name_classification, traits: [:housekeeping] do
-    
-  end
+  factory :taxon_name_classification, traits: [:housekeeping]
 end

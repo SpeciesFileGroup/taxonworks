@@ -10,14 +10,6 @@ class TaxonNameClass::Iczn::Unavailable < TaxonNameClass::Iczn
     [TaxonNameClass::Iczn::Available.to_s]
   end
 
-
-  class Homonym < TaxonNameClass::Iczn::Unavailable
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClass::Iczn::Unavailable.to_s]
-    end
-  end
-
   class BasedOnSuppressedGenus < TaxonNameClass::Iczn::Unavailable
     def self.applicable_ranks
       NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}

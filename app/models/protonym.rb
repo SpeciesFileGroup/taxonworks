@@ -13,7 +13,6 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
-
   # subject                      object
   # Aus      original_genus of   bus
   # aus      type_species of     Bus

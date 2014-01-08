@@ -5,8 +5,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
-  validates_uniqueness_of :object_taxon_name_id,  scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id,  scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object,

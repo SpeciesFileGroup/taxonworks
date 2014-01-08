@@ -308,7 +308,7 @@ class TaxonName < ActiveRecord::Base
     disjoint_relationships = relationships.map{|i| i.type_class.disjoint_taxon_name_relationships}.flatten
     compare = disjoint_relationships & relationship_names
     compare.each do |i|
-      soft_validations.add(:base, "Taxon has a conflicting relationship: '#{i.constantize.subject_relationship_name}'") if compare.count != 0
+      soft_validations.add(:base, "Taxon has a conflicting relationship: '#{i.constantize.subject_relationship_name}'")
     end
   end
 
@@ -317,7 +317,9 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_classifications = classifications.map{|i| i.type_class.disjoint_taxon_name_classes}.flatten
     compare = disjoint_classifications & classification_names
-    soft_validations.add(:base, 'Taxon has conflicting statuses') if compare.count != 0
+    compare.each do |i|
+      soft_validations.add(:base, "Taxon has a conflicting status: '#{i.constantize.class_name}'")
+    end
   end
 
   def sv_validate_disjoint_objects
@@ -326,7 +328,12 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_object_classes = relationships.map{|i| i.type_class.disjoint_object_classes}.flatten
     compare = disjoint_object_classes & classification_names
-    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
+    compare.each do |i|
+      relationships.each do |j|
+        disjoint_object_classes j.type_class.disjoint_object_classes
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.constantize.object_relationship_name}'") if disjoint_object_classes & [i] != 0
+      end
+    end
   end
 
   def sv_validate_disjoint_subjects
@@ -335,7 +342,12 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_subject_classes = relationships.map{|i| i.type_class.disjoint_subject_classes}.flatten
     compare = disjoint_subject_classes & classification_names
-    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
+    compare.each do |i|
+      relationships.each do |j|
+        disjoint_subject_classes j.type_class.disjoint_subject_classes
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
+      end
+    end
   end
 
   def sv_validate_parent_rank
