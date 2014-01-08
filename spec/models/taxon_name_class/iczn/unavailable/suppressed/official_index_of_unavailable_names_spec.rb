@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe TaxonNameClass::Iczn::Unavailable::Suppressed::OfficialIndexOfUnavailableNames do
+describe TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfUnavailableNames do
   pending "add some examples to (or delete) #{__FILE__}"
 end

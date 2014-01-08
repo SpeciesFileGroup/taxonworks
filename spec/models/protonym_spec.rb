@@ -541,8 +541,8 @@ describe Protonym do
 
     context 'classifications' do
       before(:all) do
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available, taxon_name: @s)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClass::Iczn::Available::Valid, taxon_name: @g )
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Available, taxon_name: @s)
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Available::Valid, taxon_name: @g )
       end
 
       after(:all) do
@@ -557,14 +557,14 @@ describe Protonym do
       end
 
       specify 'without_taxon_name_classification' do
-        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available')).to have(Protonym.count - 1).things
-        expect(Protonym.without_taxon_name_classification('TaxonNameClass::Iczn::Available::Valid')).to have(Protonym.count - 1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available')).to have(Protonym.count - 1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available::Valid')).to have(Protonym.count - 1).things
       end
  
       specify 'with_taxon_name_classification_base' do
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn') ).to have(2).things
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available') ).to have(2).things
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClass::Iczn::Available::Valid') ).to have(1).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available') ).to have(2).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available::Valid') ).to have(1).things
       end
       specify 'with_taxon_name_classification_containing' do
         expect(Protonym.with_taxon_name_classification_containing('Iczn') ).to have(2).things

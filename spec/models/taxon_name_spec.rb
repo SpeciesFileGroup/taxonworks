@@ -331,10 +331,12 @@ describe TaxonName do
 
       specify 'disjoint classes' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClass::Iczn::Unavailable::NonBinomial)
-        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClass::Iczn::Available::OfficialListOfAvailableNames)
-        g.soft_validate
-        expect(g.soft_validations.messages_on(:base).count).to eq(2)
+        s = FactoryGirl.create(:iczn_species, parent: g)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable::NonBinomial)
+        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames)
+        s.soft_validate
+        expect(s.soft_validations.messages_on(:base).count).to eq(2)
       end
     end
   end

@@ -7,9 +7,9 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        [TaxonNameClass::Icn::NotEffectivelyPublished.to_s] +
-        TaxonNameClass::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
-        TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
+        [TaxonNameClassification::Icn::NotEffectivelyPublished.to_s] +
+        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
+        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
   end
 
   def self.subject_relationship_name
