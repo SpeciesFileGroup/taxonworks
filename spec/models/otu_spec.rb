@@ -47,5 +47,6 @@ describe Otu do
     # it_behaves_like 'citable' # => maybe  
     it_behaves_like 'identifiable'
     it_behaves_like 'data_attributes'
+    it_behaves_like 'taggable'
   end
 end
