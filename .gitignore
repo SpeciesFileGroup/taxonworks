@@ -39,3 +39,4 @@ index.html
 coverage/
 
 *.wkt
+*.sql

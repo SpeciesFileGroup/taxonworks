@@ -28,5 +28,11 @@ shared_examples 'data_attributes' do
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10', 'Color' => 'purple')
     end
   end
+
+  context 'adding lots of attributes' do
+    specify 'add_import_attributes(hash) should add multiple pairs of ImportAttributes' do
+      pending
+    end 
+  end
 end
 

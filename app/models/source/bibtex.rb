@@ -80,7 +80,7 @@
 #   each editor name should be separated by the word " and ". It should be noted that all the names before the
 #   comma are treated as a single last name.
 #
-#   If there is also an author field, then the editor field gives the editor of the book or collection in
+#   If there is also an author field, then the editor field gives the editor of the book or collection in
 #   which the reference appears.
 #   @return [String] the list of editor names in BibTeX format
 #   @return [nil] means the attribute is not stored in the database.
@@ -89,7 +89,7 @@
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 #   Title of a book, part of which is being cited. See the LaTEX book for how to type titles.
-#   For book entries, use the title field instead.
+#   For book entries, use the title field instead.
 #   @return[String] the title of the book
 #   @return [nil] means the attribute is not stored in the database.
 #

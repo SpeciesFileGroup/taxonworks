@@ -36,4 +36,8 @@ describe ControlledVocabularyTerm do
     specify 'definition is unique within projects per type'
     specify 'is case sensitive, i.e. bat and Bat are different'
   end
+
+  context 'concerns' do
+   it_behaves_like 'alternate_values'
+  end
 end
