@@ -144,6 +144,20 @@ describe Source::Bibtex do
       local_src.valid?
       expect(local_src.errors.full_messages.include?(error_message)).to be_false
     end
+    specify 'month must be in %w{jan feb mar ...}' do
+      pending
+    end
+    specify 'year, if present, must be int length 4' do
+      pending
+    end
+    specify 'day, if present, must be valid for month' do
+      pending
+    end
+    specify 'generate_nomenclature_date requirements' do
+      # Beth- test valid/invalid expectations of values for year, month, day as examples for reference
+      pending
+    end
+    
   end
 
   context 'instance methods - ' do
