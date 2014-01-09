@@ -5,6 +5,7 @@ class Otu < ActiveRecord::Base
   include Shared::Notable
   include Shared::DataAttributes
   include Shared::Taggable
+  include Shared::AlternateValues
 
   has_many :contents
   has_many :otu_contents

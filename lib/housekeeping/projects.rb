@@ -5,7 +5,7 @@ module Housekeeping::Projects
 
   included do
    # not added tot he model, just used to extend models here
-   related_instances = self.name.demodulize.underscore.pluralize.to_sym
+   related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' gives :threes
    related_class = self.name
 
    # these are added to the model 
