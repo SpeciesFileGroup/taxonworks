@@ -4,6 +4,7 @@ class Otu < ActiveRecord::Base
   include Shared::Citable        # TODO: have to think hard about this vs. using Nico's framework
   include Shared::Notable
   include Shared::DataAttributes
+  include Shared::Taggable
 
   has_many :contents
   has_many :otu_contents
