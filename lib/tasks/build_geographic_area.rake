@@ -90,6 +90,9 @@ def read_shape(filename, index)
   # TODO: For some reason, Georeference::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
   # See http://dazuma.github.io/rgeo-shapefile/rdoc/RGeo/Shapefile/Reader.html for reader options.
 
+  # ne10 = RGeo::Shapefile::Reader.open('G:\Share\Downloads\PostgreSQL\PostGIS\10m_cultural\10m_cultural\ne_10m_admin_0_countries.shp', factory: Georeference::FACTORY)
+  # gadm = RGeo::Shapefile::Reader.open('G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp', factory: Georeference::FACTORY)
+
   RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY) { |file|
 
     file.seek_index(index)
@@ -497,6 +500,8 @@ def read_dbf(filenames)
                     "Shape_Area" => 0.0798353069113}
 
     if divisions == true
+      # this section is specifically, and only, for gathering the English names of the divisions from level_1 and level_2 named areas
+
       gadm2.each { |item|
 
         s0 = "#{item['OBJECTID']}: "
@@ -573,6 +578,7 @@ def read_dbf(filenames)
     end
 
     iso.each { |line|
+      # this section is for capturing country names and iso_a2 codes from the "country_names_and_code_elements" file.
       if line.strip!.length > 6 # minimum line size to contain useful data
 
         # break down the useful data
@@ -648,6 +654,7 @@ def read_dbf(filenames)
       i1 = l1_name
       s1 = i1.empty? ? '' : ("\"" + i1 + "\", ")
       a1 = "#{s5}#{s4}#{s3}#{s2}#{s1}\"#{l0_name}\"."
+      a1 = "#{s5}#{s2}#{s1}\"#{l0_name}\"."
       puts "#{gadm_id}: #{a1}"
 
       # build lvl0 key value from lvl0 data
@@ -797,9 +804,9 @@ def read_dbf(filenames)
 
           ga.gadm_valid_from = item['VALIDFR_2']
           ga.gadm_valid_to   = item['VALIDTO_2']
-          ga.level2 = ga.parent.parent
+          ga.level0 = ga.parent.parent
           ga.level1 = ga.parent
-          ga.level0 = ga
+          ga.level2 = ga
 
           # put the item in the lvl2 list
           place = {l2_key => ga}
