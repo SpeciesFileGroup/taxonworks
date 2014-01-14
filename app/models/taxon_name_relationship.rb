@@ -1,6 +1,11 @@
 class TaxonNameRelationship < ActiveRecord::Base
 
   include Housekeeping
+  include Shared::Citable
+
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
+  belongs_to :source
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -16,19 +21,16 @@ class TaxonNameRelationship < ActiveRecord::Base
   # TODO: refactor once housekeeping stabilizes
   before_validation :assign_houskeeping_if_possible, on: :create
 
-  def is_combination?
-    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
-  end
-
-  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
-  belongs_to :source 
-
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
   scope :not_self, -> (id) {where('id != ?', id )}
+
+  def is_combination?
+    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
+  end
 
   def aliases
     []

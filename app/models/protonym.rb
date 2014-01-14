@@ -32,51 +32,26 @@ class Protonym < TaxonName
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
-  # A specific relationship
-  scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
-  scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  #  find classifications for taxon
+  scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
+  # scope :with_taxon_name_classifications_on_taxon_name, -> {joins(:taxon_name_classifications)}
 
-  scope :as_subject_without_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT LIKE ?) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
 
-  scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
-  scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
-  scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
-  scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
-  scope :with_taxon_name_relationship, -> (relationship) { 
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-    where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship) 
-  }
- 
-  # *Any* relationship where there IS a relationship for a subject/object/both 
-  scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
-  scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
-  scope :with_taxon_name_relationships, -> {
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-    where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL') 
-  }
-
-  # *Any* relationship where there is NOT a relationship for a subject/object/both 
-  scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
-  scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
-  scope :without_taxon_name_relationships, -> { 
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-    where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL') 
-  }
+  # find taxa with classifications
   scope :with_taxon_name_classifications, -> { joins(:taxon_name_classifications) }
   scope :with_taxon_name_classification, -> (taxon_name_class_name) { includes(:taxon_name_classifications).where('taxon_name_classifications.type = ?', taxon_name_class_name).references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_base, -> (taxon_name_class_name_base) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "#{taxon_name_class_name_base}%").references(:taxon_name_classifications) }
+  scope :with_taxon_name_classification_array, -> (taxon_name_class_name_base_array) { includes(:taxon_name_classifications).where('taxon_name_classifications.type in (?)', taxon_name_class_name_base_array).references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_containing, -> (taxon_name_class_name_fragment) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "%#{taxon_name_class_name_fragment}%").references(:taxon_name_classifications) }
   scope :without_taxon_name_classification, -> (taxon_name_class_name) { includes(:taxon_name_classifications).where('(taxon_name_classifications.type != ?) OR (taxon_name_classifications.id IS NULL)', taxon_name_class_name).references(:taxon_name_classifications) }
 
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
 
-  scope :that_is_valid, -> { 
+  scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
     # joins('LEFT OUTER JOIN taxon_name_classifications tnc ON taxon_names.id = tnc.taxon_name_id').
-    where('( (tnr.type NOT LIKE "TaxonNameRelationship::Iczn::Invalidating%" AND tnr.type NOT LIKE "TaxonNameRelationship::Icn::Unaccepting%") OR tnr.type IS NULL )') # AND (( tnc.type NOT LIKE "" AND tnc.type NOT LIKE "") OR tnc.type is null)) OR (tnr.id IS NULL AND tnc.id IS NULL)
+    # where('( (tnr.type NOT LIKE "TaxonNameRelationship::Iczn::Invalidating%" AND tnr.type NOT LIKE "TaxonNameRelationship::Icn::Unaccepting%") OR tnr.type IS NULL )') # AND (( tnc.type NOT LIKE "" AND tnc.type NOT LIKE "") OR tnc.type is null)) OR (tnr.id IS NULL AND tnc.id IS NULL)
+    where('taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE "TaxonNameRelationship::Iczn::Invalidating%" OR type LIKE "TaxonNameRelationship::Icn::Unaccepting%")')
   }
 
   soft_validate(:sv_source_older_then_description, set: :promblematic_relationships)
