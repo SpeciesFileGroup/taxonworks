@@ -11,7 +11,7 @@ describe Source::Bibtex do
     @gem_bibtex_entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
                                            year: 1921)
     @gem_bibtex_entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
-                                           year: 1921)
+                                           year: '1921')
     @valid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
                                                year: 1921, publisher: 'Test Books Inc.')
     @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America',
@@ -104,6 +104,7 @@ describe Source::Bibtex do
     end
 
   end
+
 
   context 'Ruby BibTeX related instance methods' do
     before(:each) do
@@ -377,7 +378,26 @@ describe Source::Bibtex do
   end
 
   context 'attributes' do
-    pending 'Must facilitate letter annotations on year'
+    context 'Must facilitate letter annotations on year' do
+      specify 'correctly generates year suffix from BibTeX entry' do
+        bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                              year: '1921b')
+        src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+        expect(src.year.to_s).to eq('1921') # year is an int by default
+        expect(src.year_suffix).to eq('b')
+        expect(src.year_with_suffix).to eq('1921b')
+      end
+      specify 'correctly converts year suffix to BibTeX enty' do
+        src = FactoryGirl.create(:valid_bibtex_source)
+        src[:year] = '1922'
+        src[:year_suffix] = 'c'
+        expect(src.year_with_suffix).to eq('1922c')
+        bibtex_entry = src.to_bibtex
+        expect(bibtex_entry[:year]).to eq('1922c')
+      end
+
+    end
+
   end
 
   context 'associations' do
@@ -471,16 +491,51 @@ describe Source::Bibtex do
     end
   end
 
-  context 'soft validations' do
-    before(:each) {
+  describe 'soft validations' do
+    before(:each) do
       # this is a TW Source::Bibtex - type article, with just a title
       @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
-    }
+    end
 
     specify 'missing authors' do
+      @source_bibtex.soft_validate(:recommended_fields)
+      expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_false
+      expect(@source_bibtex.soft_validations.messages).to \
+                        include 'There is neither an author,nor editor associated with this source.'
+      @source_bibtex.author = 'Smith, Bill'
+      @source_bibtex.save
+      @source_bibtex.soft_validate(:recommended_fields)
+      expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_true
+    end
+
+    specify 'Day is between 1 and 31 inclusive' do
+      @source_bibtex[:day] = 31
+      @source_bibtex.soft_validate
+      #expect(@source_bibtex.soft_valid?).to be_true
+      expect(@source_bibtex.soft_validations.messages_on(:day).empty?).to be_true
+      @source_bibtex[:day] = 0
       @source_bibtex.soft_validate
       expect(@source_bibtex.soft_valid?).to be_false
-      expect(@source_bibtex.soft_validations.messages).to include 'There is no author associated with this source.'
+      expect(@source_bibtex.soft_validations.messages_on(:day)).to include 'The provided day is invalid'
+      @source_bibtex[:day] = 32
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_false
+      expect(@source_bibtex.soft_validations.messages).to include 'The provided day is invalid'
+      @source_bibtex[:day] = 5
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_true
+    end
+    specify 'Year has more than 4 digits' do
+
+    end
+    describe 'Test that the Month is valid' do
+      it 'handles full month'
+      it 'handles integer month'
+      it 'generates error on integer month > 12'
+      it 'handles roman numeral month'
+      it 'generates error on invalid text month' do
+
+      end
     end
   end
   context('Beth') do

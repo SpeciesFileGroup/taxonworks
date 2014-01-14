@@ -264,15 +264,15 @@ class Source::Bibtex < Source
         -> {order(:nomenclature_date).where(!(:nomenclature_date.nil?))}
 
 #region soft_validate calls
-  soft_validate(:sv_has_authors)
-  soft_validate(:sv_year_exists)
+  #@soft_validate(:sv_has_authors)
+  #soft_validate(:sv_year_exists)
   soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
   soft_validate(:sv_has_a_date, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
-  soft_validate(:missing_required_bibtex_fields)
+  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
 #endregion
 
 #region constants
@@ -298,6 +298,9 @@ class Source::Bibtex < Source
         b[f] = self.send(f)
       end
     end
+    if !self[:year_suffix].blank?
+      b[:year] = self.year_with_suffix
+    end
     # TODO add conversion of identiifers to ruby-bibtex fields, & notations to notes field.
     b
   end
@@ -313,9 +316,24 @@ class Source::Bibtex < Source
         bibtex_type: bibtex_entry.type.to_s,
     )
     bibtex_entry.fields.each do |key, value|
-      s[key] = value.to_s
+      v = value.to_s.strip
+      # eventually this should probably be changed to a case statement
+      if (key == :year)
+        s[:year] = value.to_i
+        if !(s[:year].to_s == v) # has year suffix
+          s[:year_suffix] = v[4, v.length-1]
+        end
+      else
+        s[key] = v
+      end
     end
     s
+  end
+
+  # @return[String] A string that represents the year with suffix as seen in a BibTeX bibliography.
+  #   returns "" if neither :year or :year_suffix are set.
+  def year_with_suffix
+    self[:year].to_s + self[:year_suffix].to_s
   end
 
   def create_related_people
@@ -545,7 +563,7 @@ class Source::Bibtex < Source
 
   def sv_has_institution
     if (self.institution.blank?)
-      soft_validations.add(:institution, 'There is not institution associated with this  tech report.')
+      soft_validations.add(:institution, 'There is not institution associated with this tech report.')
     end
   end
 
@@ -570,7 +588,7 @@ class Source::Bibtex < Source
 
   end
 
-  def missing_required_bibtex_fields
+  def sv_missing_required_bibtex_fields
     case self.bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
         sv_has_authors
