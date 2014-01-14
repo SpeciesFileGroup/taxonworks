@@ -51,6 +51,18 @@ describe 'Housekeeping::User' do
         expect(@i.errors.include?(:updater)).to be_true  # there is no project with id 1 in the present paradigm
       end
     end
+
+    context 'class method' do
+      specify 'all creators' do
+        expect(HousekeepingTestClass::WithUser).to respond_to(:all_creators)
+        #expect(HousekeepingTestClass::WithUser.all_creators).to eq([])
+      end
+    end
+    context 'instance methods' do
+      specify 'alive?' do
+        expect(instance).to respond_to(:alive?)
+      end
+    end
   end
   
   context 'Projects' do
