@@ -5,6 +5,14 @@ FactoryGirl.define do
       title 'article 1 just title'
     end
 
+    factory :soft_valid_bibtex_source_article do
+      bibtex_type 'article'
+      title 'I am a soft valid article'
+      author 'Person, Test'
+      journal 'Journal of test articles'
+      year '2222'
+    end
+
     factory :valid_bibtex_source_book_title_only do
       bibtex_type 'book'
       title 'valid book with just a title'

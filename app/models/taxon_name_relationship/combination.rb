@@ -11,11 +11,11 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   def self.disjoint_subject_classes
-    TaxonNameClass.descendants.collect{|t| t.to_s}
+    TaxonNameClassification.descendants.collect{|t| t.to_s}
   end
 
   def self.disjoint_object_classes
-    TaxonNameClass.descendants.collect{|t| t.to_s}
+    TaxonNameClassification.descendants.collect{|t| t.to_s}
   end
 
 end

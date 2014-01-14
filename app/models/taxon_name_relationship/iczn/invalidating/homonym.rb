@@ -10,8 +10,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
-        TaxonNameClass::Iczn::Available::Invalid.descendants.collect{|t| t.to_s}
+        TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
+        [TaxonNameClassification::Iczn::Unavailable.to_s] +
+        TaxonNameClassification::Iczn::Available::Invalid.descendants.collect{|t| t.to_s}
   end
 
   def self.subject_relationship_name

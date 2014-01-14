@@ -28,7 +28,7 @@ describe TaxonNameClassification do
         expect(taxon_name_classification.errors.include?(:type)).to be_true
       end
       specify "invalid type" do
-        taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum
+        taxon_name_classification.type = TaxonNameClassification::Iczn::Unavailable::NomenNudum
         taxon_name_classification.valid?
         expect(taxon_name_classification.errors.include?(:type)).to be_false
       end
@@ -41,18 +41,18 @@ describe TaxonNameClassification do
       @taxon_name_classification = FactoryGirl.build(:taxon_name_classification, taxon_name: @species) 
     end
    specify "applicable type and year" do
-     @taxon_name_classification.type = TaxonNameClass::Iczn::Unavailable::NomenNudum
+     @taxon_name_classification.type = TaxonNameClassification::Iczn::Unavailable::NomenNudum
      expect(@taxon_name_classification.soft_validate).to be_true
      expect(@taxon_name_classification.soft_validations.messages_on(:type).count).to eq(0)
    end
     specify "unapplicable type" do
-      @taxon_name_classification.type = 'TaxonNameClass::Iczn::Unavailable::NomenNudum::NotFromGenusName'
+      @taxon_name_classification.type = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName'
       expect(@taxon_name_classification.valid?).to be_true
       expect(@taxon_name_classification.soft_validate).to be_true
       expect(@taxon_name_classification.soft_validations.messages_on(:type).count).to be > 0
     end
     specify "unapplicable year" do
-      @taxon_name_classification.type = 'TaxonNameClass::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat'
+      @taxon_name_classification.type = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat'
       expect(@taxon_name_classification.valid?).to be_true
       expect(@taxon_name_classification.soft_validate).to be_true
       expect(@taxon_name_classification.soft_validations.messages_on(:type).count).to be > 0

@@ -8,11 +8,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
 
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
-        [TaxonNameClass::Icn::NotEffectivelyPublished.to_s] +
-        TaxonNameClass::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
-        [TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym.to_s] +
-        [TaxonNameClass::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Seperfluous.to_s] +
-        TaxonNameClass::Icn::EffectivelyPublished::ValidlyPublished.Legitimate.descendants.collect{|t| t.to_s}
+        [TaxonNameClassification::Icn::NotEffectivelyPublished.to_s] +
+        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
+        [TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym.to_s] +
+        [TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Seperfluous.to_s] +
+        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished.Legitimate.descendants.collect{|t| t.to_s}
   end
 
   def self.subject_relationship_name

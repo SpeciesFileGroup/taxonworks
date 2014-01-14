@@ -13,4 +13,11 @@ ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.colle
 # Array of all assignable TaxonNameRelationship classes, as Strings
 TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}
 
+# Array of all invalid TaxonNameRelationship classes, as Strings
+TAXON_NAME_RELATIONSHIP_NAMES_INVALID = [TaxonNameRelationship::Iczn::Invalidating::Synonym.to_s] +
+    TaxonNameRelationship::Iczn::Invalidating::Synonym.descendants.collect{|d| d.to_s} +
+    TaxonNameRelationship::Iczn::Invalidating::Usage.descendants.collect{|d| d.to_s} +
+    [TaxonNameRelationship::Icn::Unaccepting.to_s] +
+    TaxonNameRelationship::Icn::Unaccepting.descendants.collect{|d| d.to_s}
+
 

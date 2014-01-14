@@ -12,7 +12,7 @@ FactoryGirl.define do
     password_confirmation 'abcdefgZ123*'
   end
 
-  factory :user, class: User do
+  factory :user do
     factory :valid_user, aliases: [:creator, :updater], traits: [:user_email, :user_password] 
     factory :test_user, traits: [:user_email] 
   end

@@ -8,15 +8,16 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
 
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
-        TaxonNameClass::Iczn::Available::Valid.descendants.collect{|t| t.to_s} +
-        [TaxonNameClass::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
-        [TaxonNameClass::Iczn::Available::OfficialListOfAvailableNames.to_s] +
-        [TaxonNameClass::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s]
+        TaxonNameClassification::Iczn::Available::Valid.descendants.collect{|t| t.to_s} +
+        [TaxonNameClassification::Iczn::Available.to_s] +
+        [TaxonNameClassification::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
+        [TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames.to_s] +
+        [TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s]
   end
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        TaxonNameClass::Iczn::Unavailable.descendants.collect{|t| t.to_s}
+        TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s}
   end
 
 

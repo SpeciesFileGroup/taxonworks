@@ -1,18 +1,49 @@
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
+  include Shared::Citable
   include SoftValidation
 
   belongs_to :taxon_name
 
-  before_validation :validate_taxon_name_class_class
+  before_validation :validate_taxon_name_classlassification
   validates_presence_of :taxon_name, presence: true
+  validates_uniqueness_of :taxon_name_id, scope: :type
 
   # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
 
+  scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
+  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
+  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :not_self, -> (id) {where('id != ?', id )}
+
+
   soft_validate(:sv_proper_classification)
 
+  # Return a String with the "common" name for this class.
+  def self.class_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
+  # years of applicability for each class
+  def self.code_applicability_start_year
+    1
+  end
+
+  def self.code_applicability_end_year
+    9999
+  end
+
+  def self.applicable_ranks
+    []
+  end
+
+  def self.disjoint_taxon_name_classes
+    []
+  end
+
   def type_name
-    TAXON_NAME_CLASS_NAMES.include?(self.type) ? self.type.to_s : nil
+    TAXON_NAME_CLASS_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
   end
 
   def type_class=(value)
@@ -24,8 +55,8 @@ class TaxonNameClassification < ActiveRecord::Base
     TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : r
   end
 
-  def validate_taxon_name_class_class
-    errors.add(:type, "status not found") if !TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
+  def validate_taxon_name_classlassification
+    errors.add(:type, "status not found") unless TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
   end
 
   #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)

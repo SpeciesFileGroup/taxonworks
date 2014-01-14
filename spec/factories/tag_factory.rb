@@ -1,10 +1,8 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
 FactoryGirl.define do
   factory :tag, traits: [:housekeeping] do
-    keyword nil
-    tag_object_id 1
-    tag_object_type "MyString"
-    tag_object_attribute "MyString"
+    factory :valid_tag do
+      association :tag_object, factory: :valid_otu
+      association :keyword, factory: :valid_keyword
+    end
   end
 end

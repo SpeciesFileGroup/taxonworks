@@ -11,7 +11,7 @@ describe Source::Bibtex do
     @gem_bibtex_entry1 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
                                            year: 1921)
     @gem_bibtex_entry2 = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
-                                           year: 1921)
+                                           year: '1921')
     @valid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
                                                year: 1921, publisher: 'Test Books Inc.')
     @invalid_gem_bibtex_book = BibTeX::Entry.new(type: :book, title: 'InValid Bibtex of America',
@@ -105,6 +105,7 @@ describe Source::Bibtex do
 
   end
 
+
   context 'Ruby BibTeX related instance methods' do
     before(:each) do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
@@ -123,7 +124,7 @@ describe Source::Bibtex do
     pending 'test conversion of BibTeX::Entry identifiers (URL, ISBN, etc) to Source::Bibtex with identifiers'
   end
 
-  context 'validation - a valid Source::Bibtex' do
+  context 'validation' do
     specify 'must have a valid bibtex_type' do
       local_src = FactoryGirl.create(:valid_bibtex_source)
       expect(local_src.valid?).to be_true
@@ -134,6 +135,7 @@ describe Source::Bibtex do
       expect(local_src.valid?).to be_false
       expect(local_src.errors.include?(:bibtex_type)).to be_true
     end
+
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :URL, :stated_year' do
       error_message = 'no core data provided'
@@ -144,6 +146,48 @@ describe Source::Bibtex do
       local_src.valid?
       expect(local_src.errors.full_messages.include?(error_message)).to be_false
     end
+
+    specify 'month must be in %w{jan feb mar ...}' do
+      pending
+    end
+    specify 'year, if present, must be int length 4' do
+      pending
+    end
+    specify 'day, if present, must be valid for month' do
+      pending
+    end
+
+    specify 'Day is between 1 and 31 inclusive' do
+      @source_bibtex[:day] = 31
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_true
+      expect(@source_bibtex.soft_validations.messages_on(:day).empty?).to be_true
+      @source_bibtex[:day] = 0
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_false
+      expect(@source_bibtex.soft_validations.messages_on(:day)).to include 'The provided day is invalid'
+      @source_bibtex[:day] = 32
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_false
+      expect(@source_bibtex.soft_validations.messages).to include 'The provided day is invalid'
+      @source_bibtex[:day] = 5
+      @source_bibtex.soft_validate
+      expect(@source_bibtex.soft_valid?).to be_true
+    end
+    specify 'Year has more than 4 digits' do
+
+    end
+    context 'Test that the Month is valid' do
+      it 'handles full month'
+      it 'handles integer month'
+      it 'generates error on integer month > 12'
+      it 'handles roman numeral month'
+      it 'generates error on invalid text month' do
+
+      end
+    end
+
+
   end
 
   context 'instance methods - ' do
@@ -306,46 +350,49 @@ describe Source::Bibtex do
       end
     end
 
-
+    specify 'generate_nomenclature_date requirements' do
+      # Beth- test valid/invalid expectations of values for year, month, day as examples for reference
+      pending
+    end
     specify 'test nomenclature_date generation' do
       @source_bibtex.year = '1984'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984,12,31))
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 12, 31))
       @source_bibtex.month = 'feb'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984,2,29))
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 29))
       @source_bibtex.day = '12'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984,2,12))
-      # Times before before 1823, after 2116 are handled differently.
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 12))
+      # Times before before 1823, or after 2116 are handled differently.
       @source_bibtex.year = '1775'
       @source_bibtex.month = nil
       @source_bibtex.day = nil
       @source_bibtex.save
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775,12,31))
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 12, 31))
       @source_bibtex.month = 'feb'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775,2,28))
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 28))
       @source_bibtex.day = '12'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
-      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775,2,12))
+      expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 12))
     end
 
     specify 'sort an array of source by potentially_validating date' do
       Source.delete_all
       @source_bibtex.year = 2002 # source_bibtex has no date
       expect(@source_bibtex.save).to be_true
-      @source_bibtex = FactoryGirl.build(:valid_bibtex_source_book_title_only)  # no date
+      @source_bibtex = FactoryGirl.build(:valid_bibtex_source_book_title_only) # no date
       expect(@source_bibtex.save).to be_true
       @source_bibtex = FactoryGirl.build(:valid_thesis) # june 1982
       expect(@source_bibtex.save).to be_true
-      @source_bibtex = FactoryGirl.build(:valid_misc)  # july 4 2010
+      @source_bibtex = FactoryGirl.build(:valid_misc) # july 4 2010
       expect(@source_bibtex.save).to be_true
       @sources = Source::Bibtex.all
       expect(@sources).to have(4).things
@@ -363,11 +410,30 @@ describe Source::Bibtex do
   end
 
   context 'attributes' do
-    pending 'Must facilitate letter annotations on year'
+    context 'Must facilitate letter annotations on year' do
+      specify 'correctly generates year suffix from BibTeX entry' do
+        bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+                                              year: '1921b')
+        src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+        expect(src.year.to_s).to eq('1921') # year is an int by default
+        expect(src.year_suffix).to eq('b')
+        expect(src.year_with_suffix).to eq('1921b')
+      end
+      specify 'correctly converts year suffix to BibTeX enty' do
+        src = FactoryGirl.create(:valid_bibtex_source)
+        src[:year] = '1922'
+        src[:year_suffix] = 'c'
+        expect(src.year_with_suffix).to eq('1922c')
+        bibtex_entry = src.to_bibtex
+        expect(bibtex_entry[:year]).to eq('1922c')
+      end
+
+    end
+
   end
 
   context 'associations' do
-    context 'roles' do 
+    context 'roles' do
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
         # the roles should be automatially set? (Yes)
@@ -378,7 +444,7 @@ describe Source::Bibtex do
         pending
       end
 
-      specify 'if authors/editors are updated'  do
+      specify 'if authors/editors are updated' do
         pending
       end
 
@@ -458,17 +524,26 @@ describe Source::Bibtex do
   end
 
   context 'soft validations' do
-    before(:each) {
+    before(:each) do
       # this is a TW Source::Bibtex - type article, with just a title
       @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
-    }
+    end
 
     specify 'missing authors' do
-      @source_bibtex.soft_validate
-      expect(@source_bibtex.soft_valid?).to be_false
-      expect(@source_bibtex.soft_validations.messages).to include 'There is no author associated with this source.'
+      @source_bibtex.soft_validate(:recommended_fields)
+      expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_false
+      expect(@source_bibtex.soft_validations.messages).to \
+                        include 'There is neither an author,nor editor associated with this source.'
+      @source_bibtex.author = 'Smith, Bill'
+      @source_bibtex.save
+      @source_bibtex.soft_validate(:recommended_fields)
+      expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_true
     end
+
+    specify 'year is before 1700 (before nomenclature)'
   end
+
+
   context('Beth') do
 =begin
     notes/things to do:

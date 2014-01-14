@@ -58,17 +58,17 @@ namespace :tw do
         # 6   JourBook  | varchar(110) |
         # 7   Volume    | varchar(20)  |
         # 8   Pages     | varchar(36)  |
-        # 9   Location  | varchar(27)  | # a key/value 
-        # 10  Source    | varchar(28)  | # a key/value 
-        # 11  Check     | varchar(11)  | # a key/value
-        # 12  ChalcFam  | varchar(20)  | # a key/value (memory aid of john)
+        # 9   Location  | varchar(27)  | # Attribute::Internal
+        # 10  Source    | varchar(28)  | # Attribute::Internal
+        # 11  Check     | varchar(11)  | # Attribute::Internal
+        # 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
         # 13  KeywordA  | varchar(2)   | # Citation 
         # 14  KeywordB  | varchar(2)   | # Citation 
         # 15  KeywordC  | varchar(2)   | # Citation 
         # 16  LanguageA | varchar(2)   | 
         # 17  LanguageB | varchar(2)   |
-        # 18  LanguageC | varchar(2)   |
-        # 19  M_Y       | varchar(1)   | # fuzziness on month/day/year
+        # 18  LanguageC | varchar(2)   |  
+        # 19  M_Y       | varchar(1)   | # Attribute::Internal fuzziness on month/day/year - an annotation
         # 20  PDF_file  | varchar(1)   | # location
   
         path1 = @args[:data_directory] + 'refs.csv'
@@ -79,17 +79,24 @@ namespace :tw do
         f = CSV.open(path1, col_sep: "\t")
         fext = CSV.open(path2, col_sep: "\t")
 
+        keywords = { }
+
         i = 0 
         f.each do |row|
+
+          year, month, day = row[4].split('-') 
+          
+          
+
           b = Source::Bibtex.new(
             author: row[1],
-            year: row[2],
+            year: year ? year.to_i : row[2],
             stated_year: row[4], # TODO: Verify
             title: row[5],
-            booktitle: row[6], # TODO: Should also be journal (?)
+            booktitle: row[6],   # TODO: Should also be journal (?)
             volume: row[7],
             pages: row[8],
-            bibtex_type: nil, # TODO
+            bibtex_type: 'article',    # TODO
           )
           puts row
           i+=1

@@ -4,6 +4,7 @@ class TaxonName < ActiveRecord::Base
   include Housekeeping
   include Shared::Identifiable
   include Shared::Citable
+  include SoftValidation
 
   acts_as_nested_set scope: [:project_id]
 
@@ -20,12 +21,73 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
-  include SoftValidation
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
   soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
   soft_validate(:sv_validate_disjoint_objects, set: :disjoint)
   soft_validate(:sv_validate_disjoint_subjects, set: :disjoint)
+  soft_validate(:sv_parent_is_valid_name, set: :valid_parent)
+
+  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
+  scope :with_parent_taxon_name, -> (parent) {where(parent_id: parent)}
+  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
+  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
+  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
+  scope :ancestors_and_descendants_of, -> (taxon_name) {
+    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR
+           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
+           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
+          taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  ) }
+
+  # A specific relationship
+  scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  scope :as_subject_without_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT LIKE ?) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+
+  scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
+  scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
+  scope :with_taxon_name_relationship, -> (relationship) {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+        joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+        where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship)
+  }
+
+  # *Any* relationship where there IS a relationship for a subject/object/both
+  scope :with_taxon_name_relationships_as_subject, -> {joins(:taxon_name_relationships)}
+  scope :with_taxon_name_relationships_as_object, -> {joins(:related_taxon_name_relationships)}
+  scope :with_taxon_name_relationships, -> {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+        joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+        where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL')
+  }
+
+  # *Any* relationship where there is NOT a relationship for a subject/object/both
+  scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
+  scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
+  scope :without_taxon_name_relationships, -> {
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
+        joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+        where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
+  }
+
+  validates_presence_of :type
+  validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
+  validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
+
+  before_validation :set_type_if_empty,
+                    :check_format_of_name,
+                    :validate_rank_class_class,
+                    :validate_parent_rank_is_higher,
+                    :check_new_rank_class,
+                    :check_new_parent_class,
+                    :validate_source_type
+
+  before_validation :set_cached_name,
+                    :set_cached_author_year,
+                    :set_cached_higher_classification
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -49,33 +111,6 @@ class TaxonName < ActiveRecord::Base
                       WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
   end
 
-  validates_presence_of :type
-  validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
-  validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
-
-  before_validation :set_type_if_empty,
-    :check_format_of_name,
-    :validate_rank_class_class,
-    :validate_parent_rank_is_higher,
-    :check_new_rank_class,
-    :check_new_parent_class,
-    :validate_source_type
-
-  before_validation :set_cached_name,
-    :set_cached_author_year,
-    :set_cached_higher_classification
-
-  scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
-  scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
-  scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
-  scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-  scope :ancestors_of, -> (taxon_name) {where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
-  scope :ancestors_and_descendants_of, -> (taxon_name) {
-    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR 
-           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
-           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-           taxon_name.lft, taxon_name.rgt,  taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  ) }
-
   def rank
     ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
   end
@@ -97,23 +132,32 @@ class TaxonName < ActiveRecord::Base
    TaxonName.ancestors_of(self).with_rank_class( Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
 
-  # TODO: Add parallel scope in TaxonName
   def unavailable_or_invalid?
     case self.rank_class.nomenclatural_code
       when :iczn
-        !TaxonNameRelationship::Iczn::Invalidating.where_subject_is_taxon_name(self).empty?
+        if !TaxonNameRelationship::Iczn::Invalidating.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+          return true
+        end
       when :icz
-        !TaxonNameRelationship::Icn::Unaccepting.where_subject_is_taxon_name(self).empty?
+        if !TaxonNameRelationship::Icn::Unaccepting.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+          return true
+        end
     end
+    return false
+  end
+
+  def get_valid_taxon_name
+    vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
+    (vn.count == 1) ? vn.first.object_taxon_name : self
   end
 
   protected 
 
+  #region Set cached fields
+
   def set_type_if_empty
     self.type = 'Protonym' if self.type.nil?
   end
-
-  #region Set cached fields
 
   def set_cached_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
@@ -308,7 +352,7 @@ class TaxonName < ActiveRecord::Base
     disjoint_relationships = relationships.map{|i| i.type_class.disjoint_taxon_name_relationships}.flatten
     compare = disjoint_relationships & relationship_names
     compare.each do |i|
-      soft_validations.add(:base, "Taxon has a conflicting relationship: '#{i.constantize.subject_relationship_name}'") if compare.count != 0
+      soft_validations.add(:base, "Taxon has a conflicting relationship: '#{i.constantize.subject_relationship_name}'")
     end
   end
 
@@ -317,7 +361,9 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_classifications = classifications.map{|i| i.type_class.disjoint_taxon_name_classes}.flatten
     compare = disjoint_classifications & classification_names
-    soft_validations.add(:base, 'Taxon has conflicting statuses') if compare.count != 0
+    compare.each do |i|
+      soft_validations.add(:base, "Taxon has a conflicting status: '#{i.constantize.class_name}'")
+    end
   end
 
   def sv_validate_disjoint_objects
@@ -326,7 +372,12 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_object_classes = relationships.map{|i| i.type_class.disjoint_object_classes}.flatten
     compare = disjoint_object_classes & classification_names
-    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
+    compare.each do |i|
+      relationships.each do |j|
+        disjoint_object_classes = j.type_class.disjoint_object_classes
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.object_relationship_name}'") if disjoint_object_classes & [i] != 0
+      end
+    end
   end
 
   def sv_validate_disjoint_subjects
@@ -335,7 +386,51 @@ class TaxonName < ActiveRecord::Base
     classification_names = classifications.map{|i| i.type_name}
     disjoint_subject_classes = relationships.map{|i| i.type_class.disjoint_subject_classes}.flatten
     compare = disjoint_subject_classes & classification_names
-    soft_validations.add(:base, 'Taxon has statuses conflicting with relationships') if compare.count != 0
+    compare.each do |i|
+      relationships.each do |j|
+        disjoint_subject_classes = j.type_class.disjoint_subject_classes
+        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
+      end
+    end
+  end
+
+  def sv_parent_is_valid_name
+    if self.parent.unavailable_or_invalid?
+      # parent of a taxon is unavailable or invalid
+      soft_validations.add(:parent_id, 'Parent should be a valid taxon',
+                           fix: :sv_fix_parent_is_valid_name,
+                           success_message: 'Parent was updated')
+      else
+        classifications = self.taxon_name_classifications
+        classification_names = classifications.map{|i| i.type_name}
+        compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
+        unless compare.empty?
+          unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+            compare.each do |i|
+              # taxon is unavailable or invalid, but have valid children
+              soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with valid child taxa")
+            end
+          end
+        end
+    end
+  end
+
+  def sv_fix_parent_is_valid_name
+    if self.parent.unavailable_or_invalid?
+      new_parent = self.parent.get_valid_taxon_name
+      if self.parent != new_parent
+        self.parent = new_parent
+        begin
+          TaxonName.transaction do
+            self.save
+            return true
+          end
+        rescue
+          return false
+        end
+      end
+    end
+    false
   end
 
   def sv_validate_parent_rank

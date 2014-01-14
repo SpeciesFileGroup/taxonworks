@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe TaxonNameClass do
+describe TaxonNameClassification do
   pending "add some examples to (or delete) #{__FILE__}"
 end

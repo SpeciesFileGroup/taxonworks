@@ -7,23 +7,16 @@ shared_examples 'alternate_values' do
       expect(class_with_alt).to respond_to(:alternate_values)
       expect(class_with_alt.alternate_values.count == 0).to be_true
     end
-    specify 'can add an alternate value' do
-      pending
-    end
-    specify 'can not add alternate values to NON_ANNOTATABLE_COLUMNS' do
-      pending
-    end
-    specify 'can not add note to a non-existent attribute (column)' do
-      pending
-    end
+
+    # See alternate_values_spec for test on field restrictions
   end
 
   context 'methods' do
     specify 'has_alternate_values?' do
-      pending
+      expect(class_with_alt).to respond_to(:has_alternate_values?)
+      expect(class_with_alt.has_alternate_values?).to be_false
     end
-    specify 'original_value' do
-      pending
-    end
+    
   end
+
 end
