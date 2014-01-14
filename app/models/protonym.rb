@@ -34,16 +34,15 @@ class Protonym < TaxonName
 
   #  find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
-  # scope :with_taxon_name_classifications_on_taxon_name, -> {joins(:taxon_name_classifications)}
-
 
   # find taxa with classifications
   scope :with_taxon_name_classifications, -> { joins(:taxon_name_classifications) }
   scope :with_taxon_name_classification, -> (taxon_name_class_name) { includes(:taxon_name_classifications).where('taxon_name_classifications.type = ?', taxon_name_class_name).references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_base, -> (taxon_name_class_name_base) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "#{taxon_name_class_name_base}%").references(:taxon_name_classifications) }
-  scope :with_taxon_name_classification_array, -> (taxon_name_class_name_base_array) { includes(:taxon_name_classifications).where('taxon_name_classifications.type in (?)', taxon_name_class_name_base_array).references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_containing, -> (taxon_name_class_name_fragment) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "%#{taxon_name_class_name_fragment}%").references(:taxon_name_classifications) }
-  scope :without_taxon_name_classification, -> (taxon_name_class_name) { includes(:taxon_name_classifications).where('(taxon_name_classifications.type != ?) OR (taxon_name_classifications.id IS NULL)', taxon_name_class_name).references(:taxon_name_classifications) }
+  scope :with_taxon_name_classification_array, -> (taxon_name_class_name_base_array) { includes(:taxon_name_classifications).where('taxon_name_classifications.type in (?)', taxon_name_class_name_base_array).references(:taxon_name_classifications) }
+  scope :without_taxon_name_classification, -> (taxon_name_class_name) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type LIKE ?)', "#{taxon_name_class_name}")}
+  scope :without_taxon_name_classification_array, -> (taxon_name_class_name_array) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type in (?))', taxon_name_class_name_array) }
 
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
 

@@ -29,6 +29,7 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_parent_is_valid_name, set: :valid_parent)
 
   scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
+  scope :with_parent_taxon_name, -> (parent) {where(parent_id: parent)}
   scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
   scope :with_rank_class_including, -> (include_string) {where('rank_class LIKE ?', "%#{include_string}%")}
   scope :descendants_of, -> (taxon_name) {where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id  )}
@@ -395,9 +396,22 @@ class TaxonName < ActiveRecord::Base
 
   def sv_parent_is_valid_name
     if self.parent.unavailable_or_invalid?
+      # parent of a taxon is unavailable or invalid
       soft_validations.add(:parent_id, 'Parent should be a valid taxon',
                            fix: :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
+      else
+        classifications = self.taxon_name_classifications
+        classification_names = classifications.map{|i| i.type_name}
+        compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
+        unless compare.empty?
+          unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+            compare.each do |i|
+              # taxon is unavailable or invalid, but have valid children
+              soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with valid child taxa")
+            end
+          end
+        end
     end
   end
 

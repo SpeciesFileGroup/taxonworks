@@ -359,8 +359,11 @@ describe TaxonName do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable::NomenNudum)
         s.soft_validate(:valid_parent)
+        g.soft_validate(:valid_parent)
         expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
+        expect(g.soft_validations.messages_on(:base).count).to eq(1)
         s.fix_soft_validations
         s.soft_validate(:valid_parent)
         expect(s.soft_validations.messages_on(:parent_id).empty?).to be_true
