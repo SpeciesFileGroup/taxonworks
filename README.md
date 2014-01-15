@@ -19,41 +19,55 @@ TaxonWorks is a Rails 4 application using Ruby 2.0 and rubygems.  It requires Po
 Minimally, the following steps should get you going: 
 
 1. Install Postgres and postgis.
-   
+  
+   ``` 
    brew install postgres
    brew install postgis
+   ```
 
 2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session:
 
+   ```  
    ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
-
+   ```
+ 
 3. Clone the source code.
 
+   ```
    git clone git@github.com:SpeciesFileGroup/taxonworks.git
+   ```
 
 4. Copy the config/database.yml.example file to config/database.yml.  
 
 5. Given not modifications to database.yml you can proceed by creating a postgres role (user).
 
+   ```
    psql -d postgres
    create role taxonworks_development login createdb superuser; 
    \q
+   ```
 
 6. Install the gems dependencies. Ensure you are using the Ruby version you indend to develop under (check with 'ruby -v'). Install the pg gem with some flags first, then the rest of the gems.
 
+  ```
   env ARCHFLAGS="-arch x86_64" gem install pg -- --with-pg-config=/usr/local/bin/pg_config
   bundle update
+  ```
 
 7. Setup the databases.
-  
+ 
+  ``` 
   rake db:setup
   rake db:migrate RAILS_ENV=test
   rake db:migrate RAILS_ENV=development
+  ```
 
 8. Test your setup.
 
+  ```
   rspec
+  ```
 
 If the tests run, then the installation has been a success.  You'll likely want to go back and further secure your postgres installation and roles at this point.
 
