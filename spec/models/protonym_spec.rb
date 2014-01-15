@@ -352,8 +352,10 @@ describe Protonym do
       specify 'type species or genus' do
         @genus.soft_validate(:missing_relationships)
         @family.soft_validate(:missing_relationships)
-        expect(@genus.soft_validations.messages_on(:base).include?('Type species is not selected')).to be_true
-        expect(@family.soft_validations.messages_on(:base).include?('Type genus is not selected')).to be_true
+        # type species is not selected
+        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
+        # type genus is not selected
+        expect(@family.soft_validations.messages_on(:base).count).to eq(1)
       end
     end
 
@@ -399,16 +401,27 @@ describe Protonym do
         @subgenus.reload
         @genus.soft_validate
         errors_on_genus_base = @genus.soft_validations.messages_on(:base).count
-
         @genus.fix_soft_validations
-
         @genus.soft_validate
         expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
+      end
+      specify 'not specific relationships' do
+        s1 = FactoryGirl.create(:iczn_species, parent: @genus)
+        s2 = FactoryGirl.create(:iczn_species, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating')
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        s1.soft_validate(:relationships)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(3)
       end
     end
 
     context 'single sub taxon in the nominal' do
-      specify 'single nominotypical taxon'
+      specify 'single nominotypical taxon' do
+        @subgenus.soft_validate(:coordinated_names)
+        #single subgenus in the nominal genus
+        expect(@subgenus.soft_validations.messages_on(:base).count).to eq(1)
+      end
     end
   end
 
