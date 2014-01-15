@@ -147,43 +147,85 @@ describe Source::Bibtex do
       expect(local_src.errors.full_messages.include?(error_message)).to be_false
     end
 
-    specify 'month must be in %w{jan feb mar ...}' do
-      pending
-    end
-    specify 'year, if present, must be int length 4' do
-      pending
-    end
-    specify 'day, if present, must be valid for month' do
-      pending
-    end
+    context 'test date related fields' do
+      before(:each) {
+        # this is a TW Source::Bibtex - type article, with just a title
+        @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
+      }
 
-    specify 'Day is between 1 and 31 inclusive' do
-      @source_bibtex[:day] = 31
-      @source_bibtex.soft_validate
-      expect(@source_bibtex.soft_valid?).to be_true
-      expect(@source_bibtex.soft_validations.messages_on(:day).empty?).to be_true
-      @source_bibtex[:day] = 0
-      @source_bibtex.soft_validate
-      expect(@source_bibtex.soft_valid?).to be_false
-      expect(@source_bibtex.soft_validations.messages_on(:day)).to include 'The provided day is invalid'
-      @source_bibtex[:day] = 32
-      @source_bibtex.soft_validate
-      expect(@source_bibtex.soft_valid?).to be_false
-      expect(@source_bibtex.soft_validations.messages).to include 'The provided day is invalid'
-      @source_bibtex[:day] = 5
-      @source_bibtex.soft_validate
-      expect(@source_bibtex.soft_valid?).to be_true
-    end
-    specify 'Year has more than 4 digits' do
+      specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
+        error_msg = 'year must be an integer greater than 999 and no more than 2 years in the future'
+        @source_bibtex.year = 'test'
+        expect(@source_bibtex.valid?).to be_false
+        expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
+        @source_bibtex.year = 2000
+        expect(@source_bibtex.valid?).to be_true
+        expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
+        @source_bibtex.year = 999
+        expect(@source_bibtex.valid?).to be_false
+        expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
+        @source_bibtex.year = 1700
+        expect(@source_bibtex.valid?).to be_true
+        expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
+        @source_bibtex.year = Time.now.year + 3
+        expect(@source_bibtex.valid?).to be_false
+        expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
+        @source_bibtex.year = Time.now.year + 2
+        expect(@source_bibtex.valid?).to be_true
+        expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
+      end
 
-    end
-    context 'Test that the Month is valid' do
-      it 'handles full month'
-      it 'handles integer month'
-      it 'generates error on integer month > 12'
-      it 'handles roman numeral month'
-      it 'generates error on invalid text month' do
+      specify 'if month is set, there must be a year' do
+        error_msg = 'year is required when month is provided'
+        @source_bibtex.month = 'feb'
+        expect(@source_bibtex.valid?).to be_false
+        expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
+      end
 
+      context 'Test that the Month is valid' do
+        specify 'month must be in %w{jan feb mar ...}' do
+          pending
+        end
+        it 'handles full month'
+        it 'handles integer month'
+        it 'generates error on integer month > 12'
+        it 'handles roman numeral month'
+        it 'generates error on invalid text month' do
+
+        end
+      end
+
+      context 'day validation' do
+        specify 'if day is present there must be a month' do
+          error_msg = 'month is required when day is provided'
+          @source_bibtex.day = 31
+          expect(@source_bibtex.valid?).to be_false
+          expect(@source_bibtex.errors.messages[:month].include?(error_msg)).to be_true
+        end
+        specify 'day, if present, must be valid for month' do
+          pending
+        end
+
+      end
+
+
+      specify 'Day is between 1 and 31 inclusive' do
+
+
+
+
+        expect(@source_bibtex.soft_validations.messages_on(:day).empty?).to be_true
+        @source_bibtex[:day] = 0
+        @source_bibtex.soft_validate
+        expect(@source_bibtex.soft_valid?).to be_false
+        expect(@source_bibtex.soft_validations.messages_on(:day)).to include 'The provided day is invalid'
+        @source_bibtex[:day] = 32
+        @source_bibtex.soft_validate
+        expect(@source_bibtex.soft_valid?).to be_false
+        expect(@source_bibtex.soft_validations.messages).to include 'The provided day is invalid'
+        @source_bibtex[:day] = 5
+        @source_bibtex.soft_validate
+        expect(@source_bibtex.soft_valid?).to be_true
       end
     end
 
@@ -350,10 +392,6 @@ describe Source::Bibtex do
       end
     end
 
-    specify 'generate_nomenclature_date requirements' do
-      # Beth- test valid/invalid expectations of values for year, month, day as examples for reference
-      pending
-    end
     specify 'test nomenclature_date generation' do
       @source_bibtex.year = '1984'
       expect(@source_bibtex.save).to be_true
@@ -436,7 +474,7 @@ describe Source::Bibtex do
     context 'roles' do
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
-        # the roles should be automatially set? (Yes)
+        # the roles should be automatically set? (Yes)
         pending
       end
 

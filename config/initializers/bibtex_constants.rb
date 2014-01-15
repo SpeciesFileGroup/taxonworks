@@ -38,7 +38,7 @@ BIBTEX_FIELDS = [
     :bibtex_type
 ]
 
-# The following list is from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
+# The following lists are from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
 VALID_BIBTEX_TYPES = %w{
       article
       book
@@ -54,3 +54,17 @@ VALID_BIBTEX_TYPES = %w{
       proceedings
       techreport
       unpublished}
+
+VALID_BIBTEX_MONTHS = %w{
+  jan
+  feb
+  mar
+  apr
+  may
+  jun
+  jul
+  aug
+  sep
+  oct
+  nov
+  dec}
