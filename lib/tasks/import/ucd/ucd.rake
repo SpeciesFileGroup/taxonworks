@@ -70,6 +70,10 @@ namespace :tw do
         f.close
       end
 
+      def fix_line(line)
+        line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
+      end
+
       desc 'reconcile Refs::Chalcfam (look for unique values'
       task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args| 
         path = @args[:data_directory] + 'refs.csv'
@@ -81,7 +85,7 @@ namespace :tw do
 
         # This pattern handles quotes/escaping crap MySQL export
         File.foreach(path) do |csv_line| 
-          v = csv_line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
+          v = fix_line(csv_line)
           row = CSV.parse(v, col_sep: "\t").first
 
           if row[12]
@@ -150,7 +154,7 @@ namespace :tw do
         # - 9   Location  | varchar(27)  | # Attribute::Internal
         # - 10  Source    | varchar(28)  | # Attribute::Internal
         # - 11  Check     | varchar(11)  | # Attribute::Internal
-        # - 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
+        # 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
         # - 13  KeywordA  | varchar(2)   | # Tag 
         # - 14  KeywordB  | varchar(2)   | # Tag 
         # - 15  KeywordC  | varchar(2)   | # Tag 
@@ -161,9 +165,9 @@ namespace :tw do
         # 20  PDF_file  | varchar(1)   | # [X or Y] TODO: NOT HANDLED
 
         # 0 RefCode   
-        # 1 Translate 
-        # 2 Notes     
-        # 3 Publisher 
+        # - 1 Translate 
+        # - 2 Notes     
+        # - 3 Publisher 
         # 4 ExtAuthor 
         # 5 ExtTitle  
         # 6 ExtJournal
@@ -175,12 +179,26 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path2)
 
         f = CSV.open(path1, col_sep: "\t")
-        fext = CSV.open(path2, col_sep: "\t")
+        # fext = CSV.open(path2, col_sep: "\t")
+
+        fext_data = {}
+        
+        File.foreach(path2) do |csv_line| 
+          v = fix_line(path2)
+          r = CSV.parse(v, col_sep: "\t").first
+          fext_data.merge!(
+            r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
+          )
+        end
+
+        namespace = Namespace.new(name: 'UCD refCode')
+        namespace.save!
 
         sources = []
         attributes = []
         tags = [] 
         identifiers = []
+        notes = []
 
         keywords = {
           'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
@@ -191,8 +209,9 @@ namespace :tw do
           'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
           'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
 
-          'Refs:M_Y' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#M_Y.'),
-          'Refs:PDF_file' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#M_Y.'),
+          'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
+          'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
+          'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
         }
 
         i = 0 
@@ -200,6 +219,9 @@ namespace :tw do
           year, month, day = row[4].split('-', 3) 
           month = Utilities::Dates::SHORT_MONTH_FILTER[month]
           month = month.to_s if !month.nil?
+
+          author = [row[5], (fext_data )].compact.join
+
 
           b = Source::Bibtex.new(
             author: row[1],
@@ -214,8 +236,13 @@ namespace :tw do
             pages: row[8],                      
             bibtex_type: 'article',            
             language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
+            publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
+            editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil),
           )
           sources.push b
+
+          identifiers.push Identifier.new(namespace: namespace, identifier: row[0])
+          notes.push Note.new(note_object: b, text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
 
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Location'], value: row[9]) if row[9]
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Source'], value: row[10]) if row[10]
@@ -224,6 +251,10 @@ namespace :tw do
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:LanguageB'], value: row[17]) if row[17]
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:LanguageB'], value: row[18]) if row[18]
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:M_Y:tilde'], value: row[19]) if row[19]
+
+          if fext_data[row[0]]
+            attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if fext_data[row[0]][:translate]
+          end
 
           [13,14,15].each do |i| 
             k =  Keyword.with_alternate_value_on(:name, row[i]).first
@@ -236,7 +267,7 @@ namespace :tw do
           break if i > 200
         end
 
-        [keywords.values, sources, tags].each do |objs|
+        [keywords.values, sources, identifiers, notes, tags].each do |objs|
           objs.each do |o|
             puts o
             o.save!
