@@ -31,6 +31,7 @@ class Person < ActiveRecord::Base
   #scope :named, -> (name) {where(name: name)}
   #scope :named_smith, where(last_name: 'Smith')
   scope :named_smith, -> {where(last_name: 'Smith')}
+  #scope :smith_start, -> {where(last_name: start_with?('Smith'))}  # have tried multiple ways to select records where last_name like 'Smith%' without success
   scope :created_before, -> (time) {where('created_at < ?', time)}
 
 
