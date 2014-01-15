@@ -85,7 +85,7 @@ gem 'debugger', group: [:development, :test] if not win_os
 
 group :development do 
   gem 'awesome_print'
-  gem 'foreigner', '~> 1.6'
+  # gem 'foreigner', '~> 1.6'
 end
 
 gem 'rspec-rails', group: [:development, :test]
