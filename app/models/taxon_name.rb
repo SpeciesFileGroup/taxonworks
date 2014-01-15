@@ -22,7 +22,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
   soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
   soft_validate(:sv_validate_disjoint_objects, set: :disjoint)
   soft_validate(:sv_validate_disjoint_subjects, set: :disjoint)
@@ -346,15 +345,7 @@ class TaxonName < ActiveRecord::Base
     false
   end
 
-  def sv_validate_disjoint_relationships
-    relationships = self.taxon_name_relationships
-    relationship_names = relationships.map{|i| i.type_name}
-    disjoint_relationships = relationships.map{|i| i.type_class.disjoint_taxon_name_relationships}.flatten
-    compare = disjoint_relationships & relationship_names
-    compare.each do |i|
-      soft_validations.add(:base, "Taxon has a conflicting relationship: '#{i.constantize.subject_relationship_name}'")
-    end
-  end
+
 
   def sv_validate_disjoint_classes
     classifications = self.taxon_name_classifications

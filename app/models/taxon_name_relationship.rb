@@ -2,10 +2,13 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   include Housekeeping
   include Shared::Citable
+  include SoftValidation
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
+
+  soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -27,7 +30,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
-  scope :not_self, -> (id) {where('id != ?', id )}
+  scope :not_self, -> (id) {where('id <> ?', id )}
 
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
@@ -104,6 +107,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
+  #region Validation
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
@@ -157,5 +161,17 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
+  #endregion
+
+  #region Soft Validation
+
+  def sv_validate_disjoint_relationships
+    relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
+    relationships.each  do |i|
+      soft_validations.add(:type, "Conflicts with other relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+    end
+  end
+
+  #endregion
 
 end
