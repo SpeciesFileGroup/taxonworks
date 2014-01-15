@@ -408,7 +408,7 @@ class TaxonName < ActiveRecord::Base
           unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
             compare.each do |i|
               # taxon is unavailable or invalid, but have valid children
-              soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with valid child taxa")
+              soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with presence of subordinate taxa")
             end
           end
         end
@@ -426,7 +426,6 @@ class TaxonName < ActiveRecord::Base
             return true
           end
         rescue
-          return false
         end
       end
     end
@@ -458,6 +457,10 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_single_sub_taxon
+    true # see validation in Protonym.rb
+  end
+
+  def sv_synonym_linked_to_valid_name
     true # see validation in Protonym.rb
   end
 

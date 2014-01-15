@@ -368,6 +368,17 @@ describe TaxonName do
         s.soft_validate(:valid_parent)
         expect(s.soft_validations.messages_on(:parent_id).empty?).to be_true
       end
+      specify 'parent is a synonym' do
+        g1 = FactoryGirl.create(:iczn_genus, parent: @family)
+        g2 = FactoryGirl.create(:iczn_genus, parent: @family)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+        g2.soft_validate(:synonym_associations)
+        expect(g2.soft_validations.messages_on(:base).count).to eq(1)
+        g2.fix_soft_validations
+        g2.soft_validate(:valid_parent)
+        expect(g2.soft_validations.messages_on(:base).empty?).to be_true
+      end
     end
   end
 

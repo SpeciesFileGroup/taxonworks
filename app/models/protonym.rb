@@ -60,6 +60,7 @@ class Protonym < TaxonName
   soft_validate(:sv_type_relationship, set: :type)
   soft_validate(:sv_validate_coordinated_names, set: :coordinated_names)
   soft_validate(:sv_single_sub_taxon, set: :coordinated_names)
+  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_associations)
 
   #region Soft validation
 
@@ -308,6 +309,35 @@ class Protonym < TaxonName
     return false
   end
 
+  def sv_synonym_linked_to_valid_name
+    #synonyms and misspellings should be linked to valid names
+    relationship = TaxonNameRelationship.where_subject_is_taxon_name(self).
+        with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
+    unless relationship.empty?
+      obj = relationship.first.object_taxon_name
+      if obj.get_valid_taxon_name != obj
+        soft_validations.add(:base, "The #{relationship.first.type_class.subject_relationship_name} relationship should be associated with a valid name",
+                             fix: :sv_fix_synonym_linked_to_valid_name, success_message: "The associated taxon of the #{relationship.first.type_class.subject_relationship_name} was updated")
+      end
+    end
+  end
+
+  def sv_fix_synonym_linked_to_valid_name
+    relationship = TaxonNameRelationship.where_subject_is_taxon_name(self).
+        with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).first
+    obj = relationship.object_taxon_name
+    if obj.get_valid_taxon_name != obj
+      relationship.object_taxon_name = obj.get_valid_taxon_name
+      begin
+        TaxonName.transaction do
+          relationship.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
 
   #endregion
 
