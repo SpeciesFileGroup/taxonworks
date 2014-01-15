@@ -1,5 +1,15 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRelationship::Iczn::Invalidating::Homonym
 
+  # left_side
+  def self.valid_subject_ranks
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
+  end
+
+  # right_side
+  def self.valid_object_ranks
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
+  end
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary.descendants.collect{|t| t.to_s} +

@@ -23,6 +23,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
+  scope :with_type, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }

@@ -460,6 +460,14 @@ class TaxonName < ActiveRecord::Base
     true  # see validation in Protonym.rb
   end
 
+  def sv_fix_specify_synonymy_type
+    true  # see validation in Protonym.rb
+  end
+
+  def sv_fix_specify_homonymy_type
+    true  # see validation in Protonym.rb
+  end
+
   def sv_single_sub_taxon
     true # see validation in Protonym.rb
   end
@@ -468,7 +476,7 @@ class TaxonName < ActiveRecord::Base
     true # see validation in Protonym.rb
   end
 
-  #endregion
+#endregion
 
 end
 
