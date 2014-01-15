@@ -262,30 +262,31 @@ class Source::Bibtex < Source
 
 #region validations
   validates :bibtex_type, inclusion: {in: ::VALID_BIBTEX_TYPES, message: '%{value} is not a valid source type'}
-  validates :year, :presence => {:if => '!month.nil?',  message: 'year is required when month is provided'}
+  validates :year, :presence => {:if => '!month.nil?', message: 'year is required when month is provided'}
   validates :year, :numericality => {only_integer: true, greater_than: 999,
                                      less_than_or_equal_to: Time.now.year + 2,
-                         message: 'year must be an integer greater than 999 and no more than 2 years in the future'},
+                        message: 'year must be an integer greater than 999 and no more than 2 years in the future'},
             allow_nil: true
   validates :month, :presence => {:if => '!day.nil?', message: 'month is required when day is provided'}
-  validates :month, inclusion: {in: ::VALID_BIBTEX_MONTHS, message: '%{value} is not a valid month' },
+  validates :month, inclusion: {in: ::VALID_BIBTEX_MONTHS, message: '%{value} is not a valid month'},
             allow_nil: true
   validates :day, :numericality => {only_integer: true, greater_than: 0,
-                                    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
+                                    less_than_or_equal_to: Proc.new {
+                                        |a| Time.utc(a.year, a.month).end_of_month.day },
                                     :unless => 'year.nil?',
-                                    message: "%{value} is not a valid day for month (%{month})."},
+                                    message: '%{value} is not a valid day for month (%{month}).'},
             allow_nil: true
 
   before_validation :check_has_field #,:day_valid? #, :year_valid?
   before_save :set_nomenclature_date
-#endregion validations
+                                     #endregion validations
 
   scope :order_by_nomenclature_date,
         -> { order(:nomenclature_date).where(!(:nomenclature_date.nil?)) }
 
 #region soft_validate setup calls
- #@soft_validate(:sv_has_authors)
- #soft_validate(:sv_year_exists)
+#@soft_validate(:sv_has_authors)
+#soft_validate(:sv_year_exists)
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
@@ -296,7 +297,7 @@ class Source::Bibtex < Source
 #endregion
 
 #region constants
-  # TW required fields (must have one of these fields filled in)
+# TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
       :author,
       :editor,
@@ -306,7 +307,7 @@ class Source::Bibtex < Source
       :journal,
       :year,
       :stated_year
-  ]   # either year or stated_year is acceptable
+  ] # either year or stated_year is acceptable
 #endregion
 
 #region ruby-bibtex related
@@ -418,9 +419,11 @@ class Source::Bibtex < Source
   def month=(value)
     write_attribute(:month, Utilities::Dates::SHORT_MONTH_FILTER[value])
   end
+
   def month
     read_attribute(:month)
   end
+
 #endregion getters & setters
 
 #region has_<attribute>? section
@@ -459,9 +462,9 @@ class Source::Bibtex < Source
 
   #TODO write has_identifiers?
 
-  #endregion        has_<attribute>? section
+#endregion has_<attribute>? section
 
-  #region time/date related
+#region time/date related
   # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
   #   returns nil if there is no :year set. Does NOT set nomenclature_date in the object.
   def date
@@ -499,7 +502,7 @@ class Source::Bibtex < Source
     end
   end
 
-  #endregion    time/date related
+#endregion    time/date related
 
   #TODO add notes method which returns an array of all associated notes.
 
@@ -710,7 +713,7 @@ class Source::Bibtex < Source
 
   end
 
-  #endregion   Soft_validation_methods
+#endregion   Soft_validation_methods
 
 end
 
