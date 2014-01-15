@@ -456,6 +456,10 @@ class TaxonName < ActiveRecord::Base
     true  # see validation in Protonym.rb
   end
 
+  def sv_not_specific_relationship
+    true  # see validation in Protonym.rb
+  end
+
   def sv_single_sub_taxon
     true # see validation in Protonym.rb
   end
