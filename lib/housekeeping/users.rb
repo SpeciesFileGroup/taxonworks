@@ -16,6 +16,14 @@ module Housekeeping::Users
   end
 
   module ClassMethods
+
+    def all_creators
+      #User
+    end
+
+  end
+
+  def alive?
   end
 
   def set_created_by_id

@@ -1,5 +1,6 @@
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
+  include Shared::Citable
   include SoftValidation
 
   belongs_to :taxon_name
@@ -9,6 +10,13 @@ class TaxonNameClassification < ActiveRecord::Base
   validates_uniqueness_of :taxon_name_id, scope: :type
 
   # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
+
+  scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
+  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
+  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :not_self, -> (id) {where('id != ?', id )}
+
 
   soft_validate(:sv_proper_classification)
 

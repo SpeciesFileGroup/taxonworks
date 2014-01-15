@@ -246,7 +246,7 @@ class Source::Bibtex < Source
 # @!endgroup
 
 
-  before_validation :check_bibtex_type, :check_has_field
+  before_validation :check_bibtex_type, :check_has_field, :day_valid?
   before_save :set_nomenclature_date
 
   #TODO add linkage to serials ==> belongs_to serial
@@ -261,18 +261,18 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
   scope :order_by_nomenclature_date,
-        -> {order(:nomenclature_date).where(!(:nomenclature_date.nil?))}
+        -> { order(:nomenclature_date).where(!(:nomenclature_date.nil?)) }
 
 #region soft_validate calls
-  soft_validate(:sv_has_authors)
-  soft_validate(:sv_year_exists)
-  soft_validate(:sv_has_a_date, set: :recommended_fields)
+#@soft_validate(:sv_has_authors)
+#soft_validate(:sv_year_exists)
+  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_has_a_date, set: :recommended_fields)
+  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
-  soft_validate(:missing_required_bibtex_fields)
+  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
 #endregion
 
 #region constants
@@ -291,12 +291,15 @@ class Source::Bibtex < Source
 
 #region ruby-bibtex related
 
-  def to_bibtex  # outputs BibTeX::Entry equivalent to me.
+  def to_bibtex # outputs BibTeX::Entry equivalent to me.
     b = BibTeX::Entry.new(type: self.bibtex_type)
     ::BIBTEX_FIELDS.each do |f|
       if !(f == :bibtex_type) && (!self[f].blank?)
         b[f] = self.send(f)
       end
+    end
+    if !self[:year_suffix].blank?
+      b[:year] = self.year_with_suffix
     end
     # TODO add conversion of identiifers to ruby-bibtex fields, & notations to notes field.
     b
@@ -313,9 +316,24 @@ class Source::Bibtex < Source
         bibtex_type: bibtex_entry.type.to_s,
     )
     bibtex_entry.fields.each do |key, value|
-      s[key] = value.to_s
+      v = value.to_s.strip
+      # eventually this should probably be changed to a case statement
+      if (key == :year)
+        s[:year] = value.to_i
+        if !(s[:year].to_s == v) # has year suffix
+          s[:year_suffix] = v[4, v.length-1]
+        end
+      else
+        s[key] = v
+      end
     end
     s
+  end
+
+  # @return[String] A string that represents the year with suffix as seen in a BibTeX bibliography.
+  #   returns "" if neither :year or :year_suffix are set.
+  def year_with_suffix
+    self[:year].to_s + self[:year_suffix].to_s
   end
 
   def create_related_people
@@ -363,7 +381,7 @@ class Source::Bibtex < Source
     end
     return true
 
-   end
+  end
 
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
@@ -374,7 +392,7 @@ class Source::Bibtex < Source
         suffix: bibtex_author.suffix)
   end
 
-#endregion
+#endregion  ruby-bibtex related
 
 #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
@@ -398,7 +416,7 @@ class Source::Bibtex < Source
     (has_authors?) || (has_editors?) ? true : false
   end
 
-  def has_date? # is there a year or stated year?
+  def has_some_year? # is there a year or stated year?
     return true if !(self.year.blank?)
     return true if !(self.stated_year.blank?)
     return false
@@ -410,10 +428,12 @@ class Source::Bibtex < Source
     # return true if Notes.has_notations?(self.id)
     return false
   end
+
   #TODO write has_identifiers?
 
-  #endregion
+  #endregion        has_<attribute>? section
 
+  #region time/date related
   # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
   #   returns nil if there is no :year set. Does NOT set nomenclature_date in the object.
   def date
@@ -440,7 +460,7 @@ class Source::Bibtex < Source
       Time.utc(self.year, 12, 31)
     elsif self.day.nil?
       tmp = Time.utc(self.year, self.month)
-      if tmp.month == 12  # want the last day of december
+      if tmp.month == 12 # want the last day of december
         Time.utc(self.year, 12, 31)
       else # time + 1 month - 1 day (60 sec * 60 min *24 hours)
         Time.utc(self.year, tmp.month + 1) -86400
@@ -450,8 +470,13 @@ class Source::Bibtex < Source
     end
   end
 
-  # TODO add notes method which returns an array of all associated notes.
+  #endregion    time/date related
+
+  #TODO add notes method which returns an array of all associated notes.
+
   protected
+
+#region hard validations
 
   def check_bibtex_type # must have a valid bibtex_type
     errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
@@ -473,6 +498,24 @@ class Source::Bibtex < Source
                       # return false # none of the required fields have a value
   end
 
+  def day_valid? #make sure date is between 0-32
+    valid = true
+    return true if self.day.nil? # date not set
+    valid = false if self.day <1
+    valid = false if self.day > 31
+    errors.add(:day, 'invalid day') if !valid
+  end
+
+  def year_valid? #make sure year is a 4 digit year
+    valid = true
+    return true if self.year.nil? # year not set
+    valid = false if self.year < 1000
+    valid = false if self.year > 9999
+    errors.add(:year, 'invalid year') if !valid
+  end
+
+#endregion  hard validations
+
 #region Soft_validation_methods
   def sv_has_authors
     if !(has_authors?)
@@ -493,8 +536,8 @@ class Source::Bibtex < Source
     end
   end
 
-  def sv_has_a_date
-    if (has_date?)
+  def sv_has_some_type_of_year
+    if (has_some_year?)
       soft_validations.add(:year, 'There is no year or stated year associated with this source.')
       soft_validations.add(:stated_year, 'There is no or stated year year associated with this source.')
     end
@@ -503,6 +546,7 @@ class Source::Bibtex < Source
   def sv_year_exists
     if !(year.blank?)
       soft_validations.add(:year, 'There is no year associated with this source.')
+      soft_validations.add(:year, 'This year is prior to the 1700s') if year < 1700
     end
   end
 
@@ -545,7 +589,7 @@ class Source::Bibtex < Source
 
   def sv_has_institution
     if (self.institution.blank?)
-      soft_validations.add(:institution, 'There is not institution associated with this  tech report.')
+      soft_validations.add(:institution, 'There is not institution associated with this tech report.')
     end
   end
 
@@ -570,7 +614,7 @@ class Source::Bibtex < Source
 
   end
 
-  def missing_required_bibtex_fields
+  def sv_missing_required_bibtex_fields
     case self.bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
         sv_has_authors
@@ -636,7 +680,7 @@ class Source::Bibtex < Source
 
   end
 
-  #endregion
+  #endregion   Soft_validation_methods
 
 end
 

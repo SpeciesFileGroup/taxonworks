@@ -28,7 +28,13 @@ class Person < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
   has_many :type_specimens, through: :type_designator_roles, source: :role_object, source_type: 'TypeSpecimen'
 
-  def name 
+  #scope :named, -> (name) {where(name: name)}
+  #scope :named_smith, where(last_name: 'Smith')
+  scope :named_smith, -> {where(last_name: 'Smith')}
+  scope :created_before, -> (time) {where('created_at < ?', time)}
+
+
+  def name
     [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ')
   end
 
