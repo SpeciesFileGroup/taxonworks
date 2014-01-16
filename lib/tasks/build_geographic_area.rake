@@ -4,14 +4,16 @@
 #    28758: Not a valid geometry.
 #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
 
+SFG = 'SpeciesFile Group'
+
 # ISO Country Codes:
 # See http://www.iso.org/iso/home/standards/country_codes.htm
 
-ISO_YEAR_1_2 = 'ISO 3166-1-alpha-2' # ISO 3166-1:2006 two-letter country abbreviations
-ISO_YEAR_1_3 = 'ISO 3166-1-alpha-3' # ISO 3166-1:2006 three-letter country abbreviations
+ISO_3166_1_2 = 'ISO 3166-1-alpha-2' # ISO 3166-1:2006 two-letter country abbreviations
+ISO_3166_1_3 = 'ISO 3166-1-alpha-3' # ISO 3166-1:2006 three-letter country abbreviations
 # Other current choices are:
-ISO_YEAR_3   = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
-ISO_YEAR_2   = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
+ISO_3166_3   = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
+ISO_3166_2   = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
 
 TDWG2_L1 = 'TDWG2 Level 1'
 TDWG2_L2 = 'TDWG2 Level 2'
@@ -287,6 +289,7 @@ def read_dbf(filenames)
   if earth.count == 0
     # create the record
     earth                      = GeographicArea.new(parent_id: nil,
+                                                    data_origin: SFG,
                                                     name:      'Earth')
     earth.geographic_area_type = GeographicAreaType.where(name: 'Planet').first
     # save this record for later
@@ -296,7 +299,7 @@ def read_dbf(filenames)
     earth = earth.first
   end
 
-  iso, lvl1, lvl2, lvl3, lvl4, gadm2 = nil, nil, nil, nil, nil, nil
+  ne, iso, lvl1, lvl2, lvl3, lvl4, gadm2 = nil, nil, nil, nil, nil, nil, nil
 
   filenames.sort!
 
@@ -315,6 +318,8 @@ def read_dbf(filenames)
         lvl4 = DBF::Table.new(filename)
       when /country_names_and_code_elements/i
         iso = File.open(filename)
+      when /ne_/i
+        ne = DBF::Table.new(filename)
       when /gadm2/i
         gadm2 = DBF::Table.new(filename)
       else
@@ -341,6 +346,7 @@ def read_dbf(filenames)
       puts item.attributes
       ga = GeographicArea.new(parent:               earth,
                               tdwg_parent:          earth,
+                              data_origin: TDWG2_L1,
                               name:                 item['LEVEL1_NAM'].titlecase,
                               geographic_area_type: gat1)
       @lvl1_items.merge!(item['LEVEL1_COD'] => ga)
@@ -352,6 +358,7 @@ def read_dbf(filenames)
       ga = GeographicArea.new(parent:               @lvl1_items[item['LEVEL1_COD']],
                               tdwg_parent:          @lvl1_items[item['LEVEL1_COD']],
                               name:                 item['LEVEL2_NAM'].titlecase,
+                              data_origin: TDWG2_L2,
                               geographic_area_type: gat2)
       @lvl2_items.merge!(item['LEVEL2_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -362,6 +369,7 @@ def read_dbf(filenames)
       ga = GeographicArea.new(parent:               @lvl2_items[item['LEVEL2_COD']],
                               tdwg_parent:          @lvl2_items[item['LEVEL2_COD']],
                               name:                 item['LEVEL3_NAM'].titlecase,
+                              data_origin: TDWG2_L3,
                               geographic_area_type: gat3)
       lvl3_items.merge!(item['LEVEL3_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -419,6 +427,7 @@ def read_dbf(filenames)
                                      tdwg_parent:          l3_ga,
                                      name:                 this_area_name,
                                      iso_3166_a2:          nil,
+                                     data_origin: TDWG2_L4,
                                      # we show this is from the TDWG data, *not* the iso data
                                      geographic_area_type: gat4,
                                      # even if nation is nil, this will do what we want.
@@ -615,6 +624,7 @@ def read_dbf(filenames)
           # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
           ga.level0               = ga
         end
+        ga.data_orign = ISO_3166_1_2
         iso_items.merge!(ga.name => ga) if !(ga.nil?)
       end
     }
@@ -693,6 +703,7 @@ def read_dbf(filenames)
         # remove the iso record from the search list
         iso_items.delete(l0_name)
       end
+      ga.data_origin = GADM2
 
       if l1_name.empty?
         puts item.attributes
@@ -911,6 +922,7 @@ def read_dbf(filenames)
 
   puts 'Saving Level 0 areas.'
   @lvl0_items.each { |key, area|
+    area.data_origin = GADM2
     area.save
     puts area.id
     @global.delete(area.name)
