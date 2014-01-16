@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sed 's/^\(local\s\+all\s\+\(all\|postgres\)\s\+\).*/\1 trust/' </etc/postgresql/9.2/main/pg_hba.conf >tmp.conf
+mv tmp.conf /etc/postgresql/9.2/main/pg_hba.conf
+
