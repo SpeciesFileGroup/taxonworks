@@ -21,7 +21,7 @@ gem 'rails', '4.0.2'
 # mysql2 (0.3.11-x86-mingw32)
 # both are needed to run properly
 # the same may apply to bcrypt-ruby gem
-gem 'mysql2', '0.3.11'
+gem 'mysql2' #, '0.3.11'
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
