@@ -342,10 +342,6 @@ class TaxonName < ActiveRecord::Base
     false
   end
 
-
-
-
-
   def sv_parent_is_valid_name
     if self.parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid
@@ -401,22 +397,6 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_type_placement
-    true  # see validation in Protonym.rb
-  end
-
-  def sv_type_relationship
-    true  # see validation in Protonym.rb
-  end
-
-  def sv_not_specific_relationship
-    true  # see validation in Protonym.rb
-  end
-
-  def sv_fix_specify_synonymy_type
-    true  # see validation in Protonym.rb
-  end
-
-  def sv_fix_specify_homonymy_type
     true  # see validation in Protonym.rb
   end
 
