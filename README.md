@@ -28,6 +28,7 @@ Minimally, the following steps should get you going:
 2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session:
 
    ```  
+   mkdir -p ~/Library/LaunchAgents    # This may already exist.   
    ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
    ```
