@@ -26,6 +26,8 @@ NE_10  = 'NaturalEarth (10m)'
 NE_50  = 'NaturalEarth (50m)'
 NE_110 = 'NaturalEarth (110m)'
 
+EXTRA = 'Extra'
+
 #
 namespace :tw do
   namespace :init do
