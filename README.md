@@ -6,67 +6,80 @@ TaxonWorks
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
 
+Overview
+--------
 
-Ruby version
+TaxonWorks is Ruby on Rails application that facilitates biodiversity informatics research.  More information is available at [taxonworks.org][13].  The codebase is in active development.  At present only models are available (i.e. all interactions are through a command-line interface).
+
+Installation
 ------------
-2.0.0 -- also see .ruby-version file
 
-System dependencies
-------------------- 
+TaxonWorks is a Rails 4 application using Ruby 2.0 and rubygems.  It requires PostgreSQL with the postgis extension.  The core development team is using [rvm] and [brew][9] to configure their environment on OS X.  
 
-1. PostgreSQL, postgis, GEOS (Ultimate target, postgres branch)
+Minimally, the following steps should get you going: 
+
+1. Install Postgres and postgis.
   
-# Ubuntu: 
-    sudo apt-get install libgeos-dev postgresql postgis
+   ``` 
+   brew install postgres
+   brew install postgis
+   ```
 
-# Mac OS X assuming [brew][9] is installed:
-    brew install postgresql 
+2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session:
 
-# (follow after install instructions)
-
-    brew install geos
-    brew install postgis
-
-2. MySQL (paralell development at present, master branch)
+   ```  
+   ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
+   launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
+   ```
  
-Configuration
--------------
+3. Clone the source code.
 
-Use config/database.yml.example for create and customize config/database.yml
+   ```
+   git clone git@github.com:SpeciesFileGroup/taxonworks.git
+   ```
 
-* Database permissions (MySQL)
+4. Copy the config/database.yml.example file to config/database.yml.  
 
-Something like this should work:  
+5. Given not modifications to database.yml you can proceed by creating a postgres role (user).
 
-    grant all privileges on taxonworks_development.* to 'tw'@'localhost' identified by 't0ps3kr3t';
-    grant all privileges on taxonworks_test.* to 'tw'@'localhost' identified by 't0ps3kr3t';
-    grant all privileges on taxonworks_production.* to 'tw'@'localhost' identified by 't0ps3kr3t';
+   ```
+   psql -d postgres
+   create role taxonworks_development login createdb superuser; 
+   \q
+   ```
 
-* Database creation
+6. Install the gems dependencies. Ensure you are using the Ruby version you indend to develop under (check with 'ruby -v'). Install the pg gem with some flags first, then the rest of the gems.
 
-If your database.yml is setup and reflects the uptodate permissions just use 
+  ```
+  env ARCHFLAGS="-arch x86_64" gem install pg -- --with-pg-config=/usr/local/bin/pg_config
+  bundle update
+  ```
 
-    rake db:create
+7. Setup the databases.
+ 
+  ``` 
+  rake db:setup
+  rake db:migrate RAILS_ENV=test
+  rake db:migrate RAILS_ENV=development
+  ```
 
-* Database initialization
+8. Test your setup.
 
-If you want to seed some dummy development data (very minimal at present) do
+  ```
+  rspec
+  ```
 
-    rake db:seed RAILS_ENV=development
+If the tests run, then the installation has been a success.  You'll likely want to go back and further secure your postgres installation and roles at this point.
 
-How to run the test suite
--------------------------
-    
-    rake
+Other resources
+---------------
 
-or
+TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help, it also includes a basic roadmap. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
 
-    rspec 
+License
+-------
 
-Documentation
--------------
-
-See the [wiki][11] for conceptual and general discussion.  Code is documented inline using [Yard tags][12], see [rdoc][10].
+TaxonWorks is open source under the MIT License. See LICENSE.txt for more information.
 
 [1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=postgres
 [2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=postgres
@@ -80,3 +93,6 @@ See the [wiki][11] for conceptual and general discussion.  Code is documented in
 [10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
 [11]: http://wiki.taxonworks.org/
 [12]: http://rdoc.info/gems/yard/file/docs/Tags.md
+[13]: http://taxonworks.org
+[14]: https://groups.google.com/forum/?hl=en#!forum/taxonworks-developers
+[15]: https://twitter.com/taxonworks
