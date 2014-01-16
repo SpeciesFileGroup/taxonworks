@@ -50,11 +50,8 @@ gem 'bcrypt-ruby', '~> 3.1.2'
 # DwC-A archive handling 
 gem "dwc-archive", "~> 0.9.6" 
 
-group [:development, :test] do
-  gem 'rspec-rails'
-  gem 'debugger'
-end
-
+gem 'rspec-rails', group: [:development, :test]
+gem 'debugger', group: [:development, :test]
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
