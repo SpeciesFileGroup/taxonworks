@@ -1,11 +1,11 @@
-# Culted from http://stackoverflow.com/questions/2139058/how-to-insert-a-string-into-a-textfile (thanks!)
+# Culled from http://stackoverflow.com/questions/2139058/how-to-insert-a-string-into-a-textfile (thanks!)
 
 require 'fileutils'
 
 namespace :tw do
   namespace :development do
 
-    desc 'Add mingw32 lines to the Gemfile.lock to support mysql and other problems in windows !! assumes particular gem versions !!'
+    desc 'Add x64-mingw32 lines to the Gemfile.lock to support mysql and other problems in windows !! assumes particular gem versions !!'
     task  :fix_windows_gemfile_lock do |t|
       new_lockfile = File.new(Rails.root + 'tmp/temp_lockfile.tmp', 'w')
       old_lockfile = File.open(Rails.root + 'Gemfile.lock')
@@ -18,8 +18,14 @@ namespace :tw do
           if line =~ /bcrypt-ruby/
             new_lockfile <<  "    bcrypt-ruby (3.1.2-x64-mingw32)\n"
           end
+          if  line =~ /ffi \(/
+            new_lockfile <<  "    ffi (1.9.3-x64-mingw32)\n"
+          end
           if line =~ /mysql2/
             new_lockfile <<  "    mysql2 (0.3.11)\n"
+          end
+          if line =~ /pg \(/
+            new_lockfile <<  "    pg (0.17.0-x64-mingw32)\n"
           end
         end
 

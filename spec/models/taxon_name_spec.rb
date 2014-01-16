@@ -35,7 +35,7 @@ describe TaxonName do
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
         @taxon_name = FactoryGirl.create(:iczn_species, name: 'aus', parent: @type_of_genus)
         @relationship1 = FactoryGirl.create(:type_species_relationship, subject_taxon_name: @taxon_name, object_taxon_name: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
+        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       end
 
       specify 'respond to taxon_name_relationships' do
