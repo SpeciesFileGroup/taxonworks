@@ -8,6 +8,12 @@ Bundler.require(:default, Rails.env)
 
 module TaxonWorks
   class Application < Rails::Application
+    # Via https://github.com/matthuhiggins/foreigner/pull/95
+#  config.before_initialize do
+#    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
+#  end
+
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
