@@ -9,6 +9,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :source
 
   soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
+  soft_validate(:sv_validate_disjoint_object, set: :disjoint_object)
+  soft_validate(:sv_validate_disjoint_subject, set: :disjoint_subject)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -95,6 +97,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def type_class
     r = read_attribute(:type).to_s
     r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
+    r
   end
 
   protected
@@ -169,9 +172,32 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_validate_disjoint_relationships
     relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     relationships.each  do |i|
-      soft_validations.add(:type, "Conflicting with other relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
     end
   end
+
+  def sv_validate_disjoint_object
+    classifications = self.object_taxon_name.taxon_name_classifications.map{|i| i.type_name}
+    disjoint_object_classes = self.type_class.disjoint_object_classes
+    compare = disjoint_object_classes & classifications
+    compare.each do |i|
+      c = i.constantize.class_name
+      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
+      soft_validations.add(:object_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+    end
+  end
+
+  def sv_validate_disjoint_subject
+    classifications = self.subject_taxon_name.taxon_name_classifications.map{|i| i.type_name}
+    disjoint_subject_classes = self.type_class.disjoint_subject_classes
+    compare = disjoint_subject_classes & classifications
+    compare.each do |i|
+      c = i.constantize.class_name
+      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+    end
+  end
+
 
   #endregion
 

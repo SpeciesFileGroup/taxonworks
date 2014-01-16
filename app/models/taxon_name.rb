@@ -22,8 +22,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_validate_disjoint_objects, set: :disjoint)
-  soft_validate(:sv_validate_disjoint_subjects, set: :disjoint)
   soft_validate(:sv_parent_is_valid_name, set: :valid_parent)
 
   scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
@@ -347,33 +345,6 @@ class TaxonName < ActiveRecord::Base
 
 
 
-  def sv_validate_disjoint_objects
-    relationships = self.related_taxon_name_relationships
-    classifications = self.taxon_name_classifications
-    classification_names = classifications.map{|i| i.type_name}
-    disjoint_object_classes = relationships.map{|i| i.type_class.disjoint_object_classes}.flatten
-    compare = disjoint_object_classes & classification_names
-    compare.each do |i|
-      relationships.each do |j|
-        disjoint_object_classes = j.type_class.disjoint_object_classes
-        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.object_relationship_name}'") if disjoint_object_classes & [i] != 0
-      end
-    end
-  end
-
-  def sv_validate_disjoint_subjects
-    relationships = self.taxon_name_relationships
-    classifications = self.taxon_name_classifications
-    classification_names = classifications.map{|i| i.type_name}
-    disjoint_subject_classes = relationships.map{|i| i.type_class.disjoint_subject_classes}.flatten
-    compare = disjoint_subject_classes & classification_names
-    compare.each do |i|
-      relationships.each do |j|
-        disjoint_subject_classes = j.type_class.disjoint_subject_classes
-        soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with a relationship: '#{j.type.constantize.subject_relationship_name}'") if disjoint_subject_classes & [i] != 0
-      end
-    end
-  end
 
   def sv_parent_is_valid_name
     if self.parent.unavailable_or_invalid?

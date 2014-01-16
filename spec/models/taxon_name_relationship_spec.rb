@@ -133,6 +133,24 @@ describe TaxonNameRelationship do
         #conflicting with r1
         expect(r2.soft_validations.messages_on(:type).count).to eq(1)
       end
+      specify 'disjoint objects' do
+        g = FactoryGirl.create(:iczn_genus, parent: @family)
+        s = FactoryGirl.create(:iczn_species, parent: g)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable)
+        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+        r1.soft_validate(:disjoint_object)
+        expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
+      end
+      specify 'disjoint subject' do
+        g = FactoryGirl.create(:iczn_genus, parent: @family)
+        s = FactoryGirl.create(:iczn_species, parent: g)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable)
+        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+        r1.soft_validate(:disjoint_subject)
+        expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+      end
 
 
     end

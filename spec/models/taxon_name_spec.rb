@@ -308,24 +308,6 @@ describe TaxonName do
     end
 
     context 'relationships' do
-      specify 'disjoint objects' do
-        g = FactoryGirl.create(:iczn_genus, parent: @family)
-        s = FactoryGirl.create(:iczn_species, parent: g)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable)
-        g.soft_validate(:disjoint)
-        expect(g.soft_validations.messages_on(:base).count).to eq(1)
-      end
-      specify 'disjoint subject' do
-        g = FactoryGirl.create(:iczn_genus, parent: @family)
-        s = FactoryGirl.create(:iczn_species, parent: g)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable)
-        s.soft_validate(:disjoint)
-        expect(s.soft_validations.messages_on(:base).count).to eq(1)
-      end
       specify 'invalid parent' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)

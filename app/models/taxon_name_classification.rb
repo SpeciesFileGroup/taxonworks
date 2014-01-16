@@ -21,11 +21,6 @@ class TaxonNameClassification < ActiveRecord::Base
   soft_validate(:sv_proper_classification, set: :code_complient)
   soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
 
-  # Return a String with the "common" name for this class.
-  def self.class_name
-    self.name.demodulize.underscore.humanize.downcase
-  end
-
   # years of applicability for each class
   def self.code_applicability_start_year
     1
@@ -41,6 +36,11 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def self.disjoint_taxon_name_classes
     []
+  end
+
+  # Return a String with the "common" name for this class.
+  def self.class_name
+    self.name.demodulize.underscore.humanize.downcase
   end
 
   def type_name
@@ -85,7 +85,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.each  do |i|
-      soft_validations.add(:type, "Conflicting with other status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "Conflicting with another status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
 
   end
