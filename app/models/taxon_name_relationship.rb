@@ -84,7 +84,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_name
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
+    r = self.type.to_s
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -92,8 +93,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_class
-    r = read_attribute(:type)
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
+    r = read_attribute(:type).to_s
+    r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
   end
 
   protected

@@ -44,7 +44,8 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   def type_name
-    TAXON_NAME_CLASS_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
+    r = self.type.to_s
+    TAXON_NAME_CLASS_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -52,8 +53,9 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   def type_class
-    r = read_attribute(:type)
-    TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : r
+    r = read_attribute(:type).to_s
+    r = TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : nil
+    r
   end
 
   def validate_taxon_name_classlassification
@@ -83,8 +85,9 @@ class TaxonNameClassification < ActiveRecord::Base
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.each  do |i|
-      soft_validations.add(:type, "Conflicting with other status: '#{i.type_class.class_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "Conflicting with other status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
+
   end
 
 
