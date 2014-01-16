@@ -155,6 +155,7 @@
 #   The month in which the work was published or, for an unpublished work, in which it was written.
 #   It should use the standard three-letter abbreviation, as described in Appendix B.1.3 of the LaTeX book.
 #   The three-letter lower-case abbreviations are available in _BibTeX::MONTHS_.
+#   If month is present there must be a year.
 #   @return[String] The three-letter lower-case abbreviation for the month in which this source was published.
 #   @return [nil] means the attribute is not stored in the database.
 #
@@ -214,6 +215,7 @@ class Source::Bibtex < Source
 # @!attribute volume
 # @!attribute year
 #   A TW required attribute (TW requires a value in one of the required attributes.)
+#   Year must be between 1000 and now + 2 years inclusive
 # @!attribute URL
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute doi - not implemented yet
@@ -239,31 +241,50 @@ class Source::Bibtex < Source
 # @!attribute updated_at
 # @!attribute updated_by - not yet implemented
 # @!attribute bibtex_type
+# @!attribute day
+#   If day is present there must be a month and day must be valid for the month.
 #
 # @!group associations
 # @!endgroup
 # @!group identifiers
 # @!endgroup
 
-
-  before_validation :check_bibtex_type, :check_has_field, :day_valid?
-  before_save :set_nomenclature_date
-
-  #TODO add linkage to serials ==> belongs_to serial
-  #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
-  # @associations  authors
-  #   linkage to author roles
+#TODO add linkage to serials ==> belongs_to serial
+#TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+# @associations  authors
+#   linkage to author roles
   has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person
-  # self.author & self.authors should match or one of them should be empty
-  # ditto for self.editor & self.editors
+# self.author & self.authors should match or one of them should be empty
+# ditto for self.editor & self.editors
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
+
+#region validations
+  validates :bibtex_type, inclusion: {in: ::VALID_BIBTEX_TYPES, message: '%{value} is not a valid source type'}
+  validates :year, :presence => {:if => '!month.nil?', message: 'year is required when month is provided'}
+  validates :year, :numericality => {only_integer: true, greater_than: 999,
+                                     less_than_or_equal_to: Time.now.year + 2,
+                        message: 'year must be an integer greater than 999 and no more than 2 years in the future'},
+            allow_nil: true
+  validates :month, :presence => {:if => '!day.nil?', message: 'month is required when day is provided'}
+  validates :month, inclusion: {in: ::VALID_BIBTEX_MONTHS, message: '%{value} is not a valid month'},
+            allow_nil: true
+  validates :day, :numericality => {only_integer: true, greater_than: 0,
+                                    less_than_or_equal_to: Proc.new {
+                                        |a| Time.utc(a.year, a.month).end_of_month.day },
+                                    :unless => 'year.nil?',
+                                    message: '%{value} is not a valid day for month (%{month}).'},
+            allow_nil: true
+
+  before_validation :check_has_field #,:day_valid? #, :year_valid?
+  before_save :set_nomenclature_date
+                                     #endregion validations
 
   scope :order_by_nomenclature_date,
         -> { order(:nomenclature_date).where(!(:nomenclature_date.nil?)) }
 
-#region soft_validate calls
+#region soft_validate setup calls
 #@soft_validate(:sv_has_authors)
 #soft_validate(:sv_year_exists)
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
@@ -364,7 +385,7 @@ class Source::Bibtex < Source
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
-      p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+      p         = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
 
       # TODO: These are required in present FactoryGirl tests, but not
       # in production, factor out when FactoryGirl + Housekeeping issues
@@ -387,16 +408,26 @@ class Source::Bibtex < Source
     return false if bibtex_author.class != BibTeX::Name
     Person.new(
         first_name: bibtex_author.first,
-        prefix: bibtex_author.prefix,
-        last_name: bibtex_author.last,
-        suffix: bibtex_author.suffix)
+        prefix:     bibtex_author.prefix,
+        last_name:  bibtex_author.last,
+        suffix:     bibtex_author.suffix)
   end
 
 #endregion  ruby-bibtex related
 
+#region getters & setters
+  def month=(value)
+    write_attribute(:month, Utilities::Dates::SHORT_MONTH_FILTER[value])
+  end
+
+  def month
+    read_attribute(:month)
+  end
+
+#endregion getters & setters
+
 #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
-                   # return true if !(self.author.to_s.strip.length == 0)
     return true if !(self.author.blank?)
     # author attribute is empty
     return false if self.new_record?
@@ -431,9 +462,9 @@ class Source::Bibtex < Source
 
   #TODO write has_identifiers?
 
-  #endregion        has_<attribute>? section
+#endregion has_<attribute>? section
 
-  #region time/date related
+#region time/date related
   # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
   #   returns nil if there is no :year set. Does NOT set nomenclature_date in the object.
   def date
@@ -450,6 +481,7 @@ class Source::Bibtex < Source
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   returns nomenclature_date based on computation of the values of :year, :month, :day.
+  #   Should only ever be called after validation!
   #   If :year is empty, return nil
   #   If :month is empty, returns 12/31/:year
   #   IF :day is empty, returns the last day of the month
@@ -470,7 +502,7 @@ class Source::Bibtex < Source
     end
   end
 
-  #endregion    time/date related
+#endregion    time/date related
 
   #TODO add notes method which returns an array of all associated notes.
 
@@ -478,9 +510,10 @@ class Source::Bibtex < Source
 
 #region hard validations
 
-  def check_bibtex_type # must have a valid bibtex_type
-    errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
-  end
+# replaced with inclusion validation
+#def check_bibtex_type # must have a valid bibtex_type
+#  errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+#end
 
   def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
     valid = false
@@ -498,21 +531,21 @@ class Source::Bibtex < Source
                       # return false # none of the required fields have a value
   end
 
+=begin
   def day_valid? #make sure date is between 0-32
-    valid = true
     return true if self.day.nil? # date not set
-    valid = false if self.day <1
-    valid = false if self.day > 31
-    errors.add(:day, 'invalid day') if !valid
+#    errors.add(:month, 'month is required if there is a day') if self.month.nil?
+    errors.add(:day, 'the day can not be less than 1') if self.day <1
+    errors.add(:day, 'invalid day for the month') if self.day > Time.utc(self.year, self.month).end_of_month.day
+    #:message => "Subdomain %{value} is reserved."
   end
 
   def year_valid? #make sure year is a 4 digit year
-    valid = true
     return true if self.year.nil? # year not set
-    valid = false if self.year < 1000
-    valid = false if self.year > 9999
-    errors.add(:year, 'invalid year') if !valid
+    errors.add(:year, 'year must be greater than 999') if self.year < 1000
+    errors.add(:year, 'year can be no more than 2 years in the future') if self.year > Time.now.year + 2
   end
+=end
 
 #endregion  hard validations
 
@@ -680,7 +713,7 @@ class Source::Bibtex < Source
 
   end
 
-  #endregion   Soft_validation_methods
+#endregion   Soft_validation_methods
 
 end
 

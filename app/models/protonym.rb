@@ -57,8 +57,6 @@ class Protonym < TaxonName
   soft_validate(:sv_validate_parent_rank, set: :promblematic_relationships)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
   soft_validate(:sv_type_placement, set: :type)
-  soft_validate(:sv_type_relationship, set: :type)
-  soft_validate(:sv_not_specific_relationship, set: :relationships)
   soft_validate(:sv_validate_coordinated_names, set: :coordinated_names)
   soft_validate(:sv_single_sub_taxon, set: :coordinated_names)
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_associations)
@@ -73,9 +71,7 @@ class Protonym < TaxonName
   end
 
   def sv_validate_parent_rank
-    if self.rank_class.to_s == 'NomenclaturalRank'
-      true
-    elsif self.parent.rank_class.to_s == 'NomenclaturalRank'
+    if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank'
       true
     elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
       soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
@@ -91,6 +87,7 @@ class Protonym < TaxonName
       if self.type_genus.nil?
         soft_validations.add(:base, 'Type genus is not selected')
       elsif self.name.slice(0, 1) != self.type_genus.name.slice(0, 1)
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         soft_validations.add(:base, 'Type genus should have the same initial letters as the family-group name')
       end
     end
@@ -238,42 +235,6 @@ class Protonym < TaxonName
         end
       else
         #TODO: extend to cover synonyms
-      end
-    end
-  end
-
-  def sv_type_relationship
-    unless self.type_taxon_name_relationship.nil?
-      case self.type_taxon_name_relationship.type.to_s
-        when 'TaxonNameRelationship::Typification::Genus'
-          soft_validations.add(:base, 'Please specify if the type designation is original or subsequent')
-        when 'TaxonNameRelationship::Typification::Genus::Monotypy'
-          soft_validations.add(:base, 'Please specify if the monotypy is original or subsequent')
-        when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
-          soft_validations.add(:base, 'Please specify if the tautonomy is absolute or Linnaean')
-      end
-    end
-  end
-
-  def sv_not_specific_relationship
-    self.taxon_name_relationships.each do |r|
-      case r.type_name
-        when 'TaxonNameRelationship::Icn::Unaccepting'
-          soft_validations.add(:base, 'Please specify the reasons why the name is Unaccepted')
-        when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
-          soft_validations.add(:base, 'Please specify if this is a homotypic or heterotypic synonym')
-        when 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
-          soft_validations.add(:base, 'Please specify the reason why the name is a homotypic synonym')
-        when 'TaxonNameRelationship::Iczn::Invalidating'
-          soft_validations.add(:base, 'Please specify the reason why the name is Invalid')
-        when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-          soft_validations.add(:base, 'Please specify if this is a primary or secondary homonym')
-        when 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-          soft_validations.add(:base, 'Please specify if this is a objective or subjective synonym')
-        when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
-          soft_validations.add(:base, 'Please specify the reason why the name is a objective synonym')
-        when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
-          soft_validations.add(:base, 'Please specify if this is a total, partial, or conditional suppression')
       end
     end
   end

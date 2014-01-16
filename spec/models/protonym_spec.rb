@@ -392,27 +392,19 @@ describe Protonym do
         other_subfamily.soft_validate(:type)
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
-      specify 'mismatching or not specific type genus relationships' do
+      specify 'mismatching' do
         @genus.type_species_by_monotypy = @species
         @subgenus.type_species_by_original_monotypy = @species
         expect(@genus.save).to be_true
         expect(@subgenus.save).to be_true
         @genus.reload
         @subgenus.reload
-        @genus.soft_validate
-        errors_on_genus_base = @genus.soft_validations.messages_on(:base).count
+        @genus.soft_validate(:coordinated_names)
+        #The type species does not match with the type species of the coordinated subgenus
+        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
         @genus.fix_soft_validations
-        @genus.soft_validate
-        expect(errors_on_genus_base - @genus.soft_validations.messages_on(:base).count).to eq(2)
-      end
-      specify 'not specific relationships' do
-        s1 = FactoryGirl.create(:iczn_species, parent: @genus)
-        s2 = FactoryGirl.create(:iczn_species, parent: @genus)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating')
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        s1.soft_validate(:relationships)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(3)
+        @genus.soft_validate(:coordinated_names)
+        expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
 

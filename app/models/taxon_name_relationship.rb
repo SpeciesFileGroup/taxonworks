@@ -2,10 +2,16 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   include Housekeeping
   include Shared::Citable
+  include SoftValidation
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
+
+  soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
+  soft_validate(:sv_validate_disjoint_object, set: :disjoint_object)
+  soft_validate(:sv_validate_disjoint_subject, set: :disjoint_subject)
+  soft_validate(:sv_not_specific_relationship, set: :relationships)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -23,10 +29,11 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
+  scope :with_type, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
-  scope :not_self, -> (id) {where('id != ?', id )}
+  scope :not_self, -> (id) {where('id <> ?', id )}
 
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
@@ -80,7 +87,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_name
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
+    r = self.type.to_s
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -88,8 +96,9 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_class
-    r = read_attribute(:type)
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
+    r = read_attribute(:type).to_s
+    r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
+    r
   end
 
   protected
@@ -103,6 +112,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
+  #region Validation
 
   # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
@@ -156,5 +166,123 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
+  #endregion
+
+  #region Soft Validation
+
+  def sv_validate_disjoint_relationships
+    relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
+    relationships.each  do |i|
+      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+    end
+  end
+
+  def sv_validate_disjoint_object
+    classifications = self.object_taxon_name.taxon_name_classifications.map{|i| i.type_name}
+    disjoint_object_classes = self.type_class.disjoint_object_classes
+    compare = disjoint_object_classes & classifications
+    compare.each do |i|
+      c = i.constantize.class_name
+      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
+      soft_validations.add(:object_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+    end
+  end
+
+  def sv_validate_disjoint_subject
+    classifications = self.subject_taxon_name.taxon_name_classifications.map{|i| i.type_name}
+    disjoint_subject_classes = self.type_class.disjoint_subject_classes
+    compare = disjoint_subject_classes & classifications
+    compare.each do |i|
+      c = i.constantize.class_name
+      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+    end
+  end
+
+  def sv_not_specific_relationship
+    case self.type_name
+      when 'TaxonNameRelationship::Typification::Genus'
+        soft_validations.add(:type, 'Please specify if the type designation is original or subsequent')
+      when 'TaxonNameRelationship::Typification::Genus::Monotypy'
+        soft_validations.add(:type, 'Please specify if the monotypy is original or subsequent')
+      when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
+        soft_validations.add(:type, 'Please specify if the tautonomy is absolute or Linnaean')
+      when 'TaxonNameRelationship::Icn::Unaccepting'
+        soft_validations.add(:type, 'Please specify the reasons why the name is Unaccepted')
+      when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
+        soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
+            fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
+      when 'TaxonNameRelationship::Iczn::Invalidating'
+        soft_validations.add(:type, 'Please specify the reason why the name is Invalid')
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+        if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_class.to_s)
+          soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
+              fix: :sv_fix_specify_homonymy_type, success_message: 'Homonym updated to being primary or secondary')
+        end
+      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+        soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
+            fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
+      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
+        soft_validations.add(:type, 'Please specify if this is a total, partial, or conditional suppression')
+    end
+  end
+
+  def sv_fix_specify_synonymy_type
+    #TODO update to cover type specimens synonym is objective if type the same or subjective if type is different
+    subject_type = self.subject_taxon_name.type_taxon_name
+    object_type = self.object_taxon_name.type_taxon_name
+    new_relationship_name = self.type_name
+    if subject_type == object_type && !subject_type.nil?
+      if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+        new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+      else
+        new_relationship_name = 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
+      end
+    elsif subject_type != object_type && !subject_type.nil?
+      if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+        new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
+      else
+        new_relationship_name = 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
+      end
+    end
+    if self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+
+    false
+  end
+
+  def sv_fix_specify_homonymy_type
+    subject_original_genus = self.subject_taxon_name.original_combination_genus
+    object_original_genus = self.object_taxon_name.original_combination_genus
+    subject_genus = self.subject_taxon_name.ancestor_at_rank('genus')
+    object_genus = self.subject_taxon_name.ancestor_at_rank('genus')
+    new_relationship_name = 'nil'
+    if subject_original_genus == object_original_genus && !subject_original_genus.nil?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+    elsif subject_genus != object_genus && !subject_genus.nil?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+    end
+    if self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
+  #endregion
 
 end

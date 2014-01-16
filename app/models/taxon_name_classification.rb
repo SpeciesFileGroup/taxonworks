@@ -7,6 +7,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   before_validation :validate_taxon_name_classlassification
   validates_presence_of :taxon_name, presence: true
+  validates_presence_of :type, presence: true
   validates_uniqueness_of :taxon_name_id, scope: :type
 
   # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
@@ -17,13 +18,8 @@ class TaxonNameClassification < ActiveRecord::Base
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
   scope :not_self, -> (id) {where('id != ?', id )}
 
-
-  soft_validate(:sv_proper_classification)
-
-  # Return a String with the "common" name for this class.
-  def self.class_name
-    self.name.demodulize.underscore.humanize.downcase
-  end
+  soft_validate(:sv_proper_classification, set: :code_complient)
+  soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
 
   # years of applicability for each class
   def self.code_applicability_start_year
@@ -42,8 +38,14 @@ class TaxonNameClassification < ActiveRecord::Base
     []
   end
 
+  # Return a String with the "common" name for this class.
+  def self.class_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
   def type_name
-    TAXON_NAME_CLASS_NAMES.include?(self.type.to_s) ? self.type.to_s : nil
+    r = self.type.to_s
+    TAXON_NAME_CLASS_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -51,12 +53,13 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   def type_class
-    r = read_attribute(:type)
-    TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : r
+    r = read_attribute(:type).to_s
+    r = TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : nil
+    r
   end
 
   def validate_taxon_name_classlassification
-    errors.add(:type, "status not found") unless TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
+    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
   end
 
   #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
@@ -78,6 +81,16 @@ class TaxonNameClassification < ActiveRecord::Base
       end
     end
   end
+
+  def sv_validate_disjoint_classes
+    classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
+    classifications.each  do |i|
+      soft_validations.add(:type, "Conflicting with another status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+    end
+
+  end
+
+
 
   #endregion
 end
