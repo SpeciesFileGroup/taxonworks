@@ -8,10 +8,9 @@ describe TaxonNameRelationship do
       TaxonNameRelationship.delete_all
       @taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
       @taxon_name_relationship.valid?
-      @subspecies = FactoryGirl.create(:iczn_subspecies)
-      @species = @subspecies.ancestor_at_rank('species')
-      @genus = @subspecies.ancestor_at_rank('genus')
-      @family = @subspecies.ancestor_at_rank('family')
+      @species = FactoryGirl.create(:relationship_species)
+      @genus = @species.ancestor_at_rank('genus')
+      @family = @species.ancestor_at_rank('family')
     end
 
     after(:all) do
@@ -128,8 +127,10 @@ describe TaxonNameRelationship do
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
         r1.soft_validate(:disjoint)
-        expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         r2.soft_validate(:disjoint)
+        #conflicting with r2
+        expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        #conflicting with r1
         expect(r2.soft_validations.messages_on(:type).count).to eq(1)
       end
 

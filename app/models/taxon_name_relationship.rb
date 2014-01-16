@@ -168,7 +168,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_validate_disjoint_relationships
     relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     relationships.each  do |i|
-      soft_validations.add(:type, "Conflicts with other relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+      soft_validations.add(:type, "Conflicting with other relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
     end
   end
 
