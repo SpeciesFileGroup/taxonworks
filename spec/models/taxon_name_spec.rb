@@ -61,7 +61,7 @@ describe TaxonName do
         end
 
         specify 'respond to unavailable_or_invalid' do
-          relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+          relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           expect(relationship.save).to be_true
           expect(@type_of_genus.unavailable_or_invalid?).to be_false
           expect(@original_genus.unavailable_or_invalid?).to be_true
@@ -311,8 +311,8 @@ describe TaxonName do
       specify 'invalid parent' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable::NomenNudum)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         s.soft_validate(:valid_parent)
         g.soft_validate(:valid_parent)
         expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
@@ -324,8 +324,8 @@ describe TaxonName do
       specify 'parent is a synonym' do
         g1 = FactoryGirl.create(:iczn_genus, parent: @family)
         g2 = FactoryGirl.create(:iczn_genus, parent: @family)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         g2.soft_validate(:synonym_associations)
         expect(g2.soft_validations.messages_on(:base).count).to eq(1)
         g2.fix_soft_validations
