@@ -52,6 +52,7 @@ gem "dwc-archive", "~> 0.9.6"
 
 gem 'rspec-rails', group: [:development, :test]
 gem 'debugger', group: [:development, :test]
+gem 'debugger-xml', group: [:development, :test]
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
