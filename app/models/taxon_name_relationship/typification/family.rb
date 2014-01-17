@@ -2,12 +2,12 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
 
   # left side
   def self.valid_subject_ranks
-    NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::GenusGroup.descendants.collect{|t| t.to_s}
+    GENUS_RANKS_NAMES
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_RANKS_NAMES
   end
 
   def self.disjoint_taxon_name_relationships

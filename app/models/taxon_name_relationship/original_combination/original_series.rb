@@ -1,12 +1,13 @@
 class TaxonNameRelationship::OriginalCombination::OriginalSeries < TaxonNameRelationship::OriginalCombination
 
+  # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Icn::GenusGroup.descendants.collect{|t| t.to_s}
+    GENUS_RANKS_NAMES_ICN
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Icn::GenusGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|t| t.to_s}
+    GENUS_AND_SPECIES_RANKS_NAMES_ICN
   end
 
   def self.assignment_method

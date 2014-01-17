@@ -12,6 +12,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_object, set: :disjoint_object)
   soft_validate(:sv_validate_disjoint_subject, set: :disjoint_subject)
   soft_validate(:sv_not_specific_relationship, set: :relationships)
+  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_associations)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -282,6 +283,35 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
     false
   end
+
+  def sv_synonym_linked_to_valid_name
+    #synonyms and misspellings should be linked to valid names
+    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+      obj = self.object_taxon_name
+      if obj.get_valid_taxon_name != obj
+        soft_validations.add(:object_taxon_name_id, "The #{self.type_class.subject_relationship_name} should be associated with a valid name",
+                             fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
+      end
+    end
+  end
+
+  def sv_fix_synonym_linked_to_valid_name
+    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+      obj = self.object_taxon_name
+      if obj.get_valid_taxon_name != obj
+        self.object_taxon_name = obj.get_valid_taxon_name
+        begin
+          TaxonName.transaction do
+            self.save
+            return true
+          end
+        rescue
+        end
+      end
+    end
+    false
+  end
+
 
   #endregion
 
