@@ -43,3 +43,29 @@ GENUS_AND_SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::GenusGroup.descendants
 # All assignable ranks for species groups, for both ICN and ICZN
 SPECIES_RANKS_NAMES = (NomenclaturalRank::Iczn::SpeciesGroup.descendants +
     NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants).collect{|i| i.to_s}
+
+# All assignable ranks for family groups, for ICZN
+FAMILY_RANKS_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for family groups, for both ICN
+FAMILY_RANKS_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for genus groups, for ICZN
+GENUS_RANKS_NAMES_ICZN = NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for genus groups, for both ICN
+GENUS_RANKS_NAMES_ICN = NomenclaturalRank::Icn::GenusGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for species groups, for ICZN
+SPECIES_RANKS_NAMES_ICZN = NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for species groups, for both ICN
+SPECIES_RANKS_NAMES_ICN = NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|i| i.to_s}
+
+# All assignable ranks for genus and species groups, for both ICZN
+GENUS_AND_SPECIES_RANKS_NAMES_ICZN = (NomenclaturalRank::Iczn::GenusGroup.descendants +
+    NomenclaturalRank::Iczn::SpeciesGroup.descendants).collect{|i| i.to_s}
+
+# All assignable ranks for genus and species groups, for both ICN
+GENUS_AND_SPECIES_RANKS_NAMES_ICN = (NomenclaturalRank::Icn::GenusGroup.descendants +
+    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants).collect{|i| i.to_s}
