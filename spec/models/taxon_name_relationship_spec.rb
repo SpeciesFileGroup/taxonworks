@@ -11,6 +11,7 @@ describe TaxonNameRelationship do
       @species = FactoryGirl.create(:relationship_species)
       @genus = @species.ancestor_at_rank('genus')
       @family = @species.ancestor_at_rank('family')
+      @kingdom = @species.ancestor_at_rank('kingdom')
     end
 
     after(:all) do
@@ -200,11 +201,21 @@ describe TaxonNameRelationship do
         r1.soft_validate(:synonym_associations)
         r2.soft_validate(:synonym_associations)
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
+        # parent is a synonym of another taxon
         expect(r2.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
         r2.fix_soft_validations
         r2.soft_validate(:synonym_associations)
+        # parent updated to valid name
         expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
       end
+      specify 'type genus should have the same first letter' do
+        f1 = FactoryGirl.create(:iczn_family, parent: @kingdom)
+        g1 = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: f1)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: f1, type: 'TaxonNameRelationship::Typification::Family')
+        r1.soft_validate(:matching_type_genus)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
+      end
+
 
 
     end

@@ -2,12 +2,12 @@ class TaxonNameRelationship::Combination::Species < TaxonNameRelationship::Combi
 
   # left_side
   def self.valid_subject_ranks
-    SPECIES_RANKS_NAMES
+    SPECIES_RANK_NAMES
   end
 
   # right_side
   def self.valid_object_ranks
-    SPECIES_RANKS_NAMES
+    SPECIES_RANK_NAMES
   end
 
   def self.assignable

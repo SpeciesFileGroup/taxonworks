@@ -2,12 +2,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubseries < TaxonNameR
 
   # left_side
   def self.valid_subject_ranks
-    GENUS_RANKS_NAMES_ICN
+    GENUS_RANK_NAMES_ICN
   end
 
   # right_side
   def self.valid_object_ranks
-    GENUS_AND_SPECIES_RANKS_NAMES_ICN
+    GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
 
