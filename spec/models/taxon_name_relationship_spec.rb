@@ -89,7 +89,7 @@ describe TaxonNameRelationship do
           end
 
           specify 'validly_published when a TaxonNameRelationship' do
-            @taxon_name_relationship.type = TaxonNameRelationship::Combination::Genus
+            @taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
             @taxon_name_relationship.valid?
             expect(@taxon_name_relationship.errors.include?(:typification)).to be_false
           end
@@ -98,19 +98,19 @@ describe TaxonNameRelationship do
         context 'relationships' do
           specify 'has only one synonym relationship' do
             s = FactoryGirl.create(:iczn_species, parent: @genus)
-            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
             expect(r1.valid?).to be_true
             expect(r1.errors.include?(:subject_taxon_name_id)).to be_false
-            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
+            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
             r2.valid?
             expect(r2.errors.include?(:subject_taxon_name_id)).to be_true
           end
           specify 'has only one type relationship' do
             s = FactoryGirl.create(:iczn_species, parent: @genus)
-            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: TaxonNameRelationship::Typification::Genus)
+            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus')
             expect(r1.valid?).to be_true
             expect(r1.errors.include?(:object_taxon_name_id)).to be_false
-            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: TaxonNameRelationship::Typification::Genus::Monotypy)
+            r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus::Monotypy')
             r2.valid?
             expect(r2.errors.include?(:object_taxon_name_id)).to be_true
           end
@@ -122,10 +122,10 @@ describe TaxonNameRelationship do
       specify 'disjoint relationships' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Validating::ConservedName)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Validating::ConservedName')
         r1.soft_validate(:disjoint)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: TaxonNameRelationship::Iczn::Invalidating::Synonym)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r1.soft_validate(:disjoint)
         r2.soft_validate(:disjoint)
         #conflicting with r2
@@ -136,8 +136,8 @@ describe TaxonNameRelationship do
       specify 'disjoint objects' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: TaxonNameClassification::Iczn::Unavailable)
-        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
+        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
         r1.soft_validate(:disjoint_object)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
@@ -145,8 +145,8 @@ describe TaxonNameRelationship do
       specify 'disjoint subject' do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable)
-        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
+        r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
         r1.soft_validate(:disjoint_subject)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
