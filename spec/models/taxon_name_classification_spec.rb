@@ -63,9 +63,9 @@ describe TaxonNameClassification do
     specify 'disjoint classes' do
       g = FactoryGirl.create(:iczn_genus, parent: @family)
       s = FactoryGirl.create(:iczn_species, parent: g)
-      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Unavailable)
-      c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
+      c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames')
       c1.soft_validate(:disjoint)
       c2.soft_validate(:disjoint)
       #conflicting with c2

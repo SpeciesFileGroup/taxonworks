@@ -330,7 +330,7 @@ describe Protonym do
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
         g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: TaxonNameRelationship::Typification::Family )
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         expect(r.save).to be_true
         @subfamily.soft_validate
         @subfamily.fix_soft_validations
@@ -375,7 +375,7 @@ describe Protonym do
       specify 'type genus in wrong subfamily' do
         other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
         gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: TaxonNameRelationship::Typification::Family )
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: 'TaxonNameRelationship::Typification::Family' )
 
         expect(r.save).to be_true
         other_subfamily.reload
