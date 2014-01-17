@@ -4,7 +4,7 @@ rvm:
 bundler_args: --without development
 branches:
   only:
-      - postgres
+      - master
 before_install: ./travis/before_install.sh
 before_script: 
   - cp config/database.yml.example config/database.yml
