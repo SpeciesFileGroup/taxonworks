@@ -18,7 +18,7 @@ gem 'rgeo-geojson'
 gem 'sass-rails', '~> 4.0'
 
 # Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '~> 1.3'
+gem 'uglifier', '~> 2.4'
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0'
@@ -31,7 +31,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 1.0'
+gem 'jbuilder', '~> 2.0'
 
 gem 'chronic', '~> 0.10'
 
