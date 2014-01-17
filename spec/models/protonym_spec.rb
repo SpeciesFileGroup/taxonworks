@@ -360,14 +360,10 @@ describe Protonym do
     end
 
     context 'problematic relationships' do
-      specify 'inapropriate type genus' do
-        gen = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
-        @family.type_genus = gen
+      specify 'missing type genus genus' do
+        gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
         @family.soft_validate(:missing_relationships)
-        #family and type genus start in different first leter
-        expect(@family.soft_validations.messages_on(:base).empty?).to be_false
-        gen.name = 'Cus'
-        expect(gen.save).to be_true
+        @family.type_genus = gen
         expect(@family.save).to be_true
         @family.soft_validate(:missing_relationships)
         expect(@family.soft_validations.messages_on(:base).empty?).to be_true
@@ -375,8 +371,9 @@ describe Protonym do
       specify 'type genus in wrong subfamily' do
         other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
         gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
+        gen_syn = FactoryGirl.create(:iczn_genus, name: 'Dus', parent: other_subfamily)
         r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: 'TaxonNameRelationship::Typification::Family' )
-
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: gen_syn, object_taxon_name: gen, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )
         expect(r.save).to be_true
         other_subfamily.reload
         @genus.reload
@@ -386,7 +383,14 @@ describe Protonym do
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_false
         #genus is a type for subfamily, but is not included there
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_false
-        r.subject_taxon_name = gen
+
+        r.subject_taxon_name = gen # valid genus is a type genus
+        expect(r.save).to be_true
+        other_subfamily.reload
+        other_subfamily.soft_validate(:type)
+        expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_true
+
+        r.subject_taxon_name = gen_syn # synonym is a type genus
         expect(r.save).to be_true
         other_subfamily.reload
         other_subfamily.soft_validate(:type)

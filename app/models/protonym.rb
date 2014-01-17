@@ -215,20 +215,12 @@ class Protonym < TaxonName
   def sv_type_placement
     # type of this taxon is not included in this taxon
     if !!self.type_taxon_name
-      unless self.unavailable_or_invalid?
-        soft_validations.add(:base, "The type should be included in this #{self.rank_class.rank_name}") unless self.type_taxon_name.ancestors.include?(self)
-      else
-        #TODO: extend to cover synonyms
-      end
+      soft_validations.add(:base, "The type should be included in this #{self.rank_class.rank_name}") unless self.type_taxon_name.get_valid_taxon_name.ancestors.include?(self.get_valid_taxon_name)
     end
     # this taxon is a type, but not included in nominal taxon
     if !!self.type_of_taxon_names
-      unless self.unavailable_or_invalid?
-        self.type_of_taxon_names.each do |t|
-          soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.ancestors.include?(t)
-        end
-      else
-        #TODO: extend to cover synonyms
+      self.type_of_taxon_names.each do |t|
+        soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.get_valid_taxon_name.ancestors.include?(t.get_valid_taxon_name)
       end
     end
   end
@@ -278,7 +270,6 @@ class Protonym < TaxonName
         t.save
         t.soft_validate
         t.fix_soft_validations
-        foo = 0
         return true
       end
     rescue
