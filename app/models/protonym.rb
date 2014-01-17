@@ -78,17 +78,12 @@ class Protonym < TaxonName
   end
 
   def sv_missing_relationships
-    if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
-    elsif GENUS_RANKS_NAMES.include?(self.rank_class.to_s)
+    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
-    elsif FAMILY_RANKS_NAMES.include?(self.rank_class.to_s)
-      if self.type_genus.nil?
-        soft_validations.add(:base, 'Type genus is not selected')
-      elsif self.name.slice(0, 1) != self.type_genus.name.slice(0, 1)
-        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        soft_validations.add(:base, 'Type genus should have the same initial letters as the family-group name')
-      end
+    elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
   end
 

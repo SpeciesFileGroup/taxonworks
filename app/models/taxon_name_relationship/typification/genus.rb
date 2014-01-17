@@ -2,12 +2,12 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
 
    # left side
   def self.valid_subject_ranks
-    SPECIES_RANKS_NAMES
+    SPECIES_RANK_NAMES
   end
 
    # right_side
   def self.valid_object_ranks
-    GENUS_RANKS_NAMES
+    GENUS_RANK_NAMES
   end
 
   def self.disjoint_taxon_name_relationships

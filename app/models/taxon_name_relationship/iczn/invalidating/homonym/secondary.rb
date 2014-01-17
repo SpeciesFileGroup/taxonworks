@@ -2,12 +2,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
 
   # left_side
   def self.valid_subject_ranks
-    SPECIES_RANKS_NAMES_ICZN
+    SPECIES_RANK_NAMES_ICZN
   end
 
   # right_side
   def self.valid_object_ranks
-    SPECIES_RANKS_NAMES_ICZN
+    SPECIES_RANK_NAMES_ICZN
   end
 
   def self.disjoint_taxon_name_relationships
