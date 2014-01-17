@@ -47,17 +47,17 @@ describe TaxonNameClassification do
 
     specify "applicable type and year" do
      c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-     c.soft_validate(:code_complient)
+     c.soft_validate(:proper_classification)
      expect(c.soft_validations.messages_on(:type).empty?).to be_true
    end
     specify "unapplicable type" do
       c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
-      c.soft_validate(:code_complient)
+      c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).count).to eq(1)
     end
     specify "unapplicable year" do
       c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
-      c.soft_validate(:code_complient)
+      c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).count).to eq(1)
     end
     specify 'disjoint classes' do
@@ -66,8 +66,8 @@ describe TaxonNameClassification do
       r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
       c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames')
-      c1.soft_validate(:disjoint)
-      c2.soft_validate(:disjoint)
+      c1.soft_validate(:validate_disjoint_classes)
+      c2.soft_validate(:validate_disjoint_classes)
       #conflicting with c2
       expect(c1.soft_validations.messages_on(:type).count).to eq(1)
       #conflicting with c1
