@@ -3,12 +3,12 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Iczn.descendants.collect{|t| t.to_s}
+    FAMILY_RANKS_NAMES_ICZN + GENUS_AND_SPECIES_RANKS_NAMES_ICZN
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn.descendants.collect{|t| t.to_s}
+    FAMILY_RANKS_NAMES_ICZN + GENUS_AND_SPECIES_RANKS_NAMES_ICZN
   end
 
   def self.disjoint_taxon_name_relationships

@@ -9,6 +9,12 @@
  # All assignable Rank Classes
  RANKS = [NomenclaturalRank] + ICN + ICZN
 
+ # ICNZ Ranks, as Strings
+ RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
+
+ # ICN Ranks, as Strings
+ RANK_CLASS_NAMES_ICN = ICN.collect{|r| r.to_s}
+
  # All Ranks, as Strings
  RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
 

@@ -1,5 +1,6 @@
 class TaxonNameRelationship::Icn::Accepting < TaxonNameRelationship::Icn
 
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         [TaxonNameRelationship::Icn::Unaccepting.to_s] +

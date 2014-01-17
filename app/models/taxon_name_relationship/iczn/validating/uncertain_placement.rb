@@ -1,5 +1,15 @@
 class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRelationship::Iczn::Validating
 
+  # left_side
+  def self.valid_subject_ranks
+    GENUS_AND_SPECIES_RANKS_NAMES_ICZN
+  end
+
+  # right_side
+  def self.valid_object_ranks
+    FAMILY_RANKS_NAMES_ICZN
+  end
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         [TaxonNameRelationship::Iczn::Validating::ConservedName.to_s]
