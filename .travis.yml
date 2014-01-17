@@ -8,6 +8,8 @@ branches:
 before_install: ./travis/before_install.sh
 before_script: 
   - cp config/database.yml.example config/database.yml
-  - rake db:create:all
+  - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
+  - rake db:setup
   #- ./travis/before_script.sh
-  - rake db:migrate 
+  - rake db:migrate
+  - rake db:migrate HPS_ENV=test 
