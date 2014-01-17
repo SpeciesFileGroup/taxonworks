@@ -46,13 +46,13 @@ describe TaxonName do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'respond to taxon_name_relationships' do
           expect(@taxon_name).to respond_to (:taxon_name_relationships)
-          expect(@taxon_name.taxon_name_relationships.to_a).to eq([@relationship1.becomes(@relationship1.type)])
+          expect(@taxon_name.taxon_name_relationships.map{|i| i.type_name}).to eq([@relationship1.type_name])
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'respond to all_taxon_name_relationships' do
           expect(@taxon_name).to respond_to (:all_taxon_name_relationships)
-          expect(@taxon_name.all_taxon_name_relationships).to eq([@relationship1.becomes(@relationship1.type), @relationship2.becomes(@relationship2.type)])
+          expect(@taxon_name.all_taxon_name_relationships.map{|i| i.type_name}).to eq([@relationship1.type_name, @relationship2.type_name])
         end
 
         # TaxonNames related by all_taxon_name_relationships
