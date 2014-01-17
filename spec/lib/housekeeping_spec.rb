@@ -113,8 +113,8 @@ describe 'Housekeeping::User' do
 
         context 'belonging to a project' do
           before(:all) {
-            @project1 = FactoryGirl.create(:valid_project)
-            @project2 = FactoryGirl.create(:valid_project)
+            @project1 = FactoryGirl.build(:valid_project)
+            @project2 = FactoryGirl.build(:valid_project)
           }
           after(:all) {
             $project_id = 1 # now return to our regular scheduled programming

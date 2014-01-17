@@ -32,7 +32,7 @@ describe Project do
 
       specify 'valid with name' do
         project.name = 'Project!'
-        expect(project.save).to be_true
+        expect(project.valid?).to be_true
       end
     end
   end
