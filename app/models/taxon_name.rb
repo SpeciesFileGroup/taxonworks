@@ -404,10 +404,6 @@ class TaxonName < ActiveRecord::Base
     true # see validation in Protonym.rb
   end
 
-  def sv_synonym_linked_to_valid_name
-    true # see validation in Protonym.rb
-  end
-
 #endregion
 
 end

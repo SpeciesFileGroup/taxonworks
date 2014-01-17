@@ -9,7 +9,7 @@ describe TaxonName do
     @species = @subspecies.ancestor_at_rank('species')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
-    #@var1 = FactoryGirl.create(:icn_variety)
+    @root = @subspecies.root
   end
 
   after(:all) do
@@ -20,6 +20,22 @@ describe TaxonName do
   context 'double checking FactoryGirl' do
     specify 'is building all related names for respective models' do
       expect(@subspecies.ancestors.length).to be >= 10
+      (@subspecies.ancestors + [@subspecies]).each do |i|
+        expect(i.valid?).to be_true
+      end
+    end
+    specify 'ICN' do
+      variety = FactoryGirl.create(:icn_variety)
+      expect(variety.ancestors.length).to be >= 17
+      (variety.ancestors + [variety]).each do |i|
+        expect(i.valid?).to be_true
+      end
+      expect(variety.root.id).to eq(@species.root.id)
+      #variety.save
+
+      expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
+      expect(variety.cached_author_year).to eq('McAtee (1900)')
+      expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
     end
   end
 
@@ -69,7 +85,6 @@ describe TaxonName do
       end
     end
   end
-
 
   context 'methods' do
     context 'verbatim_author' do 
@@ -128,7 +143,6 @@ describe TaxonName do
     context 'class methods from awesome_nested_set' do
       specify 'permit one root per project'
       specify 'permit multiple roots across the database' do
-        root1 = FactoryGirl.create(:root_taxon_name)
         root2 = FactoryGirl.build(:root_taxon_name)
         expect(root2.parent).to be_nil
         expect(root2.valid?).to be_true
@@ -137,10 +151,10 @@ describe TaxonName do
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
       context 'handle a simple hierarchy with awesome_nested_set' do
         before(:all) do
-          @root = FactoryGirl.create(:root_taxon_name)
-          @family = FactoryGirl.create(:iczn_family, parent: @root)
-          @genus1 = FactoryGirl.create(:iczn_genus, parent: @family)
-          @genus2 = FactoryGirl.create(:iczn_genus, parent: @family)
+
+          @family1 = FactoryGirl.create(:iczn_family, parent: @root)
+          @genus1 = FactoryGirl.create(:iczn_genus, parent: @family1)
+          @genus2 = FactoryGirl.create(:iczn_genus, parent: @family1)
           @species1 = FactoryGirl.create(:iczn_species, parent: @genus1)
           @species2 = FactoryGirl.create(:iczn_species, parent: @genus2)
           @root.reload
@@ -151,16 +165,16 @@ describe TaxonName do
         end
         specify 'ancestors' do
           expect(@root.ancestors.size).to eq(0)
-          expect(@family.ancestors.size).to eq(1)
-          expect(@family.ancestors).to eq([@root])
+          expect(@family1.ancestors.size).to eq(1)
+          expect(@family1.ancestors).to eq([@root])
           expect(@species1.ancestors.size).to eq(3)
         end
         specify 'parent' do
           expect(@root.parent).to eq(nil)
-          expect(@family.parent).to eq(@root)
+          expect(@family1.parent).to eq(@root)
         end
         specify 'leaves' do
-          expect(@root.leaves).to eq([@species1, @species2])
+          expect(@root.leaves & [@species1, @species2]).to eq([@species1, @species2])
         end
         specify 'move_to_child_of' do
           @species2.move_to_child_of(@genus1)
@@ -243,20 +257,10 @@ describe TaxonName do
           expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
         end
         specify 'ICZN family' do
-          @family.valid?
+          expect(@family.valid?).to be_true
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
           expect(@family.cached_author_year).to eq('Say, 1800')
           expect(@family.cached_name.nil?).to be_true
-        end
-        specify 'ICN' do
-          variety = FactoryGirl.create(:icn_variety)
-          expect(variety.ancestors.length).to be >= 17
-          expect(variety.root.id).to eq(@species.root.id)
-          variety.save
-
-          expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
-          expect(variety.cached_author_year).to eq('McAtee (1900)')
-          expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
         end
         specify 'nil author and year - cashed value should be empty' do
           t = @subspecies.ancestor_at_rank('kingdom')
@@ -320,17 +324,6 @@ describe TaxonName do
         s.fix_soft_validations
         s.soft_validate(:valid_parent)
         expect(s.soft_validations.messages_on(:parent_id).empty?).to be_true
-      end
-      specify 'parent is a synonym' do
-        g1 = FactoryGirl.create(:iczn_genus, parent: @family)
-        g2 = FactoryGirl.create(:iczn_genus, parent: @family)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        g2.soft_validate(:synonym_associations)
-        expect(g2.soft_validations.messages_on(:base).count).to eq(1)
-        g2.fix_soft_validations
-        g2.soft_validate(:valid_parent)
-        expect(g2.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
   end
