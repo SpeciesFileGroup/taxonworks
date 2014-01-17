@@ -176,7 +176,6 @@ describe TaxonNameRelationship do
         r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g2, type: 'TaxonNameRelationship::Typification::Genus')
         r1.soft_validate(:relationships)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
-        # Fix works, relationship updated to Objective synonym, but it does not return value to spec should work if it moved to relationship spec.
         r1.fix_soft_validations
         r1.soft_validate(:relationships)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
@@ -189,10 +188,22 @@ describe TaxonNameRelationship do
         r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
         r1.soft_validate(:relationships)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
-        # Fix works, relationship updated to Primary homonym, but it does not return value to spec should work if it moved to relationship spec.
         r1.fix_soft_validations
         r1.soft_validate(:relationships)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+      end
+      specify 'parent is a synonym' do
+        g1 = FactoryGirl.create(:iczn_genus, parent: @family)
+        g2 = FactoryGirl.create(:iczn_genus, parent: @family)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r1.soft_validate(:synonym_associations)
+        r2.soft_validate(:synonym_associations)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
+        expect(r2.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
+        r2.fix_soft_validations
+        r2.soft_validate(:synonym_associations)
+        expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
       end
 
 
