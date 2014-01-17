@@ -12,8 +12,8 @@ SFG = 'SpeciesFile Group'
 ISO_3166_1_2 = 'ISO 3166-1-alpha-2' # ISO 3166-1:2006 two-letter country abbreviations
 ISO_3166_1_3 = 'ISO 3166-1-alpha-3' # ISO 3166-1:2006 three-letter country abbreviations
 # Other current choices are:
-ISO_3166_3   = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
-ISO_3166_2   = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
+ISO_3166_3 = 'ISO 3166-3:1999' # Country names which have been deleted from -1 since 1974
+ISO_3166_2 = 'ISO 3166-2:2007' # State or Province level for country codes in 3166-1
 
 TDWG2_L1 = 'TDWG2 Level 1'
 TDWG2_L2 = 'TDWG2 Level 2'
@@ -22,8 +22,8 @@ TDWG2_L4 = 'TDWG2 Level 4'
 
 GADM2 = 'GADM2'
 
-NE_10  = 'NaturalEarth (10m)'
-NE_50  = 'NaturalEarth (50m)'
+NE_10 = 'NaturalEarth (10m)'
+NE_50 = 'NaturalEarth (50m)'
 NE_110 = 'NaturalEarth (110m)'
 
 EXTRA = 'Extra'
@@ -33,14 +33,14 @@ namespace :tw do
   namespace :init do
 
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
-    task :build_geographic_areas => :environment do
+    task :build_geographic_areas => [:environment] do
 
-      place     = ENV['place']
-      shapes    = ENV['shapes']
+      place = ENV['place']
+      shapes = ENV['shapes']
 
       # index is only expected to work for the GADM V2 shape file set: intended *only* as a
       # short-cut to a problem record.
-      index     = ENV['index']
+      index = ENV['index']
 
       # divisions is used to select only the processing of the division names in the GADM file.
       Divisions = false
@@ -50,12 +50,12 @@ namespace :tw do
       # build csv file list from 'place'
 
       # GenTable: set to true to generate the GeographicAreaType table here
-      GenTable  = true
+      GenTable = true
       # DoShape: set to true to include the reading of the shapes into the GeographicItem table;
       #          Otherwise, only the DBF files are used to populate the GeographicArea table
-      DoShape   = false
+      DoShape = false
       # BaseDir: where to find the tables to be used
-      BaseDir   = '../shapes/'
+      BaseDir = '../shapes/'
 
       if place.nil?
         base_dir = BaseDir
@@ -105,7 +105,7 @@ def read_shape(filename, index)
 
     file.seek_index(index)
     count = file.num_records
-    ess   = (count == 1) ? '' : 's'
+    ess = (count == 1) ? '' : 's'
     puts "#{Time.now.strftime "%H:%M:%S"}: #{filename} contains #{count} item#{ess}."
 
     # things to do before each file
@@ -116,20 +116,20 @@ def read_shape(filename, index)
         # the USA by hand
         mr = GeographicArea.where(name: 'United States')
         if mr[0].nil?
-          mr = GeographicArea.new(name:                 'United States',
-                                  country_id:           240,
-                                  parent_id:            0,
+          mr = GeographicArea.new(name: 'United States',
+                                  country_id: 240,
+                                  parent_id: 0,
                                   geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
           mr.save
         end
       when /level1/i
         record = GeographicArea.where(name: 'Earth')
         if record.count == 0
-          record    = GeographicArea.new(parent_id: nil,
-                                         name:      'Earth')
+          record = GeographicArea.new(parent_id: nil,
+                                      name: 'Earth')
           area_type = GeographicAreaType.where(name: 'Planet')[0]
           # save this record for later
-          earth     = record.save
+          earth = record.save
         else
           earth = record[0]
         end
@@ -148,9 +148,9 @@ def read_shape(filename, index)
 
       case filename
         when /USA_adm0/
-          record    = GeorgaphicArea.new(parent_id:  0,
-                                         name:       item[:NAME_ENGLISH],
-                                         country_id: item[:PID])
+          record = GeorgaphicArea.new(parent_id: 0,
+                                      name: item[:NAME_ENGLISH],
+                                      country_id: item[:PID])
           area_type = GeographicAreaType.where(name: 'Country')[0]
         #if area_type.nil?
         #  at = GeographicAreaType.new(name: 'Country')
@@ -158,10 +158,10 @@ def read_shape(filename, index)
         #  area_type = at
         #end
         when /USA_adm1/
-          record    = GeographicArea.new(parent_id:  item[:ID_0],
-                                         name:       item[:NAME_1],
-                                         state_id:   item[:ID_1],
-                                         country_id: item[:ID_0])
+          record = GeographicArea.new(parent_id: item[:ID_0],
+                                      name: item[:NAME_1],
+                                      state_id: item[:ID_1],
+                                      country_id: item[:ID_0])
           area_type = GeographicAreaType.where(name: item[:TYPE_1])
         #if area_type.nil?
         #  at = GeographicAreaType.new(name: item[:TYPE_1])
@@ -169,11 +169,11 @@ def read_shape(filename, index)
         #  area_type = at
         #end
         when /USA_adm2/
-          record    = GeographicArea.new(parent_id:  item[:ID_1],
-                                         name:       item[:NAME_2],
-                                         state_id:   item[:ID_1],
-                                         country_id: item[:ID_0],
-                                         county_id:  item[:ID_2])
+          record = GeographicArea.new(parent_id: item[:ID_1],
+                                      name: item[:NAME_2],
+                                      state_id: item[:ID_1],
+                                      country_id: item[:ID_0],
+                                      county_id: item[:ID_2])
           area_type = GeographicAreaType.where(name: item[:TYPE_2])
         #if area_type.nil?
         #  at = GeographicAreaType.new(name: item[:TYPE_2])
@@ -183,7 +183,7 @@ def read_shape(filename, index)
         when /GADM/i
         when /level1/
           record = GeographicArea.new(parent_id: earth.id,
-                                      name:      item['LEVEL1_NAM'])
+                                      name: item['LEVEL1_NAM'])
           GeographicAreaType.where(name: item[''])
         when /level2/
         when /level3/
@@ -191,8 +191,8 @@ def read_shape(filename, index)
         else
       end
       if !(record.nil?)
-        record.geographic_area_type          = area_type[0]
-        record.geographic_item               = GeographicItem.new
+        record.geographic_area_type = area_type[0]
+        record.geographic_item = GeographicItem.new
         record.geographic_item.multi_polygon = item.geometry
         record.save
 
@@ -200,7 +200,7 @@ def read_shape(filename, index)
           when /USA_adm0/
             # when country, find parent continent
             # parent_record = GeographicArea.where({parent_id: 0, country_id: 0})[0]
-            parent_record = GeographicArea.new(name:                 'North America',
+            parent_record = GeographicArea.new(name: 'North America',
                                                geographic_area_type: GeographicAreaType.where(name: 'Continent')[0])
           when /USA_adm1/
             # when state, find parent country
@@ -212,7 +212,7 @@ def read_shape(filename, index)
 
         end
         count = record.geographic_item.multi_polygon.num_geometries
-        ess   = (count == 1) ? '' : 's'
+        ess = (count == 1) ? '' : 's'
         puts "#{'% 5d' % (item.index + 1)}:  #{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
       else
         # this processing is specifically for GADM2
@@ -225,8 +225,8 @@ def read_shape(filename, index)
         end
         ess = (count_geo == 1) ? 'y' : 'ies'
 
-        snap      = Time.now
-        elapsed   = snap - time_then
+        snap = Time.now
+        elapsed = snap - time_then
         time_then = snap
         case filename
           when /GADM/i
@@ -287,12 +287,12 @@ def read_dbf(filenames)
 
   # make sure the earth record exists and is available
 
-  earth     = GeographicArea.where(name: 'Earth')
+  earth = GeographicArea.where(name: 'Earth')
   if earth.count == 0
     # create the record
-    earth                      = GeographicArea.new(parent_id: nil,
-                                                    data_origin: SFG,
-                                                    name:      'Earth')
+    earth = GeographicArea.new(parent_id: nil,
+                               data_origin: SFG,
+                               name: 'Earth')
     earth.geographic_area_type = GeographicAreaType.where(name: 'Planet').first
     # save this record for later
     earth.save
@@ -308,6 +308,8 @@ def read_dbf(filenames)
   filenames.each { |filename|
 
     puts filename
+    #breakpoint.save
+    raise if !File.exist?(filename)
 
     case filename
       when /level1/i
@@ -319,6 +321,7 @@ def read_dbf(filenames)
       when /level4/i
         lvl4 = DBF::Table.new(filename)
       when /country_names_and_code_elements/i
+
         iso = File.open(filename)
       when /ne_/i
         ne = DBF::Table.new(filename)
@@ -331,8 +334,8 @@ def read_dbf(filenames)
   @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}
 
   # @global will be filled such that ga.name is the key for easier location later
-  iso_items, @global                                                           = {}, {}
-  gat5                                                                         = GeographicAreaType.where(name: 'Country').first
+  iso_items, @global = {}, {}
+  gat5 = GeographicAreaType.where(name: 'Country').first
 
   if lvl1 != nil
 
@@ -346,10 +349,10 @@ def read_dbf(filenames)
 
     lvl1.each { |item|
       puts item.attributes
-      ga = GeographicArea.new(parent:               earth,
-                              tdwg_parent:          earth,
+      ga = GeographicArea.new(parent: earth,
+                              tdwg_parent: earth,
                               data_origin: TDWG2_L1,
-                              name:                 item['LEVEL1_NAM'].titlecase,
+                              name: item['LEVEL1_NAM'].titlecase,
                               geographic_area_type: gat1)
       @lvl1_items.merge!(item['LEVEL1_COD'] => ga)
       @global.merge!(ga.name => ga)
@@ -357,9 +360,9 @@ def read_dbf(filenames)
 
     lvl2.each { |item|
       puts item.attributes
-      ga = GeographicArea.new(parent:               @lvl1_items[item['LEVEL1_COD']],
-                              tdwg_parent:          @lvl1_items[item['LEVEL1_COD']],
-                              name:                 item['LEVEL2_NAM'].titlecase,
+      ga = GeographicArea.new(parent: @lvl1_items[item['LEVEL1_COD']],
+                              tdwg_parent: @lvl1_items[item['LEVEL1_COD']],
+                              name: item['LEVEL2_NAM'].titlecase,
                               data_origin: TDWG2_L2,
                               geographic_area_type: gat2)
       @lvl2_items.merge!(item['LEVEL2_COD'] => ga)
@@ -368,9 +371,9 @@ def read_dbf(filenames)
 
     lvl3.each { |item|
       puts item.attributes
-      ga = GeographicArea.new(parent:               @lvl2_items[item['LEVEL2_COD']],
-                              tdwg_parent:          @lvl2_items[item['LEVEL2_COD']],
-                              name:                 item['LEVEL3_NAM'].titlecase,
+      ga = GeographicArea.new(parent: @lvl2_items[item['LEVEL2_COD']],
+                              tdwg_parent: @lvl2_items[item['LEVEL2_COD']],
+                              name: item['LEVEL3_NAM'].titlecase,
                               data_origin: TDWG2_L3,
                               geographic_area_type: gat3)
       lvl3_items.merge!(item['LEVEL3_COD'] => ga)
@@ -391,7 +394,7 @@ def read_dbf(filenames)
       # isolate the name
       this_area_name = item['Level_4_Na'].titlecase
       # and the iso code of this area
-      country_code   = item['ISO_Code']
+      country_code = item['ISO_Code']
 
 =begin
 # here are spme problem level 4 records:
@@ -410,7 +413,7 @@ def read_dbf(filenames)
 =end
 
       # find the nation by its country code
-      nation         = nil
+      nation = nil
       @global.each { |key, area|
         if area.iso_3166_a2 == country_code
           nation = area
@@ -422,18 +425,18 @@ def read_dbf(filenames)
       ga =@global[this_area_name]
       if ga.nil?
         l3_code = item['Level3_cod']
-        l3_ga   = lvl3_items[l3_code]
+        l3_ga = lvl3_items[l3_code]
         # failed to find an area by this name in the TDWG data, so we need to create one
         # so we set the parent to the object pointed to by the level 3 code
-        ga      = GeographicArea.new(parent:               l3_ga,
-                                     tdwg_parent:          l3_ga,
-                                     name:                 this_area_name,
-                                     iso_3166_a2:          nil,
-                                     data_origin: TDWG2_L4,
-                                     # we show this is from the TDWG data, *not* the iso data
-                                     geographic_area_type: gat4,
-                                     # even if nation is nil, this will do what we want.
-                                     country:              nation)
+        ga = GeographicArea.new(parent: l3_ga,
+                                tdwg_parent: l3_ga,
+                                name: this_area_name,
+                                iso_3166_a2: nil,
+                                data_origin: TDWG2_L4,
+                                # we show this is from the TDWG data, *not* the iso data
+                                geographic_area_type: gat4,
+                                # even if nation is nil, this will do what we want.
+                                country: nation)
         @lvl4_items.merge!(item['Level4_cod'] => ga)
         @global.merge!(ga.name => ga)
       else
@@ -454,62 +457,62 @@ def read_dbf(filenames)
     # we are processing non-TDWG data; right now, that is gadm data
     # this processing is specifically for GADM2
 
-    gadm_example = {"OBJECTID"   => 1,
-                    "ID_0"       => 1,
-                    "ISO"        => "AFG",
+    gadm_example = {"OBJECTID" => 1,
+                    "ID_0" => 1,
+                    "ISO" => "AFG",
 
-                    "NAME_0"     => "Afghanistan",
+                    "NAME_0" => "Afghanistan",
 
-                    "ID_1"       => 12,
-                    "NAME_1"     => "Jawzjan",
-                    "VARNAME_1"  => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
-                    "NL_NAME_1"  => "",
-                    "HASC_1"     => "AF.JW",
-                    "CC_1"       => "",
-                    "TYPE_1"     => "Velayat",
-                    "ENGTYPE_1"  => "Province",
-                    "VALIDFR_1"  => "19640430",
-                    "VALIDTO_1"  => "198804",
-                    "REMARKS_1"  => "",
+                    "ID_1" => 12,
+                    "NAME_1" => "Jawzjan",
+                    "VARNAME_1" => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
+                    "NL_NAME_1" => "",
+                    "HASC_1" => "AF.JW",
+                    "CC_1" => "",
+                    "TYPE_1" => "Velayat",
+                    "ENGTYPE_1" => "Province",
+                    "VALIDFR_1" => "19640430",
+                    "VALIDTO_1" => "198804",
+                    "REMARKS_1" => "",
 
-                    "ID_2"       => 129,
-                    "NAME_2"     => "Khamyab",
-                    "VARNAME_2"  => "",
-                    "NL_NAME_2"  => "",
-                    "HASC_2"     => "AF.JW.KM",
-                    "CC_2"       => "",
-                    "TYPE_2"     => "",
-                    "ENGTYPE_2"  => "",
-                    "VALIDFR_2"  => "Unknown",
-                    "VALIDTO_2"  => "Present",
-                    "REMARKS_2"  => "",
+                    "ID_2" => 129,
+                    "NAME_2" => "Khamyab",
+                    "VARNAME_2" => "",
+                    "NL_NAME_2" => "",
+                    "HASC_2" => "AF.JW.KM",
+                    "CC_2" => "",
+                    "TYPE_2" => "",
+                    "ENGTYPE_2" => "",
+                    "VALIDFR_2" => "Unknown",
+                    "VALIDTO_2" => "Present",
+                    "REMARKS_2" => "",
 
-                    "ID_3"       => 0,
-                    "NAME_3"     => "",
-                    "VARNAME_3"  => "",
-                    "NL_NAME_3"  => "",
-                    "HASC_3"     => "",
-                    "TYPE_3"     => "",
-                    "ENGTYPE_3"  => "",
-                    "VALIDFR_3"  => "",
-                    "VALIDTO_3"  => "",
-                    "REMARKS_3"  => "",
+                    "ID_3" => 0,
+                    "NAME_3" => "",
+                    "VARNAME_3" => "",
+                    "NL_NAME_3" => "",
+                    "HASC_3" => "",
+                    "TYPE_3" => "",
+                    "ENGTYPE_3" => "",
+                    "VALIDFR_3" => "",
+                    "VALIDTO_3" => "",
+                    "REMARKS_3" => "",
 
-                    "ID_4"       => 0,
-                    "NAME_4"     => "",
-                    "VARNAME_4"  => "",
-                    "TYPE4"      => "",
-                    "ENGTYPE4"   => "",
-                    "TYPE_4"     => "",
-                    "ENGTYPE_4"  => "",
-                    "VALIDFR_4"  => "",
-                    "VALIDTO_4"  => "",
-                    "REMARKS_4"  => "",
+                    "ID_4" => 0,
+                    "NAME_4" => "",
+                    "VARNAME_4" => "",
+                    "TYPE4" => "",
+                    "ENGTYPE4" => "",
+                    "TYPE_4" => "",
+                    "ENGTYPE_4" => "",
+                    "VALIDFR_4" => "",
+                    "VALIDTO_4" => "",
+                    "REMARKS_4" => "",
 
-                    "ID_5"       => 0,
-                    "NAME_5"     => "",
-                    "TYPE_5"     => "",
-                    "ENGTYPE_5"  => "",
+                    "ID_5" => 0,
+                    "NAME_5" => "",
+                    "TYPE_5" => "",
+                    "ENGTYPE_5" => "",
 
                     "Shape_Leng" => 1.30495037416,
                     "Shape_Area" => 0.0798353069113}
@@ -597,7 +600,7 @@ def read_dbf(filenames)
       if line.strip!.length > 6 # minimum line size to contain useful data
 
         # break down the useful data
-        parts       = line.split(';')
+        parts = line.split(';')
         nation_code = parts[1].strip # clean off the line extraneous white space
         nation_name = parts[0].titlecase
 
@@ -608,12 +611,13 @@ def read_dbf(filenames)
 
           if !(nation_name =~ /Country Name/) # drop the headers on the floor
             puts "'#{nation_code}' for #{nation_name}\t\tAdded."
-            ga = GeographicArea.new(parent:               earth,
+            ga = GeographicArea.new(parent: earth,
                                     # if we create records here, they will specifically *not* be TDWG records
                                     # or GADM records
-                                    tdwg_parent:          nil,
-                                    name:                 nation_name,
-                                    iso_3166_a2:          nation_code,
+                                    tdwg_parent: nil,
+                                    name: nation_name,
+                                    iso_3166_a2: nation_code,
+                                    data_origin: ISO_3166_1_2,
                                     geographic_area_type: gat5)
 
             ga.level0 = ga
@@ -621,12 +625,12 @@ def read_dbf(filenames)
         else
           # found a record with the right name
           puts "'#{nation_code}' for #{nation_name}\t\tMatched."
-          ga.iso_3166_a2          = nation_code
+          ga.iso_3166_a2 = nation_code
           ga.geographic_area_type = gat5
           # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
-          ga.level0               = ga
+          ga.level0 = ga
+          ga.data_origin = ISO_3166_1_2
         end
-        ga.data_orign = ISO_3166_1_2
         iso_items.merge!(ga.name => ga) if !(ga.nil?)
       end
     }
@@ -640,24 +644,24 @@ def read_dbf(filenames)
     gadm2.each { |item|
 
       l0_name = item['NAME_0'].titlecase
-      l0_iso  = item['ISO']
-      l0_id   = item['ID_0']
+      l0_iso = item['ISO']
+      l0_id = item['ID_0']
 
       gadm_id = item['OBJECTID']
-      l1_id   = item['ID_1']
-      l2_id   = item['ID_2']
-      l3_id   = item['ID_3']
-      l4_id   = item['ID_4']
-      l5_id   = item['ID_5']
+      l1_id = item['ID_1']
+      l2_id = item['ID_2']
+      l3_id = item['ID_3']
+      l4_id = item['ID_4']
+      l5_id = item['ID_5']
 
       id_vector = [l0_id, l1_id, l2_id]
 
       # l0 always has a name
-      l1_name   = item['NAME_1'].titlecase
-      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].titlecase
-      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].titlecase
-      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].titlecase
-      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].titlecase
+      l1_name = item['NAME_1'].titlecase
+      l2_name = (l2_id == 0) ? '' : item['NAME_2'].titlecase
+      l3_name = (l3_id == 0) ? '' : item['NAME_3'].titlecase
+      l4_name = (l4_id == 0) ? '' : item['NAME_4'].titlecase
+      l5_name = (l5_id == 0) ? '' : item['NAME_5'].titlecase
 
       i5 = l5_name
       s5 = i5.empty? ? '' : ("\"" + i5 + "\", ")
@@ -676,13 +680,13 @@ def read_dbf(filenames)
       # build lvl0 key value from lvl0 data
 
       l0_key = {
-        'ID_0'   => l0_id,
-        'ISO'    => l0_iso,
-        'NAME_0' => l0_name
+          'ID_0' => l0_id,
+          'ISO' => l0_iso,
+          'NAME_0' => l0_name
       }
 
       # look in iso_items for an existing record by name
-      ga     = iso_items[l0_name]
+      ga = iso_items[l0_name]
       if ga.nil?
         # no such iso record exists
         # look for a record with this l0_id in the zero level list
@@ -690,9 +694,9 @@ def read_dbf(filenames)
 
         if ga.nil?
           # create a record for the zero level, and the @global list
-          ga = GeographicArea.new(parent:      earth,
+          ga = GeographicArea.new(parent: earth,
                                   iso_3166_a3: l0_iso,
-                                  name:        l0_name)
+                                  name: l0_name)
         else
           # l0 is the object we want
           l0 = ga
@@ -719,7 +723,7 @@ def read_dbf(filenames)
       @global.merge!(place)
       # yes, this *is* the same as parent
       ga.level0 = ga
-      l0        = ga
+      l0 = ga
 
       if l1_name.empty?
         # nothing to do
@@ -750,25 +754,25 @@ def read_dbf(filenames)
 =end
 
         l1_key = {
-          'ID_1'      => l1_id,
-          'NAME_1'    => l1_name,
-          'VARNAME_1' => item['VARNAME_1'],
-          'NL_NAME_1' => item['NL_NAME_1'],
-          'HASC_1'    => item['HASC_1'],
-          'CC_1'      => item['CC_1'],
-          'TYPE_1'    => item['TYPE_1'],
-          'ENGTYPE_1' => item['ENGTYPE_1'],
-          'VALIDFR_1' => item['VALIDFR_1'],
-          'VALIDTO_1' => item['VALIDTO_1'],
-          'REMARKS_1' => item['REMARKS_1']
+            'ID_1' => l1_id,
+            'NAME_1' => l1_name,
+            'VARNAME_1' => item['VARNAME_1'],
+            'NL_NAME_1' => item['NL_NAME_1'],
+            'HASC_1' => item['HASC_1'],
+            'CC_1' => item['CC_1'],
+            'TYPE_1' => item['TYPE_1'],
+            'ENGTYPE_1' => item['ENGTYPE_1'],
+            'VALIDFR_1' => item['VALIDFR_1'],
+            'VALIDTO_1' => item['VALIDTO_1'],
+            'REMARKS_1' => item['REMARKS_1']
         }
 
         ga = @lvl1_items[l1_key]
         if ga.nil?
           # create a record for level 1, and the @global list
-          ga    = GeographicArea.new(parent:               l0,
-                                     name:                 l1_name,
-                                     geographic_area_type: add_gat(item['ENGTYPE_1']))
+          ga = GeographicArea.new(parent: l0,
+                                  name: l1_name,
+                                  geographic_area_type: add_gat(item['ENGTYPE_1']))
           # put the item in the lvl0 list
           place = {l1_key => ga}
           @lvl1_items.merge!(place)
@@ -779,7 +783,7 @@ def read_dbf(filenames)
           l1 = ga
         end
         ga.gadm_valid_from = item['VALIDFR_1']
-        ga.gadm_valid_to   = item['VALIDTO_1']
+        ga.gadm_valid_to = item['VALIDTO_1']
 
         if l2_name.empty?
           # if l2 is empty, this is the highest level, so this is the right shape
@@ -799,34 +803,34 @@ def read_dbf(filenames)
         # process level 2, using level 1 as parent
 
         l2_key = {
-          'ID_2'      => l2_id,
-          'NAME_2'    => l2_name,
-          'VARNAME_2' => item['VARNAME_2'],
-          'NL_NAME_2' => item['NL_NAME_2'],
-          'HASC_2'    => item['HASC_2'],
-          'CC_2'      => item['CC_2'],
-          'TYPE_2'    => item['TYPE_2'],
-          'ENGTYPE_2' => item['ENGTYPE_2'],
-          'VALIDFR_2' => item['VALIDFR_2'],
-          'VALIDTO_2' => item['VALIDTO_2'],
-          'REMARKS_2' => item['REMARKS_2']
+            'ID_2' => l2_id,
+            'NAME_2' => l2_name,
+            'VARNAME_2' => item['VARNAME_2'],
+            'NL_NAME_2' => item['NL_NAME_2'],
+            'HASC_2' => item['HASC_2'],
+            'CC_2' => item['CC_2'],
+            'TYPE_2' => item['TYPE_2'],
+            'ENGTYPE_2' => item['ENGTYPE_2'],
+            'VALIDFR_2' => item['VALIDFR_2'],
+            'VALIDTO_2' => item['VALIDTO_2'],
+            'REMARKS_2' => item['REMARKS_2']
         }
 
         l2 = @lvl2_items[l2_key]
         if l2.nil?
           # create a record for level 2, and the @global list
-          ga = GeographicArea.new(parent:               l1,
-                                  name:                 l2_name,
+          ga = GeographicArea.new(parent: l1,
+                                  name: l2_name,
                                   geographic_area_type: add_gat(item['ENGTYPE_2']))
 
           ga.gadm_valid_from = item['VALIDFR_2']
-          ga.gadm_valid_to   = item['VALIDTO_2']
-          ga.level0          = ga.parent.parent
-          ga.level1          = ga.parent
-          ga.level2          = ga
+          ga.gadm_valid_to = item['VALIDTO_2']
+          ga.level0 = ga.parent.parent
+          ga.level1 = ga.parent
+          ga.level2 = ga
 
           # put the item in the lvl2 list
-          place              = {l2_key => ga}
+          place = {l2_key => ga}
           @lvl2_items.merge!(place)
           # and the @global list
           @global.merge!(place)
@@ -979,7 +983,7 @@ def read_csv(file)
 
   data = CSV.read(file, options = {headers: true})
 
-  record    = GeographicArea.new
+  record = GeographicArea.new
   area_type = GeographicAreaType.new
   data.each { |row|
 
@@ -987,9 +991,9 @@ def read_csv(file)
 
     case file
       when /USA_adm0/
-        record    = GeographicArea.new(parent_id:  0,
-                                       name:       row.field('NAME_ENGLISH'),
-                                       country_id: row.field('PID'))
+        record = GeographicArea.new(parent_id: 0,
+                                    name: row.field('NAME_ENGLISH'),
+                                    country_id: row.field('PID'))
         area_type = GeographicAreaType.where(name: 'Country')[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: 'Country')
@@ -997,10 +1001,10 @@ def read_csv(file)
           area_type = at
         end
       when /USA_adm1/
-        record    = GeographicArea.new(parent_id:  row.field('ID_0'),
-                                       name:       row.field('NAME_1'),
-                                       state_id:   row.field('ID_1'),
-                                       country_id: row.field('ID_0'))
+        record = GeographicArea.new(parent_id: row.field('ID_0'),
+                                    name: row.field('NAME_1'),
+                                    state_id: row.field('ID_1'),
+                                    country_id: row.field('ID_0'))
         area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_1'))
@@ -1008,11 +1012,11 @@ def read_csv(file)
           area_type = at
         end
       when /USA_adm2/
-        record    = GeographicArea.new(parent_id:  row.field('ID_1'),
-                                       name:       row.field('NAME_2'),
-                                       state_id:   row.field('ID_1'),
-                                       country_id: row.field('ID_0'),
-                                       county_id:  row.field('ID_2'))
+        record = GeographicArea.new(parent_id: row.field('ID_1'),
+                                    name: row.field('NAME_2'),
+                                    state_id: row.field('ID_1'),
+                                    country_id: row.field('ID_0'),
+                                    county_id: row.field('ID_2'))
         area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_2'))
@@ -1041,7 +1045,7 @@ end
 def build_gat_table
 
   # create our list
-  l_var     = 'Unknown'
+  l_var = 'Unknown'
   @gat_list = {}
 
   ['Planet',
