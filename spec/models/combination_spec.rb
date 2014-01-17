@@ -3,8 +3,13 @@ require 'spec_helper'
 describe Combination do
 
   before(:all) do
+    TaxonName.delete_all
     @family = FactoryGirl.create(:relationship_family, name: 'Aidae')
     @combination = FactoryGirl.create(:combination, parent: @family)
+    foo = 1
+  end
+  after(:all) do
+    TaxonName.delete_all
   end
 
   context "associations" do
