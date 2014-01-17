@@ -2,12 +2,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961 < Tax
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_RANKS_NAMES_ICZN
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_RANKS_NAMES_ICZN
   end
 
   def self.disjoint_taxon_name_relationships

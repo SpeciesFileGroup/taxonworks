@@ -2,14 +2,13 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubvariety < TaxonName
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|t| t.to_s}
+    SPECIES_RANKS_NAMES_ICN
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|t| t.to_s}
+    SPECIES_RANKS_NAMES_ICN
   end
-
 
   def self.assignment_method
     # aus.original_combination_form = bus
