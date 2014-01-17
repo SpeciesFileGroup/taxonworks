@@ -124,11 +124,11 @@ describe TaxonNameRelationship do
         g = FactoryGirl.create(:iczn_genus, parent: @family)
         s = FactoryGirl.create(:iczn_species, parent: g)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Validating::ConservedName')
-        r1.soft_validate(:disjoint)
+        r1.soft_validate(:validate_disjoint_relationships)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:disjoint)
-        r2.soft_validate(:disjoint)
+        r1.soft_validate(:validate_disjoint_relationships)
+        r2.soft_validate(:validate_disjoint_relationships)
         #conflicting with r2
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         #conflicting with r1
@@ -139,7 +139,7 @@ describe TaxonNameRelationship do
         s = FactoryGirl.create(:iczn_species, parent: g)
         FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
         r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
-        r1.soft_validate(:disjoint_object)
+        r1.soft_validate(:validate_disjoint_object)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
       end
@@ -148,7 +148,7 @@ describe TaxonNameRelationship do
         s = FactoryGirl.create(:iczn_species, parent: g)
         FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
         r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
-        r1.soft_validate(:disjoint_subject)
+        r1.soft_validate(:validate_disjoint_subject)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
       end
@@ -158,9 +158,9 @@ describe TaxonNameRelationship do
         r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating')
         r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
         r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:relationships)
-        r2.soft_validate(:relationships)
-        r3.soft_validate(:relationships)
+        r1.soft_validate(:not_specific_relationship)
+        r2.soft_validate(:not_specific_relationship)
+        r3.soft_validate(:not_specific_relationship)
         # reason of being invalid?
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         # primary or secondary homonym?
@@ -175,10 +175,10 @@ describe TaxonNameRelationship do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g1, type: 'TaxonNameRelationship::Typification::Genus')
         r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g2, type: 'TaxonNameRelationship::Typification::Genus')
-        r1.soft_validate(:relationships)
+        r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         r1.fix_soft_validations
-        r1.soft_validate(:relationships)
+        r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
       end
       specify 'fix not specific relationships from homonym to primary homonym' do
@@ -187,10 +187,10 @@ describe TaxonNameRelationship do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
         r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-        r1.soft_validate(:relationships)
+        r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         r1.fix_soft_validations
-        r1.soft_validate(:relationships)
+        r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_true
       end
       specify 'parent is a synonym' do
@@ -198,13 +198,13 @@ describe TaxonNameRelationship do
         g2 = FactoryGirl.create(:iczn_genus, parent: @family)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:synonym_associations)
-        r2.soft_validate(:synonym_associations)
+        r1.soft_validate(:synonym_linked_to_valid_name)
+        r2.soft_validate(:synonym_linked_to_valid_name)
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
         # parent is a synonym of another taxon
         expect(r2.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
         r2.fix_soft_validations
-        r2.soft_validate(:synonym_associations)
+        r2.soft_validate(:synonym_linked_to_valid_name)
         # parent updated to valid name
         expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
       end

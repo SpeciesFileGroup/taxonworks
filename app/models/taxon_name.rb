@@ -22,7 +22,7 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_parent_is_valid_name, set: :valid_parent)
+  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
 
   scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
   scope :with_parent_taxon_name, -> (parent) {where(parent_id: parent)}
