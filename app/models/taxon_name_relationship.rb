@@ -11,6 +11,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
   soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
+  soft_validate(:sv_specific_relationship, set: :specific_relationship)
   soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
   soft_validate(:sv_matching_types, set: :matching_types)
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
@@ -123,9 +124,9 @@ class TaxonNameRelationship < ActiveRecord::Base
       true
     elsif !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
-    elsif object_taxon_name.class == Protonym
+    elsif object_taxon_name.class.to_s == 'Protonym'
       errors.add(:type, "'#{type}' is not a valid taxon name relationship") if /TaxonNameRelationship::Combination::/.match(self.type.to_s)
-    elsif object_taxon_name.class == Combination
+    elsif object_taxon_name.class.to_s == 'Combination'
       errors.add(:type, "'#{type}' is not a valid taxon name relationship") unless /TaxonNameRelationship::Combination::/.match(self.type.to_s)
     end
   end
@@ -133,8 +134,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   #TODO: validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 
   def validate_subject_and_object_share_code
-    if object_taxon_name.class == Protonym && subject_taxon_name.class == Protonym
-      errors.add(:object_taxon_name_id, "The related taxon is from different potentially_validating code") if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+    if object_taxon_name.class.to_s == 'Protonym' && subject_taxon_name.class.to_s == 'Protonym'
+      errors.add(:object_taxon_name_id, 'The related taxon is from different potentially_validating code') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
@@ -144,11 +145,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     elsif self.object_taxon_name_id == self.subject_taxon_name_id
       errors.add(:object_taxon_name_id, "Taxon should not relate to itself")
     elsif self.subject_taxon_name && self.object_taxon_name
-      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_subject_ranks.include?(subject_taxon_name.rank_class.to_s)
-      if object_taxon_name.class == Protonym
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_class.to_s)
+      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_subject_ranks.include?(subject_taxon_name.rank_class.to_s)
+      if object_taxon_name.class.to_s == 'Protonym'
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(object_taxon_name.rank_class.to_s)
       else
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") if !self.type_class.valid_object_ranks.include?(object_taxon_name.parent.rank_class.to_s)
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(object_taxon_name.parent.rank_class.to_s)
       end
     end
   end
@@ -200,6 +201,45 @@ class TaxonNameRelationship < ActiveRecord::Base
       soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
     end
+  end
+
+  def sv_specific_relationship
+    #TODO update to cover type specimens synonym is objective if type the same or subjective if type is different
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    case self.type_name
+      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
+        soft_validations.add(:type, 'Related taxon should have the same type') if s.type_taxon_name != o.type_taxon_name
+      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
+        soft_validations.add(:type, 'Related taxon should not have the same type') if s.type_taxon_name == o.type_taxon_name
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+        soft_validations.add(:type, 'Related taxon should have the same original genus') if s.original_combination_genus != o.original_combination_genus
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+        if s.get_valid_name.ancestor_at_rank('genus') != o.get_valid_name.ancestor_at_rank('genus')
+          soft_validations.add(:type, "Related taxon is not placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
+        elsif s.original_combination_genus == o.original_combination_genus
+          soft_validations.add(:type, "Related taxon is described in the same genus, this should be a 'primary homonym'")
+        end
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+        soft_validations.add(:type, "Taxon was not described before 1961'") if s.year_of_publication > 1960
+        soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
+        soft_validations.add(:type, 'Taxon should be treated as homonym before 1961')
+        soft_validations.add(:type, 'Taxon was not described at the time of citation')
+        soft_validations.add(:type, "Related taxon has the same original genus, it should be a 'primary homonym'") if s.original_combination_genus == o.original_combination_genus
+      when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        soft_validations.add(:type, 'Source is not selected')
+      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961'
+        soft_validations.add(:type, "Taxon should be described before 1961'")
+        soft_validations.add(:type, 'Taxon should be treated as synonym before 1961')
+        soft_validations.add(:type, 'Taxon was not described at the time of citation')
+    end
+
+    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+      soft_validations.add(:type, 'Source is not selected')
+      soft_validations.add(:type, 'Taxon was not described at the time of citation')
+    end
+
+    ### all synonyms and misspellings should have source.
   end
 
   def sv_not_specific_relationship

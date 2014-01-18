@@ -21,9 +21,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
-  soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
-
   scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
   scope :with_parent_taxon_name, -> (parent) {where(parent_id: parent)}
   scope :with_base_of_rank_class, -> (rank_class) {where('rank_class LIKE ?', "#{rank_class}%")}
@@ -69,6 +66,10 @@ class TaxonName < ActiveRecord::Base
         where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
   }
 
+  soft_validate(:sv_missing_fields, set: :missing_fields)
+  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
+  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
+
   validates_presence_of :type
   validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
   validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
@@ -82,8 +83,8 @@ class TaxonName < ActiveRecord::Base
                     :validate_source_type
 
   before_validation :set_cached_name,
-                    :set_cached_author_year,
-                    :set_cached_higher_classification
+              :set_cached_author_year,
+              :set_cached_higher_classification
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -122,6 +123,10 @@ class TaxonName < ActiveRecord::Base
   def rank_class
     r = read_attribute(:rank_class)
     Ranks.valid?(r) ? r.constantize : r 
+  end
+
+  def nomenclatural_date
+    self.source ? self.source.nomenclature_date : nil
   end
 
   def ancestor_at_rank(rank)
@@ -241,7 +246,7 @@ class TaxonName < ActiveRecord::Base
       true
     elsif self.parent.nil?
       errors.add(:parent_id, 'A parent is not selected')
-    elsif self.type == 'Combination' # || self.parent.rank_class == NomenclaturalRank
+    elsif self.type == 'Combination'
       true
     elsif RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
       errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
@@ -254,10 +259,10 @@ class TaxonName < ActiveRecord::Base
 
   def validate_rank_class_class
     if self.type == 'Combination'
-      errors.add(:rank_class, "Combination should not have rank") if self.rank_class
+      errors.add(:rank_class, 'Combination should not have rank') if self.rank_class
     elsif self.type == 'Protonym'
       unless Ranks.valid?(rank_class)
-        errors.add(:rank_class, "Rank not found")
+        errors.add(:rank_class, 'Rank not found')
       end
     end
   end
@@ -288,7 +293,7 @@ class TaxonName < ActiveRecord::Base
 
   def validate_source_type
     if self.source
-      errors.add(:source_id, "Source must be a Bibtex") if self.source.type != 'Source::Bibtex'
+      errors.add(:source_id, 'Source must be a Bibtex') if self.source.type != 'Source::Bibtex'
     end
   end
 
