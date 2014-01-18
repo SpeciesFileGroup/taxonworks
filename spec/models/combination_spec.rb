@@ -86,28 +86,26 @@ describe Combination do
     end
 
     specify 'year of combination and year of source does not match' do
-      c = FactoryGirl.create(:combination, year_of_publication: 1950, parent: @family, source: @source)
+      c = FactoryGirl.build(:combination, year_of_publication: 1950, parent: @family, source: @source)
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:source_id).count).to eq(1)
       c.year_of_publication = 1940
-      expect(c.save).to be_true
+      expect(c.valid?).to be_true
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:source_id).empty?).to be_true
     end
 
     specify 'combination is older than taxon' do
-      c = FactoryGirl.create(:combination, year_of_publication: 1900, parent: @family)
+      c = FactoryGirl.build(:combination, year_of_publication: 1900, parent: @family)
       @family.year_of_publication = 1940
       expect(@family.save).to be_true
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:year_of_publication).count).to eq(1)
       c.year_of_publication = 1940
-      expect(c.save).to be_true
+      expect(c.valid?).to be_true
       c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:source_id).empty?).to be_true
+      expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_true
     end
-
-
 
   end
 end

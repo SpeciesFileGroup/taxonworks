@@ -126,7 +126,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def nomenclatural_date
-    self.source ? self.source.nomenclature_date : nil
+    self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
   end
 
   def ancestor_at_rank(rank)
