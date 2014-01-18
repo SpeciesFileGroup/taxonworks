@@ -12,6 +12,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
   soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
   soft_validate(:sv_specific_relationship, set: :specific_relationship)
+  soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship)
+  soft_validate(:sv_synonym_relationship, set: :synonym_relationship)
   soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
   soft_validate(:sv_matching_types, set: :matching_types)
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
@@ -208,10 +210,8 @@ class TaxonNameRelationship < ActiveRecord::Base
     s = self.subject_taxon_name
     o = self.object_taxon_name
     case self.type_name
-      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
-        soft_validations.add(:type, 'Related taxon should have the same type') if s.type_taxon_name != o.type_taxon_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
-        soft_validations.add(:type, 'Related taxon should not have the same type') if s.type_taxon_name == o.type_taxon_name
+        soft_validations.add(:type, 'Subjective synonyms should not have the same type') if s.type_taxon_name == o.type_taxon_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
         soft_validations.add(:type, 'Related taxon should have the same original genus') if s.original_combination_genus != o.original_combination_genus
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
@@ -233,13 +233,19 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:type, 'Taxon should be treated as synonym before 1961')
         soft_validations.add(:type, 'Taxon was not described at the time of citation')
     end
+  end
 
+  def sv_objective_synonym_relationship
+    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective/ || self.type_name =~ /TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic/
+      soft_validations.add(:type, 'Objective synonyms should have the same type') if self.subject_taxon_name.type_taxon_name != self.object_taxon_name.type_taxon_name
+    end
+  end
+
+  def sv_synonym_relationship
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
       soft_validations.add(:type, 'Source is not selected')
       soft_validations.add(:type, 'Taxon was not described at the time of citation')
     end
-
-    ### all synonyms and misspellings should have source.
   end
 
   def sv_not_specific_relationship
