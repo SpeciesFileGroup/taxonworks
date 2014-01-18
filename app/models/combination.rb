@@ -26,26 +26,14 @@ class Combination < TaxonName
   #region Soft validation
 
   def sv_source_older_then_description
-    if !!self.year_of_publication
-      if !!self.source && !!self.year_of_publication
-        soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
-      else
-        parent_year = self.parent.year_of_publication
-        if !!parent_year
-          date1 = self.nomenclatural_date
-          date2 = self.parent.nomenclatural_date
-          if !!date1 && !!date2
-            soft_validations.add(:source_id, 'The citation is older than the taxon') if date2 - date1 > 0
-          else
-            if !!self.source_id
-              soft_validations.add(:source_id, 'The citation is older than the taxon') if self.source.year < parent_year
-            end
-            soft_validations.add(:year_of_publication, 'The combination is older than the taxon') if self.year_of_publication < self.parent.year_of_publication
-          end
-        end
-      end
+    date1 = self.nomenclatural_date
+    date2  = !!self.parent_id ? self.parent.nomenclatural_date : nil
+    if !!date1 && !!date2
+      soft_validations.add(:year_of_publication, 'The combination is older than the taxon') if date2 - date1 > 0
     end
-
+    if !!self.source && !!self.year_of_publication
+      soft_validations.add(:source_id, 'The year of publication and the year of source do not match') if self.source.year != self.year_of_publication
+    end
   end
 
   #endregion
