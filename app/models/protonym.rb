@@ -53,12 +53,12 @@ class Protonym < TaxonName
     where('taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE "TaxonNameRelationship::Iczn::Invalidating%" OR type LIKE "TaxonNameRelationship::Icn::Unaccepting%")')
   }
 
-  soft_validate(:sv_source_older_then_description, set: :promblematic_relationships)
-  soft_validate(:sv_validate_parent_rank, set: :promblematic_relationships)
+  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
+  soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
-  soft_validate(:sv_type_placement, set: :type)
-  soft_validate(:sv_validate_coordinated_names, set: :coordinated_names)
-  soft_validate(:sv_single_sub_taxon, set: :coordinated_names)
+  soft_validate(:sv_type_placement, set: :type_placement)
+  soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
+  soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
 
   #region Soft validation
 
@@ -78,17 +78,12 @@ class Protonym < TaxonName
   end
 
   def sv_missing_relationships
-    if SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
-    elsif GENUS_RANKS_NAMES.include?(self.rank_class.to_s)
+    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
-    elsif FAMILY_RANKS_NAMES.include?(self.rank_class.to_s)
-      if self.type_genus.nil?
-        soft_validations.add(:base, 'Type genus is not selected')
-      elsif self.name.slice(0, 1) != self.type_genus.name.slice(0, 1)
-        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        soft_validations.add(:base, 'Type genus should have the same initial letters as the family-group name')
-      end
+    elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
   end
 
@@ -220,20 +215,12 @@ class Protonym < TaxonName
   def sv_type_placement
     # type of this taxon is not included in this taxon
     if !!self.type_taxon_name
-      unless self.unavailable_or_invalid?
-        soft_validations.add(:base, "The type should be included in this #{self.rank_class.rank_name}") unless self.type_taxon_name.ancestors.include?(self)
-      else
-        #TODO: extend to cover synonyms
-      end
+      soft_validations.add(:base, "The type should be included in this #{self.rank_class.rank_name}") unless self.type_taxon_name.get_valid_taxon_name.ancestors.include?(self.get_valid_taxon_name)
     end
     # this taxon is a type, but not included in nominal taxon
     if !!self.type_of_taxon_names
-      unless self.unavailable_or_invalid?
-        self.type_of_taxon_names.each do |t|
-          soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.ancestors.include?(t)
-        end
-      else
-        #TODO: extend to cover synonyms
+      self.type_of_taxon_names.each do |t|
+        soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.get_valid_taxon_name.ancestors.include?(t.get_valid_taxon_name)
       end
     end
   end
@@ -283,7 +270,6 @@ class Protonym < TaxonName
         t.save
         t.soft_validate
         t.fix_soft_validations
-        foo = 0
         return true
       end
     rescue

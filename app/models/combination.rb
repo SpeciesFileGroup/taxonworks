@@ -19,7 +19,7 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object_taxon_name
   end
 
-  soft_validate(:sv_validate_parent_rank)
+  soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
 
   #region Soft validation
 

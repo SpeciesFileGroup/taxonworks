@@ -22,7 +22,7 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_parent_is_valid_name, set: :valid_parent)
+  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
 
   scope :with_rank_class, -> (rank_class_name) {where(rank_class: rank_class_name)}
   scope :with_parent_taxon_name, -> (parent) {where(parent_id: parent)}
@@ -157,14 +157,14 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-    if !GENUS_AND_SPECIES_RANKS_NAMES.include?(self.rank_class.to_s)
+    if !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       cached_name = nil
     else
       genus = ''
       subgenus = ''
       species = ''
       (self.ancestors + [self]).each do |i|
-        if GENUS_AND_SPECIES_RANKS_NAMES.include?(i.rank_class.to_s)
+        if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
           case i.rank_class.rank_name
           when "genus" then genus = i.name + ' '
           when "subgenus" then subgenus += i.name + ' '
@@ -228,7 +228,7 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    hc = (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANKS_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
+    hc = (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
     self.cached_higher_classification = hc
   end
 

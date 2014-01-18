@@ -8,11 +8,13 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
-  soft_validate(:sv_validate_disjoint_relationships, set: :disjoint)
-  soft_validate(:sv_validate_disjoint_object, set: :disjoint_object)
-  soft_validate(:sv_validate_disjoint_subject, set: :disjoint_subject)
-  soft_validate(:sv_not_specific_relationship, set: :relationships)
-  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_associations)
+  soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
+  soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
+  soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
+  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
+  soft_validate(:sv_matching_types, set: :matching_types)
+  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
+  soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -312,6 +314,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
+  def sv_matching_type_genus
+    if self.type_name == 'TaxonNameRelationship::Typification::Family'
+      if self.object_taxon_name.name.slice(0, 1) != self.subject_taxon_name.name.slice(0, 1)
+        soft_validations.add(:object_taxon_name_id, 'Type genus should have the same initial letters as the family-group name')
+      end
+    end
+  end
 
   #endregion
 

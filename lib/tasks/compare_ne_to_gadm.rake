@@ -16,9 +16,9 @@ namespace :tw do
       ne0_10    = DBF::Table.new('../shapes/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.dbf')
       ne1_10    = DBF::Table.new('../shapes/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_lines_shp.dbf')
       ne0_50    = DBF::Table.new('../shapes/NaturalEarth/50m_cultural/ne_50m_admin_0_countries.dbf')
-      ne1_50    = DBF::Table.new('../shapes/NaturalEarth/50m_cultural/ne_50m_admin_1_states_provinces_lines_shp.dbf')
+      ne1_50    = DBF::Table.new('../shapes/NaturalEarth/50m_cultural/ne_50m_admin_1_states_provinces_lines.dbf')
       ne0_110   = DBF::Table.new('../shapes/NaturalEarth/110m_cultural/ne_110m_admin_0_countries.dbf')
-      ne1_110   = DBF::Table.new('../shapes/NaturalEarth/110m_cultural/ne_110m_admin_1_states_provinces_lines_shp.dbf')
+      ne1_110   = DBF::Table.new('../shapes/NaturalEarth/110m_cultural/ne_110m_admin_1_states_provinces_lines.dbf')
       # gadm = RGeo::Shapefile::Reader.open('G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp', factory: Georeference::FACTORY)
 
 =begin

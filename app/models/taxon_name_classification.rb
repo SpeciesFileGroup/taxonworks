@@ -18,8 +18,8 @@ class TaxonNameClassification < ActiveRecord::Base
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
   scope :not_self, -> (id) {where('id != ?', id )}
 
-  soft_validate(:sv_proper_classification, set: :code_complient)
-  soft_validate(:sv_validate_disjoint_classes, set: :disjoint)
+  soft_validate(:sv_proper_classification, set: :proper_classification)
+  soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
 
   # years of applicability for each class
   def self.code_applicability_start_year
