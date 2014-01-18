@@ -235,16 +235,6 @@ describe Protonym do
         p.soft_validate(:source_older_then_description)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_false
       end
-      specify 'A combination is older than the taxon' do
-        c = FactoryGirl.create(:species_combination, year_of_publication: 1850, source: @source)
-        c.soft_validate(:source_older_then_description)
-        expect(c.soft_validations.messages_on(:source_id).empty?).to be_false
-        expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-        c.year_of_publication = 1940
-        expect(c.save).to be_true
-        c.soft_validate(:source_older_then_description)
-        expect(c.soft_validations.messages_on(:source_id).empty?).to be_true
-      end
     end
 
     context 'missing_fields' do
