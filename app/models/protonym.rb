@@ -48,17 +48,21 @@ class Protonym < TaxonName
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    # joins('LEFT OUTER JOIN taxon_name_classifications tnc ON taxon_names.id = tnc.taxon_name_id').
-    # where('( (tnr.type NOT LIKE "TaxonNameRelationship::Iczn::Invalidating%" AND tnr.type NOT LIKE "TaxonNameRelationship::Icn::Unaccepting%") OR tnr.type IS NULL )') # AND (( tnc.type NOT LIKE "" AND tnc.type NOT LIKE "") OR tnc.type is null)) OR (tnr.id IS NULL AND tnc.id IS NULL)
     where('taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE "TaxonNameRelationship::Iczn::Invalidating%" OR type LIKE "TaxonNameRelationship::Icn::Unaccepting%")')
   }
 
-  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
   soft_validate(:sv_type_placement, set: :type_placement)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
   soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
+
+  before_validation :check_format_of_name,
+                    :validate_rank_class_class,
+                    :validate_parent_rank_is_higher,
+                    :check_new_rank_class,
+                    :check_new_parent_class,
+                    :validate_source_type
 
   #region Soft validation
 
