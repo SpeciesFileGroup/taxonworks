@@ -248,6 +248,7 @@ describe TaxonNameRelationship do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           r.soft_validate('synonym_relationship')
           expect(r.soft_validations.messages_on(:source_id).count).to eq(1)
+          test = 1
         end
       end
 
