@@ -207,31 +207,34 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def sv_specific_relationship
     #TODO update to cover type specimens synonym is objective if type the same or subjective if type is different
+    #TODO validate that homonyms spelled identically with variable spelling
     s = self.subject_taxon_name
     o = self.object_taxon_name
     case self.type_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
-        soft_validations.add(:type, 'Subjective synonyms should not have the same type') if s.type_taxon_name == o.type_taxon_name
+        soft_validations.add(:type, 'Subjective synonyms should not have the same type') if s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-        soft_validations.add(:type, 'Related taxon should have the same original genus') if s.original_combination_genus != o.original_combination_genus
+        soft_validations.add(:type, 'Primary homonyms should have the same original genus') if s.original_combination_genus != o.original_combination_genus
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-        if s.get_valid_name.ancestor_at_rank('genus') != o.get_valid_name.ancestor_at_rank('genus')
-          soft_validations.add(:type, "Related taxon is not placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
-        elsif s.original_combination_genus == o.original_combination_genus
-          soft_validations.add(:type, "Related taxon is described in the same genus, this should be a 'primary homonym'")
+        if s.original_combination_genus == o.original_combination_genus && !s.original_combination_genus.nil?
+          soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
+        elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
+          soft_validations.add(:type, "Secondary homonyms should be placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
-        soft_validations.add(:type, "Taxon was not described before 1961'") if s.year_of_publication > 1960
+        soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
+        soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_combination_genus == o.original_combination_genus && !s.original_combination_genus.nil?
         soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
-        soft_validations.add(:type, 'Taxon should be treated as homonym before 1961')
-        soft_validations.add(:type, 'Taxon was not described at the time of citation')
-        soft_validations.add(:type, "Related taxon has the same original genus, it should be a 'primary homonym'") if s.original_combination_genus == o.original_combination_genus
+        if !!self.source_id
+          soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
+        end
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        soft_validations.add(:type, 'Source is not selected')
+        soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961'
-        soft_validations.add(:type, "Taxon should be described before 1961'")
-        soft_validations.add(:type, 'Taxon should be treated as synonym before 1961')
-        soft_validations.add(:type, 'Taxon was not described at the time of citation')
+        soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
+        if !!self.source_id
+          soft_validations.add(:source_id, 'Taxon should be treated as synonym before 1961') if self.source.year > 1960
+        end
     end
   end
 
