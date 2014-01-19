@@ -93,6 +93,7 @@ describe TaxonNameRelationship do
             @taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
             @taxon_name_relationship.valid?
             expect(@taxon_name_relationship.errors.include?(:typification)).to be_false
+            test=1
           end
         end
 
