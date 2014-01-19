@@ -26,8 +26,8 @@ class Combination < TaxonName
   #region Soft validation
 
   def sv_source_older_then_description
-    date1 = self.nomenclatural_date
-    date2  = !!self.parent_id ? self.parent.nomenclatural_date : nil
+    date1 = self.nomenclature_date
+    date2  = !!self.parent_id ? self.parent.nomenclature_date : nil
     if !!date1 && !!date2
       soft_validations.add(:year_of_publication, 'The combination is older than the taxon') if date2 - date1 > 0
     end

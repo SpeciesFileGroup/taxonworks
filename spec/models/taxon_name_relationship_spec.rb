@@ -156,14 +156,14 @@ describe TaxonNameRelationship do
       context 'specific relationships' do
         before(:all) do
           @f1 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
-          @f2 = FactoryGirl.create(:relationship_family, parent: @kingdom)
+          @f2 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
           @g1 = FactoryGirl.create(:relationship_genus, parent: @f1)
           @g2 = FactoryGirl.create(:relationship_genus, parent: @f2)
           @s1 =  FactoryGirl.create(:relationship_species, parent: @g1)
           @s2 =  FactoryGirl.create(:relationship_species, parent: @g2)
           @r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
           @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
-          @source = FactoryGirl.create(:source, year: 2000)
+          @source = FactoryGirl.create(:valid_bibtex_source, year: 2000)
         end
 
         specify 'objective synonyms should have the same type' do
@@ -235,6 +235,18 @@ describe TaxonNameRelationship do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961')
           r.soft_validate('specific_relationship')
           expect(r.soft_validations.messages_on(:type).count).to eq(1)
+          expect(r.soft_validations.messages_on(:source_id).count).to eq(1)
+        end
+
+        specify 'synonym should have a source' do
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+          r.soft_validate('synonym_relationship')
+          expect(r.soft_validations.messages_on(:source_id).count).to eq(1)
+        end
+
+        specify 'source should not be older than synonym' do
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+          r.soft_validate('synonym_relationship')
           expect(r.soft_validations.messages_on(:source_id).count).to eq(1)
         end
       end
