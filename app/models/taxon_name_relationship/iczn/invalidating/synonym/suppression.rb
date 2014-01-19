@@ -18,6 +18,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
     'conserved name'
   end
 
+  def self.priority
+    :reverse
+  end
 
   def self.assignment_method
     # aus.iczn_suppression = bus

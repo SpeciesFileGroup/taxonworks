@@ -2,7 +2,8 @@ class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelation
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        [TaxonNameRelationship::Iczn::Validating::UncertainPlacement.to_s]
+        [TaxonNameRelationship::Iczn::Validating::UncertainPlacement.to_s] +
+        [TaxonNameRelationship::Iczn::Validating::ConservedName.to_s]
   end
 
   def self.disjoint_subject_classes
@@ -12,12 +13,15 @@ class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelation
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        [TaxonNameClassification::Iczn::Available::Invalid.to_s] +
-        [TaxonNameClassification::Iczn::Available::Valid.to_s]
+        [TaxonNameClassification::Iczn::Available::Invalid.to_s]
   end
 
   def self.assignable
     true
+  end
+
+  def self.priority
+    :reverse
   end
 
   def self.subject_relationship_name

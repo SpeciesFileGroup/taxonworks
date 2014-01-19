@@ -22,5 +22,8 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
         [TaxonNameClassification::Iczn::Unavailable.to_s]
   end
 
+  def self.priority
+    :reverse
+  end
 
 end

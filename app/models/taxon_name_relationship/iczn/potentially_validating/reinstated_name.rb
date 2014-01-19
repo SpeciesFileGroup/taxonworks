@@ -4,11 +4,6 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < Taxon
     'reinstated name'
   end
 
-  def self.object_relationship_name
-    ''
-  end
-
-
   def self.assignable
     true
   end

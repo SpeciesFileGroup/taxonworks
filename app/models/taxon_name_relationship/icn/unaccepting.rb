@@ -24,6 +24,10 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
     true
   end
 
+  def self.priority
+    :direct
+  end
+
   def self.assignment_method
     # aus.icn_unacceptable = bus
     :icn_unacceptable

@@ -93,7 +93,6 @@ describe TaxonNameRelationship do
             @taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
             @taxon_name_relationship.valid?
             expect(@taxon_name_relationship.errors.include?(:typification)).to be_false
-            test=1
           end
         end
 
@@ -233,7 +232,7 @@ describe TaxonNameRelationship do
         end
 
         specify 'errors on family synony before 1961' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961')
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
           r.soft_validate('specific_relationship')
           expect(r.soft_validations.messages_on(:type).count).to eq(1)
           expect(r.soft_validations.messages_on(:source_id).count).to eq(1)

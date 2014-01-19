@@ -18,4 +18,8 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     TaxonNameClassification.descendants.collect{|t| t.to_s}
   end
 
+  def self.priority
+    :reverse
+  end
+
 end

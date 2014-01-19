@@ -21,6 +21,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Rejected < TaxonNameRelationship:
     'conserved'
   end
 
+  def self.priority
+    :reverse
+  end
 
   def self.assignment_method
     # aus.icn_rejected = bus

@@ -84,6 +84,10 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
+  def self.priority
+    nil # :direct - for subject is younger than object; :reverse - for object is younger than subject
+  end
+
   def self.subject_relationship_name
     self.name.demodulize.underscore.humanize.downcase
   end
@@ -230,10 +234,10 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
-      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961'
+      when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         if !!self.source_id
-          soft_validations.add(:source_id, 'Taxon should be treated as synonym before 1961') if self.source.year > 1960
+          soft_validations.add(:source_id, 'Taxon should be accepted as a replacement name before 1961') if self.source.year > 1960
         end
     end
   end
