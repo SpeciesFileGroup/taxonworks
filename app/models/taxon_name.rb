@@ -125,7 +125,7 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
-  def nomenclatural_date
+  def nomenclature_date
     self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
   end
 

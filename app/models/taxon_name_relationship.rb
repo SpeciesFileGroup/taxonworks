@@ -246,8 +246,15 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def sv_synonym_relationship
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-      soft_validations.add(:type, 'Source is not selected')
-      soft_validations.add(:type, 'Taxon was not described at the time of citation')
+      if !!self.source_id
+        date1 = self.source.nomenclature_date.to_time
+        date2 = self.subject_taxon_name.nomenclature_date
+        if !!date1 && !!date2
+          soft_validations.add(:source_id, 'Taxon was not described at the time of citation') if date2 - date1 > 0
+        end
+      else
+        soft_validations.add(:source_id, 'Source is not selected')
+      end
     end
   end
 
