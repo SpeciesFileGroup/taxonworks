@@ -24,7 +24,7 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
     true
   end
 
-  def self.priority
+  def self.nomenclatural_priority
     :direct
   end
 

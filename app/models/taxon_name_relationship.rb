@@ -18,6 +18,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_matching_types, set: :matching_types)
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
+  soft_validate(:sv_validate_priority, set: :validate_priority)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -49,11 +50,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
-  def self.object_properties
+  def object_properties
     []
   end
 
-  def self.subject_properties
+  def subject_properties
     []
   end
 
@@ -84,7 +85,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
-  def self.priority
+  def self.nomenclatural_priority
     nil # :direct - for subject is younger than object; :reverse - for object is younger than subject
   end
 
@@ -151,11 +152,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     elsif self.object_taxon_name_id == self.subject_taxon_name_id
       errors.add(:object_taxon_name_id, "Taxon should not relate to itself")
     elsif self.subject_taxon_name && self.object_taxon_name
-      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_subject_ranks.include?(subject_taxon_name.rank_class.to_s)
+      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
       if object_taxon_name.class.to_s == 'Protonym'
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(object_taxon_name.rank_class.to_s)
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
       else
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(object_taxon_name.parent.rank_class.to_s)
+        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
       end
     end
   end
@@ -254,7 +255,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         date1 = self.source.nomenclature_date.to_time
         date2 = self.subject_taxon_name.nomenclature_date
         if !!date1 && !!date2
-          soft_validations.add(:source_id, 'Taxon was not described at the time of citation') if date2 - date1 > 0
+          soft_validations.add(:source_id, 'Taxon was not described at the time of citation') if date2 > date1
         end
       else
         soft_validations.add(:source_id, 'Source is not selected')
@@ -378,6 +379,28 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.type_name == 'TaxonNameRelationship::Typification::Family'
       if self.object_taxon_name.name.slice(0, 1) != self.subject_taxon_name.name.slice(0, 1)
         soft_validations.add(:object_taxon_name_id, 'Type genus should have the same initial letters as the family-group name')
+      end
+    end
+  end
+
+  def sv_validate_priority
+    unless self.type_class.nomenclatural_priority.nil?
+      date1 = self.subject_taxon_name.nomenclature_date
+      date2 = self.object_taxon_name.nomenclature_date
+      if self.type_name == 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction'
+        soft_validations.add(:type, 'Both taxa should be described on the same date') unless date1 == date2
+        soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date') unless date1 == date2
+      elsif !!date1 and !!date2
+        case self.type_class.nomenclatural_priority
+          when :direct
+            soft_validations.add(:type, "#{self.subject_relationship_name} should not be older than related taxon")
+          when :reverse
+            if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
+              soft_validations.add(:subject_taxon_name_id, "#{self.subject_relationship_name} should not be younger than the taxon")
+            else
+              soft_validations.add(:type, "#{self.subject_relationship_name} should not be younger than related taxon")
+            end
+        end
       end
     end
   end

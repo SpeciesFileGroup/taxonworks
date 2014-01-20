@@ -6,7 +6,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
   end
 
-  def self.priority
+  def self.nomenclatural_priority
     :reverse
   end
 

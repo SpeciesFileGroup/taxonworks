@@ -12,7 +12,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::JustifiedEmendation < 
     'incorrect original spelling'
   end
 
-  def self.priority
+  def self.nomenclatural_priority
     :direct
   end
 

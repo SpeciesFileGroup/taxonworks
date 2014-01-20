@@ -14,7 +14,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
     'family name based on genus synonym replaced before 1961'
   end
 
-  def self.priority
+  def self.nomenclatural_priority
     :direct
   end
 

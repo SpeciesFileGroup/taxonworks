@@ -24,7 +24,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
 
   end
 
-  def self.object_relationship_name
+  def self.subject_relationship_name
     'classified as'
   end
 
