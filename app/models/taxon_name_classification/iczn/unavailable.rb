@@ -20,7 +20,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
     end
   end
   
@@ -28,7 +28,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(NomenclaturalRank::Iczn::GenusGroup)
     end
   end
   
@@ -36,7 +36,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
     end
   end
   

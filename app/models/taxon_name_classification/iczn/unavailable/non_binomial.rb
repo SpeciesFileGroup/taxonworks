@@ -9,15 +9,16 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
   
   module InnerClassSpeciesGroup
     def applicable_ranks
-      NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
     end  
   end
 
   class NotUninomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s} +
-          NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s} +
-          NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(
+          NomenclaturalRank::Iczn::HigherClassificationGroup,
+          NomenclaturalRank::Iczn::FamilyGroup,
+          NomenclaturalRank::Iczn::GenusGroup)
     end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
@@ -37,7 +38,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   class SubgenusNotIntercalare < TaxonNameClassification::Iczn::Unavailable::NonBinomial
     def self.applicable_ranks
-      NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
+      self.collect_descentants_to_s(NomenclaturalRank::Iczn::GenusGroup)
     end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
