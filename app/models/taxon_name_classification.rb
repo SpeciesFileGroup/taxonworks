@@ -97,4 +97,11 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
+  def self.collect_descendants_and_itself_to_s(*classes)
+    ans = []
+    classes.each do |klass|
+      ans += klass.descendants.collect{|k| k.to_s} + [klass.to_s]
+    end
+    ans
+  end
 end

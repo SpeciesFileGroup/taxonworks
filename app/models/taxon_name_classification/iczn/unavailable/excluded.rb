@@ -1,13 +1,10 @@
 class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassification::Iczn::Unavailable
 
   def self.disjoint_taxon_name_classes
-    self.parent.disjoint_taxon_name_classes +
-        TaxonNameClassification::Iczn::Unavailable::Suppressed.descendants.collect{|t| t.to_s} +
-        [TaxonNameClassification::Iczn::Unavailable::Suppressed.to_s] +
-        TaxonNameClassification::Iczn::Unavailable::NomenNudum.descendants.collect{|t| t.to_s} +
-        [TaxonNameClassification::Iczn::Unavailable::NomenNudum.to_s] +
-        TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants.collect{|t| t.to_s} +
-        [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s]
+    self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
+        TaxonNameClassification::Iczn::Unavailable::Suppressed,
+        TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial)
   end
   
   module InnerClass
