@@ -23,8 +23,8 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
           NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
     def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s]
+      self.parent.disjoint_taxon_name_classes + self.collect_to_s(
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial)
     end
   end
 
@@ -32,9 +32,9 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
     extend InnerClassSpeciesGroup
     
     def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s] +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial.to_s]
+      self.parent.disjoint_taxon_name_classes + self.collect_to_s(
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
   end
 
@@ -43,8 +43,8 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
       NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|t| t.to_s}
     end
     def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s]
+      self.parent.disjoint_taxon_name_classes + self.collect_to_s(
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial)
     end
   end
 
@@ -52,9 +52,9 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
     extend InnerClassSpeciesGroup
     
     def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s] +
-          [TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial.to_s]
+      self.parent.disjoint_taxon_name_classes + self.collect_to_s(
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial)
     end
   end
 

@@ -92,4 +92,9 @@ class TaxonNameClassification < ActiveRecord::Base
 
 
   #endregion
+  
+  private
+  def self.collect_to_s(*args)
+    args.collect{|arg| arg.to_s}
+  end
 end
