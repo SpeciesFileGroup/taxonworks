@@ -9,70 +9,57 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
         TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants.collect{|t| t.to_s} +
         [TaxonNameClassification::Iczn::Unavailable::NonBinomial.to_s]
   end
+  
+  module InnerClass
 
-  class BasedOnFossilGenusFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.applicable_ranks
-      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
-    end
-    def self.disjoint_taxon_name_classes
+    def disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes +
           [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
+    end    
+  end
+
+  class BasedOnFossilGenusFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
+    extend InnerClass
+
+    def self.applicable_ranks
+      NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
     end
   end
 
   class HypotheticalConcept < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
+    extend InnerClass
   end
 
   class Infrasubspecific < TaxonNameClassification::Iczn::Unavailable::Excluded
+    extend InnerClass
+
     def self.applicable_ranks
       NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}
-    end
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
     end
   end
 
   class NameForHybrid < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
+    extend InnerClass
   end
 
   class NameForTerratologicalSpecimen < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
+    extend InnerClass
   end
 
   class NotForNomenclature < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
+    extend InnerClass
   end
 
   class WorkOfExtantAnimalAfter1930 < TaxonNameClassification::Iczn::Unavailable::Excluded
+    extend InnerClass
+
     def self.code_applicability_start_year
       1931
-    end
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
     end
   end
 
   class ZoologicalFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
-    def self.disjoint_taxon_name_classes
-      self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
+    extend InnerClass
   end
 
 end
