@@ -87,10 +87,24 @@ class TaxonNameClassification < ActiveRecord::Base
     classifications.each  do |i|
       soft_validations.add(:type, "Conflicting with another status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
-
   end
 
 
 
   #endregion
+  
+  private
+  def self.collect_to_s(*args)
+    args.collect{|arg| arg.to_s}
+  end
+  def self.collect_descentants_to_s(*classes)
+    ans = []
+    classes.each do |klass|
+      ans += klass.descendants.collect{|k| k.to_s}
+    end
+    ans    
+  end
+  def self.collect_descendants_and_itself_to_s(*classes)
+    classes.collect{|k| k.to_s} + self.collect_descentants_to_s(*classes)
+  end
 end

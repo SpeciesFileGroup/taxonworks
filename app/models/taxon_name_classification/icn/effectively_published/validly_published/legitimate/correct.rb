@@ -1,9 +1,9 @@
 class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct < TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
 
   def self.disjoint_taxon_name_classes
-    self.parent.disjoint_taxon_name_classes +
-        [TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate.to_s] +
-        [TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Incorrect.to_s]
+    self.parent.disjoint_taxon_name_classes + self.collect_to_s(
+        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate,
+        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Incorrect)
   end
 
 end

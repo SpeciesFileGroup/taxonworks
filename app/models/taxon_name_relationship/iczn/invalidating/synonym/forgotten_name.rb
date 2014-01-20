@@ -18,6 +18,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
     'nomen protectum'
   end
 
+  def self.nomenclatural_priority
+    :reverse
+  end
+
   def self.assignment_method
     # aus.iczn_forgotten_name = bus
     :iczn_forgotten_name

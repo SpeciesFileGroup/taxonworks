@@ -20,6 +20,9 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
         TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s}
   end
 
+  def self.nomenclatural_priority
+    :direct
+  end
 
   def self.assignable
     true

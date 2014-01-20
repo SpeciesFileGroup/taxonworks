@@ -12,6 +12,9 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::JustifiedEmendation < 
     'incorrect original spelling'
   end
 
+  def self.nomenclatural_priority
+    :direct
+  end
 
   def self.assignment_method
     # aus.iczn_justified_emendation = bus

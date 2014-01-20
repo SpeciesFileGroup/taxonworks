@@ -125,8 +125,14 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.constantize : r 
   end
 
-  def nomenclatural_date
-    self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
+  def nomenclature_date
+    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
+    if family_before_1961.empty?
+      self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
+    else
+      obj = family_before_1961.first.object_taxon_name
+      obj.source ? obj.source.nomenclature_date.to_time : (obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil)
+    end
   end
 
   def ancestor_at_rank(rank)

@@ -22,5 +22,8 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
         [TaxonNameClassification::Iczn::Unavailable.to_s]
   end
 
+  def self.nomenclatural_priority
+    :reverse
+  end
 
 end

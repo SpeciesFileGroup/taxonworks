@@ -8,6 +8,10 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     'first revisor action'
   end
 
+  def self.nomenclatural_priority
+    :direct # will validate for the date is equal
+  end
+
   def self.assignment_method
     # aus.iczn_first_revisor_action = bus
     :iczn_first_revisor_action

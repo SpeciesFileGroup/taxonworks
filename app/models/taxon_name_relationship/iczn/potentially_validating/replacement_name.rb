@@ -12,6 +12,9 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
     'homonym'
   end
 
+  def self.nomenclatural_priority
+    :direct
+  end
 
   def self.assignment_method
     # aus.iczn_replacement_name = bus

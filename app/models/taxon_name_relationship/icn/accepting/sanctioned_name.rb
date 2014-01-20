@@ -12,6 +12,9 @@ class TaxonNameRelationship::Icn::Accepting::SanctionedName < TaxonNameRelations
     'rejected name'
   end
 
+  def self.nomenclatural_priority
+    :reverse
+  end
 
   def self.assignment_method
     # aus.icn_sanctioned_name = bus
