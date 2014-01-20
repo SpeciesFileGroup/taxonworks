@@ -6,6 +6,7 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup < NomenclaturalRank::Ic
   end
 
   def self.valid_parents
-    NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s}
+    self.collect_descentants_to_s(
+        NomenclaturalRank::Iczn::HigherClassificationGroup)
   end
 end

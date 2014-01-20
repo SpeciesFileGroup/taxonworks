@@ -10,6 +10,8 @@ class NomenclaturalRank::Icn::GenusGroup <  NomenclaturalRank::Icn
   end
 
   def self.valid_parents
-    NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::GenusGroup.descendants.collect{|t| t.to_s}
+    self.collect_descentants_to_s(
+        NomenclaturalRank::Icn::FamilyGroup,
+        NomenclaturalRank::Icn::GenusGroup)
   end
 end
