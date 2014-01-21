@@ -1,11 +1,10 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship::Iczn::Invalidating
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        TaxonNameRelationship::Iczn::Invalidating::Usage.descendants.collect{|t| t.to_s} +
-        TaxonNameRelationship::Iczn::Invalidating::Homonym.descendants.collect{|t| t.to_s} +
-        [TaxonNameRelationship::Iczn::Invalidating::Homonym.to_s] +
-        [TaxonNameRelationship::Iczn::Invalidating.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Usage) + self.collect_descendants_and_itself_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Homonym) + self.collect_to_s(
+        TaxonNameRelationship::Iczn::Invalidating)
   end
 
   def self.disjoint_object_classes

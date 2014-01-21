@@ -1,13 +1,13 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonNameRelationship::Iczn::Invalidating::Synonym
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective.descendants.collect{|t| t.to_s} +
-        [TaxonNameRelationship::Iczn::Invalidating::Synonym.to_s] +
-        [TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective.to_s] +
-        [TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName.to_s] +
-        [TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961.to_s] +
-        [TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective) + self.collect_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Synonym,
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName,
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::FamilyBefore1961,
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression)
   end
 
   def self.subject_relationship_name

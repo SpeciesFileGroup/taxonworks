@@ -1,12 +1,11 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage < TaxonNameRelationship::Icn::Unaccepting
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        [TaxonNameRelationship::Icn::Unaccepting.to_s] +
-        TaxonNameRelationship::Icn::Unaccepting::Synonym.descendants.collect{|t| t.to_s} +
-        [TaxonNameRelationship::Icn::Unaccepting::Homonym.to_s] +
-        [TaxonNameRelationship::Icn::Unaccepting::Synonym.to_s] +
-        [TaxonNameRelationship::Icn::Unaccepting::Rejected.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
+        TaxonNameRelationship::Icn::Unaccepting,
+        TaxonNameRelationship::Icn::Unaccepting::Homonym,
+        TaxonNameRelationship::Icn::Unaccepting::Rejected) + self.collect_descendants_and_itself_to_s(
+        TaxonNameRelationship::Icn::Unaccepting::Synonym)
   end
 
 end

@@ -5,7 +5,8 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
   end
 
   def self.disjoint_taxon_name_relationships
-    TaxonNameRelationship::Combination.descendants.collect{|t| t.to_s}
+    self.collect_descendants_to_s(
+        TaxonNameRelationship::Combination)
   end
 
   def self.disjoint_subject_classes

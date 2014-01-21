@@ -1,9 +1,9 @@
 class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelationship::Iczn::Validating
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        [TaxonNameRelationship::Iczn::Validating::UncertainPlacement.to_s] +
-        [TaxonNameRelationship::Iczn::Validating::ConservedName.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
+        TaxonNameRelationship::Iczn::Validating::UncertainPlacement,
+        TaxonNameRelationship::Iczn::Validating::ConservedName)
   end
 
   def self.disjoint_subject_classes

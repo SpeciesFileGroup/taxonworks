@@ -1,9 +1,8 @@
 class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        TaxonNameRelationship::Iczn::Invalidating.descendants.collect{|t| t.to_s} +
-        [TaxonNameRelationship::Iczn::Invalidating.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_and_itself_to_s(
+        TaxonNameRelationship::Iczn::Invalidating)
   end
 
   def self.disjoint_subject_classes

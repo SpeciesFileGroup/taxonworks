@@ -1,8 +1,8 @@
 class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        TaxonNameRelationship::Icn::Accepting.descendants.collect{|t| t.to_s}
+    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
+        TaxonNameRelationship::Icn::Accepting)
   end
 
   def self.disjoint_object_classes

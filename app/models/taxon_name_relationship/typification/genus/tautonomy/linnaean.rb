@@ -1,9 +1,9 @@
 class TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean < TaxonNameRelationship::Typification::Genus::Tautonomy
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        [TaxonNameRelationship::Typification::Genus::Tautonomy.to_s] +
-        [TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute.to_s]
+    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
+        TaxonNameRelationship::Typification::Genus::Tautonomy,
+        TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute)
   end
 
   def self.subject_relationship_name
