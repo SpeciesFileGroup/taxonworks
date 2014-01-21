@@ -6,7 +6,7 @@ class NomenclaturalRank::Icn::HigherClassificationGroup < NomenclaturalRank::Icn
   end
 
   def self.valid_parents
-    self.collect_descentants_to_s(
+    self.collect_descendants_to_s(
         NomenclaturalRank::Icn::HigherClassificationGroup)
   end
 

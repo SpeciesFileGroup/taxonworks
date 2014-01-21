@@ -6,7 +6,7 @@ class NomenclaturalRank::Iczn::GenusGroup < NomenclaturalRank::Iczn
   end
 
   def self.valid_parents
-    self.collect_descentants_to_s(
+    self.collect_descendants_to_s(
         NomenclaturalRank::Iczn::FamilyGroup,
         NomenclaturalRank::Iczn::GenusGroup)
   end

@@ -19,7 +19,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def self.applicable_ranks
-      self.collect_descentants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
+      self.collect_descendants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
     end
   end
 
@@ -31,7 +31,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def self.applicable_ranks
-      self.collect_descentants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
+      self.collect_descendants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
     end
   end
 

@@ -50,7 +50,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   module FamilyGroupRanks
     
     def applicable_ranks
-      self.collect_descentants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
+      self.collect_descendants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
     end    
   end
 
@@ -67,7 +67,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   module GenusGroupRanks
 
     def applicable_ranks
-      self.collect_descentants_to_s(NomenclaturalRank::Iczn::GenusGroup)
+      self.collect_descendants_to_s(NomenclaturalRank::Iczn::GenusGroup)
     end    
   end
   
@@ -84,7 +84,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   module SpeciesGroupRanks
 
     def applicable_ranks
-      self.collect_descentants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
+      self.collect_descendants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
     end    
   end
   
