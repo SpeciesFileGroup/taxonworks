@@ -13,3 +13,7 @@ before_script:
   #- ./travis/before_script.sh
   - rake db:migrate
   - rake db:migrate HPS_ENV=test 
+notifications:
+  email:
+    - diapriid@gmail.com 
+  on_failure: change
