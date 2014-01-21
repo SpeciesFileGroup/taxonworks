@@ -18,7 +18,8 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
   end
 
   def self.disjoint_subject_classes
-        TaxonNameClassification::Icn.descendants.collect{|t| t.to_s}
+    self.collect_descendants_to_s(
+        TaxonNameClassification::Icn)
   end
 
   def self.disjoint_object_classes

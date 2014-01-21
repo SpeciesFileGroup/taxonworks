@@ -18,11 +18,10 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
   end
 
   def self.disjoint_subject_classes
-    [TaxonNameClassification::Icn::NotEffectivelyPublished.to_s] +
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
-        TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
-        [TaxonNameClassification::Iczn::Unavailable.to_s]
-
+    self.collect_descendants_and_itself_to_s(
+        TaxonNameClassification::Iczn::Unavailable) + self.collect_descendants_to_s(
+        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished) + self.collect_to_s(
+        TaxonNameClassification::Icn::NotEffectivelyPublished)
   end
 
   def self.subject_relationship_name

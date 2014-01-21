@@ -7,8 +7,8 @@ class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelation
   end
 
   def self.disjoint_subject_classes
-    self.parent.disjoint_subject_classes +
-        [TaxonNameClassification::Iczn::Available::Valid::NomenDubium.to_s]
+    self.parent.disjoint_subject_classes + self.collect_to_s(
+        TaxonNameClassification::Iczn::Available::Valid::NomenDubium)
   end
 
   def self.disjoint_object_classes

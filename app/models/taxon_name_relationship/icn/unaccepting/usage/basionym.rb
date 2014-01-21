@@ -7,10 +7,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelati
   end
 
   def self.disjoint_subject_classes
-    self.parent.disjoint_subject_classes +
-        [TaxonNameClassification::Icn::NotEffectivelyPublished.to_s] +
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants.collect{|t| t.to_s} +
-        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants.collect{|t| t.to_s}
+    self.parent.disjoint_subject_classes + self.collect_to_s(
+        TaxonNameClassification::Icn::NotEffectivelyPublished) + self.collect_descendants_to_s(
+        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
   def self.subject_relationship_name
