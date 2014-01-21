@@ -23,7 +23,8 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    [TaxonNameClassification::Iczn::NotEffectivelyPublished.to_s]
+    self.collect_to_s(
+        TaxonNameClassification::Iczn::NotEffectivelyPublished)
   end
 
 end

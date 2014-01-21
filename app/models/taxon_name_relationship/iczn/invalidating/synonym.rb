@@ -8,8 +8,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        [TaxonNameClassification::Iczn::Available::Invalid.to_s]
+    self.parent.disjoint_object_classes + self.collect_to_s(
+        TaxonNameClassification::Iczn::Available::Invalid)
   end
 
   def self.subject_relationship_name

@@ -17,7 +17,8 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    TaxonNameClassification.descendants.collect{|t| t.to_s}
+    self.collect_descendants_to_s(
+      TaxonNameClassification)
   end
 
   def self.nomenclatural_priority

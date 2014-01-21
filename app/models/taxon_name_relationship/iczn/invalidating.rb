@@ -15,8 +15,8 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   end
 
   def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s}
+    self.parent.disjoint_object_classes + self.collect_descendants_to_s(
+        TaxonNameClassification::Iczn::Unavailable)
   end
 
   def self.nomenclatural_priority

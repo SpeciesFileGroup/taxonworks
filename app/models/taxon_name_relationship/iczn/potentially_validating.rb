@@ -7,13 +7,12 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        TaxonNameClassification::Iczn::Unavailable.descendants.collect{|t| t.to_s} +
-        [TaxonNameClassification::Iczn::Unavailable.to_s] +
-        [TaxonNameClassification::Iczn::Available::OfficialIndexOfAvailableNames.to_s] +
-        [TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames.to_s] +
-        [TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable.to_s] +
-        TaxonNameClassification::Iczn::Available::Valid.descendants.collect{|t| t.to_s}
+    self.parent.disjoint_object_classes + self.collect_descentants_and_itself_to_s(
+        TaxonNameClassification::Iczn::Unavailable) + self.collect_descentants_to_s(
+        TaxonNameClassification::Iczn::Available::Valid) + self.collect_to_s(
+        TaxonNameClassification::Iczn::Available::OfficialIndexOfAvailableNames,
+        TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames,
+        TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
   end
 
 end
