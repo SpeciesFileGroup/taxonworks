@@ -15,7 +15,9 @@ describe GeographicArea do
 
   context 'Shape files' do
     specify 'that a shapefile can be read.' do
-      Dir.glob(BaseDir + '**/*.shp').each { |filename|
+      filenames = Dir.glob(BaseDir + 'gadm_v2_shp/**/*.shp')
+      filenames.sort! # get the first one
+      filenames.each { |filename|
         RGeo::Shapefile::Reader.open(filename) { |file|
 
 =begin
@@ -38,8 +40,11 @@ describe GeographicArea do
             puts "#{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
           }
 =end
+          puts filename
+          # should be
+          #   ../shapes/gadm_v2_shp/gadm2.shp
           expect(file.num_records).to eq 218238
-        } if !(filename =~ /[01]/) # just read the counties
+        } # just read the gadm2 shape file
       }
 
     end

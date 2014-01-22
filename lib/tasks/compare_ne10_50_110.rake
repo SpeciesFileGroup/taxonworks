@@ -1,10 +1,10 @@
-# INIT tasks for RGeo, PostGIS, shape files (GADM and TDWG)
+# INIT tasks for RGeo, PostGIS, shape files (NaturalEarth, ISO, GADM, TDWG)
 
 namespace :tw do
   namespace :init do
 
-    desc 'Compare the NaturalEarth country name data to the level_0 level data from GADM2.'
-    task :compare_ne_to_gadm => :environment do
+    desc 'Compare the NaturalEarth country name data at 10m, 50m, 110m.'
+    task :compare_ne10_50_110 => :environment do
 
       matched   = 0
       unmatched = 0
@@ -30,37 +30,42 @@ namespace :tw do
       }
 =end
 
+      n10, n50, n110 = {}, {}, {}
+
       ne0_10.each { |item|
-        ne_a3   = item.attributes['adm0_a3']
-        ne_name = item.attributes['name'].titlecase
-        ga      = GeographicArea.where(name: ne_name).first
-        if ga.nil?
-          unmatched += 1
-          result    = "Unmatched (#{index}): #{ne_name} (#{ne_a3})"
-          ga3       = GeographicArea.where(iso_3166_a3: ne_a3).first
-          if ga3.nil?
-            result += ' No A3 match found.'
-            puts result
-          else
-            result    += " Found A3 match: (#{ga3.name})."
-            a3_only   += 1
-            unmatched -= 1
-            matched   += 1
-            puts result
-          end
-        else
-          result = "Matched   (#{index}): #{ga.name}"
-          if ne_a3 == ga.iso_3166_a3
-            result += " (#{ga.iso_3166_a3})"
-          else
-            result += " (A3 #{ne_a3} did not match.)"
-          end
-          matched += 1
-          puts result
-        end
-        index += 1
+        n10.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
       }
-      puts "\nProcessed: #{matched + unmatched}: Unmatched: #{unmatched}, Matched: #{matched} (A3 Only: #{a3_only})."
+
+      ne0_50.each { |item|
+        n50.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
+      }
+
+      ne0_110.each { |item|
+        n110.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
+      }
+
+      n50.each { |key, value| n10.delete(key) }
+      n110.each { |key, value| n50.delete(key) }
+
+      # n110 will be empty
+      n50.each { |key, value|
+        n110.delete(key)
+      }
+
+      # n50 will contain only one object, "{"ATC"=>"Ashmore And Cartier Is."}"
+      n10.each { |key, value|
+        n50.delete(key)
+      }
+
+
+      n110.each {|key, value|
+        n50.delete(key)
+        n10.delete(key)
+      }
+
+      # all 110m objects are represented in 50m objects.
+      # only one 50m object is *not* represented in 10m objects.
+
     end
   end
 end
