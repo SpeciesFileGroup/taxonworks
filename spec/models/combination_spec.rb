@@ -6,7 +6,7 @@ describe Combination do
     TaxonName.delete_all
     @family = FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000)
     @combination = FactoryGirl.create(:combination, parent: @family)
-    @source = FactoryGirl.create(:valid_bibtex_source, year: 1940, author: 'Dmitriev')
+    @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
   end
   after(:all) do
     TaxonName.delete_all

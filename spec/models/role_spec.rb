@@ -26,7 +26,7 @@ describe Role do
     context 'indices' do
       specify 'one person can not have two identical roles' do
         person = FactoryGirl.create(:valid_person)
-        role_object = FactoryGirl.create(:valid_bibtex_source)
+        role_object = FactoryGirl.create(:valid_source_bibtex)
         role1 = Role.new(person: person, role_object:  role_object, type: 'SourceAuthor')
         expect(role1.valid?).to be_true
         role1.save

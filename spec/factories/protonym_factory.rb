@@ -98,7 +98,7 @@ FactoryGirl.define do
     factory :iczn_family do
       name 'Cicadellidae'
       association :parent, factory: :iczn_order
-      association :source, factory: :valid_bibtex_source, year: 1800
+      association :source, factory: :valid_source_bibtex, year: 1800
       year_of_publication 1800
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Family')
@@ -107,7 +107,7 @@ FactoryGirl.define do
     factory :iczn_subfamily do
       name 'Typhlocybinae'
       association :parent, factory: :iczn_family
-      association :source, factory: :valid_bibtex_source, year: 1800
+      association :source, factory: :valid_source_bibtex, year: 1800
       year_of_publication 1800
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Subfamily')
@@ -116,7 +116,7 @@ FactoryGirl.define do
     factory :iczn_tribe do
       name 'Erythroneurini'
       association :parent, factory: :iczn_subfamily
-      association :source, factory: :valid_bibtex_source, year: 1800
+      association :source, factory: :valid_source_bibtex, year: 1800
       year_of_publication 1800
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Tribe')
@@ -125,7 +125,7 @@ FactoryGirl.define do
     factory :iczn_subtribe do
       name 'Erythroneurina'
       association :parent, factory: :iczn_tribe
-      association :source, factory: :valid_bibtex_source, year: 1800
+      association :source, factory: :valid_source_bibtex, year: 1800
       year_of_publication 1800
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Subtribe')
@@ -134,7 +134,7 @@ FactoryGirl.define do
     factory :iczn_genus do
       name 'Erythroneura'
       association :parent, factory: :iczn_subtribe
-      association :source, factory: :valid_bibtex_source, year: 1850
+      association :source, factory: :valid_source_bibtex, year: 1850
       year_of_publication 1850
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Genus')
@@ -143,7 +143,7 @@ FactoryGirl.define do
     factory :iczn_subgenus do
       name 'Erythroneura'
       association :parent, factory: :iczn_genus
-      association :source, factory: :valid_bibtex_source, year: 1850
+      association :source, factory: :valid_source_bibtex, year: 1850
       year_of_publication 1850
       verbatim_author 'Say'
       rank_class Ranks.lookup(:iczn, 'Subgenus')
@@ -152,7 +152,7 @@ FactoryGirl.define do
     factory :iczn_species do
       name 'vitis'
       association :parent, factory: :iczn_subgenus
-      association :source, factory: :valid_bibtex_source, year: 1830
+      association :source, factory: :valid_source_bibtex, year: 1830
       year_of_publication 1830
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:iczn, 'SPECIES')
@@ -161,7 +161,7 @@ FactoryGirl.define do
     factory :iczn_subspecies do
       name 'ssp'
       association :parent, factory: :iczn_species
-      association :source, factory: :valid_bibtex_source, year: 1900
+      association :source, factory: :valid_source_bibtex, year: 1900
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:iczn, 'subspecies')
@@ -269,7 +269,7 @@ FactoryGirl.define do
     factory :icn_species do
       name 'aaa'
       association :parent, factory: :icn_series
-      association :source, factory: :valid_bibtex_source
+      association :source, factory: :valid_source_bibtex
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:icn, 'SPECIES')
@@ -278,7 +278,7 @@ FactoryGirl.define do
     factory :icn_subspecies do
       name 'bbb'
       association :parent, factory: :icn_species
-      association :source, factory: :valid_bibtex_source
+      association :source, factory: :valid_source_bibtex
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:icn, 'subspecies')
@@ -287,7 +287,7 @@ FactoryGirl.define do
     factory :icn_variety do
       name 'ccc'
       association :parent, factory: :icn_subspecies
-      association :source, factory: :valid_bibtex_source
+      association :source, factory: :valid_source_bibtex
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:icn, 'variety')

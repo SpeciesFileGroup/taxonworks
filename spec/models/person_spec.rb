@@ -4,7 +4,7 @@ describe Person do
 
   let(:person) { FactoryGirl.build(:person) }
   let(:source_bibtex) {
-    FactoryGirl.create(:valid_bibtex_source)
+    FactoryGirl.create(:valid_source_bibtex)
   }
   let(:human_source) {
     FactoryGirl.create(:human_source)

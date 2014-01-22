@@ -21,7 +21,11 @@ module Utilities::Dates
         elsif ROMAN_MONTHS.include?(v.downcase.to_sym)
           i = ROMAN_MONTHS.index(v.downcase.to_sym) + 1
         end 
-        h[k] = DateTime.new(1, i, 1).strftime("%b").downcase.to_sym if !i.nil?
+        if !i.nil? && i > 0 && i < 13
+          h[k] = DateTime.new(1, i, 1).strftime("%b").downcase.to_sym
+        else # return the value passed if it doesn't match
+          k
+        end
       end
     end
 end

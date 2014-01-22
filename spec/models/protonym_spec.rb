@@ -202,7 +202,7 @@ describe Protonym do
       @subgenus.source = @genus.source
       @subgenus.save
 
-      @source = FactoryGirl.create(:valid_bibtex_source, year: 1940, author: 'Dmitriev')
+      @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
     end
 
     context 'validat project_id' do

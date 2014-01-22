@@ -7,11 +7,11 @@ FactoryGirl.define do
 
     factory :source_author_role do
       association :person, factory: :valid_person
-      association :role_object, factory: :valid_bibtex_source 
+      association :role_object, factory: :valid_source_bibtex 
     end
 
     factory :source_author_without_person do
-      association :role_object, factory: :valid_bibtex_source 
+      association :role_object, factory: :valid_source_bibtex 
     end
 
     factory :source_source_role do

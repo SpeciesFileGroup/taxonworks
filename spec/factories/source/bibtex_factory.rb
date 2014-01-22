@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :source_bibtex, class: Source::Bibtex, traits: [:creator_and_updater] do
-    factory :valid_bibtex_source do
+    factory :valid_source_bibtex do
       bibtex_type 'article'
       title 'article 1 just title'
     end
@@ -10,7 +10,7 @@ FactoryGirl.define do
       title 'I am a soft valid article'
       author 'Person, Test'
       journal 'Journal of test articles'
-      year '2222'
+      year 2222
     end
 
     factory :valid_bibtex_source_book_title_only do
@@ -22,22 +22,17 @@ FactoryGirl.define do
       bibtex_type 'phdthesis'
       title 'Bugs by Beth'
       author 'Jones, Beth'
-      year '1982'
+      year 1982
       month 'jun'
     end
 
     factory :valid_misc do
       bibtex_type 'misc'
       title 'misc source'
-      year '2010'
+      year 2010
       month 'jul'
       day 4
     end
 
-    # for use with notable
-    factory :valid_source_bibtex do
-      bibtex_type 'article'
-      title 'article 1 just title'
-    end
-  end
+   end
 end
