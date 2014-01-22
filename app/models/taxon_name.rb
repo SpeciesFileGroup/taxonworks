@@ -78,6 +78,7 @@ class TaxonName < ActiveRecord::Base
                     :check_format_of_name,
                     :validate_rank_class_class,
                     :validate_parent_rank_is_higher,
+                    :validate_parent_is_set,
                     :check_new_rank_class,
                     :check_new_parent_class,
                     :validate_source_type
@@ -247,20 +248,22 @@ class TaxonName < ActiveRecord::Base
 
   #region Validation
 
+  def validate_parent_is_set
+    if !(self.rank_class == NomenclaturalRank) && !(self.type == 'Combination')
+      errors.add(:parent_id, 'A parent is not selected') if self.parent_id.blank?
+    end
+  end
+
   def validate_parent_rank_is_higher
-    if self.rank_class == NomenclaturalRank
-      true
-    elsif self.parent.nil?
-      errors.add(:parent_id, 'A parent is not selected')
-    elsif self.type == 'Combination'
-      true
-    elsif RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
-      errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
-    elsif !self.children.empty? && self.rank_class != self.rank_class_was
-      if RANKS.index(self.rank_class) >= self.children.collect{|r| RANKS.index(r.rank_class)}.max
+    if self.parent && !self.rank_class.blank? && self.rank_class != NomenclaturalRank
+      if  RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
+        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+      end
+
+      if (self.rank_class != self.rank_class_was) && self.children && !self.children.empty? && RANKS.index(self.rank_class) >= self.children.collect{|r| RANKS.index(r.rank_class)}.max
         errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
       end
-    end
+    end 
   end
 
   def validate_rank_class_class
