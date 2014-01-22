@@ -9,6 +9,7 @@ before_install: ./travis/before_install.sh
 before_script: 
   - cp config/database.yml.example config/database.yml
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
+  - rake db:drop  
   - rake db:create
   #- ./travis/before_script.sh
   - rake db:migrate

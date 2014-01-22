@@ -9,6 +9,7 @@ module Utilities::Dates
   #   SHORT_MONTH_FILTER['JANUARY'] # => :jan
   #   SHORT_MONTH_FILTER['i']       # => :jan
   #   SHORT_MONTH_FILTER['I']       # => :jan
+  #   SHORT_MONTH_FILTER['foo']     # => 'foo':
   SHORT_MONTH_FILTER = 
     Hash.new do |h,k|
       v = k.to_s.strip
