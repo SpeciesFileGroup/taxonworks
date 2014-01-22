@@ -31,7 +31,7 @@ namespace :tw do
 
       def initiate_project_and_users
         @project = FactoryGirl.create(:valid_project, name: 'UCD') 
-        @user = FactoryGirl.create(:valid_user, email: 'john@bm.org')
+        @user = FactoryGirl.create(:user, email: 'john@bm.org', password: '3242341aas', password_confirmation: '3242341aas')
         $project_id = @project.id
         $user_id = @user.id
         return @project, @user
@@ -74,6 +74,10 @@ namespace :tw do
         line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
       end
 
+      def column_values(fixed_line)
+        CSV.parse(fixed_line, col_sep: "\t").first
+      end
+
       desc 'reconcile Refs::Chalcfam (look for unique values'
       task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args| 
         path = @args[:data_directory] + 'refs.csv'
@@ -85,8 +89,7 @@ namespace :tw do
 
         # This pattern handles quotes/escaping crap MySQL export
         File.foreach(path) do |csv_line| 
-          v = fix_line(csv_line)
-          row = CSV.parse(v, col_sep: "\t").first
+          row = column_values(fix_line(csv_line))
 
           if row[12]
             v = row[12].strip
@@ -184,14 +187,13 @@ namespace :tw do
         fext_data = {}
         
         File.foreach(path2) do |csv_line| 
-          v = fix_line(path2)
-          r = CSV.parse(v, col_sep: "\t").first
+          r = column_values(fix_line(csv_line))
           fext_data.merge!(
             r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
           )
         end
 
-        namespace = Namespace.new(name: 'UCD refCode')
+        namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
         namespace.save!
 
         sources = []
@@ -215,20 +217,32 @@ namespace :tw do
         }
 
         i = 0 
-        f.each do |row|
-          year, month, day = row[4].split('-', 3) 
-          month = Utilities::Dates::SHORT_MONTH_FILTER[month]
-          month = month.to_s if !month.nil?
+
+        File.foreach(path1) do |csv_line| 
+          row = column_values(fix_line(csv_line))
+
+          year, month, day = nil, nil, nil
+          if row[4] != 'NULL'
+            year, month, day = row[4].split('-', 3) 
+            month = Utilities::Dates::SHORT_MONTH_FILTER[month]
+            month = month.to_s if !month.nil?
+          end
+
+          debugger
+          stated_year = row[2]
+          if year.nil?
+            year = stated_year 
+            stated_year = nil
+          end
 
           author = [row[5], (fext_data )].compact.join
 
-
           b = Source::Bibtex.new(
             author: row[1],
-            year: year ? year.to_i : nil,
+            year: (year.nil? ? nil : year.to_i),
             month: month, 
-            day: day ? day.to_i : nil,
-            stated_year: row[2],
+            day: (day.nil? ? nil : day.to_i) ,
+            stated_year: stated_year,
             year_suffix: row[3],           
             title: row[5],                      
             booktitle: row[6],                  
@@ -241,8 +255,7 @@ namespace :tw do
           )
           sources.push b
 
-          identifiers.push Identifier.new(namespace: namespace, identifier: row[0])
-          notes.push Note.new(note_object: b, text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
+          identifiers.push Identifier::LocalId.new(namespace: namespace, identifier: row[0])
 
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Location'], value: row[9]) if row[9]
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Source'], value: row[10]) if row[10]
@@ -253,7 +266,8 @@ namespace :tw do
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:M_Y:tilde'], value: row[19]) if row[19]
 
           if fext_data[row[0]]
-            attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if fext_data[row[0]][:translate]
+            attributes.push(DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate])) if fext_data[row[0]][:translate]
+            notes.push(Note.new(note_object: b, text: fext_data[row[0]][:note])) if !fext_data[row[0]][:note].nil?
           end
 
           [13,14,15].each do |i| 

@@ -248,41 +248,49 @@ class Source::Bibtex < Source
 # @!endgroup
 # @!group identifiers
 # @!endgroup
-
+# 
 #TODO add linkage to serials ==> belongs_to serial
 #TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 # @associations  authors
 #   linkage to author roles
   has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
-  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person
-# self.author & self.authors should match or one of them should be empty
-# ditto for self.editor & self.editors
-  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
+  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
-  validates :bibtex_type, inclusion: {in: ::VALID_BIBTEX_TYPES, message: '%{value} is not a valid source type'}
-  validates :year, :presence => {:if => '!month.nil?', message: 'year is required when month is provided'}
-  validates :year, :numericality => {only_integer: true, greater_than: 999,
-                                     less_than_or_equal_to: Time.now.year + 2,
-                        message: 'year must be an integer greater than 999 and no more than 2 years in the future'},
-            allow_nil: true
-  validates :month, :presence => {:if => '!day.nil?', message: 'month is required when day is provided'}
-  validates :month, inclusion: {in: ::VALID_BIBTEX_MONTHS, message: '%{value} is not a valid month'},
-            allow_nil: true
-  validates :day, :numericality => {only_integer: true, greater_than: 0,
-                                    less_than_or_equal_to: Proc.new {
-                                        |a| Time.utc(a.year, a.month).end_of_month.day },
-                                    :unless => 'year.nil?',
-                                    message: '%{value} is not a valid day for month (%{month}).'},
-            allow_nil: true
+  validates_inclusion_of :bibtex_type,
+    in: ::VALID_BIBTEX_TYPES,
+    message: '%{value} is not a valid source type'
+  validates_presence_of :year,
+    if: '!month.nil?',
+    message: 'year is required when month is provided'
+  validates_numericality_of :year,
+    only_integer: true, greater_than: 999,
+    less_than_or_equal_to: Time.now.year + 2,
+    allow_nil: true,
+    message: 'year must be an integer greater than 999 and no more than 2 years in the future'
+  validates_presence_of :month, 
+    if: '!day.nil?',
+    message: 'month is required when day is provided'
+  validates_inclusion_of :month,
+    in: ::VALID_BIBTEX_MONTHS,
+    allow_nil: true,
+    message: '%{value} is not a valid month'
+  validates_numericality_of :day,
+    allow_nil: true,
+    only_integer: true,
+    greater_than: 0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
+    :unless => 'year.nil? || month.nil?',
+    message: '%{value} is not a valid day for the month provided'
 
   before_validation :check_has_field #,:day_valid? #, :year_valid?
   before_save :set_nomenclature_date
-                                     #endregion validations
+#endregion validations
 
-  scope :order_by_nomenclature_date,
-        -> { order(:nomenclature_date).where(!(:nomenclature_date.nil?)) }
+  # nil is last by default, exclude it explicitly with another condition if need be
+  scope :order_by_nomenclature_date, -> { order(:nomenclature_date) } 
 
 #region soft_validate setup calls
 #@soft_validate(:sv_has_authors)
@@ -417,7 +425,9 @@ class Source::Bibtex < Source
 
 #region getters & setters
   def month=(value)
-    write_attribute(:month, Utilities::Dates::SHORT_MONTH_FILTER[value])
+    v = Utilities::Dates::SHORT_MONTH_FILTER[value]
+    v = v.to_s if !v.nil?
+    write_attribute(:month, v)
   end
 
   def month
@@ -495,7 +505,7 @@ class Source::Bibtex < Source
       if tmp.month == 12 # want the last day of december
         Time.utc(self.year, 12, 31)
       else # time + 1 month - 1 day (60 sec * 60 min *24 hours)
-        Time.utc(self.year, tmp.month + 1) -86400
+        Time.utc(self.year, tmp.month + 1) - 86400
       end
     else
       Time.utc(self.year, self.month, self.day)

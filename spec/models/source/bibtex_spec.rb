@@ -102,7 +102,6 @@ describe Source::Bibtex do
     specify 'simple complex entity' do
       expect(@gem_bibtex_entry1).to eq(@gem_bibtex_entry2)
     end
-
   end
 
 
@@ -126,7 +125,7 @@ describe Source::Bibtex do
 
   context 'validation' do
     specify 'must have a valid bibtex_type' do
-      local_src = FactoryGirl.create(:valid_bibtex_source)
+      local_src = FactoryGirl.create(:valid_source_bibtex)
       expect(local_src.valid?).to be_true
       local_src.bibtex_type = 'test'
       expect(local_src.valid?).to be_false
@@ -150,7 +149,7 @@ describe Source::Bibtex do
     context 'test date related fields' do
       before(:each) {
         # this is a TW Source::Bibtex - type article, with just a title
-        @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
+        @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
       }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
@@ -182,58 +181,86 @@ describe Source::Bibtex do
         expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
       end
 
-      context 'Test that the Month is valid' do
-        specify 'month must be in %w{jan feb mar ...}' do
-          pending
+      context 'months' do
+        before(:each) {
+          @source_bibtex.year = 1920
+        }
+        specify 'when passed a symbol, a string is returned' do
+          @source_bibtex.month = :jan
+          expect(@source_bibtex.month).to eq('jan')
         end
-        it 'handles full month'
-        it 'handles integer month'
-        it 'generates error on integer month > 12'
-        it 'handles roman numeral month'
-        it 'generates error on invalid text month' do
+        specify 'when passed a string, a string is returned' do
+          @source_bibtex.month = 'jan'
+          expect(@source_bibtex.month).to eq('jan')
+        end
 
+        specify 'month must be in %w{jan feb mar ...}' do
+          ::VALID_BIBTEX_MONTHS.each do |m|
+            @source_bibtex.month = m 
+            expect(@source_bibtex.valid?).to be_true
+          end
+        end
+
+        specify 'handles full month' do
+          %w{january January}.each do |m|
+            @source_bibtex.month = m
+            expect(@source_bibtex.valid?).to be_true
+            expect(@source_bibtex.month).to eq('jan')
+          end
+        end
+
+        specify 'handles integer month' do
+          @source_bibtex.month = 1
+          expect(@source_bibtex.valid?).to be_true
+          expect(@source_bibtex.month).to eq('jan')
+        end
+
+        specify 'generates error on integer month > 12' do
+          @source_bibtex.month = 45
+          expect(@source_bibtex.valid?).to be_false
+          expect(@source_bibtex.errors.include?(:month)).to be_true
+        end
+
+        specify 'handles roman numeral month' do
+          @source_bibtex.month = 'i'
+          expect(@source_bibtex.valid?).to be_true
+          expect(@source_bibtex.month).to eq('jan')
+        end
+
+        it 'generates error on invalid text month' do
+          @source_bibtex.month = 'foo'
+          expect(@source_bibtex.valid?).to be_false
+          expect(@source_bibtex.errors.include?(:month)).to be_true
         end
       end
 
       context 'day validation' do
+        before(:each) {
+          @source_bibtex.year = 1945
+        }
         specify 'if day is present there must be a month' do
           error_msg          = 'month is required when day is provided'
           @source_bibtex.day = 31
           expect(@source_bibtex.valid?).to be_false
           expect(@source_bibtex.errors.messages[:month].include?(error_msg)).to be_true
         end
+        
         specify 'day, if present, must be valid for month' do
-          pending
+          @source_bibtex.day =  30
+          @source_bibtex.month = 'feb'
+          expect(@source_bibtex.valid?).to be_false
+          expect(@source_bibtex.errors.messages[:day].include?('30 is not a valid day for the month provided')).to be_true 
+          @source_bibtex.day = 4 
+          expect(@source_bibtex.valid?).to be_true
         end
-
-      end
-
-
-      specify 'Day is between 1 and 31 inclusive' do
-
-
-        expect(@source_bibtex.soft_validations.messages_on(:day).empty?).to be_true
-        @source_bibtex[:day] = 0
-        @source_bibtex.soft_validate
-        expect(@source_bibtex.soft_valid?).to be_false
-        expect(@source_bibtex.soft_validations.messages_on(:day)).to include 'The provided day is invalid'
-        @source_bibtex[:day] = 32
-        @source_bibtex.soft_validate
-        expect(@source_bibtex.soft_valid?).to be_false
-        expect(@source_bibtex.soft_validations.messages).to include 'The provided day is invalid'
-        @source_bibtex[:day] = 5
-        @source_bibtex.soft_validate
-        expect(@source_bibtex.soft_valid?).to be_true
       end
     end
-
-
   end
 
   context 'instance methods - ' do
     before(:each) {
       # this is a TW Source::Bibtex - type article, with just a title
-      @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
+      @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
       #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
     }
     context 'with an existing instance of Source::Bibtex' do
@@ -391,30 +418,33 @@ describe Source::Bibtex do
     end
 
     specify 'test nomenclature_date generation' do
-      @source_bibtex.year = '1984'
+      @source_bibtex.year = 1984
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 12, 31))
+     
       @source_bibtex.month = 'feb'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 29))
-      @source_bibtex.day = '12'
+    
+      @source_bibtex.day = 12
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 12))
+      
       # Times before before 1823, or after 2116 are handled differently.
-      @source_bibtex.year  = '1775'
+      @source_bibtex.year  = 1775
       @source_bibtex.month = nil
       @source_bibtex.day   = nil
-      @source_bibtex.save
+      expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 12, 31))
       @source_bibtex.month = 'feb'
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 28))
-      @source_bibtex.day = '12'
+      @source_bibtex.day = 12
       expect(@source_bibtex.save).to be_true
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 12))
@@ -422,26 +452,22 @@ describe Source::Bibtex do
 
     specify 'sort an array of source by potentially_validating date' do
       Source.delete_all
-      @source_bibtex.year = 2002                                               # source_bibtex has no date
+      @source_bibtex.year = 2002                                # @source_bibtex has no date, title: 'article 1 just title'
       expect(@source_bibtex.save).to be_true
-      @source_bibtex = FactoryGirl.build(:valid_bibtex_source_book_title_only) # no date
-      expect(@source_bibtex.save).to be_true
-      @source_bibtex = FactoryGirl.build(:valid_thesis)                        # june 1982
-      expect(@source_bibtex.save).to be_true
-      @source_bibtex = FactoryGirl.build(:valid_misc)                          # july 4 2010
-      expect(@source_bibtex.save).to be_true
+      FactoryGirl.create(:valid_bibtex_source_book_title_only)  # 'valid book with just a title' : no date
+      FactoryGirl.create(:valid_thesis)                         # 'Bugs by Beth': june 1982
+      FactoryGirl.create(:valid_misc)                           # 'misc source': july 4 2010
       @sources = Source::Bibtex.all
       expect(@sources).to have(4).things
+
       expect(@sources[0].title).to eq('article 1 just title')
       expect(@sources[1].title).to eq('valid book with just a title')
       expect(@sources[2].title).to eq('Bugs by Beth')
       expect(@sources[3].title).to eq('misc source')
-      @source2 = @sources.order_by_nomenclature_date
+      
+      @source2 = @sources.order_by_nomenclature_date 
       expect(@source2).to have(4).things
-      expect(@source2[0].title).to eq('valid book with just a title')
-      expect(@source2[1].title).to eq('Bugs by Beth')
-      expect(@source2[2].title).to eq('article 1 just title')
-      expect(@source2[3].title).to eq('misc source')
+      expect(@source2.map(&:title)).to eq(['Bugs by Beth', 'article 1 just title', 'misc source', 'valid book with just a title'])
     end
   end
 
@@ -456,7 +482,7 @@ describe Source::Bibtex do
         expect(src.year_with_suffix).to eq('1921b')
       end
       specify 'correctly converts year suffix to BibTeX enty' do
-        src               = FactoryGirl.create(:valid_bibtex_source)
+        src               = FactoryGirl.create(:valid_source_bibtex)
         src[:year]        = '1922'
         src[:year_suffix] = 'c'
         expect(src.year_with_suffix).to eq('1922c')
@@ -562,7 +588,7 @@ describe Source::Bibtex do
   context 'soft validations' do
     before(:each) do
       # this is a TW Source::Bibtex - type article, with just a title
-      @source_bibtex = FactoryGirl.build(:valid_bibtex_source)
+      @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
     end
 
     specify 'missing authors' do
