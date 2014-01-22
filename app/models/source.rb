@@ -4,7 +4,9 @@ class Source < ActiveRecord::Base
   include Shared::HasRoles
   include Shared::Notable
   include Shared::AlternateValues
-  
+  include Shared::DataAttributes
+  include Shared::Taggable
+
   has_many :citations, inverse_of: :source
   has_many :cited_objects, through: :citations, source: :citation_object # not ordered
 

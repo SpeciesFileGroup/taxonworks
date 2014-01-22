@@ -211,12 +211,6 @@ namespace :tw do
         namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
         namespace.save!
 
-        sources = []
-        attributes = []
-        tags = [] 
-        identifiers = []
-        notes = []
-
         keywords = {
           'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
           'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
@@ -230,6 +224,10 @@ namespace :tw do
           'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
           'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
         }
+
+        keywords.values.each do |k|
+          k.save!
+        end
 
         i = 0 
 
@@ -253,9 +251,9 @@ namespace :tw do
 
           b = Source::Bibtex.new(
             author: row[1],
-            year: (year.nil? ? nil : year.to_i),
+            year: (year.blank? ? nil : year.to_i),
             month: month, 
-            day: (day.nil? ? nil : day.to_i) ,
+            day: (day.blank? ? nil : day.to_i) ,
             stated_year: stated_year,
             year_suffix: row[3],           
             title: row[5],                      
@@ -264,42 +262,41 @@ namespace :tw do
             pages: row[8],                      
             bibtex_type: 'article',            
             language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
-            publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
-            editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil),
+            publisher: (fext_data[row[0]].blank? ?  nil : fext_data[row[0]][:publisher]),
+            editor: (fext_data[row[0]].blank? ?  nil :fext_data[row[0]][:editor] ),
           )
-          sources.push b
 
-          identifiers.push Identifier::LocalId.new(namespace: namespace, identifier: row[0], identified_object: b)
+          b.save!
 
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Location'], value: row[9]) if row[9]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Source'], value: row[10]) if row[10]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Check'], value: row[11]) if row[11]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:LanguageA'], value: row[16]) if row[16]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:LanguageB'], value: row[17]) if row[17]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:LanguageB'], value: row[18]) if row[18]
-          attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:M_Y:tilde'], value: row[19]) if row[19]
+          b.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
+
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:M_Y'], value: row[19])        if !row[19].blank?
 
           if fext_data[row[0]]
-            attributes.push(DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate])) if fext_data[row[0]][:translate]
-            notes.push(Note.new(note_object: b, text: fext_data[row[0]][:note])) if !fext_data[row[0]][:note].nil?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if !fext_data[row[0]][:translate].blank?
+            b.notes.build(text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
           end
 
           [13,14,15].each do |i| 
             k =  Keyword.with_alternate_value_on(:name, row[i]).first
             if k 
-              tags.push Tag.new(tag_object: b, keyword: k)
+              b.tags.build(keyword: k)
             end
           end
 
-          i+=1
-          break if i > 200
-        end
+          debugger if !b.save
 
-        [keywords.values, sources, identifiers, notes, tags].each do |objs|
-          objs.each do |o|
-            puts o
-            o.save!
-          end
+          print "#{i}," 
+          i+=1
+          break if i > 2000
+
+
         end
       end
 

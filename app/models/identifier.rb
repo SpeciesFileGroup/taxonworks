@@ -1,5 +1,4 @@
 class Identifier < ActiveRecord::Base
-
   include Housekeeping::Users
 
   belongs_to :identified_object, polymorphic: :true
@@ -10,5 +9,4 @@ class Identifier < ActiveRecord::Base
   protected
 
   def validate_format_of_identifier; end
-
 end
