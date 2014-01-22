@@ -108,6 +108,21 @@ namespace :tw do
         # f.close
       end
 
+
+      desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
+      task :handle_keywords => [:data_directory, :environment] do |t, args| 
+        # 1  TaxonCode  
+        # 2  RefCode    
+        # 3  PageRef    
+        # 4  H_levelTax 
+        # 5  Of_for_to  
+        # 6  Status     
+        # 7  CitGenus   
+        # 8  CitAuthor  
+        # 9  Code       
+        # 10 Notes      
+      end
+
       desc 'handle keywords - rake tw:project_import:ucd:handle_keyowrds[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_keywords => [:data_directory, :environment] do |t, args| 
         # 0  Keywords
@@ -228,7 +243,6 @@ namespace :tw do
             month = month.to_s if !month.nil?
           end
 
-          debugger
           stated_year = row[2]
           if year.nil?
             year = stated_year 
@@ -255,7 +269,7 @@ namespace :tw do
           )
           sources.push b
 
-          identifiers.push Identifier::LocalId.new(namespace: namespace, identifier: row[0])
+          identifiers.push Identifier::LocalId.new(namespace: namespace, identifier: row[0], identified_object: b)
 
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Location'], value: row[9]) if row[9]
           attributes.push DataAttribute::InternalAttribute.new( attribute_subject: b, predicate: keywords['Refs:Source'], value: row[10]) if row[10]

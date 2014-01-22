@@ -4,10 +4,9 @@ describe Identifier do
 
   let(:identifier) { Identifier.new }
 
-  # TODO: clarify polymorphic status in tests
-  specify 'it should be identifiable' do
-    expect(identifier).to respond_to(:identifiable)
-    expect(identifier.identifiable).to be(nil)   
+  specify 'has an identified_object' do
+    expect(identifier).to respond_to(:identified_object)
+    expect(identifier.identified_object).to be(nil)   
   end
 
   context "validation" do 
@@ -20,12 +19,12 @@ describe Identifier do
         expect(identifier.errors.include?(:identifier)).to be_true
       end
 
-      specify 'identifiable_id' do
-        expect(identifier.errors.include?(:identifiable_id)).to be_true
+      specify 'identified_object_id' do
+        expect(identifier.errors.include?(:identified_object_id)).to be_true
       end
 
-      specify 'identifiable_type' do
-        expect(identifier.errors.include?(:identifiable_type)).to be_true
+      specify 'identified_object_type' do
+        expect(identifier.errors.include?(:identified_object_type)).to be_true
       end
 
       specify "type" do
