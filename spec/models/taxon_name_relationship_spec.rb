@@ -163,7 +163,7 @@ describe TaxonNameRelationship do
           @s2 =  FactoryGirl.create(:relationship_species, parent: @g2)
           @r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
           @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
-          @source = FactoryGirl.create(:valid_bibtex_source, year: 2000)
+          @source = FactoryGirl.create(:valid_source_bibtex, year: 2000)
         end
 
         specify 'objective synonyms should have the same type' do
