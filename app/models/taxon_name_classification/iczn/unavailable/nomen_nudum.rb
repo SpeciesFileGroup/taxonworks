@@ -4,7 +4,8 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
         TaxonNameClassification::Iczn::Unavailable::Excluded,
         TaxonNameClassification::Iczn::Unavailable::Suppressed,
-        TaxonNameClassification::Iczn::Unavailable::NonBinomial)
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
+        [TaxonNameClassification::Iczn::Unavailable.to_s]
   end
   
   module InnerClass
@@ -48,10 +49,9 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   end
   
   module FamilyGroupRanks
-    
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
-    end    
+      FAMILY_RANK_NAMES_ICZN
+    end
   end
 
   module InnerClassFamilyGroup
@@ -65,9 +65,8 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   end
      
   module GenusGroupRanks
-
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::GenusGroup)
+      GENUS_RANK_NAMES_ICZN
     end    
   end
   
@@ -82,9 +81,8 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   end
   
   module SpeciesGroupRanks
-
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
+      SPECIES_RANK_NAMES_ICZN
     end    
   end
   

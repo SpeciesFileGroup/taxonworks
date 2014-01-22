@@ -5,23 +5,19 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
   end
 
   def self.disjoint_taxon_name_relationships
-    self.collect_descendants_to_s(
-        TaxonNameRelationship::Combination)
+    self.collect_descendants_to_s(TaxonNameRelationship::Combination)
   end
 
-  def self.disjoint_subject_classes
-    self.collect_descendants_and_itself_to_s(
-        TaxonNameClassification::Iczn::Unavailable) + self.collect_descendants_to_s(
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished) + self.collect_to_s(
-        TaxonNameClassification::Icn::NotEffectivelyPublished)
+  @@disjoint_classes = self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable) +
+          self.collect_descendants_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished) +
+          [TaxonNameClassification::Icn::NotEffectivelyPublished.to_s]
 
+  def self.disjoint_subject_classes
+    @@disjoint_classes
   end
 
   def self.disjoint_object_classes
-    self.collect_descendants_and_itself_to_s(
-        TaxonNameClassification::Iczn::Unavailable) + self.collect_descendants_to_s(
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished) + self.collect_to_s(
-        TaxonNameClassification::Icn::NotEffectivelyPublished)        
+    @@disjoint_classes
   end
 
   def self.nomenclatural_priority

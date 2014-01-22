@@ -1,12 +1,8 @@
 class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
-  def self.applicable_ranks
-    ICZN.collect{|t| t.to_s}
-  end
-
   def self.disjoint_taxon_name_classes
-    self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
-    TaxonNameClassification::Iczn::Available)
+    self.parent.disjoint_taxon_name_classes +
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available)
   end
 
   module InnerClass
@@ -20,7 +16,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::FamilyGroup)
+      FAMILY_RANK_NAMES_ICZN
     end
   end
   
@@ -28,7 +24,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::GenusGroup)
+      GENUS_RANK_NAMES_ICZN
     end
   end
   
@@ -36,7 +32,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     include InnerClass
     
     def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
+      SPECIES_RANK_NAMES_ICZN
     end
   end
   

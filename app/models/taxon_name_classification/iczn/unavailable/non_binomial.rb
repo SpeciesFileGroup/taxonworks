@@ -4,55 +4,59 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
     self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
         TaxonNameClassification::Iczn::Unavailable::Excluded,
         TaxonNameClassification::Iczn::Unavailable::Suppressed,
-        TaxonNameClassification::Iczn::Unavailable::NonBinomial)
-  end
-  
-  module InnerClassSpeciesGroup
-    def applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::SpeciesGroup)
-    end  
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
+        [TaxonNameClassification::Iczn::Unavailable.to_s]
   end
 
   class NotUninomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
     def self.applicable_ranks
-      self.collect_descendants_to_s(
-          NomenclaturalRank::Iczn::HigherClassificationGroup,
-          NomenclaturalRank::Iczn::FamilyGroup,
-          NomenclaturalRank::Iczn::GenusGroup)
+      FAMILY_AND_ABOVE_RANK_NAMES + GENUS_RANK_NAMES_ICZN
     end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
-          TaxonNameClassification::Iczn::Unavailable::NonBinomial)
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
   end
 
   class SpeciesNotBinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
-    extend InnerClassSpeciesGroup
-    
+    def applicable_ranks
+      SPECIES_RANK_NAMES_ICZN
+    end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
           TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::NotUninomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
   end
 
   class SubgenusNotIntercalare < TaxonNameClassification::Iczn::Unavailable::NonBinomial
     def self.applicable_ranks
-      self.collect_descendants_to_s(NomenclaturalRank::Iczn::GenusGroup)
+      GENUS_RANK_NAMES_ICZN
     end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
-          TaxonNameClassification::Iczn::Unavailable::NonBinomial)
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::NotUninomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
   end
 
   class SubspeciesNotTrinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
-    extend InnerClassSpeciesGroup
-    
+    def applicable_ranks
+      SPECIES_RANK_NAMES_ICZN
+    end
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
           TaxonNameClassification::Iczn::Unavailable::NonBinomial,
-          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial)
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::NotUninomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
+          TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare)
     end
   end
 
