@@ -393,12 +393,12 @@ class TaxonNameRelationship < ActiveRecord::Base
       elsif !!date1 and !!date2
         case self.type_class.nomenclatural_priority
           when :direct
-            soft_validations.add(:type, "#{self.subject_relationship_name} should not be older than related taxon")
+            soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
           when :reverse
             if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-              soft_validations.add(:subject_taxon_name_id, "#{self.subject_relationship_name} should not be younger than the taxon")
+              soft_validations.add(:subject_taxon_name_id, "#{self.type_class.subject_relationship_name.capitalize} should not be younger than the taxon")
             else
-              soft_validations.add(:type, "#{self.subject_relationship_name} should not be younger than related taxon")
+              soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be younger than related taxon")
             end
         end
       end

@@ -19,20 +19,20 @@ module Ranks
     return ordered
   end
 
-  def self.ordered_ranks_for_old(rank)
-    return false if rank == NomenclaturalRank #|| (rank.class.name =~ /NomenclaturalRank/)
-    ordered = []
-    top = NomenclaturalRank.top_rank(rank)
-    all = rank.descendants
-    all.select!{|r| !r.parent_rank.nil?}
-    ordered.push(top)
-    return [] if all.size == 0
+#  def self.ordered_ranks_for_old(rank)
+#    return false if rank == NomenclaturalRank #|| (rank.class.name =~ /NomenclaturalRank/)
+#    ordered = []
+#    top = NomenclaturalRank.top_rank(rank)
+#    all = rank.descendants
+#    all.select!{|r| !r.parent_rank.nil?}
+#    ordered.push(top)
+#    return [] if all.size == 0
 
     # This sort algorithim is terrible, it could be optimized.
-    ordered << all.detect { |r| ordered.last == r.parent_rank } while ordered.size != all.size
+#    ordered << all.detect { |r| ordered.last == r.parent_rank } while ordered.size != all.size
     
-    return ordered
-  end
+#    return ordered
+#  end
 
   # Returns true if rank.to_s is the name of a NomenclaturalRank. 
   def self.valid?(rank)

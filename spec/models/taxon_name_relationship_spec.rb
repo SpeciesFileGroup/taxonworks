@@ -365,7 +365,7 @@ describe TaxonNameRelationship do
 
       context 'priority' do
         before(:all) do
-          @g1 = FactoryGirl.create('relationship_genus', parent: @family)
+          @g1 = FactoryGirl.create('relationship_genus', parent: @family, year_of_publication: 2005)
           @s1 = FactoryGirl.create('relationship_species', parent: @g1, year_of_publication: 2000)
           @s2 = FactoryGirl.create('relationship_species', parent: @g1, year_of_publication: 2001)
         end
@@ -375,7 +375,21 @@ describe TaxonNameRelationship do
           expect(r1.soft_validations.messages_on(:object_taxon_name_id).count).to eq(1)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         end
-
+        specify 'direct priority' do
+          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        end
+        specify 'reverse priority' do
+          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        end
+        specify 'reverse priority original genus' do
+          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+        end
       end
 
     end
