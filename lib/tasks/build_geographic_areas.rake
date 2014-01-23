@@ -341,101 +341,278 @@ def read_dbf(filenames)
     end
   }
 
-  n10, n50, n110, ne_names                                                         = {}, {}, {}, {}
+  n10, n50, n110, ne_names, ne_ids                                                 = {}, {}, {}, {}, {}
   @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items, ne = {}, {}, {}, {}, {}, {}, {}
 
   # @global will be filled such that ga.name is the key for easier location later
-  @global                                                               = {}
+  @global                                                                          = {}
   gat5                                                                             = GeographicAreaType.where(name: 'Country').first
 
   if ne0_110 != nil
     ne0_110.each { |item|
-      n110.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
+      n110.merge!({item.iso_a3 => item.name.titlecase})
     }
   end
 
   if ne0_50 != nil
+
+    ne0_50_example = {'scalerank'  => 5,
+                      'featurecla' => 'Admin-0 country',
+                      'labelrank'  => 5.0,
+                      'sovereignt' => 'Australia',
+                      'sov_a3'     => 'AU1',
+                      'adm0_dif'   => 1.0,
+                      'level'      => 2.0,
+                      'type'       => 'Dependency',
+                      'admin'      => 'Ashmore and Cartier Islands',
+                      'adm0_a3'    => 'ATC',
+                      'geou_dif'   => 0.0,
+                      'geounit'    => 'Ashmore and Cartier Islands',
+                      'gu_a3'      => 'ATC',
+                      'su_dif'     => 0.0,
+                      'subunit'    => 'Ashmore and Cartier Islands',
+                      'su_a3'      => 'ATC',
+                      'brk_diff'   => 0.0,
+                      'name'       => 'Ashmore and Cartier Is.',
+                      'name_long'  => 'Ashmore and Cartier Islands',
+                      'brk_a3'     => 'ATC',
+                      'brk_name'   => 'Ashmore and Cartier Is.',
+                      'brk_group'  => '',
+                      'abbrev'     => 'A.C.Is.',
+                      'postal'     => 'AU',
+                      'formal_en'  => 'Territory of Ashmore and Cartier Islands',
+                      'formal_fr'  => '',
+                      'note_adm0'  => 'Auz.',
+                      'note_brk'   => '',
+                      'name_sort'  => 'Ashmore and Cartier Islands',
+                      'name_alt'   => '',
+                      'mapcolor7'  => 1.0,
+                      'mapcolor8'  => 2.0,
+                      'mapcolor9'  => 2.0,
+                      'mapcolor13' => 7.0,
+                      'pop_est'    => -99.0,
+                      'gdp_md_est' => -99.0,
+                      'pop_year'   => -99.0,
+                      'lastcensus' => -99.0,
+                      'gdp_year'   => -99.0,
+                      'economy'    => '7. Least developed region',
+                      'income_grp' => '5. Low income',
+                      'wikipedia'  => -99.0,
+                      'fips_10'    => '',
+                      'iso_a2'     => '-99',
+                      'iso_a3'     => '-99',
+                      'iso_n3'     => '036',
+                      'un_a3'      => '-099',
+                      'wb_a2'      => '-99',
+                      'wb_a3'      => '-99',
+                      'woe_id'     => -99.0,
+                      'adm0_a3_is' => 'AUS',
+                      'adm0_a3_us' => 'ATC',
+                      'adm0_a3_un' => -99.0,
+                      'adm0_a3_wb' => -99.0,
+                      'continent'  => 'Oceania',
+                      'region_un'  => 'Oceania',
+                      'subregion'  => 'Australia and New Zealand',
+                      'region_wb'  => 'East Asia & Pacific',
+                      'name_len'   => 23.0,
+                      'long_len'   => 27.0,
+                      'abbrev_len' => 7.0,
+                      'tiny'       => -99.0,
+                      'homepart'   => -99.0}
+
     ne0_50.each { |item|
 
       ga           = nil
-      nation_name  = item.attributes['name'].titlecase
-      nation_code3 = item.attributes['adm0_a3']
-      nation_code2 = item.attributes['iso_a2']
-      area_type    = add_gat(item.attributes['type'])
-      ne50_id      = item.attributes['iso_n3']
+      nation_name  = item.name.titlecase
+      nation_code3 = item.iso_a3
+      adm0_a3      = item.adm0_a3
+      p1           = nil
+      if (nation_code3 =~ /[A-Z][A-Z][A-Z]/)
+        if nation_code3 != adm0_a3
+          p1 = " (#{adm0_a3}) "
+        else
+          p1 = ' '
+        end
+      else
+        puts item.attributes
+        p1 = p1
+        # nation_code3 = adm0_a3
+      end
+      nation_code2 = item.iso_a2
+      if (nation_code2 =~ /[A-Z][A-Z]/)
+      else
+        nation_code2 = nil
+      end
+      area_type = add_gat(item.type)
+      ne50_id   = item.iso_n3
 
       if ne[nation_code3].nil?
         # We will need to create new @global records so that we can check for typing anomalies and
         # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
 
-        puts "'#{nation_code3}' for #{area_type.name} of #{nation_name}\t\tAdded. (50m)"
-        ga = GeographicArea.new(parent:               earth,
-                                # if we create records here, they will specifically *not* be TDWG records
-                                # or GADM records
-                                tdwg_parent:          nil,
-                                name:                 nation_name,
-                                iso_3166_a3:          nation_code3,
-                                #iso_3166_a2:          nation_code2,
-                                data_origin:          NE_50,
-                                ne_geo_item_id:       ne50_id,
-                                geographic_area_type: area_type)
+        puts "'#{nation_code3}'#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (50m)"
+        ga             = GeographicArea.new(parent:               earth,
+                                            # if we create records here, they will specifically *not* be TDWG records
+                                            # or GADM records
+                                            tdwg_parent:          nil,
+                                            name:                 nation_name,
+                                            iso_3166_a3:          nation_code3,
+                                            adm0_a3:              adm0_a3,
+                                            data_origin:          NE_50,
+                                            ne_geo_item_id:       ne50_id,
+                                            geographic_area_type: area_type)
 
-        ga.level0 = ga
+        ga.iso_3166_a2 = nation_code2 if ga.iso_3166_a2.nil?
+        ga.level0      = ga
 
       else
         ga = ne[nation_code3]
         # found a record with the right name
-        puts "'#{nation_code3}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+        puts "'#{nation_code3}'#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
         ga.geographic_area_type = area_type
         ga.ne_geo_item_id       = ne50_id
-        ga.data_origin          = NE_50
+        ga.data_origin          = NE_50 if ga.data_origin.nil?
       end
       ne.merge!(ga.iso_3166_a3 => ga)
       ne_names.merge!(ga.name => ga)
 
-      # n50.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
+      if ne_ids[ne50_id].nil?
+        ne_ids.merge!(ga.ne_geo_item_id => ga)
+      else
+        ne_id = ne_ids[ne50_id].ne_geo_item_id
+      end
+
+      # n50.merge!({item.iso_a3 => item.name.titlecase})
     }
   end
 
   if ne0_10 != nil
+
+    ne0_10_example = {"scalerank"  => 3,
+                      "featurecla" => "Admin-0 country",
+                      "labelrank"  => 5.0,
+                      "sovereignt" => "Netherlands",
+                      "sov_a3"     => "NL1",
+                      "adm0_dif"   => 1.0,
+                      "level"      => 2.0,
+                      "type"       => "Country",
+                      "admin"      => "Aruba",
+                      "adm0_a3"    => "ABW",
+                      "geou_dif"   => 0.0,
+                      "geounit"    => "Aruba",
+                      "gu_a3"      => "ABW",
+                      "su_dif"     => 0.0,
+                      "subunit"    => "Aruba",
+                      "su_a3"      => "ABW",
+                      "brk_diff"   => 0.0,
+                      "name"       => "Aruba",
+                      "name_long"  => "Aruba",
+                      "brk_a3"     => "ABW",
+                      "brk_name"   => "Aruba",
+                      "brk_group"  => "",
+                      "abbrev"     => "Aruba",
+                      "postal"     => "AW",
+                      "formal_en"  => "Aruba",
+                      "formal_fr"  => "",
+                      "note_adm0"  => "Neth.",
+                      "note_brk"   => "",
+                      "name_sort"  => "Aruba",
+                      "name_alt"   => "",
+                      "mapcolor7"  => 4.0,
+                      "mapcolor8"  => 2.0,
+                      "mapcolor9"  => 2.0,
+                      "mapcolor13" => 9.0,
+                      "pop_est"    => 103065.0,
+                      "gdp_md_est" => 2258.0,
+                      "pop_year"   => -99.0,
+                      "lastcensus" => 2010.0,
+                      "gdp_year"   => -99.0,
+                      "economy"    => "6. Developing region",
+                      "income_grp" => "2. High income: nonOECD",
+                      "wikipedia"  => -99.0,
+                      "fips_10"    => "",
+                      "iso_a2"     => "AW",
+                      "iso_a3"     => "ABW",
+                      "iso_n3"     => "533",
+                      "un_a3"      => "533",
+                      "wb_a2"      => "AW",
+                      "wb_a3"      => "ABW",
+                      "woe_id"     => -99.0,
+                      "adm0_a3_is" => "ABW",
+                      "adm0_a3_us" => "ABW",
+                      "adm0_a3_un" => -99.0,
+                      "adm0_a3_wb" => -99.0,
+                      "continent"  => "North America",
+                      "region_un"  => "Americas",
+                      "subregion"  => "Caribbean",
+                      "region_wb"  => "Latin America & Caribbean",
+                      "name_len"   => 5.0,
+                      "long_len"   => 5.0,
+                      "abbrev_len" => 5.0,
+                      "tiny"       => 4.0,
+                      "homepart"   => -99.0}
+
     ne0_10.each { |item|
 
       ga           = nil
-      nation_name  = item.attributes['name'].titlecase
-      nation_code3 = item.attributes['adm0_a3']
-      nation_code2 = item.attributes['iso_a2']
-      area_type    = add_gat(item.attributes['type'])
-      ne10_id      = item.attributes['iso_n3']
+      nation_name  = item.name.titlecase
+      nation_code3 = item.iso_a3
+      nation_code2 = item.iso_a2
+      adm0_a3      = item.adm0_a3
+      p1           = nil
+      if (nation_code3 =~ /[A-Z][A-Z][A-Z]/)
+        if nation_code3 != adm0_a3
+          p1 = " (#{adm0_a3}) "
+        else
+          p1 = ' '
+        end
+      else
+        nation_code3 = adm0_a3
+      end
+      nation_code2 = item.iso_a2
+      if (nation_code2 =~ /[A-Z][A-Z]/)
+      else
+        nation_code2 = nil
+      end
+      area_type = add_gat(item.type)
+      ne10_id   = item.iso_n3
 
       if ne[nation_code3].nil?
         # We will need to create new @global records so that we can check for typing anomalies and
         # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
 
-        puts "'#{nation_code3}' for #{area_type.name} of #{nation_name}\t\tAdded. (10)"
-        ga = GeographicArea.new(parent:               earth,
-                                # if we create records here, they will specifically *not* be TDWG records
-                                # or GADM records
-                                tdwg_parent:          nil,
-                                name:                 nation_name,
-                                iso_3166_a3:          nation_code3,
-                                #iso_3166_a2:          nation_code2,
-                                data_origin:          NE_10,
-                                ne_geo_item_id:       ne10_id,
-                                geographic_area_type: area_type)
+        puts "'#{nation_code3}'#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (10)"
+        ga             = GeographicArea.new(parent:               earth,
+                                            # if we create records here, they will specifically *not* be TDWG records
+                                            # or GADM records
+                                            tdwg_parent:          nil,
+                                            name:                 nation_name,
+                                            iso_3166_a3:          nation_code3,
+                                            adm0_a3:              adm0_a3,
+                                            data_origin:          NE_10,
+                                            ne_geo_item_id:       ne10_id,
+                                            geographic_area_type: area_type)
 
-        ga.level0 = ga
+        ga.iso_3166_a2 = nation_code2 if ga.iso_3166_a2.nil?
+        ga.level0      = ga
 
       else
         ga = ne[nation_code3]
         # found a record with the right name
-        puts "'#{nation_code3}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+        puts "'#{nation_code3}'#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
         ga.geographic_area_type = area_type
-        ga.data_origin          = NE_10
+        ga.data_origin          = NE_10 if ga.data_origin.nil?
       end
       ne.merge!(ga.iso_3166_a3 => ga)
       ne_names.merge!(ga.name => ga)
 
-      # n50.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
+      if ne_ids[ne10_id].nil?
+        ne_ids.merge!(ga.ne_geo_item_id => ga)
+      else
+        ne_id = ne_ids[ne10_id].ne_geo_item_id
+      end
+
+      # n50.merge!({item.iso_a3 => item.name.titlecase})
     }
   end
 
@@ -467,10 +644,10 @@ def read_dbf(filenames)
             ga.level0 = ga
           end
         else
-          ga = ne_names[nation_name]
+          ga             = ne_names[nation_name]
           # found a record with the right name
           # puts "'#{nation_code}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
-          ga.iso_3166_a2          = nation_code
+          ga.iso_3166_a2 = nation_code
           # the following may seem a bit redundant, but it is indicated the end of a national hierarchy
         end
         ne_names.merge!(ga.name => ga) if !(ga.nil?)
@@ -479,7 +656,7 @@ def read_dbf(filenames)
 
     puts 'Saving ISO-3166-1-alpha-2 countries and codes.'
     ne_names.each { |key, area|
-      puts "Saving #{area.name}"
+      # puts "Saving #{area.name}"
       # area.save
     }
   end
@@ -695,7 +872,7 @@ def read_dbf(filenames)
         # remove the iso record from the search list
         # ne_names.delete(l0_name)
       end
-      ga.data_origin = GADM2  if ga.data_origin.nil?
+      ga.data_origin = GADM2 if ga.data_origin.nil?
 
       if l1_name.empty?
         puts item.attributes
@@ -758,7 +935,7 @@ def read_dbf(filenames)
           # create a record for level 1, and the @global list
           ga    = GeographicArea.new(parent:               l0,
                                      name:                 l1_name,
-                                     data_origin: GADM2,
+                                     data_origin:          GADM2,
                                      geographic_area_type: add_gat(item['ENGTYPE_1']))
           # put the item in the lvl0 list
           place = {l1_key => ga}
@@ -808,7 +985,7 @@ def read_dbf(filenames)
           # create a record for level 2, and the @global list
           ga = GeographicArea.new(parent:               l1,
                                   name:                 l2_name,
-                                  data_origin: GADM2,
+                                  data_origin:          GADM2,
                                   geographic_area_type: add_gat(item['ENGTYPE_2']))
 
           ga.gadm_valid_from = item['VALIDFR_2']
@@ -1142,6 +1319,7 @@ def add_gat(gat)
   area_type = @gat_list[gat]
   if area_type.nil?
     area_type = GeographicAreaType.new(name: gat)
+    area_type.save
     @gat_list.merge!(gat => area_type)
   end
   area_type
@@ -1187,12 +1365,32 @@ def build_gat_table
     end
     @gat_list.merge!(item => area_type)
   }
+
+  # add as required from NaturalEarth list
+  ne_divisions
+
   # add as required from GADM list
   gadm_divisions
 
   # make special cases
   @gat_list.merge!('' => @gat_list[l_var])
   @gat_list.merge!(nil => @gat_list[l_var])
+end
+
+def ne_divisions
+
+  # create our list
+  ['Sovereign country',
+   'Indeterminate',
+   'Disputed',
+   'Lease'].each { |item|
+    area_type = GeographicAreaType.where(name: item).first
+    if area_type.nil?
+      area_type = GeographicAreaType.new(name: item)
+      area_type.save
+    end
+    @gat_list.merge!(item => area_type)
+  }
 end
 
 def gadm_divisions
