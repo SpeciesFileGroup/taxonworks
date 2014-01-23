@@ -13,11 +13,4 @@ class TaxonNameRelationship::Icn::Accepting < TaxonNameRelationship::Icn
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
-  def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        self.collect_descendants_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished,
-            TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
-            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
-  end
-
 end
