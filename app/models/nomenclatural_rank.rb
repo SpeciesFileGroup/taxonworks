@@ -13,10 +13,23 @@ class NomenclaturalRank
     true
   end
 
+  # Returns a NomenclaturalRank Class, the highest assignable for the rank Class passed.
   def self.top_rank(rank)
     all = rank.descendants
-    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
+    all.select!{|r| !r.parent_rank.nil?}
+    all.detect { |r| !all.include?(r.parent_rank) }
+#    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
   end
+
+  # Returns a NomenclaturalRank Class, the lowest assignable for the rank Class passed.
+  def self.bottom_rank(rank)
+    all = rank.descendants
+    all.select!{|r| !r.parent_rank.nil?}
+    all_parents = all.collect{|i| i.parent_rank}
+    all.detect { |r| !all_parents.include?(r) }
+#    all.detect { |r| !(r.parent_rank.nil? or all_parents.include?(r)) }
+  end
+
 
   # Return a String with the "common" name for this rank. 
   def self.rank_name

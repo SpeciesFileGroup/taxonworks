@@ -57,7 +57,6 @@ namespace :tw do
         n50.delete(key)
       }
 
-
       n110.each {|key, value|
         n50.delete(key)
         n10.delete(key)
