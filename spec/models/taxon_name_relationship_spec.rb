@@ -30,7 +30,51 @@ describe TaxonNameRelationship do
         specify 'type' do
           expect(@taxon_name_relationship).to respond_to (:type)
         end
-
+        specify 'disjoint_taxon_name_relationships' do
+          TAXON_NAME_RELATIONSHIPS.each do |r|
+            r1 = r.disjoint_taxon_name_relationships.collect{|i| i.to_s}
+            r1 = ['a'] + r1
+            r1 = r1.collect{|i| i.class.to_s}.uniq
+            expect(r1.first).to eq('String')
+            expect(r1.count).to eq(1)
+          end
+        end
+        specify 'disjoint_subject_classes' do
+          TAXON_NAME_RELATIONSHIPS.each do |r|
+            r1 = r.disjoint_subject_classes.collect{|i| i.to_s}
+            r1 = ['a'] + r1
+            r1 = r1.collect{|i| i.class.to_s}.uniq
+            expect(r1.first).to eq('String')
+            expect(r1.count).to eq(1)
+          end
+        end
+        specify 'disjoint_object_classes' do
+          TAXON_NAME_RELATIONSHIPS.each do |r|
+            r1 = r.disjoint_object_classes.collect{|i| i.to_s}
+            r1 = ['a'] + r1
+            r1 = r1.collect{|i| i.class.to_s}.uniq
+            expect(r1.first).to eq('String')
+            expect(r1.count).to eq(1)
+          end
+        end
+        specify 'valid_object_ranks' do
+          TAXON_NAME_RELATIONSHIPS.each do |r|
+            r1 = r.valid_object_ranks.collect{|i| i.to_s}
+            r1 = ['a'] + r1
+            r1 = r1.collect{|i| i.class.to_s}.uniq
+            expect(r1.first).to eq('String')
+            expect(r1.count).to eq(1)
+          end
+        end
+        specify 'valid_subject_ranks' do
+          TAXON_NAME_RELATIONSHIPS.each do |r|
+            r1 = r.valid_subject_ranks.collect{|i| i.to_s}
+            r1 = ['a'] + r1
+            r1 = r1.collect{|i| i.class.to_s}.uniq
+            expect(r1.first).to eq('String')
+            expect(r1.count).to eq(1)
+          end
+        end
       end
 
       context 'validate' do

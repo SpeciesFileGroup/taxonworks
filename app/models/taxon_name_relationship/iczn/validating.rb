@@ -7,7 +7,7 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
 
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
-        self.collect_descendants_and_itself(TaxonNameClassification::Iczn::Unavailable,
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
             TaxonNameClassification::Iczn::Available::Invalid)
   end
 

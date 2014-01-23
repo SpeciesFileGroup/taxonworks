@@ -9,7 +9,7 @@ class TaxonNameClassification::Iczn < TaxonNameClassification
   end
 
   def self.disjoint_taxon_name_classes
-    self.collect_descendants_to_s(TaxonNameClassification::Icn)
+    ICN_TAXON_NAME_CLASS_NAMES
   end
 
 end

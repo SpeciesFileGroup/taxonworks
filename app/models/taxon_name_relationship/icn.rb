@@ -12,8 +12,8 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
   end
 
   def self.disjoint_taxon_name_relationships
-    self.collect_descendants_to_s(TaxonNameRelationship::Iczn,
-                                  TaxonNameRelationship::Combination)
+    ICZN_TAXON_NAME_RELATIONSHIP_NAMES +
+        self.collect_descendants_to_s(TaxonNameRelationship::Combination)
   end
 
   @@disjoint_classes = self.collect_descendants_to_s(TaxonNameClassification::Iczn)

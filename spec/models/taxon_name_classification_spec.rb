@@ -12,9 +12,26 @@ describe TaxonNameClassification do
       specify "taxon_name" do
         expect(@taxon_name_classification.errors.include?(:taxon_name)).to be_true
       end
-
       specify "type" do
         expect(@taxon_name_classification.errors.include?(:type)).to be_true
+      end
+      specify 'disjoint_taxon_name_relationships' do
+        TAXON_NAME_CLASSES.each do |r|
+          r1 = r.disjoint_taxon_name_classes.collect{|i| i.to_s}
+          r1 = ['a'] + r1
+          r1 = r1.collect{|i| i.class.to_s}.uniq
+          expect(r1.first).to eq('String')
+          expect(r1.count).to eq(1)
+        end
+      end
+      specify 'applicable_ranks' do
+        TAXON_NAME_CLASSES.each do |r|
+          r1 = r.applicable_ranks.collect{|i| i.to_s}
+          r1 = ['a'] + r1
+          r1 = r1.collect{|i| i.class.to_s}.uniq
+          expect(r1.first).to eq('String')
+          expect(r1.count).to eq(1)
+        end
       end
     end
 

@@ -9,10 +9,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
-            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished.Legitimate) +
+            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate) +
         self.collect_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished,
-        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym,
-        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Seperfluous)
+        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym,
+        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Superfluous)
   end
 
   def self.subject_relationship_name

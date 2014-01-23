@@ -7,9 +7,9 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
   end
 
   def self.disjoint_subject_classes
-    self.parent.disjoint_subbject_classes +
+    self.parent.disjoint_subject_classes +
         self.collect_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished) +
-        self.collect_descandants_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+        self.collect_descendants_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate)
   end
 

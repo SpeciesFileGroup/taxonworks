@@ -10,7 +10,7 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
     self.parent.disjoint_subject_classes +
         self.collect_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished) +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
-            TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate)
+            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
   def self.subject_relationship_name
