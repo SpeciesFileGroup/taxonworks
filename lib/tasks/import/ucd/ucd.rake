@@ -18,8 +18,10 @@ namespace :tw do
             @namespace = Namespace.new(name: 'UCD', short_name: 'UCD')
             @namespace.save!
 
-            Rake::Task["tw:project_import:ucd:handle_keywords"].execute
-            Rake::Task["tw:project_import:ucd:handle_refs"].execute
+ #          Rake::Task["tw:project_import:ucd:handle_keywords"].execute
+ #          Rake::Task["tw:project_import:ucd:handle_refs"].execute
+
+            Rake::Task["tw:project_import:ucd:handle_master"].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -108,22 +110,97 @@ namespace :tw do
         # f.close
       end
 
+      desc 'handle_master - rake tw:project_import:ucd:handle_master[/Users/matt/src/sf/import/ucd/csv]'
+      task :handle_master => [:data_directory, :environment] do |t, args| 
+        # 0  TaxonCode  | varchar(15) 
+        # 1  ValGenus   | varchar(21) 
+        # 2  ValSpecies | varchar(22) 
+        # 3  HomCode    | varchar(1)  
+        # 4  ValAuthor  | varchar(80)
 
-      desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_keywords => [:data_directory, :environment] do |t, args| 
-        # 1  TaxonCode  
-        # 2  RefCode    
-        # 3  PageRef    
-        # 4  H_levelTax 
-        # 5  Of_for_to  
-        # 6  Status     
-        # 7  CitGenus   
-        # 8  CitAuthor  
-        # 9  Code       
-        # 10 Notes      
+        # 5  CitGenus   | varchar(21) 
+        # 6  CitSubgen  | varchar(21) 
+        # 7  CitSpecies | varchar(22) 
+        # 8  CitSubsp   | varchar(24) 
+        # 9 CitAuthor  | varchar(80) 
+
+        # 10 Family     | varchar(3)  
+        # 11 ValDate    | varchar(4)  
+        # 12 CitDate    | varchar(4)  
+
+        puts "names ... "
+
+        path1 = @args[:data_directory] + 'master.csv'
+        path2 = @args[:data_directory] + 'famtrib.csv'
+        [path1, path2].each do |p|
+          raise 'file not found' if not File.exists?(p)
+        end 
+
+        m  = CSV.open(path1, col_sep: "\t")
+        ft = CSV.open(path2, col_sep: "\t")
+
+        unamtched_higher = ft.collect
+
+        root = TaxonName.new(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil)
+        root.save!
+
+        chalcidoidea = TaxonName.new(name: 'Chalcidoidea', parent: root, rank_class: Ranks.lookup(:iczn, 'superfamily'))
+        chalcidoidea.save!
+
+        count_higher_taxa = 0
+
+        valid_names = { }
+    
+        # valid pass
+        m.each do |row|
+
+        rank = nil
+         
+        # puts row[0]
+
+        valid_genus = row[1]
+        valid_species = row[2]
+        valid_author = row[4]
+
+        if valid_genus.blank? && valid_species.blank?
+          rank = :higher
+        elsif valid_species.blank?
+          rank = :genus
+        else
+          rank = :species
+        end
+         
+        higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher 
+
+        #  superfamilies = length(family) = 0 and valgenus 
+
+        if rank == :higher
+          puts row[0], higher_taxon,  authors , ""
+          count_higher_taxa += 1
+        end
+        # o.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
+        end
+        puts count_higher_taxa
       end
 
-      desc 'handle keywords - rake tw:project_import:ucd:handle_keyowrds[/Users/matt/src/sf/import/ucd/csv]'
+     
+
+
+      desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
+      task :handle_famtrib => [:data_directory, :environment] do |t, args| 
+        # 0  TaxonCode  
+        # 1  RefCode    
+        # 2  PageRef    
+        # 3  H_levelTax 
+        # 4  Of_for_to  
+        # 5  Status     
+        # 6  CitGenus   
+        # 7  CitAuthor  
+        # 8  Code       
+        # 9 Notes      
+      end
+
+      desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_keywords => [:data_directory, :environment] do |t, args| 
         # 0  Keywords
         # 1  Meaning
@@ -160,7 +237,7 @@ namespace :tw do
 
       desc 'handle refs - rake tw:project_import:ucd:handle_refs[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_refs => [:data_directory, :environment, :handle_keywords] do |t, args| 
-        # 0   RefCode   | varchar(15)  |
+        # - 0   RefCode   | varchar(15)  |
         # - 1   Author    | varchar(52)  |
         # - 2   Year      | varchar(4)   |
         # - 3   Letter    | varchar(2)   | # ?! key/value - if they want to maintain a manual system let them
@@ -172,7 +249,7 @@ namespace :tw do
         # - 9   Location  | varchar(27)  | # Attribute::Internal
         # - 10  Source    | varchar(28)  | # Attribute::Internal
         # - 11  Check     | varchar(11)  | # Attribute::Internal
-        # 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
+        # - 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
         # - 13  KeywordA  | varchar(2)   | # Tag 
         # - 14  KeywordB  | varchar(2)   | # Tag 
         # - 15  KeywordC  | varchar(2)   | # Tag 
@@ -186,18 +263,15 @@ namespace :tw do
         # - 1 Translate 
         # - 2 Notes     
         # - 3 Publisher 
-        # 4 ExtAuthor 
-        # 5 ExtTitle  
-        # 6 ExtJournal
-        # 7 Editor    
+        # - 4 ExtAuthor 
+        # - 5 ExtTitle  
+        # - 6 ExtJournal
+        # - 7 Editor    
 
         path1 = @args[:data_directory] + 'refs.csv'
         path2 = @args[:data_directory] + 'refext.csv'
         raise 'file not found' if not File.exists?(path1)
         raise 'file not found' if not File.exists?(path2)
-
-        f = CSV.open(path1, col_sep: "\t")
-        # fext = CSV.open(path2, col_sep: "\t")
 
         fext_data = {}
         
@@ -215,11 +289,10 @@ namespace :tw do
           'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
           'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
           'Refs:Check' => Predicate.new(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
-
           'Refs:LanguageA' => Predicate.new(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
           'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
           'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
-
+          'Refs:ChalcFam' => Predicate.new(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
           'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
           'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
           'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
@@ -247,24 +320,29 @@ namespace :tw do
             stated_year = nil
           end
 
-          author = [row[5], (fext_data )].compact.join
+          title = [row[5],  (fext_data[row[0]] && !fext_data[row[0]][:ext_title].blank? ? fext_data[row[0]][:ext_title] : nil)].compact.join(" ")
+          journal = [row[6],  (fext_data[row[0]] && !fext_data[row[0]][:ext_journal].blank? ? fext_data[row[0]][:ext_journal] : nil)].compact.join(" ")
+          author = [row[1],  (fext_data[row[0]] && !fext_data[row[0]][:ext_author].blank? ? fext_data[row[0]][:ext_author] : nil)].compact.join(" ")
 
           b = Source::Bibtex.new(
-            author: row[1],
+            author: author,
             year: (year.blank? ? nil : year.to_i),
             month: month, 
             day: (day.blank? ? nil : day.to_i) ,
             stated_year: stated_year,
             year_suffix: row[3],           
-            title: row[5],                      
-            booktitle: row[6],                  
+            title: title,                      
+            booktitle: journal,                  
             volume: row[7],                     
             pages: row[8],                      
             bibtex_type: 'article',            
             language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
-            publisher: (fext_data[row[0]].blank? ?  nil : fext_data[row[0]][:publisher]),
-            editor: (fext_data[row[0]].blank? ?  nil :fext_data[row[0]][:editor] ),
+            publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
+            editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil ),
           )
+
+          b.publisher = nil if b.publisher.blank? # lazy get rid of ""
+          b.editor = nil if b.editor.blank?
 
           b.save!
 
@@ -273,6 +351,7 @@ namespace :tw do
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
+          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs::ChalcFam'], value: row[12])  if !row[12].blank?
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
           b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
@@ -290,13 +369,11 @@ namespace :tw do
             end
           end
 
-          debugger if !b.save
+          !b.save
 
           print "#{i}," 
           i+=1
-          break if i > 2000
-
-
+          break if i > 200 
         end
       end
 

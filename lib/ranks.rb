@@ -1,6 +1,5 @@
 require 'application_enumeration'
 
-
 # Contains methods used in /config/initializers/ranks.rb to generate Rank Classes 
 module Ranks
 
@@ -25,28 +24,26 @@ module Ranks
 
     # This sort algorithim is terrible, it could be optimized.
     ordered << all.detect { |r| ordered.last == r.parent_rank } while ordered.size != all.size
-    
+
     return ordered
   end
 
   # Returns true if rank.to_s is the name of a NomenclaturalRank. 
   def self.valid?(rank)
-     ::RANK_CLASS_NAMES.include?(rank.to_s) 
+    ::RANK_CLASS_NAMES.include?(rank.to_s) 
   end
 
+  #   Ranks::lookup(:iczn, 'superfamily')   # => NomenclaturalRank::Iczn::FamilyGroup::Superfamily
   def self.lookup(code, rank)
+    raise if ![:iczn, :icn].include?(code)
     r = rank.downcase
-    #if r == "class"
-    #  r = "class rank"
-    #end
-
     case code
-      when :iczn
-        ::ICZN_LOOKUP[r]
-      when :icn
-        ::ICN_LOOKUP[r]
-      else
-        return false
+    when :iczn
+      ::ICZN_LOOKUP[r]
+    when :icn
+      ::ICN_LOOKUP[r]
+    else
+      return false
     end
   end
 end
