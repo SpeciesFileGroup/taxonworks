@@ -1,10 +1,10 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName < TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation,
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation,
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym)
   end
 
   def self.subject_relationship_name

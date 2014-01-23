@@ -4,23 +4,21 @@ class TaxonNameRelationship::OriginalCombination::OriginalClassifiedAs < TaxonNa
 
   # left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::HigherClassificationGroup.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_AND_ABOVE_RANK_NAMES
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn.descendants.collect{|t| t.to_s} + NomenclaturalRank::Icn.descendants.collect{|t| t.to_s}
+    RANK_CLASS_NAMES
   end
 
   def self.disjoint_taxon_name_relationships
-    self.collect_descendants_to_s(
-        TaxonNameRelationship::Combination)
+    self.collect_descendants_to_s(TaxonNameRelationship::Combination)
   end
 
   def self.disjoint_subject_classes
-    self.collect_descendants_and_itself_to_s(
-        TaxonNameClassification::Iczn::Unavailable) + self.collect_descendants_to_s(
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished) + self.collect_to_s(
+    self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
+        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
         TaxonNameClassification::Icn::NotEffectivelyPublished)
   end
 

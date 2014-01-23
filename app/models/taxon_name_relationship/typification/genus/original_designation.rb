@@ -11,13 +11,11 @@ class TaxonNameRelationship::Typification::Genus::OriginalDesignation < TaxonNam
   end
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
-        TaxonNameRelationship::Typification::Genus::Tautonomy,
-        TaxonNameRelationship::Typification::Genus::Monotypy) + self.collect_to_s(
-        TaxonNameRelationship::Typification::Genus,
-        TaxonNameRelationship::Typification::Genus::Tautonomy,
-        TaxonNameRelationship::Typification::Genus::Monotypy,
-        TaxonNameRelationship::Typification::Genus::SubsequentDesignation)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Typification::Genus::Tautonomy,
+            TaxonNameRelationship::Typification::Genus::Monotypy) +
+        self.collect_to_s(TaxonNameRelationship::Typification::Genus,
+            TaxonNameRelationship::Typification::Genus::SubsequentDesignation)
   end
 
   def self.subject_relationship_name

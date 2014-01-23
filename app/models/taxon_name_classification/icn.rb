@@ -1,7 +1,7 @@
 class TaxonNameClassification::Icn < TaxonNameClassification
 
   def self.applicable_ranks
-    RANK_CLASS_NAMES_ICN # ICN.collect{|t| t.to_s}
+    RANK_CLASS_NAMES_ICN
   end
 
   def self.disjoint_taxon_name_classes

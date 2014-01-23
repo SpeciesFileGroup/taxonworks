@@ -1,8 +1,8 @@
 class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < TaxonNameRelationship::Iczn::Invalidating::Usage
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
-        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
   end
 
   def self.subject_relationship_name

@@ -1,15 +1,15 @@
 class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_descendants_to_s(
-        TaxonNameRelationship::Icn::Accepting)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_descendants_to_s(TaxonNameRelationship::Icn::Accepting)
   end
 
   def self.disjoint_object_classes
-    self.parent.disjoint_object_classes + self.collect_to_s(
-        TaxonNameClassification::Icn::NotEffectivelyPublished) + self.collect_descendants_to_s(
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
-        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate)
+    self.parent.disjoint_object_classes +
+        self.collect_descendants_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+            TaxonNameClassification::Icn::NotEffectivelyPublished,
+            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
   def self.subject_relationship_name

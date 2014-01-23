@@ -11,8 +11,8 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
   end
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Typification::Family)
+    self.parent.disjoint_taxon_name_relationships +
+        [TaxonNameRelationship::Typification::Family.to_s]
   end
 
   def self.subject_relationship_name

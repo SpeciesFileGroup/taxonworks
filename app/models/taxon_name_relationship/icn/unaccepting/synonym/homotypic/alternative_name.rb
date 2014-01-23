@@ -1,10 +1,10 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeName < TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
-        TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym,
-        TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
+            TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym,
+            TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant)
   end
 
   def self.subject_relationship_name

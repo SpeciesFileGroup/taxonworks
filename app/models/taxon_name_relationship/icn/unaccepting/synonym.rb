@@ -1,9 +1,9 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::Icn::Unaccepting
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Icn::Unaccepting) + self.collect_descendants_to_s(
-        TaxonNameRelationship::Icn::Unaccepting::Usage)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting) +
+        self.collect_descendants_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage)
   end
 
   def self.subject_relationship_name

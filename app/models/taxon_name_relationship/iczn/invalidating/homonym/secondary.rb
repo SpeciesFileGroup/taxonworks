@@ -11,9 +11,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   end
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Iczn::Invalidating::Homonym,
-        TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym,
+            TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary)
   end
 
   def self.subject_relationship_name

@@ -30,6 +30,7 @@ describe TaxonNameRelationship do
         specify 'type' do
           expect(@taxon_name_relationship).to respond_to (:type)
         end
+
       end
 
       context 'validate' do

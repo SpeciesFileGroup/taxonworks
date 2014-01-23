@@ -1,9 +1,9 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic < TaxonNameRelationship::Icn::Unaccepting::Synonym
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Icn::Unaccepting::Synonym) + self.collect_descendants.to_s(
-        TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym) +
+        self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic)
   end
 
   def self.subject_relationship_name

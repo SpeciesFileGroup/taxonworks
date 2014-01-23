@@ -2,12 +2,12 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
 
   #left_side
   def self.valid_subject_ranks
-    NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_RANK_NAMES_ICN
   end
 
   # right_side
   def self.valid_object_ranks
-    NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|t| t.to_s}
+    FAMILY_RANK_NAMES_ICN
   end
 
   def self.subject_relationship_name

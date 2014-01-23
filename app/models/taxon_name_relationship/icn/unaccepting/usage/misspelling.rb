@@ -1,18 +1,18 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRelationship::Icn::Unaccepting::Usage
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,
-        TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,
+            TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication)
   end
 
   def self.disjoint_subject_classes
-    self.parent.disjoint_subject_classes + self.collect_descendants_to_s(
-        TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
-        TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished.Legitimate) + self.collect_to_s(
-        TaxonNameClassification::Icn::NotEffectivelyPublished,
+    self.parent.disjoint_subject_classes +
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+            TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished.Legitimate) +
+        self.collect_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished,
         TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym,
-        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Seperfluous)         
+        TaxonNameClassification::Iczn::EffectivelyPublished::ValidlyPublished::Illegitimate::Seperfluous)
   end
 
   def self.subject_relationship_name

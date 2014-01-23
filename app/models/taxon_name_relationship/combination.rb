@@ -7,18 +7,18 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
         TaxonNameRelationship::Iczn,
         TaxonNameRelationship::Icn,
         TaxonNameRelationship::OriginalCombination,
-        TaxonNameRelationship::Typification) + self.collect_to_s(
-        TaxonNameRelationship::SourceClassifiedAs)
+        TaxonNameRelationship::Typification) +
+        [TaxonNameRelationship::SourceClassifiedAs.to_s]
   end
 
+  @@disjoint_classes = self.collect_descendants_to_s(TaxonNameClassification)
+
   def self.disjoint_subject_classes
-    self.collect_descendants_to_s(
-        TaxonNameClassification)
+    @@disjoint_classes
   end
 
   def self.disjoint_object_classes
-    self.collect_descendants_to_s(
-      TaxonNameClassification)
+    @@disjoint_classes
   end
 
   def self.nomenclatural_priority

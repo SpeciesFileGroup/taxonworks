@@ -11,9 +11,9 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
   end
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships + self.collect_to_s(
-        TaxonNameRelationship::Iczn::Validating::ConservedName,
-        TaxonNameRelationship::Iczn::Validating::ConservedWork)
+    self.parent.disjoint_taxon_name_relationships +
+        self.collect_to_s(TaxonNameRelationship::Iczn::Validating::ConservedName,
+            TaxonNameRelationship::Iczn::Validating::ConservedWork)
   end
 
   def self.assignable
