@@ -8,8 +8,8 @@ describe NomenclaturalRank do
         rank_class2 = Ranks.lookup(:iczn, 'genus')
         expect(RANKS.index(rank_class).class).to eq(Fixnum)
         expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_true
-      end
     end
+  end
 
   context 'base methods' do
     specify "rank_name" do
