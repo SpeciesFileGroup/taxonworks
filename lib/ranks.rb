@@ -7,17 +7,22 @@ module Ranks
   # In development the application must call .eager_load! for this code to work.  See /config/environment/development.rb.
   # TODO: check this now that Ranks moved to initializers.
 
-  # Returns a NomenclaturalRank Class, the highest assignable for the rank Class passed.
-  def self.top_rank(rank)
-    all = rank.descendants
-    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
-  end
-
   # Returns an ordered Array of NomenclaturalRanks for all direct descendants of the provided base Class
   def self.ordered_ranks_for(rank)
-    return false if rank == NomenclaturalRank || (rank.class.name =~ /NomenclaturalRank/)
+    return false if rank == NomenclaturalRank #|| (rank.class.name =~ /NomenclaturalRank/)
     ordered = []
-    top = Ranks.top_rank(rank)
+    bottom = NomenclaturalRank.bottom_rank(rank)
+    top = NomenclaturalRank.top_rank(rank)
+    ordered.push(bottom)
+    ordered << ordered.last.parent_rank while ordered.last != top
+    ordered.reverse!
+    return ordered
+  end
+
+  def self.ordered_ranks_for_old(rank)
+    return false if rank == NomenclaturalRank #|| (rank.class.name =~ /NomenclaturalRank/)
+    ordered = []
+    top = NomenclaturalRank.top_rank(rank)
     all = rank.descendants
     all.select!{|r| !r.parent_rank.nil?}
     ordered.push(top)
