@@ -2,7 +2,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < Taxo
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
+        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+                                      TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
   def self.subject_relationship_name
@@ -24,4 +25,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < Taxo
     # bus.set_as_iczn_misidentification_of(aus)
     :set_as_iczn_misidentification_of
   end
+
+  def self.assignable
+    true
+  end
+
 end

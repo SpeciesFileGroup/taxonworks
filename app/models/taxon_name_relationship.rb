@@ -36,7 +36,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
-  scope :with_type, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
+  scope :with_type_string, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
@@ -150,13 +150,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
       true
     elsif self.object_taxon_name_id == self.subject_taxon_name_id
-      errors.add(:object_taxon_name_id, "Taxon should not relate to itself")
-    elsif self.subject_taxon_name && self.object_taxon_name
-      errors.add(:subject_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
+      errors.add(:object_taxon_name_id, "Taxon should not refer to itself")
+    elsif !!self.subject_taxon_name && !!self.object_taxon_name
+      errors.add(:subject_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
       if object_taxon_name.class.to_s == 'Protonym'
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+        errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
       else
-        errors.add(:object_taxon_name_id, "Rank of the taxon is not compatible with the status") unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
+        errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
       end
     end
   end
@@ -233,8 +233,6 @@ class TaxonNameRelationship < ActiveRecord::Base
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
         end
-      when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         if !!self.source_id
@@ -250,7 +248,10 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_synonym_relationship
-    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+    relationships = TAXON_NAME_RELATIONSHIP_NAMES_INVALID +
+        TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::SubsequentDesignation,
+            TaxonNameRelationship::Typification::Genus::RulingByCommission)
+    if relationships.include?(self.type_name)
       if !!self.source_id
         date1 = self.source.nomenclature_date.to_time
         date2 = self.subject_taxon_name.nomenclature_date
@@ -388,8 +389,10 @@ class TaxonNameRelationship < ActiveRecord::Base
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
       if self.type_name == 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction'
-        soft_validations.add(:type, 'Both taxa should be described on the same date') unless date1 == date2
-        soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date') unless date1 == date2
+        unless date1 == date2
+          soft_validations.add(:type, 'Both taxa should be described on the same date')
+          soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date')
+        end
       elsif !!date1 and !!date2
         case self.type_class.nomenclatural_priority
           when :direct

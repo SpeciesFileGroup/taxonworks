@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Typification::Genus::SubsequentDesignation < TaxonNameRelationship::Typification::Genus
+class TaxonNameRelationship::Typification::Genus::RulingByCommission < TaxonNameRelationship::Typification::Genus
 
   # left side
   def self.valid_subject_ranks
@@ -16,15 +16,19 @@ class TaxonNameRelationship::Typification::Genus::SubsequentDesignation < TaxonN
             TaxonNameRelationship::Typification::Genus::Monotypy) +
         self.collect_to_s(TaxonNameRelationship::Typification::Genus,
             TaxonNameRelationship::Typification::Genus::OriginalDesignation,
-            TaxonNameRelationship::Typification::Genus::RulingByCommission)
+            TaxonNameRelationship::Typification::Genus::SubsequentDesignation)
   end
 
   def self.subject_relationship_name
-    'type species by subsequent designation'
+    'type species by ruling by Commission'
   end
 
   def self.assignment_method
-    :type_species_by_subsequent_designation
+    :type_species_by_ruling_by_Commission
   end
+
+    def self.nomenclatural_priority
+      nil
+    end
 
 end

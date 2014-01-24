@@ -272,7 +272,7 @@ describe TaxonNameRelationship do
           @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
           expect(@r1.save).to be_true
           @r1.reload
-          @r1.soft_validate(:specific_relationship)
+          @r1.soft_validate(:synonym_relationship)
           expect(@r1.soft_validations.messages_on(:source_id).count).to eq(1)
         end
 
@@ -388,7 +388,7 @@ describe TaxonNameRelationship do
         specify 'reverse priority original genus' do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
           r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
         end
       end
 
