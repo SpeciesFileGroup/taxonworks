@@ -21,7 +21,7 @@ namespace :tw do
  #          Rake::Task["tw:project_import:ucd:handle_keywords"].execute
  #          Rake::Task["tw:project_import:ucd:handle_refs"].execute
 
-            Rake::Task["tw:project_import:ucd:handle_master"].execute
+            Rake::Task["tw:project_import:ucd:handle_names"].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -110,42 +110,59 @@ namespace :tw do
         # f.close
       end
 
-      desc 'handle_master - rake tw:project_import:ucd:handle_master[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_master => [:data_directory, :environment] do |t, args| 
-        # 0  TaxonCode  | varchar(15) 
-        # 1  ValGenus   | varchar(21) 
-        # 2  ValSpecies | varchar(22) 
-        # 3  HomCode    | varchar(1)  
-        # 4  ValAuthor  | varchar(80)
 
-        # 5  CitGenus   | varchar(21) 
-        # 6  CitSubgen  | varchar(21) 
-        # 7  CitSpecies | varchar(22) 
-        # 8  CitSubsp   | varchar(24) 
-        # 9 CitAuthor  | varchar(80) 
+ 
+      desc 'handle_names - rake tw:project_import:ucd:handle_master[/Users/matt/src/sf/import/ucd/csv]'
+      task :handle_names => [:data_directory, :environment] do |t, args| 
+        # Master            # Famtrib         # Genus           # Species 
+        # 0  TaxonCode      # 0  TaxonCode    # 0  TaxonCode    # 0  TaxonCode  
+        # 1  ValGenus       # 1  RefCode      # 1  RefCode      # 1  Region     
+        # 2  ValSpecies     # 2  PageRef      # 2  PageRef      # 2  Country    
+        # 3  HomCode        # 3  H_levelTax   # 3  Code         # 3  State      
+        # 4  ValAuthor      # 4  Of_for_to    # 4  CitGenus     # 4  RefCode    
+                            # 5  Status       # 5  CitSpecies   # 4  PageRef    
+        # 5  CitGenus       # 6  CitGenus     # 6  CitAuthor    # 5  Figures    
+        # 6  CitSubgen      # 7  CitAuthor    # 7  TypeDesign   # 6  Sex        
+        # 7  CitSpecies     # 8  Code         # 8  Designator   # 7  CurrStat   
+        # 8  CitSubsp       # 9 Notes         # 9  PageDesign   # 8  PrimType   
+        # 9 CitAuthor                         # 10 Status       # 9  TypeSex    
+                                                                # 10 Designator 
+        # 10 Family                                             # 11 Pages      
+        # 11 ValDate                                            # 12 Depository 
+        # 12 CitDate                                            # 13 Notes      
+                                                                # 14 TypeNumber 
+                                                                # 15 DeposB     
+                                                                # 16 DeposC     
 
-        # 10 Family     | varchar(3)  
-        # 11 ValDate    | varchar(4)  
-        # 12 CitDate    | varchar(4)  
 
         puts "names ... "
 
         path1 = @args[:data_directory] + 'master.csv'
         path2 = @args[:data_directory] + 'famtrib.csv'
-        [path1, path2].each do |p|
-          raise 'file not found' if not File.exists?(p)
+        path3 = @args[:data_directory] + 'genus.csv'
+        path4 = @args[:data_directory] + 'species.csv'
+
+        (1..4).each do |p|
+          raise 'file not found' if not File.exists?(eval("path#{p}"))
         end 
 
         m  = CSV.open(path1, col_sep: "\t")
         ft = CSV.open(path2, col_sep: "\t")
-
-        unamtched_higher = ft.collect
-
+        g  = CSV.open(path3, col_sep: "\t")
+        s  = CSV.open(path4, col_sep: "\t")
+        
         root = TaxonName.new(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil)
         root.save!
 
         chalcidoidea = TaxonName.new(name: 'Chalcidoidea', parent: root, rank_class: Ranks.lookup(:iczn, 'superfamily'))
         chalcidoidea.save!
+
+        #mi = ft.inject({}).{|hsh, row| hsh.merge!(row[0] => row[0.. 
+
+        ft.each do |row|
+
+
+        end
 
         count_higher_taxa = 0
 
@@ -172,7 +189,7 @@ namespace :tw do
          
         higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher 
 
-        #  superfamilies = length(family) = 0 and valgenus 
+        # superfamilies = length(family) = 0 and valgenus 
 
         if rank == :higher
           puts row[0], higher_taxon,  authors , ""
@@ -188,16 +205,16 @@ namespace :tw do
 
       desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_famtrib => [:data_directory, :environment] do |t, args| 
-        # 0  TaxonCode  
-        # 1  RefCode    
-        # 2  PageRef    
-        # 3  H_levelTax 
-        # 4  Of_for_to  
-        # 5  Status     
-        # 6  CitGenus   
-        # 7  CitAuthor  
-        # 8  Code       
-        # 9 Notes      
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
       end
 
       desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
