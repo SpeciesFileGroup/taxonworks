@@ -15,7 +15,8 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Typification::Genus::Monotypy) +
         self.collect_to_s(TaxonNameRelationship::Typification::Genus,
             TaxonNameRelationship::Typification::Genus::SubsequentDesignation,
-            TaxonNameRelationship::Typification::Genus::OriginalDesignation)
+            TaxonNameRelationship::Typification::Genus::OriginalDesignation,
+            TaxonNameRelationship::Typification::Genus::RulingByCommission)
   end
 
   def self.subject_relationship_name

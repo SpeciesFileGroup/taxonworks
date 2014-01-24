@@ -11,14 +11,16 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
         [TaxonNameRelationship::SourceClassifiedAs.to_s]
   end
 
-  @@disjoint_classes = self.collect_descendants_to_s(TaxonNameClassification)
+  def self.disjoint_classes
+    self.collect_descendants_to_s(TaxonNameClassification)
+  end
 
   def self.disjoint_subject_classes
-    @@disjoint_classes
+    self.disjoint_classes
   end
 
   def self.disjoint_object_classes
-    @@disjoint_classes
+    self.disjoint_classes
   end
 
   def self.nomenclatural_priority

@@ -127,7 +127,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def nomenclature_date
-    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
+    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
     if family_before_1961.empty?
       self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
     else

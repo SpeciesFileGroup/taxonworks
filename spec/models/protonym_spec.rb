@@ -291,7 +291,7 @@ describe Protonym do
       end
       specify 'mismatching author, year and type genus in family' do
         tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
-        genus = FactoryGirl.create(:iczn_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        genus = FactoryGirl.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_true
         @subfamily.soft_validate(:validate_coordinated_names)
@@ -311,6 +311,20 @@ describe Protonym do
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_true
         @subfamily.type_genus = nil
         expect(@subfamily.save).to be_true
+      end
+      specify 'mismatching author and year in incorrect_original_spelling' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'aus', verbatim_author: 'Dmitriev', year_of_publication: 2000, parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+        s2.soft_validate(:validate_coordinated_names)
+        #author in tribe and subfamily are different
+        expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        #year in tribe and subfamily are different
+        expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        s2.fix_soft_validations
+        s2.soft_validate(:validate_coordinated_names)
+        expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_true
       end
     end
 

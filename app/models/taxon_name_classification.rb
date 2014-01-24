@@ -13,6 +13,7 @@ class TaxonNameClassification < ActiveRecord::Base
   # TODO: validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
 
   scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
+  scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }

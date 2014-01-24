@@ -5,7 +5,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
         TaxonNameClassification::Iczn::Unavailable::Excluded,
         TaxonNameClassification::Iczn::Unavailable::Suppressed,
         TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
-        [TaxonNameClassification::Iczn::Unavailable.to_s]
+        self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
   class NotUninomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
