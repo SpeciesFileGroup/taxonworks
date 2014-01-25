@@ -3,14 +3,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage) +
-            [TaxonNameRelationship::Iczn::Invalidating.to_s]
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating,
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total)
+
   end
 
-  def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
-            TaxonNameClassification::Iczn::Available::Invalid)
-  end
+#  def self.disjoint_object_classes
+#    self.parent.disjoint_object_classes
+#  end
 
   def self.subject_relationship_name
     'homonym'

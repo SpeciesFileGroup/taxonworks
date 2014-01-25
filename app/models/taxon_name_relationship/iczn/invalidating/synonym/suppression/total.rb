@@ -2,6 +2,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total < T
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
+        self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym) +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Partial,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Conditional)

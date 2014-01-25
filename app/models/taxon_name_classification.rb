@@ -21,6 +21,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   soft_validate(:sv_proper_classification, set: :proper_classification)
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
+  soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
   # years of applicability for each class
   def self.code_applicability_start_year
@@ -90,6 +91,38 @@ class TaxonNameClassification < ActiveRecord::Base
     end
   end
 
+  def sv_not_specific_classes
+    case self.type_name
+      when 'TaxonNameClassification::Iczn::Available'
+        soft_validations.add(:type, 'Please specify if the name is valid or invalid')
+      when 'TaxonNameClassification::Iczn::Unavailable'
+        soft_validations.add(:type, 'Please specify the reasons for the name being unavailable')
+      when 'TaxonNameClassification::Iczn::Available::Invalid'
+        soft_validations.add(:type, 'Please replace with appropriate relationship')
+      when 'TaxonNameClassification::Iczn::Available::Invalid::Homonym'
+        soft_validations.add(:type, 'Please replace with appropriate relationship')
+      when 'TaxonNameClassification::Iczn::Available::Valid'
+        soft_validations.add(:type, 'Please replace with appropriate relationship')
+      when 'TaxonNameClassification::Iczn::Unavailable::Suppressed'
+        soft_validations.add(:type, 'Please specify the reasons for the name being suppressed')
+      when 'TaxonNameClassification::Iczn::Unavailable::Excluded'
+        soft_validations.add(:type, 'Please specify the reasons for the name being excluded')
+      when 'TaxonNameClassification::Iczn::Unavailable::NomenNudum'
+        soft_validations.add(:type, 'Please specify the reasons for the name being nomen nudum')
+      when 'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+        soft_validations.add(:type, 'Please specify the reasons for the name being non binomial')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished'
+        soft_validations.add(:type, 'Please specify if the name is validly or invalidly published')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished'
+        soft_validations.add(:type, 'Please specify the reasons for the name being invalidly published')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished'
+        soft_validations.add(:type, 'Please specify if the name is legitimate or illegitimate')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate'
+        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
+        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+    end
+  end
 
 
   #endregion

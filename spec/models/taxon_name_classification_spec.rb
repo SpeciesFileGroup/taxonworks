@@ -63,17 +63,17 @@ describe TaxonNameClassification do
     end
 
     specify "applicable type and year" do
-     c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+     c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
      c.soft_validate(:proper_classification)
      expect(c.soft_validations.messages_on(:type).empty?).to be_true
    end
     specify "unapplicable type" do
-      c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
+      c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).count).to eq(1)
     end
     specify "unapplicable year" do
-      c = FactoryGirl.build(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
+      c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).count).to eq(1)
     end
@@ -88,6 +88,14 @@ describe TaxonNameClassification do
       #conflicting with c2
       expect(c1.soft_validations.messages_on(:type).count).to eq(1)
       #conflicting with c1
+      expect(c2.soft_validations.messages_on(:type).count).to eq(1)
+    end
+    specify 'not specific classes' do
+      c1 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+      c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      c1.soft_validate(:not_specific_classes)
+      c2.soft_validate(:not_specific_classes)
+      expect(c1.soft_validations.messages_on(:type).count).to eq(1)
       expect(c2.soft_validations.messages_on(:type).count).to eq(1)
     end
 

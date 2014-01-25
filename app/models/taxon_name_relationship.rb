@@ -273,12 +273,12 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
         soft_validations.add(:type, 'Please specify if the tautonomy is absolute or Linnaean')
       when 'TaxonNameRelationship::Icn::Unaccepting'
-        soft_validations.add(:type, 'Please specify the reasons why the name is Unaccepted')
+        soft_validations.add(:type, 'Please specify the reasons for the name being Unaccepted')
       when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
         soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
       when 'TaxonNameRelationship::Iczn::Invalidating'
-        soft_validations.add(:type, 'Please specify the reason why the name is Invalid')
+        soft_validations.add(:type, 'Please specify the reason for the name being Invalid')
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
         if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_class.to_s)
           soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
