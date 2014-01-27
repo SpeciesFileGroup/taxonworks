@@ -302,6 +302,7 @@ class Source::Bibtex < Source
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
+
 #endregion
 
 #region constants
@@ -580,16 +581,17 @@ class Source::Bibtex < Source
   end
 
   def sv_has_some_type_of_year
-    if (has_some_year?)
+    if (!has_some_year?)
       soft_validations.add(:year, 'There is no year or stated year associated with this source.')
       soft_validations.add(:stated_year, 'There is no or stated year year associated with this source.')
     end
   end
 
   def sv_year_exists
-    if !(year.blank?)
+    if (year.blank?)
       soft_validations.add(:year, 'There is no year associated with this source.')
-      soft_validations.add(:year, 'This year is prior to the 1700s') if year < 1700
+    elsif year < 1700
+      soft_validations.add(:year, 'This year is prior to the 1700s')
     end
   end
 

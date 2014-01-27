@@ -602,7 +602,17 @@ describe Source::Bibtex do
       expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_true
     end
 
-    specify 'year is before 1700 (before nomenclature)'
+    specify 'year is before 1700 (before nomenclature)' do
+      @source_bibtex.year = 1699
+      expect(@source_bibtex.valid?).to be_true
+      @source_bibtex.soft_validate()
+      expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_false
+      expect(@source_bibtex.soft_validations.messages).to include  'This year is prior to the 1700s'
+      @source_bibtex.year = 1700
+      @source_bibtex.save
+      @source_bibtex.soft_validate()
+      expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
+    end
   end
 
 
