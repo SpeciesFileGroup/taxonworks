@@ -1,11 +1,14 @@
 class BiologicalAssociation < ActiveRecord::Base
-
-  # include Shared::Citable
-
+  include Shared::Citable
   include Housekeeping
 
-  belongs_to :biological_relationship
+  belongs_to :biological_relationship, inverse_of: :biological_associations
+  belongs_to :biological_association_subject, polymorphic: true
+  belongs_to :biological_association_object, polymorphic: true
+  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association
 
-  # TODO Must rename object
-  validates_presence_of :biological_association_object_id, :object_type, :biological_association_subject_id, :subject_type
+  validates :biological_relationship, presence: true
+  validates :biological_association_subject, presence: true
+  validates :biological_association_object, presence: true
+
 end

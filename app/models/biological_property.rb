@@ -1,6 +1,4 @@
-class BiologicalProperty < ActiveRecord::Base
-
-  include Housekeeping
-
-  validates_presence_of :name, :definition
+# Representing a single biological property. Examples: "male", "adult", "host", "parasite".
+class BiologicalProperty < ControlledVocabularyTerm 
+  has_many :biological_relationship_types
 end
