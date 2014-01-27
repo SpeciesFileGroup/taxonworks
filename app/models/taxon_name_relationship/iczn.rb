@@ -11,11 +11,6 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
     FAMILY_RANK_NAMES_ICZN + GENUS_AND_SPECIES_RANK_NAMES_ICZN
   end
 
-  def self.disjoint_taxon_name_relationships
-    ICN_TAXON_NAME_RELATIONSHIP_NAMES +
-        self.collect_descendants_to_s(TaxonNameRelationship::Combination)
-  end
-
   def self.disjoint_subject_classes
     ICN_TAXON_NAME_CLASS_NAMES
   end

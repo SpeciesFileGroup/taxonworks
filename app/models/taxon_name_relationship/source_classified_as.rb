@@ -12,10 +12,6 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
     RANK_CLASS_NAMES
   end
 
-  def self.disjoint_taxon_name_relationships
-    self.collect_descendants_to_s(TaxonNameRelationship::Combination)
-  end
-
   def self.disjoint_subject_classes
     self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
         TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,

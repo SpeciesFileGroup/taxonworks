@@ -1,0 +1,3 @@
+class BiologicalRelationshipType::BiologicalRelationshipSubjectType < BiologicalRelationshipType 
+
+end

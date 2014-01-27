@@ -19,7 +19,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
-  soft_validate(:sv_subject_rank, set: :subject_rank)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -27,15 +26,15 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
+  # TODO: refactor once housekeeping stabilizes
+  before_validation :assign_houskeeping_if_possible, on: :create
+
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object,
-    :validate_object_rank,
+    :validate_subject_and_object_ranks,
     :validate_uniqueness_of_synonym_subject,
     :validate_uniqueness_of_typification_object
-
-  # TODO: refactor once housekeeping stabilizes
-  before_validation :assign_houskeeping_if_possible, on: :create
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -159,18 +158,24 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  def validate_object_rank
-    if !TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s)
-      true
-    elsif object_taxon_name.class.to_s == 'Protonym'
-      unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
-        soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-        soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+  def validate_subject_and_object_ranks
+    if TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s)
+      if !!self.subject_taxon_name && !!self.object_taxon_name
+        unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
+          errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
+          errors.add(:type, 'Not compatible with the rank of this taxon')
+        end
       end
-    else # combination
-      unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
-        soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-        soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+      if object_taxon_name.class.to_s == 'Protonym'
+        unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+          errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+          errors.add(:type, 'Not compatible with the rank of related taxon')
+        end
+      else # combination
+        unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
+          soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+          soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+        end
       end
     end
   end
@@ -195,18 +200,9 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Soft Validation
 
-  def sv_subject_rank
-    if !!self.subject_taxon_name && !!self.object_taxon_name
-      unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-        soft_validations.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
-        soft_validations.add(:type, 'Not compatible with the rank of this taxon')
-      end
-    end
-  end
-
   def sv_validate_disjoint_relationships
-    relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
-    relationships.each  do |i|
+    subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
+    subject_relationships.each  do |i|
       soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
     end
   end
