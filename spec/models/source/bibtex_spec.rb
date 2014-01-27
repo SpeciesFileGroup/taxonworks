@@ -159,18 +159,24 @@ describe Source::Bibtex do
         expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
         @source_bibtex.year = 2000
         expect(@source_bibtex.valid?).to be_true
+        @source_bibtex.soft_validate
         expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
         @source_bibtex.year = 999
         expect(@source_bibtex.valid?).to be_false
         expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
+        @source_bibtex.soft_validate
+        expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_false
+        expect(@source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s'
         @source_bibtex.year = 1700
         expect(@source_bibtex.valid?).to be_true
+        @source_bibtex.soft_validate
         expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
         @source_bibtex.year = Time.now.year + 3
         expect(@source_bibtex.valid?).to be_false
         expect(@source_bibtex.errors.messages[:year].include?(error_msg)).to be_true
         @source_bibtex.year = Time.now.year + 2
         expect(@source_bibtex.valid?).to be_true
+        @source_bibtex.soft_validate
         expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
       end
 
