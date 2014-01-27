@@ -21,20 +21,19 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
   end
 
   def self.object_relationship_name
-    'as incertae sedis'
-  end
-
-  def self.object_relationship_name
     'incertae sedis'
   end
 
+  def self.object_relationship_name
+    'as incertae sedis'
+  end
+
   def self.assignment_method
-    # aus.iczn_uncertain_placement = Family
-    :iczn_set_as_uncertain_placement_of
+    :iczn_uncertain_placement
   end
 
   def self.inverse_assignment_method
     # aus.iczn_uncertain_placement = Family
-    :iczn_uncertain_placement
+    :iczn_set_as_uncertain_placement_of
   end
 end

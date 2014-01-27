@@ -92,15 +92,17 @@ class Protonym < TaxonName
   end
 
   def incertae_sedis
-    self.iczn_set_as_uncertain_placement_of_relationship
+    self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
 
   #region Validation
 
   def new_parent_taxon_name
-    if !!self.incertae_sedis && self.parent != self.incertae_sedis.object_taxon_name
-      errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
+    if !!self.incertae_sedis
+      if self.parent != self.incertae_sedis.object_taxon_name
+        errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
+      end
     end
   end
 
