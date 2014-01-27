@@ -293,8 +293,7 @@ class Source::Bibtex < Source
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) } 
 
 #region soft_validate setup calls
-#@soft_validate(:sv_has_authors)
-#soft_validate(:sv_year_exists)
+
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
@@ -331,7 +330,7 @@ class Source::Bibtex < Source
     if !self[:year_suffix].blank?
       b[:year] = self.year_with_suffix
     end
-    # TODO add conversion of identiifers to ruby-bibtex fields, & notations to notes field.
+    # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
     b
   end
 
@@ -347,14 +346,18 @@ class Source::Bibtex < Source
     )
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
-      # eventually this should probably be changed to a case statement
-      if (key == :year)
-        s[:year] = value.to_i
-        if !(s[:year].to_s == v) # has year suffix
-          s[:year_suffix] = v[4, v.length-1]
-        end
-      else
-        s[key] = v
+
+      case (key)
+        when :year
+          s[:year] = value.to_i
+          if !(s[:year].to_s == v) # has year suffix
+            s[:year_suffix] = v[4, v.length-1]
+          end
+        when :note
+          s[:note] = v
+          # an a TW note here
+        else
+          s[key] = v
       end
     end
     s
