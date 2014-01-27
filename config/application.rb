@@ -8,6 +8,12 @@ Bundler.require(:default, Rails.env)
 
 module TaxonWorks
   class Application < Rails::Application
+    # Via https://github.com/matthuhiggins/foreigner/pull/95
+#  config.before_initialize do
+#    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
+#  end
+
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -23,5 +29,10 @@ module TaxonWorks
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+
+    # When using PostGIS adapter make sure schema dumps are in :ruby format not
+    # :sql - because low level :sql will not be correct for spatial db
+    # @see http://dazuma.github.io/activerecord-postgis-adapter/rdoc/Documentation_rdoc.html
+    config.active_record.schema_format :ruby
   end
 end

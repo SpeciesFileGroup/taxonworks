@@ -1,4 +1,9 @@
 class BiologicalAssociation < ActiveRecord::Base
+
+  # include Shared::Citable
+
+  include Housekeeping
+
   belongs_to :biological_relationship
 
   # TODO Must rename object

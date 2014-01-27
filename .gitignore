@@ -11,9 +11,12 @@
 *~
 *.bak
 *.swp
+*.wkt
 
 /db/schema.rb
 database.yml
+/coverage
+/tags
 
 # Temporarily
 /Gemfile.lock
@@ -24,6 +27,7 @@ database.yml
 # Ignore bundler config.
 /.bundle
 /bin
+/bundle_bin
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
@@ -37,3 +41,6 @@ index.html
 .DS_store
 
 coverage/
+
+*.wkt
+*.sql

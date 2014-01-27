@@ -11,18 +11,18 @@ describe Otu do
         expect(otu).to respond_to(:taxon_determinations)
         expect(otu.taxon_determinations).to eq([])
       end
-      
+
       specify 'contents' do
         expect(otu).to respond_to(:contents)
-      end  
-     
+      end
+
       specify 'otu contents' do
         expect(otu).to respond_to(:otu_contents)
-      end  
-   
+      end
+
       specify 'topics' do
         expect(otu).to respond_to(:topics)
-      end  
+      end
 
     end
   end
@@ -37,15 +37,17 @@ describe Otu do
     specify 'it should require a name or taxon_name_id'
   end
 
-  context 'concerns' do
-    it_behaves_like 'identifiable'
-  end
-
   context 'when I create a new OTU' do
     context 'and it only has taxon_name_id populated' do
       specify 'its cached_name should be the taxon name cached_name'
     end
   end
 
-
+  context 'concerns' do
+    # it_behaves_like 'citable' # => maybe  
+    it_behaves_like 'identifiable'
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'taggable'
+    it_behaves_like 'alternate_values'
+  end
 end

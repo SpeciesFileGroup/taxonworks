@@ -1,55 +1,28 @@
-<%
-  # TODO: Fix, this is a horrible hack to determine mac or PC
-  unix = ENV['rvm_bin_path'] 
-%>
-
-<% 
-  # Loop over all these possible mysql sockets, and see if they
-  mysql_socket =
-  [ "/var/run/mysqld/mysqld.sock",
-  "/tmp/mysql.sock",
-  "/var/mysql/mysql.sock"
-  ].detect {|socket_path| File.exists?(socket_path)}
-  if !mysql_socket && !unix.nil?
-    puts "*"*80
-    puts "*"*80
-    puts "Potential problem with db/database.yml. Can't locate mysql socket file. Is MySQL correctly installed?"
-    puts "*"*80
-    puts "*"*80
-  end
-%>
-
-# Something like this:
-# switching mysql <=> postgis (for Windows)
-#   1. update database.yml file from either .mysql or .postgis
-#   2. uncomment the following line in db\migrate\2013010100000000_postgis_extend.rb
-        # ActiveRecord::Base.connection.execute('CREATE EXTENSION postgis_topology')
-#   3. drop, create, migrate the databases, 'specially taxonworks_test
-
-
 development:
-  adapter: mysql2
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
   database: taxonworks_development 
-  username: root
+  username: taxonworks_development
   password:
-  <% if unix  %>
-  socket: <%= mysql_socket %>
-  <% end %>
 
 test: 
-  adapter: mysql2
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
   database: taxonworks_test
-  username: root
+  username: taxonworks_development
   password:
-  <% if unix %>
-  socket: <%= mysql_socket %>
-  <% end %>
 
 production:
-  adapter: mysql2
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
   database: taxonworks_production
-  username: root 
+  username: taxonworks_production
   password: 
-
 
 

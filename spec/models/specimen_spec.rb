@@ -1,22 +1,22 @@
 require 'spec_helper'
 
-# A class representing a single, physical, and biological individual that has been collected.  Used when the curator has enumerated something to 1.
-
 describe Specimen do
-
   let(:specimen) { Specimen.new }
 
   context "validation" do
-    
-    # Trigger the callbacks
-    before do 
-      specimen.save
+    before(:each) do 
+      specimen.valid?
     end
 
-    context "before_validation" do
-      specify "total must be one" do 
-        expect(specimen.total).to eq(1)
-      end
+    specify 'valid_specimen is valid' do
+      s = FactoryGirl.build(:valid_specimen)
+      expect(s.creator == s.updater).to be_true
+      expect(s.project).to be_true
+      expect(s.save).to be_true
+    end
+
+    specify "total must be one" do 
+      expect(specimen.total).to eq(1)
     end
   end
 

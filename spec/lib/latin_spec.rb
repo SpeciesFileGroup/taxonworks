@@ -8,7 +8,7 @@ describe 'Latin' do
     let(:name2) { 'Aerum' }
     let(:name3) { 'Aeruma' }
 
-    context "they are not valid gender variations" do
+    context "they are not validly_published gender variations" do
       specify "if their lengths differ by more than 1" do
         expect(Latin.same_root_name?(name1, name3)).to be_false
       end

@@ -8,7 +8,7 @@ describe BiologicalAssociationsGraph do
 
     before do
       biological_associations_graph.valid?
-    end
+  end
 
     context "required fields" do
       specify "name" do
@@ -27,6 +27,6 @@ describe BiologicalAssociationsGraph do
     end
   end
 
-end
+  end
 
 

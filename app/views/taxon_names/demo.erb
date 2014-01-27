@@ -1,0 +1,7 @@
+
+<div>
+  <%= @taxon_name.name.to_s -%> <br />
+  <% @taxon_name.children.each do |child| -%>
+    <%= child.name.to_s -%>  [ <%= child.rank_class.rank_name[0..2].capitalize -%> ] <br />
+  <% end %>
+</div>

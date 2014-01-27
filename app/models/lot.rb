@@ -1,4 +1,6 @@
-class Lot < CollectionObject::BiologicalCollectionObject::PhysicalBiologicalObject
+class Lot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
+
+  include Housekeeping
 
   validate :size_of_total
 

@@ -1,7 +1,9 @@
 class BiologicalAssociationsGraph < ActiveRecord::Base
 
+  # include Shared::Citable
+
+  include Housekeeping
+
   has_many :biological_associations
 
-  validates_presence_of :name
-  
 end
