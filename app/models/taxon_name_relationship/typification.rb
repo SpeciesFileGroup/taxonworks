@@ -4,10 +4,6 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
     false
   end
 
-  def self.disjoint_taxon_name_relationships
-    self.collect_descendants_to_s(TaxonNameRelationship::Combination)
-  end
-
   def self.disjoint_classes
     self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
           TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
