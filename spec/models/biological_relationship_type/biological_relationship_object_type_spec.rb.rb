@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe BiologicalRelationshipProperty do
+describe BiologicalRelationshipType::BiologicalRelationshipObjectType do
   pending "add some examples to (or delete) #{__FILE__}"
 end

@@ -1,5 +1,4 @@
-class BiologicalRelationshipProperty < ActiveRecord::Base
-
+class BiologicalRelationshipType < ActiveRecord::Base
   include Housekeeping
 
   belongs_to :biological_property
