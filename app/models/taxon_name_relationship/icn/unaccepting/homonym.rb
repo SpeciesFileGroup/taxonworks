@@ -18,19 +18,18 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
   end
 
   def self.object_relationship_name
-    'senior homonym'
+    'junior homonym'
   end
 
 
   def self.assignment_method
-    # aus.icn_homonym = bus
-    :icn_homonym
+    # bus.set_as_icn_homonym_of(aus)
+    :icn_set_as_homonym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_homonym_of(aus)
-    :set_as_icn_homonym_of
+    # aus.icn_homonym = bus
+    :icn_homonym
   end
 
 end

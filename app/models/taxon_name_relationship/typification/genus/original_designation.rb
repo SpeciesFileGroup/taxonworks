@@ -20,11 +20,19 @@ class TaxonNameRelationship::Typification::Genus::OriginalDesignation < TaxonNam
   end
 
   def self.subject_relationship_name
+    'type of genus by original designation'
+  end
+
+  def self.object_relationship_name
     'type species by original designation'
   end
 
   def self.assignment_method
-    :type_species_by_original_designation 
+    :type_of_genus_by_original_designation
+  end
+
+  def self.inverse_assignment_method
+    :type_species_by_original_designation
   end
 
 end

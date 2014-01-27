@@ -14,18 +14,21 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
   end
 
   def self.subject_relationship_name
+    'correct application'
+  end
+
+  def self.object_relationship_name
     'misapplication'
   end
 
   def self.assignment_method
-    # aus.icn_misapplication = bus
-    :icn_misapplication
+    # bus.set_as_icn_misapplication_of(aus)
+    :icn_set_as_misapplication_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_misapplication_of(aus)
-    :set_as_icn_misapplication_of
+    # aus.icn_misapplication = bus
+    :icn_misapplication
   end
 
 end

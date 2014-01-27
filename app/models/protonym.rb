@@ -3,7 +3,7 @@ class Protonym < TaxonName
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id 
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
@@ -16,17 +16,36 @@ class Protonym < TaxonName
   # subject                      object
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
-  
+
   TaxonNameRelationship.descendants.each do |d|
-    if d.respond_to?(:assignment_method) 
-      relationship = "#{d.assignment_method}_relationship".to_sym
-      has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id 
-      has_one d.assignment_method.to_sym, through: relationship, source: :subject_taxon_name
+    if d.respond_to?(:assignment_method)
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
+        relationship = "#{d.assignment_method}_relationship".to_sym
+        has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
+        has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
+      else
+        relationships = "#{d.assignment_method}_relationships".to_sym
+        has_many relationships, -> {
+          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+        }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+        has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
+      end
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      # TODO: eval inverse method here
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
+        relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+        has_many relationships, -> {
+          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+        }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+        has_many d.inverse_assignment_method.to_sym, through: relationships, source: :subject_taxon_name
+      else
+        relationship = "#{d.inverse_assignment_method}_relationship".to_sym
+        has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
+        has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
+      end
     end
+
   end
 
   scope :named, -> (name) {where(name: name)}
@@ -62,17 +81,32 @@ class Protonym < TaxonName
                     :validate_parent_rank_is_higher,
                     :check_new_rank_class,
                     :check_new_parent_class,
-                    :validate_source_type
+                    :validate_source_type,
+                    :new_parent_taxon_name
 
-
-
-  #region Soft validation
-
-protected
+  protected
 
   def incorrect_original_spelling
-    TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
+    self.iczn_set_as_incorrect_original_spelling_of_relationship
+    #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
   end
+
+  def incertae_sedis
+    self.iczn_set_as_uncertain_placement_of_relationship
+    #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
+  end
+
+  #region Validation
+
+  def new_parent_taxon_name
+    if !!self.incertae_sedis && self.parent != self.incertae_sedis.object_taxon_name
+      errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
+    end
+  end
+
+  #endregion
+
+  #region Soft validation
 
   def sv_source_older_then_description
     if self.source && self.year_of_publication
@@ -81,7 +115,7 @@ protected
   end
 
   def sv_validate_parent_rank
-    if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank'
+    if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.incertae_sedis
       true
     elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
       soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
@@ -107,11 +141,11 @@ protected
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_combination_genus == t.original_combination_genus
+                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_combination_subgenus == t.original_combination_subgenus
+                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_subgenus == t.original_subgenus
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_combination_species == t.original_combination_species
+                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_species == t.original_species
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
@@ -141,15 +175,15 @@ protected
         self.year_of_publication = t.year_of_publication
         fixed = true
       end
-      if self.original_combination_genus.nil? && self.original_combination_genus != t.original_combination_genus
+      if self.original_genus.nil? && self.original_genus != t.original_genus
         self.original_combination_genus = t.original_combination_genus
         fixed = true
       end
-      if self.original_combination_subgenus.nil? && self.original_combination_subgenus != t.original_combination_subgenus
+      if self.original_subgenus.nil? && self.original_subgenus != t.original_subgenus
         self.original_combination_subgenus = t.original_combination_subgenus
         fixed = true
       end
-      if self.original_combination_species.nil? && self.original_combination_species != t.original_combination_species
+      if self.original_species.nil? && self.original_species != t.original_species
         self.original_combination_species = t.original_combination_species
         fixed = true
       end
@@ -172,7 +206,7 @@ protected
       end
 
     end
-    foo = 0
+
     if fixed
       begin
         Protonym.transaction do
@@ -189,7 +223,7 @@ protected
 
     if self.incorrect_original_spelling.nil?
       search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
-      if search_rank
+      if !!search_rank
         if search_rank =~ /Family/
           z = Protonym.family_group_base(self.name)
           search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
@@ -214,7 +248,7 @@ protected
         list = []
       end
     else
-      list = [self.incorrect_original_spelling.object_taxon_name] + [self.incorrect_original_spelling.subject_taxon_name]
+      list = [self.incorrect_original_spelling.object_taxon_name]
     end
     return list
   end

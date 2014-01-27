@@ -7,23 +7,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
   end
 
   def self.subject_relationship_name
-    'incorrect original spelling'
+    'justified emendation'
   end
 
   def self.object_relationship_name
-    'justified emendation'
+    'incorrect original spelling'
   end
 
 
   def self.assignment_method
-    # aus.misspelling = bus
-    :iczn_incorrect_original_spelling
+    # bus.set_as_misspelling_of(aus)
+    :iczn_set_as_incorrect_original_spelling_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_misspelling_of(aus)
-    :set_as_iczn_justified_emendation
+    # aus.misspelling = bus
+    :iczn_incorrect_original_spelling
   end
 
   def self.nomenclatural_priority

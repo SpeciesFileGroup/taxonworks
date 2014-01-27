@@ -227,8 +227,8 @@ describe TaxonNameRelationship do
         end
 
         specify 'primary homonyms do not share the same original genus' do
-          @s1.original_combination_genus = @g1
-          @s2.original_combination_genus = @g2
+          @s1.original_genus = @g1
+          @s2.original_genus = @g2
           expect(@s1.save).to be_true
           expect(@s2.save).to be_true
           @s1.reload
@@ -245,7 +245,7 @@ describe TaxonNameRelationship do
         end
 
         specify 'secondary homonyms should be changed to primary' do
-          @s2.original_combination_genus = @g1
+          @s2.original_genus = @g1
           expect(@s2.save).to be_true
           @s2.reload
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
@@ -254,7 +254,7 @@ describe TaxonNameRelationship do
         end
 
         specify 'errors on secondary homonym before 1961' do
-          @s2.original_combination_genus = @g1
+          @s2.original_genus = @g1
           expect(@s2.save).to be_true
           @s2.year_of_publication = 1970
           expect(@s2.save).to be_true

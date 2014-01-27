@@ -34,17 +34,17 @@ describe Protonym do
         expect(@protonym).to respond_to(:original_combination_relationships)
         expect(@genus).to respond_to(:type_species)
         expect(@family).to respond_to(:type_genus)
-        expect(@protonym).to respond_to(:original_combination_genus)
-        expect(@protonym).to respond_to(:original_combination_subgenus)
-        expect(@protonym).to respond_to(:original_combination_section)
-        expect(@protonym).to respond_to(:original_combination_subsection)
-        expect(@protonym).to respond_to(:original_combination_series)
-        expect(@protonym).to respond_to(:original_combination_subseries)
-        expect(@protonym).to respond_to(:original_combination_species)
-        expect(@protonym).to respond_to(:original_combination_subspecies)
-        expect(@protonym).to respond_to(:original_combination_variety)
-        expect(@protonym).to respond_to(:original_combination_subvariety)
-        expect(@protonym).to respond_to(:original_combination_form)
+        expect(@protonym).to respond_to(:original_genus)
+        expect(@protonym).to respond_to(:original_subgenus)
+        expect(@protonym).to respond_to(:original_section)
+        expect(@protonym).to respond_to(:original_subsection)
+        expect(@protonym).to respond_to(:original_series)
+        expect(@protonym).to respond_to(:original_subseries)
+        expect(@protonym).to respond_to(:original_species)
+        expect(@protonym).to respond_to(:original_subspecies)
+        expect(@protonym).to respond_to(:original_variety)
+        expect(@protonym).to respond_to(:original_subvariety)
+        expect(@protonym).to respond_to(:original_form)
         expect(@protonym).to respond_to(:source_classified_as)
       end
       specify 'type_of_relationships' do
@@ -53,17 +53,42 @@ describe Protonym do
       specify 'type_of_taxon_names' do
         expect(@protonym.type_of_taxon_names).to eq([@genus])
       end
+      specify 'type species' do
+        expect(@genus.type_species). to eq(@protonym)
+      end
+      specify 'type species relationship' do
+        expect(@genus.type_species_relationship.id). to eq(@species_type_of_genus.id)
+      end
+      specify 'type of genus' do
+        expect(@protonym.type_of_genus.first). to eq(@genus)
+      end
+      specify 'type of genus relationship' do
+        expect(@protonym.type_of_genus_relationships.first.id). to eq(@species_type_of_genus.id)
+      end
     end
 
     context 'has_one' do
       TaxonNameRelationship.descendants.each do |d|
-        if d.respond_to?(:assignment_method) 
-          relationship = "#{d.assignment_method}_relationship".to_sym
+        if d.respond_to?(:assignment_method)
+          if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
+            relationship = "#{d.assignment_method}_relationship".to_sym
+            relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+          else
+            relationship = "#{d.inverse_assignment_method}_relationship".to_sym
+            relationships = "#{d.assignment_method}_relationships".to_sym
+          end
+
           specify relationship do
             expect(@protonym).to respond_to(relationship)
-          end 
+          end
+          specify relationships do
+            expect(@protonym).to respond_to(relationships)
+          end
           specify d.assignment_method.to_s do
             expect(@protonym).to respond_to(d.assignment_method.to_sym)
+          end
+          specify d.inverse_assignment_method.to_s do
+            expect(@protonym).to respond_to(d.inverse_assignment_method.to_sym)
           end
         end
       end
@@ -95,14 +120,14 @@ describe Protonym do
         end
 
         %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
-          method = "original_combination_#{rank}_relationship" 
+          method = "original_#{rank}_relationship"
           specify method do
             expect(@protonym).to respond_to(method)
           end 
         end
 
         %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
-          method = "original_combination_#{rank}" 
+          method = "original_#{rank}"
           specify method do
             expect(@protonym).to respond_to(method)
           end
@@ -120,11 +145,11 @@ describe Protonym do
     end
 
     specify 'assign an original description genus' do
-      expect(@s.original_combination_genus = @o).to be_true
+      expect(@s.original_genus = @o).to be_true
       expect(@s.save).to be_true
-      expect(@s.original_combination_genus_relationship.class).to eq(TaxonNameRelationship::OriginalCombination::OriginalGenus)
-      expect(@s.original_combination_genus_relationship.subject_taxon_name).to eq(@o)
-      expect(@s.original_combination_genus_relationship.object_taxon_name).to eq(@s)
+      expect(@s.original_genus_relationship.class).to eq(TaxonNameRelationship::OriginalCombination::OriginalGenus)
+      expect(@s.original_genus_relationship.subject_taxon_name).to eq(@o)
+      expect(@s.original_genus_relationship.object_taxon_name).to eq(@s)
     end
     specify 'has at most one original description genus' do
       expect(@s.original_combination_relationships.count).to eq(0)
@@ -167,10 +192,10 @@ describe Protonym do
     end
     specify 'synonym has at most one valid name' do
       genus = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @f)
-      @o.iczn_subjective_synonym = genus
-      expect(@g.save).to be_true
-      @g.iczn_synonym = genus
-      expect(@g.save).to be_true
+      genus.iczn_set_as_subjective_synonym_of = @g
+      expect(genus.save).to be_true
+      genus.iczn_set_as_synonym_of = @o
+      expect(genus.save).to be_true
       expect(genus.taxon_name_relationships.count).to be(1)
     end
   end
@@ -268,7 +293,7 @@ describe Protonym do
     context 'coordinated taxa' do
       specify 'mismatching author in genus' do
         sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
-        sgen.original_combination_genus = @genus
+        sgen.original_genus = @genus
         expect(sgen.save).to be_true
         @genus.reload
         @genus.soft_validate(:validate_coordinated_names)
@@ -317,9 +342,9 @@ describe Protonym do
         s2 = FactoryGirl.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
         s2.soft_validate(:validate_coordinated_names)
-        #author in tribe and subfamily are different
+        #author in speciec and incorrect original spelling are different
         expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_false
-        #year in tribe and subfamily are different
+        #year in speciec and incorrect original spelling are different
         expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_false
         s2.fix_soft_validations
         s2.soft_validate(:validate_coordinated_names)
@@ -476,7 +501,7 @@ describe Protonym do
 
     context 'relationships' do
       before(:each) do
-        @s.original_combination_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
+        @s.original_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
         @s.save
         @s.reload
       end

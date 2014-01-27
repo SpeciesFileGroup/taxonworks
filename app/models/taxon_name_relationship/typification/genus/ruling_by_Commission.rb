@@ -20,10 +20,18 @@ class TaxonNameRelationship::Typification::Genus::RulingByCommission < TaxonName
   end
 
   def self.subject_relationship_name
+    'type of genus by ruling by Commission'
+  end
+
+  def self.object_relationship_name
     'type species by ruling by Commission'
   end
 
   def self.assignment_method
+    :type_of_genus_by_ruling_by_Commission
+  end
+
+  def self.inverse_assignment_method
     :type_species_by_ruling_by_Commission
   end
 

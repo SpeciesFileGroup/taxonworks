@@ -5,26 +5,25 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
   end
 
   def self.subject_relationship_name
-    'nomen novum'
+    'homonym'
   end
 
   def self.object_relationship_name
-    'homonym'
+    'nomen novum'
+  end
+
+  # as.
+  def self.assignment_method
+    # bus.set_as_replacement_name_of(aus)
+    :iczn_set_as_replacement_name_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.iczn_replacement_name = bus
+    :iczn_replacement_name
   end
 
   def self.nomenclatural_priority
     :direct
   end
-
-  def self.assignment_method
-    # aus.iczn_replacement_name = bus
-    :iczn_replacement_name
-  end
-
-  # as.
-  def self.inverse_assignment_method
-    # bus.set_as_replacement_name_of(aus)
-    :set_as_replacement_name_of
-  end
-
 end

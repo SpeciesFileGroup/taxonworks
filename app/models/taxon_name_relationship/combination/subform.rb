@@ -10,6 +10,15 @@ class TaxonNameRelationship::Combination::Subform < TaxonNameRelationship::Combi
     SPECIES_RANK_NAMES_ICN
   end
 
+  def self.assignment_method
+    :subform_in_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :combination_subform
+  end
+
   def self.assignable
     true
   end

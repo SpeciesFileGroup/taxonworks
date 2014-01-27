@@ -19,15 +19,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
+  soft_validate(:sv_subject_rank, set: :subject_rank)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object,
+    :validate_object_rank,
     :validate_uniqueness_of_synonym_subject,
     :validate_uniqueness_of_typification_object
 
@@ -150,13 +153,24 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
       true
     elsif self.object_taxon_name_id == self.subject_taxon_name_id
-      errors.add(:object_taxon_name_id, "Taxon should not refer to itself")
-    elsif !!self.subject_taxon_name && !!self.object_taxon_name
-      errors.add(:subject_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-      if object_taxon_name.class.to_s == 'Protonym'
-        errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
-      else
-        errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status') unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
+      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself')
+    elsif self.object_taxon_name_id != self.subject_taxon_name.parent_id && self.type_name == 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+      errors.add(:object_taxon_name_id, 'The parent and related taxon should match')
+    end
+  end
+
+  def validate_object_rank
+    if !TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s)
+      true
+    elsif object_taxon_name.class.to_s == 'Protonym'
+      unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+        soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+        soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+      end
+    else # combination
+      unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
+        soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+        soft_validations.add(:type, 'Not compatible with the rank of related taxon')
       end
     end
   end
@@ -165,7 +179,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.subject_taxon_name.nil? || self.object_taxon_name.nil? || self.type.nil?
       true
     elsif /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self.id||0).empty?
-      errors.add(:subject_taxon_name_id, "Only one synonym relationship is allowed")
+      errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
     end
   end
 
@@ -173,7 +187,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
       true
     elsif /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self.id||0).empty?
-      errors.add(:object_taxon_name_id, "Only one type relationship is allowed")
+      errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
     end
   end
 
@@ -181,10 +195,19 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Soft Validation
 
+  def sv_subject_rank
+    if !!self.subject_taxon_name && !!self.object_taxon_name
+      unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
+        soft_validations.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
+        soft_validations.add(:type, 'Not compatible with the rank of this taxon')
+      end
+    end
+  end
+
   def sv_validate_disjoint_relationships
     relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     relationships.each  do |i|
-      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.subject_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
     end
   end
 
@@ -219,16 +242,16 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
         soft_validations.add(:type, 'Subjective synonyms should not have the same type') if s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-        soft_validations.add(:type, 'Primary homonyms should have the same original genus') if s.original_combination_genus != o.original_combination_genus
+        soft_validations.add(:type, 'Primary homonyms should have the same original genus') if s.original_genus != o.original_genus
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-        if s.original_combination_genus == o.original_combination_genus && !s.original_combination_genus.nil?
+        if s.original_genus == o.original_genus && !s.original_genus.nil?
           soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
           soft_validations.add(:type, "Secondary homonyms should be placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
-        soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_combination_genus == o.original_combination_genus && !s.original_combination_genus.nil?
+        soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_genus == o.original_genus && !s.original_genus.nil?
         soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
@@ -325,8 +348,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_fix_specify_homonymy_type
-    subject_original_genus = self.subject_taxon_name.original_combination_genus
-    object_original_genus = self.object_taxon_name.original_combination_genus
+    subject_original_genus = self.subject_taxon_name.original_genus
+    object_original_genus = self.object_taxon_name.original_genus
     subject_genus = self.subject_taxon_name.ancestor_at_rank('genus')
     object_genus = self.subject_taxon_name.ancestor_at_rank('genus')
     new_relationship_name = 'nil'
@@ -353,7 +376,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
       obj = self.object_taxon_name
       if obj.get_valid_taxon_name != obj
-        soft_validations.add(:object_taxon_name_id, "The #{self.type_class.subject_relationship_name} should be associated with a valid name",
+        soft_validations.add(:object_taxon_name_id, "The #{self.type_class.object_relationship_name} should be associated with a valid name",
                              fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
       end
     end
@@ -399,9 +422,9 @@ class TaxonNameRelationship < ActiveRecord::Base
             soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
           when :reverse
             if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-              soft_validations.add(:subject_taxon_name_id, "#{self.type_class.subject_relationship_name.capitalize} should not be younger than the taxon")
+              soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
             else
-              soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be younger than related taxon")
+              soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
             end
         end
       end
@@ -411,9 +434,11 @@ class TaxonNameRelationship < ActiveRecord::Base
   #endregion
 
   private
+
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
+
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
@@ -421,6 +446,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
     ans    
   end
+
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end

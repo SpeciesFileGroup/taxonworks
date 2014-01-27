@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
   end
 
   def self.subject_relationship_name
-    'nomen oblitum'
+    'nomen protectum'
   end
 
   def self.object_relationship_name
-    'nomen protectum'
+    'nomen oblitum'
   end
 
   def self.nomenclatural_priority
@@ -21,14 +21,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
   end
 
   def self.assignment_method
-    # aus.iczn_forgotten_name = bus
-    :iczn_forgotten_name
+    # bus.set_as_iczn_forgotten_name_of(aus)
+    :iczn_set_as_forgotten_name_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_forgotten_name_of(aus)
-    :set_as_iczn_forgotten_name_of
+    # aus.iczn_forgotten_name = bus
+    :iczn_forgotten_name
   end
 
 end

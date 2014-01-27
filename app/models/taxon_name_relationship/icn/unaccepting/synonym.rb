@@ -11,19 +11,18 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   end
 
   def self.object_relationship_name
-    'senior synonym'
+    'junior synonym'
   end
 
 
   def self.assignment_method
-    # aus.icn_synonym = bus
-    :icn_synonym
+    # bus.set_as_icn_synonym_of(aus)
+    :icn_set_as_synonym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_synonym_of(aus)
-    :set_as_icn_synonym_of
+    # aus.icn_synonym = bus
+    :icn_synonym
   end
 
 end

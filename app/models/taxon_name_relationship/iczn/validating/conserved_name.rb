@@ -25,23 +25,23 @@ class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelation
   end
 
   def self.subject_relationship_name
-    'conserved name'
+    'suppressed'
   end
 
   def self.object_relationship_name
-    'suppressed name'
+    'conserved'
   end
 
-
-  def self.assignment_method
-    # aus.iczn_conserved_name = bus
-    :iczn_conserved_name
-  end
 
   # as.
-  def self.inverse_assignment_method
+  def self.assignment_method
     # bus.set_as_conserved_name_of(aus)
-    :set_as_conserved_name_of
+    :iczn_set_as_conserved_name_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.iczn_conserved_name = bus
+    :iczn_conserved_name
   end
 
 end

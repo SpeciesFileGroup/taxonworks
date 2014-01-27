@@ -70,9 +70,11 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
 
-  validates_presence_of :type
-  validates_presence_of :rank_class, if: Proc.new { |tn| [Protonym].include?(tn.class)}
-  validates_presence_of :name, if: Proc.new { |tn| [Protonym].include?(tn.class)}
+
+
+  validates_presence_of :type, message: 'Type is not specified'
+  validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
+  validates_presence_of :name, message: 'Name is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
 
   before_validation :set_type_if_empty,
                     :check_format_of_name,
@@ -127,11 +129,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def nomenclature_date
-    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
-    if family_before_1961.empty?
+    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
+    if family_before_1961.nil?
       self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
     else
-      obj = family_before_1961.first.object_taxon_name
+      obj = family_before_1961.object_taxon_name
       obj.source ? obj.source.nomenclature_date.to_time : (obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil)
     end
   end
@@ -154,7 +156,7 @@ class TaxonName < ActiveRecord::Base
     return false
   end
 
-  def get_valid_taxon_name
+  def get_valid_taxon_name # get valid name for any taxon
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
     (vn.count == 1) ? vn.first.object_taxon_name : self
   end
@@ -268,11 +270,9 @@ class TaxonName < ActiveRecord::Base
 
   def validate_rank_class_class
     if self.type == 'Combination'
-      errors.add(:rank_class, 'Combination should not have rank') if self.rank_class
+      errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
     elsif self.type == 'Protonym'
-      unless Ranks.valid?(rank_class)
-        errors.add(:rank_class, 'Rank not found')
-      end
+      errors.add(:rank_class, 'Rank not found') unless Ranks.valid?(rank_class)
     end
   end
 

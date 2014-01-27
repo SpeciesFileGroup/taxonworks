@@ -10,6 +10,15 @@ class TaxonNameRelationship::Combination::Variety < TaxonNameRelationship::Combi
     SPECIES_RANK_NAMES_ICN
   end
 
+  def self.assignment_method
+    :variety_in_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :combination_variety
+  end
+
   def self.assignable
     true
   end

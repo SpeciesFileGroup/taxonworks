@@ -16,23 +16,22 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
   end
 
   def self.subject_relationship_name
-    'misspelling'
+    'correct spelling'
   end
 
   def self.object_relationship_name
-    'correct spelling'
+    'misspelling'
   end
 
 
   def self.assignment_method
-    # aus.icn_misspelling = bus
-    :icn_misspelling
+    # bus.set_as_icn_misspelling_of(aus)
+    :icn_set_as_misspelling_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_misspelling_of(aus)
-    :set_as_icn_misspelling_of
+    # aus.icn_misspelling = bus
+    :icn_misspelling
   end
 
 end

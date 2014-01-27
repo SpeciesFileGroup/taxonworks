@@ -7,23 +7,22 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic < TaxonNameRel
   end
 
   def self.subject_relationship_name
-    'homotypic synonym'
+    'homotypic senior synonym'
   end
 
   def self.object_relationship_name
-    'homotypic senior synonym'
+    'homotypic synonym'
   end
 
 
   def self.assignment_method
-    # aus.icn_homotypic_synonym = bus
-    :icn_homotypic_synonym
+    # bus.set_as_icn_homotypic_synonym_of(aus)
+    :icn_set_as_homotypic_synonym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_homotypic_synonym_of(aus)
-    :set_as_icn_homotypic_synonym_of
+    # aus.icn_homotypic_synonym = bus
+    :icn_homotypic_synonym
   end
 
 end

@@ -18,22 +18,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
   end
 
   def self.subject_relationship_name
-    'primary homonym'
-  end
-
-  def self.object_relationship_name
     'senior primary homonym'
   end
 
-  def self.assignment_method
-    # aus.iczn_primary_homonym = bus
-    :iczn_primary_homonym
+  def self.object_relationship_name
+    'primary homonym'
   end
 
-  # as.
-  def self.inverse_assignment_method
+  def self.assignment_method
     # bus.set_as_iczn_primary_homonym_of(aus)
-    :set_as_iczn_primary_homonym_of
+    :iczn_set_as_primary_homonym_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.iczn_primary_homonym = bus
+    :iczn_primary_homonym
   end
 
 end

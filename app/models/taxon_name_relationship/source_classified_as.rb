@@ -23,15 +23,29 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   def self.subject_relationship_name
+    'as classified for'
+  end
+
+  def self.subject_relationship_name
     'classified as'
   end
 
   def self.assignment_method
+    #family.as_source_classified > [Genus]
+    :as_source_classified
+  end
+
+  def self.inverse_assignment_method
+    #genus.source_classified_as = Family
     :source_classified_as
   end
 
   def self.assignable
     true
+  end
+
+  def self.nomenclatural_priority
+    :reverse
   end
 
 end

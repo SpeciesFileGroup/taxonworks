@@ -14,18 +14,21 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelati
   end
 
   def self.subject_relationship_name
+    'legitimate name'
+  end
+
+  def self.object_relationship_name
     'basionym'
   end
 
   def self.assignment_method
-    # aus.icn_basionym = bus
-    :icn_basionym
+    # bus.set_as_icn_basionym_of(aus)
+    :icn_set_as_basionym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_basionym_of(aus)
-    :set_as_icn_basionym_of
+    # aus.icn_basionym = bus
+    :icn_basionym
   end
 
 end

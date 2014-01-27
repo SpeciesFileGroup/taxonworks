@@ -11,14 +11,14 @@ class TaxonNameRelationship::OriginalCombination::OriginalSeries < TaxonNameRela
   end
 
   def self.assignment_method
-    # aus.original_combination_form = bus
-    :original_combination_series
+    # bus.set_as_form_in_original_combination(aus)
+    :series_in_original_combination
   end
 
   # as. 
   def self.inverse_assignment_method
-    # bus.set_as_form_in_original_combination(aus)
-    :series_in_original_combination
+    # aus.original_series = bus
+    :original_series
   end
 
   def self.assignable

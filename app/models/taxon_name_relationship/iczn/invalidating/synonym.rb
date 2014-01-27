@@ -12,23 +12,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
   end
 
   def self.subject_relationship_name
-    'synonym'
+    'senior synonym'
   end
 
   def self.object_relationship_name
-    'senior synonym'
+    'synonym'
   end
 
 
   def self.assignment_method
-         # aus.iczn_synonym = bus
-    :iczn_synonym
+    # bus.set_as_iczn_synonym_of(aus)
+    :iczn_set_as_synonym_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_synonym_of(aus)
-    :set_as_iczn_synonym_of
+    # aus.iczn_synonym = bus
+    :iczn_synonym
   end
 
 end
