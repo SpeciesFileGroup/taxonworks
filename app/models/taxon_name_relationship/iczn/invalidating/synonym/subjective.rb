@@ -9,23 +9,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
   end
 
   def self.subject_relationship_name
-    'subjective synonym'
+    'subjective senior synonym'
   end
 
   def self.object_relationship_name
-    'subjective senior synonym'
+    'subjective synonym'
   end
 
 
   def self.assignment_method
-    # aus.iczn_subjective_synonym = bus
-    :iczn_subjective_synonym
+    # bus.set_as_iczn_subjective_synonym_of(aus)
+    :iczn_set_as_subjective_synonym_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_subjective_synonym_of(aus)
-    :set_as_iczn_subjective_synonym_of
+    # aus.iczn_subjective_synonym = bus
+    :iczn_subjective_synonym
   end
 
 end

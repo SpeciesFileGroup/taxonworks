@@ -6,30 +6,29 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
   end
 
   def self.subject_relationship_name
-    'unaccepted name'
-  end
-
-  def self.object_relationship_name
     'accepted name'
   end
 
-  def self.assignable
-    true
+  def self.object_relationship_name
+    'unaccepted name'
+  end
+
+  def self.assignment_method
+    # bus.set_as_icn_unacceptable_of(aus)
+    :icn_set_as_unacceptable_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.icn_unacceptable = bus
+    :icn_unacceptable
   end
 
   def self.nomenclatural_priority
     :direct
   end
 
-  def self.assignment_method
-    # aus.icn_unacceptable = bus
-    :icn_unacceptable
-  end
-
-  # as.
-  def self.inverse_assignment_method
-    # bus.set_as_icn_unacceptable_of(aus)
-    :set_as_icn_unacceptable_of
+  def self.assignable
+    true
   end
 
 end

@@ -11,12 +11,12 @@ class TaxonNameRelationship::Combination::Genus < TaxonNameRelationship::Combina
   end
 
   def self.assignment_method
-    :combination_genus
+    :genus_in_combination
   end
 
   # as.
   def self.inverse_assignment_method
-    :genus_in_combination
+    :combination_genus
   end
 
   def self.assignable

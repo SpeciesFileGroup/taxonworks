@@ -16,23 +16,26 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
   end
 
   def self.subject_relationship_name
+    'type of genus'
+  end
+
+  def self.object_relationship_name
     'type species'
   end
 
   def self.assignment_method
-    # used like:
-    #
-    #   right_side instance   =  left_side instance
-    #   genus.type_species = species
-    #   genus.type_species_relationship # => returns a TaxonNameRelationship
-    :type_species
-  end
-
-  def self.inverse_assignment_method
     # used like
     #    left_side_instance        right_side_instance
     #    species.type_of_genus(genus)
     :type_of_genus
+  end
+
+  def self.inverse_assignment_method
+    # used like:
+    #   right_side instance   =  left_side instance
+    #   genus.type_species = species
+    #   genus.type_species_relationship # => returns a TaxonNameRelationship
+    :type_species
   end
 
   def self.assignable

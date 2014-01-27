@@ -9,18 +9,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total < T
   end
 
   def self.subject_relationship_name
-    'totally suppressed name'
+    'conserved'
+  end
+
+  def self.object_relationship_name
+    'totally suppressed'
   end
 
   def self.assignment_method
-    # aus.iczn_total_suppression = bus
-    :iczn_total_suppression
+    # bus.set_as_iczn_total_suppression_of(aus)
+    :iczn_set_as_total_suppression_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_total_suppression_of(aus)
-    :set_as_iczn_total_suppression
+    # aus.iczn_total_suppression = bus
+    :iczn_total_suppression
   end
 
 end

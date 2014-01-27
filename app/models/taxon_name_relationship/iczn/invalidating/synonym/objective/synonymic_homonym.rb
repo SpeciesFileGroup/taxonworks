@@ -8,22 +8,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHo
   end
 
   def self.subject_relationship_name
-    'synonymic homonym'
-  end
-
-  def self.object_relationship_name
     'senior synonymic homonym'
   end
 
-  def self.assignment_method
-    # aus.iczn_synonymic_homonym = bus
-    :iczn_synonymic_homonym
+  def self.object_relationship_name
+    'synonymic homonym'
   end
 
-  # as.
-  def self.inverse_assignment_method
+  def self.assignment_method
     # bus.set_as_iczn_synonymic_homonym_of(aus)
-    :set_as_iczn_synonymic_homonym
+    :iczn_set_as_synonymic_homonym_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.iczn_synonymic_homonym = bus
+    :iczn_synonymic_homonym
   end
 
 end

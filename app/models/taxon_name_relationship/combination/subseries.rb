@@ -10,6 +10,15 @@ class TaxonNameRelationship::Combination::Subseries < TaxonNameRelationship::Com
     GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
+  def self.assignment_method
+    :subseries_in_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :combination_subseries
+  end
+
   def self.assignable
     true
   end

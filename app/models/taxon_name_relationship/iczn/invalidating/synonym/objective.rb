@@ -9,23 +9,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
   end
 
   def self.subject_relationship_name
-    'objective synonym'
+    'objective senior synonym'
   end
 
   def self.object_relationship_name
-    'objective senior synonym'
+    'objective synonym'
   end
 
 
   def self.assignment_method
-    # aus.iczn_objective_synonym = bus
-    :iczn_objective_synonym
+    # bus.set_as_iczn_objective_synonym_of(aus)
+    :iczn_set_as_objective_synonym_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_objective_synonym_of(aus)
-    :set_as_iczn_objective_synonym_of
+    # aus.iczn_objective_synonym = bus
+    :iczn_objective_synonym
   end
 
 end

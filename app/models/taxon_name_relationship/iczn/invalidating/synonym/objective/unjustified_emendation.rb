@@ -8,22 +8,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
   end
 
   def self.subject_relationship_name
-    'unjustified emendation'
-  end
-
-  def self.object_relationship_name
     'correct original spelling'
   end
 
-  def self.assignment_method
-    # aus.iczn_unjustified_emendation = bus
-    :iczn_unjustified_emendation
+  def self.object_relationship_name
+    'unjustified emendation'
   end
 
-  # as.
-  def self.inverse_assignment_method
+  def self.assignment_method
     # bus.set_as_iczn_unjustified_emendation_of(aus)
-    :set_as_iczn_unjustified_emendation
+    :iczn_set_as_unjustified_emendation_of
+  end
+
+  def self.inverse_assignment_method
+    # aus.iczn_unjustified_emendation = bus
+    :iczn_unjustified_emendation
   end
 
 end

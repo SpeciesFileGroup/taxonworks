@@ -21,11 +21,11 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
   end
 
   def self.subject_relationship_name
-    'valid name'
+    'valid'
   end
 
-  def self.subject_relationship_name
-    'invalid name'
+  def self.object_relationship_name
+    'invalid'
   end
 
 end

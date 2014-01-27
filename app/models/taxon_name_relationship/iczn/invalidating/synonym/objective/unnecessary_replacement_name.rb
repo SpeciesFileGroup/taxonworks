@@ -8,18 +8,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
   end
 
   def self.subject_relationship_name
-    'unnecessary replacement name'
+    'unnecessary replaced'
+  end
+
+  def self.object_relationship_name
+    'unnecessary replacement'
   end
 
   def self.assignment_method
-    # aus.iczn_unnecessary_replacement_name = bus
-    :iczn_unnecessary_replacement_name
+    # bus.set_as_iczn_unnecessary_replacement_name_of(aus)
+    :iczn_set_as_unnecessary_replaced_name
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_unnecessary_replacement_name_of(aus)
-    :set_as_iczn_unnecessary_replacement_name
+    # aus.iczn_unnecessary_replacement_name = bus
+    :iczn_unnecessary_replacement_name
   end
 
 end

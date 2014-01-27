@@ -10,6 +10,15 @@ class TaxonNameRelationship::Combination::Species < TaxonNameRelationship::Combi
     SPECIES_RANK_NAMES
   end
 
+  def self.assignment_method
+    :species_in_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :combination_species
+  end
+
   def self.assignable
     true
   end

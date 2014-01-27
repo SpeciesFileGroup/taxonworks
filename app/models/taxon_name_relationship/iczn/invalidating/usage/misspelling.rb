@@ -7,23 +7,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
   end
 
   def self.subject_relationship_name
-    'subsequent misspelling'
+    'correct spelling'
   end
 
   def self.object_relationship_name
-    'correct spelling'
+    'misspelling'
   end
 
 
   def self.assignment_method
-    # aus.misspelling = bus
-    :iczn_misspelling
+    # bus.set_as_misspelling_of(aus)
+    :iczn_set_as_misspelling_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_misspelling_of(aus)
-    :set_as_iczn_misspelling_of
+    # aus.misspelling = bus
+    :iczn_misspelling
   end
 
   def self.assignable

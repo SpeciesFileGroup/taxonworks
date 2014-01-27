@@ -17,23 +17,22 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   end
 
   def self.subject_relationship_name
-    'secondary homonym'
+    'senior secondary homonym'
   end
 
   def self.object_relationship_name
-    'senior secondary homonym'
+    'secondary homonym'
   end
 
 
   def self.assignment_method
-    # aus.iczn_secondary_homonym = bus
-    :iczn_secondary_homonym
+    # bus.set_as_iczn_secondary_homonym_of(aus)
+    :iczn_set_as_secondary_homonym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_secondary_homonym_of(aus)
-    :set_as_iczn_secondary_homonym_of
+    # aus.iczn_secondary_homonym = bus
+    :iczn_secondary_homonym
   end
 
 end

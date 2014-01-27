@@ -8,18 +8,22 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeNa
   end
 
   def self.subject_relationship_name
+    'set as alternative name'
+  end
+
+  def self.object_relationship_name
     'alternative name'
   end
 
   def self.assignment_method
-    # aus.icn_alternative_name = bus
-    :icn_alternative_name
+    # bus.set_as_icn_alternative_name_of(aus)
+    :icn_set_as_alternative_name_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_alternative_name_of(aus)
-    :set_as_icn_alternative_name_of
+    # aus.icn_alternative_name = bus
+    :icn_alternative_name
   end
 
 end

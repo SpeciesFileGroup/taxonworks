@@ -10,6 +10,15 @@ class TaxonNameRelationship::Combination::Section < TaxonNameRelationship::Combi
     GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
+  def self.assignment_method
+    :section_in_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :combination_section
+  end
+
   def self.assignable
     true
   end

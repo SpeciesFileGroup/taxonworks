@@ -13,23 +13,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 #  end
 
   def self.subject_relationship_name
-    'homonym'
+    'senior homonym'
   end
 
   def self.object_relationship_name
-    'senior homonym'
+    'homonym'
   end
 
 
   def self.assignment_method
-    # aus.iczn_homonym = bus
-    :iczn_homonym
+    # bus.set_as_iczn_homonym_of(aus)
+    :iczn_as_homonym
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_homonym_of(aus)
-    :set_as_iczn_homonym_of
+    # aus.iczn_homonym = bus
+    :iczn_homonym
   end
 
 end

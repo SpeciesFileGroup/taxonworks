@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
   end
 
   def self.subject_relationship_name
-    'suppressed name'
+    'conserved'
   end
 
   def self.object_relationship_name
-    'conserved name'
+    'suppressed'
   end
 
   def self.nomenclatural_priority
@@ -21,14 +21,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
   end
 
   def self.assignment_method
-    # aus.iczn_suppression = bus
-    :iczn_suppression
+    # bus.set_as_iczn_suppression_of(aus)
+    :iczn_set_as_suppression_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_suppression_of(aus)
-    :set_as_iczn_suppression_of
+    # aus.iczn_suppression = bus
+    :iczn_suppression
   end
 
 end

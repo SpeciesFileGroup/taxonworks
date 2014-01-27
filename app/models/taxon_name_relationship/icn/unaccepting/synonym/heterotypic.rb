@@ -7,23 +7,22 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic < TaxonNameR
   end
 
   def self.subject_relationship_name
-    'heterotypic synonym'
+    'heterotypic senior synonym'
   end
 
   def self.object_relationship_name
-    'heterotypic senior synonym'
+    'heterotypic synonym'
   end
 
 
   def self.assignment_method
-    # aus.icn_heterotypic_synonym = bus
-    :icn_heterotypic_synonym
+    # bus.set_as_icn_heterotypic_synonym_of(aus)
+    :icn_set_as_heterotypic_synonym_of
   end
 
-  # as.
   def self.inverse_assignment_method
-    # bus.set_as_icn_heterotypic_synonym_of(aus)
-    :set_as_icn_heterotypic_synonym_of
+    # aus.icn_heterotypic_synonym = bus
+    :icn_heterotypic_synonym
   end
 
 end

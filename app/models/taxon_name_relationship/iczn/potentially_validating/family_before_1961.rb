@@ -14,19 +14,23 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
     'family name based on genus synonym replaced before 1961'
   end
 
+  def self.object_relationship_name
+    'as family name based on genus synonym replaced before 1961'
+  end
+
   def self.nomenclatural_priority
     :direct
   end
 
   def self.assignment_method
-    # Aidae.iczn_family_before_1961 = Bidae
-    :iczn_family_before_1961
+    # bus.set_as_iczn_family_before_1961_of(aus)
+    :iczn_set_as_family_before_1961_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # bus.set_as_iczn_family_before_1961_of(aus)
-    :set_as_iczn_family_before_1961_of
+    # Aidae.iczn_family_before_1961 = Bidae
+    :iczn_family_before_1961
   end
 
   def self.assignable

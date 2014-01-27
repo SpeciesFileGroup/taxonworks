@@ -16,15 +16,19 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
   end
 
   def self.subject_relationship_name
+    'type of gamily'
+  end
+
+  def self.object_relationship_name
     'type genus'
   end
 
   def self.assignment_method
-    :type_genus
+    :type_of_family
   end
 
   def self.inverse_assignment_method
-    :type_of_family
+    :type_genus
   end
 
   def self.assignable

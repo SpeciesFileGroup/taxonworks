@@ -22,25 +22,22 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     true
   end
 
-  def self.assignment_method
-    # aus.iczn_invalid = bus   ## Equal to synonym in broad sense
-    :iczn_invalid
-  end
-
-  # as.
-  def self.inverse_assignment_method
-    # bus.set_as_iczn_invalid_of(aus)
-    :set_as_iczn_invalid_of
-  end
-
   def self.subject_relationship_name
-    'invalid name'
+    'valid'
   end
 
   def self.object_relationship_name
-    'valid name'
+    'invalid'
   end
 
+  # as.
+  def self.assignment_method
+    # bus.set_as_iczn_invalid_of(aus)
+    :iczn_set_as_invalid_of
+  end
 
-
+  def self.inverse_assignment_method
+    # aus.iczn_invalid = bus   ## Equal to synonym in broad sense
+    :iczn_invalid
+  end
 end

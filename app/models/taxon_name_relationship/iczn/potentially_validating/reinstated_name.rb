@@ -8,9 +8,21 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < Taxon
     true
   end
 
+  def self.subject_relationship_name
+    'as reinstated'
+  end
+
+  def self.object_relationship_name
+    'reinstated'
+  end
+
   def self.assignment_method
+    # aus.iczn_reinstated_name = bus
+    :iczn_set_as_reinstated_name_of
+  end
+
+  def self.inverse_assignment_method
     # aus.iczn_reinstated_name = bus
     :iczn_reinstated_name
   end
-
 end

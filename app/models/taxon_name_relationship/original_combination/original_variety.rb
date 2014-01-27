@@ -11,14 +11,14 @@ class TaxonNameRelationship::OriginalCombination::OriginalVariety < TaxonNameRel
   end
 
   def self.assignment_method
-    # aus.original_combination_form = bus
-    :original_combination_variety
+    # bus.set_as_form_in_original_combination(aus)
+    :variety_in_original_combination
   end
 
   # as. 
   def self.inverse_assignment_method
-    # bus.set_as_form_in_original_combination(aus)
-    :variety_in_original_combination
+    # aus.original_combination_form = bus
+    :original_variety
   end
 
   def self.assignable

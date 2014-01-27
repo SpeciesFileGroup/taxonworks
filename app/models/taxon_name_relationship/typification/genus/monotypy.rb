@@ -20,11 +20,19 @@ class TaxonNameRelationship::Typification::Genus::Monotypy < TaxonNameRelationsh
   end
 
   def self.subject_relationship_name
+    'type of genus by monotypy'
+  end
+
+  def self.object_relationship_name
     'type species by monotypy'
   end
 
   def self.assignment_method
-    :type_species_by_monotypy 
+    :type_of_genus_by_monotypy
+  end
+
+  def self.inverse_assignment_method
+    :type_species_by_monotypy
   end
 
 end

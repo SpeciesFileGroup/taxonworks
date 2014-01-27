@@ -7,10 +7,18 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute < TaxonNam
   end
 
   def self.subject_relationship_name
+    'type of genus by absolute tautonomy'
+  end
+
+  def self.object_relationship_name
     'type species by absolute tautonomy'
   end
 
   def self.assignment_method
+    :type_of_genus_by_absolute_tautonomy
+  end
+
+  def self.inverse_assignment_method
     :type_species_by_absolute_tautonomy
   end
 
