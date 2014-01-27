@@ -256,6 +256,12 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def check_format_of_name
+    if self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+      self.rank_class.validate_name_format(self)
+    end
+  end
+
   def validate_parent_rank_is_higher
     if self.parent && !self.rank_class.blank? && self.rank_class != NomenclaturalRank
       if RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
@@ -273,12 +279,6 @@ class TaxonName < ActiveRecord::Base
       errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
     elsif self.type == 'Protonym'
       errors.add(:rank_class, 'Rank not found') unless Ranks.valid?(rank_class)
-    end
-  end
-
-  def check_format_of_name
-    if self.rank_class && self.rank_class.respond_to?(:validate_name_format)
-      self.rank_class.validate_name_format(self)
     end
   end
 

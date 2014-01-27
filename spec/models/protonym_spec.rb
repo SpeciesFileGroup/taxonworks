@@ -439,6 +439,18 @@ describe Protonym do
         @genus.soft_validate(:validate_coordinated_names)
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
       end
+      specify 'incertae sedis' do
+        species=FactoryGirl.create(:relationship_species, parent: @family)
+        expect(species.valid?).to be_true
+        species.soft_validate(:validate_parent_rank)
+        expect(species.soft_validations.messages_on(:rank_class).count).to eq(1)
+        species.iczn_uncertain_placement = @family
+        expect(species.save).to be_true
+        species.soft_validate(:validate_parent_rank)
+        expect(species.soft_validations.messages_on(:rank_class).empty?).to be_true
+        species.parent = @genus
+        expect(species.valid?).to be_false
+      end
     end
 
     context 'single sub taxon in the nominal' do
