@@ -8,6 +8,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
+  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
   soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
@@ -19,6 +20,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
+  soft_validate(:sv_homonym_and_suppressed, set: :homonym_and_suppressed)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -72,6 +74,11 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # disjoint relationships for the taxon as a subject
   def self.disjoint_taxon_name_relationships
+    []
+  end
+
+  # disjoint relationships for the taxon as a object
+  def self.required_taxon_name_relationships
     []
   end
 
@@ -200,10 +207,20 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Soft Validation
 
+  def sv_validate_required_relationships
+    object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type.to_s}
+    required = self.type_class.required_taxon_name_relationships - object_relationships
+    required.each do |r|
+      soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.constantize.object_relationship_name}")
+    end
+  end
+
   def sv_validate_disjoint_relationships
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     subject_relationships.each  do |i|
-      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+      if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+        soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'")
+      end
     end
   end
 
@@ -423,6 +440,14 @@ class TaxonNameRelationship < ActiveRecord::Base
               soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
             end
         end
+      end
+    end
+  end
+
+  def sv_homonym_and_suppressed
+    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+      unless self.object_taxon_name.iczn_set_as_total_suppression_of.nil?
+        soft_validations.add(:type, 'Taxon should not be treated as homonym, since the related taxon is totally suppressed')
       end
     end
   end

@@ -9,6 +9,11 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubspecies < TaxonName
     SPECIES_RANK_NAMES
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::OriginalCombination::OriginalSpecies,
+                      TaxonNameRelationship::OriginalCombination::OriginalGenus)
+  end
+
   def self.assignment_method
     # bus.set_as_species_in_original_combination(aus)
     :subspecies_in_original_combination

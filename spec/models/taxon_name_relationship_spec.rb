@@ -165,6 +165,17 @@ describe TaxonNameRelationship do
     end
 
     context 'soft validation' do
+      specify 'required relationship' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+        r1.soft_validate(:validate_required_relationships)
+        # original genus is required
+        expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+        s.original_genus = @genus
+        expect(s.save).to be_true
+        r1.soft_validate(:validate_required_relationships)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+      end
       specify 'disjoint relationships' do
         g = FactoryGirl.create(:relationship_genus, parent: @family)
         s = FactoryGirl.create(:relationship_species, parent: g)
@@ -293,6 +304,13 @@ describe TaxonNameRelationship do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           r.soft_validate('synonym_relationship')
           expect(r.soft_validations.messages_on(:source_id).count).to eq(1)
+        end
+
+        specify 'homonym and totally suppressed' do
+          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
+          r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+          r2.soft_validate('homonym_and_suppressed')
+          expect(r2.soft_validations.messages_on(:type).count).to eq(1)
         end
       end
 
