@@ -8,6 +8,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
+  #soft_validate(:sv_nomenclatural_ranks, set: :nomenclatural_ranks)
   soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
@@ -134,7 +135,6 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Validation
 
-  # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
     if type.nil?
       true
@@ -166,11 +166,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_subject_and_object_ranks
-    if TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s)
+    tname = self.type_name
+    if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
       if !!self.subject_taxon_name && !!self.object_taxon_name
         unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
           errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
           errors.add(:type, 'Not compatible with the rank of this taxon')
+        end
+      end
+      if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+        rank_group = self.subject_taxon_name.rank_class.parent
+        unless rank_group == self.object_taxon_name.rank_class.parent
+          errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
         end
       end
       if object_taxon_name.class.to_s == 'Protonym'

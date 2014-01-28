@@ -33,7 +33,7 @@ describe TaxonNameRelationship do
         specify 'disjoint_taxon_name_relationships' do
           TAXON_NAME_RELATIONSHIPS.each do |r|
             r1 = r.disjoint_taxon_name_relationships.collect{|i| i.to_s}
-            r1 = ['a'] + r1
+            r1 = ['string'] + r1
             r1 = r1.collect{|i| i.class.to_s}.uniq
             expect(r1.first).to eq('String')
             expect(r1.count).to eq(1)
@@ -42,7 +42,7 @@ describe TaxonNameRelationship do
         specify 'disjoint_subject_classes' do
           TAXON_NAME_RELATIONSHIPS.each do |r|
             r1 = r.disjoint_subject_classes.collect{|i| i.to_s}
-            r1 = ['a'] + r1
+            r1 = ['string'] + r1
             r1 = r1.collect{|i| i.class.to_s}.uniq
             expect(r1.first).to eq('String')
             expect(r1.count).to eq(1)
@@ -51,7 +51,7 @@ describe TaxonNameRelationship do
         specify 'disjoint_object_classes' do
           TAXON_NAME_RELATIONSHIPS.each do |r|
             r1 = r.disjoint_object_classes.collect{|i| i.to_s}
-            r1 = ['a'] + r1
+            r1 = ['string'] + r1
             r1 = r1.collect{|i| i.class.to_s}.uniq
             expect(r1.first).to eq('String')
             expect(r1.count).to eq(1)
@@ -60,7 +60,7 @@ describe TaxonNameRelationship do
         specify 'valid_object_ranks' do
           TAXON_NAME_RELATIONSHIPS.each do |r|
             r1 = r.valid_object_ranks.collect{|i| i.to_s}
-            r1 = ['a'] + r1
+            r1 = ['string'] + r1
             r1 = r1.collect{|i| i.class.to_s}.uniq
             expect(r1.first).to eq('String')
             expect(r1.count).to eq(1)
@@ -69,7 +69,7 @@ describe TaxonNameRelationship do
         specify 'valid_subject_ranks' do
           TAXON_NAME_RELATIONSHIPS.each do |r|
             r1 = r.valid_subject_ranks.collect{|i| i.to_s}
-            r1 = ['a'] + r1
+            r1 = ['string'] + r1
             r1 = r1.collect{|i| i.class.to_s}.uniq
             expect(r1.first).to eq('String')
             expect(r1.count).to eq(1)
@@ -104,23 +104,27 @@ describe TaxonNameRelationship do
 
           specify 'different code' do
             r = FactoryGirl.build_stubbed(:type_species_relationship, object_taxon_name: FactoryGirl.build(:icn_genus))
-            r.valid?
+            expect(r.valid?).to be_false
             expect(r.errors.include?(:object_taxon_name_id)).to be_true
           end
 
           specify 'valid object rank' do
             r = FactoryGirl.build_stubbed(:type_species_relationship)
-            r.valid?
+            expect(r.valid?).to be_true
             expect(r.errors.include?(:object_taxon_name_id)).to be_false
             expect(r.errors.include?(:subject_taxon_name_id)).to be_false
           end
 
           specify 'protonym should not have a combination relationships' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship)
-            r.object_taxon_name = @species
-            r.subject_taxon_name = @genus
-            r.type = TaxonNameRelationship::Combination::Genus
+            r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @genus, object_taxon_name: @species, type: 'TaxonNameRelationship::Combination::Genus')
             expect(r.valid?).to be_false
+            expect(r.errors.include?(:type)).to be_true
+          end
+
+          specify 'subject and object share nomenclatural rank group' do
+            r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @species, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            expect(r.valid?).to be_false
+            expect(r.errors.include?(:object_taxon_name_id)).to be_true
           end
         end
 
