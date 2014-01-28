@@ -2,7 +2,7 @@ module Shared::Identifiable
   extend ActiveSupport::Concern
   included do
 
-    has_many :identifiers, as: :identified_object
+    has_many :identifiers, as: :identified_object, validate: false
 
    #scope :creator_missing_first_name, -> { where(people: {first_name: nil}).joins(:creator)}
    #scope :created_by,  lambda {|person| where("created_by_id = ?", person) }

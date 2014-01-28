@@ -80,8 +80,9 @@ TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term 
 License
 -------
 
-TaxonWorks is open source under the MIT License. See LICENSE.txt for more information.
+TaxonWorks is open source, a decision on the licence to be used is pending, it will likely be MIT or nearly identical. 
 
+ 
 [1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
 [2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
 [3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=master

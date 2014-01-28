@@ -8,6 +8,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
+  #soft_validate(:sv_nomenclatural_ranks, set: :nomenclatural_ranks)
+  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
   soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
@@ -19,6 +21,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
+  soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -75,6 +78,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
+  # disjoint relationships for the taxon as a object
+  def self.required_taxon_name_relationships
+    []
+  end
+
   def self.disjoint_subject_classes
     []
   end
@@ -127,7 +135,6 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Validation
 
-  # TODO: Flesh this out vs. TaxonName#rank_class.  Ensure that FactoryGirl type can be set in postgres branch.
   def validate_type
     if type.nil?
       true
@@ -159,11 +166,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_subject_and_object_ranks
-    if TAXON_NAME_RELATIONSHIP_NAMES.include?(self.type.to_s)
+    tname = self.type_name
+    if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
       if !!self.subject_taxon_name && !!self.object_taxon_name
         unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
           errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
           errors.add(:type, 'Not compatible with the rank of this taxon')
+        end
+      end
+      if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+        rank_group = self.subject_taxon_name.rank_class.parent
+        unless rank_group == self.object_taxon_name.rank_class.parent
+          errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
         end
       end
       if object_taxon_name.class.to_s == 'Protonym'
@@ -200,10 +214,20 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   #region Soft Validation
 
+  def sv_validate_required_relationships
+    object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type.to_s}
+    required = self.type_class.required_taxon_name_relationships - object_relationships
+    required.each do |r|
+      soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.constantize.object_relationship_name}")
+    end
+  end
+
   def sv_validate_disjoint_relationships
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     subject_relationships.each  do |i|
-      soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'") if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+      if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+        soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'")
+      end
     end
   end
 
@@ -425,6 +449,39 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
       end
     end
+  end
+
+  def sv_validate_homonym_relationships
+    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+      if !self.object_taxon_name.iczn_set_as_total_suppression_of.nil?
+        soft_validations.add(:type, 'Taxon should not be treated as homonym, since the related taxon is totally suppressed')
+      elsif self.subject_taxon_name.iczn_set_as_synonym_of.nil?
+        if self.subject_taxon_name.iczn_replacement_name.empty?
+          soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
+        else
+          soft_validations.add(:type, 'Please select a valid name using synonym relationships',
+                               fix: :sv_add_synonym_for_homonym, success_message: 'Synonym relationship was added')
+        end
+      end
+    end
+  end
+
+  def sv_add_synonym_for_homonym
+    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+      if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
+        unless self.subject_taxon_name.iczn_replacement_name.empty?
+          self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
+          begin
+            TaxonNameRelationship.transaction do
+              self.save
+              return true
+            end
+          rescue
+          end
+        end
+      end
+    end
+    false
   end
 
   #endregion

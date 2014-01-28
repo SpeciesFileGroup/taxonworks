@@ -10,6 +10,10 @@ class TaxonNameRelationship::Combination::Section < TaxonNameRelationship::Combi
     GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::Combination::Genus)
+  end
+
   def self.assignment_method
     :section_in_combination
   end

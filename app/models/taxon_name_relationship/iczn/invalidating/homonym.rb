@@ -23,7 +23,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   def self.assignment_method
     # bus.set_as_iczn_homonym_of(aus)
-    :iczn_as_homonym
+    :iczn_set_as_homonym_of
   end
 
   # as.

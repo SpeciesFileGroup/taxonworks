@@ -10,6 +10,11 @@ class TaxonNameRelationship::Combination::Subspecies < TaxonNameRelationship::Co
     SPECIES_RANK_NAMES
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::Combination::Genus,
+                      TaxonNameRelationship::Combination::Species)
+  end
+
   def self.assignment_method
     :subspecies_in_combination
   end
