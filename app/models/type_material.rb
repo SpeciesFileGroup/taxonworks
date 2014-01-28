@@ -4,6 +4,8 @@ class TypeMaterial < ActiveRecord::Base
  include Housekeeping
   include Shared::Citable
 
+  # Keys are valid values for type_type, values are
+  # required Class for material
   ICZN_TYPES = {
    'holotype' =>  Specimen,
    'paratype' => Specimen,
