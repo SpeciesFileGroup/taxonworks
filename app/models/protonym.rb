@@ -75,6 +75,7 @@ class Protonym < TaxonName
   soft_validate(:sv_type_placement, set: :type_placement)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
   soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
+  soft_validate(:sv_parent_priority, set: :parent_priority)
 
   before_validation :check_format_of_name,
                     :validate_rank_class_class,
@@ -329,6 +330,22 @@ class Protonym < TaxonName
       return false
     end
     return false
+  end
+
+  def sv_parent_priority
+    rank_group = self.rank_class.parent
+    parent = self.parent
+    if rank_group == parent.rank_class.parent
+      unless self.unavailable_or_invalid?
+        date1 = self.nomenclature_date
+        date2 = parent.nomenclature_date
+        unless date1.nil? || date2.nil?
+          if date1 < date2
+            soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} should not be older than parent #{parent.rank_class.rank_name}")
+          end
+        end
+      end
+    end
   end
 
   #endregion

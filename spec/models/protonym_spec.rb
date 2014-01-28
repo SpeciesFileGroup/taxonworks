@@ -440,7 +440,7 @@ describe Protonym do
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'incertae sedis' do
-        species=FactoryGirl.create(:relationship_species, parent: @family)
+        species = FactoryGirl.create(:relationship_species, parent: @family)
         expect(species.valid?).to be_true
         species.soft_validate(:validate_parent_rank)
         expect(species.soft_validations.messages_on(:rank_class).count).to eq(1)
@@ -450,6 +450,14 @@ describe Protonym do
         expect(species.soft_validations.messages_on(:rank_class).empty?).to be_true
         species.parent = @genus
         expect(species.valid?).to be_false
+      end
+      specify 'parent priority' do
+        subgenus = FactoryGirl.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
+        subgenus.soft_validate(:parent_priority)
+        expect(subgenus.soft_validations.messages_on(:base).count).to eq(1)
+        subgenus.year_of_publication = 2000
+        subgenus.soft_validate(:parent_priority)
+        expect(subgenus.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
 
