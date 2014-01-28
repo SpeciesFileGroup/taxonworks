@@ -10,6 +10,11 @@ class TaxonNameRelationship::Combination::Variety < TaxonNameRelationship::Combi
     SPECIES_RANK_NAMES_ICN
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::Combination::Genus,
+                      TaxonNameRelationship::Combination::Species)
+  end
+
   def self.assignment_method
     :variety_in_combination
   end

@@ -10,6 +10,12 @@ class TaxonNameRelationship::Combination::Subvariety < TaxonNameRelationship::Co
     SPECIES_RANK_NAMES_ICN
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::Combination::Variety,
+                      TaxonNameRelationship::Combination::Species,
+                      TaxonNameRelationship::Combination::Genus)
+  end
+
   def self.assignment_method
     :subvariety_in_combination
   end

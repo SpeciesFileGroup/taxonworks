@@ -10,6 +10,10 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubseries < TaxonNameR
     GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
+  def self.required_taxon_name_relationships
+    self.collect_to_s(TaxonNameRelationship::OriginalCombination::OriginalSeries,
+                      TaxonNameRelationship::OriginalCombination::OriginalGenus)
+  end
 
   def self.assignment_method
     # bus.set_as_form_in_original_combination(aus)
