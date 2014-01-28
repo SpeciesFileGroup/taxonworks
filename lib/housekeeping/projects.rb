@@ -4,7 +4,7 @@ module Housekeeping::Projects
   extend ActiveSupport::Concern
 
   included do
-   # not added tot he model, just used to extend models here
+   # not added to the model, just used to extend models here
    related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' gives :threes
    related_class = self.name
 
@@ -20,7 +20,6 @@ module Housekeeping::Projects
     # Also extend the project 
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
-      # puts related_instances.to_s + " " + related_class.to_s
       has_many related_instances,  class_name: related_class # inverse_of: :project,
     end
   end

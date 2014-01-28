@@ -2,7 +2,7 @@ module Shared::Notable
   extend ActiveSupport::Concern
 
   included do
-    has_many :notes, as: :note_object
+    has_many :notes, as: :note_object, validate: false
   end 
 
   module ClassMethods

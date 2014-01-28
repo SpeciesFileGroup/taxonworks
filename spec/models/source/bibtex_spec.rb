@@ -104,7 +104,6 @@ describe Source::Bibtex do
     end
   end
 
-
   context 'Ruby BibTeX related instance methods' do
     before(:each) do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
@@ -119,8 +118,28 @@ describe Source::Bibtex do
       expect(@s.valid_bibtex?).to be_false
     end
 
-    pending 'test conversion of BibTeX::Entry with note to Source::Bibtex'
-    pending 'test conversion of BibTeX::Entry identifiers (URL, ISBN, etc) to Source::Bibtex with identifiers'
+    specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
+      note =  "This is a note.\n With multiple lines."
+      @valid_gem_bibtex_book.note = note 
+      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      expect(s.notes).to have(1).things
+      expect(s.notes.first.text).to eq(note + " [Created on import from BibTeX.]")
+      expect(s.save).to be_true
+      expect(s.notes.first.id.nil?).to be_false 
+    end
+
+    specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
+      identifier =  "1-84356-028-3" # TODO: update when validation on isbn happens
+      @valid_gem_bibtex_book.isbn = identifier
+      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      expect(s.identifiers).to have(1).things
+      expect(s.identifiers.first.identifier).to eq(identifier)
+      expect(s.save).to be_true
+      expect(s.identifiers.first.id.nil?).to be_false 
+    end
+
+    pending 'with an issn in a BibTeX::Entry, convert it to an Identifier'
+    pending 'with a doi in a BibTeX::Entry, convert it to an Identifier'
   end
 
   context 'validation' do

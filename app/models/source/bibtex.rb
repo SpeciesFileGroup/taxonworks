@@ -299,7 +299,7 @@ class Source::Bibtex < Source
   soft_validate(:sv_has_title, set: :recommended_fields)
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
-  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
+#  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
 
 #endregion
@@ -318,7 +318,9 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 #endregion
 
-#region ruby-bibtex related
+ accepts_nested_attributes_for :notes
+
+ #region ruby-bibtex related
 
   def to_bibtex # outputs BibTeX::Entry equivalent to me.
     b = BibTeX::Entry.new(type: self.bibtex_type)
@@ -338,27 +340,15 @@ class Source::Bibtex < Source
     self.to_bibtex.valid?
   end
 
+
+
   def self.new_from_bibtex(bibtex_entry)
 # TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s = Source::Bibtex.new(
-        bibtex_type: bibtex_entry.type.to_s,
-    )
+    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
-
-      case (key)
-        when :year
-          s[:year] = value.to_i
-          if !(s[:year].to_s == v) # has year suffix
-            s[:year_suffix] = v[4, v.length-1]
-          end
-        when :note
-          s[:note] = v
-          # an a TW note here
-        else
-          s[key] = v
-      end
+      s.send("#{key}=", v) # = v
     end
     s
   end
@@ -428,14 +418,31 @@ class Source::Bibtex < Source
 #endregion  ruby-bibtex related
 
 #region getters & setters
+  def year=(value)
+    if value.class == String
+      value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
+      write_attribute(:year, $1.to_i) if $1
+      write_attribute(:year_suffix, $2) if $2
+      write_attribute(:year, value) if self.year.blank?
+    else
+      write_attribute(:year, value) 
+    end
+  end
+
   def month=(value)
     v = Utilities::Dates::SHORT_MONTH_FILTER[value]
     v = v.to_s if !v.nil?
     write_attribute(:month, v)
   end
 
-  def month
-    read_attribute(:month)
+  def note=(value)
+    write_attribute(:note, value)
+    self.notes.build({text: value + " [Created on import from BibTeX.]"} ) if self.new_record?
+  end 
+
+  def isbn=(value)
+    write_attribute(:isbn, value)
+    self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value) 
   end
 
 #endregion getters & setters
@@ -462,19 +469,9 @@ class Source::Bibtex < Source
   end
 
   def has_some_year? # is there a year or stated year?
-    return true if !(self.year.blank?)
-    return true if !(self.stated_year.blank?)
-    return false
+    return true if !(self.year.blank?) || !(self.stated_year.blank?)
+    false
   end
-
-  #TODO write has_note?
-  def has_notes?
-    return true if !(self.note.blank?)
-    # return true if Notes.has_notations?(self.id)
-    return false
-  end
-
-  #TODO write has_identifiers?
 
 #endregion has_<attribute>? section
 
@@ -492,13 +489,14 @@ class Source::Bibtex < Source
     self.nomenclature_date = self.generate_nomenclature_date
   end
 
+  # TODO: Abstract to a Date/Time module
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   returns nomenclature_date based on computation of the values of :year, :month, :day.
   #   Should only ever be called after validation!
-  #   If :year is empty, return nil
-  #   If :month is empty, returns 12/31/:year
-  #   IF :day is empty, returns the last day of the month
+  #    if :year is empty, return nil
+  #    if :month is empty, returns 12/31/:year
+  #    if :day is empty, returns the last day of the month
   def generate_nomenclature_date
     if self.year.nil?
       nil
@@ -517,8 +515,6 @@ class Source::Bibtex < Source
   end
 
 #endregion    time/date related
-
-  #TODO add notes method which returns an array of all associated notes.
 
   protected
 
@@ -641,26 +637,26 @@ class Source::Bibtex < Source
     end
   end
 
-  def sv_has_identifier
-    #  TODO write linkage to identifiers (rather than local field save)
-    # we have URL, ISBN, ISSN & LCCN as bibtex fields, but they are also identifiers.
-    # do need to make the linkages to identifiers as well as save in the local field?
-  end
-
-  def sv_has_url
-    # TODO need to be converted to check for a URL identifier
-    #if (self.URL.blank?)
-    #  soft_validations.add(:URL, 'There is no URL associated with this source.')
-    #end
-  end
-
-  def sv_has_note
-    # TODO we may need to check of a note in the TW sense as well - has_note? above.
-    if (self.note.blank?)
-      soft_validations.add(:note, 'There is no note associated with this source.')
-    end
-
-  end
+  # BETH:  I don't think we need these, let's discuss (Matt)
+  # def sv_has_identifier
+  #   #  TODO write linkage to identifiers (rather than local field save)
+  #   # we have URL, ISBN, ISSN & LCCN as bibtex fields, but they are also identifiers.
+  #   # do need to make the linkages to identifiers as well as save in the local field?
+  # end
+  # 
+  # def sv_has_url
+  #   # TODO need to be converted to check for a URL identifier
+  #   #if (self.URL.blank?)
+  #   #  soft_validations.add(:URL, 'There is no URL associated with this source.')
+  #   #end
+  # end
+  # 
+  # def sv_has_note
+  #   # TODO we may need to check of a note in the TW sense as well - has_note? above.
+  #   if (self.note.blank?)
+  #     soft_validations.add(:note, 'There is no note associated with this source.')
+  #   end
+  # end
 
   def sv_missing_required_bibtex_fields
     case self.bibtex_type
@@ -723,9 +719,7 @@ class Source::Bibtex < Source
         sv_has_authors
         sv_has_title
         sv_has_note
-
     end
-
   end
 
 #endregion   Soft_validation_methods

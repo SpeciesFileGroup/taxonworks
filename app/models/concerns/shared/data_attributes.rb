@@ -2,7 +2,7 @@ module Shared::DataAttributes
   extend ActiveSupport::Concern
 
   included do
-    has_many :data_attributes, as: :attribute_subject
+    has_many :data_attributes, as: :attribute_subject, validate: false
   end 
 
   def has_data_attributes?

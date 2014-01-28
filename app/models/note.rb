@@ -4,6 +4,7 @@ class Note < ActiveRecord::Base
 
   belongs_to :note_object, polymorphic: true
   validates :note_object, presence: true
+  validates_presence_of :note_object_id
   validates_presence_of :text
 
   before_validation :not_a_housekeeping_field, :is_valid_attribute
@@ -21,6 +22,5 @@ class Note < ActiveRecord::Base
       errors.add(:note_object_attribute, 'not a valid attribute (column)') if
           !(self.note_object.attributes.include?(self.note_object_attribute.to_s))
     end
-
   end
 end
