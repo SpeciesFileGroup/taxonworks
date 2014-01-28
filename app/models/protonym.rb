@@ -13,6 +13,8 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
+  has_many :type_material
+
   # subject                      object
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
@@ -45,7 +47,6 @@ class Protonym < TaxonName
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
       end
     end
-
   end
 
   scope :named, -> (name) {where(name: name)}
@@ -62,7 +63,6 @@ class Protonym < TaxonName
   scope :with_taxon_name_classification_array, -> (taxon_name_class_name_base_array) { includes(:taxon_name_classifications).where('taxon_name_classifications.type in (?)', taxon_name_class_name_base_array).references(:taxon_name_classifications) }
   scope :without_taxon_name_classification, -> (taxon_name_class_name) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type LIKE ?)', "#{taxon_name_class_name}")}
   scope :without_taxon_name_classification_array, -> (taxon_name_class_name_array) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type in (?))', taxon_name_class_name_array) }
-
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
 
   scope :that_is_valid, -> {
@@ -83,6 +83,50 @@ class Protonym < TaxonName
                     :check_new_parent_class,
                     :validate_source_type,
                     :new_parent_taxon_name
+
+
+
+  def list_of_coordinated_names
+    if self.incorrect_original_spelling.nil?
+      search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+      if !!search_rank
+        if search_rank =~ /Family/
+          z = Protonym.family_group_base(self.name)
+          search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+          #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+        else
+          search_name = self.name
+        end
+      else
+        search_name = nil
+      end
+
+      unless search_name.nil?
+        list = Protonym.ancestors_and_descendants_of(self).
+            with_rank_class_including(search_rank).
+            with_name_in_array(search_name).
+            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
+        #list1 = self.ancestors_and_descendants                               # scope with parens
+        #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+        #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+        #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+      else
+        list = []
+      end
+    else
+      list = [self.incorrect_original_spelling.object_taxon_name]
+    end
+    return list
+  end
+
+  def ancestors_and_descendants
+    Protonym.ancestors_and_descendants_of(self).to_a
+  end
+
+  def self.family_group_base(name_string)
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
+    $1
+  end
 
   protected
 
@@ -219,49 +263,6 @@ class Protonym < TaxonName
       end
     end
     return fixed
-  end
-
-  def list_of_coordinated_names
-
-    if self.incorrect_original_spelling.nil?
-      search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
-      if !!search_rank
-        if search_rank =~ /Family/
-          z = Protonym.family_group_base(self.name)
-          search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
-          #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
-        else
-          search_name = self.name
-        end
-      else
-        search_name = nil
-      end
-
-      unless search_name.nil?
-        list = Protonym.ancestors_and_descendants_of(self).
-            with_rank_class_including(search_rank).
-            with_name_in_array(search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
-        #list1 = self.ancestors_and_descendants                               # scope with parens
-        #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
-        #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
-        #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
-      else
-        list = []
-      end
-    else
-      list = [self.incorrect_original_spelling.object_taxon_name]
-    end
-    return list
-  end
-
-  def ancestors_and_descendants
-    Protonym.ancestors_and_descendants_of(self).to_a
-  end
-
-  def self.family_group_base(name_string)
-    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-    $1
   end
 
   def sv_type_placement

@@ -69,7 +69,7 @@ describe Person do
       end
 
       specify 'type_designations' do
-        expect(person).to respond_to(:type_specimens)
+        expect(person).to respond_to(:type_material)
       end
      end
 
@@ -177,9 +177,9 @@ describe Person do
       specify 'is_type_designator?' do
         expect(@vp).to respond_to(:is_type_designator?)
         expect(@vp.is_type_designator?).to be_false
-        type_specimen = FactoryGirl.create(:type_specimen)
-        type_specimen.type_designators << @vp
-        type_specimen.save!
+        type_material = FactoryGirl.create(:valid_type_material)
+        type_material.type_designators << @vp
+        type_material.save!
         @vp.reload
         expect(@vp.is_type_designator?).to be_true
       end

@@ -1,4 +1,3 @@
-
 class TaxonName < ActiveRecord::Base
 
   include Housekeeping
@@ -9,7 +8,6 @@ class TaxonName < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
   belongs_to :source 
- 
   has_many :taxon_name_classifications
 
   #relationships as a subject
@@ -66,12 +64,6 @@ class TaxonName < ActiveRecord::Base
         where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
   }
 
-  soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
-  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
-
-
-
   validates_presence_of :type, message: 'Type is not specified'
   validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
   validates_presence_of :name, message: 'Name is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
@@ -83,11 +75,14 @@ class TaxonName < ActiveRecord::Base
                     :validate_parent_is_set,
                     :check_new_rank_class,
                     :check_new_parent_class,
-                    :validate_source_type
+                    :validate_source_type,
+                    :set_cached_name,
+                    :set_cached_author_year,
+                    :set_cached_higher_classification 
 
-  before_validation :set_cached_name,
-              :set_cached_author_year,
-              :set_cached_higher_classification
+  soft_validate(:sv_missing_fields, set: :missing_fields)
+  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
+  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)

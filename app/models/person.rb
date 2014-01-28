@@ -26,7 +26,7 @@ class Person < ActiveRecord::Base
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
-  has_many :type_specimens, through: :type_designator_roles, source: :role_object, source_type: 'TypeSpecimen'
+  has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
 
   #scope :named, -> (name) {where(name: name)}
   #scope :named_smith, where(last_name: 'Smith')
