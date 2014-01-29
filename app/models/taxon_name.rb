@@ -413,6 +413,10 @@ class TaxonName < ActiveRecord::Base
     true # see validation in Protonym.rb
   end
 
+  def sv_parent_priority
+    true # see validation in Protonym.rb
+  end
+
 #endregion
 
 end

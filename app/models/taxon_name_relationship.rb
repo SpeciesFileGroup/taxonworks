@@ -8,7 +8,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
-  #soft_validate(:sv_nomenclatural_ranks, set: :nomenclatural_ranks)
   soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
   soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)

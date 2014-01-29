@@ -355,13 +355,16 @@ describe Protonym do
 
     context 'missing relationships' do
       specify 'type genus and nominotypical subfamily' do
-        #missing type genus and nominotypical subfamily
-        @subfamily.soft_validate
-        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
+        #missing nominotypical subfamily
+        @subfamily.soft_validate(:single_sub_taxon)
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(1)
+        #missign type genus
+        @subfamily.soft_validate(:missing_relationships)
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(1)
         g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
         r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
-        expect(r.save).to be_true
         @subfamily.soft_validate
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
         @subfamily.fix_soft_validations
         @subfamily.reload
         @subfamily.soft_validate
@@ -385,6 +388,16 @@ describe Protonym do
         expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
         # type genus is not selected
         expect(@family.soft_validations.messages_on(:base).count).to eq(1)
+      end
+      specify 'type specimen is not selected' do
+        @species.soft_validate(:primary_types)
+        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+      end
+      specify 'more than one type is selected' do
+        t1 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'neotype')
+        t2 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'holotype')
+        @species.soft_validate(:primary_types)
+        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
       end
     end
 
@@ -440,7 +453,7 @@ describe Protonym do
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
       end
       specify 'incertae sedis' do
-        species=FactoryGirl.create(:relationship_species, parent: @family)
+        species = FactoryGirl.create(:relationship_species, parent: @family)
         expect(species.valid?).to be_true
         species.soft_validate(:validate_parent_rank)
         expect(species.soft_validations.messages_on(:rank_class).count).to eq(1)
@@ -450,6 +463,14 @@ describe Protonym do
         expect(species.soft_validations.messages_on(:rank_class).empty?).to be_true
         species.parent = @genus
         expect(species.valid?).to be_false
+      end
+      specify 'parent priority' do
+        subgenus = FactoryGirl.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
+        subgenus.soft_validate(:parent_priority)
+        expect(subgenus.soft_validations.messages_on(:base).count).to eq(1)
+        subgenus.year_of_publication = 2000
+        subgenus.soft_validate(:parent_priority)
+        expect(subgenus.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
 

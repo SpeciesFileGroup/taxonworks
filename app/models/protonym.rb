@@ -3,17 +3,24 @@ class Protonym < TaxonName
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+    }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+    }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+    }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   has_many :type_material
+
+  has_many :primary_types, -> {
+    where("type_materials.type_type in ('holotype', 'neotype', 'lectotype')")
+    }, class_name: 'TypeMaterial', foreign_key: :protonym_id
+  has_many :syntypes, -> {
+    where("type_materials.type_type in ('syntype', 'syntypes')")
+  }, class_name: 'TypeMaterial', foreign_key: :protonym_id
 
   # subject                      object
   # Aus      original_genus of   bus
@@ -73,8 +80,10 @@ class Protonym < TaxonName
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
   soft_validate(:sv_type_placement, set: :type_placement)
+  soft_validate(:sv_primary_types, set: :primary_types)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
   soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
+  soft_validate(:sv_parent_priority, set: :parent_priority)
 
   before_validation :check_format_of_name,
                     :validate_rank_class_class,
@@ -83,8 +92,6 @@ class Protonym < TaxonName
                     :check_new_parent_class,
                     :validate_source_type,
                     :new_parent_taxon_name
-
-
 
   def list_of_coordinated_names
     if self.incorrect_original_spelling.nil?
@@ -278,6 +285,16 @@ class Protonym < TaxonName
     end
   end
 
+  def sv_primary_types
+    if self.rank_class.parent.to_s =~ /Species/
+      if self.primary_types.empty? && self.syntypes.empty?
+        soft_validations.add(:base, 'Primary type is not selected')
+      elsif self.primary_types.count > 1 || (!self.primary_types.empty? && !self.syntypes.empty?)
+        soft_validations.add(:base, 'More than one primary type are selected')
+      end
+    end
+  end
+
   def sv_single_sub_taxon
     rank = self.rank_class.to_s
     if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
@@ -329,6 +346,22 @@ class Protonym < TaxonName
       return false
     end
     return false
+  end
+
+  def sv_parent_priority
+    rank_group = self.rank_class.parent
+    parent = self.parent
+    if rank_group == parent.rank_class.parent
+      unless self.unavailable_or_invalid?
+        date1 = self.nomenclature_date
+        date2 = parent.nomenclature_date
+        unless date1.nil? || date2.nil?
+          if date1 < date2
+            soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} should not be older than parent #{parent.rank_class.rank_name}")
+          end
+        end
+      end
+    end
   end
 
   #endregion
