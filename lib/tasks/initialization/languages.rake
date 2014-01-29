@@ -1,8 +1,3 @@
-# We'll add foreign keys with immigrant ultimately
-# https://github.com/jenseng/immigrant
-
-require 'fileutils'
-
 namespace :tw do
   namespace :initialization do
 

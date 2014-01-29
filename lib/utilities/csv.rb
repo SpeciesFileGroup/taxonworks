@@ -1,13 +1,13 @@
 module Utilities::Csv
 
-  # A dirt simple CSV dump to STDOUT.
+  # A dirt simple CSV dump to STDOUT, tab seperators.
   # TODO: 
   #   - optionify
   #   - validate object collection is uniformly classed (all the same)
-  def self.to_csv(objects)
+  def self.to_csv(objects, options = {col_sep: "\t", headers: true, encoding: 'UTF-8'})
     return if objects.size == 0
     column_names = objects.first.class.column_names
-    string = CSV.generate do |csv|
+    string = CSV.generate(options) do |csv|
       csv << column_names
       objects.each do |o|
         csv << o.attributes.values_at(*column_names)
