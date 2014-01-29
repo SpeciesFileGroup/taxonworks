@@ -338,7 +338,7 @@ def read_dbf(filenames)
       when /ne_10m_admin_0_countries\.dbf/i
         ne0_10 = DBF::Table.new(filename)
       when /ne_50m_admin_0_countries\.dbf/i
-        ne0_50 = DBF::Table.new(filename)
+        ne0_50 = nil # DBF::Table.new(filename)
       when /ne_110m_admin_0_countries\.dbf/i
         ne0_110 = ne0_110 = DBF::Table.new(filename)
       when /ne_10m_admin_1_states_provinces_shp\.dbf/i
@@ -567,17 +567,17 @@ def read_dbf(filenames)
     ne1_110.each { |item|
 
       #set up future process
-      ga           = nil
-      add_record   = true
-      p1           = nil
+      ga         = nil
+      add_record = true
+      p1         = nil
 
       # gather data from record
       area_name  = item.name.titlecase
       area_code3 = item.iso_a3
       area_code2 = item.iso_a2
-      adm0_a3      = item.adm0_a3
-      ne110_id     = item.iso_n3
-      area_type    = add_gat(item.type)
+      adm0_a3    = item.adm0_a3
+      ne110_id   = item.iso_n3
+      area_type  = add_gat(item.type)
 
       # There are some reasons NOT to actually create a record:
       #   1.  The (apparent) index (iso_n3) is set to '-99'
@@ -931,7 +931,7 @@ def read_dbf(filenames)
           ga.iso_3166_a2 = nation_code2 if ga.iso_3166_a2.nil?
           ga.level0      = ga
 
-          puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (50m)"
+          puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (10m)"
 
         else
           ga = ne[nation_code3]
@@ -940,6 +940,129 @@ def read_dbf(filenames)
           end
           # found a record with the right name
           puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+          ga.geographic_area_type = area_type
+          ga.ne_geo_item_id       = ne10_id
+          ga.data_origin          = NE_10 if ga.data_origin.nil?
+        end
+        ne.merge!(ga.iso_3166_a3 => ga)
+        ne_names.merge!(ga.name => ga)
+        ne_ids.merge!(ga.ne_geo_item_id => ga)
+        ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
+      end
+    }
+  end
+
+  if ne1_10 != nil
+
+    ne1_10_example = {'adm1_code'  => 'AFG-1741',
+                      'Shape_Leng' => 7.02734744327,
+                      'Shape_Area' => 2.03728494123,
+                      'diss_me'    => 1741,
+                      'adm1_code_' => 'AFG-1741',
+                      'iso_3166_2' => 'AF-',
+                      'wikipedia'  => '',
+                      'sr_sov_a3'  => 'AFG',
+                      'sr_adm0_a3' => 'AFG',
+                      'iso_a2'     => 'AF',
+                      'adm0_sr'    => 1,
+                      'admin0_lab' => 2,
+                      'name'       => 'Badghis',
+                      'name_alt'   => 'Badghes|Badghisat|Badgis',
+                      'name_local' => '',
+                      'type'       => 'Velayat',
+                      'type_en'    => 'Province',
+                      'code_local' => '',
+                      'code_hasc'  => 'AF.BG',
+                      'note'       => '',
+                      'hasc_maybe' => '',
+                      'region'     => '',
+                      'region_cod' => '',
+                      'region_big' => '',
+                      'big_code'   => '',
+                      'provnum_ne' => 7,
+                      'gadm_level' => 1,
+                      'check_me'   => 0,
+                      'scalerank'  => 5,
+                      'datarank'   => 5,
+                      'abbrev'     => '',
+                      'postal'     => 'BG',
+                      'area_sqkm'  => 0.0,
+                      'sameascity' => -99,
+                      'labelrank'  => 5,
+                      'featurecla' => 'Admin-1 scale rank',
+                      'admin'      => 'Afghanistan',
+                      'name_len'   => 7,
+                      'mapcolor9'  => 8,
+                      'mapcolor13' => 7}
+
+    ne1_10.each { |item|
+
+      puts item.attributes
+
+      #set up future process
+      ga         = nil
+      add_record = true
+      p1         = nil
+
+      # gather data from record
+      area_name  = item.name.titlecase
+      area_code2 = item.iso_a2
+      adm0_a3    = item.sr_adm0_a3
+      ne10_id    = item.adm1_code
+      area_type  = add_gat(item.type_en)
+
+      # There are some reasons NOT to actually create a record:
+      #   1.  The (apparent) index (iso_n3) is set to '-99'
+      #   2.  The A3 code is apparently NOT an iso one.
+
+      if ne10_id =~ /\A[A-Z]{3}-\d{4}\z/
+      else
+        add_record = false
+      end
+
+      # the only time we use the iso A2 code is if it matches the proper form;
+      # otherwise, we just null it out
+      if area_code2 =~ /\A[A-Z]{2}\z/
+      else
+        area_code2 = nil
+      end
+
+      if add_record
+        # check to see if we have a nation by the current code in our list
+        # this is unlikely, if we have not processed any of the 110m data
+        if ne[ne10_id].nil?
+          # We will need to create new GeoArea records so that we can check for typing anomalies and
+          # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
+
+          # find the parent country through the adm0_a3
+
+          adm0_ga = ne[adm0_a3]
+          if adm0_ga.nil?
+            adm0_ga = earth
+          else
+            # already set
+          end
+
+          ga             = GeographicArea.new(parent:               adm0_ga,
+                                              # if we create records here, they will specifically
+                                              # *not* be TDWG records
+                                              # or GADM records
+                                              tdwg_parent:          nil,
+                                              name:                 area_name,
+                                              adm0_a3:              adm0_a3,
+                                              data_origin:          NE_10,
+                                              ne_geo_item_id:       ne10_id,
+                                              geographic_area_type: area_type)
+
+          puts "'#{ne10_id}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{area_name} in #{ga.parent.name}\t\tAdded. (10m)"
+
+        else
+          ga = ne[ne10_id]
+          if ga.ne_geo_item_id != ne10_id
+            add_record = add_record
+          end
+          # found a record with the right name
+          puts "'#{area_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{area_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
           ga.geographic_area_type = area_type
           ga.ne_geo_item_id       = ne10_id
           ga.data_origin          = NE_10 if ga.data_origin.nil?
