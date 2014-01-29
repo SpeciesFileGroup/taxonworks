@@ -155,7 +155,7 @@ describe Source::Bibtex do
     end
 
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
-      :title, :year, :URL, :stated_year' do
+      :title, :year, :url, :stated_year' do
       error_message = 'no core data provided'
       local_src     = Source::Bibtex.new()
       expect(local_src.valid?).to be_false
@@ -279,6 +279,24 @@ describe Source::Bibtex do
           expect(@source_bibtex.valid?).to be_true
         end
       end
+    end
+
+    specify 'the url must be valid' do
+      src = FactoryGirl.build(:valid_source_bibtex)
+      err = '] is not a valid URL'
+      expect(src.valid?).to be_true # nil url is valid
+      src.url = 'bad url'
+      expect(src.valid?).to be_false
+      expect(src.errors.messages[:url].include?('['+src.url+err)).to be_true
+      src.url = 'http://speciesfile.org'
+      expect(src.valid?).to be_true
+      src.url = 'speciesfile.org'
+      expect(src.valid?).to be_false
+      expect(src.errors.messages[:url].include?('['+src.url+err)).to be_true
+      src.url = 'https://google.com'
+      expect(src.valid?).to be_true
+      src.url = 'ftp://test.edu'
+      expect(src.valid?).to be_true
     end
   end
 
@@ -506,7 +524,7 @@ describe Source::Bibtex do
         expect(src.year_suffix).to eq('b')
         expect(src.year_with_suffix).to eq('1921b')
       end
-      specify 'correctly converts year suffix to BibTeX enty' do
+      specify 'correctly converts year suffix to BibTeX entry' do
         src               = FactoryGirl.create(:valid_source_bibtex)
         src[:year]        = '1922'
         src[:year_suffix] = 'c'
