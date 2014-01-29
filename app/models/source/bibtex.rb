@@ -202,6 +202,7 @@
 
 class Source::Bibtex < Source
   include SoftValidation
+
 #  include Shared::Notable in source.rb
 #
 # @!attribute publisher
@@ -276,7 +277,7 @@ class Source::Bibtex < Source
   validates_inclusion_of :month,
     in: ::VALID_BIBTEX_MONTHS,
     allow_nil: true,
-    message: '%{value} is not a valid month'
+    message: ' month'
   validates_numericality_of :day,
     allow_nil: true,
     only_integer: true,
@@ -285,8 +286,16 @@ class Source::Bibtex < Source
     :unless => 'year.nil? || month.nil?',
     message: '%{value} is not a valid day for the month provided'
 
+#  validates :url, :format => /\A#{URI::regexp}\z/, allow_nil: true  # this line is essentially the same as below
+  # but isn't as clear. Note that both validations allow multiple urls strung together with a ',' provided
+  # no spaces are included.
+  validates :url, :format => { :with => URI::regexp(%w(http https ftp)),
+            message: "[%{value}] is not a valid URL"}, allow_nil: true
+
   before_validation :check_has_field #,:day_valid? #, :year_valid?
   before_save :set_nomenclature_date
+  #TODO before_save set cached values
+
 #endregion validations
 
   # nil is last by default, exclude it explicitly with another condition if need be
@@ -311,7 +320,7 @@ class Source::Bibtex < Source
       :editor,
       :booktitle,
       :title,
-      :URL,
+      :url,
       :journal,
       :year,
       :stated_year
@@ -445,7 +454,26 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value) 
   end
 
+#TODO if language is set => set language_id
 #endregion getters & setters
+
+  def url_as_uri    # turn bibtex URL field into a Ruby URI object
+      URI(self.url)  unless self.url.blank?
+  end
+  def url_valid?
+    # this won't work in validation because validation methods don't allow "rescue"
+    debugger
+    return true if self.url.blank?
+    case  URI.parse(self.url)
+      when URI::BadURIError,  URI::InvalidURIError
+        false
+      else
+        true
+    end
+  end
+
+
+
 
 #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
@@ -521,9 +549,9 @@ class Source::Bibtex < Source
 #region hard validations
 
 # replaced with inclusion validation
-#def check_bibtex_type # must have a valid bibtex_type
-#  errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
-#end
+#   def check_bibtex_type # must have a valid bibtex_type
+#     errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
+#   end
 
   def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
     valid = false
@@ -640,23 +668,23 @@ class Source::Bibtex < Source
   # BETH:  I don't think we need these, let's discuss (Matt)
   # def sv_has_identifier
   #   #  TODO write linkage to identifiers (rather than local field save)
-  #   # we have URL, ISBN, ISSN & LCCN as bibtex fields, but they are also identifiers.
+  #   # we have url, doi, isbn, & issn as bibtex fields, but they are also identifiers.
   #   # do need to make the linkages to identifiers as well as save in the local field?
   # end
   # 
   # def sv_has_url
   #   # TODO need to be converted to check for a URL identifier
-  #   #if (self.URL.blank?)
-  #   #  soft_validations.add(:URL, 'There is no URL associated with this source.')
+  #   #if (self.url.blank?)
+  #   #  soft_validations.add(:url, 'There is no URL associated with this source.')
   #   #end
   # end
   # 
-  # def sv_has_note
-  #   # TODO we may need to check of a note in the TW sense as well - has_note? above.
-  #   if (self.note.blank?)
-  #     soft_validations.add(:note, 'There is no note associated with this source.')
-  #   end
-  # end
+  def sv_has_note
+     # TODO we may need to check of a note in the TW sense as well - has_note? above.
+     if (self.note.blank?)
+       soft_validations.add(:note, 'There is no note associated with this source.')
+     end
+  end
 
   def sv_missing_required_bibtex_fields
     case self.bibtex_type
