@@ -1,8 +1,8 @@
 module Utilities::Csv
 
-  # A dirt simple CSV dump to STDOUT, tab seperators.
+  # A dirt simple CSV dump to STDOUT, tab seperators. Takes an 
+  # array of AR instances.
   # TODO: 
-  #   - optionify
   #   - validate object collection is uniformly classed (all the same)
   def self.to_csv(objects, options = {col_sep: "\t", headers: true, encoding: 'UTF-8'})
     return if objects.size == 0
