@@ -7,15 +7,30 @@ class TypeMaterial < ActiveRecord::Base
   # Keys are valid values for type_type, values are
   # required Class for material
   ICZN_TYPES = {
-   'holotype' =>  Specimen,
-   'paratype' => Specimen,
-   'neotype' => Specimen,
-   'lectotype' => Specimen,
-   'paratypes' => Lot,
-   'syntypes' => Lot
+    'holotype' =>  Specimen,
+    'paratype' => Specimen,
+    'paralectotype' => Specimen,
+    'neotype' => Specimen,
+    'lectotype' => Specimen,
+    'syntype' => Specimen,
+    'paratypes' => Lot,
+    'syntypes' => Lot,
+    'paralectotypes' => Lot
   }
      
-  ICN_TYPES = {}
+  ICN_TYPES = {
+      'holotype' => Specimen,
+      'paratype' => Specimen,
+      'lectotype' => Specimen,
+      'neotype' => Specimen,
+      'epitype' => Specimen,
+      'isotype' => Specimen,
+      'syntype' => Specimen,
+      'isosyntype' => Specimen,
+      'syntypes' => Lot,
+      'isotypes' => Lot,
+      'isosyntypes' => Lot
+  }
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject'
   belongs_to :protonym

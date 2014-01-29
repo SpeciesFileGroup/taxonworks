@@ -85,8 +85,6 @@ class Protonym < TaxonName
                     :validate_source_type,
                     :new_parent_taxon_name
 
-
-
   def list_of_coordinated_names
     if self.incorrect_original_spelling.nil?
       search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
