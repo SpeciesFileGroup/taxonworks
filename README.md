@@ -59,7 +59,7 @@ Minimally, the following steps are required.  If you have postgres installed ski
 7. Setup the databases.
  
   ``` 
-  rake db:setup
+  rake db:create
   rake db:migrate RAILS_ENV=test
   rake db:migrate RAILS_ENV=development
   ```
