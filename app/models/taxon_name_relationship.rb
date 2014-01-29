@@ -253,13 +253,14 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_specific_relationship
-    #TODO update to cover type specimens synonym is objective if type the same or subjective if type is different
     #TODO validate that homonyms spelled identically with variable spelling
     s = self.subject_taxon_name
     o = self.object_taxon_name
     case self.type_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
-        soft_validations.add(:type, 'Subjective synonyms should not have the same type') if s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil?
+        if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.matching_primary_types(s, o) )
+          soft_validations.add(:type, 'Subjective synonyms should not have the same type')
+        end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
         soft_validations.add(:type, 'Primary homonyms should have the same original genus') if s.original_genus != o.original_genus
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
@@ -284,8 +285,12 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_objective_synonym_relationship
-    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective/ || self.type_name =~ /TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic/
-      soft_validations.add(:type, 'Objective synonyms should have the same type') if self.subject_taxon_name.type_taxon_name != self.object_taxon_name.type_taxon_name
+    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic)/
+      s = self.subject_taxon_name
+      o = self.object_taxon_name
+      if (s.type_taxon_name != o.type_taxon_name ) || !s.matching_primary_types(s, o)
+        soft_validations.add(:type, 'Objective synonyms should have the same type')
+      end
     end
   end
 

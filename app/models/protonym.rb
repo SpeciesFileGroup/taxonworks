@@ -129,6 +129,7 @@ class Protonym < TaxonName
   end
 
   def get_primary_type
+    return [] unless self.rank_class.parent.to_s =~ /Species/
     s = self.type_material.syntypes
     p = self.type_material.primary
     if s.empty? && p.count == 1

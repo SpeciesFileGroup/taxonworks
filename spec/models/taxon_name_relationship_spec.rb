@@ -232,6 +232,17 @@ describe TaxonNameRelationship do
           expect(r.soft_validations.messages_on(:type).count).to eq(1)
         end
 
+        specify 'objective synonyms should have the same type specimen' do
+          type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
+          type_material2 = FactoryGirl.create(:valid_type_material, protonym: @s2)
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+          r.soft_validate(:objective_synonym_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+          r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
+          r.soft_validate(:objective_synonym_relationship)
+          expect(r.soft_validations.messages_on(:type).empty?).to be_true
+        end
+
         specify 'subjective synonyms should not have the same type' do
           @r2.subject_taxon_name = @s1
           expect(@r2.save).to be_true
@@ -239,6 +250,17 @@ describe TaxonNameRelationship do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
           r.soft_validate(:specific_relationship)
           expect(r.soft_validations.messages_on(:type).count).to eq(1)
+        end
+
+        specify 'subjective synonyms should have different type specimen' do
+          type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
+          type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: @s2)
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+          r.soft_validate(:specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+          r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+          r.soft_validate(:specific_relationship)
+          expect(r.soft_validations.messages_on(:type).empty?).to be_true
         end
 
         specify 'primary homonyms do not share the same original genus' do
