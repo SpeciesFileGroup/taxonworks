@@ -15,13 +15,6 @@ class Protonym < TaxonName
 
   has_many :type_material
 
-  has_many :primary_types, -> {
-    where("type_materials.type_type in ('holotype', 'neotype', 'lectotype')")
-    }, class_name: 'TypeMaterial', foreign_key: :protonym_id
-  has_many :syntypes, -> {
-    where("type_materials.type_type in ('syntype', 'syntypes')")
-  }, class_name: 'TypeMaterial', foreign_key: :protonym_id
-
   # subject                      object
   # Aus      original_genus of   bus
   # aus      type_species of     Bus
@@ -287,9 +280,9 @@ class Protonym < TaxonName
 
   def sv_primary_types
     if self.rank_class.parent.to_s =~ /Species/
-      if self.primary_types.empty? && self.syntypes.empty?
+      if self.type_material.primary.empty? && self.type_material.syntypes.empty?
         soft_validations.add(:base, 'Primary type is not selected')
-      elsif self.primary_types.count > 1 || (!self.primary_types.empty? && !self.syntypes.empty?)
+      elsif self.type_material.primary.count > 1 || (!self.type_material.primary.empty? && !self.type_material.syntypes.empty?)
         soft_validations.add(:base, 'More than one primary type are selected')
       end
     end

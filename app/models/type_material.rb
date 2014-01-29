@@ -44,6 +44,9 @@ class TypeMaterial < ActiveRecord::Base
   scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
   scope :not_self, -> (id) {where('id != ?', id )}
 
+  scope :primary, -> {where(type_type: %w{neotype lectotype holotype})}
+  scope :syntypes, -> {where(type_type: %w{syntype syntypes})}
+
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)

@@ -11,6 +11,11 @@ case Rails.env
 
 when 'development'
 
+  # Creates 1,1 project/users  
+  FactoryGirl.create(:valid_project)
+  FactoryGirl.create(:valid_user)
+  FactoryGirl.create(:valid_project_member)
+
   # Experimenting with some dummy data for a 'hello world' stack.
   root =  FactoryGirl.create(:root_taxon_name)
   %w{Aidae Bidae Cidae}.each do |family|
@@ -19,6 +24,7 @@ when 'development'
 
 when 'production'
   # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.
+
 when 'test'
 
   # Never ever do anything. Test with FactoryGirl or inline..... 
