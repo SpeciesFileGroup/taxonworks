@@ -89,6 +89,7 @@ describe TypeMaterial do
       t = FactoryGirl.create(:valid_type_material, source: FactoryGirl.create(:valid_source_bibtex))
       expect(t.type_source).not_to eq(t.protonym.source)
     end
+
     pending 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
