@@ -46,6 +46,7 @@ class TypeMaterial < ActiveRecord::Base
 
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
+  soft_validate(:sv_type_source, set: :type_source)
 
   validates :protonym, presence: true
   validates :material, presence: true
@@ -53,7 +54,23 @@ class TypeMaterial < ActiveRecord::Base
 
   validate :check_type_type
 
+  def type_source
+    if !!self.source_id
+      self.source
+    elsif !!self.protonym
+      if !!self.protonym.source_id
+        self.protonym.source
+      else
+        nil
+      end
+    else
+      nil
+    end
+  end
+
   protected
+
+  #region Soft Validation
 
   def check_type_type
     if self.protonym
@@ -64,15 +81,24 @@ class TypeMaterial < ActiveRecord::Base
     end
   end
 
+  #endregion
+
+  #region Soft Validation
+
   def sv_single_primary_type
-    primary_types = TypeMaterial.with_type_array('holotype', 'neotype', 'lectotype').not_self(self)
-    syntypes = TypeMaterial.with_type_array('syntype', 'syntypes')
-    if self.type_type = 'syntype' || self.type_type = 'syntypes'
-      errors.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
+    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_taxon_name(self.protonym).not_self(self)
+    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_taxon_name(self.protonym)
+    if self.type_type == 'syntype' || self.type_type == 'syntypes'
+      soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end
-    if self.type_type = 'holotype' || self.type_type = 'neotype' || self.type_type = 'lectotype'
-      errors.add(:type_type, 'More than one primary types associated with the taxon') unless primary_types.empty? && syntypes.empty?
+    if self.type_type == 'holotype' || self.type_type == 'neotype' || self.type_type == 'lectotype'
+      soft_validations.add(:type_type, 'More than one primary type associated with the taxon') if !primary_types.empty? || !syntypes.empty?
     end
   end
 
+  def sv_type_source
+    soft_validations.add(:source_id, 'Source is not selected neither for type nor for taxon') unless !!self.type_source
+  end
+
+  #endregion
 end
