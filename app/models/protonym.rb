@@ -128,6 +128,33 @@ class Protonym < TaxonName
     $1
   end
 
+  def get_primary_type
+    s = self.type_material.syntypes
+    p = self.type_material.primary
+    if s.empty? && p.count == 1
+      p
+    elsif p.empty? && s.empty?
+      s
+    else
+      []
+    end
+  end
+
+  def matching_primary_types(taxon1, taxon2)
+    return true unless self.rank_class.parent.to_s =~ /Species/
+    taxon1_types = taxon1.get_primary_type
+    taxon2_types = taxon2.get_primary_type
+    if taxon1_types.empty? && taxon2_types.empty? # both are empty
+      true
+    elsif taxon1_types.count != taxon2_types.count
+      false
+    elsif TypeMaterial.primary_with_protonym_array([taxon1.id, taxon2.id]).to_a.count == taxon1_types.count
+      true
+    else
+      false
+    end
+  end
+
   protected
 
   def incorrect_original_spelling
@@ -180,6 +207,7 @@ class Protonym < TaxonName
 
   def sv_validate_coordinated_names
       list_of_coordinated_names.each do |t|
+        foo = matching_primary_types(t, self)
         soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
@@ -196,6 +224,8 @@ class Protonym < TaxonName
                             fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
+        soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless matching_primary_types(self, t)
         sttnr = self.type_taxon_name_relationship
         tttnr = t.type_taxon_name_relationship
         unless sttnr.nil? || tttnr.nil?
@@ -241,6 +271,16 @@ class Protonym < TaxonName
         self.type_genus = t.type_genus
         fixed = true
       end
+      types1 = self.get_primary_type
+      types2 = t.get_primary_type
+      if types1.empty? && !types2.empty?
+        new_type_material = []
+        types2.each do |t|
+          new_type_material.push({type_type: t.type_type, protonym_id: t.protonym_id, biological_object_id: t.biological_object_id, source_id: t.source_id})
+        end
+        self.type_material.build(new_type_material)
+        fixed = true
+      end
 
       sttnr = self.type_taxon_name_relationship
       tttnr = t.type_taxon_name_relationship
@@ -250,7 +290,6 @@ class Protonym < TaxonName
           fixed = true
         end
       end
-
     end
 
     if fixed
@@ -336,9 +375,8 @@ class Protonym < TaxonName
         return true
       end
     rescue
-      return false
     end
-    return false
+    false
   end
 
   def sv_parent_priority

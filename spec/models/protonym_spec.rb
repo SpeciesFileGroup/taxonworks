@@ -343,13 +343,26 @@ describe Protonym do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
         s2.soft_validate(:validate_coordinated_names)
         #author in speciec and incorrect original spelling are different
-        expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        expect(s2.soft_validations.messages_on(:verbatim_author).count).to eq(1)
         #year in speciec and incorrect original spelling are different
-        expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        expect(s2.soft_validations.messages_on(:year_of_publication).count).to eq(1)
         s2.fix_soft_validations
         s2.soft_validate(:validate_coordinated_names)
         expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+      end
+      specify 'mismatching type specimens' do
+        ssp = FactoryGirl.create(:iczn_subspecies, name: 'vitis', parent: @species)
+        type_material = FactoryGirl.create(:valid_type_material, protonym: ssp)
+        @species.soft_validate(:validate_coordinated_names)
+        ssp.soft_validate(:validate_coordinated_names)
+        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+        expect(ssp.soft_validations.messages_on(:base).count).to eq(1)
+        @species.fix_soft_validations
+        @species.soft_validate(:validate_coordinated_names)
+        ssp.soft_validate(:validate_coordinated_names)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_true
+        expect(ssp.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
 

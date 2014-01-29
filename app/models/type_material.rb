@@ -39,13 +39,14 @@ class TypeMaterial < ActiveRecord::Base
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person
 
-  scope :where_taxon_name, -> (taxon_name) {where(protonym_id: taxon_name)}
+  scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }
   scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
   scope :not_self, -> (id) {where('id != ?', id )}
 
-  scope :primary, -> {where(type_type: %w{neotype lectotype holotype})}
-  scope :syntypes, -> {where(type_type: %w{syntype syntypes})}
+  scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
+  scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
+  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
@@ -73,13 +74,16 @@ class TypeMaterial < ActiveRecord::Base
 
   protected
 
-  #region Soft Validation
+  #region Validation
 
   def check_type_type
     if self.protonym
       code = self.protonym.rank_class.nomenclatural_code 
       if (code == :iczn && !ICZN_TYPES.keys.include?(self.type_type)) || (code == :icn && !ICN_TYPES.keys.include?(self.type_type))
         errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') 
+      end
+      unless self.protonym.rank_class.parent.to_s =~ /Species/
+        errors.add(:protonym_id, 'Type cannot be designated for not species group taxon')
       end
     end
   end
@@ -89,8 +93,8 @@ class TypeMaterial < ActiveRecord::Base
   #region Soft Validation
 
   def sv_single_primary_type
-    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_taxon_name(self.protonym).not_self(self)
-    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_taxon_name(self.protonym)
+    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(self.protonym).not_self(self)
+    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(self.protonym)
     if self.type_type == 'syntype' || self.type_type == 'syntypes'
       soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end

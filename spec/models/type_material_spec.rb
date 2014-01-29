@@ -62,6 +62,15 @@ describe TypeMaterial do
         @icn_type.valid?
         expect(@icn_type.errors.include?(:type_type)).to be_false
       end
+
+      specify 'protonym not a species' do
+        t = FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
+        t.valid?
+        expect(t.errors.include?(:protonym_id)).to be_true
+        t.protonym = FactoryGirl.build(:relationship_species, parent: nil)
+        t.valid?
+        expect(t.errors.include?(:protonym_id)).to be_false
+      end
     end
 
     context 'Material restrictions' do
