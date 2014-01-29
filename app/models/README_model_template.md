@@ -13,12 +13,15 @@ development.
     # Include statements
     include Housekeeping
 
-    # Class Variables
+    # Class constants
     BLORF = 123
+
+    # Class variables
+    @@foo = 1
 
     # Associations, in order: belongs_to, has_one,has_many
     belongs_to :source
-    has_one :
+    has_one :creator
     has_many :bars
 
     # Scopes, clustered by function
@@ -52,12 +55,12 @@ development.
     protected
 
     # Class methods
-    def self.swim!
+    def self.dive!
       # ...
     end
 
     # Instance methods
-    def walk!
+    def crawl
       # ...
     end
   end 
