@@ -117,12 +117,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def nomenclature_date
+    return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
-      self.source ? self.source.nomenclature_date.to_time : (self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil)
+      year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
+      self.source ? (self.source.nomenclature_date ? self.source.nomenclature_date.to_time : year) : year
     else
       obj = family_before_1961.object_taxon_name
-      obj.source ? obj.source.nomenclature_date.to_time : (obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil)
+      year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
+      obj.source ? (self.source.nomenclature_date ? obj.source.nomenclature_date.to_time : year) : year
     end
   end
 

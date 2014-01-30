@@ -445,14 +445,22 @@ class TaxonNameRelationship < ActiveRecord::Base
       elsif !!date1 and !!date2
         case self.type_class.nomenclatural_priority
           when :direct
-            if self.type_class.to_s =~ /Iczn::Invalidating::Homonym/ || TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-              soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
+            if date2 > date1
+              if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
+              elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
+                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also a homonym or conserved")
+              elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
+                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also conserved or sanctioned")
+              end
             end
           when :reverse
-            if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-              soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
-            else
-              soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
+            if date1 > date2
+              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
+                soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
+              else
+                soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
+              end
             end
         end
       end

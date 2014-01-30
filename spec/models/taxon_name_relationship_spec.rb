@@ -447,9 +447,9 @@ describe TaxonNameRelationship do
 
       context 'priority' do
         before(:all) do
-          @g1 = FactoryGirl.create('relationship_genus', parent: @family, year_of_publication: 2005)
-          @s1 = FactoryGirl.create('relationship_species', parent: @g1, year_of_publication: 2000)
-          @s2 = FactoryGirl.create('relationship_species', parent: @g1, year_of_publication: 2001)
+          @g1 = FactoryGirl.create(:relationship_genus, parent: @family, year_of_publication: 2005)
+          @s1 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2000)
+          @s2 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2001)
         end
         specify 'FirstRevisorAction' do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction')
@@ -463,7 +463,7 @@ describe TaxonNameRelationship do
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         end
         specify 'reverse priority' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
+          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         end
@@ -472,7 +472,7 @@ describe TaxonNameRelationship do
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
         end
-        specify 'synonym and homonym' do
+        specify 'synonym and homonym or conserved' do
           r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
@@ -481,6 +481,18 @@ describe TaxonNameRelationship do
           expect(r1.soft_validations.messages_on(:type).empty?).to be_true
           r2.type = 'TaxonNameRelationship::Iczn::Validating::ConservedName'
           expect(r2.save).to be_true
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+        end
+        specify 'synonym and homonym or conserved' do
+          g1 = FactoryGirl.create(:icn_genus)
+          s1 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2000)
+          s2 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2001)
+          s3 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 1999)
+          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s3, type: 'TaxonNameRelationship::Icn::Accepting::SanctionedName')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).empty?).to be_true
         end
