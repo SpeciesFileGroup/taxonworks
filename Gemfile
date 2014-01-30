@@ -50,8 +50,10 @@ gem 'bcrypt-ruby', '~> 3.1.2'
 # DwC-A archive handling 
 gem "dwc-archive", "~> 0.9.11"
 
-gem 'rspec-rails', group: [:development, :test]
-gem 'debugger', {group: [:test, :development]}.merge(ENV['RM_INFO'] ? {require: false} : {})
+group :test, :development do
+  gem 'rspec-rails'
+  gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+end
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
