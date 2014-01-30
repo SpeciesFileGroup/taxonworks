@@ -13,8 +13,7 @@ describe TaxonName do
   end
 
   after(:all) do
-    TaxonName.delete_all
-    TaxonNameRelationship.delete_all
+    TestDbCleanup.cleanup_taxon_name_and_related
   end
 
   context 'double checking FactoryGirl' do
@@ -165,7 +164,6 @@ describe TaxonName do
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
       context 'handle a simple hierarchy with awesome_nested_set' do
         before(:all) do
-
           @family1 = FactoryGirl.create(:iczn_family, parent: @root)
           @genus1 = FactoryGirl.create(:iczn_genus, parent: @family1)
           @genus2 = FactoryGirl.create(:iczn_genus, parent: @family1)

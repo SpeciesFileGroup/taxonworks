@@ -8,8 +8,10 @@ describe Combination do
     @combination = FactoryGirl.create(:combination, parent: @family)
     @source = FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
   end
+  
   after(:all) do
     TaxonName.delete_all
+    Source.delete_all 
   end
 
   context 'associations' do
@@ -58,6 +60,7 @@ describe Combination do
         @subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: @genus)
         @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @subgenus)
       end
+      
       specify 'a genus group name used as a subgenus' do
         c = FactoryGirl.create(:combination, parent: @subgenus)
         c.genus = @genus

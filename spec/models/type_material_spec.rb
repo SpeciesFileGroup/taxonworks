@@ -5,6 +5,11 @@ describe TypeMaterial do
     @type_material = FactoryGirl.build_stubbed(:type_material)
   end
 
+  after(:all) {
+    TestDbCleanup.cleanup_taxon_name_and_related
+    TypeMaterial.delete_all
+  }
+
   context 'associations' do
     context 'belongs to' do
       specify 'protonym' do

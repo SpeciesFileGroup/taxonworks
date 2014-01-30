@@ -17,9 +17,10 @@ describe TaxonNameRelationship do
     after(:all) do
       TaxonName.delete_all
       TaxonNameRelationship.delete_all
+      Source.delete_all
     end
+    
     context 'requires' do
-
       context 'associations' do
         specify 'subject (TaxonName)' do
           expect(@taxon_name_relationship).to respond_to (:subject_taxon_name)

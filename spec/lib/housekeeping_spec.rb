@@ -4,6 +4,7 @@ describe 'Housekeeping::User' do
 
   context 'Users' do
 
+    # TODO: shouldn't be necessary ultimately.
     before(:all) do
       User.delete_all # just to make sure they are really gone
     end
@@ -79,7 +80,6 @@ describe 'Housekeeping::User' do
     context 'Project extensions' do
       before(:all) {
         Project.destroy_all  # TODO: this is just to make sure there is no leftover housekeeping cruft, ultimately this shouldn't be necessary.
-
         d = HousekeepingTestClass::WithProject.new # Force Project extensions by instantiating an instance of the extended class
         @p = Project.new 
       }
@@ -118,6 +118,7 @@ describe 'Housekeeping::User' do
           }
           after(:all) {
             $project_id = 1 # now return to our regular scheduled programming
+            Project.destroy_all
           }
 
           specify 'instance must belong to the project before save' do
