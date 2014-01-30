@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Container do
 
-  let(:container) { Container.new }
+  let(:container) { FactoryGirl.build(:container) }
 
   context 'associations' do
     context 'has_many' do

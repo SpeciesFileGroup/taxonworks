@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe CollectingEvent do
-  let(:collecting_event) { CollectingEvent.new }
+  let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
     context 'requires' do
