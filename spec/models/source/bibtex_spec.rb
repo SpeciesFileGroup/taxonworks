@@ -123,9 +123,9 @@ describe Source::Bibtex do
       @valid_gem_bibtex_book.note = note 
       s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
       expect(s.notes).to have(1).things
-      expect(s.notes.first.text).to eq(note + " [Created on import from BibTeX.]")
+      expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
       expect(s.save).to be_true
-      expect(s.notes.first.id.nil?).to be_false 
+      expect(s.notes.first.id.nil?).to be_false
     end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do

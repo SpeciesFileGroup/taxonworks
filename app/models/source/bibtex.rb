@@ -160,11 +160,11 @@
 #   @return [nil] means the attribute is not stored in the database.
 #
 # @!attribute note
-#   BibTeX standard field (required for types: )(optional for types:)
+#   BibTeX standard field (required for types: unpublished)(optional for types:)
 #   Any additional information that can help the reader. The first word should be capitalized.
 #
-#   Once this record has been normalized, it is the concatenation of all associated Notes.
-#   This attribute is used on import and export, but is otherwise ignored.
+#   This attribute is used on import, but is otherwise ignored.   Updates to this field are
+#   NOT transferred to the associated TW note and not added to any export.
 #   @return[String] the BibTeX note associated with this source
 #   @return [nil] means the attribute is not stored in the database.
 #
@@ -352,7 +352,7 @@ class Source::Bibtex < Source
 
 
   def self.new_from_bibtex(bibtex_entry)
-# TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
+# TODO On input, convert ruby-bibtex.url to an identifier
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
@@ -445,8 +445,11 @@ class Source::Bibtex < Source
   end
 
   def note=(value)
-    write_attribute(:note, value)
-    self.notes.build({text: value + " [Created on import from BibTeX.]"} ) if self.new_record?
+    #   This attribute is used on import, but is otherwise ignored.   Updates to this field are
+    #   NOT transferred to the associated TW note and not added to any export.
+
+  write_attribute(:note, value)
+    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record?
   end 
 
   def isbn=(value)
