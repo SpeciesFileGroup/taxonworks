@@ -462,6 +462,12 @@ describe TaxonNameRelationship do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @s1, type: 'TaxonNameClassification::Iczn::Unavailable')
+          @s1.reload
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+          c1.delete
+          @s1.reload
         end
         specify 'reverse priority' do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')

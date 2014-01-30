@@ -438,6 +438,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     unless self.type_class.nomenclatural_priority.nil?
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
+      invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
       if self.type_name == 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction'
         unless date1 == date2
           soft_validations.add(:type, 'Both taxa should be described on the same date')
@@ -446,7 +447,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       elsif !!date1 and !!date2
         case self.type_class.nomenclatural_priority
           when :direct
-            if date2 > date1
+            if date2 > date1 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
                 soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
               elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
@@ -456,7 +457,7 @@ class TaxonNameRelationship < ActiveRecord::Base
               end
             end
           when :reverse
-            if date1 > date2
+            if date1 > date2 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination|SourceClassifiedAs)/
                 soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
               else
