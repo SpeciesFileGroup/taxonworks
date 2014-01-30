@@ -24,24 +24,28 @@ describe Role do
     end
 
     context 'indices' do
+      before(:each) {
+        @person = FactoryGirl.create(:valid_person)
+      }
+
       specify 'one person can not have two identical roles' do
-        person = FactoryGirl.create(:valid_person)
         role_object = FactoryGirl.create(:valid_source_bibtex)
-        role1 = Role.new(person: person, role_object:  role_object, type: 'SourceAuthor')
+        role1 = Role.new(person: @person, role_object:  role_object, type: 'SourceAuthor')
         expect(role1.valid?).to be_true
         role1.save
-        role2 = Role.new(person: person, role_object:  role_object, type: 'SourceAuthor')
+        role2 = Role.new(person: @person, role_object:  role_object, type: 'SourceAuthor')
         expect(role2.valid?).to be_false
         expect(role2.errors.include?(:person_id)).to be_true
       end
     end
 
-    context('after save') {
-      author_role = FactoryGirl.create(:source_author_role)
+    context 'after save' do 
       specify 'position is specified by acts_as_list' do
-        expect(author_role.position).to eq(1)
+        @author_role = FactoryGirl.build(:source_author_role)
+        @author_role.save
+        expect(@author_role.position).to eq(1)
       end
-    }
+    end 
   end
 
   context "associations" do

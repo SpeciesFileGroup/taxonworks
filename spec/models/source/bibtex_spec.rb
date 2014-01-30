@@ -539,6 +539,10 @@ describe Source::Bibtex do
 
   context 'associations' do
     context 'roles' do
+      before(:each) {
+        @valid_person = FactoryGirl.create(:valid_person)
+      } 
+    
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
         # the roles should be automatically set? (Yes)
@@ -561,7 +565,8 @@ describe Source::Bibtex do
         pending 'invalidate if editors exist and editor has changed, and no longer matches'
       end
 
-      valid_person = FactoryGirl.create(:valid_person)
+      
+      
       %w{author editor}.each do |i|
         specify "#{i}s" do
           method = "#{i}s"
@@ -570,9 +575,9 @@ describe Source::Bibtex do
           bibtex.title       = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true                         # save record to get an ID
-          expect(bibtex.send(method) << valid_person).to be_true # assigns author but doesn't save role
+          expect(bibtex.send(method) << @valid_person).to be_true # assigns author but doesn't save role
           expect(bibtex.save).to be_true                         # saving bibtex also saves role
-          expect(bibtex.send(method).first).to eq(valid_person)
+          expect(bibtex.send(method).first).to eq(@valid_person)
         end
 
         specify "#{i}_roles" do
@@ -582,7 +587,7 @@ describe Source::Bibtex do
           bibtex.title       = 'valid record'
           bibtex.bibtex_type = 'book'
           expect(bibtex.save).to be_true
-          expect(bibtex.send("#{i}s") << valid_person).to be_true
+          expect(bibtex.send("#{i}s") << @valid_person).to be_true
           expect(bibtex.save).to be_true
           expect(bibtex.send(method).size).to eq(1)
         end
