@@ -457,7 +457,7 @@ class TaxonNameRelationship < ActiveRecord::Base
             end
           when :reverse
             if date1 > date2
-              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
+              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination|SourceClassifiedAs)/
                 soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
               else
                 soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
@@ -504,15 +504,31 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_coordinated_taxa
     s = self.subject_taxon_name
     o = self.object_taxon_name
-    s_new = s.lowest_rank_coordinated_taxon
-    o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new
-      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
-    elsif s != s_new
-      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
-    end
+    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icn)/
+      s_new = s.lowest_rank_coordinated_taxon
+      o_new = o.lowest_rank_coordinated_taxon
+      if o != o_new && self.subject_taxon_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+        soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+      end
+      if s != s_new
+        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+      end
+    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/
+      list = s.list_of_coordinated_names + [s]
+      if s.rank_class.to_s =~ /Species/
+        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+      elsif s.rank_class.to_s=~ /Genus/
+        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+      else
+        s_new = s
+      end
+      if s != s_new
+        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+      end
+      end
   end
 
   def sv_fix_coordinated_taxa
@@ -522,6 +538,29 @@ class TaxonNameRelationship < ActiveRecord::Base
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new || s != s_new
       self.object_taxon_name = o_new
+      self.subject_taxon_name = s_new
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
+  def sv_fix_combination_relationship
+    s = self.subject_taxon_name
+    list = s.list_of_coordinated_names + [s]
+    if s.rank_class.to_s =~ /Species/
+      s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+    elsif s.rank_class.to_s=~ /Genus/
+      s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+    else
+      s_new = s
+    end
+    if s != s_new
       self.subject_taxon_name = s_new
       begin
         TaxonNameRelationship.transaction do
