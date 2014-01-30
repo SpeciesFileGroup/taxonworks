@@ -119,6 +119,16 @@ class Protonym < TaxonName
     return list
   end
 
+  def lowest_rank_coordinated_taxon
+    list = [self] + list_of_coordinated_names
+    if list.count == 1
+      self
+    else
+      parents = list.collect{|i| i.parent.id}
+      list.detect{|t| !parents.include?(t.id)}
+    end
+  end
+
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).to_a
   end

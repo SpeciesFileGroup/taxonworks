@@ -17,7 +17,7 @@ class NomenclaturalRank
   def self.top_rank(rank)
     all = rank.descendants
     all.select!{|r| !r.parent_rank.nil?}
-    all.detect { |r| !all.include?(r.parent_rank) }
+    all.detect{|r| !all.include?(r.parent_rank)}
 #    all.detect { |r| !(r.parent_rank.nil? or all.include?(r.parent_rank)) }
   end
 
@@ -26,7 +26,7 @@ class NomenclaturalRank
     all = rank.descendants
     all.select!{|r| !r.parent_rank.nil?}
     all_parents = all.collect{|i| i.parent_rank}
-    all.detect { |r| !all_parents.include?(r) }
+    all.detect{|r| !all_parents.include?(r)}
 #    all.detect { |r| !(r.parent_rank.nil? or all_parents.include?(r)) }
   end
 

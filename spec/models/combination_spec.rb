@@ -96,7 +96,7 @@ describe Combination do
     end
 
     specify 'combination is older than taxon' do
-      c = FactoryGirl.build(:combination, year_of_publication: 1900, parent: @family)
+      c = FactoryGirl.create(:combination, year_of_publication: 1900, parent: @family)
       @family.year_of_publication = 1940
       expect(@family.save).to be_true
       c.soft_validate(:source_older_then_description)

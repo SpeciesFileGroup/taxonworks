@@ -21,6 +21,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
+  soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -495,6 +496,39 @@ class TaxonNameRelationship < ActiveRecord::Base
           rescue
           end
         end
+      end
+    end
+    false
+  end
+
+  def sv_coordinated_taxa
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    s_new = s.lowest_rank_coordinated_taxon
+    o_new = o.lowest_rank_coordinated_taxon
+    if o != o_new
+      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+    elsif s != s_new
+      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+    end
+  end
+
+  def sv_fix_coordinated_taxa
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    s_new = s.lowest_rank_coordinated_taxon
+    o_new = o.lowest_rank_coordinated_taxon
+    if o != o_new || s != s_new
+      self.object_taxon_name = o_new
+      self.subject_taxon_name = s_new
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
       end
     end
     false
