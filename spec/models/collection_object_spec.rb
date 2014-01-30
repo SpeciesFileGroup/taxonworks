@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe CollectionObject do
 
-  let(:collection_object) {CollectionObject.new}
+  let(:collection_object) {FactoryGirl.build(:collection_object) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -13,8 +13,6 @@ describe CollectionObject do
       specify 'repository' do
         expect(collection_object).to respond_to(:repository)
       end
-
-
     end
   end
 

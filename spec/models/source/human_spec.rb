@@ -3,7 +3,6 @@ require 'spec_helper'
 describe Source::Human do
 
   let(:source_human) { Source::Human.new }
-  #let(:valid_person) { FactoryGirl.build(:valid_person) }
 
   context 'associations' do
 
