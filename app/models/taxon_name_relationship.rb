@@ -340,17 +340,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_fix_specify_synonymy_type
-    #TODO update to cover type specimens synonym is objective if type the same or subjective if type is different
-    subject_type = self.subject_taxon_name.type_taxon_name
-    object_type = self.object_taxon_name.type_taxon_name
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    subject_type = s.type_taxon_name
+    object_type = o.type_taxon_name
     new_relationship_name = self.type_name
-    if subject_type == object_type && !subject_type.nil?
+    if (subject_type == object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && s.matching_primary_types(s, o) )
       if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
         new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
       else
         new_relationship_name = 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
       end
-    elsif subject_type != object_type && !subject_type.nil?
+    elsif (subject_type != object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && !o.get_primary_type.empty? && !s.matching_primary_types(s, o))
       if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
         new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
       else

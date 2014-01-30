@@ -379,7 +379,34 @@ describe TaxonNameRelationship do
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
           r1.fix_soft_validations
           r1.soft_validate(:not_specific_relationship)
+          expect(r1.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
           expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+        end
+        specify 'same type specimen fix to objective synonym' do
+          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+          type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
+          type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+          r.soft_validate(:not_specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+          r.fix_soft_validations
+          r.soft_validate(:not_specific_relationship)
+          expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+          expect(r.soft_validations.messages_on(:type).empty?).to be_true
+        end
+        specify 'subjective synonyms should have different type specimen' do
+          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+          type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
+          type_material2 = FactoryGirl.create(:valid_type_material, protonym: s2)
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+          r.soft_validate(:not_specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+          r.fix_soft_validations
+          r.soft_validate(:not_specific_relationship)
+          expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+          expect(r.soft_validations.messages_on(:type).empty?).to be_true
         end
         specify 'fix not specific relationships from homonym to primary homonym' do
           s1 = FactoryGirl.create(:relationship_species, parent: @genus)
