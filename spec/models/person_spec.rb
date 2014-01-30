@@ -115,9 +115,9 @@ describe Person do
     # TODO: Fix. 
     #  ... roles are not getting assigned creator/updater when << is used
     context 'roles' do
-      before(:each) do
+      before(:each) {
         @vp = FactoryGirl.create(:valid_person)
-      end
+      }
 
       specify '@vp is valid person' do
         expect(@vp.valid?).to be_true
