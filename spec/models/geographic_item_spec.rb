@@ -8,6 +8,10 @@ describe GeographicItem do
     gen_db_objects()
   end
 
+  after(:all) do
+    GeographicItem.destroy_all
+  end
+
   #let(:tw_factory) { ::RGeo::Geographic.tw_factory(:srid => 4326)}
   #let(:tw_factory) { ::RGeo::Geos.factory(:srid             => 4326,
   #                                        :has_z_coordinate => true,
