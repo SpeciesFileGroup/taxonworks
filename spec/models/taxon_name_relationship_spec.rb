@@ -458,7 +458,7 @@ describe TaxonNameRelationship do
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         end
         specify 'direct priority' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
         end
@@ -470,7 +470,19 @@ describe TaxonNameRelationship do
         specify 'reverse priority original genus' do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
           r1.soft_validate(:validate_priority)
-        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+        end
+        specify 'synonym and homonym' do
+          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+          r2.type = 'TaxonNameRelationship::Iczn::Validating::ConservedName'
+          expect(r2.save).to be_true
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).empty?).to be_true
         end
       end
 

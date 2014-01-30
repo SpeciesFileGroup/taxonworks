@@ -42,6 +42,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :with_type_string, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
+  scope :with_two_type_bases, -> (base_string1, base_string2) {where("type LIKE '#{base_string1}%' OR type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
   scope :not_self, -> (id) {where('id <> ?', id )}
@@ -444,7 +445,9 @@ class TaxonNameRelationship < ActiveRecord::Base
       elsif !!date1 and !!date2
         case self.type_class.nomenclatural_priority
           when :direct
-            soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
+            if self.type_class.to_s =~ /Iczn::Invalidating::Homonym/ || TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
+              soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
+            end
           when :reverse
             if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
               soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
