@@ -10,7 +10,7 @@ describe Tag do
     end
   end
 
-  context 'validations' do
+  context 'validation' do
     before(:each) do
       tag.valid?
     end
@@ -21,6 +21,10 @@ describe Tag do
 
     specify 'a keyword is required' do
       expect(tag.errors.include?(:keyword)).to be_true
+    end
+
+    specify 'a topic can not be used' do
+      pending
     end
 
     specify 'a tagged object is only tagged once per keyword' do
