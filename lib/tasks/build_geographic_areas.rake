@@ -20,7 +20,9 @@ TDWG2_L2 = 'TDWG2 Level 2'
 TDWG2_L3 = 'TDWG2 Level 3'
 TDWG2_L4 = 'TDWG2 Level 4'
 
-GADM2 = 'GADM2'
+GADM2_0 = 'GADM2 Level 0'
+GADM2_1 = 'GADM2 Level 1'
+GADM2_2 = 'GADM2 Level 2'
 
 NE_10  = 'NaturalEarth (10m)'
 NE_50  = 'NaturalEarth (50m)'
@@ -363,11 +365,11 @@ def read_dbf(filenames)
     end
   }
 
-  n10, n50, n110, ne_names, ne_ids, ne, ne_a2, ne_adm0                         = {}, {}, {}, {}, {}, {}, {}, {}
+  n10, n50, n110, ne_names, ne_ids, ne_a3, ne_a2, ne_adm0                      = {}, {}, {}, {}, {}, {}, {}, {}
   @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}
 
-  # @global will be filled such that ga.name is the key for easier location later
-  @global                                                                      = {}
+  # @global_keys will be filled such that ga.name is the key for easier location later
+  @global_keys                                                                 = {}
   gat5                                                                         = GeographicAreaType.where(name: 'Country').first
   gat6                                                                         = GeographicAreaType.where(name: 'Area').first
 
@@ -482,7 +484,7 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current code in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne[nation_code3].nil?
+        if ne_a3[nation_code3].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -504,7 +506,7 @@ def read_dbf(filenames)
           puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (110m)"
 
         else
-          ga = ne[nation_code3]
+          ga = ne_a3[nation_code3]
           if ga.ne_geo_item_id != ne110_id
             add_record = add_record
           end
@@ -514,7 +516,7 @@ def read_dbf(filenames)
           ga.ne_geo_item_id       = ne110_id
           ga.data_origin          = NE_110 if ga.data_origin.nil?
         end
-        ne.merge!(ga.iso_3166_a3 => ga)
+        ne_a3.merge!(ga.iso_3166_a3 => ga)
         ne_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.ne_geo_item_id => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
@@ -610,7 +612,7 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current code in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne[nation_code3].nil?
+        if ne_a3[nation_code3].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -632,7 +634,7 @@ def read_dbf(filenames)
           puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (110m)"
 
         else
-          ga = ne[nation_code3]
+          ga = ne_a3[nation_code3]
           if ga.ne_geo_item_id != ne110_id
             add_record = add_record
           end
@@ -642,7 +644,7 @@ def read_dbf(filenames)
           ga.ne_geo_item_id       = ne110_id
           ga.data_origin          = NE_110 if ga.data_origin.nil?
         end
-        ne.merge!(ga.iso_3166_a3 => ga)
+        ne_a3.merge!(ga.iso_3166_a3 => ga)
         ne_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.ne_geo_item_id => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
@@ -762,7 +764,7 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current code in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne[nation_code3].nil?
+        if ne_a3[nation_code3].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -784,7 +786,7 @@ def read_dbf(filenames)
           puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (50m)"
 
         else
-          ga = ne[nation_code3]
+          ga = ne_a3[nation_code3]
           if ga.ne_geo_item_id != ne50_id
             add_record = add_record
           end
@@ -794,7 +796,7 @@ def read_dbf(filenames)
           ga.ne_geo_item_id       = ne50_id
           ga.data_origin          = NE_50 if ga.data_origin.nil?
         end
-        ne.merge!(ga.iso_3166_a3 => ga)
+        ne_a3.merge!(ga.iso_3166_a3 => ga)
         ne_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.ne_geo_item_id => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
@@ -915,7 +917,7 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current code in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne[nation_code3].nil?
+        if ne_a3[nation_code3].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -937,18 +939,18 @@ def read_dbf(filenames)
           puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (10m)"
 
         else
-          ga = ne[nation_code3]
+          ga = ne_a3[nation_code3]
           if ga.ne_geo_item_id != ne10_id
             add_record = add_record
           end
           # found a record with the right name
-          puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+          # puts "'#{nation_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
           ga.geographic_area_type = area_type
           ga.ne_geo_item_id       = ne10_id
           ga.data_origin          = NE_10 if ga.data_origin.nil?
         end
-        ne.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(ga.name => ga)
+        ne_a3.merge!(ga.iso_3166_a3 => ga)
+        ne_names.merge!({'l0' => ga.name} => ga)
         ne_ids.merge!(ga.ne_geo_item_id => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
         ne_adm0.merge!(ga.adm0_a3 => ga) if add_adm0_a3
@@ -1021,7 +1023,7 @@ def read_dbf(filenames)
 
       if ne10_id =~ /\A[A-Z]{3}-\d{1,5}\z/
       else
-        puts "Reformed ne10_id: '#{ne10_id}' '#{item.name}' - #{adm0_a3} - #{item.admin}"
+        # puts "Reformed ne10_id: '#{ne10_id}' '#{item.name}' - #{adm0_a3} - #{item.admin}"
         ne10_id.gsub!('+', '-')
         ne10_id.gsub!('?', '')
 
@@ -1038,13 +1040,13 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current code in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne[ne10_id].nil?
+        if ne_a3[ne10_id].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
           # find the parent country through the adm0_a3
 
-          adm0_ga = ne[adm0_a3]
+          adm0_ga = ne_a3[adm0_a3]
           if adm0_ga.nil?
             adm0_name = item.admin
             puts "Using adm0_a3: '#{adm0_a3}' #{area_type.name} of #{area_name} of #{adm0_name}"
@@ -1086,18 +1088,24 @@ def read_dbf(filenames)
           puts "#{index}: '#{ne10_id}'#{p1}for #{area_type.name} of #{area_name} of #{ga.parent.name}\t\tAdded. (10m)"
 
         else
-          ga = ne[ne10_id]
+          ga = ne_a3[ne10_id]
           if ga.ne_geo_item_id != ne10_id
             add_record = add_record
           end
           # found a record with the right name
-          puts "'#{area_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{area_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+          # puts "'#{area_code3}'(#{ga.ne_geo_item_id})#{p1}for #{ga.geographic_area_type.name} of #{area_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
           ga.geographic_area_type = area_type
           ga.ne_geo_item_id       = ne10_id
           ga.data_origin          = NE_10 if ga.data_origin.nil?
         end
-        ne.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(ga.name => ga)
+        ne_a3.merge!(ga.iso_3166_a3 => ga)
+
+        names_key = {
+          'l0' => ga.parent.name,
+          'l1' => ga.name
+        }
+
+        ne_names.merge!(names_key => ga)
         ne_ids.merge!(ga.ne_geo_item_id => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -1116,7 +1124,7 @@ def read_dbf(filenames)
 
         # search by A2 nation code
         if ne_a2[nation_code].nil?
-          # We will need to create new @global records so that we can check for typing anomalies and
+          # We will need to create new @global_keys records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
 
           if !(nation_name =~ /Country Name/) # drop the headers on the floor
@@ -1132,12 +1140,20 @@ def read_dbf(filenames)
 
             ga.level0 = ga
             ne_a2.merge!(nation_code => ga) if !(ga.nil?)
+
+            names_key = {'l0' => ga.name}
+            if ne_names[names_key].nil?
+              ne_names.merge!(names_key => ga)
+            else
+              names_key
+            end
+
             puts "'#{nation_code}' for Country of #{nation_name}\t\tAdded. (ISO)"
           end
         else
           ga = ne_a2[nation_code]
           # found a record with the right name
-          puts "'#{nation_code}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
+          # puts "'#{nation_code}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
         end
       end
     }
@@ -1290,7 +1306,7 @@ def read_dbf(filenames)
       # breakpoint.save
     end
 
-    @global, @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}, {}, {}
+    @global_keys, @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}, {}, {}
 
     gadm2.each { |item|
 
@@ -1319,7 +1335,7 @@ def read_dbf(filenames)
       l5_name   = (l5_id == 0) ? '' : item['NAME_5'].titlecase.gsub(/\n/, ' ')
       l5_type   = item['ENGTYPE_5']
 
-      if (gadm_id % 1000) == 238
+      if true #(gadm_id % 1000) == 238
         i5 = l5_name
         s5 = i5.empty? ? '' : ("#{l5_type} of \"" + i5 + "\", ")
         i4 = l4_name
@@ -1338,38 +1354,58 @@ def read_dbf(filenames)
 
       # build lvl0 key value from lvl0 data
 
-      l0_key = {
+      l0_key    = {
         'ID_0'   => l0_id,
         'ISO'    => l0_iso,
         'NAME_0' => l0_name
       }
+      names_key = {'l0' => l0_name}
 
       if !(l0_iso =~ /\A[A-Z]{3}\z/)
         next # just bail on the record
       end
 
-      # look in ne for an existing record by iso_a3
-      ga = ne[l0_iso]
+
+      # look in ne_a3 for an existing record by iso_a3
+      ga = ne_a3[l0_iso]
       if ga.nil?
         # no such iso record exists
         # look for a record with this l0_id in the zero level list
         ga = @lvl0_items[l0_key]
 
         if ga.nil?
-          # create a record for the zero level, and the @global list
+          puts "Adding '#{names_key}'."
+          # create a record for the zero level, and the @global_keys list
           ga = GeographicArea.new(parent:      earth,
                                   iso_3166_a3: l0_iso,
-                                  data_origin: GADM2,
+                                  data_origin: GADM2_0,
+                                  # when the record is first created for this named place
+                                  gadmID:      gadm_id,
                                   name:        l0_name)
+          ne_a3.merge!({l0_iso => ga})
 
-          ne.merge!(l0_iso => ga)
+          ne_ga = ne_names[names_key]
+          if ne_ga.nil?
+            # if not in name list, stick this one in the name list
+            ne_names.merge!({names_key => ga})
+          else
+            # or update the record we have found
+            if ne_ga.gadmID.nil?
+              ne_ga.gadmID = gadm_id
+            end
+          end
         else
           # l0 is the object we want
           l0 = ga
         end
       else
-        # ga is the object we want
-        ga.data_origin = GADM2 if ga.data_origin.nil?
+        if ne_names[names_key].nil?
+          ne_names.merge!(names_key => ga)
+        else
+          # ga is the object we want
+          ga.gadmID      = gadm_id if ga.gadmID.nil?
+          ga.data_origin = GADM2_0 if ga.data_origin.nil?
+        end
       end
 
       if l1_name.empty?
@@ -1386,8 +1422,8 @@ def read_dbf(filenames)
       # put the item in the lvl0 list
       place = {l0_key => ga}
       @lvl0_items.merge!(place)
-      # and the @global list
-      @global.merge!(place)
+      # and the @global_keys list
+      @global_keys.merge!(place)
       # yes, this *is* the same as parent
       ga.level0 = ga
       l0        = ga
@@ -1420,7 +1456,7 @@ def read_dbf(filenames)
                     "REMARKS_1"  => "",
 =end
 
-        l1_key = {
+        l1_key    = {
           'ID_1'      => l1_id,
           'NAME_1'    => l1_name,
           'VARNAME_1' => item['VARNAME_1'],
@@ -1433,22 +1469,39 @@ def read_dbf(filenames)
           'VALIDTO_1' => item['VALIDTO_1'],
           'REMARKS_1' => item['REMARKS_1']
         }
+        names_key = {'l0' => l0_name,
+                     '1l' => l1_name}
 
         ga = @lvl1_items[l1_key]
         if ga.nil?
-          # create a record for level 1, and the @global list
+          puts "Adding '#{names_key}'."
+# create a record for level 1, and the @global_keys list
           ga    = GeographicArea.new(parent:               l0,
                                      name:                 l1_name,
-                                     data_origin:          GADM2,
+                                     data_origin:          GADM2_1,
+                                     # when the record is first created for this named place
+                                     gadmID:               gadm_id,
                                      geographic_area_type: add_gat(item['ENGTYPE_1']))
-          # put the item in the lvl0 list
+# put the item in the lvl0 list
           place = {l1_key => ga}
           @lvl1_items.merge!(place)
-          # and the @global list
-          @global.merge!(place)
+# and the @global_keys list
+          @global_keys.merge!(place)
+
+          ne_ga = ne_names[names_key]
+          if ne_ga.nil?
+            # if not in name list, stick this one in the name list
+            ne_names.merge!({names_key => ga})
+          else
+            # or update the record we have found
+            if ne_ga.gadmID.nil?
+              ne_ga.gadmID = gadm_id
+            end
+          end
         else
           # nothing to do
-          l1 = ga
+          ga.gadmID = gadm_id if ga.gadmID.nil?
+          l1        = ga
         end
         ga.gadm_valid_from = item['VALIDFR_1']
         ga.gadm_valid_to   = item['VALIDTO_1']
@@ -1470,7 +1523,7 @@ def read_dbf(filenames)
 
         # process level 2, using level 1 as parent
 
-        l2_key = {
+        l2_key    = {
           'ID_2'      => l2_id,
           'NAME_2'    => l2_name,
           'VARNAME_2' => item['VARNAME_2'],
@@ -1483,13 +1536,19 @@ def read_dbf(filenames)
           'VALIDTO_2' => item['VALIDTO_2'],
           'REMARKS_2' => item['REMARKS_2']
         }
+        names_key = {'l0' => l0_name,
+                     'l1' => l1_name,
+                     'l2' => l2_name}
 
         l2 = @lvl2_items[l2_key]
         if l2.nil?
-          # create a record for level 2, and the @global list
+          puts "Adding '#{names_key}'."
+# create a record for level 2, and the @global_keys list
           ga = GeographicArea.new(parent:               l1,
                                   name:                 l2_name,
-                                  data_origin:          GADM2,
+                                  data_origin:          GADM2_2,
+                                  # when the record is first created for this named place
+                                  gadmID:               gadm_id,
                                   geographic_area_type: add_gat(item['ENGTYPE_2']))
 
           ga.gadm_valid_from = item['VALIDFR_2']
@@ -1501,12 +1560,23 @@ def read_dbf(filenames)
           # put the item in the lvl2 list
           place              = {l2_key => ga}
           @lvl2_items.merge!(place)
-          # and the @global list
-          @global.merge!(place)
+          # and the @global_keys list
+          @global_keys.merge!(place)
 
+          ne_ga = ne_names[names_key]
+          if ne_ga.nil?
+            # if not in name list, stick this one in the name list
+            ne_names.merge!({names_key => ga})
+          else
+            # or update the record we have found
+            if ne_ga.gadmID.nil?
+              ne_ga.gadmID = gadm_id
+            end
+          end
         else
           # nothing to do
-          l2 = l2
+          ga.gadmID = gadm_id if ga.gadmID.nil?
+          l2        = ga
         end
 
         if l3_name.empty?
@@ -1528,7 +1598,7 @@ def read_dbf(filenames)
 
         l3 = @lvl3_items[l2_name]
         if l3.nil?
-          # create a record for level 3, and the @global list
+          # create a record for level 3, and the @global_keys list
           ga    = GeographicArea.new(parent:               l2,
                                      name:                 l3_name,
                                      iso_3166_a3:          item['ISO'],
@@ -1536,8 +1606,8 @@ def read_dbf(filenames)
           # put the item in the lvl0 list
           place = {l3_name => ga}
           @lvl3_items.merge!(place)
-          # and the @global list
-          @global.merge!(place)
+          # and the @global_keys list
+          @global_keys.merge!(place)
           l3 = ga
         else
           # nothing to do
@@ -1551,7 +1621,7 @@ def read_dbf(filenames)
 
         l4 = @lvl4_items[l4_name]
         if l4.nil?
-          # create a record for level 4, and the @global list
+          # create a record for level 4, and the @global_keys list
           ga    = GeographicArea.new(parent:               l3,
                                      name:                 l4_name,
                                      iso_3166_a3:          item['ISO'],
@@ -1559,8 +1629,8 @@ def read_dbf(filenames)
           # put the item in the lvl0 list
           place = {l4_name => ga}
           @lvl4_items.merge!(place)
-          # and the @global list
-          @global.merge!(place)
+          # and the @global_keys list
+          @global_keys.merge!(place)
           l4 = ga
         else
           # nothing to do
@@ -1574,7 +1644,7 @@ def read_dbf(filenames)
 
         l5 = @lvl5_items[l5_name]
         if l5.nil?
-          # create a record for level 5, and the @global list
+          # create a record for level 5, and the @global_keys list
           ga    = GeographicArea.new(parent:               l4,
                                      name:                 l5_name,
                                      iso_3166_a3:          item['ISO'],
@@ -1582,8 +1652,8 @@ def read_dbf(filenames)
           # put the item in the lvl0 list
           place = {l5_name => ga}
           @lvl5_items.merge!(place)
-          # and the @global list
-          @global.merge!(place)
+          # and the @global_keys list
+          @global_keys.merge!(place)
           l5 = ga
         else
           # nothing to do
@@ -1610,18 +1680,26 @@ def read_dbf(filenames)
       index += 1
       l1n   = item['LEVEL1_NAM'].titlecase
       l1c   = item['LEVEL1_COD'].to_s + '----'
+      names_key = {'l0' => l1n}
 
       puts "1-#{index}:\t\t#{l1c} for #{l1n}."
 
       ga = GeographicArea.new(parent:               earth,
                               tdwg_parent:          earth,
-                              tdwg_geo_item_id:     index,
                               tdwgID:               l1c,
                               data_origin:          TDWG2_L1,
                               name:                 l1n,
                               geographic_area_type: gat1)
       @lvl1_items.merge!(l1c => ga)
-      @global.merge!(ga.name => ga)
+
+      ne_ga = ne_names[names_key]
+      if ne_ga.nil?
+        # if not in name list, stick this one in the name list
+        ne_names.merge!({names_key => ga})
+      else
+        l1n
+      end
+      @global_keys.merge!(ga.name => ga)
     }
 
     index = 0
@@ -1636,13 +1714,12 @@ def read_dbf(filenames)
 
       ga = GeographicArea.new(parent:               l2p,
                               tdwg_parent:          l2p,
-                              tdwg_geo_item_id:     index,
                               tdwgID:               l2c,
                               name:                 l2n,
                               data_origin:          TDWG2_L2,
                               geographic_area_type: gat2)
       @lvl2_items.merge!(l2c => ga)
-      @global.merge!(ga.name => ga)
+      @global_keys.merge!(ga.name => ga)
     }
 
     index = 0
@@ -1664,36 +1741,36 @@ def read_dbf(filenames)
 
       if ne_ga.nil?
         # then try by iso a3
-        ne_ga = ne[l3a3]
+        ne_ga = ne_a3[l3a3]
         if ne_ga.nil?
           # new TDWG-only record
           ne_ga = GeographicArea.new(parent:               l3p,
                                      tdwg_parent:          l3p,
-                                     tdwg_geo_item_id:     index,
                                      tdwgID:               l3c,
                                      name:                 l3n,
                                      data_origin:          TDWG2_L3,
                                      geographic_area_type: gat3)
           @lvl3_items.merge!(l3c => ne_ga)
-          @global.merge!(ne_ga.name => ne_ga)
+          @global_keys.merge!(ne_ga.name => ne_ga)
         else
-          # found a named record: is it sane?
-          update_tdwg = true
+          # found a record by iso_a3
+          # Be suspicious, VERY suspicious...
+          if ne_ga.name == l3n
+            # if it has the same name
+            # found a named record: is it sane?
+            update_tdwg = true
+          else
+            update_tdwg = false
+          end
         end
-      else
-        # if we found it in the names table
-        if ne_ga.name == l3n
-          # if it has the same name
-          # found a named record: is it sane?
-          update_tdwg = true
-        else
-          update_tdwg = false
-        end
+      else # we found it in the names table
+        # found a named record: is it sane?
+        # TODO: It appears to be qualified, what else can we test, to disqualify it?
+        update_tdwg = true
       end
 
       if update_tdwg
         ne_ga.tdwgID      = l3c
-        ne_ga.tdwg_geo_item_id = index
         ne_ga.tdwg_parent = l3p
       end
     }
@@ -1715,10 +1792,10 @@ def read_dbf(filenames)
       # isolate the name
       this_area_name = item['Level_4_Na'].titlecase
       # and the iso code of this area
-      country_code   = item['ISO_Code']
+      iso_a2         = item['ISO_Code']
 
 =begin
-# here are spme problem level 4 records:
+# here are some problem level 4 records:
 {"ISO_Code"=>"UK", "Level_4_Na"=>"Channel Is.", "Level4_cod"=>"FRA-CI", "Level4_2"=>"CI", "Level3_cod"=>"FRA", "Level2_cod"=>12, "Level1_cod"=>1}
 {"ISO_Code"=>"UK", "Level_4_Na"=>"Great Britain", "Level4_cod"=>"GRB-OO", "Level4_2"=>"OO", "Level3_cod"=>"GRB", "Level2_cod"=>10, "Level1_cod"=>1}
 {"ISO_Code"=>"UK", "Level_4_Na"=>"Northern Ireland", "Level4_cod"=>"IRE-NI", "Level4_2"=>"NI", "Level3_cod"=>"IRE", "Level2_cod"=>10, "Level1_cod"=>1}
@@ -1734,16 +1811,10 @@ def read_dbf(filenames)
 =end
 
       # find the nation by its country code
-      nation         = nil
-      @global.each { |key, area|
-        if area.iso_3166_a2 == country_code
-          nation = area
-          break #
-        end
-      }
+      nation         = ne_a2[iso_a2]
 
-      # find the matching @global record by name
-      ga = @global[this_area_name]
+      # find the matching @global_keys record by name
+      ga             = @global_keys[this_area_name]
       if ga.nil?
         l3c   = item['Level3_cod']
         l3_ga = lvl3_items[l3_code]
@@ -1751,7 +1822,6 @@ def read_dbf(filenames)
         # so we set the parent to the object pointed to by the level 3 code
         ga    = GeographicArea.new(parent:               l3_ga,
                                    tdwg_parent:          l3_ga,
-                                   tdwg_geo_item_id:     index,
                                    tdwgID:               l4c,
                                    name:                 this_area_name,
                                    iso_3166_a2:          nil,
@@ -1761,7 +1831,7 @@ def read_dbf(filenames)
                                    # even if nation is nil, this will do what we want.
                                    country:              nation)
         @lvl4_items.merge!(item['Level4_cod'] => ga)
-        @global.merge!(ga.name => ga)
+        @global_keys.merge!(ga.name => ga)
       else
         # ga is the named area we are looking for
         ga.level0 = nation
@@ -1781,7 +1851,7 @@ def read_dbf(filenames)
 
   breakpoint.save
 
-  ne.each { |key, area|
+  ne_a3.each { |key, area|
     area.save
     puts "NE   '#{area.ne_geo_item_id}' - #{area.geographic_area_type.name} of #{area.name}."
     ne_a2.delet[area.iso_3166_a2]
@@ -1810,51 +1880,51 @@ def read_dbf(filenames)
 
   puts 'Saving Level 0 areas.'
   @lvl0_items.each { |key, area|
-    area.data_origin = GADM2 if area.data_origin.nil?
+    area.data_origin = GADM2_0 if area.data_origin.nil?
     area.save
     puts "GADM - #{area.geographic_area_type.name} of #{area.name}."
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 
   puts 'Saving Level 1 areas.'
   @lvl1_items.each { |key, area|
-    area.data_origin = GADM2 if area.data_origin.nil?
+    area.data_origin = GADM2_1 if area.data_origin.nil?
     area.save
     puts "GADM - #{area.geographic_area_type.name} of #{area.name}."
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 
   puts 'Saving Level 2 areas.'
   @lvl2_items.each { |key, area|
-    area.data_origin = GADM2 if area.data_origin.nil?
+    area.data_origin = GADM2_2 if area.data_origin.nil?
     area.save
     puts "GADM - #{area.geographic_area_type.name} of #{area.name}."
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 
 =begin
   puts 'Saving Level 3 areas.'
   @lvl3_items.each { |key, area|
     area.save
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 
   puts 'Saving Level 4 areas.'
   @lvl4_items.each { |key, area|
     area.save
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 
   puts 'Saving Level 5 areas.'
   @lvl5_items.each { |key, area|
     area.save
-    @global.delete(area.name)
+    @global_keys.delete(area.name)
   }
 =end
 
   # what is left over?
   puts 'Saving non-Level(0, 1, 2) areas.'
-  @global.each { |key, area|
+  @global_keys.each { |key, area|
     puts "GADM - #{area.geographic_area_type.name} of #{area.name}."
     area.save
   }
