@@ -14,13 +14,13 @@ TAXON_NAME_CLASSES = ICZN_TAXON_NAME_CLASSES + ICZN_TAXON_NAME_CLASSES
 # Array of all ICZN TaxonNameClassification classes, as Strings
 ICZN_TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASSES.collect{|d| d.to_s}
 
-# Array of all ICN TaxonNameClassificationes classes, as Strings
+# Array of all ICN TaxonNameClassifications classes, as Strings
 ICN_TAXON_NAME_CLASS_NAMES = ICN_TAXON_NAME_CLASSES.collect{|d| d.to_s}
 
-# Array of all TaxonNameClassificationes classes, as Strings
+# Array of all TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASS_NAMES + ICN_TAXON_NAME_CLASS_NAMES
 
-# Array of all Unavailable and Invalid TaxonNameClassificationes classes, as Strings
+# Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [TaxonNameClassification::Iczn::Unavailable.to_s] +
     TaxonNameClassification::Iczn::Unavailable.descendants.collect{|d| d.to_s} +
     [TaxonNameClassification::Iczn::Available::Invalid.to_s] +

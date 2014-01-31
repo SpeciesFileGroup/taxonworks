@@ -1,2 +1,2 @@
-class OtuPageLayoutSection::StandardSection < ActiveRecord::Base
+class OtuPageLayoutSection::StandardSection < OtuPageLayoutSection
 end

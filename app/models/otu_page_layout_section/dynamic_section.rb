@@ -1,2 +1,2 @@
-class OtuPageLayoutSection::DynamicSection < ActiveRecord::Base
+class OtuPageLayoutSection::DynamicSection < OtuPageLayoutSection
 end

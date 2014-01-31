@@ -1,2 +1,2 @@
-class OtuPageLayoutSection::TaggedSection < ActiveRecord::Base
+class OtuPageLayoutSection::TaggedSection < OtuPageLayoutSection
 end
