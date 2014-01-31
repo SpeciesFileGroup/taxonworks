@@ -338,6 +338,58 @@ describe TaxonName do
         expect(s.soft_validations.messages_on(:parent_id).empty?).to be_true
       end
     end
+
+    context 'misspellings' do
+      specify 'valid iczn names' do
+        s = FactoryGirl.build_stubbed(:relationship_species, parent: @genus, name: 'aus')
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'a-aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'aus-aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_false
+      end
+      specify 'valid icn names' do
+        s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus')
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'a-aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'aus-aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'aus × aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = '× aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        s.name = 'aus aus'
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_false
+      end
+      specify 'unavailable' do
+        s = FactoryGirl.create('relationship_species', parent: @genus, name: 'aus a')
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
+        s.reload
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+      end
+      specify 'misspelling' do
+        s = FactoryGirl.create('relationship_species', parent: @genus, name: 'a a')
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        s.reload
+        s.soft_validate(:validate_name)
+        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+      end
+    end
   end
 
   context 'concerns' do

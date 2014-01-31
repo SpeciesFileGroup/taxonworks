@@ -80,6 +80,7 @@ class TaxonName < ActiveRecord::Base
                     :set_cached_author_year,
                     :set_cached_higher_classification 
 
+  soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
@@ -302,6 +303,34 @@ class TaxonName < ActiveRecord::Base
   #endregion
 
   #region Soft validation
+
+  def sv_validate_name
+    if self.name =~ /^[a-zA-Z]*$/
+      correct_name_format = true
+    elsif self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/
+      correct_name_format = true
+    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*-[a-zA-Z]*$/
+      correct_name_format = true
+    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/
+      correct_name_format = true
+    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/
+      correct_name_format = true
+    else
+      correct_name_format = false
+    end
+
+    unless correct_name_format
+      invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
+      invalid_statuses = invalid_statuses & self.taxon_name_classifications.collect{|c| c.type_class.to_s}
+      misspellings = TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
+                                                                 TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+                                                                 TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
+      misspellings = misspellings & self.taxon_name_relationships.collect{|c| c.type_class.to_s}
+      if invalid_statuses.empty? && misspellings.empty?
+        soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
+      end
+    end
+  end
 
   def sv_missing_fields
     soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
