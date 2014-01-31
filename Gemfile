@@ -41,6 +41,7 @@ gem 'awesome_nested_set',
 
 # BibTex handling
 gem 'bibtex-ruby'
+gem 'citeproc-ruby'
 
 # Ordering records
 gem 'acts_as_list'
