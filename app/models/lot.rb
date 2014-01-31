@@ -1,5 +1,5 @@
+# A class representing physical, biological, collection enumerated (precisely, see also RangedLot) to > 1, i.e. a group of individuals.
 class Lot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
-
   include Housekeeping
 
   validate :size_of_total
@@ -9,5 +9,4 @@ class Lot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObje
   def size_of_total
     errors.add(:total, "total must be > 1") if self.total.nil? || not(self.total > 1) 
   end
-
 end

@@ -11,6 +11,7 @@ describe Protonym do
   after(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    Source.destroy_all 
   end
 
   context 'associations' do

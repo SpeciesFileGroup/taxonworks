@@ -1,10 +1,7 @@
 require 'spec_helper'
-
-# A class representing physical, biological, collection enumerated (precisely, see also RangedLot) to > 1, i.e. a group of individuals.
-
 describe Lot do
 
-  let(:lot) { Lot.new }
+  let(:lot) { FactoryGirl.build(:lot) }
 
   context "validation" do
   

@@ -286,7 +286,7 @@ class Source::Bibtex < Source
     :unless => 'year.nil? || month.nil?',
     message: '%{value} is not a valid day for the month provided'
 
-#  validates :url, :format => /\A#{URI::regexp}\z/, allow_nil: true  # this line is essentially the same as below
+  # validates :url, :format => /\A#{URI::regexp}\z/, allow_nil: true  # this line is essentially the same as below
   # but isn't as clear. Note that both validations allow multiple urls strung together with a ',' provided
   # no spaces are included.
   validates :url, :format => { :with => URI::regexp(%w(http https ftp)),
@@ -294,7 +294,7 @@ class Source::Bibtex < Source
 
   before_validation :check_has_field #,:day_valid? #, :year_valid?
   before_save :set_nomenclature_date
-  #TODO before_save set cached values
+  #TODO before_save :set_cached_values # BETH -> pic a Citeproc and set with it.
 
 #endregion validations
 
@@ -345,19 +345,34 @@ class Source::Bibtex < Source
     b
   end
 
+  # TODO: test
+  def self.new_from_bibtex_bibliography(bibliography)
+    records = []
+    bibliography.each do |e|
+      records.push(self.new_from_bibtex(e))
+    end
+    records
+  end
+
+  # TODO: test
+  def self.bibtex_bibliography(source_bibtex_instances)
+    bibliography = BibTeX::Bibliography.new
+    source_bibtex_instances.each do |a|
+      bibliography.add(a.to_bibtex)
+    end
+    bibliography 
+  end
+
   def valid_bibtex?
     self.to_bibtex.valid?
   end
 
-
-
   def self.new_from_bibtex(bibtex_entry)
-# TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
-      s.send("#{key}=", v) # = v
+      s.send("#{key}=", v) 
     end
     s
   end
@@ -449,33 +464,68 @@ class Source::Bibtex < Source
     self.notes.build({text: value + " [Created on import from BibTeX.]"} ) if self.new_record?
   end 
 
+  # TODO: 
+  #   - test for these three
+  #   - roundtrip these three back to the record when associated records are 
+  #        1) added
+  #        2) modified
+  #   - !! Only one of each type is allowed (validation on Identifier::Guid subclass)
+  #      - self.identifiers.is
   def isbn=(value)
     write_attribute(:isbn, value)
     self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value) 
   end
 
+  # BETH - perhaps something like this,
+  # it should attach to a :before_save call I think
+  # before_save :update_related_instances
+  #
+  # def update_related_instance
+  #   update_related_identifiers
+  #   update_related_roles
+  # end
+  #
+  # You'll need the reflection side as well.  
+  # On the identifier test, for example
+  # test the class of the identified_object.  If it
+  # is Source::Bibtex then use an update_attributes on it
+  #   @identifier.update_attributes(issn: self.identifier) 
+  def update_related_identifier(identifier, value)
+  end
+
+  def has_identifier?(type)
+    # returns identifier if it exists
+    self.identifiers.of_type(type)
+  end
+
+  # TODO: Roundtrip
+  def issn=(value)
+    write_attribute(:issn, value)
+    self.identifiers.build(type: 'Identifier::Guid::Issn', identifier: value) 
+  end
+
+  def issn
+      if self.issn.blank?
+        # check for identifier and return it
+      end
+  end
+
+  def doi=(value)
+    write_attribute(:doi, value)
+    self.identifiers.build(type: 'Identifier::Guid::Doi', identifier: value) 
+  end
+
+  # TODO: double check that people/role updates update authors/editors
+
+
 #TODO if language is set => set language_id
 #endregion getters & setters
 
   def url_as_uri    # turn bibtex URL field into a Ruby URI object
-      URI(self.url)  unless self.url.blank?
-  end
-  def url_valid?
-    # this won't work in validation because validation methods don't allow "rescue"
-    debugger
-    return true if self.url.blank?
-    case  URI.parse(self.url)
-      when URI::BadURIError,  URI::InvalidURIError
-        false
-      else
-        true
-    end
+    URI(self.url)  unless self.url.blank?
   end
 
-
-
-
-#region has_<attribute>? section
+ #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?)
     # author attribute is empty

@@ -8,7 +8,7 @@ class Note < ActiveRecord::Base
   validates_presence_of :text
 
   before_validation :not_a_housekeeping_field, :is_valid_attribute
-
+  
   protected
   def not_a_housekeeping_field
     if !(self.note_object_attribute.blank?)

@@ -17,9 +17,10 @@ describe TaxonNameRelationship do
     after(:all) do
       TaxonName.delete_all
       TaxonNameRelationship.delete_all
+      Source.delete_all
     end
+    
     context 'requires' do
-
       context 'associations' do
         specify 'subject (TaxonName)' do
           expect(@taxon_name_relationship).to respond_to (:subject_taxon_name)
@@ -461,6 +462,12 @@ describe TaxonNameRelationship do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
           r1.soft_validate(:validate_priority)
           expect(r1.soft_validations.messages_on(:type).count).to eq(1)
+          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @s1, type: 'TaxonNameClassification::Iczn::Unavailable')
+          @s1.reload
+          r1.soft_validate(:validate_priority)
+          expect(r1.soft_validations.messages_on(:type).empty?).to be_true
+          c1.delete
+          @s1.reload
         end
         specify 'reverse priority' do
           r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
@@ -517,6 +524,16 @@ describe TaxonNameRelationship do
           r1.soft_validate(:coordinated_taxa)
           expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
           expect(r1.object_taxon_name_id).to eq(ssp.id)
+        end
+        specify 'original combination linked to genus is subject' do
+          ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
+          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: ssp, object_taxon_name: @s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
+          r1.soft_validate(:coordinated_taxa)
+          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+          r1.fix_soft_validations
+          r1.soft_validate(:coordinated_taxa)
+          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_true
+          expect(r1.subject_taxon_name_id).to eq(@s1.id)
         end
       end
     end
