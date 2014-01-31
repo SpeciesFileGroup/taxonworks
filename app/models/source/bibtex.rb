@@ -352,7 +352,7 @@ class Source::Bibtex < Source
 
 
   def self.new_from_bibtex(bibtex_entry)
-# TODO On input, convert ruby-bibtex.url to an identifier
+# TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
@@ -445,11 +445,8 @@ class Source::Bibtex < Source
   end
 
   def note=(value)
-    #   This attribute is used on import, but is otherwise ignored.   Updates to this field are
-    #   NOT transferred to the associated TW note and not added to any export.
-
-  write_attribute(:note, value)
-    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record?
+    write_attribute(:note, value)
+    self.notes.build({text: value + " [Created on import from BibTeX.]"} ) if self.new_record?
   end 
 
   def isbn=(value)

@@ -542,7 +542,7 @@ describe Source::Bibtex do
       before(:each) {
         @valid_person = FactoryGirl.create(:valid_person)
       } 
-    
+
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
         # the roles should be automatically set? (Yes)
@@ -565,7 +565,6 @@ describe Source::Bibtex do
         pending 'invalidate if editors exist and editor has changed, and no longer matches'
       end
 
-      
       
       %w{author editor}.each do |i|
         specify "#{i}s" do

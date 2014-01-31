@@ -7,3 +7,12 @@ module TestDbCleanup
     Source.delete_all
   end
 end
+
+RSpec.configure do |config|
+  config.after(:all) do
+  # if Rails.env.test? 
+  #  Project.delete_all
+  #  User.delete_all
+  # end
+  end
+end
