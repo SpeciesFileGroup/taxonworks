@@ -372,7 +372,7 @@ describe TaxonName do
         expect(s.soft_validations.messages_on(:name).empty?).to be_false
       end
       specify 'unavailable' do
-        s = FactoryGirl.create('relationship_species', parent: @genus, name: 'aus a')
+        s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
         s.soft_validate(:validate_name)
         expect(s.soft_validations.messages_on(:name).count).to eq(1)
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
@@ -381,13 +381,23 @@ describe TaxonName do
         expect(s.soft_validations.messages_on(:name).empty?).to be_true
       end
       specify 'misspelling' do
-        s = FactoryGirl.create('relationship_species', parent: @genus, name: 'a a')
+        s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
         s.soft_validate(:validate_name)
         expect(s.soft_validations.messages_on(:name).count).to eq(1)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         s.reload
         s.soft_validate(:validate_name)
         expect(s.soft_validations.messages_on(:name).empty?).to be_true
+      end
+    end
+    context 'possible homonyms' do
+      specify 'name_with_alternative_spelling' do
+        s = FactoryGirl.build_stubbed(:relationship_species, parent: nil, name: 'rubbus')
+        expect(s.name_with_alternative_spelling).to eq('ruba')
+        s.name = 'aiorum'
+        expect(s.name_with_alternative_spelling).to eq('aora')
+        s.name = 'nigrocinctus'
+        expect(s.name_with_alternative_spelling).to eq('nigricinta')
       end
     end
   end

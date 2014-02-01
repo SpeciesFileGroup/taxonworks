@@ -114,7 +114,7 @@ class TaxonName < ActiveRecord::Base
 
   def rank_class
     r = read_attribute(:rank_class)
-    Ranks.valid?(r) ? r.constantize : r 
+    Ranks.valid?(r) ? r.safe_constantize : r
   end
 
   def nomenclature_date
@@ -153,7 +153,51 @@ class TaxonName < ActiveRecord::Base
     (vn.count == 1) ? vn.first.object_taxon_name : self
   end
 
-  protected 
+  def name_with_alternative_spelling
+    n = self.name.squish # remove extra spaces and line brakes
+    n = n.split(' ').last
+    n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # iae > ae in the end of word
+    n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # iorum > orum
+    n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # iarum > arum
+    n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # um > a
+    n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # us > a
+    n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # iensis > ensis
+    n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/      # iensis > ensis
+    n = n.gsub('ae', 'e').
+        gsub('oe', 'e').
+        gsub('ai', 'i').
+        gsub('ei', 'i').
+        gsub('ej', 'i').
+        gsub('ii', 'i').
+        gsub('ij', 'i').
+        gsub('jj', 'i').
+        gsub('j', 'i').
+        gsub('y', 'i').
+        gsub('v', 'u').
+        gsub('rh', 'r').
+        gsub('th', 't').
+        gsub('k', 'c').
+        gsub('ch', 'c').
+        gsub('tt', 't').
+        gsub('bb', 'b').
+        gsub('rr', 'r').
+        gsub('nn', 'n').
+        gsub('mm', 'm').
+        gsub('pp', 'p').
+        gsub('ss', 's').
+        gsub('ff', 'f').
+        gsub('ll', 'l').
+        gsub('ll', 'l').
+        gsub('ll', 'l').
+        gsub('ll', 'l').
+        gsub('ct', 't').
+        gsub('ph', 'f').
+        gsub('-', '')
+    n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6  # connectin vowel in the middle of the word (nigrocinctus - nigricinctus)
+    return n
+  end
+
+  protected
 
   #region Set cached fields
 
@@ -276,7 +320,7 @@ class TaxonName < ActiveRecord::Base
 
   def check_new_rank_class
     if self.rank_class != self.rank_class_was && !self.rank_class_was.nil?
-      old_rank_group = self.rank_class_was.constantize.parent
+      old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
       end
@@ -390,7 +434,7 @@ class TaxonName < ActiveRecord::Base
           unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
             compare.each do |i|
               # taxon is unavailable or invalid, but have valid children
-              soft_validations.add(:base, "Taxon has a status ('#{i.constantize.class_name}') conflicting with presence of subordinate taxa")
+              soft_validations.add(:base, "Taxon has a status ('#{i.safe_constantize.class_name}') conflicting with presence of subordinate taxa")
             end
           end
         end

@@ -119,7 +119,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def type_class
     r = read_attribute(:type).to_s
-    r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.constantize : r
+    r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
     r
   end
 
@@ -219,7 +219,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type.to_s}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
-      soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.constantize.object_relationship_name}")
+      soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.safe_constantize.object_relationship_name}")
     end
   end
 
@@ -237,7 +237,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     disjoint_object_classes = self.type_class.disjoint_object_classes
     compare = disjoint_object_classes & classifications
     compare.each do |i|
-      c = i.constantize.class_name
+      c = i.safe_constantize.class_name
       soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
       soft_validations.add(:object_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
     end
@@ -248,7 +248,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     disjoint_subject_classes = self.type_class.disjoint_subject_classes
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
-      c = i.constantize.class_name
+      c = i.safe_constantize.class_name
       soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
     end

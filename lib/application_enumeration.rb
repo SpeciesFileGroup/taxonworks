@@ -13,7 +13,7 @@ module ApplicationEnumeration
   # Return the Class represented by a path included filename from /app/models.
   # e.g. given 'app/models/specimen.rb' the Specimen class is returned
   def self.model_from_file_name(file_name)
-    file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").constantize
+    file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").safe_constantize
   end
 
   # Note the use of Module.nesting (http://urbanautomaton.com/blog/2013/08/27/rails-autoloading-hell/)

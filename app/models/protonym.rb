@@ -296,7 +296,7 @@ class Protonym < TaxonName
       sttnr = self.type_taxon_name_relationship
       tttnr = t.type_taxon_name_relationship
       unless sttnr.nil? || tttnr.nil?
-        if sttnr.type != tttnr.type && sttnr.type.constantize.descendants.collect{|i| i.to_s}.include?(tttnr.type.to_s)
+        if sttnr.type != tttnr.type && sttnr.type.safe_constantize.descendants.collect{|i| i.to_s}.include?(tttnr.type.to_s)
           self.type_taxon_name_relationship.type = t.type_taxon_name_relationship.type
           fixed = true
         end

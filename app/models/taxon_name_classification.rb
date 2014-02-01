@@ -56,7 +56,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def type_class
     r = read_attribute(:type).to_s
-    r = TAXON_NAME_CLASS_NAMES.include?(r) ? r.constantize : nil
+    r = TAXON_NAME_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
     r
   end
 

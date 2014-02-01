@@ -47,7 +47,7 @@ module Dwca::Import
     def build_row_objects(row, row_objects)
       result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
       row_objects.each do |r|
-        result[r] = build_object(row, r.to_s.classify.constantize.new)
+        result[r] = build_object(row, r.to_s.classify.safe_constantize.new)
       end
       result 
     end
