@@ -374,29 +374,10 @@ class Source::Bibtex < Source
         (self.author.blank? && self.editor.blank?) ||
         self.roles.count > 0
 
-    # if !self.valid
-    #   errors.add(:base, 'invalid source')
-    #   return false
-    # end
-    #
-    # if self.new_record?
-    #   errors.add(:base, 'unsaved source')
-    #   return false
-    # end
-    #
-    # if (self.author.blank? && self.editor.blank?)
-    #   errors.add(:base, 'no people to create')
-    #   return false
-    # end
-    #
-    # if self.roles.count > 0
-    #   errors.add(:base, 'this source already has people attached to it via roles')
-    # end
-
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
-      p         = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+      p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
 
       # TODO: These are required in present FactoryGirl tests, but not
       # in production, factor out when FactoryGirl + Housekeeping issues
@@ -446,12 +427,38 @@ class Source::Bibtex < Source
 
   def note=(value)
     write_attribute(:note, value)
-    self.notes.build({text: value + " [Created on import from BibTeX.]"} ) if self.new_record?
+    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record?
   end 
 
   def isbn=(value)
     write_attribute(:isbn, value)
-    self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value) 
+    #TODO if there is already an 'Identifier::Guid::Isbn' update instead of add
+    self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value)
+  end
+  def isbn
+    # This relies on the identifier class to enforce a single version of any identifier
+    self.identifiers.of_type(:isbn).first.identifier
+  end
+
+  def doi=(value)
+    write_attribute(:doi, value)
+    #TODO if there is already an 'Identifier::Guid::Doi' update instead of add
+    self.identifiers.build(type: 'Identifier::Guid::Doi', identifier: value)
+  end
+  def doi
+    # This relies on the identifier class to enforce a single version of any identifier
+    self.identifiers.of_type(:doi).first.identifier
+  end
+
+
+  def issn=(value)
+    write_attribute(:issn, value)
+    #TODO if there is already an 'Identifier::Guid::Issn' update instead of add
+    self.identifiers.build(type: 'Identifier::Guid::Issn', identifier: value)
+  end
+  def issn
+    # This relies on the identifier class to enforce a single version of any identifier
+    self.identifiers.of_type(:issn).first.identifier
   end
 
 #TODO if language is set => set language_id
@@ -681,7 +688,7 @@ class Source::Bibtex < Source
   # 
   def sv_has_note
      # TODO we may need to check of a note in the TW sense as well - has_note? above.
-     if (self.note.blank?)
+     if (self.note.blank?) && (self.notes.count = 0)
        soft_validations.add(:note, 'There is no note associated with this source.')
      end
   end

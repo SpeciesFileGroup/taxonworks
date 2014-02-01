@@ -18,90 +18,95 @@ describe Source::Bibtex do
                                                  author: 'Smith, James', year: 1921)
   end
 
-  context 'testing BibTeX bibliography capabilities' do
-    specify 'the test file should have 42 records' do
-      expect(@gem_bibtex_bibliography.size).to eq(42)
+  context 'test bibtex-ruby gem capabilities we rely upon' do
+
+    context 'using BibTeX bibliography' do
+      specify 'the test file should have 42 records' do
+        expect(@gem_bibtex_bibliography.size).to eq(42)
+      end
+
+      specify 'the first record has 4 fields populated' do
+        expect(@gem_bibtex_bibliography.first.fields.keys.size).to eq(4)
+      end
+
+      specify "title of first record is 'A Monograph of the Plecoptera or Stoneflies of America North of America'" do
+        expect(@gem_bibtex_bibliography.first.title).to eq('A Monograph of the Plecoptera or Stoneflies of America North of America')
+      end
+
+      specify "first record pubtype is 'book'" do
+        expect(@gem_bibtex_bibliography.first.type).to eq(:book)
+      end
+
+      specify "first record address is 'Lafayette, {IN}'" do
+        expect(@gem_bibtex_bibliography.first.address).to eq('Lafayette, {IN}')
+      end
+
+      specify "first record publisher is 'The Thomas Say Foundation'" do
+        expect(@gem_bibtex_bibliography.first.publisher).to eq('The Thomas Say Foundation')
+      end
+
+      specify "first record author is 'Needham, James G. and Claassen, Peter W.'" do
+        expect(@gem_bibtex_bibliography.first.author).to eq('Needham, James G. and Claassen, Peter W.')
+      end
+
+      specify "second record pubtype is 'article'" do
+        expect(@gem_bibtex_bibliography[1].type).to eq(:article)
+      end
+
+      specify "second record volume is '53'" do
+        expect(@gem_bibtex_bibliography[1].volume).to eq('53')
+      end
+
+      specify "second record issn is '1480-3283'" do
+        expect(@gem_bibtex_bibliography[1].issn).to eq('1480-3283')
+      end
+
+      specify "second record number is '2.'" do
+        expect(@gem_bibtex_bibliography[1].number).to eq('2')
+      end
+
+      specify "second record journal is 'Canadian Journal of Zoology'" do
+        expect(@gem_bibtex_bibliography[1].journal).to eq('Canadian Journal of Zoology')
+      end
+
+      specify "second record year is '1975'" do
+        expect(@gem_bibtex_bibliography[1].year).to eq('1975')
+      end
+
+      specify "second record pages is '132–153'" do
+        expect(@gem_bibtex_bibliography[1].pages).to eq('132–153')
+      end
+
+      specify "fourth record pubtype is 'incollection'" do
+        expect(@gem_bibtex_bibliography[3].type).to eq(:incollection)
+      end
+
+      specify "fourth record booktitle is 'International Advances in the Ecology, Zoogeography, and Systematics of Mayflies and Stoneflies'" do
+        expect(@gem_bibtex_bibliography[3].booktitle).to eq('International Advances in the Ecology, Zoogeography, and Systematics of Mayflies and Stoneflies')
+      end
+
+      specify "last record edition is 'Fourth'" do
+        expect(@gem_bibtex_bibliography[-1].edition).to eq('Fourth')
+      end
+
+      specify "last record url is 'http://www.nhm.ac.uk/hosted-sites/iczn/code/'" do
+        expect(@gem_bibtex_bibliography[-1].url).to eq('http://www.nhm.ac.uk/hosted-sites/iczn/code/')
+      end
+
+      specify "last record urldate is '2010-12-06'" do
+        expect(@gem_bibtex_bibliography[-1].urldate).to eq('2010-12-06')
+      end
+
+      specify 'simple identity' do
+        expect(@simple1_gem_bibtex).to eq(@simple2_gem_bibtex)
+      end
+
+      specify 'simple complex entity' do
+        expect(@gem_bibtex_entry1).to eq(@gem_bibtex_entry2)
+      end
     end
 
-    specify 'the first record has 4 fields populated' do
-      expect(@gem_bibtex_bibliography.first.fields.keys.size).to eq(4)
-    end
-
-    specify "title of first record is 'A Monograph of the Plecoptera or Stoneflies of America North of America'" do
-      expect(@gem_bibtex_bibliography.first.title).to eq('A Monograph of the Plecoptera or Stoneflies of America North of America')
-    end
-
-    specify "first record pubtype is 'book'" do
-      expect(@gem_bibtex_bibliography.first.type).to eq(:book)
-    end
-
-    specify "first record address is 'Lafayette, {IN}'" do
-      expect(@gem_bibtex_bibliography.first.address).to eq('Lafayette, {IN}')
-    end
-
-    specify "first record publisher is 'The Thomas Say Foundation'" do
-      expect(@gem_bibtex_bibliography.first.publisher).to eq('The Thomas Say Foundation')
-    end
-
-    specify "first record author is 'Needham, James G. and Claassen, Peter W.'" do
-      expect(@gem_bibtex_bibliography.first.author).to eq('Needham, James G. and Claassen, Peter W.')
-    end
-
-    specify "second record pubtype is 'article'" do
-      expect(@gem_bibtex_bibliography[1].type).to eq(:article)
-    end
-
-    specify "second record volume is '53'" do
-      expect(@gem_bibtex_bibliography[1].volume).to eq('53')
-    end
-
-    specify "second record issn is '1480-3283'" do
-      expect(@gem_bibtex_bibliography[1].issn).to eq('1480-3283')
-    end
-
-    specify "second record number is '2.'" do
-      expect(@gem_bibtex_bibliography[1].number).to eq('2')
-    end
-
-    specify "second record journal is 'Canadian Journal of Zoology'" do
-      expect(@gem_bibtex_bibliography[1].journal).to eq('Canadian Journal of Zoology')
-    end
-
-    specify "second record year is '1975'" do
-      expect(@gem_bibtex_bibliography[1].year).to eq('1975')
-    end
-
-    specify "second record pages is '132–153'" do
-      expect(@gem_bibtex_bibliography[1].pages).to eq('132–153')
-    end
-
-    specify "fourth record pubtype is 'incollection'" do
-      expect(@gem_bibtex_bibliography[3].type).to eq(:incollection)
-    end
-
-    specify "fourth record booktitle is 'International Advances in the Ecology, Zoogeography, and Systematics of Mayflies and Stoneflies'" do
-      expect(@gem_bibtex_bibliography[3].booktitle).to eq('International Advances in the Ecology, Zoogeography, and Systematics of Mayflies and Stoneflies')
-    end
-
-    specify "last record edition is 'Fourth'" do
-      expect(@gem_bibtex_bibliography[-1].edition).to eq('Fourth')
-    end
-
-    specify "last record url is 'http://www.nhm.ac.uk/hosted-sites/iczn/code/'" do
-      expect(@gem_bibtex_bibliography[-1].url).to eq('http://www.nhm.ac.uk/hosted-sites/iczn/code/')
-    end
-
-    specify "last record urldate is '2010-12-06'" do
-      expect(@gem_bibtex_bibliography[-1].urldate).to eq('2010-12-06')
-    end
-
-    specify 'simple identity' do
-      expect(@simple1_gem_bibtex).to eq(@simple2_gem_bibtex)
-    end
-
-    specify 'simple complex entity' do
-      expect(@gem_bibtex_entry1).to eq(@gem_bibtex_entry2)
-    end
+    pending 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
   end
 
   context 'Ruby BibTeX related instance methods' do
@@ -109,13 +114,19 @@ describe Source::Bibtex do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
     end
 
-    # TODO: fields doesn't include types
     specify 'to_bibtex' do
       expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
+      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
+      pending 'test that notes gets converted properly to a bibtex note'
     end
 
     specify 'valid_bibtex?' do
-      expect(@s.valid_bibtex?).to be_false
+      expect(@s.valid_bibtex?).to be_false   # missing a publisher
+      @s.soft_validate(:bibtex_fields)
+      expect(@s.soft_validations.messages_on(:publisher).empty?).to be_false
+      expect(@s.soft_validations.messages).to include 'There is no publisher associated with this source.'
+      @s.publisher = 'Silly Books Inc'
+      expect(@s.valid_bibtex?).to be_true
     end
 
     specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
@@ -129,17 +140,45 @@ describe Source::Bibtex do
     end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier =  "1-84356-028-3" # TODO: update when validation on isbn happens
+      identifier = '1-84356-028-3' # TODO: update when validation on isbn happens
       @valid_gem_bibtex_book.isbn = identifier
       s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
       expect(s.identifiers).to have(1).things
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_true
-      expect(s.identifiers.first.id.nil?).to be_false 
+      expect(s.identifiers.first.id.nil?).to be_false
+      expect(s.isbn.to_s).to eq(identifier)
     end
 
-    pending 'with an issn in a BibTeX::Entry, convert it to an Identifier'
-    pending 'with a doi in a BibTeX::Entry, convert it to an Identifier'
+    context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
+      %w{2049-3630 2049-363x 2049-363X}.each do |n|
+        specify "ISSN #{n}" do
+          identifier                  = "#{n}" # TODO: update when validation on issn happens
+          @valid_gem_bibtex_book.issn = identifier
+          s                           = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+          expect(s.identifiers).to have(1).things
+          expect(s.identifiers.first.identifier).to eq(identifier)
+          expect(s.save).to be_true
+          expect(s.identifiers.first.id.nil?).to be_false
+          expect(s.issn.to_s).to eq(identifier)
+        end
+      end
+    end
+    specify 'with a doi in a BibTeX::Entry, convert it to an Identifier' do
+      # per http://www.doi.org/factsheets/DOIIdentifiers.html the following are all valid doi's
+      #  Registrant using PII: doi:10.2345/S1384107697000225
+      #  Registrant using SICI: doi:10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
+      #  Registrant using internal scheme: doi:10.6789/JoesPaper56
+
+      identifier = '10.2345/S1384107697000225' # TODO: update when validation on doi happens
+      @valid_gem_bibtex_book.doi = identifier
+      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      expect(s.identifiers).to have(1).things
+      expect(s.identifiers.first.identifier).to eq(identifier)
+      expect(s.save).to be_true
+      expect(s.identifiers.first.id.nil?).to be_false
+      expect(s.doi.to_s).to eq(identifier)
+    end
   end
 
   context 'validation' do
@@ -660,6 +699,8 @@ describe Source::Bibtex do
       @source_bibtex.soft_validate()
       expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
     end
+
+    pending 'test sv_has_notes? runs correctly when there is no src_bibtex.note but does have src_bibtex.notes'
   end
 
 
