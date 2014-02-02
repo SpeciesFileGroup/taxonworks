@@ -7,6 +7,7 @@ describe TaxonName do
     TaxonNameRelationship.delete_all
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species = @subspecies.ancestor_at_rank('species')
+    @subgenus = @subspecies.ancestor_at_rank('subgenus')
     @genus = @subspecies.ancestor_at_rank('genus')
     @family = @subspecies.ancestor_at_rank('family')
     @root = @subspecies.root
@@ -280,6 +281,7 @@ describe TaxonName do
           expect(t.cached_author_year).to eq('')
         end
         specify 'original genus subgenus' do
+          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
           @subspecies.original_genus = @genus
           @subspecies.reload
           expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
@@ -289,6 +291,10 @@ describe TaxonName do
           @subspecies.original_species = @species
           @subspecies.reload
           expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) vitis ssp')
+          expect(@subgenus.get_original_combination).to eq('Erythroneura')
+          @subgenus.original_genus = @genus
+          @subgenus.reload
+          expect(@subgenus.get_original_combination).to eq('Erythroneura (Erythroneura)')
         end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
