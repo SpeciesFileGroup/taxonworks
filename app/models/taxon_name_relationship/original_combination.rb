@@ -6,4 +6,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     :reverse
   end
 
+  def self.order_index
+    RANKS.index(::ICN_LOOKUP[self.object_relationship_name.gsub('original ', '')])
+  end
+
 end

@@ -279,6 +279,17 @@ describe TaxonName do
           t.valid?
           expect(t.cached_author_year).to eq('')
         end
+        specify 'original genus subgenus' do
+          @subspecies.original_genus = @genus
+          @subspecies.reload
+          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
+          @subspecies.original_subgenus = @genus
+          @subspecies.reload
+          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) ssp')
+          @subspecies.original_species = @species
+          @subspecies.reload
+          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) vitis ssp')
+        end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
           subsp = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
