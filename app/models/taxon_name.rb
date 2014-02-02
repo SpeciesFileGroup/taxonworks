@@ -187,9 +187,6 @@ class TaxonName < ActiveRecord::Base
         gsub('ss', 's').
         gsub('ff', 'f').
         gsub('ll', 'l').
-        gsub('ll', 'l').
-        gsub('ll', 'l').
-        gsub('ll', 'l').
         gsub('ct', 't').
         gsub('ph', 'f').
         gsub('-', '')
