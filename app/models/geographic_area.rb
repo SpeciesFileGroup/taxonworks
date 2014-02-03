@@ -9,6 +9,9 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level0, class_name: "GeographicArea", foreign_key: :level0_id
   belongs_to :level1, class_name: "GeographicArea", foreign_key: :level1_id
   belongs_to :level2, class_name: "GeographicArea", foreign_key: :level2_id
+  belongs_to :gadm_geo_item, class_name: "GeographicArea", foreign_key: :level2_id
+  belongs_to :tdwg_geo_item, class_name: "GeographicArea", foreign_key: :tdwg_geo_item_id
+  belongs_to :ne_geo_item, class_name: "GeographicArea", foreign_key: :ne_geo_item_id
 
   # external references
 
