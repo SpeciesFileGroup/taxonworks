@@ -1,13 +1,11 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :public_content do
-    otu nil
-    topic nil
-    text "MyText"
-    version 1
-    project nil
-    created_by_id 1
-    updated_by_id 1
+  factory :public_content, traits: [:housekeeping] do
+    factory :valid_public_content do
+      association :otu,   factory: :valid_otu
+      association :topic, factory: :valid_topic
+      text "MyText" 
+    end
   end
 end

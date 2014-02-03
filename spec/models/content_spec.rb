@@ -24,7 +24,5 @@ describe Content do
     context 'topic_id is of class Topic only' do
       pending
     end
-
-
   end
 end
