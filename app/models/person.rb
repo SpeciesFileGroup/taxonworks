@@ -70,7 +70,7 @@ class Person < ActiveRecord::Base
   protected
 
   def set_type_if_blank
-    self.type ||= 'Person::Unvetted'
+    self.type = 'Person::Unvetted' if self.type.blank?
   end
 
 end
