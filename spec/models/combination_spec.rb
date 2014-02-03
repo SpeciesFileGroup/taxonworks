@@ -29,7 +29,52 @@ describe Combination do
         %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
           specify rank do
             expect(@combination).to respond_to(rank.to_sym)
-          end 
+          end
+        end
+      end
+
+      context 'has_one' do
+        TaxonNameRelationship.descendants.each do |d|
+          if d.respond_to?(:assignment_method) and d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
+            relationship = "#{d.inverse_assignment_method}_relationship".to_sym
+            relationships = "#{d.assignment_method}_relationships".to_sym
+
+            specify relationship do
+              expect(@combination).to respond_to(relationship)
+            end
+            specify relationships do
+              expect(@combination).to respond_to(relationships)
+            end
+            specify d.assignment_method.to_s do
+              expect(@combination).to respond_to(d.assignment_method.to_sym)
+            end
+            specify d.inverse_assignment_method.to_s do
+              expect(@combination).to respond_to(d.inverse_assignment_method.to_sym)
+            end
+          end
+        end
+      end
+
+        context 'cached name' do
+        before(:all) do
+          @genus = FactoryGirl.create(:relationship_genus, parent: @family)
+          @species = FactoryGirl.create(:relationship_species, parent: @genus)
+          @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
+          @combination1 = FactoryGirl.create(:combination, parent: @species)
+        end
+        specify 'empty' do
+          expect(@combination1.get_combination).to eq('vitis')
+        end
+        specify 'genus' do
+          @combination1.combination_genus = @genus
+          @combination1.reload
+          expect(@combination1.get_combination).to eq('Erythroneura vitis')
+          @combination1.combination_subgenus = @genus
+          @combination1.reload
+          expect(@combination1.get_combination).to eq('Erythroneura (Erythroneura) vitis')
+          @combination1.combination_species = @species2
+          @combination1.reload
+          expect(@combination1.get_combination).to eq('Erythroneura (Erythroneura) comes vitis')
         end
       end
     end

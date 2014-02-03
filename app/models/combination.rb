@@ -5,18 +5,35 @@ class Combination < TaxonName
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")},
-    class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"} )},
-    class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id 
+    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
     has_one rank.to_sym, -> {
       joins( :combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"} )
-    }, through: "#{rank}_taxon_name_relationship".to_sym, source: :object_taxon_name
+    }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
+  end
+
+  TaxonNameRelationship.descendants.each do |d|
+    if d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
+      if d.respond_to?(:assignment_method)
+        relationships = "#{d.assignment_method}_relationships".to_sym
+        has_many relationships, -> {
+          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+        }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+        has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
+      end
+      if d.respond_to?(:inverse_assignment_method)
+        relationship = "#{d.inverse_assignment_method}_relationship".to_sym
+        has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
+        has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
+      end
+    end
   end
 
 

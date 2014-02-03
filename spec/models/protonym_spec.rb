@@ -70,11 +70,11 @@ describe Protonym do
 
     context 'has_one' do
       TaxonNameRelationship.descendants.each do |d|
-        if d.respond_to?(:assignment_method)
+        if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
             relationship = "#{d.assignment_method}_relationship".to_sym
             relationships = "#{d.inverse_assignment_method}_relationships".to_sym
-          else
+          elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
             relationship = "#{d.inverse_assignment_method}_relationship".to_sym
             relationships = "#{d.assignment_method}_relationships".to_sym
           end

@@ -299,6 +299,48 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def get_combination
+    unless self.class == Combination
+      cached_name = nil
+    else
+      relationships = self.combination_relationships
+      relationships.sort!{|r| r.type_class.order_index}
+      genus = ''
+      subgenus = ''
+      superspecies = ''
+      species = ''
+      relationships.each do |i|
+        case i.type_class.object_relationship_name
+          when 'genus' then genus = i.subject_taxon_name.name + ' '
+          when 'subgenus' then subgenus += i.subject_taxon_name.name + ' '
+          when 'section' then subgenus += 'sect. ' + i.subject_taxon_name.name + ' '
+          when 'subsection' then subgenus += 'subsect. ' + i.subject_taxon_name.name + ' '
+          when 'series' then subgenus += 'ser. ' + i.subject_taxon_name.name + ' '
+          when 'subseries' then subgenus += 'subser. ' + i.subject_taxon_name.name + ' '
+          when 'species' then species += i.subject_taxon_name.name + ' '
+          when 'subspecies' then species += i.subject_taxon_name.name + ' '
+          when 'variety' then species += 'var. ' + i.subject_taxon_name.name + ' '
+          when 'subvariety' then species += 'subvar. ' + i.subject_taxon_name.name + ' '
+          when 'form' then species += 'f. ' + i.subject_taxon_name.name + ' '
+          when 'subform' then species += 'subf. ' + i.subject_taxon_name.name + ' '
+          else
+        end
+      end
+
+      parent_rank = self.parent.rank_class.to_s
+      if parent_rank =~ /Genus/
+        if genus.empty?
+          genus += self.parent.name + ' '
+        else # if  self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
+          subgenus += self.name + ' '
+        end
+      elsif parent_rank =~ /Species/
+        species += self.parent.name + ' ' # if self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
+      end
+      subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
+      cached_name = (genus + subgenus + superspecies + species).strip!
+    end
+  end
 
 
   def set_cached_primary_homonym
