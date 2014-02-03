@@ -1,4 +1,5 @@
 class OtuPageLayoutSection < ActiveRecord::Base
+  include Housekeeping 
   belongs_to :otu_page_layout
   belongs_to :topic
 
