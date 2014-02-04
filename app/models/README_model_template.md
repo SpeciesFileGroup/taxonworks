@@ -10,14 +10,18 @@ development.
   ```
   class Foo << ActiveRecord::Base
 
-    # Include statements
+    # Include statements, and acts_as_type
     include Housekeeping
+    acts_as_nested_set
 
     # Class constants
     BLORF = 123
 
     # Class variables
     @@foo = 1
+
+    # Callbacks
+    after_save :attack!
 
     # Associations, in order: belongs_to, has_one,has_many
     belongs_to :source
@@ -32,6 +36,7 @@ development.
 
     # "Soft" Validations
     soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
+
 
     # Getters/Setters
     def wings=(value)
@@ -62,6 +67,11 @@ development.
     # Instance methods
     def crawl
       # ...
+    end
+
+    # Callbacks
+    def attack!
+      #...
     end
   end 
   ```

@@ -5,6 +5,7 @@ FactoryGirl.define do
     factory :valid_public_content do
       association :otu,   factory: :valid_otu
       association :topic, factory: :valid_topic
+      association :content, factory: :valid_content
       text "MyText" 
     end
   end

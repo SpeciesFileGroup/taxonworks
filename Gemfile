@@ -46,6 +46,10 @@ gem 'citeproc-ruby'
 # Ordering records
 gem 'acts_as_list'
 
+# Versioning
+gem 'paper_trail', '~> 3.0.0'
+
+# Password encryption
 gem 'bcrypt-ruby', '~> 3.1.2'
 
 # DwC-A archive handling 
