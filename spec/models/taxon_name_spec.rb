@@ -14,7 +14,7 @@ describe TaxonName do
   end
 
   after(:all) do
-    TestDbCleanup.cleanup_taxon_name_and_related
+   # TestDbCleanup.cleanup_taxon_name_and_related
   end
 
   context 'double checking FactoryGirl' do

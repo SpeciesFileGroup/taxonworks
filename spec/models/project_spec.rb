@@ -37,15 +37,4 @@ describe Project do
     end
   end
 
-  context 'factories' do
-    before(:each) {
-      Project.destroy_all
-    }
-    specify 'valid_project factory if valid' do
-      pr = FactoryGirl.build(:valid_project)
-      expect(pr.valid?).to be_true
-      pr.save!
-    end
-  end
-
-end
+ end
