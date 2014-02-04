@@ -7,9 +7,7 @@ class Otu < ActiveRecord::Base
   include Shared::Taggable
   include Shared::AlternateValues
 
-  has_many :contents
-  has_many :otu_contents
-  has_many :taxon_determinations
-  has_many :text_content, class_name: 'OtuContent::Text'
-  has_many :topics,  through: :otu_content_texts, source: :topic  
+  has_many :contents, inverse_of: :otu
+  has_many :taxon_determinations, inverse_of: :otu
+  has_many :topics, through: :contents, source: :topic  
 end

@@ -60,6 +60,35 @@ describe Content do
       expect(@content.unpublish).to be_true
       expect(PublicContent.all).to have(0).things
     end
-
   end
+
+
+  # See the Papertrail gem https://github.com/airblade/paper_trail
+  context 'use', :versioning => true do
+    specify 'within a `with_versioning` block it will be turned on' do
+      PaperTrail.should be_enabled
+    end
+
+    context 'some Paptertrail methods' do
+      before(:each) {
+        @c = FactoryGirl.build(:valid_content)
+        @c.save!
+      }
+
+      specify 'versions' do
+        expect(@c.versions).to have(1).things 
+      end
+
+      specify 'another version' do
+        @c.text = 'new text'
+        expect(@c.save).to be_true
+        expect(@c.versions).to have(2).things
+      end
+
+      specify 'live?'  do
+        expect(@c.live?).to be_true
+      end
+    end
+  end
+
 end
