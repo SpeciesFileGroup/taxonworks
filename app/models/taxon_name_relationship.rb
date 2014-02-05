@@ -402,9 +402,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     #synonyms and misspellings should be linked to valid names
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
       obj = self.object_taxon_name
+      subj = self.subject_taxon_name
       if obj.get_valid_taxon_name != obj
         soft_validations.add(:object_taxon_name_id, "The #{self.type_class.object_relationship_name} should be associated with a valid name",
                              fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
+      elsif obj.parent_id != subj.parent_id
+        soft_validations.add(:subject_taxon_name_id, "The #{self.type_class.object_relationship_name} should have the same parent with the associated taxon",
+                             fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
       end
     end
   end
@@ -412,8 +416,26 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_fix_synonym_linked_to_valid_name
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
       obj = self.object_taxon_name
-      if obj.get_valid_taxon_name != obj
+      unless obj.get_valid_taxon_name == obj
         self.object_taxon_name = obj.get_valid_taxon_name
+        begin
+          TaxonName.transaction do
+            self.save
+            return true
+          end
+        rescue
+        end
+      end
+    end
+    false
+  end
+
+  def sv_fix_subject_parent_update
+    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+      obj = self.object_taxon_name
+      subj = self.subject_taxon_name
+      unless obj.parent_id == subj.parent_id
+        subj.parent_id = obj.parent_id
         begin
           TaxonName.transaction do
             self.save

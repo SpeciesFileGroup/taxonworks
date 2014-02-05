@@ -438,6 +438,18 @@ describe TaxonNameRelationship do
         # parent updated to valid name
         expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_true
       end
+      specify 'synonym should have same parent' do
+        f = FactoryGirl.create(:relationship_family, parent: @kingdom)
+        g1 = FactoryGirl.create(:relationship_genus, parent: f)
+        g2 = FactoryGirl.create(:relationship_genus, parent: @family)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r1.soft_validate(:synonym_linked_to_valid_name)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).count).to eq(1)
+        r1.fix_soft_validations
+        r1.soft_validate(:synonym_linked_to_valid_name)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_true
+        expect(g2.parent_id).to eq(f.id)
+      end
       specify 'type genus should have the same first letter' do
         f1 = FactoryGirl.create(:relationship_family, parent: @kingdom)
         g1 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f1)
