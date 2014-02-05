@@ -6,7 +6,7 @@ describe TypeMaterial do
   end
 
   after(:all) {
-    TestDbCleanup.cleanup_taxon_name_and_related
+    # TestDbCleanup.cleanup_taxon_name_and_related
     TypeMaterial.delete_all
     CollectionObject.delete_all
   }

@@ -13,8 +13,9 @@ FactoryGirl.define do
   end
 
   factory :user do
-    factory :valid_user, aliases: [:creator, :updater], traits: [:user_email, :user_password] 
-    factory :test_user, traits: [:user_email] 
+    factory :valid_user, aliases: [:creator, :updater], traits: [:user_password]  do
+      email
+    end
   end
 
 end

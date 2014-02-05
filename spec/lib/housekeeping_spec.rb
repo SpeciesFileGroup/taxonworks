@@ -4,11 +4,6 @@ describe 'Housekeeping::User' do
 
   context 'Users' do
 
-    # TODO: shouldn't be necessary ultimately.
-    before(:all) do
-      User.delete_all # just to make sure they are really gone
-    end
-
     let(:instance) {
       stub_model HousekeepingTestClass::WithUser, id: 10
     }
@@ -28,35 +23,41 @@ describe 'Housekeeping::User' do
         @i = HousekeepingTestClass::WithUser.new
       }
 
-      specify 'created_by_id is required' do
-        $user_id = nil # TODO: make a with_no_project method 
-        @i.valid?
-        expect(@i.errors.include?(:creator)).to be_true
-        $user_id = 1 # return the global to its state
+      context 'presence of the id itself' do
+        before(:each) { $user_id = nil } 
+        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
+
+        specify 'created_by_id is required' do
+          @i.valid?
+          expect(@i.errors.include?(:creator)).to be_true
+        end
+
+        specify 'updated_by_id is required' do
+          @i.valid?
+          expect(@i.errors.include?(:updater)).to be_true
+        end
       end
 
-      specify 'updated_by_id is required' do
-        $user_id = nil # TODO: make a with_no_project method 
-        @i.valid?
-        expect(@i.errors.include?(:updater)).to be_true
-        $user_id = 1 # return the global to its state
-      end
+      context 'presence in database' do
+        before(:each) { $user_id = 49999 } # better not be one, but fragile
+        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
 
-      specify 'creator must exist' do
-        @i.valid? 
-        expect(@i.errors.include?(:creator)).to be_true  # there is no project with id 1 in the present paradigm
-      end
+        specify 'creator must exist' do
+          @i.valid? 
+          expect(@i.errors.include?(:creator)).to be_true  
+        end
 
-      specify 'updater must exist' do
-        @i.valid? 
-        expect(@i.errors.include?(:updater)).to be_true  # there is no project with id 1 in the present paradigm
+        specify 'updater must exist' do
+          @i.valid? 
+          expect(@i.errors.include?(:updater)).to be_true  
+        end
       end
     end
 
     context 'class method' do
       specify 'all creators' do
         expect(HousekeepingTestClass::WithUser).to respond_to(:all_creators)
-        #expect(HousekeepingTestClass::WithUser.all_creators).to eq([])
+        # expect(HousekeepingTestClass::WithUser.all_creators).to eq([])
       end
     end
     context 'instance methods' do
@@ -79,7 +80,6 @@ describe 'Housekeeping::User' do
 
     context 'Project extensions' do
       before(:all) {
-        Project.destroy_all  # TODO: this is just to make sure there is no leftover housekeeping cruft, ultimately this shouldn't be necessary.
         d = HousekeepingTestClass::WithProject.new # Force Project extensions by instantiating an instance of the extended class
         @p = Project.new 
       }
@@ -107,21 +107,24 @@ describe 'Housekeeping::User' do
         end
 
         specify 'project must exist' do
+          $project_id = 342432
           @i.valid?  # even when set, it's not necessarily valid
           expect(@i.errors.include?(:project)).to be_true  # there is no project with id 1 in the present paradigm
+          $project_id = 1
         end
 
         context 'belonging to a project' do
-          before(:all) {
+          before(:each) {
             @project1 = FactoryGirl.build(:valid_project)
             @project2 = FactoryGirl.build(:valid_project)
           }
-          after(:all) {
-            $project_id = 1 # now return to our regular scheduled programming
-            Project.destroy_all
+
+          after(:each) {
+            $project_id = 1
           }
 
           specify 'instance must belong to the project before save' do
+            pending
             # $project_id = @project1.id
             # expect(@i.valid?).to be_true
             # expect(@i.project_id).to eq(@project1.id)
@@ -131,6 +134,7 @@ describe 'Housekeeping::User' do
             # expect{@i.save}.to raise_error
           end
         end
+      
       end
     end
   end

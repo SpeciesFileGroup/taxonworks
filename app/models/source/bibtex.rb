@@ -467,17 +467,18 @@ class Source::Bibtex < Source
   def url_as_uri    # turn bibtex URL field into a Ruby URI object
       URI(self.url)  unless self.url.blank?
   end
-  def url_valid?
-    # this won't work in validation because validation methods don't allow "rescue"
-    debugger
-    return true if self.url.blank?
-    case  URI.parse(self.url)
-      when URI::BadURIError,  URI::InvalidURIError
-        false
-      else
-        true
-    end
-  end
+
+ #def url_valid?
+ #  # this won't work in validation because validation methods don't allow "rescue"
+ #  debugger
+ #  return true if self.url.blank?
+ #  case  URI.parse(self.url)
+ #    when URI::BadURIError,  URI::InvalidURIError
+ #      false
+ #    else
+ #      true
+ #  end
+ #end
 
 
 

@@ -9,12 +9,13 @@ describe TaxonName do
     @species = @subspecies.ancestor_at_rank('species')
     @subgenus = @subspecies.ancestor_at_rank('subgenus')
     @genus = @subspecies.ancestor_at_rank('genus')
+    @tribe = @subspecies.ancestor_at_rank('tribe')
     @family = @subspecies.ancestor_at_rank('family')
     @root = @subspecies.root
   end
 
   after(:all) do
-    TestDbCleanup.cleanup_taxon_name_and_related
+   # TestDbCleanup.cleanup_taxon_name_and_related
   end
 
   context 'double checking FactoryGirl' do
@@ -302,6 +303,65 @@ describe TaxonName do
           subsp.parent = @species
           subsp.valid?
           expect(subsp.errors.include?(:parent_id)).to be_true
+        end
+        context 'cached homonyms' do
+          before(:all) do
+            @g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @tribe, year_of_publication: 1999)
+            @g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @tribe, year_of_publication: 2000)
+            @s1 = FactoryGirl.create(:relationship_species, name: 'vitatus', parent: @g1, year_of_publication: 1999)
+            @s2 = FactoryGirl.create(:relationship_species, name: 'vitatta', parent: @g2, year_of_publication: 2000)
+            expect(@family.valid?).to be_true
+            expect(@tribe.valid?).to be_true
+            expect(@g1.valid?).to be_true
+            expect(@g2.valid?).to be_true
+            expect(@s1.valid?).to be_true
+            expect(@s2.valid?).to be_true
+          end
+          specify 'primary homonym' do
+            expect(@family.primary_homonym).to eq('Cicadellidae')
+            expect(@tribe.primary_homonym).to eq('Erythroneurini')
+            expect(@tribe.primary_homonym_alt).to eq('Erythroneuridae')
+            expect(@g1.primary_homonym).to eq('Aus')
+            expect(@g2.primary_homonym).to eq('Bus')
+            expect(@s1.primary_homonym.blank?).to be_true
+            expect(@s2.primary_homonym.blank?).to be_true
+          end
+          specify 'secondary homonym' do
+            expect(@family.secondary_homonym.blank?).to be_true
+            expect(@g1.secondary_homonym.blank?).to be_true
+            expect(@g2.secondary_homonym.blank?).to be_true
+            expect(@s1.secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.secondary_homonym).to eq('Bus vitatta')
+          end
+          specify 'original genus' do
+            @s1.original_genus = @g1
+            @s2.original_genus = @g1
+            expect(@s1.save).to be_true
+            expect(@s2.save).to be_true
+            @s1.reload
+            @s2.reload
+            expect(@s1.primary_homonym).to eq('Aus vitatus')
+            expect(@s2.primary_homonym).to eq('Aus vitatta')
+            expect(@s1.secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.secondary_homonym).to eq('Bus vitatta')
+            expect(@s1.primary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.primary_homonym_alt).to eq('Aus uitata')
+            expect(@s1.secondary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.secondary_homonym_alt).to eq('Bus uitata')
+          end
+        end
+        context 'mismatching cached values' do
+          before(:all) do
+            @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @genus)
+          end
+          specify 'missing cached values' do
+            @s.soft_validate(:cached_names)
+            expect(@s.soft_validations.messages_on(:base).count).to eq(1)
+            @s.fix_soft_validations
+            @s.soft_validate(:cached_names)
+            expect(@s.soft_validations.messages_on(:base).empty?).to be_true
+          end
         end
       end
 
