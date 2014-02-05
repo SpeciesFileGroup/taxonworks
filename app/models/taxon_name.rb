@@ -152,43 +152,51 @@ class TaxonName < ActiveRecord::Base
   end
 
   def name_with_alternative_spelling
-    n = self.name.squish # remove extra spaces and line brakes
-    n = n.split(' ').last
-    n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # iae > ae in the end of word
-    n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # iorum > orum
-    n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # iarum > arum
-    n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # um > a
-    n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # us > a
-    n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # iensis > ensis
-    n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/      # iensis > ensis
-    n = n.gsub('ae', 'e').
-        gsub('oe', 'e').
-        gsub('ai', 'i').
-        gsub('ei', 'i').
-        gsub('ej', 'i').
-        gsub('ii', 'i').
-        gsub('ij', 'i').
-        gsub('jj', 'i').
-        gsub('j', 'i').
-        gsub('y', 'i').
-        gsub('v', 'u').
-        gsub('rh', 'r').
-        gsub('th', 't').
-        gsub('k', 'c').
-        gsub('ch', 'c').
-        gsub('tt', 't').
-        gsub('bb', 'b').
-        gsub('rr', 'r').
-        gsub('nn', 'n').
-        gsub('mm', 'm').
-        gsub('pp', 'p').
-        gsub('ss', 's').
-        gsub('ff', 'f').
-        gsub('ll', 'l').
-        gsub('ct', 't').
-        gsub('ph', 'f').
-        gsub('-', '')
-    n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6  # connectin vowel in the middle of the word (nigrocinctus - nigricinctus)
+    if self.type.to_s != 'Protonym' || self.rank_class.nil? || self.rank_class.to_s =~ /::Icn::/
+      return nil
+    elsif self.rank_class.to_s =~ /Species/
+      n = self.name.squish # remove extra spaces and line brakes
+      n = n.split(' ').last
+      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # iae > ae in the end of word
+      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # iorum > orum
+      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # iarum > arum
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # um > a
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # us > a
+      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # iensis > ensis
+      n = n[0..-5] + 'ana' if n =~ /^[a-z]*self.rank_classiana$/      # iensis > ensis
+      n = n.gsub('ae', 'e').
+          gsub('oe', 'e').
+          gsub('ai', 'i').
+          gsub('ei', 'i').
+          gsub('ej', 'i').
+          gsub('ii', 'i').
+          gsub('ij', 'i').
+          gsub('jj', 'i').
+          gsub('j', 'i').
+          gsub('y', 'i').
+          gsub('v', 'u').
+          gsub('rh', 'r').
+          gsub('th', 't').
+          gsub('k', 'c').
+          gsub('ch', 'c').
+          gsub('tt', 't').
+          gsub('bb', 'b').
+          gsub('rr', 'r').
+          gsub('nn', 'n').
+          gsub('mm', 'm').
+          gsub('pp', 'p').
+          gsub('ss', 's').
+          gsub('ff', 'f').
+          gsub('ll', 'l').
+          gsub('ct', 't').
+          gsub('ph', 'f').
+          gsub('-', '')
+      n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6  # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
+    elsif self.rank_class.to_s =~ /Family/
+      n = Protonym.family_group_base(self.name) + 'idae'
+    else
+      n = self.name.squish
+    end
     return n
   end
 
@@ -200,19 +208,34 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names
-    self.set_cached_name
-    self.set_cached_author_year
-    self.set_cached_higher_classification
-    self.set_cached_original_combination
-
+    set_cached_full_name
+    set_cached_original_combination
+    set_cached_author_year
+    if self.class.to_s == 'Protonym'
+      set_cached_higher_classification
+      set_primaty_homonym
+      set_primary_homonym_alt
+      if self.rank_class.to_s =~ /Species/
+        set_secondary_homonym
+        set_secondary_homonym_alt
+      end
+    end
   end
 
-  def set_cached_name
-    self.cached_name = get_full_name
+  def set_cached_full_name
+    if self.class.to_s == 'Combination'
+      self.cached_name = get_combination
+    elsif self.class.to_s == 'Protonym'
+      self.cached_name = get_full_name
+    end
   end
 
   def set_cached_original_combination
-    self.cached_original_name = get_original_combination
+    if self.class.to_s == 'Combination'
+      self.cached_original_combination = get_combination
+    elsif self.class.to_s == 'Protonym'
+      self.cached_original_combination = get_original_combination
+    end
   end
 
   def set_cached_author_year
@@ -221,6 +244,22 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_higher_classification
     self.cached_higher_classification = get_higher_classification
+  end
+
+  def set_primaty_homonym
+    self.primary_homonym = get_genus_species(:original, :self)
+  end
+
+  def set_primary_homonym_alt
+    self.primary_homonym_alt = get_genus_species(:original, :alternative)
+  end
+
+  def set_secondary_homonym
+    self.secondary_homonym = get_genus_species(:curent, :self)
+  end
+
+  def set_secondary_homonym_alt
+    self.secondary_homonym_alt = get_genus_species(:curent, :alternative)
   end
 
   def get_full_name
@@ -252,9 +291,9 @@ class TaxonName < ActiveRecord::Base
           end
         end
       end
-      subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
-      superspecies = '(' + superspecies.strip! + ') ' unless superspecies.empty?
-      cached_name = (genus + subgenus + superspecies + species).strip!
+      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
+      cached_name = (genus + subgenus + superspecies + species).squish
     end
   end
 
@@ -285,7 +324,7 @@ class TaxonName < ActiveRecord::Base
         end
       end
       if self.rank_class.to_s =~ /Genus/
-        if genus.empty?
+        if genus.blank?
           genus += self.name + ' '
         else
           subgenus += self.name + ' '
@@ -294,8 +333,8 @@ class TaxonName < ActiveRecord::Base
         species += self.name + ' '
         genus = self.ancestor_at_rank('genus').name + ' ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
       end
-      subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
-      cached_name = (genus + subgenus + superspecies + species).strip!
+      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      cached_name = (genus + subgenus + superspecies + species).squish
     end
   end
 
@@ -329,33 +368,44 @@ class TaxonName < ActiveRecord::Base
 
       parent_rank = self.parent.rank_class.to_s
       if parent_rank =~ /Genus/
-        if genus.empty?
+        if genus.blank?
           genus += self.parent.name + ' '
         else # if  self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
-          subgenus += self.name + ' '
+          subgenus += self.parent.name + ' '
         end
       elsif parent_rank =~ /Species/
         species += self.parent.name + ' ' # if self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
       end
-      subgenus = '(' + subgenus.strip! + ') ' unless subgenus.empty?
-      cached_name = (genus + subgenus + superspecies + species).strip!
+      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      cached_name = (genus + subgenus + superspecies + species).squish
     end
   end
 
+  def get_genus_species(genus_option, self_option)
+    genus = nil
+    name = nil
+    if self.rank_class.nil?
+      return nil
+    elsif genus_option == :original
+      genus = self.original_genus
+    elsif genus_option == :curent
+      genus = self.ancestor_at_rank('genus')
+    end
+    genus = genus.name unless genus.blank?
 
-  def set_cached_primary_homonym
-    #TODO: set cached primary homonym, including variable spelling
-    true
+    if self.rank_class.to_s =~ /Species/ && genus.blank?
+      return nil
+    elsif self_option == :self
+      name = self.name
+    elsif self_option == :alternative
+      name = self.name_with_alternative_spelling
+    end
+    (genus.to_s + ' ' + name.to_s).squish
   end
 
-  def set_cached_secondary_homonym
-    #TODO: set cached secondary homonym, including variable spelling
+  #TODO: synonym parent is the same as valid species parent
 
-    #TODO: synonym parent is the same as valid species parent
-
-    #TODO: check homotypic synonyms
-    true
-  end
+  #TODO: check homotypic synonyms
 
   def get_author_and_year
     if self.rank.nil?
