@@ -275,6 +275,40 @@ describe TaxonNameRelationship do
           r.soft_validate(:specific_relationship)
           expect(r.soft_validations.messages_on(:type).count).to eq(1)
         end
+        specify 'homonyms should be similar' do
+          g =  FactoryGirl.create(:relationship_genus, name: 'Xus', parent: @f1)
+          expect(g.save).to be_true
+          expect(@g2.save).to be_true
+          g.reload
+          @g2.reload
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+          r.soft_validate(:specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+        end
+        specify 'primary homonyms should be similar' do
+          sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
+          sp.original_genus = @g1
+          @s2.original_genus = @g1
+          expect(sp.save).to be_true
+          expect(@s2.save).to be_true
+          sp.reload
+          @s2.reload
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary')
+          r.soft_validate(:specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+        end
+        specify 'secondary homonyms should be similar' do
+          sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
+          sp.original_genus = @g1
+          @s2.original_genus = @g2
+          expect(sp.save).to be_true
+          expect(@s2.save).to be_true
+          sp.reload
+          @s2.reload
+          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+          r.soft_validate(:specific_relationship)
+          expect(r.soft_validations.messages_on(:type).count).to eq(1)
+        end
 
         specify 'secondary homonyms should be placed in the same genus' do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')

@@ -350,6 +350,19 @@ describe TaxonName do
             expect(@s2.secondary_homonym_alt).to eq('Bus uitata')
           end
         end
+        context 'mismatching cached values' do
+          before(:all) do
+            @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @genus)
+          end
+          specify 'missing cached values' do
+            @s.soft_validate(:cached_names)
+            expect(@s.soft_validations.messages_on(:base).count).to eq(1)
+            @s.fix_soft_validations
+            @s.soft_validate(:cached_names)
+            expect(@s.soft_validations.messages_on(:base).empty?).to be_true
+          end
+        end
       end
 
       context 'when rank ICZN family' do

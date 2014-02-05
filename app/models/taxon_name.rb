@@ -82,6 +82,7 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
+  soft_validate(:sv_cached_names, set: :cached_names)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -208,6 +209,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names
+    # if updated, update also sv_cached_names
     set_cached_full_name
     set_cached_original_combination
     set_cached_author_year
@@ -402,8 +404,6 @@ class TaxonName < ActiveRecord::Base
     end
     (genus.to_s + ' ' + name.to_s).squish
   end
-
-  #TODO: synonym parent is the same as valid species parent
 
   #TODO: check homotypic synonyms
 
@@ -611,6 +611,32 @@ class TaxonName < ActiveRecord::Base
       end
     end
     false
+  end
+
+  def sv_cached_names
+    # if updated, update also set_cached_names
+    cached = true
+    if self.cached_name.blank?
+      cached = false
+    elsif self.cached_author_year != get_author_and_year
+      cached = false
+    elsif self.class.to_s == 'Protonym'
+      if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.primary_homonym != get_genus_species(:original, :self) || self.primary_homonym_alt != get_genus_species(:original, :alternative)
+        cached = false
+      elsif self.rank_class.to_s =~ /Species/
+        if self.secondary_homonym != get_genus_species(:curent, :self) || self.secondary_homonym_alt != get_genus_species(:curent, :alternative)
+          cached = false
+        end
+      end
+    elsif self.class.to_s == 'Combination'
+      if self.cached_name != get_combination || self.cached_original_combination != get_combination
+        cached = false
+      end
+    end
+    unless cached
+      soft_validations.add(:base, 'Cached values should be updated',
+                           fix: :set_cached_names, success_message: 'Cached values were updated')
+    end
   end
 
   def sv_validate_parent_rank
