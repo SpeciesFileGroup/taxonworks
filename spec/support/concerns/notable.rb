@@ -1,6 +1,24 @@
 shared_examples 'notable' do
 
-  let(:class_with_note) { FactoryGirl.create("valid_#{described_class.name.tableize.singularize.gsub('/', '_')}".to_sym) }
+  let(:class_with_note) { FactoryGirl.build("valid_#{described_class.name.tableize.singularize.gsub('/', '_')}".to_sym) }
+
+  context 'foo', a: :b do
+    it "has access to methods defined in shared context" do
+      expect(shared_method).to eq("it works")
+    end
+
+    it "has access to methods defined with let in shared context" do
+      expect(shared_let['arbitrary']).to eq('object')
+    end
+
+    it "runs the before hooks defined in the shared context" do
+      expect(@some_var).to be(:some_value)
+    end
+
+    it "accesses the subject defined in the shared context" do
+      expect(subject).to eq('this is the subject')
+    end 
+  end 
 
   context 'reflections / foreign keys' do
     specify 'has many notes' do

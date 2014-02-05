@@ -1110,11 +1110,11 @@ def read_dbf(filenames)
   if iso != nil?
     iso.each { |line|
       # this section is for capturing country names and iso_a2 codes from the "country_names_and_code_elements" file.
-      if line.strip!.length > 6 # minimum line size to contain useful data
+      if line.squish.length > 6 # minimum line size to contain useful data
 
         # break down the useful data
         parts       = line.split(';')
-        nation_code = parts[1].strip # clean off the line extraneous white space
+        nation_code = parts[1].squish # clean off the line extraneous white space
         nation_name = parts[0].titlecase
 
         # search by A2 nation code

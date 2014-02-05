@@ -39,7 +39,6 @@ describe User do
 
   context 'factory valid_user is valid' do
     let(:factory_user) {
-      User.destroy_all 
       FactoryGirl.build(:valid_user)
     }
     specify 'is valid' do

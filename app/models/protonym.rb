@@ -134,8 +134,8 @@ class Protonym < TaxonName
   end
 
   def self.family_group_base(name_string)
-    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-    $1
+      name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
+      $1
   end
 
   def get_primary_type
