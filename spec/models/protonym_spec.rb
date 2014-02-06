@@ -265,30 +265,30 @@ describe Protonym do
 
     context 'missing_fields' do
       specify "source author, year are missing" do
-          @species.soft_validate(:missing_fields)
-          expect(@species.soft_validations.messages_on(:source_id).empty?).to be_true
-          expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-          expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        end
+        @species.soft_validate(:missing_fields)
+        expect(@species.soft_validations.messages_on(:source_id).empty?).to be_true
+        expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+      end
       specify 'author and year are missing' do
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
       end
       specify 'fix author and year from the source' do
-          @source.update(year: 1758, author: 'Linnaeus')
-          @source.save
-          @kingdom.source = @source
-          @kingdom.soft_validate(:missing_fields)
-          expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
-          expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-          @kingdom.fix_soft_validations  # get author and year from the source
-          @kingdom.soft_validate(:missing_fields)
-          expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
-          expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-          expect(@kingdom.verbatim_author).to eq('Linnaeus')
-          expect(@kingdom.year_of_publication).to eq(1758)
-        end
+        @source.update(year: 1758, author: 'Linnaeus')
+        @source.save
+        @kingdom.source = @source
+        @kingdom.soft_validate(:missing_fields)
+        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
+        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+        @kingdom.fix_soft_validations  # get author and year from the source
+        @kingdom.soft_validate(:missing_fields)
+        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
+        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+        expect(@kingdom.verbatim_author).to eq('Linnaeus')
+        expect(@kingdom.year_of_publication).to eq(1758)
+      end
     end
 
     context 'coordinated taxa' do
@@ -381,6 +381,7 @@ describe Protonym do
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_false
         @subfamily.fix_soft_validations
         @subfamily.reload
+        expect(@subfamily.valid?).to be_true
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_true
       end
@@ -493,6 +494,38 @@ describe Protonym do
         @subgenus.soft_validate(:single_sub_taxon)
         #single subgenus in the nominal genus
         expect(@subgenus.soft_validations.messages_on(:base).count).to eq(1)
+      end
+    end
+
+    context 'missing synonym relationship' do
+      specify 'same type species' do
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+        g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
+        s1 = FactoryGirl.create(:relationship_species, name: 'cus', parent: g1)
+        g1.type_species = s1
+        g2.type_species = s1
+        expect(g1.save).to be_true
+        expect(g2.save).to be_true
+        g1.soft_validate(:homotypic_synonyms)
+        expect(g1.soft_validations.messages_on(:base).count).to eq(1)
+        g1.iczn_set_as_unnecessary_replaced_name = g2
+        expect(g1.save).to be_true
+        g1.soft_validate(:homotypic_synonyms)
+        expect(g1.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'same type specimen' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
+        t1 = FactoryGirl.create(:valid_type_material, protonym: s1, type_type: 'holotype')
+        t2 = FactoryGirl.create(:valid_type_material, protonym: s2, type_type: 'neotype', biological_object_id: t1.biological_object_id)
+        expect(s1.save).to be_true
+        expect(s2.save).to be_true
+        s1.soft_validate(:homotypic_synonyms)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        s1.iczn_set_as_unjustified_emendation_of = s2
+        expect(s1.save).to be_true
+        s1.soft_validate(:homotypic_synonyms)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
   end

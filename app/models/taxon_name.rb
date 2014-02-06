@@ -616,7 +616,7 @@ class TaxonName < ActiveRecord::Base
   def sv_cached_names
     # if updated, update also set_cached_names
     cached = true
-    if self.cached_name.blank?
+    if self.primary_homonym.blank?
       cached = false
     elsif self.cached_author_year != get_author_and_year
       cached = false
@@ -635,8 +635,19 @@ class TaxonName < ActiveRecord::Base
     end
     unless cached
       soft_validations.add(:base, 'Cached values should be updated',
-                           fix: :set_cached_names, success_message: 'Cached values were updated')
+                           fix: :sv_fix_cached_names, success_message: 'Cached values were updated')
     end
+  end
+
+  def sv_fix_cached_names
+    begin
+      TaxonName.transaction do
+        self.save
+        return true
+      end
+    rescue
+    end
+    false
   end
 
   def sv_validate_parent_rank
@@ -666,6 +677,15 @@ class TaxonName < ActiveRecord::Base
   def sv_parent_priority
     true # see validation in Protonym.rb
   end
+
+  def sv_homotypic_synonyms
+    true # see validation in Protonym.rb
+  end
+
+  def sv_potential_homonyms
+    true # see validation in Protonym.rb
+  end
+
 
 #endregion
 
