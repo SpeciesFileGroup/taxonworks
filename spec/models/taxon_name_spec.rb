@@ -36,7 +36,7 @@ describe TaxonName do
 
       expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
       expect(variety.cached_author_year).to eq('McAtee (1900)')
-      expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
+      expect(variety.cached_name).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
     end
   end
 
@@ -268,7 +268,7 @@ describe TaxonName do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-          expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
+          expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
         specify 'ICZN family' do
           expect(@family.valid?).to be_true
@@ -282,20 +282,20 @@ describe TaxonName do
           expect(t.cached_author_year).to eq('')
         end
         specify 'original genus subgenus' do
-          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_genus = @genus
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_subgenus = @genus
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>ssp</em>')
           @subspecies.original_species = @species
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) vitis ssp')
-          expect(@subgenus.get_original_combination).to eq('Erythroneura')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+          expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em>')
           @subgenus.original_genus = @genus
           @subgenus.reload
-          expect(@subgenus.get_original_combination).to eq('Erythroneura (Erythroneura)')
+          expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
@@ -353,7 +353,7 @@ describe TaxonName do
         context 'mismatching cached values' do
           before(:all) do
             @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @genus)
+            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
           end
           specify 'missing cached values' do
             @s.soft_validate(:cached_names)
