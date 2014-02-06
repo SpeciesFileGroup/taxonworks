@@ -1720,8 +1720,7 @@ def read_dbf(filenames)
       ne_ga = ne_names[names_key]
 
       if ne_ga.nil?
-        # then try by iso a3
-        ga = ne_a3[l3a3]
+        ga = @lvl3_items[l3c]
         if ga.nil?
           # new TDWG-only record
           ga        = GeographicArea.new(parent:               l3p,
@@ -1735,28 +1734,25 @@ def read_dbf(filenames)
           ga.level2 = ga
           @lvl3_items.merge!(l3c => ga)
           @global_keys.merge!(ga.tdwgID => ga)
+          ne_names.merge!({names_key => ga})
 
-          ne_ga = ne_names[names_key]
-          if ne_ga.nil?
-            # if not in name list, stick this one in the name list
-            ne_names.merge!({names_key => ga})
-          else
-            l3n
-          end
         else
-          # found a record by iso_a3
-          # Be suspicious, VERY suspicious...
-          if ga.name == l3n
-            # if it has the same name
-            # found a named record: is it sane?
-            update_tdwg = true
-          else
+          # then try by iso a3
+          ga = ne_a3[l3c]
+          if ga.nil?
             update_tdwg = false
+          else
+            # found a record by iso_a3
+            # Be suspicious, VERY suspicious...
+            if ga.name == l3n
+              # if it has the same name
+              # found a named record: is it sane?
+              # TODO: It appears to be qualified, what else can we test, to disqualify it?
+              update_tdwg = true
+            end
           end
         end
-      else # we found it in the names table
-        # found a named record: is it sane?
-        # TODO: It appears to be qualified, what else can we test, to disqualify it?
+      else
         update_tdwg = true
       end
 
@@ -1785,10 +1781,50 @@ def read_dbf(filenames)
       # and the iso code of this area
       iso_a3         = item['Level3_cod']
       iso_a2         = item['ISO_Code']
+      l1c            = item['Level1_cod'].to_s + '----'
+      l2c            = item['Level2_cod'].to_s + '---'
+      l3c_a3         = item['Level3_cod']
+      l3c            = item['Level2_cod'].to_s + l3c_a3
+      l4c_a2         = item['Level4_2']
+      l4c            = item['Level2_cod'].to_s + item['Level4_cod']
+      l4n            = this_area_name
 
-      names_key = {'l0' => @lvl0_items[(item['Level1_cod'].to_s + '----')].name,
-                   'l1' => @lvl1_items[(item['Level2_cod'].to_s + '---')].name,
-                   'l2' => @lvl2_items[(item['Level2_code'].to_s + item['Level3_cod'])].name,
+
+      case iso_a2
+        when 'UK'
+          iso_a2 = 'GB'
+      end
+
+      # find the nation by its country code
+      nation = ne_a3[iso_a3]
+      if nation.nil?
+        nation = ne_a2[iso_a2]
+      else
+        # found a possible iso match
+        if nation.name == this_area_name
+          this_area_name
+        else
+          nation = ne_a2[iso_a2]
+        end
+      end
+
+      l3_ga = @lvl3_items[l3c]
+
+      if nation.nil?
+        # failed to find a parent
+        next
+      end
+
+      if this_area_name == nation.name
+        # country-level shape has been accounted for
+        if l3c_a3 == nation.iso_3166_a3
+          next
+        end
+      end
+
+      names_key = {'l0' => @lvl1_items[l1c].name,
+                   'l1' => @lvl2_items[l2c].name,
+                   'l2' => l3_ga.name,
                    'l3' => this_area_name}
 
 =begin
@@ -1807,44 +1843,31 @@ def read_dbf(filenames)
 {"ISO_Code"=>"YU", "Level_4_Na"=>"Serbia", "Level4_cod"=>"YUG-SE", "Level4_2"=>"SE", "Level3_cod"=>"YUG", "Level2_cod"=>13, "Level1_cod"=>1}
 =end
 
-      # find the nation by its country code
-      nation    = ne_a3[iso_a3]
-      if nation.nil?
-        nation = ne_a2[iso_a2]
-      end
+      puts "4-#{index}:\t\t#{l4c} for #{this_area_name} in #{nation.name}."
 
-      # find the matching name-set record by name
-      ga        = ne_names[names_key]
+      # find the matching name-set record by name (not likely)
+      ga = ne_names[names_key]
       if ga.nil?
-        l3c   = item['Level3_cod']
-        l3_ga = lvl3_items[l3_code]
-        l4c   = item['Level4_cod']
         # failed to find an area by this name in the TDWG data, so we need to create one
         # so we set the parent to the object pointed to by the level 3 code
-        ga    = GeographicArea.new(parent:               l3_ga,
-                                   tdwg_parent:          l3_ga,
-                                   tdwgID:               l4c,
-                                   name:                 this_area_name,
-                                   iso_3166_a2:          nil,
-                                   data_origin:          TDWG2_L4,
-                                   # we show this is from the TDWG data, *not* the iso data
-                                   geographic_area_type: gat4,
-                                   # even if nation is nil, this will do what we want.
-                                   country:              nation)
+        ga        = GeographicArea.new(parent:               l3_ga,
+                                       tdwg_parent:          l3_ga,
+                                       tdwgID:               l4c,
+                                       name:                 this_area_name,
+                                       iso_3166_a2:          nil,
+                                       data_origin:          TDWG2_L4,
+                                       # we show this is from the TDWG data, *not* the iso data
+                                       geographic_area_type: gat4)
+        # even if nation is nil, this will do what we want.
+        ga.level0 = nation
+        ga.level1 = l3_ga.parent
+        ga.level2 = l3_ga
         @lvl4_items.merge!(l4c => ga)
         @global_keys.merge!(ga.tdwgID => ga)
+        ne_names.merge!({names_key => ga})
 
-        ne_ga = ne_names[names_key]
-        if ne_ga.nil?
-          # if not in name list, stick this one in the name list
-          ne_names.merge!({names_key => ga})
-        else
-          l4n
-        end
       else
-        # ga is the named area we are looking for
-        ga.level0 = nation
-        nation
+        this_area_name
       end
 
       if nation.nil?
@@ -1858,18 +1881,19 @@ def read_dbf(filenames)
 
   puts 'Saving NaturalEarth records...'
 
-  breakpoint.save
+  # breakpoint.save
 
   ne_a3.each { |key, area|
     area.save
     puts "NE   '#{area.neID}' - #{area.geographic_area_type.name} of #{area.name}."
-    ne_a2.delet[area.iso_3166_a2]
+    ne_a2.delete(area.iso_3166_a2)
+    ne_a3.delete(key)
   }
 
   ne_adm0.each { |key, area|
     area.save
     puts "NE   '#{area.neID}' - #{area.geographic_area_type.name} of #{area.name}."
-    ne_a2.delet[area.iso_3166_a2]
+    ne_a2.delete(area.iso_3166_a2)
   }
 
   ne_a2.each { |key, area|
@@ -1911,12 +1935,12 @@ def read_dbf(filenames)
     @global_keys.delete(area.name)
   }
 
-=begin
   puts 'Saving Level 3 areas.'
   @lvl3_items.each { |key, area|
     area.save
     @global_keys.delete(area.name)
   }
+=begin
 
   puts 'Saving Level 4 areas.'
   @lvl4_items.each { |key, area|
@@ -1936,6 +1960,7 @@ def read_dbf(filenames)
   @global_keys.each { |key, area|
     puts "GADM - #{area.geographic_area_type.name} of #{area.name}."
     area.save
+    @global_keys.delete(key)
   }
 
 end
