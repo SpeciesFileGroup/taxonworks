@@ -385,7 +385,7 @@ class TaxonName < ActiveRecord::Base
 
   def get_genus_species(genus_option, self_option)
     genus = nil
-    name = nil
+    name1 = nil
     if self.rank_class.nil?
       return nil
     elsif genus_option == :original
@@ -398,11 +398,11 @@ class TaxonName < ActiveRecord::Base
     if self.rank_class.to_s =~ /Species/ && genus.blank?
       return nil
     elsif self_option == :self
-      name = self.name
+      name1 = self.name
     elsif self_option == :alternative
-      name = self.name_with_alternative_spelling
+      name1 = self.name_with_alternative_spelling
     end
-    (genus.to_s + ' ' + name.to_s).squish
+    (genus.to_s + ' ' + name1.to_s).squish
   end
 
   #TODO: check homotypic synonyms
@@ -616,9 +616,7 @@ class TaxonName < ActiveRecord::Base
   def sv_cached_names
     # if updated, update also set_cached_names
     cached = true
-    if self.primary_homonym.blank?
-      cached = false
-    elsif self.cached_author_year != get_author_and_year
+    if self.cached_author_year != get_author_and_year
       cached = false
     elsif self.class.to_s == 'Protonym'
       if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.primary_homonym != get_genus_species(:original, :self) || self.primary_homonym_alt != get_genus_species(:original, :alternative)

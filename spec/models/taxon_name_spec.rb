@@ -353,7 +353,7 @@ describe TaxonName do
         context 'mismatching cached values' do
           before(:all) do
             @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @genus)
+            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
           end
           specify 'missing cached values' do
             @s.soft_validate(:cached_names)
