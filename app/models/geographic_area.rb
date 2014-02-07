@@ -17,4 +17,9 @@ class GeographicArea < ActiveRecord::Base
 
   belongs_to :geographic_item
   belongs_to :geographic_area_type
+
+  # validations
+
+  validates :geographic_area_type, presence: true, allow_nil: false
+
 end
