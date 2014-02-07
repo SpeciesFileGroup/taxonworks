@@ -65,7 +65,7 @@ describe 'SoftValidation' do
   end
 
   context 'example usage' do
-    before(:all) do 
+    before(:each) do 
       # Stub the validation methods 
       Softy.soft_validation_methods = {all: []}
       Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)
@@ -78,28 +78,45 @@ describe 'SoftValidation' do
       expect(softy.soft_valid?).to be_false
     end
 
-    specify 'softy.soft_validate' do
-      expect(softy.soft_validate).to be_true
-      expect(softy.soft_validations.class).to eq(SoftValidation::SoftValidations)
-      expect(softy.soft_validations.fixes_run?).to be_false
-    end
-
-     specify 'softy.fix_soft_validations' do
-      expect(softy.soft_validate).to be_true             
-      expect(softy.fix_soft_validations).to be_true      
-      expect(softy.soft_validations.fixes_run?).to be_true 
-      expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
-   
-      # TODO: Move out  
-      expect(softy.soft_validations.on(:mohr).size).to eq(1)
-      expect(softy.soft_validations.messages).to eq(["hungry (for cheez)!", "hungry!"] ) 
-      expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
-    end
-
     specify 'softy.soft_validated?' do
       expect(softy.soft_validated?).to be_false
       softy.soft_validate
       expect(softy.soft_validated?).to be_true
+    end
+
+    context 'after soft_validate' do
+      before(:each) {
+        @softy = Softy.new
+        @softy.soft_validate
+      }
+
+      specify 'softy.soft_validate' do
+        expect(@softy.soft_validations.class).to eq(SoftValidation::SoftValidations)
+        expect(@softy.soft_validations.fixes_run?).to be_false
+      end
+
+      specify 'softy.fix_soft_validations(:some_bad_value)' do
+        expect{@softy.fix_soft_validations(:some_bad_value)}.to raise_error
+      end
+
+      specify 'softy.fix_soft_validations' do
+        expect(@softy.soft_validations.on(:mohr).size).to eq(1)
+        expect(@softy.fix_soft_validations).to be_true      
+        expect(@softy.soft_validations.fixes_run?).to eq(:automatic) # be_true 
+        expect(@softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
+
+        # TODO: Move out  
+        expect(@softy.soft_validations.on(:mohr).size).to eq(1)
+        expect(@softy.soft_validations.messages).to eq(["hungry (for cheez)!", "hungry!"] ) 
+        expect(@softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
+      end
+
+      specify 'softy.fix_soft_validations(:requested)' do
+        expect(@softy.soft_validations.on(:mohr).size).to eq(1)
+        expect(@softy.fix_soft_validations(:requested)).to be_true      
+        expect(@softy.soft_validations.fixes_run?).to eq(:requested) 
+        expect(@softy.soft_validations.fix_messages).to eq(mohr: ["fix not run, no fix available"], base: ['fix available, but not triggered'])
+      end
     end
   end
 end
@@ -122,6 +139,11 @@ describe 'SoftValidations' do
 
   specify 'add(:attribute, "message", fix: :method)' do
     expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah')).to be_true
+    expect(soft_validations.soft_validations).to have(1).things
+  end
+
+  specify 'add(:attribute, "message", fix: :method, fix_trigger: :automatic)' do
+    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', fix_trigger: :automatic)).to be_true
     expect(soft_validations.soft_validations).to have(1).things
   end
 
@@ -201,20 +223,24 @@ class Softy
     ['mohr']
   end 
 
+  attr_accessor :hungry
   # This is called in test
   # soft_validate :has_cheezburgers?
 
-  $hungry = true
+  def initialize
+    @hungry = true
+  end
+
   def haz_cheezburgers?
-    soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if $hungry 
+    soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if @hungry
   end
 
   def needs_moar_cheez? 
-    soft_validations.add(:mohr, 'hungry (for cheez)!') if $hungry 
+    soft_validations.add(:mohr, 'hungry (for cheez)!') if @hungry 
   end
 
   def cook_cheezburgers
-    $hungry = false
+    @hungry = false
     true
   end 
 end
