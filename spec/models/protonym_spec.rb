@@ -527,6 +527,93 @@ describe Protonym do
         s1.soft_validate(:homotypic_synonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true
       end
+      specify 'primary homonym' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
+        s1.original_genus = @genus
+        s2.original_genus = @genus
+        expect(s1.save).to be_true
+        expect(s2.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        s1.iczn_set_as_synonym_of = s3
+        expect(s1.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'primary homonym with alternative spelling' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
+        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
+        s1.original_genus = @genus
+        s2.original_genus = @genus
+        expect(s1.save).to be_true
+        expect(s2.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        s1.iczn_set_as_synonym_of = s3
+        expect(s1.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'secondary homonym' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
+        expect(s1.save).to be_true
+        expect(s2.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        s1.iczn_set_as_synonym_of = s3
+        expect(s1.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'secondary homonym with alternative spelling' do
+        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
+        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
+        expect(s1.save).to be_true
+        expect(s2.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        s1.iczn_set_as_synonym_of = s3
+        expect(s1.save).to be_true
+        s1.soft_validate(:potential_homonyms)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'genus homonym' do
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
+        g2 = FactoryGirl.create(:relationship_genus, name: 'Cccus', parent: @family)
+        g3 = FactoryGirl.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
+        expect(g1.save).to be_true
+        expect(g2.save).to be_true
+        expect(g3.save).to be_true
+        g1.soft_validate(:potential_homonyms)
+        g2.soft_validate(:potential_homonyms)
+        g3.soft_validate(:potential_homonyms)
+        expect(g1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(g2.soft_validations.messages_on(:base).empty?).to be_true
+        expect(g3.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'family homonym alternative spelling' do
+        f1 = FactoryGirl.create(:relationship_family, name: 'Bbbidae', parent: @kingdom, year_of_publication: 1900)
+        f2 = FactoryGirl.create(:relationship_family, name: 'Cccidae', parent: @kingdom)
+        f3 = FactoryGirl.create(:iczn_subfamily, name: 'Bbbinae', parent: f2, year_of_publication: 1800)
+        expect(f1.save).to be_true
+        expect(f2.save).to be_true
+        expect(f3.save).to be_true
+        f1.soft_validate(:potential_homonyms)
+        f2.soft_validate(:potential_homonyms)
+        f3.soft_validate(:potential_homonyms)
+        expect(f1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(f2.soft_validations.messages_on(:base).empty?).to be_true
+        expect(f3.soft_validations.messages_on(:base).empty?).to be_true
+      end
+    end
+    context 'fossils' do
+      pending 'validate that the extant species does not have extinct parent'
     end
   end
 

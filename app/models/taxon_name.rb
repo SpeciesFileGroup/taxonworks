@@ -129,6 +129,14 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def cached_name_and_author_year
+    if self.rank_class.to_s =~ /::(Species|Genus)/
+      (self.cached_name.to_s + ' ' + self.cached_author_year.to_s).squish!
+    else
+      (self.name.to_s + ' ' + self.cached_author_year.to_s).squish!
+    end
+  end
+
   def ancestor_at_rank(rank)
    TaxonName.ancestors_of(self).with_rank_class( Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
