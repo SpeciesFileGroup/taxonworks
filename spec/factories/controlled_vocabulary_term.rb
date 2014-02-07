@@ -3,6 +3,7 @@ FactoryGirl.define do
     factory :valid_controlled_vocabulary_term do
       name 'Color'
       definition 'A food group, like "purple".'
+      type 'Keyword' 
     end
   end
 end

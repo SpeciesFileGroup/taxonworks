@@ -22,6 +22,10 @@ describe ControlledVocabularyTerm do
       specify 'definition' do
         expect(controlled_vocabulary_term.errors.include?(:definition)).to be_true
       end
+
+      specify 'type' do
+        expect(controlled_vocabulary_term.errors.include?(:type)).to be_true
+      end
     end
   end
 
@@ -33,7 +37,7 @@ describe ControlledVocabularyTerm do
 
   context 'within projects' do
     specify 'name is unique within projects per type'
-    specify 'definition is unique within projects per type'
+    specify 'definition is unique within projects'
     specify 'is case sensitive, i.e. bat and Bat are different'
   end
 
