@@ -12,6 +12,7 @@ describe 'ActiverecordUtilities' do
       expect { TestStringManipulations.nil_trim_attributes(:col1, :foo) }.to raise_error
     end
   end
+
   context 'instance methods' do
     let(:teststr) {
       TestStringManipulations.nil_trim_attributes(:col1, :col3)
@@ -30,7 +31,7 @@ describe 'ActiverecordUtilities' do
   end
 end
 
-#include dummy class to test the activerecord_utilities
+# Dummy class to test activerecord_utilities
 class TestStringManipulations
 
   attr_accessor :col1, :col2, :col3

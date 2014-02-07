@@ -1,5 +1,5 @@
 module ActiverecordUtilities
-# this is for shared utilies, like string manipulation methods.
+  # this is for shared utilies, like string manipulation methods.
 
   extend ActiveSupport::Concern
 
@@ -18,7 +18,7 @@ module ActiverecordUtilities
   end
 
   protected
-# any def below this is an instance method
+  # any def below this is an instance method
   def trim_attributes
     if !self.attributes_to_trim.nil?
       self.attributes_to_trim.each do |a|
