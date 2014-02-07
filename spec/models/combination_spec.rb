@@ -63,18 +63,18 @@ describe Combination do
           @combination1 = FactoryGirl.create(:combination, parent: @species)
         end
         specify 'empty' do
-          expect(@combination1.get_combination).to eq('vitis')
+          expect(@combination1.get_combination).to eq('<em>vitis</em>')
         end
         specify 'genus' do
           @combination1.combination_genus = @genus
           @combination1.reload
-          expect(@combination1.get_combination).to eq('Erythroneura vitis')
+          expect(@combination1.get_combination).to eq('<em>Erythroneura vitis</em>')
           @combination1.combination_subgenus = @genus
           @combination1.reload
-          expect(@combination1.get_combination).to eq('Erythroneura (Erythroneura) vitis')
+          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
           @combination1.combination_species = @species2
           @combination1.reload
-          expect(@combination1.get_combination).to eq('Erythroneura (Erythroneura) comes vitis')
+          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>comes vitis</em>')
         end
       end
     end
