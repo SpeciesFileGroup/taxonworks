@@ -67,6 +67,11 @@ class Protonym < TaxonName
   scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.biological_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
   scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
+  scope :with_primary_homonym, -> (primary_homonym) {where(primary_homonym: primary_homonym)}
+  scope :with_primary_homonym_alt, -> (primary_homonym_alt) {where(primary_homonym_alt: primary_homonym_alt)}
+  scope :with_secondary_homonym, -> (secondary_homonym) {where(secondary_homonym: secondary_homonym)}
+  scope :with_secondary_homonym_alt, -> (secondary_homonym_alt) {where(secondary_homonym_alt: secondary_homonym_alt)}
+  scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
@@ -419,32 +424,81 @@ class Protonym < TaxonName
           primary_types = self.get_primary_type
           unless primary_types.empty?
             p = primary_types.collect!{|t| t.biological_object_id}
-            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.not_self(self.id)
+            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.not_self(self.id).with_project(self.project_id)
           end
         else
           type = self.type_taxon_name
           unless type.nil?
-            possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self.id)
+            possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self.id).with_project(self.project_id)
           end
         end
-        unless possible_synonyms.empty?
-          possible_synonyms.select!{|s| s.id == s.lowest_rank_coordinated_taxon.id}
-        end
-        date1 = self.nomenclature_date unless possible_synonyms.empty?
+        reduce_list_of_synonyms(possible_synonyms)
         possible_synonyms.each do |s|
-          date2 = s.nomenclature_date
-          if date1.nil? || date2.nil? || (not date1 < date2)
-            soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_name + ' ' + s.cached_author_year} since they share the same type")
-          end
+          soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_name + ' ' + s.cached_author_year} since they share the same type")
         end
       end
     end
   end
 
+  def reduce_list_of_synonyms(list)
+    return [] if list.empty?
+    list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
+    unless list1.empty?
+      date1 = self.nomenclature_date
+      unless date1.nil?
+        list1.reject!{|s| date1 < (s.year_of_publication ? s.nomenclature_date : Time.utc(1))}
+      end
+    end
+    list1
+  end
+
   def sv_potential_homonyms
-    if self.id == self.lowest_rank_coordinated_taxon
-      if self.rank_class.to_s =~ /Species/
-      else
+    unless self.unavailable_or_invalid?
+      if self.id == self.lowest_rank_coordinated_taxon.id
+        rank_base = self.rank_class.parent.to_s
+        name1 = self.primary_homonym ? self.primary_homonym : nil
+        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+        list1 = reduce_list_of_synonyms(possible_primary_homonyms)
+        if !list1.empty?
+          list1.each do |s|
+            if rank_base =~ /Species/
+              soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_name_and_author_year}")
+            elsif
+              soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_name_and_author_year}")
+            end
+          end
+        else
+          name2 = self.primary_homonym_alt ? self.primary_homonym_alt : nil
+          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          list2 = reduce_list_of_synonyms(possible_primary_homonyms_alt)
+          if !list2.empty?
+            list2.each do |s|
+              if rank_base =~ /Species/
+                soft_validations.add(:base, "Taxon could be a primary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+              elsif
+                soft_validations.add(:base, "Taxon could be an homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+              end
+            end
+          elsif rank_base =~ /Species/
+            name3 = self.secondary_homonym ? self.secondary_homonym : nil
+            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+            list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
+            if !list3.empty?
+              list3.each do |s|
+                soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
+              end
+            else
+              name4 = self.secondary_homonym ? self.secondary_homonym_alt : nil
+              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alt)
+              if !list4.empty?
+                list4.each do |s|
+                  soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
