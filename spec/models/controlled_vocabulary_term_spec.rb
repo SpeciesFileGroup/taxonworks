@@ -3,12 +3,6 @@ require 'spec_helper'
 describe ControlledVocabularyTerm do
   let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term)  }
 
-  context 'associations' do
-    context 'has_many' do
-      specify 'tags'
-    end
-  end
-
   context 'validation' do 
     before(:each) {
       controlled_vocabulary_term.valid?
@@ -36,9 +30,27 @@ describe ControlledVocabularyTerm do
   end
 
   context 'within projects' do
-    specify 'name is unique within projects per type'
-    specify 'definition is unique within projects'
-    specify 'is case sensitive, i.e. bat and Bat are different'
+    specify 'name is unique within projects per type'  do
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term)
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.')
+      expect(b.valid?).to_not be_true
+      b.name = 'Something Completely Different'
+      expect(b.valid?).to be_true
+    end
+
+    specify 'definition is unique within projects' do
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!')
+      expect(b.valid?).to be_false
+      expect(b.errors.include?(:definition)).to be_true
+    end
+
+    specify 'is case sensitive, i.e. bat and Bat are different' do
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, name: 'blue')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue')
+      expect(b.valid?).to be_true
+    end
+
   end
 
   context 'concerns' do
