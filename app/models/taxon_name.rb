@@ -257,19 +257,19 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_primaty_homonym
-    self.primary_homonym = get_genus_species(:original, :self)
+    self.cached_primary_homonym = get_genus_species(:original, :self)
   end
 
   def set_primary_homonym_alt
-    self.primary_homonym_alt = get_genus_species(:original, :alternative)
+    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
   end
 
   def set_secondary_homonym
-    self.secondary_homonym = get_genus_species(:curent, :self)
+    self.cached_secondary_homonym = get_genus_species(:curent, :self)
   end
 
   def set_secondary_homonym_alt
-    self.secondary_homonym_alt = get_genus_species(:curent, :alternative)
+    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
   end
 
   def get_full_name
@@ -627,10 +627,10 @@ class TaxonName < ActiveRecord::Base
     if self.cached_author_year != get_author_and_year
       cached = false
     elsif self.class.to_s == 'Protonym'
-      if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.primary_homonym != get_genus_species(:original, :self) || self.primary_homonym_alt != get_genus_species(:original, :alternative)
+      if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.cached_primary_homonym != get_genus_species(:original, :self) || self.cached_primary_homonym_alt != get_genus_species(:original, :alternative)
         cached = false
       elsif self.rank_class.to_s =~ /Species/
-        if self.secondary_homonym != get_genus_species(:curent, :self) || self.secondary_homonym_alt != get_genus_species(:curent, :alternative)
+        if self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative)
           cached = false
         end
       end
