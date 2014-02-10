@@ -108,16 +108,24 @@ module SoftValidation
     def add(attribute, message, options = {})
       # TODO: Stub a generic TW Error and raise it instead
       raise "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + @instance.class.column_names).include?(attribute.to_s)
+      raise "invalid :fix_trigger" if !options[:fix_trigger].blank? && ![:all, :automatic, :requested].include?(options[:fix_trigger])
       return false if attribute.nil? || message.nil? || message.length == 0
       return false if (options[:success_message] || options[:failure_message]) && !options[:fix]
       sv = SoftValidation.new
       sv.attribute = attribute 
       sv.message = message
       sv.fix = options[:fix]
+      sv.fix_trigger = options[:fix_trigger]
+      sv.fix_trigger ||= :automatic
       sv.success_message = options[:success_message] 
       sv.failure_message = options[:failure_message] 
       @soft_validations << sv
     end
+
+ #  def soft_validations(scope = :all)
+ #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
+ #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
+ #  end
 
     # @return [Boolean]
     #   soft validations have been run
@@ -179,6 +187,9 @@ module SoftValidation
   #     Optional. Identifies a method that fixes the soft validation in question.  I.e. the method 
   #     when run should eliminate subsequent identical soft validation warnings from being generated.
   #     Fix methods should return true or false. 
+  # @!attribute fix_trigger
+  #   @return [Symbol]
+  #     Optional when :fix is provided. Must be one of :automatic or :requested.  Defaults to :automatic
   # @!attribute success_message
   #   @return [String]
   #     Optional.  Requires a fix method.  A short message describing the message provided when the soft validation was successfully fixed. 
@@ -190,10 +201,11 @@ module SoftValidation
   #     Stores a state with one of 
   #     :fixed                  (fixes run and SoftValidation was fixed), 
   #     :fix_error              (fixes run and SoftValidation fix failed), 
+  #     :fix_not_triggered      (fixes run, and SoftValidation was not triggered because of scope)
   #     :fix_not_yet_run        (there is a fix method available, but it hasn't been run)
   #     :no_fix_available       (no fix method was provided)
   class SoftValidation
-    attr_accessor :attribute, :message, :fix, :success_message, :failure_message, :fixed
+    attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed
 
     def initialize
       @fixed = :fix_not_yet_run
@@ -206,6 +218,8 @@ module SoftValidation
 
     def result_message
       case fixed
+      when :fix_not_triggered
+        'fix available, but not triggered'
       when :no_fix_available
         'fix not run, no fix available'
       when :fix_not_yet_run
@@ -268,20 +282,25 @@ module SoftValidation
     true
   end
 
-  def fix_soft_validations
+  def fix_soft_validations(scope = :automatic)
     return false if !soft_validated?
+    raise 'invalid scope passed to fix_soft_validations' if ![:all, :automatic, :requested].include?(scope)
     soft_validations.soft_validations.each do |v|
-      if v.fix
-        if self.send(v.fix) 
-          v.fixed = :fixed 
+      if v.fix 
+        if v.fix_trigger == scope
+          if self.send(v.fix) 
+            v.fixed = :fixed 
+          else
+            v.fixed = :fix_error
+          end
         else
-          v.fixed = :fix_error
+          v.fixed = :fix_not_triggered
         end
       else
         v.fixed = :no_fix_available
       end
     end
-    soft_validations.fixes_run = true
+    soft_validations.fixes_run = scope 
     true
   end
 

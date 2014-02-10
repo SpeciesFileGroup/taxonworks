@@ -59,7 +59,7 @@ describe CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject 
  # Columns 
   describe "properties" do
     specify "current_location (the present location [time axis])" 
-    specify "disposition ()"  #was boolean lost or not
+    specify "disposition ()"  # was boolean lost or not
     specify "destroyed? (gone, for real, never ever EVER coming back)"
     specify "condition (damaged/level)"
     specify "preparation" # pin/etc./etoh <- questions here
@@ -88,8 +88,6 @@ describe CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject 
     specify "locatable (location)"
     specify "identifiable (catalog numbers)"
     specify "figurable (images)"
-
-    # Are these the same things?
     specify "notable (notes)" # 
     specify "tagable (tags)"
   end

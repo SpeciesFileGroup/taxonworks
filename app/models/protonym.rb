@@ -66,11 +66,12 @@ class Protonym < TaxonName
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
   scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.biological_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
+  scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
   scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
-  scope :with_primary_homonym, -> (primary_homonym) {where(primary_homonym: primary_homonym)}
-  scope :with_primary_homonym_alt, -> (primary_homonym_alt) {where(primary_homonym_alt: primary_homonym_alt)}
-  scope :with_secondary_homonym, -> (secondary_homonym) {where(secondary_homonym: secondary_homonym)}
-  scope :with_secondary_homonym_alt, -> (secondary_homonym_alt) {where(secondary_homonym_alt: secondary_homonym_alt)}
+  scope :with_primary_homonym, -> (primary_homonym) {where(cached_primary_homonym: primary_homonym)}
+  scope :with_primary_homonym_alt, -> (primary_homonym_alt) {where(cached_primary_homonym_alt: primary_homonym_alt)}
+  scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
+  scope :with_secondary_homonym_alt, -> (secondary_homonym_alt) {where(cached_secondary_homonym_alt: secondary_homonym_alt)}
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :that_is_valid, -> {
@@ -456,8 +457,8 @@ class Protonym < TaxonName
     unless self.unavailable_or_invalid?
       if self.id == self.lowest_rank_coordinated_taxon.id
         rank_base = self.rank_class.parent.to_s
-        name1 = self.primary_homonym ? self.primary_homonym : nil
-        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+        name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
+        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
         list1 = reduce_list_of_synonyms(possible_primary_homonyms)
         if !list1.empty?
           list1.each do |s|
@@ -468,8 +469,8 @@ class Protonym < TaxonName
             end
           end
         else
-          name2 = self.primary_homonym_alt ? self.primary_homonym_alt : nil
-          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          name2 = self.cached_primary_homonym_alt ? self.cached_primary_homonym_alt : nil
+          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
           list2 = reduce_list_of_synonyms(possible_primary_homonyms_alt)
           if !list2.empty?
             list2.each do |s|
@@ -480,16 +481,16 @@ class Protonym < TaxonName
               end
             end
           elsif rank_base =~ /Species/
-            name3 = self.secondary_homonym ? self.secondary_homonym : nil
-            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+            name3 = self.cached_secondary_homonym ? self.cached_secondary_homonym : nil
+            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
             list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
             if !list3.empty?
               list3.each do |s|
                 soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
               end
             else
-              name4 = self.secondary_homonym ? self.secondary_homonym_alt : nil
-              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alt : nil
+              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
               list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alt)
               if !list4.empty?
                 list4.each do |s|

@@ -318,20 +318,20 @@ describe TaxonName do
             expect(@s2.valid?).to be_true
           end
           specify 'primary homonym' do
-            expect(@family.primary_homonym).to eq('Cicadellidae')
-            expect(@tribe.primary_homonym).to eq('Erythroneurini')
-            expect(@tribe.primary_homonym_alt).to eq('Erythroneuridae')
-            expect(@g1.primary_homonym).to eq('Aus')
-            expect(@g2.primary_homonym).to eq('Bus')
-            expect(@s1.primary_homonym.blank?).to be_true
-            expect(@s2.primary_homonym.blank?).to be_true
+            expect(@family.cached_primary_homonym).to eq('Cicadellidae')
+            expect(@tribe.cached_primary_homonym).to eq('Erythroneurini')
+            expect(@tribe.cached_primary_homonym_alt).to eq('Erythroneuridae')
+            expect(@g1.cached_primary_homonym).to eq('Aus')
+            expect(@g2.cached_primary_homonym).to eq('Bus')
+            expect(@s1.cached_primary_homonym.blank?).to be_true
+            expect(@s2.cached_primary_homonym.blank?).to be_true
           end
           specify 'secondary homonym' do
-            expect(@family.secondary_homonym.blank?).to be_true
-            expect(@g1.secondary_homonym.blank?).to be_true
-            expect(@g2.secondary_homonym.blank?).to be_true
-            expect(@s1.secondary_homonym).to eq('Aus vitatus')
-            expect(@s2.secondary_homonym).to eq('Bus vitatta')
+            expect(@family.cached_secondary_homonym.blank?).to be_true
+            expect(@g1.cached_secondary_homonym.blank?).to be_true
+            expect(@g2.cached_secondary_homonym.blank?).to be_true
+            expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do
             @s1.original_genus = @g1
@@ -340,14 +340,14 @@ describe TaxonName do
             expect(@s2.save).to be_true
             @s1.reload
             @s2.reload
-            expect(@s1.primary_homonym).to eq('Aus vitatus')
-            expect(@s2.primary_homonym).to eq('Aus vitatta')
-            expect(@s1.secondary_homonym).to eq('Aus vitatus')
-            expect(@s2.secondary_homonym).to eq('Bus vitatta')
-            expect(@s1.primary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.primary_homonym_alt).to eq('Aus uitata')
-            expect(@s1.secondary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.secondary_homonym_alt).to eq('Bus uitata')
+            expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
+            expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
+            expect(@s1.cached_primary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.cached_primary_homonym_alt).to eq('Aus uitata')
+            expect(@s1.cached_secondary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.cached_secondary_homonym_alt).to eq('Bus uitata')
           end
         end
         context 'mismatching cached values' do
