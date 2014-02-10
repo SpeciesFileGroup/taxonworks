@@ -40,7 +40,6 @@ describe 'SoftValidation' do
         expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
         expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
       end
-
     end
   end
 
