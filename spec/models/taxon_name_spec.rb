@@ -36,7 +36,7 @@ describe TaxonName do
 
       expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
       expect(variety.cached_author_year).to eq('McAtee (1900)')
-      expect(variety.cached_name).to eq('Aus (Aus sect. Aus ser. Aus) aaa bbb var. ccc')
+      expect(variety.cached_name).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
     end
   end
 
@@ -268,7 +268,7 @@ describe TaxonName do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-          expect(@subspecies.cached_name).to eq('Erythroneura (Erythroneura) vitis ssp')
+          expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
         specify 'ICZN family' do
           expect(@family.valid?).to be_true
@@ -282,20 +282,20 @@ describe TaxonName do
           expect(t.cached_author_year).to eq('')
         end
         specify 'original genus subgenus' do
-          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_genus = @genus
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_subgenus = @genus
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) ssp')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>ssp</em>')
           @subspecies.original_species = @species
           @subspecies.reload
-          expect(@subspecies.get_original_combination).to eq('Erythroneura (Erythroneura) vitis ssp')
-          expect(@subgenus.get_original_combination).to eq('Erythroneura')
+          expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+          expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em>')
           @subgenus.original_genus = @genus
           @subgenus.reload
-          expect(@subgenus.get_original_combination).to eq('Erythroneura (Erythroneura)')
+          expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
@@ -318,20 +318,20 @@ describe TaxonName do
             expect(@s2.valid?).to be_true
           end
           specify 'primary homonym' do
-            expect(@family.primary_homonym).to eq('Cicadellidae')
-            expect(@tribe.primary_homonym).to eq('Erythroneurini')
-            expect(@tribe.primary_homonym_alt).to eq('Erythroneuridae')
-            expect(@g1.primary_homonym).to eq('Aus')
-            expect(@g2.primary_homonym).to eq('Bus')
-            expect(@s1.primary_homonym.blank?).to be_true
-            expect(@s2.primary_homonym.blank?).to be_true
+            expect(@family.cached_primary_homonym).to eq('Cicadellidae')
+            expect(@tribe.cached_primary_homonym).to eq('Erythroneurini')
+            expect(@tribe.cached_primary_homonym_alt).to eq('Erythroneuridae')
+            expect(@g1.cached_primary_homonym).to eq('Aus')
+            expect(@g2.cached_primary_homonym).to eq('Bus')
+            expect(@s1.cached_primary_homonym.blank?).to be_true
+            expect(@s2.cached_primary_homonym.blank?).to be_true
           end
           specify 'secondary homonym' do
-            expect(@family.secondary_homonym.blank?).to be_true
-            expect(@g1.secondary_homonym.blank?).to be_true
-            expect(@g2.secondary_homonym.blank?).to be_true
-            expect(@s1.secondary_homonym).to eq('Aus vitatus')
-            expect(@s2.secondary_homonym).to eq('Bus vitatta')
+            expect(@family.cached_secondary_homonym.blank?).to be_true
+            expect(@g1.cached_secondary_homonym.blank?).to be_true
+            expect(@g2.cached_secondary_homonym.blank?).to be_true
+            expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do
             @s1.original_genus = @g1
@@ -340,20 +340,20 @@ describe TaxonName do
             expect(@s2.save).to be_true
             @s1.reload
             @s2.reload
-            expect(@s1.primary_homonym).to eq('Aus vitatus')
-            expect(@s2.primary_homonym).to eq('Aus vitatta')
-            expect(@s1.secondary_homonym).to eq('Aus vitatus')
-            expect(@s2.secondary_homonym).to eq('Bus vitatta')
-            expect(@s1.primary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.primary_homonym_alt).to eq('Aus uitata')
-            expect(@s1.secondary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.secondary_homonym_alt).to eq('Bus uitata')
+            expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
+            expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
+            expect(@s1.cached_primary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.cached_primary_homonym_alt).to eq('Aus uitata')
+            expect(@s1.cached_secondary_homonym_alt).to eq('Aus uitata')
+            expect(@s2.cached_secondary_homonym_alt).to eq('Bus uitata')
           end
         end
         context 'mismatching cached values' do
           before(:all) do
             @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @genus)
+            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
           end
           specify 'missing cached values' do
             @s.soft_validate(:cached_names)

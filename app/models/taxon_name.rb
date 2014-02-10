@@ -129,6 +129,14 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def cached_name_and_author_year
+    if self.rank_class.to_s =~ /::(Species|Genus)/
+      (self.cached_name.to_s + ' ' + self.cached_author_year.to_s).squish!
+    else
+      (self.name.to_s + ' ' + self.cached_author_year.to_s).squish!
+    end
+  end
+
   def ancestor_at_rank(rank)
    TaxonName.ancestors_of(self).with_rank_class( Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
@@ -249,19 +257,19 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_primaty_homonym
-    self.primary_homonym = get_genus_species(:original, :self)
+    self.cached_primary_homonym = get_genus_species(:original, :self)
   end
 
   def set_primary_homonym_alt
-    self.primary_homonym_alt = get_genus_species(:original, :alternative)
+    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
   end
 
   def set_secondary_homonym
-    self.secondary_homonym = get_genus_species(:curent, :self)
+    self.cached_secondary_homonym = get_genus_species(:curent, :self)
   end
 
   def set_secondary_homonym_alt
-    self.secondary_homonym_alt = get_genus_species(:curent, :alternative)
+    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
   end
 
   def get_full_name
@@ -276,26 +284,26 @@ class TaxonName < ActiveRecord::Base
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
           case i.rank_class.rank_name
-            when 'genus' then genus = i.name + ' '
-            when 'subgenus' then subgenus += i.name + ' '
-            when 'section' then subgenus += 'sect. ' + i.name + ' '
-            when 'subsection' then subgenus += 'subsect. ' + i.name + ' '
-            when 'series' then subgenus += 'ser. ' + i.name + ' '
-            when 'subseries' then subgenus += 'subser. ' + i.name + ' '
-            when 'species group' then superspecies += i.name + ' '
-            when 'species' then species += i.name + ' '
-            when 'subspecies' then species += i.name + ' '
-            when 'variety' then species += 'var. ' + i.name + ' '
-            when 'subvariety' then species += 'subvar. ' + i.name + ' '
-            when 'form' then species += 'f. ' + i.name + ' '
-            when 'subform' then species += 'subf. ' + i.name + ' '
+            when 'genus' then genus = '<em>' + i.name + '</em> '
+            when 'subgenus' then subgenus += '<em>' + i.name + '</em> '
+            when 'section' then subgenus += 'sect. <em>' + i.name + '</em> '
+            when 'subsection' then subgenus += 'subsect. <em>' + i.name + '</em> '
+            when 'series' then subgenus += 'ser. <em>' + i.name + '</em> '
+            when 'subseries' then subgenus += 'subser. <em>' + i.name + '</em> '
+            when 'species group' then superspecies += '<em>' + i.name + '</em> '
+            when 'species' then species += '<em>' + i.name + '</em> '
+            when 'subspecies' then species += '<em>' + i.name + '</em> '
+            when 'variety' then species += 'var. <em>' + i.name + '</em> '
+            when 'subvariety' then species += 'subvar. <em>' + i.name + '</em> '
+            when 'form' then species += 'f. <em>' + i.name + '</em> '
+            when 'subform' then species += 'subf. <em>' + i.name + '</em> '
             else
           end
         end
       end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
-      cached_name = (genus + subgenus + superspecies + species).squish
+      cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
     end
   end
 
@@ -311,32 +319,32 @@ class TaxonName < ActiveRecord::Base
       species = ''
       relationships.each do |i|
         case i.type_class.object_relationship_name
-          when 'original genus' then genus = i.subject_taxon_name.name + ' '
-          when 'original subgenus' then subgenus += i.subject_taxon_name.name + ' '
-          when 'original section' then subgenus += 'sect. ' + i.subject_taxon_name.name + ' '
-          when 'original subsection' then subgenus += 'subsect. ' + i.subject_taxon_name.name + ' '
-          when 'original series' then subgenus += 'ser. ' + i.subject_taxon_name.name + ' '
-          when 'original subseries' then subgenus += 'subser. ' + i.subject_taxon_name.name + ' '
-          when 'original species' then species += i.subject_taxon_name.name + ' '
-          when 'original subspecies' then species += i.subject_taxon_name.name + ' '
-          when 'original variety' then species += 'var. ' + i.subject_taxon_name.name + ' '
-          when 'original subvariety' then species += 'subvar. ' + i.subject_taxon_name.name + ' '
-          when 'original form' then species += 'f. ' + i.subject_taxon_name.name + ' '
+          when 'original genus' then genus = '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'original subgenus' then subgenus += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'original section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original species' then species += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'original subspecies' then species += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'original variety' then species += 'var. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'original form' then species += 'f. <em>' + i.subject_taxon_name.name + '</em> '
           else
         end
       end
       if self.rank_class.to_s =~ /Genus/
         if genus.blank?
-          genus += self.name + ' '
+          genus += '<em>' + self.name + '</em> '
         else
-          subgenus += self.name + ' '
+          subgenus += '<em>' + self.name + '</em> '
         end
       elsif self.rank_class.to_s =~ /Species/
-        species += self.name + ' '
-        genus = self.ancestor_at_rank('genus').name + ' ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+        species += '<em>' + self.name + '</em> '
+        genus = '<em>' + self.ancestor_at_rank('genus').name + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
       end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_name = (genus + subgenus + superspecies + species).squish
+      cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
     end
   end
 
@@ -352,18 +360,18 @@ class TaxonName < ActiveRecord::Base
       species = ''
       relationships.each do |i|
         case i.type_class.object_relationship_name
-          when 'genus' then genus = i.subject_taxon_name.name + ' '
-          when 'subgenus' then subgenus += i.subject_taxon_name.name + ' '
-          when 'section' then subgenus += 'sect. ' + i.subject_taxon_name.name + ' '
-          when 'subsection' then subgenus += 'subsect. ' + i.subject_taxon_name.name + ' '
-          when 'series' then subgenus += 'ser. ' + i.subject_taxon_name.name + ' '
-          when 'subseries' then subgenus += 'subser. ' + i.subject_taxon_name.name + ' '
-          when 'species' then species += i.subject_taxon_name.name + ' '
-          when 'subspecies' then species += i.subject_taxon_name.name + ' '
-          when 'variety' then species += 'var. ' + i.subject_taxon_name.name + ' '
-          when 'subvariety' then species += 'subvar. ' + i.subject_taxon_name.name + ' '
-          when 'form' then species += 'f. ' + i.subject_taxon_name.name + ' '
-          when 'subform' then species += 'subf. ' + i.subject_taxon_name.name + ' '
+          when 'genus' then genus = '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'subgenus' then subgenus += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'species' then species += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'subspecies' then species += '<em>' + i.subject_taxon_name.name + '</em> '
+          when 'variety' then species += 'var. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'form' then species += 'f. <em>' + i.subject_taxon_name.name + '</em> '
+          when 'subform' then species += 'subf. <em>' + i.subject_taxon_name.name + '</em> '
           else
         end
       end
@@ -371,21 +379,21 @@ class TaxonName < ActiveRecord::Base
       parent_rank = self.parent.rank_class.to_s
       if parent_rank =~ /Genus/
         if genus.blank?
-          genus += self.parent.name + ' '
+          genus += '<em>' + self.parent.name + '</em> '
         else # if  self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
-          subgenus += self.parent.name + ' '
+          subgenus += '<em>' + self.parent.name + '</em> '
         end
       elsif parent_rank =~ /Species/
-        species += self.parent.name + ' ' # if self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
+        species += '<em>' + self.parent.name + '</em> ' # if self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
       end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_name = (genus + subgenus + superspecies + species).squish
+      cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
     end
   end
 
   def get_genus_species(genus_option, self_option)
     genus = nil
-    name = nil
+    name1 = nil
     if self.rank_class.nil?
       return nil
     elsif genus_option == :original
@@ -398,11 +406,11 @@ class TaxonName < ActiveRecord::Base
     if self.rank_class.to_s =~ /Species/ && genus.blank?
       return nil
     elsif self_option == :self
-      name = self.name
+      name1 = self.name
     elsif self_option == :alternative
-      name = self.name_with_alternative_spelling
+      name1 = self.name_with_alternative_spelling
     end
-    (genus.to_s + ' ' + name.to_s).squish
+    (genus.to_s + ' ' + name1.to_s).squish
   end
 
   #TODO: check homotypic synonyms
@@ -616,15 +624,13 @@ class TaxonName < ActiveRecord::Base
   def sv_cached_names
     # if updated, update also set_cached_names
     cached = true
-    if self.cached_name.blank?
-      cached = false
-    elsif self.cached_author_year != get_author_and_year
+    if self.cached_author_year != get_author_and_year
       cached = false
     elsif self.class.to_s == 'Protonym'
-      if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.primary_homonym != get_genus_species(:original, :self) || self.primary_homonym_alt != get_genus_species(:original, :alternative)
+      if self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.cached_primary_homonym != get_genus_species(:original, :self) || self.cached_primary_homonym_alt != get_genus_species(:original, :alternative)
         cached = false
       elsif self.rank_class.to_s =~ /Species/
-        if self.secondary_homonym != get_genus_species(:curent, :self) || self.secondary_homonym_alt != get_genus_species(:curent, :alternative)
+        if self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative)
           cached = false
         end
       end
@@ -635,8 +641,19 @@ class TaxonName < ActiveRecord::Base
     end
     unless cached
       soft_validations.add(:base, 'Cached values should be updated',
-                           fix: :set_cached_names, success_message: 'Cached values were updated')
+                           fix: :sv_fix_cached_names, success_message: 'Cached values were updated')
     end
+  end
+
+  def sv_fix_cached_names
+    begin
+      TaxonName.transaction do
+        self.save
+        return true
+      end
+    rescue
+    end
+    false
   end
 
   def sv_validate_parent_rank
@@ -666,6 +683,15 @@ class TaxonName < ActiveRecord::Base
   def sv_parent_priority
     true # see validation in Protonym.rb
   end
+
+  def sv_homotypic_synonyms
+    true # see validation in Protonym.rb
+  end
+
+  def sv_potential_homonyms
+    true # see validation in Protonym.rb
+  end
+
 
 #endregion
 

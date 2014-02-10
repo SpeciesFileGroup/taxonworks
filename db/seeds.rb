@@ -12,11 +12,11 @@ case Rails.env
 when 'development'
 
   # Creates 1,1 project/users  
-  FactoryGirl.create(:valid_project)
   FactoryGirl.create(:valid_user)
-  FactoryGirl.create(:valid_project_member)
+  FactoryGirl.create(:valid_project)
+  FactoryGirl.create(:project_member, project_id: 1, user_id: 1)
   FactoryGirl.create(:iczn_subspecies)
-  FactoryGirl.create(:icn_subvariety)
+  FactoryGirl.create(:icn_variety)
 
 when 'production'
   # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.

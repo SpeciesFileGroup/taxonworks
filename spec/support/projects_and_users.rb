@@ -9,6 +9,7 @@ end
 
 RSpec.configure do |config|
   config.before(:suite) { 
+    clean_slate
     # Order matters 
     FactoryGirl.create(:valid_user, id: 1)
     $user_id = 1

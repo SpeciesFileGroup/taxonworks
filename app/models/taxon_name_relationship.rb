@@ -264,11 +264,11 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:type, 'Subjective synonyms should not have the same type')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-        soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.primary_homonym_alt == o.primary_homonym_alt
+        soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.cached_primary_homonym_alt == o.cached_primary_homonym_alt
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
         if s.original_genus != o.original_genus
           soft_validations.add(:type, 'Primary homonyms should have the same original genus')
-        elsif s.primary_homonym_alt != o.primary_homonym_alt
+        elsif s.cached_primary_homonym_alt != o.cached_primary_homonym_alt
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
@@ -276,7 +276,7 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
           soft_validations.add(:type, "Secondary homonyms should be placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
-        elsif s.secondary_homonym_alt != o.secondary_homonym_alt
+        elsif s.cached_secondary_homonym_alt != o.cached_secondary_homonym_alt
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
