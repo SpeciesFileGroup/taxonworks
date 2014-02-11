@@ -20,6 +20,19 @@ class GeographicArea < ActiveRecord::Base
 
   # validations
 
-  validates :geographic_area_type, presence: true, allow_nil: false
+  validates_associated :geographic_area_type
+  validates :name, presence: true
+  validates :data_origin, presence: true
+  validate :earth_exception
 
+  def earth_exception
+    if name != 'Earth'
+      if level0.nil?
+        errors.add(:level0, "must be set to a GeographicArea.")
+      end
+      if parent.nil?
+        errors.add(:parent, "must be set to a GeoreaphicArea.")
+      end
+    end
+  end
 end

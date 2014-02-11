@@ -24,7 +24,8 @@ GADM2_0 = 'GADM2 Level 0'
 GADM2_1 = 'GADM2 Level 1'
 GADM2_2 = 'GADM2 Level 2'
 
-NE_10  = 'NaturalEarth (10m)'
+NE0_10  = 'NaturalEarth-0 (10m)'
+NE1_10  = 'NaturalEarth-1 (10m)'
 NE_50  = 'NaturalEarth (50m)'
 NE_110 = 'NaturalEarth (110m)'
 
@@ -315,11 +316,12 @@ def read_dbf(filenames)
   if earth.count == 0
     # create the record
     earth                      = GeographicArea.new(parent_id:   nil,
+                                                    level0:      nil,
                                                     data_origin: SFG,
                                                     name:        'Earth')
     earth.geographic_area_type = GeographicAreaType.where(name: 'Planet').first
     # save this record for later
-    earth.save
+    earth.save!
   else
     # use the (first) record we found
     earth = earth.first
@@ -342,13 +344,13 @@ def read_dbf(filenames)
       when /ne_50m_admin_0_countries\.dbf/i
         ne0_50 = nil # DBF::Table.new(filename)
       when /ne_110m_admin_0_countries\.dbf/i
-        ne0_110 = ne0_110 = DBF::Table.new(filename)
+        ne0_110 = nil # ne0_110 = DBF::Table.new(filename)
       when /ne_10m_admin_1_states_provinces_shp\.dbf/i
         ne1_10 = DBF::Table.new(filename)
       when /ne_50m_admin_1_states_provinces_shp\.dbf/i
-        ne1_50 = DBF::Table.new(filename)
+        ne1_50 = nil # DBF::Table.new(filename)
       when /ne_110m_admin_1_states_provinces_shp\.dbf/i
-        ne1_110 = ne1_110 = DBF::Table.new(filename)
+        ne1_110 = nil # ne1_110 = DBF::Table.new(filename)
       when /level1/i
         lvl1 = DBF::Table.new(filename)
       when /level2/i
@@ -447,7 +449,7 @@ def read_dbf(filenames)
       p1           = nil
 
       # gather data from record
-      nation_name  =  two_tick(item.name.titlecase)
+      nation_name  = item.name # two_tick(item.name.titlecase)
       nation_code3 = item.iso_a3
       nation_code2 = item.iso_a2
       adm0_a3      = item.adm0_a3
@@ -575,7 +577,7 @@ def read_dbf(filenames)
       p1         = nil
 
       # gather data from record
-      area_name  =  two_tick(item.name.titlecase)
+      area_name  = item.name # two_tick(item.name.titlecase)
       area_code3 = item.iso_a3
       area_code2 = item.iso_a2
       adm0_a3    = item.adm0_a3
@@ -727,7 +729,7 @@ def read_dbf(filenames)
       p1           = nil
 
       # gather data from record
-      nation_name  =  two_tick(item.name.titlecase)
+      nation_name  = item.name # two_tick(item.name.titlecase)
       nation_code3 = item.iso_a3
       nation_code2 = item.iso_a2
       adm0_a3      = item.adm0_a3
@@ -879,7 +881,7 @@ def read_dbf(filenames)
       p1           = nil
 
       # gather data from record
-      nation_name  =  two_tick(item.name.titlecase)
+      nation_name  = item.name # two_tick(item.name.titlecase)
       nation_code3 = item.iso_a3
       nation_code2 = item.iso_a2
       adm0_a3      = item.adm0_a3
@@ -930,7 +932,7 @@ def read_dbf(filenames)
                                               name:                 nation_name,
                                               iso_3166_a3:          nation_code3,
                                               adm0_a3:              adm0_a3,
-                                              data_origin:          NE_10,
+                                              data_origin:          NE0_10,
                                               neID:                 ne10_id,
                                               geographic_area_type: area_type)
 
@@ -949,7 +951,7 @@ def read_dbf(filenames)
           # puts "'#{nation_code3}'(#{ga.neID})#{p1}for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched #{ga.geographic_area_type.name} of #{ga.name}."
           ga.geographic_area_type = area_type
           ga.neID                 = ne10_id
-          ga.data_origin          = NE_10 if ga.data_origin.nil?
+          ga.data_origin          = NE0_10 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
         ne_names.merge!(names_key => ga)
@@ -1015,12 +1017,12 @@ def read_dbf(filenames)
       p1         = ' '
 
       # gather data from record
-      area_name  =  two_tick(item.name.titlecase)
+      area_name  = item.name # two_tick(item.name.titlecase)
       area_code2 = item.iso_a2
       adm0_a3    = item.sr_adm0_a3
       ne10_id    = item.adm1_code
       area_type  = add_gat(item.type_en)
-      adm0_name  =  two_tick(item.admin.titlecase)
+      adm0_name  = item.name # two_tick(item.admin.titlecase)
 
       # There are some reasons NOT to actually create a record:
       #   1.  The (apparent) index (iso_n3) is set to '-99'
@@ -1045,8 +1047,12 @@ def read_dbf(filenames)
       if add_record
         names_key = {'l0' => adm0_name,
                      'l1' => area_name}
+
+        # there is no reasonable thing to do, if the name is blank, so we bail.
+        next if area_name.empty?
+
         # check to see if we have a nation by the current name in our list
-        ga        = ne_names[names_key]
+        ga = ne_names[names_key]
         if ga.nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
@@ -1060,13 +1066,13 @@ def read_dbf(filenames)
             adm0_ga = ne_adm0[adm0_a3]
             if adm0_ga.nil?
               # add a record for this adm0_a3 to act as parent
-              adm0_ga = GeographicArea.new(parent:               earth,
-                                           name:                 adm0_name,
-                                           adm0_a3:              adm0_a3,
-                                           iso_3166_a2:          area_code2,
-                                           data_origin:          NE_10,
-                                           neID:                 ne10_id,
-                                           geographic_area_type: gat6)
+              adm0_ga        = GeographicArea.new(parent:               earth,
+                                                  name:                 adm0_name,
+                                                  adm0_a3:              adm0_a3,
+                                                  iso_3166_a2:          area_code2,
+                                                  data_origin:          NE1_10,
+                                                  neID:                 ne10_id,
+                                                  geographic_area_type: gat6)
               adm0_ga.level0 = adm0_ga
 
               puts "#{index}:\t\t'#{ne10_id}'#{p1}for #{gat6.name} of #{adm0_name} of #{adm0_ga.parent.name}\t\tAdded. (10m)"
@@ -1081,16 +1087,16 @@ def read_dbf(filenames)
             # already set
           end
 
-          ga = GeographicArea.new(parent:               adm0_ga,
-                                  # if we create records here, they will specifically
-                                  # *not* be TDWG records
-                                  # or GADM records
-                                  tdwg_parent:          nil,
-                                  name:                 area_name,
-                                  adm0_a3:              nil,
-                                  data_origin:          NE_10,
-                                  neID:                 ne10_id,
-                                  geographic_area_type: area_type)
+          ga        = GeographicArea.new(parent:               adm0_ga,
+                                         # if we create records here, they will specifically
+                                         # *not* be TDWG records
+                                         # or GADM records
+                                         tdwg_parent:          nil,
+                                         name:                 area_name,
+                                         adm0_a3:              nil,
+                                         data_origin:          NE1_10,
+                                         neID:                 ne10_id,
+                                         geographic_area_type: area_type)
           ga.level0 = adm0_ga
           ga.level1 = ga
 
@@ -1120,7 +1126,7 @@ def read_dbf(filenames)
         # break down the useful data
         parts       = line.split(';')
         nation_code = parts[1].squish # clean off the line extraneous white space
-        nation_name =  two_tick(parts[0].titlecase)
+        nation_name = parts[0].titlecase
 
         # search by A2 nation code
         if ne_a2[nation_code].nil?
@@ -1314,9 +1320,9 @@ def read_dbf(filenames)
     gadm2.each { |item|
 
       index   += 1
-      # next if index < 4914
+      # next if index < 217000
 
-      l0_name =  two_tick(item['NAME_0'].titlecase)
+      l0_name = item['NAME_0'] # two_tick(item['NAME_0'].titlecase)
       l0_iso  = item['ISO']
       l0_id   = item['ID_0']
 
@@ -1330,15 +1336,15 @@ def read_dbf(filenames)
       id_vector = [l0_id, l1_id, l2_id]
 
       # l0 always has a name
-      l1_name   =  two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
+      l1_name   = item['NAME_1'].gsub(/\n/, ' ') # two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
       l1_type   = item['ENGTYPE_1']
-      l2_name   = (l2_id == 0) ? '' :  two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
+      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].gsub(/\n/, ' ') # two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
       l2_type   = item['ENGTYPE_2']
-      l3_name   = (l3_id == 0) ? '' :  two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
+      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].gsub(/\n/, ' ') # two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
       l3_type   = item['ENGTYPE_3']
-      l4_name   = (l4_id == 0) ? '' :  two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
+      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].gsub(/\n/, ' ') # two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
       l4_type   = item['ENGTYPE_4']
-      l5_name   = (l5_id == 0) ? '' :  two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
+      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/\n/, ' ') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
       l5_type   = item['ENGTYPE_5']
 
       record_key = {'l0' => l0_name,
@@ -1388,7 +1394,7 @@ def read_dbf(filenames)
 
         # names_key = {'l0' => 'Åland'}
         # if not in name list, stick this one in the name list
-        puts "Adding Level 0: #{names_key}."
+        # puts "Adding Level 0: #{names_key}."
         # create a record for the zero level, and the @global_keys list
         ga = GeographicArea.new(parent:               earth,
                                 iso_3166_a3:          l0_iso,
@@ -1662,7 +1668,7 @@ def read_dbf(filenames)
     lvl1.each { |item|
 
       index     += 1
-      l1n       =  two_tick(item['LEVEL1_NAM'].titlecase)
+      l1n       = item['LEVEL1_NAM'].titlecase
       l1c       = item['LEVEL1_COD'].to_s + '----'
       names_key = {'l0' => l1n}
 
@@ -1692,7 +1698,7 @@ def read_dbf(filenames)
 
       index     += 1
       l2p       = @lvl1_items[item['LEVEL1_COD'].to_s + '----']
-      l2n       =  two_tick(item['LEVEL2_NAM'].titlecase)
+      l2n       = item['LEVEL2_NAM'].titlecase # two_tick(item['LEVEL2_NAM'].titlecase)
       l2c       = item['LEVEL2_COD'].to_s + '---'
       names_key = {'l0' => l2p.name,
                    'l1' => l2n}
@@ -1726,7 +1732,7 @@ def read_dbf(filenames)
       update_tdwg = false
       l2c         = item['LEVEL2_COD'].to_s
       l3p         = @lvl2_items[l2c + '---']
-      l3n         =  two_tick(item['LEVEL3_NAM'].titlecase)
+      l3n         = item['LEVEL3_NAM'] # two_tick(item['LEVEL3_NAM'].titlecase)
       l3a3        = item['LEVEL3_COD']
       l3c         = l2c + l3a3
       names_key   = {'l0' => l3p.parent.name,
@@ -1797,7 +1803,7 @@ def read_dbf(filenames)
       index          += 1
 
       # isolate the name
-      this_area_name =  two_tick(item['Level_4_Na'].titlecase)
+      this_area_name = item['Level_4_Na'] # two_tick(item['Level_4_Na'].titlecase)
       # and the iso code of this area
       iso_a3         = item['Level3_cod']
       iso_a2         = item['ISO_Code']
@@ -1902,7 +1908,7 @@ def read_dbf(filenames)
   puts 'Saving NaturalEarth records...'
 
   index = 0
-  breakpoint.save
+  # breakpoint.save
 
   puts 'Saving by name.'
   ne_names.each { |key, area|
@@ -1987,6 +1993,9 @@ def read_dbf(filenames)
       area.save!
       puts "By lvl3 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
     end
+
+    # rebuilding the awesome_nested_set-edness
+    # GeographicArea.rebuild!
   }
 =begin
 
