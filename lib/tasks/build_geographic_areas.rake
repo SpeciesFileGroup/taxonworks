@@ -1022,7 +1022,7 @@ def read_dbf(filenames)
       adm0_a3    = item.sr_adm0_a3
       ne10_id    = item.adm1_code
       area_type  = add_gat(item.type_en)
-      adm0_name  = item.name # two_tick(item.admin.titlecase)
+      adm0_name  = item.admin # two_tick(item.admin.titlecase)
 
       # There are some reasons NOT to actually create a record:
       #   1.  The (apparent) index (iso_n3) is set to '-99'
@@ -1915,7 +1915,7 @@ def read_dbf(filenames)
     if area.new_record?
       index += 1
       area.save!
-      puts "By name - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+      puts "By name - #{area.id}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
     end
   }
 
