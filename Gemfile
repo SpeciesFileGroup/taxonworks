@@ -52,6 +52,7 @@ gem 'paper_trail', '~> 3.0.0'
 # DwC-A archive handling 
 gem "dwc-archive", "~> 0.9.11"
 
+gem 'validates_timeliness', "~> 3.0.14"
 
 # Password encryption
 gem 'bcrypt-ruby', '~> 3.1.2'
