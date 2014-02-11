@@ -49,19 +49,21 @@ gem 'acts_as_list'
 # Versioning
 gem 'paper_trail', '~> 3.0.0'
 
+# DwC-A archive handling 
+gem "dwc-archive", "~> 0.9.11"
+
+
 # Password encryption
 gem 'bcrypt-ruby', '~> 3.1.2'
 
-# DwC-A archive handling 
-gem "dwc-archive", "~> 0.9.11"
+# Build instances from factories
+gem "factory_girl_rails", "~> 4.0"
 
 group :test, :development do
   gem 'rspec-rails'
   gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'awesome_print'
 end
-
-# Build instances from factories
-gem "factory_girl_rails", "~> 4.0"
 
 group :doc do
   gem 'sdoc', require: false # bundle exec rake doc:rails generates the API under doc/api.
@@ -73,7 +75,6 @@ group :test do
 end
 
 group :development do 
-  gem 'awesome_print'
   # gem 'foreigner', '~> 1.6' # conflicts with postgis adapter at present
 end
 
