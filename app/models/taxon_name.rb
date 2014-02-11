@@ -155,6 +155,14 @@ class TaxonName < ActiveRecord::Base
     return false
   end
 
+  def unavailable?
+    if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+      true
+    else
+      false
+    end
+  end
+
   def get_valid_taxon_name # get valid name for any taxon
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
     (vn.count == 1) ? vn.first.object_taxon_name : self

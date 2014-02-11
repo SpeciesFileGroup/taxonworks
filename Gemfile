@@ -60,6 +60,9 @@ gem 'bcrypt-ruby', '~> 3.1.2'
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
 
+# API view template engine
+gem 'rabl'
+
 group :test, :development do
   gem 'rspec-rails'
   gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})

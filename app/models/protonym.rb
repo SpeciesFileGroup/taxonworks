@@ -61,8 +61,8 @@ class Protonym < TaxonName
   scope :with_taxon_name_classification_base, -> (taxon_name_class_name_base) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "#{taxon_name_class_name_base}%").references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_containing, -> (taxon_name_class_name_fragment) { includes(:taxon_name_classifications).where('taxon_name_classifications.type LIKE ?', "%#{taxon_name_class_name_fragment}%").references(:taxon_name_classifications) }
   scope :with_taxon_name_classification_array, -> (taxon_name_class_name_base_array) { includes(:taxon_name_classifications).where('taxon_name_classifications.type in (?)', taxon_name_class_name_base_array).references(:taxon_name_classifications) }
-  scope :without_taxon_name_classification, -> (taxon_name_class_name) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type LIKE ?)', "#{taxon_name_class_name}")}
-  scope :without_taxon_name_classification_array, -> (taxon_name_class_name_array) { where('id not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type in (?))', taxon_name_class_name_array) }
+  scope :without_taxon_name_classification, -> (taxon_name_class_name) { where('"taxon_names"."id" not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type LIKE ?)', "#{taxon_name_class_name}")}
+  scope :without_taxon_name_classification_array, -> (taxon_name_class_name_array) { where('"taxon_names"."id" not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type in (?))', taxon_name_class_name_array) }
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
   scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.biological_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
@@ -425,7 +425,7 @@ class Protonym < TaxonName
           primary_types = self.get_primary_type
           unless primary_types.empty?
             p = primary_types.collect!{|t| t.biological_object_id}
-            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.not_self(self.id).with_project(self.project_id)
+            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_project(self.project_id)
           end
         else
           type = self.type_taxon_name
@@ -454,23 +454,26 @@ class Protonym < TaxonName
   end
 
   def sv_potential_homonyms
-    unless self.unavailable_or_invalid?
+    unless self.unavailable? #  self.unavailable_or_invalid?
       if self.id == self.lowest_rank_coordinated_taxon.id
         rank_base = self.rank_class.parent.to_s
         name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
-        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
         list1 = reduce_list_of_synonyms(possible_primary_homonyms)
         if !list1.empty?
           list1.each do |s|
             if rank_base =~ /Species/
               soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_name_and_author_year}")
+                                 #  fix: :sv_fix_add_relationship('iczn_set_as_primary_homonym_of'.to_sym, s.id),
+                                 #  success_message: 'Primary homonym relationship was added',
+                                 #  failure_message: 'Fail to add a relationship')
             elsif
               soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_name_and_author_year}")
             end
           end
         else
           name2 = self.cached_primary_homonym_alt ? self.cached_primary_homonym_alt : nil
-          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
           list2 = reduce_list_of_synonyms(possible_primary_homonyms_alt)
           if !list2.empty?
             list2.each do |s|
@@ -482,7 +485,7 @@ class Protonym < TaxonName
             end
           elsif rank_base =~ /Species/
             name3 = self.cached_secondary_homonym ? self.cached_secondary_homonym : nil
-            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
             list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
             if !list3.empty?
               list3.each do |s|
@@ -490,7 +493,7 @@ class Protonym < TaxonName
               end
             else
               name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alt : nil
-              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
               list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alt)
               if !list4.empty?
                 list4.each do |s|
@@ -503,6 +506,22 @@ class Protonym < TaxonName
       end
     end
   end
+
+  def sv_fix_add_relationship(method, object_id)
+    begin
+      Protonym.transaction do
+        self.save
+        return true
+      end
+    rescue
+      return false
+    end
+
+  false
+
+  end
+
+
 
   #endregion
 
