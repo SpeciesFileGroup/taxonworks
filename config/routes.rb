@@ -5,6 +5,13 @@ TaxonWorks::Application.routes.draw do
   root 'dashboard#index'
 
   get 'taxon_names/demo'
+  
+  namespace :api, defaults: {format: 'json'} do
+    namespace :v1 do
+      get "taxon_names/all(.:format)"
+    end
+  end
+  
 #  resources :taxon_names
 
   # Example of regular route:

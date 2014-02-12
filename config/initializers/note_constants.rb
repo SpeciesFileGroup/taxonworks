@@ -1,3 +1,4 @@
+# TODO: Should ultimately be renamed, maybe.  Used to also determine whether data is present at all.
 NON_ANNOTATABLE_COLUMNS = [
     :id,
     :type,

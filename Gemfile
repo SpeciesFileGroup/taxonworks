@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-ruby '2.0.0'
+ruby '2.1.0'
 
 gem 'rails', '4.0.2'
 
@@ -52,12 +52,16 @@ gem 'paper_trail', '~> 3.0.0'
 # DwC-A archive handling 
 gem "dwc-archive", "~> 0.9.11"
 
+gem 'validates_timeliness', "~> 3.0.14"
 
 # Password encryption
 gem 'bcrypt-ruby', '~> 3.1.2'
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
+
+# API view template engine
+gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
