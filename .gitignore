@@ -44,3 +44,5 @@ coverage/
 
 *.wkt
 *.sql
+
+.ruby-version
