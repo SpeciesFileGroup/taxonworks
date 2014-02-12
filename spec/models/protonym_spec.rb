@@ -562,7 +562,7 @@ describe Protonym do
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).count).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        s1.iczn_set_as_homonym_of = s2
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true

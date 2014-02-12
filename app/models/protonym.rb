@@ -66,7 +66,8 @@ class Protonym < TaxonName
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
   scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.biological_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
-  scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
+  scope :with_homonym_or_suppressed, -> { includes(:taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'").references(:taxon_name_relationships) }
+  scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
   scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
   scope :with_primary_homonym, -> (primary_homonym) {where(cached_primary_homonym: primary_homonym)}
   scope :with_primary_homonym_alt, -> (primary_homonym_alt) {where(cached_primary_homonym_alt: primary_homonym_alt)}
@@ -454,7 +455,7 @@ class Protonym < TaxonName
   end
 
   def sv_potential_homonyms
-    unless self.unavailable? #  self.unavailable_or_invalid?
+    unless (self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty?) #  self.unavailable_or_invalid?
       if self.id == self.lowest_rank_coordinated_taxon.id
         rank_base = self.rank_class.parent.to_s
         name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
