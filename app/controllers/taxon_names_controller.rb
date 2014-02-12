@@ -6,4 +6,8 @@ class TaxonNamesController < ApplicationController
 
   end
 
+  def marilyn
+    @users=User.all
+  end
+
 end

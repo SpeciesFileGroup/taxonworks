@@ -1,10 +1,13 @@
 TaxonWorks::Application.routes.draw do
+  resources :people
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   root 'dashboard#index'
 
   get 'taxon_names/demo'
+  get 'taxon_names/marilyn'
 #  resources :taxon_names
 
   # Example of regular route:
