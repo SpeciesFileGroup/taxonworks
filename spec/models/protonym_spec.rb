@@ -530,14 +530,13 @@ describe Protonym do
       specify 'primary homonym' do
         s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
         s1.original_genus = @genus
         s2.original_genus = @genus
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).count).to eq(1)
-        s1.iczn_set_as_synonym_of = s3
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true
@@ -545,14 +544,13 @@ describe Protonym do
       specify 'primary homonym with alternative spelling' do
         s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
-        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
         s1.original_genus = @genus
         s2.original_genus = @genus
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).count).to eq(1)
-        s1.iczn_set_as_synonym_of = s3
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true
@@ -560,12 +558,11 @@ describe Protonym do
       specify 'secondary homonym' do
         s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).count).to eq(1)
-        s1.iczn_set_as_synonym_of = s3
+        s1.iczn_set_as_homonym_of = s2
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true
@@ -573,12 +570,11 @@ describe Protonym do
       specify 'secondary homonym with alternative spelling' do
         s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
-        s3 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).count).to eq(1)
-        s1.iczn_set_as_synonym_of = s3
+        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_true

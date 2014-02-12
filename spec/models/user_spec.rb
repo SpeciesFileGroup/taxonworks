@@ -46,4 +46,8 @@ describe User do
     end 
   end
 
+  # TODO: Us AntCat flow here
+  pending 'should know where (IP) their last logon was from' 
+  pending 'should know when their last logon was from'
+
 end

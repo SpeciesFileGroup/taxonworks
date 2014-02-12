@@ -198,8 +198,6 @@
 # @!group TW add attributes that are not part of the standard attribute list
 # @!endgroup
 #
-#
-
 class Source::Bibtex < Source
   include SoftValidation
 
@@ -250,10 +248,8 @@ class Source::Bibtex < Source
 # @!group identifiers
 # @!endgroup
 # 
-#TODO add linkage to serials ==> belongs_to serial
-#TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
-# @associations  authors
-#   linkage to author roles
+  # TODO add linkage to serials ==> belongs_to serial
+  # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
   has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
@@ -349,8 +345,6 @@ class Source::Bibtex < Source
     self.to_bibtex.valid?
   end
 
-
-
   def self.new_from_bibtex(bibtex_entry)
 # TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
@@ -393,7 +387,6 @@ class Source::Bibtex < Source
       end
     end
     return true
-
   end
 
   def self.bibtex_author_to_person(bibtex_author)
@@ -450,7 +443,6 @@ class Source::Bibtex < Source
     self.identifiers.of_type(:doi).first.identifier
   end
 
-
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Guid::Issn' update instead of add
@@ -464,24 +456,10 @@ class Source::Bibtex < Source
 #TODO if language is set => set language_id
 #endregion getters & setters
 
-  def url_as_uri    # turn bibtex URL field into a Ruby URI object
-      URI(self.url)  unless self.url.blank?
+  # turn bibtex URL field into a Ruby URI object
+  def url_as_uri 
+    URI(self.url) unless self.url.blank?
   end
-
- #def url_valid?
- #  # this won't work in validation because validation methods don't allow "rescue"
- #  debugger
- #  return true if self.url.blank?
- #  case  URI.parse(self.url)
- #    when URI::BadURIError,  URI::InvalidURIError
- #      false
- #    else
- #      true
- #  end
- #end
-
-
-
 
 #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
@@ -511,43 +489,15 @@ class Source::Bibtex < Source
 
 #endregion has_<attribute>? section
 
-#region time/date related
-  # @return[Time] returns nomenclature_date as stored in the db, if not computed yet, computes it.
-  #   returns nil if there is no :year set. Does NOT set nomenclature_date in the object.
+  #region time/date related
+  # @return[Time] alias for nomenclature_date, computed if not yet saved
   def date
-    return(self.nomenclature_date) if !(self.nomenclature_date.nil?)
-    return(self.generate_nomenclature_date) if !(self.year.nil?)
-    return(nil)
+    set_nomenclature_date if !self.persisted?
+    self.nomenclature_date
   end
 
-  # @return[Boolean] sets the nomenclature_date within the object.
   def set_nomenclature_date
-    self.nomenclature_date = self.generate_nomenclature_date
-  end
-
-  # TODO: Abstract to a Date/Time module
-  # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
-  #   see http://www.ruby-doc.org/core-2.0.0/Time.html)
-  #   returns nomenclature_date based on computation of the values of :year, :month, :day.
-  #   Should only ever be called after validation!
-  #    if :year is empty, return nil
-  #    if :month is empty, returns 12/31/:year
-  #    if :day is empty, returns the last day of the month
-  def generate_nomenclature_date
-    if self.year.nil?
-      nil
-    elsif self.month.nil?
-      Time.utc(self.year, 12, 31)
-    elsif self.day.nil?
-      tmp = Time.utc(self.year, self.month)
-      if tmp.month == 12 # want the last day of december
-        Time.utc(self.year, 12, 31)
-      else # time + 1 month - 1 day (60 sec * 60 min *24 hours)
-        Time.utc(self.year, tmp.month + 1) - 86400
-      end
-    else
-      Time.utc(self.year, self.month, self.day)
-    end
+    self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year) 
   end
 
 #endregion    time/date related
@@ -576,22 +526,6 @@ class Source::Bibtex < Source
     errors.add(:base, 'no core data provided') if !valid
                       # return false # none of the required fields have a value
   end
-
-=begin
-  def day_valid? #make sure date is between 0-32
-    return true if self.day.nil? # date not set
-#    errors.add(:month, 'month is required if there is a day') if self.month.nil?
-    errors.add(:day, 'the day can not be less than 1') if self.day <1
-    errors.add(:day, 'invalid day for the month') if self.day > Time.utc(self.year, self.month).end_of_month.day
-    #:message => "Subdomain %{value} is reserved."
-  end
-
-  def year_valid? #make sure year is a 4 digit year
-    return true if self.year.nil? # year not set
-    errors.add(:year, 'year must be greater than 999') if self.year < 1000
-    errors.add(:year, 'year can be no more than 2 years in the future') if self.year > Time.now.year + 2
-  end
-=end
 
 #endregion  hard validations
 

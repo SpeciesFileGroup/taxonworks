@@ -18,4 +18,10 @@ module Utilities::Strings
     string
   end
 
+
+  def self.generate_md5(text)
+    return nil if text.blank?
+    Digest::MD5.hexdigest(text.gsub(/\s*/, '').downcase)
+  end
+
 end
