@@ -144,7 +144,7 @@ def read_shape(filename, index)
                                   country_id:           240,
                                   parent_id:            0,
                                   geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
-          mr.save
+          mr.save!
         end
       when /level1/i
         record = GeographicArea.where(name: 'Earth')
@@ -153,7 +153,7 @@ def read_shape(filename, index)
                                          name:      'Earth')
           area_type = GeographicAreaType.where(name: 'Planet')[0]
           # save this record for later
-          earth     = record.save
+          earth     = record.save!
         else
           earth = record[0]
         end
@@ -218,7 +218,7 @@ def read_shape(filename, index)
         record.geographic_area_type          = area_type[0]
         record.geographic_item               = GeographicItem.new
         record.geographic_item.multi_polygon = item.geometry
-        record.save
+        record.save!
 
         case filename
           when /USA_adm0/
@@ -2044,7 +2044,7 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: 'Country')[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: 'Country')
-          at.save
+          at.save!
           area_type = at
         end
       when /USA_adm1/
@@ -2055,7 +2055,7 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_1'))
-          at.save
+          at.save!
           area_type = at
         end
       when /USA_adm2/
@@ -2067,14 +2067,14 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_2'))
-          at.save
+          at.save!
           area_type = at
         end
       else
 
     end
     record.geographic_area_type = area_type
-    record.save
+    record.save!
   }
 end
 
@@ -2084,7 +2084,7 @@ def add_gat(gat)
   area_type = @gat_list[gat]
   if area_type.nil?
     area_type = GeographicAreaType.new(name: gat)
-    area_type.save
+    area_type.save!
     @gat_list.merge!(gat => area_type)
   end
   area_type
@@ -2126,7 +2126,7 @@ def build_gat_table
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
@@ -2152,7 +2152,7 @@ def ne_divisions
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
@@ -2337,24 +2337,18 @@ def gadm_divisions
    'Department',
    'Municipality',
    'Region',
+   'Overseas Region',
+   'Departmento',
+   'Capitol District',
+   'Federal Dependency',
+   'Provincial City',
    'Province'].each { |item|
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
 
-end
-
-def two_tick(one_tick)
-  return one_tick
-=begin
-  if one_tick =~ /'/
-    return one_tick.gsub("'", "''")
-  else
-    return one_tick
-  end
-=end
 end
