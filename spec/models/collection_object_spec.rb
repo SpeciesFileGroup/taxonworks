@@ -16,6 +16,20 @@ describe CollectionObject do
     end
   end
 
+  context 'incoming data can be stored in buffers' do
+    specify 'buffered_collecting_event' do
+      expect(collection_object).to respond_to(:buffered_collecting_event) 
+    end
+
+    specify 'buffered_determination' do
+      expect(collection_object).to respond_to(:buffered_determination)
+    end
+
+    specify 'buffered_other_labels' do
+      expect(collection_object).to respond_to(:buffered_other_labels)
+    end
+  end
+
   context 'concerns' do
     it_behaves_like "identifiable"
     it_behaves_like "containable"
