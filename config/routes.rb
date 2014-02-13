@@ -1,6 +1,19 @@
 TaxonWorks::Application.routes.draw do
+  resources :biocuration_classes
+  resources :biocuration_classifications
   resources :collecting_events
+  resources :collection_objects
+  resources :controlled_vocabulary_terms
+  resources :identifiers
+  resources :namespaces
+  resources :notes
+  resources :otus
   resources :people
+  resources :projects
+  resources :repositories
+  resources :taxon_determinations
+  resources :taxon_names
+  resources :users
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
