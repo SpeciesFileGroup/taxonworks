@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @otu.name %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @otu.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @otu.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @otu.project_id %>
+</p>
+
+<%= link_to 'Edit', edit_otu_path(@otu) %> |
+<%= link_to 'Back', otus_path %>

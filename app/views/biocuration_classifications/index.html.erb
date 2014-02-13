@@ -1,0 +1,37 @@
+<h1>Listing biocuration_classifications</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Biocuration class</th>
+      <th>Biological collection object</th>
+      <th>Position</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @biocuration_classifications.each do |biocuration_classification| %>
+      <tr>
+        <td><%= biocuration_classification.biocuration_class_id %></td>
+        <td><%= biocuration_classification.biological_collection_object_id %></td>
+        <td><%= biocuration_classification.position %></td>
+        <td><%= biocuration_classification.created_by_id %></td>
+        <td><%= biocuration_classification.updated_by_id %></td>
+        <td><%= biocuration_classification.project_id %></td>
+        <td><%= link_to 'Show', biocuration_classification %></td>
+        <td><%= link_to 'Edit', edit_biocuration_classification_path(biocuration_classification) %></td>
+        <td><%= link_to 'Destroy', biocuration_classification, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Biocuration classification', new_biocuration_classification_path %>

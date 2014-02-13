@@ -1,0 +1,37 @@
+<h1>Listing controlled_vocabulary_terms</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Definition</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
+      <tr>
+        <td><%= controlled_vocabulary_term.type %></td>
+        <td><%= controlled_vocabulary_term.name %></td>
+        <td><%= controlled_vocabulary_term.definition %></td>
+        <td><%= controlled_vocabulary_term.created_by_id %></td>
+        <td><%= controlled_vocabulary_term.updated_by_id %></td>
+        <td><%= controlled_vocabulary_term.project_id %></td>
+        <td><%= link_to 'Show', controlled_vocabulary_term %></td>
+        <td><%= link_to 'Edit', edit_controlled_vocabulary_term_path(controlled_vocabulary_term) %></td>
+        <td><%= link_to 'Destroy', controlled_vocabulary_term, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Controlled vocabulary term', new_controlled_vocabulary_term_path %>

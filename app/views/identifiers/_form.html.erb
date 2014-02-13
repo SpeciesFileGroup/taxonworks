@@ -1,0 +1,49 @@
+<%= form_for(@identifier) do |f| %>
+  <% if @identifier.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@identifier.errors.count, "error") %> prohibited this identifier from being saved:</h2>
+
+      <ul>
+      <% @identifier.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :identified_object_id %><br>
+    <%= f.number_field :identified_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :identified_object_type %><br>
+    <%= f.text_field :identified_object_type %>
+  </div>
+  <div class="field">
+    <%= f.label :identifier %><br>
+    <%= f.text_field :identifier %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_identifier %><br>
+    <%= f.text_field :cached_identifier %>
+  </div>
+  <div class="field">
+    <%= f.label :namespace_id %><br>
+    <%= f.number_field :namespace_id %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

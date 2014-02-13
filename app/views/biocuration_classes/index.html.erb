@@ -1,0 +1,33 @@
+<h1>Listing biocuration_classes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @biocuration_classes.each do |biocuration_class| %>
+      <tr>
+        <td><%= biocuration_class.name %></td>
+        <td><%= biocuration_class.created_by_id %></td>
+        <td><%= biocuration_class.updated_by_id %></td>
+        <td><%= biocuration_class.project_id %></td>
+        <td><%= link_to 'Show', biocuration_class %></td>
+        <td><%= link_to 'Edit', edit_biocuration_class_path(biocuration_class) %></td>
+        <td><%= link_to 'Destroy', biocuration_class, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Biocuration class', new_biocuration_class_path %>

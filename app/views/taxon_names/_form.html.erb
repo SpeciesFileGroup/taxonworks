@@ -1,0 +1,97 @@
+<%= form_for(@taxon_name) do |f| %>
+  <% if @taxon_name.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@taxon_name.errors.count, "error") %> prohibited this taxon_name from being saved:</h2>
+
+      <ul>
+      <% @taxon_name.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :parent_id %><br>
+    <%= f.number_field :parent_id %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_name %><br>
+    <%= f.text_field :cached_name %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_author_year %><br>
+    <%= f.text_field :cached_author_year %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_higher_classification %><br>
+    <%= f.text_field :cached_higher_classification %>
+  </div>
+  <div class="field">
+    <%= f.label :lft %><br>
+    <%= f.number_field :lft %>
+  </div>
+  <div class="field">
+    <%= f.label :rgt %><br>
+    <%= f.number_field :rgt %>
+  </div>
+  <div class="field">
+    <%= f.label :source_id %><br>
+    <%= f.number_field :source_id %>
+  </div>
+  <div class="field">
+    <%= f.label :year_of_publication %><br>
+    <%= f.number_field :year_of_publication %>
+  </div>
+  <div class="field">
+    <%= f.label :verbatim_author %><br>
+    <%= f.text_field :verbatim_author %>
+  </div>
+  <div class="field">
+    <%= f.label :rank_class %><br>
+    <%= f.text_field :rank_class %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_original_combination %><br>
+    <%= f.text_field :cached_original_combination %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_secondary_homonym %><br>
+    <%= f.text_field :cached_secondary_homonym %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_primary_homonym %><br>
+    <%= f.text_field :cached_primary_homonym %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_secondary_homonym_alt %><br>
+    <%= f.text_field :cached_secondary_homonym_alt %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_primary_homonym_alt %><br>
+    <%= f.text_field :cached_primary_homonym_alt %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

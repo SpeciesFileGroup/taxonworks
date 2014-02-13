@@ -1,0 +1,49 @@
+<%= form_for(@repository) do |f| %>
+  <% if @repository.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@repository.errors.count, "error") %> prohibited this repository from being saved:</h2>
+
+      <ul>
+      <% @repository.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :url %><br>
+    <%= f.text_field :url %>
+  </div>
+  <div class="field">
+    <%= f.label :acronym %><br>
+    <%= f.text_field :acronym %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.text_field :status %>
+  </div>
+  <div class="field">
+    <%= f.label :institutional_LSID %><br>
+    <%= f.text_field :institutional_LSID %>
+  </div>
+  <div class="field">
+    <%= f.label :is_index_herbarioum_record %><br>
+    <%= f.check_box :is_index_herbarioum_record %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

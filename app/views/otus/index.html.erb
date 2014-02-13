@@ -1,0 +1,33 @@
+<h1>Listing otus</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @otus.each do |otu| %>
+      <tr>
+        <td><%= otu.name %></td>
+        <td><%= otu.created_by_id %></td>
+        <td><%= otu.updated_by_id %></td>
+        <td><%= otu.project_id %></td>
+        <td><%= link_to 'Show', otu %></td>
+        <td><%= link_to 'Edit', edit_otu_path(otu) %></td>
+        <td><%= link_to 'Destroy', otu, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Otu', new_otu_path %>

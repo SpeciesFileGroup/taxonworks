@@ -1,0 +1,53 @@
+<%= form_for(@taxon_determination) do |f| %>
+  <% if @taxon_determination.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@taxon_determination.errors.count, "error") %> prohibited this taxon_determination from being saved:</h2>
+
+      <ul>
+      <% @taxon_determination.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :biological_collection_object_id %><br>
+    <%= f.number_field :biological_collection_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :otu_id %><br>
+    <%= f.number_field :otu_id %>
+  </div>
+  <div class="field">
+    <%= f.label :position %><br>
+    <%= f.number_field :position %>
+  </div>
+  <div class="field">
+    <%= f.label :year_made %><br>
+    <%= f.text_field :year_made %>
+  </div>
+  <div class="field">
+    <%= f.label :month_made %><br>
+    <%= f.text_field :month_made %>
+  </div>
+  <div class="field">
+    <%= f.label :day_made %><br>
+    <%= f.text_field :day_made %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

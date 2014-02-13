@@ -1,0 +1,2 @@
+module BiocurationClassesHelper
+end

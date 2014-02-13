@@ -1,0 +1,45 @@
+<%= form_for(@collection_object) do |f| %>
+  <% if @collection_object.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@collection_object.errors.count, "error") %> prohibited this collection_object from being saved:</h2>
+
+      <ul>
+      <% @collection_object.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :total %><br>
+    <%= f.number_field :total %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="field">
+    <%= f.label :preparation_type_id %><br>
+    <%= f.number_field :preparation_type_id %>
+  </div>
+  <div class="field">
+    <%= f.label :repository_id %><br>
+    <%= f.number_field :repository_id %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
