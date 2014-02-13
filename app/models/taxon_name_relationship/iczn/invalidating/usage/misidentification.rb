@@ -30,4 +30,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < Taxo
     true
   end
 
+  def self.nomenclatural_priority
+    nil
+  end
+
 end
