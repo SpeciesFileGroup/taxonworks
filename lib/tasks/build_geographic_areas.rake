@@ -24,8 +24,8 @@ GADM2_0 = 'GADM2 Level 0'
 GADM2_1 = 'GADM2 Level 1'
 GADM2_2 = 'GADM2 Level 2'
 
-NE0_10  = 'NaturalEarth-0 (10m)'
-NE1_10  = 'NaturalEarth-1 (10m)'
+NE0_10 = 'NaturalEarth-0 (10m)'
+NE1_10 = 'NaturalEarth-1 (10m)'
 NE_50  = 'NaturalEarth (50m)'
 NE_110 = 'NaturalEarth (110m)'
 
@@ -101,7 +101,13 @@ namespace :tw do
         @divisions = true
       end
 
+      @gat_list = {}
+
       if GenTable
+
+        GeographicAreaType.all.each { |gat|
+          @gat_list.merge!({gat.name => gat})
+        }
         build_gat_table
         if do_shape
           # we use the entire shape file constellation
@@ -1336,15 +1342,15 @@ def read_dbf(filenames)
       id_vector = [l0_id, l1_id, l2_id]
 
       # l0 always has a name
-      l1_name   = item['NAME_1'].gsub(/\n/, ' ') # two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
+      l1_name   = item['NAME_1'].gsub(/[\n\r]/, '') # two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
       l1_type   = item['ENGTYPE_1']
-      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].gsub(/\n/, ' ') # two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
+      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].gsub(/[\n\r]/, '') # two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
       l2_type   = item['ENGTYPE_2']
-      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].gsub(/\n/, ' ') # two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
+      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].gsub(/[\n\r]/, '') # two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
       l3_type   = item['ENGTYPE_3']
-      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].gsub(/\n/, ' ') # two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
+      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].gsub(/[\n\r]/, '') # two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
       l4_type   = item['ENGTYPE_4']
-      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/\n/, ' ') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
+      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/[\n\r]/, '') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
       l5_type   = item['ENGTYPE_5']
 
       record_key = {'l0' => l0_name,
@@ -2093,8 +2099,7 @@ end
 def build_gat_table
 
   # create our list
-  l_var     = 'Unknown'
-  @gat_list = {}
+  l_var = 'Unknown'
 
   ['Planet',
    'Level 0',
@@ -2350,5 +2355,17 @@ def gadm_divisions
     end
     @gat_list.merge!(item => area_type)
   }
+
+  def name_fix(name)
+    case name
+      when /Jõgeva\r (commune)/
+        name = 'Jõgeva (commune)'
+      when /Põltsamaa\r\rPõltsamaa/
+        name = 'Põltsamaa'
+      when /Halmahera Tengah\rHalmahera Tengah/
+        name = 'Halmahera Tengah'
+    end
+    name
+  end
 
 end
