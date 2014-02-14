@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < TaxonNameRelationship::Iczn::Invalidating::Usage
+class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNameRelationship::Iczn::Invalidating::Usage
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
@@ -7,23 +7,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification < Taxo
   end
 
   def self.subject_relationship_name
-    'correct identification'
+    'correct application'
   end
 
   def self.object_relationship_name
-    'misidentification'
+    'misapplication'
   end
 
 
   def self.assignment_method
-    # bus.set_as_iczn_misidentification_of(aus)
-    :iczn_set_as_misidentification_of
+    # bus.set_as_iczn_misapplication_of(aus)
+    :iczn_set_as_misapplication_of
   end
 
   # as.
   def self.inverse_assignment_method
-    # aus.iczn_misidentification = bus
-    :iczn_misidentification
+    # aus.iczn_misapplication = bus
+    :iczn_misapplication
   end
 
   def self.assignable
