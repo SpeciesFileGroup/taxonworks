@@ -270,6 +270,12 @@ describe TaxonName do
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
           expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
+        specify 'ICZN species misspelling' do
+          sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+          sp.iczn_set_as_misapplication_of = @species
+          expect(sp.save).to be_true
+          expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
+        end
         specify 'ICZN family' do
           expect(@family.valid?).to be_true
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')

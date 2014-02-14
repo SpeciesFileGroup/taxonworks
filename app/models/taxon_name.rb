@@ -387,11 +387,11 @@ class TaxonName < ActiveRecord::Base
       if parent_rank =~ /Genus/
         if genus.blank?
           genus += '<em>' + self.parent.name + '</em> '
-        else # if  self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
+        else
           subgenus += '<em>' + self.parent.name + '</em> '
         end
       elsif parent_rank =~ /Species/
-        species += '<em>' + self.parent.name + '</em> ' # if self.('combination_' + self.parent.rank_class.rank_name).to_sym.nil?
+        species += '<em>' + self.parent.name + '</em> '
       end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
@@ -428,7 +428,13 @@ class TaxonName < ActiveRecord::Base
     else
       rank = Object.const_get(self.rank_class.to_s)
       if rank.nomenclatural_code == :iczn
+        misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+            with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
         ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
+        obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+        unless (misapplication.empty? || obj.verbatim_author.blank?)
+          ay += ' nec ' + ([obj.verbatim_author] + [obj.year_of_publication]).compact.join(', ')
+        end
         if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
           if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.to_s.empty?
             ay = '(' + ay + ')' unless ay.empty?
