@@ -303,6 +303,15 @@ describe TaxonName do
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
+        specify 'misspelled original combination' do
+          g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+          g.iczn_set_as_misspelling_of = @genus
+          expect(g.save).to be_true
+          @subspecies.original_genus = g
+          @subspecies.reload
+          expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
+          expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
+        end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
           subsp = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
