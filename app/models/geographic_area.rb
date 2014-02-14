@@ -9,30 +9,27 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level0, class_name: "GeographicArea", foreign_key: :level0_id
   belongs_to :level1, class_name: "GeographicArea", foreign_key: :level1_id
   belongs_to :level2, class_name: "GeographicArea", foreign_key: :level2_id
-  belongs_to :gadm_geo_item, class_name: "GeographicArea", foreign_key: :level2_id
+  belongs_to :gadm_geo_item, class_name: "GeographicArea", foreign_key: :gadm_geo_item_id
   belongs_to :tdwg_geo_item, class_name: "GeographicArea", foreign_key: :tdwg_geo_item_id
   belongs_to :ne_geo_item, class_name: "GeographicArea", foreign_key: :ne_geo_item_id
 
   # external references
 
   belongs_to :geographic_item
-  belongs_to :geographic_area_type
+  belongs_to :geographic_area_type, inverse_of: :geographic_areas
 
   # validations
 
-  validates_associated :geographic_area_type
   validates :name, presence: true
   validates :data_origin, presence: true
-  validate :earth_exception
 
-  def earth_exception
-    if name != 'Earth'
-      if level0.nil?
-        errors.add(:level0, "must be set to a GeographicArea.")
-      end
-      if parent.nil?
-        errors.add(:parent, "must be set to a GeoreaphicArea.")
-      end
-    end
+  validates :parent, presence: true, unless: 'self.name == "Earth"'
+  validates :tdwg_parent, presence: true, allow_nil: true
+  validates :level0, presence: true, unless: 'self.name == "Earth"'
+  validates :level1, presence: true, allow_nil: true
+  validates :level2, presence: true, allow_nil: true
+  validates :gadm_geo_item, presence: true, allow_nil: true
+  validates :tdwg_geo_item, presence: true, allow_nil: true
+  validates :ne_geo_item, presence: true, allow_nil: true
+
   end
-end

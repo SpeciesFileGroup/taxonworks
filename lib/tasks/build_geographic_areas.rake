@@ -24,8 +24,8 @@ GADM2_0 = 'GADM2 Level 0'
 GADM2_1 = 'GADM2 Level 1'
 GADM2_2 = 'GADM2 Level 2'
 
-NE0_10  = 'NaturalEarth-0 (10m)'
-NE1_10  = 'NaturalEarth-1 (10m)'
+NE0_10 = 'NaturalEarth-0 (10m)'
+NE1_10 = 'NaturalEarth-1 (10m)'
 NE_50  = 'NaturalEarth (50m)'
 NE_110 = 'NaturalEarth (110m)'
 
@@ -101,7 +101,13 @@ namespace :tw do
         @divisions = true
       end
 
+      @gat_list = {}
+
       if GenTable
+
+        GeographicAreaType.all.each { |gat|
+          @gat_list.merge!({gat.name => gat})
+        }
         build_gat_table
         if do_shape
           # we use the entire shape file constellation
@@ -144,7 +150,7 @@ def read_shape(filename, index)
                                   country_id:           240,
                                   parent_id:            0,
                                   geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
-          mr.save
+          mr.save!
         end
       when /level1/i
         record = GeographicArea.where(name: 'Earth')
@@ -153,7 +159,7 @@ def read_shape(filename, index)
                                          name:      'Earth')
           area_type = GeographicAreaType.where(name: 'Planet')[0]
           # save this record for later
-          earth     = record.save
+          earth     = record.save!
         else
           earth = record[0]
         end
@@ -218,7 +224,7 @@ def read_shape(filename, index)
         record.geographic_area_type          = area_type[0]
         record.geographic_item               = GeographicItem.new
         record.geographic_item.multi_polygon = item.geometry
-        record.save
+        record.save!
 
         case filename
           when /USA_adm0/
@@ -1336,15 +1342,15 @@ def read_dbf(filenames)
       id_vector = [l0_id, l1_id, l2_id]
 
       # l0 always has a name
-      l1_name   = item['NAME_1'].gsub(/\n/, ' ') # two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
+      l1_name   = item['NAME_1'].gsub(/[\n\r]/, '') # two_tick(item['NAME_1'].titlecase.gsub(/\n/, ' '))
       l1_type   = item['ENGTYPE_1']
-      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].gsub(/\n/, ' ') # two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
+      l2_name   = (l2_id == 0) ? '' : item['NAME_2'].gsub(/[\n\r]/, '') # two_tick(item['NAME_2'].titlecase.gsub(/\n/, ' '))
       l2_type   = item['ENGTYPE_2']
-      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].gsub(/\n/, ' ') # two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
+      l3_name   = (l3_id == 0) ? '' : item['NAME_3'].gsub(/[\n\r]/, '') # two_tick(item['NAME_3'].titlecase.gsub(/\n/, ' '))
       l3_type   = item['ENGTYPE_3']
-      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].gsub(/\n/, ' ') # two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
+      l4_name   = (l4_id == 0) ? '' : item['NAME_4'].gsub(/[\n\r]/, '') # two_tick(item['NAME_4'].titlecase.gsub(/\n/, ' '))
       l4_type   = item['ENGTYPE_4']
-      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/\n/, ' ') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
+      l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/[\n\r]/, '') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
       l5_type   = item['ENGTYPE_5']
 
       record_key = {'l0' => l0_name,
@@ -2044,7 +2050,7 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: 'Country')[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: 'Country')
-          at.save
+          at.save!
           area_type = at
         end
       when /USA_adm1/
@@ -2055,7 +2061,7 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_1'))
-          at.save
+          at.save!
           area_type = at
         end
       when /USA_adm2/
@@ -2067,14 +2073,14 @@ def read_csv(file)
         area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
         if area_type.nil?
           at = GeographicAreaType.new(name: row.field('TYPE_2'))
-          at.save
+          at.save!
           area_type = at
         end
       else
 
     end
     record.geographic_area_type = area_type
-    record.save
+    record.save!
   }
 end
 
@@ -2084,7 +2090,7 @@ def add_gat(gat)
   area_type = @gat_list[gat]
   if area_type.nil?
     area_type = GeographicAreaType.new(name: gat)
-    area_type.save
+    area_type.save!
     @gat_list.merge!(gat => area_type)
   end
   area_type
@@ -2093,8 +2099,7 @@ end
 def build_gat_table
 
   # create our list
-  l_var     = 'Unknown'
-  @gat_list = {}
+  l_var = 'Unknown'
 
   ['Planet',
    'Level 0',
@@ -2126,7 +2131,7 @@ def build_gat_table
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
@@ -2152,7 +2157,7 @@ def ne_divisions
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
@@ -2337,24 +2342,30 @@ def gadm_divisions
    'Department',
    'Municipality',
    'Region',
+   'Overseas Region',
+   'Departmento',
+   'Capitol District',
+   'Federal Dependency',
+   'Provincial City',
    'Province'].each { |item|
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
       area_type = GeographicAreaType.new(name: item)
-      area_type.save
+      area_type.save!
     end
     @gat_list.merge!(item => area_type)
   }
 
-end
-
-def two_tick(one_tick)
-  return one_tick
-=begin
-  if one_tick =~ /'/
-    return one_tick.gsub("'", "''")
-  else
-    return one_tick
+  def name_fix(name)
+    case name
+      when /Jõgeva\r (commune)/
+        name = 'Jõgeva (commune)'
+      when /Põltsamaa\r\rPõltsamaa/
+        name = 'Põltsamaa'
+      when /Halmahera Tengah\rHalmahera Tengah/
+        name = 'Halmahera Tengah'
+    end
+    name
   end
-=end
+
 end
