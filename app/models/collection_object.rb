@@ -16,18 +16,15 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Containable
   include Shared::Citable
 
-  # before_save :classify_based_on_total
-
-  belongs_to :preparation_type
+  belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects
 
-  protected
+  validates_presence_of :type
 
-  # def classify_based_on_total
-  #   if total > 0
-  #     self.type = 'Lot'
-  #   end
-  # end
-  
+  before_validation :check_that_both_of_category_and_total_are_not_present
+
+  def check_that_both_of_category_and_total_are_not_present
+    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
+  end
 
 end
