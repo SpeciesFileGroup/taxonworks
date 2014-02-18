@@ -399,16 +399,16 @@ class TaxonName < ActiveRecord::Base
         end
       end
 
-      parent_rank = self.parent.rank_class.to_s
-      if parent_rank =~ /Genus/
-        if genus.blank?
-          genus += '<em>' + self.parent.name_with_misspelling + '</em> '
-        else
-          subgenus += '<em>' + self.parent.name_with_misspelling + '</em> '
-        end
-      elsif parent_rank =~ /Species/
-        species += '<em>' + self.parent.name_with_misspelling + '</em> '
-      end
+#      parent_rank = self.parent.rank_class.to_s
+#      if parent_rank =~ /Genus/
+#        if genus.blank?
+#          genus += '<em>' + self.parent.name_with_misspelling + '</em> '
+#        else
+#          subgenus += '<em>' + self.parent.name_with_misspelling + '</em> '
+#        end
+#      elsif parent_rank =~ /Species/
+#        species += '<em>' + self.parent.name_with_misspelling + '</em> '
+#      end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
     end
@@ -723,6 +723,9 @@ class TaxonName < ActiveRecord::Base
     true # see validation in Protonym.rb
   end
 
+  def sv_combination_duplicates
+    true # see validation in Combination.rb
+  end
 
 #endregion
 
