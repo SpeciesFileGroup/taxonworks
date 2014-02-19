@@ -3,19 +3,19 @@
 FactoryGirl.define do
 
   factory :geographic_area_type, traits: [:creator_and_updater] do
-    factory :p_geographic_area_type, traits: [:creator_and_updater] do
+    factory :p_geographic_area_type do
       name 'Planet'
     end
 
-    factory :c1_geographic_area_type, traits: [:creator_and_updater] do
+    factory :c1_geographic_area_type do
       name 'Country'
     end
 
-    factory :s_geographic_area_type, traits: [:creator_and_updater] do
+    factory :s_geographic_area_type do
       name 'State'
     end
 
-    factory :c2_geographic_area_type, traits: [:creator_and_updater] do
+    factory :c2_geographic_area_type do
       name 'County'
     end
 

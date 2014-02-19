@@ -14,6 +14,7 @@ describe GeographicArea do
   #end
 
   let(:geographic_area)  {FactoryGirl.create(:c_geographic_area)}
+  #let(:geographic_area)  {FactoryGirl.build(:c_geographic_area)}
 
   context 'validation' do
     before do
@@ -37,7 +38,7 @@ describe GeographicArea do
       end
     end
 
-    context 'validation' do
+    context 'validation of ' do
 
       before :each do
         #let(:geographic_area) {FactoryGirl.build(:c_geographic_area)}
@@ -55,45 +56,24 @@ describe GeographicArea do
       specify 'level2' do
         expect(geographic_area).to respond_to(:level2)
       end
+      specify 'parent string' do
+        expect(geographic_area.name).to eq('Champaign')
+        expect(geographic_area.parent.name).to eq('Illinois')
+        expect(geographic_area.parent.parent.name).to eq('United States')
+        expect(geographic_area.parent.parent.parent.name).to eq('Earth')
+      end
     end
 
   end
 
-  #context 'Shape files' do
-  #  specify 'that a shapefile can be read.' do
-  #    filenames = Dir.glob(BaseDir + 'gadm_v2_shp/**/*.shp')
-  #    filenames.sort! # get the first one
-  #    filenames.each { |filename|
-  #      RGeo::Shapefile::Reader.open(filename) { |file|
+  context 'search functions' do
+    specify 'should be able to find a country by ISO_A3' do
+      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq("United States")
+    end
+    specify "should return a list of countries from the database." do
+      expect(GeographicArea.countries.names).to eq(['United States'])
+    end
+  end
 
-=begin
-          file.each { |item|
-            record    = GeographicArea.new(parent_id:  item[:ID_1],
-                                           name:       item[:NAME_2],
-                                           state_id:   item[:ID_1],
-                                           country_id: item[:ID_0],
-                                           county_id:  item[:ID_2])
-            area_type = GeographicAreaType.where(name: item[:TYPE_2])
 
-            record.geographic_area_type          = area_type[0]
-            record.geographic_item               = GeographicItem.new
-            record.geographic_item.multi_polygon = item.geometry
-
-            parent_record = GeographicArea.where({state_id: record.parent_id})[0]
-
-            count = record.geographic_item.multi_polygon.num_geometries
-            ess   = (count == 1) ? '' : 's'
-            puts "#{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
-          }
-=end
-          #puts filename
-          #should be
-          #   ../shapes/gadm_v2_shp/gadm2.shp
-          #expect(file.num_records).to eq 218238
-        #} # just read the gadm2 shape file
-      #}
-    #
-    #end
-  #
-  #end
 end
