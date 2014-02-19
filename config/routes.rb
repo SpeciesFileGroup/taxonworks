@@ -13,6 +13,8 @@ TaxonWorks::Application.routes.draw do
   resources :repositories
   resources :taxon_determinations
   resources :taxon_names
+  resources :taxon_name_classifications
+  resources :taxon_name_relationships
   resources :users
 
   # The priority is based upon order of creation: first created -> highest priority.

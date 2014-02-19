@@ -1,0 +1,35 @@
+<h1>Listing taxon_name_classifications</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Taxon name</th>
+      <th>Type</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @taxon_name_classifications.each do |taxon_name_classification| %>
+      <tr>
+        <td><%= taxon_name_classification.taxon_name_id %></td>
+        <td><%= taxon_name_classification.type %></td>
+        <td><%= taxon_name_classification.created_by_id %></td>
+        <td><%= taxon_name_classification.updated_by_id %></td>
+        <td><%= taxon_name_classification.project_id %></td>
+        <td><%= link_to 'Show', taxon_name_classification %></td>
+        <td><%= link_to 'Edit', edit_taxon_name_classification_path(taxon_name_classification) %></td>
+        <td><%= link_to 'Destroy', taxon_name_classification, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Taxon name classification', new_taxon_name_classification_path %>
