@@ -8,10 +8,56 @@ BaseDir = '../shapes/'
 # TODO:   Our TDWG shape files are *not* in the form readable by RGeo::Shapefile::Reader, because they lack the attending index and attribute files.  The question becomes "Do we write a reader in Ruby, or is there a better (perhaps existing) choice?"
 # TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
-#describe GeographicArea do
+describe GeographicArea do
 
   #before :all do
   #end
+
+  let(:geographic_area)  {FactoryGirl.create(:c_geographic_area)}
+
+  context 'validation' do
+    before do
+
+    end
+
+    specify 'name is required' do
+
+    end
+  end
+
+  context 'associations' do
+    context 'belongs_to' do
+
+      #before :each do
+      #  let(:geographic_area) {FactoryGirl.build(:c_geographic_area)}
+      #end
+
+      specify "should " do
+        expect(geographic_area).to respond_to(:parent)
+      end
+    end
+
+    context 'validation' do
+
+      before :each do
+        #let(:geographic_area) {FactoryGirl.build(:c_geographic_area)}
+      end
+
+      specify 'parent' do
+        expect(geographic_area).to respond_to(:parent)
+      end
+      specify 'level0' do
+        expect(geographic_area).to respond_to(:level0)
+      end
+      specify 'level1' do
+        expect(geographic_area).to respond_to(:level1)
+      end
+      specify 'level2' do
+        expect(geographic_area).to respond_to(:level2)
+      end
+    end
+
+  end
 
   #context 'Shape files' do
   #  specify 'that a shapefile can be read.' do
@@ -50,4 +96,4 @@ BaseDir = '../shapes/'
     #end
   #
   #end
-#end
+end

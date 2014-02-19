@@ -1,5 +1,7 @@
 class GeographicArea < ActiveRecord::Base
 
+  include Housekeeping
+
   # acts_as_nested_set
 
   # internal references
