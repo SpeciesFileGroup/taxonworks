@@ -57,6 +57,15 @@ describe GeographicArea do
       specify 'ne_geo_item' do
         expect(geographic_area).to respond_to(:ne_geo_item)
       end
+
+      context 'has_many' do
+        specify 'children_at_level1' do
+          expect(geographic_area).to respond_to(:children_at_level1)
+        end
+        specify 'children_at_level2' do
+          expect(geographic_area).to respond_to(:children_at_level2)
+        end
+      end
     end
 
     context 'nesting' do
@@ -78,33 +87,62 @@ describe GeographicArea do
         end
 
         specify 'ancestors' do
-          expect(@champaign.ancestors).to eq([@champaign.parent.parent.parent, @champaign.parent.parent, @champaign.parent])
+          expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
         end
 
         specify 'root' do
           expect(@champaign.root.name).to eq('Earth')
         end
- 
+
         specify 'descendents' do
           expect(@champaign.root.descendants).to have(3).things
         end
       end
-
-   end
+    end
   end
 
   context 'search functions' do
     before(:each) { 
       @champaign = FactoryGirl.create(:level2_geographic_area)
-   }
-   
+    }
+
     specify 'should be able to find a country by ISO_A3' do
       expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq("United States")
     end
-  
-    context 'scopes' do
+
+    context 'scopes/AREL' do
+      specify 'children_at_level1' do
+        expect(@champaign.children_at_level1).to have(0).things
+        expect(@champaign.root.children_at_level1).to have(1).things
+        expect(@champaign.parent.parent.children_at_level1).to have(1).things
+      end
+
+      specify 'children_at_level2' do
+        expect(@champaign.children_at_level2).to have(0).things
+        expect(@champaign.root.children_at_level2).to have(1).things
+        expect(@champaign.parent.children_at_level2).to have(1).things
+      end
+
+      specify 'descendants_of' do
+        expect(GeographicArea.descendants_of(@champaign.root)).to eq( [@champaign.parent.parent, @champaign.parent, @champaign ]  )
+      end
+
+      specify 'ancestors_of' do
+        expect(GeographicArea.ancestors_of(@champaign)).to eq( [@champaign.root, @champaign.parent.parent, @champaign.parent ]  )
+      end
+
+      specify 'ancestors_and_descendants_of' do
+        expect(GeographicArea.ancestors_and_descendants_of(@champaign.parent)).to eq( [@champaign.root, @champaign.parent.parent, @champaign ]  )
+      end
+
       specify 'countries' do
         expect(GeographicArea.countries).to eq( [@champaign.parent.parent]  )
+      end
+
+      specify 'descendents_of_geographic_area_type' do
+        expect(@champaign.root.descendents_of_geographic_area_type('County').to_a).to eq([@champaign])
+        expect(@champaign.root.descendents_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
+        expect(@champaign.root.descendents_of_geographic_area_type('Province').to_a).to eq([])
       end
     end 
   end
