@@ -1,8 +1,7 @@
 class GeographicArea < ActiveRecord::Base
+  include Housekeeping::Users
 
-  include Housekeeping
-
-  # acts_as_nested_set
+  acts_as_nested_set
 
   # internal references
 
@@ -17,21 +16,28 @@ class GeographicArea < ActiveRecord::Base
 
   # external references
 
-  belongs_to :geographic_item
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
+  belongs_to :geographic_item
 
   # validations
+  validates_presence_of :data_origin
+  validates_presence_of :name
 
-  validates :name, presence: true
-  validates :data_origin, presence: true
-
-  validates :parent, presence: true, unless: 'self.name == "Earth"'
-  validates :tdwg_parent, presence: true, allow_nil: true
+  validates :geographic_area_type, presence: true
+  
+  validates :gadm_geo_item, presence: true, allow_nil: true
   validates :level0, presence: true, unless: 'self.name == "Earth"'
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
-  validates :gadm_geo_item, presence: true, allow_nil: true
-  validates :tdwg_geo_item, presence: true, allow_nil: true
   validates :ne_geo_item, presence: true, allow_nil: true
+  validates :parent, presence: true, unless: 'self.name == "Earth"'
+  validates :tdwg_geo_item, presence: true, allow_nil: true
+  validates :tdwg_parent, presence: true, allow_nil: true
 
+  # scope :countries, -> {}
+
+  def self.countries
+    includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
+
+end

@@ -9,43 +9,35 @@ BaseDir = '../shapes/'
 # TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
 describe GeographicArea do
-
-  #before :all do
-  #end
-
-  let(:geographic_area)  {FactoryGirl.create(:c_geographic_area)}
-  #let(:geographic_area)  {FactoryGirl.build(:c_geographic_area)}
+  let(:geographic_area)  {FactoryGirl.build(:geographic_area)}
 
   context 'validation' do
-    before do
+    before(:each) {
+      geographic_area.valid? 
+    }
 
-    end
+    context 'required fields' do
+      specify 'name' do
+        expect(geographic_area.errors.include?(:name)).to be_true 
+      end
 
-    specify 'name is required' do
+      specify 'data_origin' do
+        expect(geographic_area.errors.include?(:data_origin)).to be_true 
+      end
 
+      specify 'geographic_area_type' do
+        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true 
+      end
     end
   end
 
   context 'associations' do
     context 'belongs_to' do
-
-      #before :each do
-      #  let(:geographic_area) {FactoryGirl.build(:c_geographic_area)}
-      #end
-
-      specify "should " do
+      specify "parent" do
         expect(geographic_area).to respond_to(:parent)
       end
-    end
-
-    context 'validation of ' do
-
-      before :each do
-        #let(:geographic_area) {FactoryGirl.build(:c_geographic_area)}
-      end
-
-      specify 'parent' do
-        expect(geographic_area).to respond_to(:parent)
+      specify "tdwg_parent" do
+        expect(geographic_area).to respond_to(:tdwg_parent)
       end
       specify 'level0' do
         expect(geographic_area).to respond_to(:level0)
@@ -56,23 +48,65 @@ describe GeographicArea do
       specify 'level2' do
         expect(geographic_area).to respond_to(:level2)
       end
-      specify 'parent string' do
-        expect(geographic_area.name).to eq('Champaign')
-        expect(geographic_area.parent.name).to eq('Illinois')
-        expect(geographic_area.parent.parent.name).to eq('United States')
-        expect(geographic_area.parent.parent.parent.name).to eq('Earth')
+      specify 'gadm_geo_item' do
+        expect(geographic_area).to respond_to(:gadm_geo_item)
+      end
+      specify 'tdwg_geo_item' do
+        expect(geographic_area).to respond_to(:tdwg_geo_item)
+      end
+      specify 'ne_geo_item' do
+        expect(geographic_area).to respond_to(:ne_geo_item)
       end
     end
 
+    context 'nesting' do
+      context 'parents' do
+        before(:each) { 
+          @champaign = FactoryGirl.create(:level2_geographic_area)
+        }
+
+        specify 'lft,rgt' do
+          expect(@champaign.lft > 0).to be_true 
+          expect(@champaign.rgt > 0).to be_true 
+        end
+
+        specify 'parent string' do
+          expect(@champaign.name).to eq('Champaign')
+          expect(@champaign.parent.name).to eq('Illinois')
+          expect(@champaign.parent.parent.name).to eq('United States')
+          expect(@champaign.parent.parent.parent.name).to eq('Earth')
+        end
+
+        specify 'ancestors' do
+          expect(@champaign.ancestors).to eq([@champaign.parent.parent.parent, @champaign.parent.parent, @champaign.parent])
+        end
+
+        specify 'root' do
+          expect(@champaign.root.name).to eq('Earth')
+        end
+ 
+        specify 'descendents' do
+          expect(@champaign.root.descendants).to have(3).things
+        end
+      end
+
+   end
   end
 
   context 'search functions' do
+    before(:each) { 
+      @champaign = FactoryGirl.create(:level2_geographic_area)
+   }
+   
     specify 'should be able to find a country by ISO_A3' do
       expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq("United States")
     end
-    specify "should return a list of countries from the database." do
-      expect(GeographicArea.countries.names).to eq(['United States'])
-    end
+  
+    context 'scopes' do
+      specify 'countries' do
+        expect(GeographicArea.countries).to eq( [@champaign.parent.parent]  )
+      end
+    end 
   end
 
 
