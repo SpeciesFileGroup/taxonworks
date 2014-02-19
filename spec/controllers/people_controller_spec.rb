@@ -23,7 +23,7 @@ describe PeopleController do
   # This should return the minimal set of attributes required to create a valid
   # Person. As you add validations to Person, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "type" => "" } }
+  let(:valid_attributes) { { "last_name" => "Smith",  } }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -34,7 +34,7 @@ describe PeopleController do
     it "assigns all people as @people" do
       person = Person.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:people).should eq([person])
+      assigns(:people).all.should eq([person.becomes(Person::Unvetted)])
     end
   end
 
@@ -42,7 +42,7 @@ describe PeopleController do
     it "assigns the requested person as @person" do
       person = Person.create! valid_attributes
       get :show, {:id => person.to_param}, valid_session
-      assigns(:person).should eq(person)
+      assigns(:person).should eq(person.becomes(Person::Unvetted))
     end
   end
 
@@ -57,7 +57,7 @@ describe PeopleController do
     it "assigns the requested person as @person" do
       person = Person.create! valid_attributes
       get :edit, {:id => person.to_param}, valid_session
-      assigns(:person).should eq(person)
+      assigns(:person).should eq(person.becomes(Person::Unvetted))
     end
   end
 
@@ -77,7 +77,7 @@ describe PeopleController do
 
       it "redirects to the created person" do
         post :create, {:person => valid_attributes}, valid_session
-        response.should redirect_to(Person.last)
+        response.should redirect_to(Person.last.becomes(Person))
       end
     end
 
@@ -113,7 +113,7 @@ describe PeopleController do
       it "assigns the requested person as @person" do
         person = Person.create! valid_attributes
         put :update, {:id => person.to_param, :person => valid_attributes}, valid_session
-        assigns(:person).should eq(person)
+        assigns(:person).should eq(person.becomes(Person::Unvetted))
       end
 
       it "redirects to the person" do
