@@ -1,4 +1,5 @@
 class GeographicItem < ActiveRecord::Base
+  include Housekeeping::Users
 
   belongs_to :georeference
 

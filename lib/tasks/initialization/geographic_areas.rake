@@ -58,10 +58,10 @@ namespace :tw do
       #'G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp'
       tdwg_level1 = RGeo::Shapefile::Reader.open(ENV['foo'], factory: Georeference::FACTORY) do |file|
         file.each do |record|
+
+          # there are different ways of locating the record for this shape
           code = record.attributes['LEVEL1_COD'].to_s + '----'
           if g = GeographicArea.find(tdwgID: code)
-            foo = 1  
-            debugger
           end
         end
       end

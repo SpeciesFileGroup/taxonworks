@@ -1,7 +1,7 @@
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
-  acts_as_nested_set
+  # acts_as_nested_set
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :geographic_item
