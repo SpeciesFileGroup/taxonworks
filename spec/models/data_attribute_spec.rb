@@ -23,7 +23,7 @@ describe DataAttribute do
 
     specify 'key/value is unique' do
       a = FactoryGirl.create(:valid_data_attribute)
-      p = DataAttribute::ImportAttribute.new(attribute_subject: a.attribute_subject, import_predicate: 'hair color', value: 'black')
+      p = ImportAttribute.new(attribute_subject: a.attribute_subject, import_predicate: 'hair color', value: 'black')
       expect(p.valid?).to be_false
       expect(p.errors.include?(:value)).to be_true
     end
