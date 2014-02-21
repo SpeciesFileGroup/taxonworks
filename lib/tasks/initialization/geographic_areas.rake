@@ -30,7 +30,13 @@ namespace :tw do
         records = {}
         #ActiveRecord::Base.transaction do
         data.each { |row|
-          r             = GeographicArea.new(row.to_h)
+
+          # Jim- just turn off lft, rgt here
+          attributes = row.to_h
+          attributes.delete(:lft)
+          attributes.delete(:rgt) 
+          
+          r             = GeographicArea.new(attributes)
           records[r.id] = r
         }
 
