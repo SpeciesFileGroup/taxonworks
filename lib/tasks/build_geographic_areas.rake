@@ -119,6 +119,10 @@ namespace :tw do
           @gat_list.merge!({gat.name => gat})
         }
         build_gat_table
+
+        # Matt says not to do shapes in this process
+        do_shape = false
+
         if do_shape
           # we use the entire shape file constellation
           Dir.glob(base_dir + '**/*.shp').each { |filename|
@@ -156,9 +160,9 @@ def read_shape(filename, index)
         # the USA by hand
         mr = GeographicArea.where(name: 'United States')
         if mr[0].nil?
-          mr = GeographicArea.new(creator:     @builder,
-                                   updater:     @builder,
-                                   name:                 'United States',
+          mr = GeographicArea.new(creator:              @builder,
+                                  updater:              @builder,
+                                  name:                 'United States',
                                   country_id:           240,
                                   parent_id:            0,
                                   geographic_area_type: GeographicAreaType.where(name: 'Country')[0])
@@ -167,8 +171,8 @@ def read_shape(filename, index)
       when /level1/i
         record = GeographicArea.where(name: 'Earth')
         if record.count == 0
-          record    = GeographicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          record    = GeographicArea.new(creator:   @builder,
+                                         updater:   @builder,
                                          parent_id: nil,
                                          name:      'Earth')
           area_type = GeographicAreaType.where(name: 'Planet')[0]
@@ -192,8 +196,8 @@ def read_shape(filename, index)
 
       case filename
         when /USA_adm0/
-          record    = GeorgaphicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          record    = GeorgaphicArea.new(creator:    @builder,
+                                         updater:    @builder,
                                          parent_id:  0,
                                          name:       item[:NAME_ENGLISH],
                                          country_id: item[:PID])
@@ -204,8 +208,8 @@ def read_shape(filename, index)
         #  area_type = at
         #end
         when /USA_adm1/
-          record    = GeographicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          record    = GeographicArea.new(creator:    @builder,
+                                         updater:    @builder,
                                          parent_id:  item[:ID_0],
                                          name:       item[:NAME_1],
                                          state_id:   item[:ID_1],
@@ -217,8 +221,8 @@ def read_shape(filename, index)
         #  area_type = at
         #end
         when /USA_adm2/
-          record    = GeographicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          record    = GeographicArea.new(creator:    @builder,
+                                         updater:    @builder,
                                          parent_id:  item[:ID_1],
                                          name:       item[:NAME_2],
                                          state_id:   item[:ID_1],
@@ -232,8 +236,8 @@ def read_shape(filename, index)
         #end
         when /GADM/i
         when /level1/
-          record = GeographicArea.new(creator:     @builder,
-                                      updater:     @builder,
+          record = GeographicArea.new(creator:   @builder,
+                                      updater:   @builder,
                                       parent_id: earth.id,
                                       name:      item['LEVEL1_NAM'])
           GeographicAreaType.where(name: item[''])
@@ -252,8 +256,8 @@ def read_shape(filename, index)
           when /USA_adm0/
             # when country, find parent continent
             # parent_record = GeographicArea.where({parent_id: 0, country_id: 0})[0]
-            parent_record = GeographicArea.new(creator:     @builder,
-                                               updater:     @builder,
+            parent_record = GeographicArea.new(creator:              @builder,
+                                               updater:              @builder,
                                                name:                 'North America',
                                                geographic_area_type: GeographicAreaType.where(name: 'Continent')[0])
           when /USA_adm1/
@@ -522,8 +526,8 @@ def read_dbf(filenames)
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
-          ga             = GeographicArea.new(creator:     @builder,
-                                              updater:     @builder,
+          ga             = GeographicArea.new(creator:              @builder,
+                                              updater:              @builder,
                                               parent:               earth,
                                               # if we create records here, they will specifically
                                               # *not* be TDWG records
@@ -652,8 +656,8 @@ def read_dbf(filenames)
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
-          ga             = GeographicArea.new(creator:     @builder,
-                                              updater:     @builder,
+          ga             = GeographicArea.new(creator:              @builder,
+                                              updater:              @builder,
                                               parent:               earth,
                                               # if we create records here, they will specifically
                                               # *not* be TDWG records
@@ -806,8 +810,8 @@ def read_dbf(filenames)
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
-          ga             = GeographicArea.new(creator:     @builder,
-                                              updater:     @builder,
+          ga             = GeographicArea.new(creator:              @builder,
+                                              updater:              @builder,
                                               parent:               earth,
                                               # if we create records here, they will specifically
                                               # *not* be TDWG records
@@ -962,8 +966,8 @@ def read_dbf(filenames)
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
-          ga             = GeographicArea.new(creator:     @builder,
-                                              updater:     @builder,
+          ga             = GeographicArea.new(creator:              @builder,
+                                              updater:              @builder,
                                               parent:               earth,
                                               # if we create records here, they will specifically
                                               # *not* be TDWG records
@@ -1106,8 +1110,8 @@ def read_dbf(filenames)
             adm0_ga = ne_adm0[adm0_a3]
             if adm0_ga.nil?
               # add a record for this adm0_a3 to act as parent
-              adm0_ga        = GeographicArea.new(creator:     @builder,
-                                                  updater:     @builder,
+              adm0_ga        = GeographicArea.new(creator:              @builder,
+                                                  updater:              @builder,
                                                   parent:               earth,
                                                   name:                 adm0_name,
                                                   adm0_a3:              adm0_a3,
@@ -1129,8 +1133,8 @@ def read_dbf(filenames)
             # already set
           end
 
-          ga        = GeographicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          ga        = GeographicArea.new(creator:              @builder,
+                                         updater:              @builder,
                                          parent:               adm0_ga,
                                          # if we create records here, they will specifically
                                          # *not* be TDWG records
@@ -1178,8 +1182,8 @@ def read_dbf(filenames)
           # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
 
           if !(nation_name =~ /Country Name/) # drop the headers on the floor
-            ga = GeographicArea.new(creator:     @builder,
-                                    updater:     @builder,
+            ga = GeographicArea.new(creator:              @builder,
+                                    updater:              @builder,
                                     parent:               earth,
                                     # if we create records here, they will specifically
                                     # *not* be TDWG records
@@ -1442,8 +1446,8 @@ def read_dbf(filenames)
         # if not in name list, stick this one in the name list
         # puts "Adding Level 0: #{names_key}."
         # create a record for the zero level, and the @global_keys list
-        ga = GeographicArea.new(creator:     @builder,
-                                updater:     @builder,
+        ga = GeographicArea.new(creator:              @builder,
+                                updater:              @builder,
                                 parent:               earth,
                                 iso_3166_a3:          l0_iso,
                                 data_origin:          GADM2_0,
@@ -1538,8 +1542,8 @@ def read_dbf(filenames)
         if ga.nil?
           # puts "Adding Level 1: #{names_key}."
           # create a record for level 1, and the @global_keys list
-          ga = GeographicArea.new(creator:     @builder,
-                                  updater:     @builder,
+          ga = GeographicArea.new(creator:              @builder,
+                                  updater:              @builder,
                                   parent:               l0,
                                   name:                 l1_name,
                                   data_origin:          GADM2_1,
@@ -1597,8 +1601,8 @@ def read_dbf(filenames)
         if ga.nil?
           # puts "Adding Level 2: #{names_key}."
           # create a record for level 2, and the @global_keys list
-          ga = GeographicArea.new(creator:     @builder,
-                                  updater:     @builder,
+          ga = GeographicArea.new(creator:              @builder,
+                                  updater:              @builder,
                                   parent:               l1,
                                   name:                 l2_name,
                                   data_origin:          GADM2_2,
@@ -1732,8 +1736,8 @@ parent:               l4,
 
       puts "1-#{index}:\t\t#{l1c} for #{l1n}."
 
-      ga        = GeographicArea.new(creator:     @builder,
-                                     updater:     @builder,
+      ga        = GeographicArea.new(creator:              @builder,
+                                     updater:              @builder,
                                      parent:               earth,
                                      tdwg_parent:          earth,
                                      tdwgID:               l1c,
@@ -1765,8 +1769,8 @@ parent:               l4,
 
       puts "2-#{index}:\t\t#{l2c} for #{l2n} in #{l2p.name}."
 
-      ga        = GeographicArea.new(creator:     @builder,
-                                     updater:     @builder,
+      ga        = GeographicArea.new(creator:              @builder,
+                                     updater:              @builder,
                                      parent:               l2p,
                                      tdwg_parent:          l2p,
                                      tdwgID:               l2c,
@@ -1811,8 +1815,8 @@ parent:               l4,
         ga = @lvl3_items[l3c]
         if ga.nil?
           # new TDWG-only record
-          ga        = GeographicArea.new(creator:     @builder,
-                                         updater:     @builder,
+          ga        = GeographicArea.new(creator:              @builder,
+                                         updater:              @builder,
                                          parent:               l3p,
                                          tdwg_parent:          l3p,
                                          tdwgID:               l3c,
@@ -1940,8 +1944,8 @@ parent:               l4,
       if ga.nil?
         # failed to find an area by this name in the TDWG data, so we need to create one
         # so we set the parent to the object pointed to by the level 3 code
-        ga        = GeographicArea.new(creator:     @builder,
-                                       updater:     @builder,
+        ga        = GeographicArea.new(creator:              @builder,
+                                       updater:              @builder,
                                        parent:               l3_ga,
                                        tdwg_parent:          l3_ga,
                                        tdwgID:               l4c,
@@ -1969,7 +1973,7 @@ parent:               l4,
         # puts nation.name
       end
     }
-  end
+  end # of TDWG Level processing
 
   puts 'Saving NaturalEarth records...'
 
@@ -1981,7 +1985,7 @@ parent:               l4,
     if area.new_record?
       index += 1
       area.save!
-      puts "By name - #{area.id}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+      print "#{' ' * 100}\rBy name - #{area.id}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
     end
   }
 
@@ -2104,37 +2108,37 @@ def read_csv(file)
 
     case file
       when /USA_adm0/
-        record    = GeographicArea.new(creator:     @builder,
-                                       updater:     @builder,
+        record    = GeographicArea.new(creator:    @builder,
+                                       updater:    @builder,
                                        parent_id:  0,
                                        name:       row.field('NAME_ENGLISH'),
                                        country_id: row.field('PID'))
         area_type = GeographicAreaType.where(name: 'Country')[0]
         if area_type.nil?
-          at = GeographicAreaType.new(creator:     @builder,
-                                      updater:     @builder,
-                                      name: 'Country')
+          at = GeographicAreaType.new(creator: @builder,
+                                      updater: @builder,
+                                      name:    'Country')
           at.save!
           area_type = at
         end
       when /USA_adm1/
-        record    = GeographicArea.new(creator:     @builder,
-                                       updater:     @builder,
+        record    = GeographicArea.new(creator:    @builder,
+                                       updater:    @builder,
                                        parent_id:  row.field('ID_0'),
                                        name:       row.field('NAME_1'),
                                        state_id:   row.field('ID_1'),
                                        country_id: row.field('ID_0'))
         area_type = GeographicAreaType.where(name: row.field('TYPE_1'))[0]
         if area_type.nil?
-          at = GeographicAreaType.new(creator:     @builder,
-                                      updater:     @builder,
-                                      name: row.field('TYPE_1'))
+          at = GeographicAreaType.new(creator: @builder,
+                                      updater: @builder,
+                                      name:    row.field('TYPE_1'))
           at.save!
           area_type = at
         end
       when /USA_adm2/
-        record    = GeographicArea.new(creator:     @builder,
-                                       updater:     @builder,
+        record    = GeographicArea.new(creator:    @builder,
+                                       updater:    @builder,
                                        parent_id:  row.field('ID_1'),
                                        name:       row.field('NAME_2'),
                                        state_id:   row.field('ID_1'),
@@ -2142,9 +2146,9 @@ def read_csv(file)
                                        county_id:  row.field('ID_2'))
         area_type = GeographicAreaType.where(name: row.field('TYPE_2'))[0]
         if area_type.nil?
-          at = GeographicAreaType.new(creator:     @builder,
-                                      updater:     @builder,
-                                      name: row.field('TYPE_2'))
+          at = GeographicAreaType.new(creator: @builder,
+                                      updater: @builder,
+                                      name:    row.field('TYPE_2'))
           at.save!
           area_type = at
         end
@@ -2161,9 +2165,9 @@ def add_gat(gat)
 
   area_type = @gat_list[gat]
   if area_type.nil?
-    area_type = GeographicAreaType.new(creator:     @builder,
-                                       updater:     @builder,
-                                       name: gat)
+    area_type = GeographicAreaType.new(creator: @builder,
+                                       updater: @builder,
+                                       name:    gat)
     area_type.save!
     @gat_list.merge!(gat => area_type)
   end
@@ -2204,9 +2208,9 @@ def build_gat_table
    'Shire'].each { |item|
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
-      area_type = GeographicAreaType.new(creator:     @builder,
-                                         updater:     @builder,
-                                         name: item)
+      area_type = GeographicAreaType.new(creator: @builder,
+                                         updater: @builder,
+                                         name:    item)
       area_type.save!
     end
     @gat_list.merge!(item => area_type)
@@ -2232,9 +2236,9 @@ def ne_divisions
    'Lease'].each { |item|
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
-      area_type = GeographicAreaType.new(creator:     @builder,
-                                         updater:     @builder,
-                                         name: item)
+      area_type = GeographicAreaType.new(creator: @builder,
+                                         updater: @builder,
+                                         name:    item)
       area_type.save!
     end
     @gat_list.merge!(item => area_type)
@@ -2428,9 +2432,9 @@ def gadm_divisions
    'Province'].each { |item|
     area_type = GeographicAreaType.where(name: item).first
     if area_type.nil?
-      area_type = GeographicAreaType.new(creator:     @builder,
-                                         updater:     @builder,
-                                         name: item)
+      area_type = GeographicAreaType.new(creator: @builder,
+                                         updater: @builder,
+                                         name:    item)
       area_type.save!
     end
     @gat_list.merge!(item => area_type)
