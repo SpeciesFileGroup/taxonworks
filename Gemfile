@@ -57,7 +57,7 @@ gem "dwc-archive", "~> 0.9.11"
 gem 'validates_timeliness', "~> 3.0.14"
 
 # Password encryption
-gem 'bcrypt-ruby', '~> 3.1.2'
+gem 'bcrypt-ruby', '~> 3.1.5'
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
