@@ -1,7 +1,9 @@
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
 
+  belongs_to :geographic_area
   belongs_to :georeference
+  belongs_to :confidence
 
   # Where would one put such code?
   # RGeo::Geos.preferred_native_interface = :ffi
@@ -24,9 +26,6 @@ class GeographicItem < ActiveRecord::Base
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
-
-  belongs_to :geographic_area
-  belongs_to :confidence
 
   validate :proper_data_is_provided
 

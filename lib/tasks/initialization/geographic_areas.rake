@@ -89,56 +89,70 @@ namespace :tw do
 
       #'G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp'
       filename = ENV['table_name']
-      RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY) do |file|
+      shapes   = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
 
-        file.each do |record|
+      shapes.each do |record|
 
-          # there are different ways of locating the record for this shape, depending on where the data came from.
-          finder = {}
-          placer = nil
-          case filename
-            when /ne_10m_admin_0_countries\.shp/i
-              finder = {:neID => record['iso_n3']}
-              placer = 'ne_geo_item'
-            when /ne_10m_admin_1_states_provinces_shp\.shp/i
-              finder = {:neID => record['adm1_code']}
-              placer = 'ne_geo_item'
-            when /level1/i
-              finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
-              placer = 'tdwg_geo_item'
-            when /level2/i
-              finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
-              placer = 'tdwg_geo_item'
-            when /level3/i
-              finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
-              placer = 'tdwg_geo_item'
-            when /level4/i
-              finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
-              placer = 'tdwg_geo_item'
-            when /gadm2/i
-              finder = {:gadmID => record['OBJECTID']}
-              placer = 'gadm_geo_item'
-            else
-              finder = nil
-              placer = nil
-          end
-
-          if finder.nil?
+        # there are different ways of locating the record for this shape, depending on where the data came from.
+        finder = {}
+        placer = nil
+        case filename
+          when /ne_10m_admin_0_countries\.shp/i
+            finder = {:neID => record['iso_n3']}
+            placer = 'ne_geo_item'
+          when /ne_10m_admin_1_states_provinces_shp\.shp/i
+            finder = {:neID => record['adm1_code']}
+            placer = 'ne_geo_item'
+          when /level1/i
+            finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
+            placer = 'tdwg_geo_item'
+          when /level2/i
+            finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
+            placer = 'tdwg_geo_item'
+          when /level3/i
+            finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
+            placer = 'tdwg_geo_item'
+          when /level4/i
+            finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
+            placer = 'tdwg_geo_item'
+          when /gadm2/i
+            finder = {:gadmID => record['OBJECTID']}
+            placer = 'gadm_geo_item'
           else
-            ga = GeographicArea.where(finder)
-            if ga.nil?
-            else
-              ga.each { |area|
-                gi = GeographicItem.new(creator:       builder,
-                                        updater:       builder,
-                                        multi_polygon: record.geometry)
-                gi.save!
+            finder = nil
+            placer = nil
+        end
 
-                area.send("#{placer}=".to_sym, gi)
-                area.save!
-                area
-              }
-            end
+        if finder.nil?
+        else
+          ga = GeographicArea.where(finder)
+          if ga.nil?
+          else
+
+            # create the shape in which we are interested.
+            gi = GeographicItem.new(creator:       builder,
+                                    updater:       builder,
+                                    multi_polygon: record.geometry)
+            gi.save!
+
+            ga.each { |area|
+              # placer = 'geographic_item'
+              area.send("#{placer}=".to_sym, gi)
+
+              #case placer
+              #  when /tdwg/
+              #    area.tdwg_geo_item = gi
+              #  when /ne_/
+              #    area.ne_geo_item = gi
+              #  when /gadm/
+              #    area.gadm_geo_item = gi
+              #  else
+              #    area
+              #end
+
+              area.save
+              area
+            }
           end
         end
       end
