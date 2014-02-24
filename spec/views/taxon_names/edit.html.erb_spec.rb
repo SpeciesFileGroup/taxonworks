@@ -8,8 +8,10 @@ describe "taxon_names/edit" do
       :cached_name => "MyString",
       :cached_author_year => "MyString",
       :cached_higher_classification => "MyString",
+=begin
       :lft => 1,
       :rgt => 1,
+=end
       :source_id => 1,
       :year_of_publication => 1,
       :verbatim_author => "MyString",

@@ -8,8 +8,8 @@ describe "taxon_names/show" do
       :cached_name => "Cached Name",
       :cached_author_year => "Cached Author Year",
       :cached_higher_classification => "Cached Higher Classification",
-      :lft => 2,
-      :rgt => 3,
+      #:lft => 2,
+      #:rgt => 3,
       :source_id => 4,
       :year_of_publication => 5,
       :verbatim_author => "Verbatim Author",
@@ -34,8 +34,8 @@ describe "taxon_names/show" do
     rendered.should match(/Cached Name/)
     rendered.should match(/Cached Author Year/)
     rendered.should match(/Cached Higher Classification/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
+    #rendered.should match(/2/)
+    #rendered.should match(/3/)
     rendered.should match(/4/)
     rendered.should match(/5/)
     rendered.should match(/Verbatim Author/)

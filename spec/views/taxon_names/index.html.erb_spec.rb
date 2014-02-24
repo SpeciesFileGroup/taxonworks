@@ -9,8 +9,10 @@ describe "taxon_names/index" do
         :cached_name => "Cached Name",
         :cached_author_year => "Cached Author Year",
         :cached_higher_classification => "Cached Higher Classification",
+=begin
         :lft => 2,
         :rgt => 3,
+=end
         :source_id => 4,
         :year_of_publication => 5,
         :verbatim_author => "Verbatim Author",
@@ -31,8 +33,8 @@ describe "taxon_names/index" do
         :cached_name => "Cached Name",
         :cached_author_year => "Cached Author Year",
         :cached_higher_classification => "Cached Higher Classification",
-        :lft => 2,
-        :rgt => 3,
+        #:lft => 2,
+        #:rgt => 3,
         :source_id => 4,
         :year_of_publication => 5,
         :verbatim_author => "Verbatim Author",
@@ -58,8 +60,8 @@ describe "taxon_names/index" do
     assert_select "tr>td", :text => "Cached Name".to_s, :count => 2
     assert_select "tr>td", :text => "Cached Author Year".to_s, :count => 2
     assert_select "tr>td", :text => "Cached Higher Classification".to_s, :count => 2
-    assert_select "tr>td", :text => 2.to_s, :count => 2
-    assert_select "tr>td", :text => 3.to_s, :count => 2
+    #assert_select "tr>td", :text => 2.to_s, :count => 2
+    #assert_select "tr>td", :text => 3.to_s, :count => 2
     assert_select "tr>td", :text => 4.to_s, :count => 2
     assert_select "tr>td", :text => 5.to_s, :count => 2
     assert_select "tr>td", :text => "Verbatim Author".to_s, :count => 2
