@@ -1,9 +1,11 @@
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
 
-  belongs_to :geographic_area
-  belongs_to :georeference
-  belongs_to :confidence
+  has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
+  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
+  has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
+
+  # belongs_to :georeference
 
   # Where would one put such code?
   # RGeo::Geos.preferred_native_interface = :ffi
@@ -29,7 +31,7 @@ class GeographicItem < ActiveRecord::Base
 
   validate :proper_data_is_provided
 
-  def object
+  def geo_object
     return false if self.new_record?
     DATA_TYPES.each do |t|
       return self.send(t) if !self.send(t).nil?
@@ -38,21 +40,21 @@ class GeographicItem < ActiveRecord::Base
 
   def contains?(item)
     #item.object.within?(self.object)
-    self.object.contains?(item.object)
+    self.geo_object.contains?(item.geo_object)
     #true
   end
 
   def within?(item)
     #self.object.contains?(item.object)
-    self.object.within?(item.object)
+    self.geo_object.within?(item.geo_object)
   end
 
   def distance?(item)
-    self.object.distance?(item)
+    self.geo_object.distance?(item)
   end
 
   def near(item, distance)
-    self.object.buffer(distance).contains?(item.object)
+    self.geo_object.buffer(distance).contains?(item.geo_object)
   end
 
   def far(item, distance)
@@ -67,7 +69,7 @@ class GeographicItem < ActiveRecord::Base
 
   def rendering_hash
     # get our object and return the set of points as a hash with object type as key
-    we_are = self.object
+    we_are = self.geo_object
     # start by constructing the general case
     #data = {
     #points:  [],
@@ -104,12 +106,12 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def to_geo_json
-    RGeo::GeoJSON.encode(self.object).to_json
+    RGeo::GeoJSON.encode(self.geo_object).to_json
   end
 
   def to_a
     # get our object and return the set of points as an array
-    we_are = self.object
+    we_are = self.geo_object
 
     if we_are
       data = []
@@ -301,8 +303,9 @@ class GeographicItem < ActiveRecord::Base
         data.each do |object|
           errors.add(object, 'Only one of [point, line_string, etc.] can be provided.')
         end
-      else
-        true
+      #else
+      #  true
     end
+    true
   end
 end

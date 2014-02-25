@@ -31,18 +31,18 @@ namespace :tw do
       raise 'There are existing geographic_areas, doing nothing.' if GeographicArea.all.count > 0
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}."
-
         data    = CSV.read(args[:data_directory], options = {headers: true, col_sep: "\t"})
         records = {}
+
         ActiveRecord::Base.transaction do
           data.each { |row|
 
-            row_data = row.to_h
-            row_data.delete('rgt')
-            row_data.delete('lft')
+            row_data      = row.to_h
+            #row_data.delete('rgt')
+            #row_data.delete('lft')
             r             = GeographicArea.new(row_data)
             records[r.id] = r
-            print "Build:  record #{r.id} of #{count}.\r"
+            print "Build:  record #{r.id}\r"
           }
 
           count = records.count
@@ -72,9 +72,11 @@ namespace :tw do
             #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
             print ".\r"
           end
+=begin
           puts
           elapsed = Time.now - time_start
           puts "#{Time.at(elapsed).getgm.strftime "%H:%M:%S"}:"
+=end
         end
       rescue
         raise
@@ -91,77 +93,84 @@ namespace :tw do
       filename = ENV['table_name']
       shapes   = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
 
-      shapes.each do |record|
+      begin
+        ActiveRecord::Base.transaction do
+          shapes.each do |record|
 
-        # there are different ways of locating the record for this shape, depending on where the data came from.
-        finder = {}
-        placer = nil
-        case filename
-          when /ne_10m_admin_0_countries\.shp/i
-            finder = {:neID => record['iso_n3']}
-            placer = 'ne_geo_item'
-          when /ne_10m_admin_1_states_provinces_shp\.shp/i
-            finder = {:neID => record['adm1_code']}
-            placer = 'ne_geo_item'
-          when /level1/i
-            finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
-            placer = 'tdwg_geo_item'
-          when /level2/i
-            finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
-            placer = 'tdwg_geo_item'
-          when /level3/i
-            finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
-            placer = 'tdwg_geo_item'
-          when /level4/i
-            finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
-            placer = 'tdwg_geo_item'
-          when /gadm2/i
-            finder = {:gadmID => record['OBJECTID']}
-            placer = 'gadm_geo_item'
-          else
-            finder = nil
+            # there are different ways of locating the record for this shape, depending on where the data came from.
+            finder = {}
             placer = nil
-        end
+            case filename
+              when /ne_10m_admin_0_countries\.shp/i
+                finder = {:neID => record['iso_n3']}
+                placer = 'ne_geo_item'
+              when /ne_10m_admin_1_states_provinces_shp\.shp/i
+                finder = {:neID => record['adm1_code']}
+                placer = 'ne_geo_item'
+              when /level1/i
+                finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
+                placer = 'tdwg_geo_item'
+              when /level2/i
+                finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
+                placer = 'tdwg_geo_item'
+              when /level3/i
+                finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
+                placer = 'tdwg_geo_item'
+              when /level4/i
+                finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
+                placer = 'tdwg_geo_item'
+              when /gadm2/i
+                finder = {:gadmID => record['OBJECTID']}
+                placer = 'gadm_geo_item'
+              else
+                finder = nil
+                placer = nil
+            end
 
-        if finder.nil?
-        else
-          ga = GeographicArea.where(finder)
-          if ga.nil?
-          else
+            if finder.nil?
+            else
+              ga = GeographicArea.where(finder)
+              if ga.nil?
+              else
 
-            # create the shape in which we are interested.
-            gi = GeographicItem.new(creator:       builder,
-                                    updater:       builder,
-                                    multi_polygon: record.geometry)
-            gi.save!
+                # create the shape in which we are interested.
+                gi = GeographicItem.new(creator:       builder,
+                                        updater:       builder,
+                                        multi_polygon: record.geometry)
+                gi.save!
 
-            ga.each { |area|
-              # placer = 'geographic_item'
-              area.send("#{placer}=".to_sym, gi)
+                ga.each { |area|
+                  # placer = 'geographic_item'
+                  #area.send("#{placer}=".to_sym, gi)
 
-              #case placer
-              #  when /tdwg/
-              #    area.tdwg_geo_item = gi
-              #  when /ne_/
-              #    area.ne_geo_item = gi
-              #  when /gadm/
-              #    area.gadm_geo_item = gi
-              #  else
-              #    area
-              #end
+                  case placer
+                    when /tdwg/
+                      area.tdwg_geo_item = gi
+                    when /ne_/
+                      area.ne_geo_item = gi
+                    when /gadm/
+                      area.gadm_geo_item = gi
+                    else
+                      area
+                  end
 
-              area.save
-              area
-            }
+                  area.save
+                  area
+                }
+              end
+            end
           end
+
+          # open the shape/dbf
+          # for each record, check for a  a corresponding Geographic Area
+          # found - > add shape
+          raise
         end
+      rescue
+        raise
       end
 
-      # open the shape/dbf
-      # for each record, check for a  a corresponding Geographic Area
-      # found - > add shape
+
     end
-
-
   end
 end
