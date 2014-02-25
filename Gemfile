@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-ruby '2.1.0'
+ruby '2.1.1'
 
 gem 'rails', '4.0.3'
 
@@ -67,7 +67,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
-  gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'debugger', {git:  'git@github.com:acarpe/debugger.git'}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end
 
