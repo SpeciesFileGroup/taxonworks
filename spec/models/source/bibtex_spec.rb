@@ -321,7 +321,7 @@ describe Source::Bibtex do
     end
 
     specify 'before save set cached values' do
-      l_src = FactoryGirl.build(:soft_valid_bibtex_source_article)
+      l_src = FactoryGirl.create(:soft_valid_bibtex_source_article)
 
       expect(l_src.save).to be_true
       expect(l_src.cached.blank?).to be_false
@@ -347,8 +347,6 @@ describe Source::Bibtex do
       expect(l_src.authors.last.last_name).to eq('Hunt')
       expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
       expect(l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
-
-
     end
 
     specify 'the url must be valid' do

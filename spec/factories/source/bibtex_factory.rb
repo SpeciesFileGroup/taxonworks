@@ -41,5 +41,13 @@ FactoryGirl.define do
       journal 'Journal of test articles'
       year 1920
     end
+
+    factory :src_dmitriev do
+      bibtex_type 'article'
+      title 'article 1 just title'
+      author 'Dmitriev, Dmitry'
+      year 1940
+    end
+
    end
 end

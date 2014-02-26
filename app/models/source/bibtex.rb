@@ -410,7 +410,8 @@ class Source::Bibtex < Source
     # TODO need to use full last name with suffix not just last_name
     case  self.authors.count
       when 0
-        return self.author # return author or ''
+        return ((self.author.blank?) ? '' : self.author)
+        #return self.author # return author or ''
       when 1
         return (authors[0].last_name)
       else
@@ -531,12 +532,16 @@ class Source::Bibtex < Source
    def set_cached_values
 
     bx_entry = self.to_bibtex
-    bx_entry.key = 'tmpID'
+    if bx_entry.key.blank? then
+      bx_entry.key = 'tmpID'
+    end
+    key = bx_entry.key
+    #bx_entry.key = 'tmpID'
     bx_bibliography = BibTeX::Bibliography.new()
     bx_bibliography.add(bx_entry)
 
     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
-    cp.import bx_bibliography.to_citeproc
+     cp.import bx_bibliography.to_citeproc
 
 =begin
     cp << bx_bibliography.to_citeproc
@@ -545,8 +550,9 @@ class Source::Bibtex < Source
     self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
 =end
 
-    # format cached = full reference
-    self.cached = cp.render(:bibliography, id: 'tmpID')[0]
+     # format cached = full reference
+    self.cached = cp.render(:bibliography, id: key)[0]
+    # self.cached = cp.render(:bibliography, id: 'tmpID')[0]
     # format cached_author_srting = either the bibtex author or the last names of all the normalized authors.
      self.cached_author_string = authority_name
   end
