@@ -327,7 +327,26 @@ describe Source::Bibtex do
       expect(l_src.cached.blank?).to be_false
       expect(l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
       expect(l_src.cached_author_string.blank?).to be_false
-      expect(l_src.cached_author_string.blank?).to eq('Person, Test')
+      expect(l_src.cached_author_string).to eq('Person, Test')
+
+      expect(l_src.create_related_people).to be_true
+      expect(l_src.save).to be_true
+      expect(l_src.authors.count).to eq(1)
+      expect(l_src.authors.first.first_name).to eq('Test')
+      expect(l_src.authors.first.last_name).to eq('Person')
+      expect(l_src.cached_author_string).to eq('Person')
+
+      l_src = FactoryGirl.build(:src_mult_authors)
+      expect(l_src.save).to be_true
+      expect(l_src.cached.blank?).to be_false
+      expect(l_src.create_related_people).to be_true
+      expect(l_src.save).to be_true
+      expect(l_src.authors.first.first_name).to eq('Dave')
+      expect(l_src.authors.first.last_name).to eq('Thomas')
+      expect(l_src.authors.last.first_name).to eq('Andy')
+      expect(l_src.authors.last.last_name).to eq('Hunt')
+      expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
+      expect(l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
 
 
     end

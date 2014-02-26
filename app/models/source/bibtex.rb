@@ -407,13 +407,19 @@ class Source::Bibtex < Source
 
 #region getters & setters
   def authority_name
-    case self.authors.count
+    # TODO need to use full last name with suffix not just last_name
+    case  self.authors.count
       when 0
         return self.author # return author or ''
       when 1
         return (authors[0].last_name)
       else
-        names.join(", ") + " & #{authors.last.last_name}"
+        # authors[0..-2].join(", ") + " & #{authors.last.last_name}"
+        p_array = Array.new
+        for i in 0..(self.authors.count-1) do
+          p_array.push(self.authors[i].last_name)
+        end
+        p_array.to_sentence(:last_word_connector =>' & ')
     end
   end
 
