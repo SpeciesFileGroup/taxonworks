@@ -1,43 +1,9 @@
 require 'spec_helper'
-
 describe CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject do
 
-   let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
+  let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
 
   describe "instance methods" do
-   
-    # TODO: true? 
-    it "should have a verbatim_determination_label"
-    # it seems as though these method tests could be refactored as a loop of methods
-    #specify "verbatim_determination_label" do # a text field with new lines for each field
-    #  expect(biological_collection_object).to respond_to(:verbatim_determination_label)
-    #  expect(biological_collection_object.verbatim_determination_label).to be_a(String)
-    #  expect(biological_collection_object.verbatim_determination_label).not_to eq('This must be replaced by the \'verbatim_determination_label\' string.')
-    #end
-
-    # TODO: true?
-    it "should have a verbatim_locality_label" 
-    #specify "verbatim_locality_label" do # a text field with new lines for each field
-    #  expect(biological_collection_object).to respond_to(:verbatim_locality_label)
-    #  expect(biological_collection_object.verbatim_locality_label).to be_a(String)
-    #  expect(biological_collection_object.verbatim_locality_label).not_to eq('This must be replaced by the \'verbatim_locality_label\' string.')
-    #end
-
-    it "should have a verbatim_other_label" 
-    #specify "verbatim_other_label" do
-    #  expect(biological_collection_object).to respond_to(:verbatim_other_label)
-    #  expect(biological_collection_object.verbatim_other_label).to be_a(String)
-    #  expect(biological_collection_object.verbatim_other_label).not_to eq('This must be replaced by the \'verbatim_other_label\' string.')
-    #end
-
-    # TODO: true?
-    it "should have a verbatim_accession_number"
-    #specify "verbatim_accession_number" do
-    #  expect(biological_collection_object).to respond_to(:verbatim_accession_number)
-    #  expect(biological_collection_object.verbatim_accession_number).to be_a(String)
-    #  expect(biological_collection_object.verbatim_accession_number).not_to eq('This must be replaced by the \'verbatim_accession_number\' string.')
-    #end
-
     it "should return the current determination"
     it "should return the depository"
     it "on update it should SCREAM AT YOU when you change implied verbatim data if more than one biological_collection_object uses that data" 

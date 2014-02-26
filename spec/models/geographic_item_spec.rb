@@ -16,7 +16,8 @@ describe GeographicItem do
   #let(:tw_factory) { ::RGeo::Geos.factory(:srid             => 4326,
   #                                        :has_z_coordinate => true,
   #                                        :has_m_coordinate => false) }
-  let(:geographic_item) { GeographicItem.new }
+  let(:geographic_item) {FactoryGirl.build(:geographic_item)}
+  let(:geographic_item_with_point) {FactoryGirl.build(:geographic_item_with_point)}
 
   context 'on creation' do
     context 'on save' do
@@ -68,8 +69,8 @@ describe GeographicItem do
       @d.reload
       @k.reload
 
-      expect(@tw_factory.polygon(@k.object)).to be_nil
-      expect(@tw_factory.polygon(@d.object)).not_to be_nil
+      expect(@tw_factory.polygon(@k.geo_object)).to be_nil
+      expect(@tw_factory.polygon(@d.geo_object)).not_to be_nil
 
     end
 
@@ -85,7 +86,7 @@ describe GeographicItem do
     specify 'Two polygons may have various intersections.' do
 
       @e.reload
-      e0      = @e.object # a collection of polygons
+      e0      = @e.geo_object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
       shapeE2 = e0.geometry_n(1)
       shapeE3 = e0.geometry_n(2)
@@ -113,7 +114,7 @@ describe GeographicItem do
 
     specify 'Two polygons may have various adjacencies.' do
 
-      e0      = @e.object # a collection of polygons
+      e0      = @e.geo_object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
       shapeE2 = e0.geometry_n(1)
       shapeE3 = e0.geometry_n(2)
@@ -132,14 +133,14 @@ describe GeographicItem do
 
     specify 'Two different object types have various intersections.' do
 
-      a   = @a.object
-      k   = @k.object
-      l   = @l.object
-      e   = @e.object
-      f   = @f.object
+      a   = @a.geo_object
+      k   = @k.geo_object
+      l   = @l.geo_object
+      e   = @e.geo_object
+      f   = @f.geo_object
       f1  = f.geometry_n(0)
       f2  = f.geometry_n(1)
-      p16 = @p16.object
+      p16 = @p16.geo_object
 
       p16ona = @tw_factory.parse_wkt("POINT (-23.0 18.0 0.0)")
       expect(a.intersection(p16)).to eq(p16ona)
@@ -154,11 +155,11 @@ describe GeographicItem do
 
     specify 'Objects can be related by distance' do
 
-      p1  = @p1.object
-      p10 = @p10.object
-      p17 = @p17.object
+      p1  = @p1.geo_object
+      p10 = @p10.geo_object
+      p17 = @p17.geo_object
 
-      k = @k.object
+      k = @k.geo_object
 
       expect(p17.distance(k)).to be < p10.distance(k)
 
@@ -174,7 +175,7 @@ describe GeographicItem do
 
     specify 'Outer Limits' do
 
-      everything = @all_items.object
+      everything = @all_items.geo_object
 
       convex_hull = @tw_factory.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -88.241421 40.091565 757.0, -88.241413 40.091655 757.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
 
@@ -195,7 +196,7 @@ describe GeographicItem do
       # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
       # See the model for a method to change the default factory for a given
       # column (in our case, all).
-      expect(geographic_item.object).to eq p1
+      expect(geographic_item.geo_object).to eq p1
     end
   end
 

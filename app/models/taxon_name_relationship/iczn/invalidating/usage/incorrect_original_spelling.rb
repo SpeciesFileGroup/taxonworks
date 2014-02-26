@@ -2,7 +2,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misidentification,
+        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication,
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
   end
 

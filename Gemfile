@@ -1,7 +1,7 @@
-source 'http://rubygems.org'
-ruby '2.1.0'
+source 'https://rubygems.org'
+ruby '2.1.1'
 
-gem 'rails', '4.0.2'
+gem 'rails', '4.0.3'
 
 # PostgreSQL
 gem 'pg', '~> 0.17.0'
@@ -57,7 +57,7 @@ gem "dwc-archive", "~> 0.9.11"
 gem 'validates_timeliness', "~> 3.0.14"
 
 # Password encryption
-gem 'bcrypt-ruby', '~> 3.1.2'
+gem 'bcrypt-ruby', '~> 3.1.5'
 
 # Build instances from factories
 gem "factory_girl_rails", "~> 4.0"
@@ -67,7 +67,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
-  gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'debugger', {git:  'http://github.com/acarpe/debugger.git'}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end
 

@@ -1,4 +1,6 @@
 class Georeference < ActiveRecord::Base
+  include Housekeeping::Users
+
 # Contains information about a location on the face of the Earth, consisting of:
 #
 # @!attribute geographic_item_id
