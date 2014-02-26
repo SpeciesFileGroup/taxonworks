@@ -40,7 +40,7 @@ FactoryGirl.define do
       data_origin 'Test Data'
 
       factory :level2_geographic_area do
-        name "Champaign"
+        name 'Champaign'
         parent_state 
         association :geographic_area_type, factory: :county_geographic_area_type 
         after(:build) {|o| o.level2 = o}
@@ -62,7 +62,7 @@ FactoryGirl.define do
       end
 
       factory :earth_geographic_area do
-        name "Earth"
+        name 'Earth'
         parent_id nil
         level0_id nil
         association :geographic_area_type, factory: :planet_geographic_area_type 
