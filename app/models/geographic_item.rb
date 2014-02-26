@@ -29,7 +29,7 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
-  validate :proper_data_is_provided
+  # validate :proper_data_is_provided
 
   def geo_object
     return false if self.new_record?
@@ -39,13 +39,11 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def contains?(item)
-    #item.object.within?(self.object)
     self.geo_object.contains?(item.geo_object)
     #true
   end
 
   def within?(item)
-    #self.object.contains?(item.object)
     self.geo_object.within?(item.geo_object)
   end
 

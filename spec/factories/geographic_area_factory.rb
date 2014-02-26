@@ -8,6 +8,7 @@ FactoryGirl.define do
         FactoryGirl.build(:earth_geographic_area)
       end
     }
+    tdwg_parent { parent }
   end
 
   trait :parent_country do
@@ -18,6 +19,7 @@ FactoryGirl.define do
         FactoryGirl.build(:level0_geographic_area)
       end
     }
+    tdwg_parent { parent }
     level0 { parent }
   end
 
@@ -30,19 +32,27 @@ FactoryGirl.define do
         FactoryGirl.build(:level1_geographic_area)
       end
     }
+    tdwg_parent { parent }
     level1 { parent }
   end
 
   factory :geographic_area, traits: [:creator_and_updater] do
   # geographic_area_type
 
+    factory :valid_geographic_area do
+      data_origin 'Test Data'
+      name 'Test'
+      parent factory: :earth_geographic_area
+      geographic_area_type factory: :valid_geographic_area_type
+    end
+
     factory :with_data_origin_geographic_area do
       data_origin 'Test Data'
 
       factory :level2_geographic_area do
         name 'Champaign'
-        parent_state 
-        association :geographic_area_type, factory: :county_geographic_area_type 
+        parent_state
+        association :geographic_area_type, factory: :county_geographic_area_type
         after(:build) {|o| o.level2 = o}
       end
 
