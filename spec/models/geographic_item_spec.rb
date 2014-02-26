@@ -178,7 +178,7 @@ describe GeographicItem do
   end
 
   context 'That GeographicItems provide certain methods.' do
-    specify 'self.object returns stored data' do
+    specify 'self.geo_object returns stored data' do
       p1                    = GEO_FACTORY.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
       geographic_item.save

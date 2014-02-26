@@ -20,13 +20,14 @@ class GeographicArea < ActiveRecord::Base
   validates_presence_of :data_origin
   validates_presence_of :name
   validates :geographic_area_type, presence: true
-  #validates :level0, presence: true, unless: 'self.name == "Earth"'
-  #validates :level1, presence: true, allow_nil: true
-  #validates :level2, presence: true, allow_nil: true
-  #validates :parent, presence: true, unless: 'self.name == "Earth"'
-  #validates :tdwg_parent, presence: true, allow_nil: true
+  validates :level0, presence: true, unless: 'self.name == "Earth"'
+  validates :level1, presence: true, allow_nil: true
+  validates :level2, presence: true, allow_nil: true
+  validates :parent, presence: true, unless: 'self.name == "Earth"'
+  # TODO: still need to figure out why the validations of RGeo object associations fail.  These xxx_geo_item entry are commented out for this reason.
   #validates :ne_geo_item, presence: true, allow_nil: true
-  validates :gadm_geo_item, presence: true, allow_nil: true
+  #validates :gadm_geo_item, presence: true, allow_nil: true
+  validates :tdwg_parent, presence: true, allow_nil: true
   #validates :tdwg_geo_item, presence: true, allow_nil: true
 
   scope :descendants_of, -> (geographic_area) {where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and (geographic_areas.id != ?)', geographic_area.lft, geographic_area.rgt, geographic_area.id ).order(:lft)}

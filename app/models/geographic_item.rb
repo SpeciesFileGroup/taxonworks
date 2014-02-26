@@ -39,13 +39,11 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def contains?(item)
-    #item.object.within?(self.object)
     self.geo_object.contains?(item.geo_object)
     #true
   end
 
   def within?(item)
-    #self.object.contains?(item.object)
     self.geo_object.within?(item.geo_object)
   end
 
