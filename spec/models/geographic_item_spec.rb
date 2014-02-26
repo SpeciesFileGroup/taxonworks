@@ -62,8 +62,8 @@ describe GeographicItem do
       @d.reload
       @k.reload
 
-      expect(FFI_FACTORY.polygon(@k.geo_object)).to be_nil
-      expect(FFI_FACTORY.polygon(@d.geo_object)).not_to be_nil
+      expect(GEO_FACTORY.polygon(@k.geo_object)).to be_nil
+      expect(GEO_FACTORY.polygon(@d.geo_object)).not_to be_nil
 
     end
 
@@ -85,10 +85,10 @@ describe GeographicItem do
       shapeE4 = e0.geometry_n(3)
       shapeE5 = e0.geometry_n(4)
 
-      e1and2 = FFI_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
-      e1or2  = FFI_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
-      e1and4 = FFI_FACTORY.parse_wkt("GEOMETRYCOLLECTION EMPTY")
-      e1or5  = FFI_FACTORY.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
+      e1and2 = GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
+      e1or2  = GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
+      e1and4 = GEO_FACTORY.parse_wkt("GEOMETRYCOLLECTION EMPTY")
+      e1or5  = GEO_FACTORY.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
 
       expect(shapeE1.intersects?(shapeE2)).to be_true
       expect(shapeE1.intersects?(shapeE3)).to be_false
@@ -134,10 +134,10 @@ describe GeographicItem do
       f2  = f.geometry_n(1)
       p16 = @p16.geo_object
 
-      p16ona = FFI_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
+      p16ona = GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
       expect(a.intersection(p16)).to eq(p16ona)
 
-      f1crosses2 = FFI_FACTORY.parse_wkt("POINT (-23.6 -4.0 0.0)")
+      f1crosses2 = GEO_FACTORY.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
       expect(l.intersects?(k)).to be_true
       expect(l.intersects?(e)).to be_false
@@ -169,7 +169,7 @@ describe GeographicItem do
 
       everything = @all_items.geo_object
 
-      convex_hull = FFI_FACTORY.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -88.241421 40.091565 757.0, -88.241413 40.091655 757.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
+      convex_hull = GEO_FACTORY.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -88.241421 40.091565 757.0, -88.241413 40.091655 757.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
 
       expect(everything.convex_hull()).to eq(convex_hull)
 
@@ -179,7 +179,7 @@ describe GeographicItem do
 
   context 'That GeographicItems provide certain methods.' do
     specify 'self.object returns stored data' do
-      p1                    = FFI_FACTORY.point(-88.241413, 40.091655, 757)
+      p1                    = GEO_FACTORY.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
       geographic_item.save
       # also 'respond_to'
@@ -445,175 +445,175 @@ def build_RGeo_objects()
 
   #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
-  @room2024 = FFI_FACTORY.point(-88.241413, 40.091655, 757)
-  @room2020 = FFI_FACTORY.point(-88.241421, 40.091565, 757)
-  @room2022 = FFI_FACTORY.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
+  @room2024 = GEO_FACTORY.point(-88.241413, 40.091655, 757)
+  @room2020 = GEO_FACTORY.point(-88.241421, 40.091565, 757)
+  @room2022 = GEO_FACTORY.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
                                 (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
                                 (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
 
-  @rooms20 = FFI_FACTORY.multi_point([@room2020,
+  @rooms20 = GEO_FACTORY.multi_point([@room2020,
                                       @room2022,
                                       @room2024])
 
-  @point0  = FFI_FACTORY.point(0, 0)
-  @point1  = FFI_FACTORY.point(-29, -16)
-  @point2  = FFI_FACTORY.point(-25, -18)
-  @point3  = FFI_FACTORY.point(-28, -21)
-  @point4  = FFI_FACTORY.point(-19, -18)
-  @point5  = FFI_FACTORY.point(3, -14)
-  @point6  = FFI_FACTORY.point(6, -12.9)
-  @point7  = FFI_FACTORY.point(5, -16)
-  @point8  = FFI_FACTORY.point(4, -17.9)
-  @point9  = FFI_FACTORY.point(7, -17.9)
-  @point10 = FFI_FACTORY.point(32.2, 22)
-  @point11 = FFI_FACTORY.point(-17, 7)
-  @point12 = FFI_FACTORY.point(-9.8, 5)
-  @point13 = FFI_FACTORY.point(-10.7, 0)
-  @point14 = FFI_FACTORY.point(-30, 21)
-  @point15 = FFI_FACTORY.point(-25, 18.3)
-  @point16 = FFI_FACTORY.point(-23, 18)
-  @point17 = FFI_FACTORY.point(-19.6, -13)
-  @point18 = FFI_FACTORY.point(-7.6, 14.2)
-  @point19 = FFI_FACTORY.point(-4.6, 11.9)
-  @point20 = FFI_FACTORY.point(-8, -4)
-  @point21 = FFI_FACTORY.point(-4, -3)
-  @point22 = FFI_FACTORY.point(-10, -6)
+  @point0  = GEO_FACTORY.point(0, 0)
+  @point1  = GEO_FACTORY.point(-29, -16)
+  @point2  = GEO_FACTORY.point(-25, -18)
+  @point3  = GEO_FACTORY.point(-28, -21)
+  @point4  = GEO_FACTORY.point(-19, -18)
+  @point5  = GEO_FACTORY.point(3, -14)
+  @point6  = GEO_FACTORY.point(6, -12.9)
+  @point7  = GEO_FACTORY.point(5, -16)
+  @point8  = GEO_FACTORY.point(4, -17.9)
+  @point9  = GEO_FACTORY.point(7, -17.9)
+  @point10 = GEO_FACTORY.point(32.2, 22)
+  @point11 = GEO_FACTORY.point(-17, 7)
+  @point12 = GEO_FACTORY.point(-9.8, 5)
+  @point13 = GEO_FACTORY.point(-10.7, 0)
+  @point14 = GEO_FACTORY.point(-30, 21)
+  @point15 = GEO_FACTORY.point(-25, 18.3)
+  @point16 = GEO_FACTORY.point(-23, 18)
+  @point17 = GEO_FACTORY.point(-19.6, -13)
+  @point18 = GEO_FACTORY.point(-7.6, 14.2)
+  @point19 = GEO_FACTORY.point(-4.6, 11.9)
+  @point20 = GEO_FACTORY.point(-8, -4)
+  @point21 = GEO_FACTORY.point(-4, -3)
+  @point22 = GEO_FACTORY.point(-10, -6)
 
-  @shapeA = FFI_FACTORY.line_string([FFI_FACTORY.point(-32, 21),
-                                     FFI_FACTORY.point(-25, 21),
-                                     FFI_FACTORY.point(-25, 16),
-                                     FFI_FACTORY.point(-21, 20)])
+  @shapeA = GEO_FACTORY.line_string([GEO_FACTORY.point(-32, 21),
+                                     GEO_FACTORY.point(-25, 21),
+                                     GEO_FACTORY.point(-25, 16),
+                                     GEO_FACTORY.point(-21, 20)])
 
-  listB1 = FFI_FACTORY.line_string([FFI_FACTORY.point(-14, 23),
-                                    FFI_FACTORY.point(-14, 11),
-                                    FFI_FACTORY.point(-2, 11),
-                                    FFI_FACTORY.point(-2, 23),
-                                    FFI_FACTORY.point(-8, 21)])
+  listB1 = GEO_FACTORY.line_string([GEO_FACTORY.point(-14, 23),
+                                    GEO_FACTORY.point(-14, 11),
+                                    GEO_FACTORY.point(-2, 11),
+                                    GEO_FACTORY.point(-2, 23),
+                                    GEO_FACTORY.point(-8, 21)])
 
-  listB2 = FFI_FACTORY.line_string([FFI_FACTORY.point(-11, 18),
-                                    FFI_FACTORY.point(-8, 17),
-                                    FFI_FACTORY.point(-6, 20),
-                                    FFI_FACTORY.point(-4, 16),
-                                    FFI_FACTORY.point(-7, 13),
-                                    FFI_FACTORY.point(-11, 14)])
+  listB2 = GEO_FACTORY.line_string([GEO_FACTORY.point(-11, 18),
+                                    GEO_FACTORY.point(-8, 17),
+                                    GEO_FACTORY.point(-6, 20),
+                                    GEO_FACTORY.point(-4, 16),
+                                    GEO_FACTORY.point(-7, 13),
+                                    GEO_FACTORY.point(-11, 14)])
 
-  @shapeB = FFI_FACTORY.polygon(listB1, [listB2])
+  @shapeB = GEO_FACTORY.polygon(listB1, [listB2])
 
-  listC1 = FFI_FACTORY.line_string([FFI_FACTORY.point(23, 21),
-                                    FFI_FACTORY.point(16, 21),
-                                    FFI_FACTORY.point(16, 16),
-                                    FFI_FACTORY.point(11, 20)])
+  listC1 = GEO_FACTORY.line_string([GEO_FACTORY.point(23, 21),
+                                    GEO_FACTORY.point(16, 21),
+                                    GEO_FACTORY.point(16, 16),
+                                    GEO_FACTORY.point(11, 20)])
 
-  listC2 = FFI_FACTORY.line_string([FFI_FACTORY.point(4, 12.6),
-                                    FFI_FACTORY.point(16, 12.6),
-                                    FFI_FACTORY.point(16, 7.6)])
+  listC2 = GEO_FACTORY.line_string([GEO_FACTORY.point(4, 12.6),
+                                    GEO_FACTORY.point(16, 12.6),
+                                    GEO_FACTORY.point(16, 7.6)])
 
-  listC3 = FFI_FACTORY.line_string([FFI_FACTORY.point(21, 12.6),
-                                    FFI_FACTORY.point(26, 12.6),
-                                    FFI_FACTORY.point(22, 17.6)])
+  listC3 = GEO_FACTORY.line_string([GEO_FACTORY.point(21, 12.6),
+                                    GEO_FACTORY.point(26, 12.6),
+                                    GEO_FACTORY.point(22, 17.6)])
 
-  @shapeC  = FFI_FACTORY.multi_line_string([listC1, listC2, listC3])
+  @shapeC  = GEO_FACTORY.multi_line_string([listC1, listC2, listC3])
   @shapeC1 = @shapeC.geometry_n(0)
   @shapeC2 = @shapeC.geometry_n(1)
   @shapeC3 = @shapeC.geometry_n(2)
 
-  @shapeD = FFI_FACTORY.line_string([FFI_FACTORY.point(-33, 11),
-                                     FFI_FACTORY.point(-24, 4),
-                                     FFI_FACTORY.point(-26, 13),
-                                     FFI_FACTORY.point(-31, 4),
-                                     FFI_FACTORY.point(-33, 11)])
+  @shapeD = GEO_FACTORY.line_string([GEO_FACTORY.point(-33, 11),
+                                     GEO_FACTORY.point(-24, 4),
+                                     GEO_FACTORY.point(-26, 13),
+                                     GEO_FACTORY.point(-31, 4),
+                                     GEO_FACTORY.point(-33, 11)])
 
-  listE1 = FFI_FACTORY.line_string([FFI_FACTORY.point(-19, 9),
-                                    FFI_FACTORY.point(-9, 9),
-                                    FFI_FACTORY.point(-9, 2),
-                                    FFI_FACTORY.point(-19, 2),
-                                    FFI_FACTORY.point(-19, 9)])
+  listE1 = GEO_FACTORY.line_string([GEO_FACTORY.point(-19, 9),
+                                    GEO_FACTORY.point(-9, 9),
+                                    GEO_FACTORY.point(-9, 2),
+                                    GEO_FACTORY.point(-19, 2),
+                                    GEO_FACTORY.point(-19, 9)])
 
-  listE2 = FFI_FACTORY.line_string([FFI_FACTORY.point(5, -1),
-                                    FFI_FACTORY.point(-14, -1),
-                                    FFI_FACTORY.point(-14, 6),
-                                    FFI_FACTORY.point(5, 6),
-                                    FFI_FACTORY.point(5, -1)])
+  listE2 = GEO_FACTORY.line_string([GEO_FACTORY.point(5, -1),
+                                    GEO_FACTORY.point(-14, -1),
+                                    GEO_FACTORY.point(-14, 6),
+                                    GEO_FACTORY.point(5, 6),
+                                    GEO_FACTORY.point(5, -1)])
 
-  listE3 = FFI_FACTORY.line_string([FFI_FACTORY.point(-11, -1),
-                                    FFI_FACTORY.point(-11, -5),
-                                    FFI_FACTORY.point(-7, -5),
-                                    FFI_FACTORY.point(-7, -1),
-                                    FFI_FACTORY.point(-11, -1)])
+  listE3 = GEO_FACTORY.line_string([GEO_FACTORY.point(-11, -1),
+                                    GEO_FACTORY.point(-11, -5),
+                                    GEO_FACTORY.point(-7, -5),
+                                    GEO_FACTORY.point(-7, -1),
+                                    GEO_FACTORY.point(-11, -1)])
 
-  listE4 = FFI_FACTORY.line_string([FFI_FACTORY.point(-3, -9),
-                                    FFI_FACTORY.point(-3, -1),
-                                    FFI_FACTORY.point(-7, -1),
-                                    FFI_FACTORY.point(-7, -9),
-                                    FFI_FACTORY.point(-3, -9)])
+  listE4 = GEO_FACTORY.line_string([GEO_FACTORY.point(-3, -9),
+                                    GEO_FACTORY.point(-3, -1),
+                                    GEO_FACTORY.point(-7, -1),
+                                    GEO_FACTORY.point(-7, -9),
+                                    GEO_FACTORY.point(-3, -9)])
 
-  listE5 = FFI_FACTORY.line_string([FFI_FACTORY.point(-7, -9),
-                                    FFI_FACTORY.point(-7, -5),
-                                    FFI_FACTORY.point(-11, -5),
-                                    FFI_FACTORY.point(-11, -9),
-                                    FFI_FACTORY.point(-7, -9)])
+  listE5 = GEO_FACTORY.line_string([GEO_FACTORY.point(-7, -9),
+                                    GEO_FACTORY.point(-7, -5),
+                                    GEO_FACTORY.point(-11, -5),
+                                    GEO_FACTORY.point(-11, -9),
+                                    GEO_FACTORY.point(-7, -9)])
 
-  @shapeE  = FFI_FACTORY.collection([FFI_FACTORY.polygon(listE1), FFI_FACTORY.polygon(listE2), FFI_FACTORY.polygon(listE3), FFI_FACTORY.polygon(listE4), FFI_FACTORY.polygon(listE5)])
+  @shapeE  = GEO_FACTORY.collection([GEO_FACTORY.polygon(listE1), GEO_FACTORY.polygon(listE2), GEO_FACTORY.polygon(listE3), GEO_FACTORY.polygon(listE4), GEO_FACTORY.polygon(listE5)])
   @shapeE1 = @shapeE.geometry_n(0)
   @shapeE2 = @shapeE.geometry_n(1)
   @shapeE3 = @shapeE.geometry_n(2)
   @shapeE4 = @shapeE.geometry_n(3)
   @shapeE5 = @shapeE.geometry_n(4)
 
-  @shapeF1 = FFI_FACTORY.line(FFI_FACTORY.point(-20, -1),
-                              FFI_FACTORY.point(-26, -6))
+  @shapeF1 = GEO_FACTORY.line(GEO_FACTORY.point(-20, -1),
+                              GEO_FACTORY.point(-26, -6))
 
-  @shapeF2 = FFI_FACTORY.line(FFI_FACTORY.point(-21, -4),
-                              FFI_FACTORY.point(-31, -4))
+  @shapeF2 = GEO_FACTORY.line(GEO_FACTORY.point(-21, -4),
+                              GEO_FACTORY.point(-31, -4))
 
-  @shapeF = FFI_FACTORY.multi_line_string([@shapeF1, @shapeF2])
+  @shapeF = GEO_FACTORY.multi_line_string([@shapeF1, @shapeF2])
 
-  listG1 = FFI_FACTORY.line_string([FFI_FACTORY.point(28, 2.3),
-                                    FFI_FACTORY.point(23, -1.7),
-                                    FFI_FACTORY.point(26, -4.8),
-                                    FFI_FACTORY.point(28, 2.3)])
+  listG1 = GEO_FACTORY.line_string([GEO_FACTORY.point(28, 2.3),
+                                    GEO_FACTORY.point(23, -1.7),
+                                    GEO_FACTORY.point(26, -4.8),
+                                    GEO_FACTORY.point(28, 2.3)])
 
-  listG2 = FFI_FACTORY.line_string([FFI_FACTORY.point(22, -6.8),
-                                    FFI_FACTORY.point(22, -9.8),
-                                    FFI_FACTORY.point(16, -6.8),
-                                    FFI_FACTORY.point(22, -6.8)])
+  listG2 = GEO_FACTORY.line_string([GEO_FACTORY.point(22, -6.8),
+                                    GEO_FACTORY.point(22, -9.8),
+                                    GEO_FACTORY.point(16, -6.8),
+                                    GEO_FACTORY.point(22, -6.8)])
 
-  listG3 = FFI_FACTORY.line_string([FFI_FACTORY.point(16, 2.3),
-                                    FFI_FACTORY.point(14, -2.8),
-                                    FFI_FACTORY.point(18, -2.8),
-                                    FFI_FACTORY.point(16, 2.3)])
+  listG3 = GEO_FACTORY.line_string([GEO_FACTORY.point(16, 2.3),
+                                    GEO_FACTORY.point(14, -2.8),
+                                    GEO_FACTORY.point(18, -2.8),
+                                    GEO_FACTORY.point(16, 2.3)])
 
-  @shapeG  = FFI_FACTORY.multi_polygon([FFI_FACTORY.polygon(listG1), FFI_FACTORY.polygon(listG2), FFI_FACTORY.polygon(listG3)])
+  @shapeG  = GEO_FACTORY.multi_polygon([GEO_FACTORY.polygon(listG1), GEO_FACTORY.polygon(listG2), GEO_FACTORY.polygon(listG3)])
   @shapeG1 = @shapeG.geometry_n(0)
   @shapeG2 = @shapeG.geometry_n(1)
   @shapeG3 = @shapeG.geometry_n(2)
 
 
-  @shapeH = FFI_FACTORY.multi_point([@point5,
+  @shapeH = GEO_FACTORY.multi_point([@point5,
                                      @point6,
                                      @point7,
                                      @point8,
                                      @point9])
 
-  @shapeI = FFI_FACTORY.line_string([FFI_FACTORY.point(27, -14),
-                                     FFI_FACTORY.point(18, -21),
-                                     FFI_FACTORY.point(20, -12),
-                                     FFI_FACTORY.point(25, -23)])
+  @shapeI = GEO_FACTORY.line_string([GEO_FACTORY.point(27, -14),
+                                     GEO_FACTORY.point(18, -21),
+                                     GEO_FACTORY.point(20, -12),
+                                     GEO_FACTORY.point(25, -23)])
 
-  @shapeJ = FFI_FACTORY.collection([@shapeG, @shapeH, @shapeI])
+  @shapeJ = GEO_FACTORY.collection([@shapeG, @shapeH, @shapeI])
 
-  listK = FFI_FACTORY.line_string([FFI_FACTORY.point(-33, -11),
-                                   FFI_FACTORY.point(-33, -23),
-                                   FFI_FACTORY.point(-21, -23),
-                                   FFI_FACTORY.point(-21, -11),
-                                   FFI_FACTORY.point(-27, -13)])
+  listK = GEO_FACTORY.line_string([GEO_FACTORY.point(-33, -11),
+                                   GEO_FACTORY.point(-33, -23),
+                                   GEO_FACTORY.point(-21, -23),
+                                   GEO_FACTORY.point(-21, -11),
+                                   GEO_FACTORY.point(-27, -13)])
 
-  @shapeK = FFI_FACTORY.polygon(listK)
+  @shapeK = GEO_FACTORY.polygon(listK)
 
-  @shapeL = FFI_FACTORY.line(FFI_FACTORY.point(-16, -15.5),
-                             FFI_FACTORY.point(-22, -20.5))
+  @shapeL = GEO_FACTORY.line(GEO_FACTORY.point(-16, -15.5),
+                             GEO_FACTORY.point(-22, -20.5))
 
-  @everything = FFI_FACTORY.collection([@shapeA,
+  @everything = GEO_FACTORY.collection([@shapeA,
                                         @shapeB,
                                         @shapeC,
                                         @shapeD,
