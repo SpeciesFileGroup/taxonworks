@@ -237,7 +237,7 @@ class Source::Bibtex < Source
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute verbatim
 # @!attribute cached
-# @!attribute cached_author_year
+# @!attribute cached_author_string
 # @!attribute created_at
 # @!attribute created_by - not yet implemented
 # @!attribute updated_at
@@ -377,11 +377,10 @@ class Source::Bibtex < Source
     bibtex = to_bibtex
     bibtex.parse_names
     bibtex.names.each do |a|
-      p = Source::Bibtex.bibtex_author_to_person(a) #p is a TW person
+      p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
 
-      # TODO: These are required in present FactoryGirl tests, but not
-      # in production, factor out when FactoryGirl + Housekeeping issues
-      # are resolved.
+      # TODO: These are required in present FactoryGirl tests, but not in production,
+      # factor out when FactoryGirl + Housekeeping issues are resolved.
       p.creator = self.creator
       p.updater = self.updater
 
@@ -407,6 +406,24 @@ class Source::Bibtex < Source
 #endregion  ruby-bibtex related
 
 #region getters & setters
+  def authority_name
+    # TODO need to use full last name with suffix not just last_name
+    case  self.authors.count
+      when 0
+        return self.author # return author or ''
+      when 1
+        return (authors[0].last_name)
+      else
+        # authors[0..-2].join(", ") + " & #{authors.last.last_name}"
+        p_array = Array.new
+        for i in 0..(self.authors.count-1) do
+          p_array.push(self.authors[i].last_name)
+        end
+        p_array.to_sentence(:last_word_connector =>' & ')
+    end
+  end
+
+
   def year=(value)
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
@@ -512,7 +529,7 @@ class Source::Bibtex < Source
   protected
 
    def set_cached_values
-=begin
+
     bx_entry = self.to_bibtex
     bx_entry.key = 'tmpID'
     bx_bibliography = BibTeX::Bibliography.new()
@@ -521,18 +538,17 @@ class Source::Bibtex < Source
     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
     cp.import bx_bibliography.to_citeproc
 
-    #cp << bx_bibliography.to_citeproc
+=begin
+    cp << bx_bibliography.to_citeproc
+    cp.process(bx_bibliography[self.id].to_citeproc)
 
-    cp[:tmpID]
-    #cp.process(bx_bibliography[self.id].to_citeproc)
-
-    #self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
+    self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
+=end
 
     # format cached = full reference
-    self.cached = cp.render(:bibliography, id: 'tmpID')
-    # format cached_author_year = authority string
-=end
-return true # until citeproc is fully implemented
+    self.cached = cp.render(:bibliography, id: 'tmpID')[0]
+    # format cached_author_srting = either the bibtex author or the last names of all the normalized authors.
+     self.cached_author_string = authority_name
   end
 
 
@@ -558,8 +574,6 @@ return true # until citeproc is fully implemented
     errors.add(:base, 'no core data provided') if !valid
                       # return false # none of the required fields have a value
   end
-
-
 
 #endregion  hard validations
 

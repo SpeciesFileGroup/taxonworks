@@ -34,5 +34,12 @@ FactoryGirl.define do
       day 4
     end
 
+    factory :src_mult_authors do
+      bibtex_type 'article'
+      title 'Article with multiple authors'
+      author 'Thomas, Dave and Fowler, Chad and Hunt, Andy'
+      journal 'Journal of test articles'
+      year 1920
+    end
    end
 end
