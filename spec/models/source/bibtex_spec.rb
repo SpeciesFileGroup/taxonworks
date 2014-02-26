@@ -324,8 +324,12 @@ describe Source::Bibtex do
       l_src = FactoryGirl.build(:soft_valid_bibtex_source_article)
 
       expect(l_src.save).to be_true
-      pending 'check the cached value'
-      #expect(l_src.cached.blank?).to be_false
+      expect(l_src.cached.blank?).to be_false
+      expect(l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
+      expect(l_src.cached_author_string.blank?).to be_false
+      expect(l_src.cached_author_string.blank?).to eq('Person, Test')
+
+
     end
 
     specify 'the url must be valid' do
