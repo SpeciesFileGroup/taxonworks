@@ -9,24 +9,31 @@ BaseDir = '../shapes/'
 # TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
 describe GeographicArea do
-  let(:geographic_area)  {FactoryGirl.build(:geographic_area)}
+  let(:geographic_area) { FactoryGirl.build(:geographic_area) }
+  #before :each do
+  #  @county = FactoryGirl.create(:level2_geographic_area)
+  #end
+
+  #@state = @county.parent
+  #@country = @state.parent
+  #@planet = @county.root
 
   context 'validation' do
     before(:each) {
-      geographic_area.valid? 
+      geographic_area.valid?
     }
 
     context 'required fields' do
       specify 'name' do
-        expect(geographic_area.errors.include?(:name)).to be_true 
+        expect(geographic_area.errors.include?(:name)).to be_true
       end
 
       specify 'data_origin' do
-        expect(geographic_area.errors.include?(:data_origin)).to be_true 
+        expect(geographic_area.errors.include?(:data_origin)).to be_true
       end
 
       specify 'geographic_area_type' do
-        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true 
+        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true
       end
     end
   end
@@ -70,13 +77,13 @@ describe GeographicArea do
 
     context 'nesting' do
       context 'parents' do
-        before(:each) { 
+        before(:each) {
           @champaign = FactoryGirl.create(:level2_geographic_area)
         }
 
         specify 'lft,rgt' do
-          expect(@champaign.lft > 0).to be_true 
-          expect(@champaign.rgt > 0).to be_true 
+          expect(@champaign.lft > 0).to be_true
+          expect(@champaign.rgt > 0).to be_true
         end
 
         specify 'parent string' do
@@ -102,7 +109,7 @@ describe GeographicArea do
   end
 
   context 'search functions' do
-    before(:each) { 
+    before(:each) {
       @champaign = FactoryGirl.create(:level2_geographic_area)
     }
 
@@ -124,19 +131,19 @@ describe GeographicArea do
       end
 
       specify 'descendants_of' do
-        expect(GeographicArea.descendants_of(@champaign.root)).to eq( [@champaign.parent.parent, @champaign.parent, @champaign ]  )
+        expect(GeographicArea.descendants_of(@champaign.root)).to eq([@champaign.parent.parent, @champaign.parent, @champaign])
       end
 
       specify 'ancestors_of' do
-        expect(GeographicArea.ancestors_of(@champaign)).to eq( [@champaign.root, @champaign.parent.parent, @champaign.parent ]  )
+        expect(GeographicArea.ancestors_of(@champaign)).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
       end
 
       specify 'ancestors_and_descendants_of' do
-        expect(GeographicArea.ancestors_and_descendants_of(@champaign.parent)).to eq( [@champaign.root, @champaign.parent.parent, @champaign ]  )
+        expect(GeographicArea.ancestors_and_descendants_of(@champaign.parent)).to eq([@champaign.root, @champaign.parent.parent, @champaign])
       end
 
       specify 'countries' do
-        expect(GeographicArea.countries).to eq( [@champaign.parent.parent]  )
+        expect(GeographicArea.countries).to eq([@champaign.parent.parent])
       end
 
       specify 'descendents_of_geographic_area_type' do
@@ -144,8 +151,42 @@ describe GeographicArea do
         expect(@champaign.root.descendents_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
         expect(@champaign.root.descendents_of_geographic_area_type('Province').to_a).to eq([])
       end
-    end 
+    end
   end
 
+  context 'interaction with geographic_items' do
+    before(:each) {
+      @geographic_area = FactoryGirl.build(:valid_geographic_area)
+      #@champaign = FactoryGirl.create(:level2_geographic_area)
+      listK      = GEO_FACTORY.line_string([GEO_FACTORY.point(-33, -11),
+                                            GEO_FACTORY.point(-33, -23),
+                                            GEO_FACTORY.point(-21, -23),
+                                            GEO_FACTORY.point(-21, -11),
+                                            GEO_FACTORY.point(-27, -13)])
+      @gi         = GeographicItem.new(polygon: GEO_FACTORY.polygon(listK))
+      @gi.save!
+      @gi
+    }
+
+    specify 'saving GADM Shape' do
+      expect(@geographic_area.gadm_geo_item = @gi).to be_true
+
+      #@champaign.gadm_geo_item_id = @gi.id
+      expect(@geographic_area.save).to be_true
+
+    end
+
+    specify 'saving NaturalEarth Shape' do
+      @champaign.ne_geo_item = @gi
+      @champaign.save
+
+    end
+
+    specify 'saving TDWG Shape' do
+      @champaign.tdwg_geo_item = @gi
+      @champaign.save
+
+    end
+  end
 
 end

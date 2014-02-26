@@ -29,7 +29,7 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
-  validate :proper_data_is_provided
+  # validate :proper_data_is_provided
 
   def geo_object
     return false if self.new_record?

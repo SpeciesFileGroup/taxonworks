@@ -36,6 +36,13 @@ FactoryGirl.define do
   factory :geographic_area, traits: [:creator_and_updater] do
   # geographic_area_type
 
+    factory :valid_geographic_area do
+      data_origin 'Test Data'
+      name 'Test'
+      parent factory: :earth_geographic_area
+      geographic_area_type factory: :valid_geographic_area_type
+    end
+
     factory :with_data_origin_geographic_area do
       data_origin 'Test Data'
 
