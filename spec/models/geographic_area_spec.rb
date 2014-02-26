@@ -8,46 +8,144 @@ BaseDir = '../shapes/'
 # TODO:   Our TDWG shape files are *not* in the form readable by RGeo::Shapefile::Reader, because they lack the attending index and attribute files.  The question becomes "Do we write a reader in Ruby, or is there a better (perhaps existing) choice?"
 # TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
-#describe GeographicArea do
+describe GeographicArea do
+  let(:geographic_area)  {FactoryGirl.build(:geographic_area)}
 
-  #before :all do
-  #end
+  context 'validation' do
+    before(:each) {
+      geographic_area.valid? 
+    }
 
-  #context 'Shape files' do
-  #  specify 'that a shapefile can be read.' do
-  #    filenames = Dir.glob(BaseDir + 'gadm_v2_shp/**/*.shp')
-  #    filenames.sort! # get the first one
-  #    filenames.each { |filename|
-  #      RGeo::Shapefile::Reader.open(filename) { |file|
+    context 'required fields' do
+      specify 'name' do
+        expect(geographic_area.errors.include?(:name)).to be_true 
+      end
 
-=begin
-          file.each { |item|
-            record    = GeographicArea.new(parent_id:  item[:ID_1],
-                                           name:       item[:NAME_2],
-                                           state_id:   item[:ID_1],
-                                           country_id: item[:ID_0],
-                                           county_id:  item[:ID_2])
-            area_type = GeographicAreaType.where(name: item[:TYPE_2])
+      specify 'data_origin' do
+        expect(geographic_area.errors.include?(:data_origin)).to be_true 
+      end
 
-            record.geographic_area_type          = area_type[0]
-            record.geographic_item               = GeographicItem.new
-            record.geographic_item.multi_polygon = item.geometry
+      specify 'geographic_area_type' do
+        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true 
+      end
+    end
+  end
 
-            parent_record = GeographicArea.where({state_id: record.parent_id})[0]
+  context 'associations' do
+    context 'belongs_to' do
+      specify "parent" do
+        expect(geographic_area).to respond_to(:parent)
+      end
+      specify "tdwg_parent" do
+        expect(geographic_area).to respond_to(:tdwg_parent)
+      end
+      specify 'level0' do
+        expect(geographic_area).to respond_to(:level0)
+      end
+      specify 'level1' do
+        expect(geographic_area).to respond_to(:level1)
+      end
+      specify 'level2' do
+        expect(geographic_area).to respond_to(:level2)
+      end
+      specify 'gadm_geo_item' do
+        expect(geographic_area).to respond_to(:gadm_geo_item)
+      end
+      specify 'tdwg_geo_item' do
+        expect(geographic_area).to respond_to(:tdwg_geo_item)
+      end
+      specify 'ne_geo_item' do
+        expect(geographic_area).to respond_to(:ne_geo_item)
+      end
 
-            count = record.geographic_item.multi_polygon.num_geometries
-            ess   = (count == 1) ? '' : 's'
-            puts "#{record.geographic_area_type.name} of #{record.name} in the #{parent_record.geographic_area_type.name} of #{parent_record.name} => #{count} polygon#{ess}."
-          }
-=end
-          #puts filename
-          #should be
-          #   ../shapes/gadm_v2_shp/gadm2.shp
-          #expect(file.num_records).to eq 218238
-        #} # just read the gadm2 shape file
-      #}
-    #
-    #end
-  #
-  #end
-#end
+      context 'has_many' do
+        specify 'children_at_level1' do
+          expect(geographic_area).to respond_to(:children_at_level1)
+        end
+        specify 'children_at_level2' do
+          expect(geographic_area).to respond_to(:children_at_level2)
+        end
+      end
+    end
+
+    context 'nesting' do
+      context 'parents' do
+        before(:each) { 
+          @champaign = FactoryGirl.create(:level2_geographic_area)
+        }
+
+        specify 'lft,rgt' do
+          expect(@champaign.lft > 0).to be_true 
+          expect(@champaign.rgt > 0).to be_true 
+        end
+
+        specify 'parent string' do
+          expect(@champaign.name).to eq('Champaign')
+          expect(@champaign.parent.name).to eq('Illinois')
+          expect(@champaign.parent.parent.name).to eq('United States')
+          expect(@champaign.parent.parent.parent.name).to eq('Earth')
+        end
+
+        specify 'ancestors' do
+          expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
+        end
+
+        specify 'root' do
+          expect(@champaign.root.name).to eq('Earth')
+        end
+
+        specify 'descendents' do
+          expect(@champaign.root.descendants).to have(3).things
+        end
+      end
+    end
+  end
+
+  context 'search functions' do
+    before(:each) { 
+      @champaign = FactoryGirl.create(:level2_geographic_area)
+    }
+
+    specify 'should be able to find a country by ISO_A3' do
+      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq("United States")
+    end
+
+    context 'scopes/AREL' do
+      specify 'children_at_level1' do
+        expect(@champaign.children_at_level1).to have(0).things
+        expect(@champaign.root.children_at_level1).to have(1).things
+        expect(@champaign.parent.parent.children_at_level1).to have(1).things
+      end
+
+      specify 'children_at_level2' do
+        expect(@champaign.children_at_level2).to have(0).things
+        expect(@champaign.root.children_at_level2).to have(1).things
+        expect(@champaign.parent.children_at_level2).to have(1).things
+      end
+
+      specify 'descendants_of' do
+        expect(GeographicArea.descendants_of(@champaign.root)).to eq( [@champaign.parent.parent, @champaign.parent, @champaign ]  )
+      end
+
+      specify 'ancestors_of' do
+        expect(GeographicArea.ancestors_of(@champaign)).to eq( [@champaign.root, @champaign.parent.parent, @champaign.parent ]  )
+      end
+
+      specify 'ancestors_and_descendants_of' do
+        expect(GeographicArea.ancestors_and_descendants_of(@champaign.parent)).to eq( [@champaign.root, @champaign.parent.parent, @champaign ]  )
+      end
+
+      specify 'countries' do
+        expect(GeographicArea.countries).to eq( [@champaign.parent.parent]  )
+      end
+
+      specify 'descendents_of_geographic_area_type' do
+        expect(@champaign.root.descendents_of_geographic_area_type('County').to_a).to eq([@champaign])
+        expect(@champaign.root.descendents_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
+        expect(@champaign.root.descendents_of_geographic_area_type('Province').to_a).to eq([])
+      end
+    end 
+  end
+
+
+end

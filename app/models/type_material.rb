@@ -5,7 +5,6 @@ class TypeMaterial < ActiveRecord::Base
   include Shared::Citable
   include SoftValidation
 
-
   # Keys are valid values for type_type, values are
   # required Class for material
   ICZN_TYPES = {

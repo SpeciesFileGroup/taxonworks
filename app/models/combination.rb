@@ -36,9 +36,13 @@ class Combination < TaxonName
     end
   end
 
+  scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
+  scope :with_cached_original_combination, -> (original_combination) {where(cached_original_combination: original_combination)}
+  scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
 
   before_validation :validate_rank_class_class
 
+  soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
 
   #region Soft validation
 
@@ -51,6 +55,11 @@ class Combination < TaxonName
     if !!self.source && !!self.year_of_publication
       soft_validations.add(:source_id, 'The year of publication and the year of source do not match') if self.source.year != self.year_of_publication
     end
+  end
+
+  def sv_combination_duplicates
+    duplicate = Combination.not_self(self.id).with_parent_id(self.parent_id).with_cached_original_combination(self.cached_original_combination)
+    soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
   #endregion

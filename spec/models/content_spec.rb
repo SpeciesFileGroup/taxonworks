@@ -66,7 +66,7 @@ describe Content do
   # See the Papertrail gem https://github.com/airblade/paper_trail
   context 'use', :versioning => true do
     specify 'within a `with_versioning` block it will be turned on' do
-      PaperTrail.should be_enabled
+      expect(PaperTrail).to be_enabled
     end
 
     context 'some Paptertrail methods' do
