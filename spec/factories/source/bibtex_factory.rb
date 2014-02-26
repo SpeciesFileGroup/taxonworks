@@ -10,7 +10,7 @@ FactoryGirl.define do
       title 'I am a soft valid article'
       author 'Person, Test'
       journal 'Journal of test articles'
-      year 2222
+      year 1000
     end
 
     factory :valid_bibtex_source_book_title_only do

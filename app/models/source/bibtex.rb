@@ -1,3 +1,6 @@
+require 'citeproc'
+require 'csl/styles'
+
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
 #
 # Bibtex - Subclass of Source that represents most references.
@@ -288,8 +291,8 @@ class Source::Bibtex < Source
   validates :url, :format => { :with => URI::regexp(%w(http https ftp)),
             message: "[%{value}] is not a valid URL"}, allow_nil: true
 
-  before_validation :check_has_field #,:day_valid? #, :year_valid?
-  before_save :set_nomenclature_date
+  before_validation :check_has_field
+  before_save :set_nomenclature_date, :set_cached_values
   #TODO before_save set cached values
 
 #endregion validations
@@ -334,10 +337,13 @@ class Source::Bibtex < Source
         b[f] = self.send(f)
       end
     end
-    if !self[:year_suffix].blank?
-      b[:year] = self.year_with_suffix
+    if !self.year_suffix.blank?
+      b.year = self.year_with_suffix
     end
+
     # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
+
+    b.key = self.id
     b
   end
 
@@ -499,10 +505,36 @@ class Source::Bibtex < Source
   def set_nomenclature_date
     self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year) 
   end
+  #todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
 
 #endregion    time/date related
 
   protected
+
+   def set_cached_values
+=begin
+    bx_entry = self.to_bibtex
+    bx_entry.key = 'tmpID'
+    bx_bibliography = BibTeX::Bibliography.new()
+    bx_bibliography.add(bx_entry)
+
+    cp = CiteProc::Processor.new(style: 'apa', format: 'text')
+    cp.import bx_bibliography.to_citeproc
+
+    #cp << bx_bibliography.to_citeproc
+
+    cp[:tmpID]
+    #cp.process(bx_bibliography[self.id].to_citeproc)
+
+    #self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
+
+    # format cached = full reference
+    self.cached = cp.render(:bibliography, id: 'tmpID')
+    # format cached_author_year = authority string
+=end
+return true # until citeproc is fully implemented
+  end
+
 
 #region hard validations
 
@@ -527,6 +559,8 @@ class Source::Bibtex < Source
                       # return false # none of the required fields have a value
   end
 
+
+
 #endregion  hard validations
 
 #region Soft_validation_methods
@@ -541,6 +575,7 @@ class Source::Bibtex < Source
       soft_validations.add(:author, 'There is neither an author,nor editor associated with this source.')
       soft_validations.add(:editor, 'There is neither an author,nor editor associated with this source.')
     end
+
   end
 
   def sv_has_title
@@ -607,20 +642,6 @@ class Source::Bibtex < Source
     end
   end
 
-  # BETH:  I don't think we need these, let's discuss (Matt)
-  # def sv_has_identifier
-  #   #  TODO write linkage to identifiers (rather than local field save)
-  #   # we have url, doi, isbn, & issn as bibtex fields, but they are also identifiers.
-  #   # do need to make the linkages to identifiers as well as save in the local field?
-  # end
-  # 
-  # def sv_has_url
-  #   # TODO need to be converted to check for a URL identifier
-  #   #if (self.url.blank?)
-  #   #  soft_validations.add(:url, 'There is no URL associated with this source.')
-  #   #end
-  # end
-  # 
   def sv_has_note
      # TODO we may need to check of a note in the TW sense as well - has_note? above.
      if (self.note.blank?) && (self.notes.count = 0)

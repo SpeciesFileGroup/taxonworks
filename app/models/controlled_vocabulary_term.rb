@@ -7,5 +7,4 @@ class ControlledVocabularyTerm < ActiveRecord::Base
 
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
-
 end

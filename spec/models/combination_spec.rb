@@ -61,6 +61,8 @@ describe Combination do
           @species = FactoryGirl.create(:relationship_species, parent: @genus)
           @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
           @combination1 = FactoryGirl.create(:combination, parent: @species)
+          @combination1.combination_species = @species
+          expect(@combination1.save).to be_true
         end
         specify 'empty' do
           expect(@combination1.get_combination).to eq('<em>vitis</em>')
@@ -72,9 +74,9 @@ describe Combination do
           @combination1.combination_subgenus = @genus
           @combination1.reload
           expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
-          @combination1.combination_species = @species2
+          @combination1.combination_subspecies = @species2
           @combination1.reload
-          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>comes vitis</em>')
+          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis comes</em>')
         end
       end
     end
@@ -153,6 +155,26 @@ describe Combination do
       expect(c.valid?).to be_true
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+    end
+
+    specify 'duplicate combination' do
+      @genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
+      @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus)
+      c1 = FactoryGirl.create(:combination, parent: @species)
+      c2 = FactoryGirl.create(:combination, parent: @species)
+      c1.combination_genus = @genus
+      c1.combination_species = @species
+      expect(c1.save).to be_true
+      c1.reload
+      c2.combination_genus = @genus
+      c2.combination_species = @species
+      expect(c2.save).to be_true
+      c2.reload
+      expect(c1.cached_original_combination).to eq('<em>Aus bus</em>')
+      expect(c2.cached_original_combination).to eq('<em>Aus bus</em>')
+      c1.soft_validate(:combination_duplicates)
+      # duplicate combination
+      expect(c1.soft_validations.messages_on(:base).count).to eq(1)
     end
 
   end

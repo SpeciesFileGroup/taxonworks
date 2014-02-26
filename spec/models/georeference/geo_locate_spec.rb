@@ -77,7 +77,7 @@ describe Georeference::GeoLocate do
       specify '.save successfully completes' do
         g = Georeference::GeoLocate.new(request: request_params)
         g.save
-        expect(g.error_geographic_item.object.contains?(g.geographic_item.object)).to be_true
+        expect(g.error_geographic_item.geo_object.contains?(g.geographic_item.geo_object)).to be_true
       end
     end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe DataAttribute::InternalAttribute do
-  let (:attribute) {DataAttribute::InternalAttribute.new}
+describe InternalAttribute do
+  let (:attribute) { FactoryGirl.build(:data_attribute_internal_attribute) } 
 
   context 'validation' do
     before(:each) {

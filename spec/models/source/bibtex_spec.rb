@@ -183,7 +183,7 @@ describe Source::Bibtex do
 
   context 'validation' do
     specify 'must have a valid bibtex_type' do
-      local_src = FactoryGirl.create(:valid_source_bibtex)
+      local_src = FactoryGirl.build(:valid_source_bibtex)
       expect(local_src.valid?).to be_true
       local_src.bibtex_type = 'test'
       expect(local_src.valid?).to be_false
@@ -318,6 +318,14 @@ describe Source::Bibtex do
           expect(@source_bibtex.valid?).to be_true
         end
       end
+    end
+
+    specify 'before save set cached values' do
+      l_src = FactoryGirl.build(:soft_valid_bibtex_source_article)
+
+      expect(l_src.save).to be_true
+      pending 'check the cached value'
+      #expect(l_src.cached.blank?).to be_false
     end
 
     specify 'the url must be valid' do

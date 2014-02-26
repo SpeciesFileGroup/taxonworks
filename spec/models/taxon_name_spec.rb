@@ -270,6 +270,12 @@ describe TaxonName do
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
           expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
+        specify 'ICZN species misspelling' do
+          sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+          sp.iczn_set_as_misapplication_of = @species
+          expect(sp.save).to be_true
+          expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
+        end
         specify 'ICZN family' do
           expect(@family.valid?).to be_true
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
@@ -296,6 +302,15 @@ describe TaxonName do
           @subgenus.original_genus = @genus
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
+        end
+        specify 'misspelled original combination' do
+          g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+          g.iczn_set_as_misspelling_of = @genus
+          expect(g.save).to be_true
+          @subspecies.original_genus = g
+          @subspecies.reload
+          expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
+          expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
         end
         specify 'moving nominotypical taxon' do
           sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
