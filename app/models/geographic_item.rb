@@ -1,4 +1,8 @@
 class GeographicItem < ActiveRecord::Base
+  # TODO: Where would one put such code?
+  # RGeo::Geos.preferred_native_interface = :ffi
+  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
+
   include Housekeeping::Users
 
   DATA_TYPES = [:point,
@@ -22,12 +26,7 @@ class GeographicItem < ActiveRecord::Base
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
-
-  # has_many :geogreferences
-
-  # Where would one put such code?
-  # RGeo::Geos.preferred_native_interface = :ffi
-  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
+  has_many :georeferences
 
   validate :proper_data_is_provided
 
@@ -59,22 +58,20 @@ class GeographicItem < ActiveRecord::Base
     !self.near(item, distance)
   end
 
-  # Return the DATA_TYPE of this instance
   def data_type?
     DATA_TYPES.each { |item| return item if !self.send(item).nil? }
   end
 
-  def rendering_hash
-    # get our object and return the set of points as a hash with object type as key
-    we_are = self.geo_object
-    # start by constructing the general case
-    #data = {
-    #points:  [],
-    #lines:   [],
-    #polygons: []
-    #}
+  # Return the geo_object as a set of points with object type as key like:
+  # {
+  #  points:  [],
+  #  lines:   [],
+  #  polygons: []
+  #  }
 
-    if we_are
+  def rendering_hash
+    data = {}
+    if self.geo_object
       case self.data_type?
       when :point
         data = point_to_hash(self.point)
@@ -93,12 +90,9 @@ class GeographicItem < ActiveRecord::Base
       else
         # do nothing
       end
-      data
-    else
-      {}
     end
-    # remove any keys with empty arrays
-    data.delete_if { |key, value| value == [] }
+    
+    data.delete_if { |key, value| value == [] } # remove any keys with empty arrays
     data
   end
 
