@@ -20,35 +20,32 @@ describe GeographicItem do
   let(:geographic_item_with_point) {FactoryGirl.build(:geographic_item_with_point)}
   let(:geographic_item_with_line_string) {FactoryGirl.build(:geographic_item_with_line_string)}
 
-  context 'on creation' do
-    context 'on save' do
 
-      before do
-        geographic_item.valid?  # check for object integrity
-      end
+  context 'validation' do
+    before do
+      geographic_item.valid?  # check for object integrity
+    end
 
-      specify 'Errors added because of no data provided.' do
-        expect(geographic_item.errors.keys).to include(:point)
-      end
+    specify 'some data must be provided' do
+      expect(geographic_item.errors.keys).to include(:point)
+    end
 
-      specify 'Fake title' do
-        geographic_item.point = 'Some string'
-        expect(geographic_item.valid?).to be_false
-      end
+    specify 'invalid data for point is invalid' do
+      geographic_item.point = 'Some string'
+      expect(geographic_item.valid?).to be_false
+    end
 
-      specify 'A good point' do
-        expect(geographic_item_with_point.valid?).to be_true
-      end
+    specify 'a valid point is valid' do
+      expect(geographic_item_with_point.valid?).to be_true
+    end
 
-      specify 'A good point that didn\'t change.' do
-        expect(geographic_item_with_point.point.x).to eq -88.241413
-      end
+    specify 'A good point that didn\'t change.' do
+      expect(geographic_item_with_point.point.x).to eq -88.241413
+    end
 
-      specify 'One and only one of point, line_string, etc. is set.' do
-        geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
-        expect(geographic_item.valid?).to be_false
-      end
-
+    specify 'One and only one of point, line_string, etc. is set.' do
+      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
+      expect(geographic_item.valid?).to be_false
     end
   end
 

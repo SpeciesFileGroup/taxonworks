@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-BaseDir = '../shapes/'
+# BaseDir = '../shapes/'
 
 # TODO: RGeo Shapefile processing: Conversations about the following issues:
 # TODO:   Use of PID from the USA or GADM shape files: include it in the GeographicArea model?

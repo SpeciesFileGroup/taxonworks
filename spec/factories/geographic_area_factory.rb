@@ -37,7 +37,6 @@ FactoryGirl.define do
   end
 
   factory :geographic_area, traits: [:creator_and_updater] do
-  # geographic_area_type
 
     factory :valid_geographic_area do
       data_origin 'Test Data'

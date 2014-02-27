@@ -7,8 +7,7 @@ class Container < ActiveRecord::Base
 
   belongs_to :otu
 
-
-  #has_many :physical_collection_objects
+  has_many :physical_collection_objects
   has_many :collection_profiles
   has_many :collection_items
 
@@ -35,7 +34,6 @@ class Container < ActiveRecord::Base
     r = CONTAINER_TYPE_NAMES.include?(r) ? r.safe_constantize : nil
     r
   end
-
 
   protected
 
