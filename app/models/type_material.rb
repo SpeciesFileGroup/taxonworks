@@ -82,7 +82,7 @@ class TypeMaterial < ActiveRecord::Base
         errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') 
       end
       unless self.protonym.rank_class.parent.to_s =~ /Species/
-        errors.add(:protonym_id, 'Type cannot be designated for not species group taxon')
+        errors.add(:protonym_id, 'Type cannot be designated for a not species group taxon')
       end
     end
   end

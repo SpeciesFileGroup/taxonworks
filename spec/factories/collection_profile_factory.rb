@@ -13,7 +13,7 @@ FactoryGirl.define do
     data_quality 1
     computerization_level 1
     number_of_collection_objects 1
-    number_of_containers 1
+    number_of_containers nil
     created_by_id 1
     modified_by_id 1
     project_id 1

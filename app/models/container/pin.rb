@@ -1,2 +1,2 @@
-class Container::Virtual < Container 
+class Container::Pin < Container
 end
