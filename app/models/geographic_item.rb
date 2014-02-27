@@ -1,16 +1,6 @@
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
 
-  has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
-  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
-  has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
-
-  # belongs_to :georeference
-
-  # Where would one put such code?
-  # RGeo::Geos.preferred_native_interface = :ffi
-  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
-
   DATA_TYPES = [:point,
                 :line_string,
                 :polygon,
@@ -28,6 +18,16 @@ class GeographicItem < ActiveRecord::Base
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
+
+  has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
+  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
+  has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
+
+  # has_many :geogreferences
+
+  # Where would one put such code?
+  # RGeo::Geos.preferred_native_interface = :ffi
+  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
   validate :proper_data_is_provided
 
@@ -59,10 +59,9 @@ class GeographicItem < ActiveRecord::Base
     !self.near(item, distance)
   end
 
+  # Return the DATA_TYPE of this instance
   def data_type?
-    # what data type am I?
-    DATA_TYPES.each { |item|
-      return item if !self.send(item).nil? }
+    DATA_TYPES.each { |item| return item if !self.send(item).nil? }
   end
 
   def rendering_hash

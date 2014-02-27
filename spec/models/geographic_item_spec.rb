@@ -1,16 +1,15 @@
 require 'spec_helper'
 
 describe GeographicItem do
-
-  before :all do
+  before(:all) { 
     build_RGeo_objects
     gen_wkt_files
     gen_db_objects
-  end
+  }
 
-  after(:all) do
+  after(:all) { 
     GeographicItem.destroy_all
-  end
+  }
 
   #let(:FFI_FACTORY) { ::RGeo::Geographic.FFI_FACTORY(:srid => 4326)}
   #let(:FFI_FACTORY) { ::RGeo::Geos.factory(:srid             => 4326,
@@ -20,11 +19,10 @@ describe GeographicItem do
   let(:geographic_item_with_point) {FactoryGirl.build(:geographic_item_with_point)}
   let(:geographic_item_with_line_string) {FactoryGirl.build(:geographic_item_with_line_string)}
 
-
   context 'validation' do
-    before do
-      geographic_item.valid?  # check for object integrity
-    end
+    before(:each) { 
+      geographic_item.valid? 
+    } 
 
     specify 'some data must be provided' do
       expect(geographic_item.errors.keys).to include(:point)
@@ -55,13 +53,11 @@ describe GeographicItem do
     end
 
     specify 'Certain line_string shapes cannot be polygons, others can.' do
-
       @d.reload
       @k.reload
 
       expect(GEO_FACTORY.polygon(@k.geo_object)).to be_nil
       expect(GEO_FACTORY.polygon(@d.geo_object)).not_to be_nil
-
     end
 
     specify 'That one object contains another, or not.' do
@@ -98,11 +94,9 @@ describe GeographicItem do
 
       expect(shapeE1.union(shapeE2)).to eq(e1or2)
       expect(shapeE1.union(shapeE5)).to eq(e1or5)
-
     end
 
     specify 'Two polygons may have various adjacencies.' do
-
       e0      = @e.geo_object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
       shapeE2 = e0.geometry_n(1)
@@ -117,11 +111,9 @@ describe GeographicItem do
       expect(shapeE1.disjoint?(shapeE5)).to be_true
       expect(shapeE2.disjoint?(shapeE5)).to be_true
       expect(shapeE2.disjoint?(shapeE4)).to be_false
-
     end
 
     specify 'Two different object types have various intersections.' do
-
       a   = @a.geo_object
       k   = @k.geo_object
       l   = @l.geo_object
@@ -143,7 +135,6 @@ describe GeographicItem do
     end
 
     specify 'Objects can be related by distance' do
-
       p1  = @p1.geo_object
       p10 = @p10.geo_object
       p17 = @p17.geo_object
@@ -159,17 +150,12 @@ describe GeographicItem do
       expect(@k.far(@p1, 0)).to be_false
       expect(@k.far(@p17, 1)).to be_true
       expect(@k.far(@p10, 5)).to be_true
-
     end
 
     specify 'Outer Limits' do
-
       everything = @all_items.geo_object
-
       convex_hull = GEO_FACTORY.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -88.241421 40.091565 757.0, -88.241413 40.091655 757.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
-
       expect(everything.convex_hull()).to eq(convex_hull)
-
     end
 
   end
@@ -178,7 +164,7 @@ describe GeographicItem do
     specify 'self.geo_object returns stored data' do
       p1                    = GEO_FACTORY.point(-88.241413, 40.091655, 757)
       geographic_item.point = p1
-      geographic_item.save
+      expect(geographic_item.save).to be_true
       # also 'respond_to'
       # after the save, the default factory type of geographic_item is
       # #<RGeo::Geographic::Factory> and the
@@ -191,247 +177,239 @@ describe GeographicItem do
 
   context 'that each type of item knows how to emits its own array' do
     specify 'that represents a point' do
-
       expect(@r2024.to_a).to eq [-88.241413, 40.091655]
-
     end
+
     specify 'that represents a line_string' do
-
       expect(@a.to_a).to eq [[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]
-
     end
+    
     specify 'that represents a polygon' do
-
       expect(@k.to_a).to eq [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]
-
     end
+    
     specify 'that represents a multi_point' do
-
       expect(@rooms.to_a).to eq [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]]
-
     end
+    
     specify 'that represents a multi_line_string' do
-
       expect(@c.to_a).to eq [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]]
-
     end
+    
     specify 'that represents a multi_polygon' do
-
       expect(@g.to_a).to eq [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]]
-
     end
   end
 
   context 'that each type of item knows how to emits its own hash' do
     specify 'for a point' do
-
       expect(@r2024.rendering_hash).to eq(points: [[-88.241413, 40.091655]])
     end
+    
     specify 'for a line_string' do
-
       expect(@a.rendering_hash).to eq(lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]])
     end
+    
     specify 'for a polygon' do
-
       expect(@k.rendering_hash).to eq(polygons: [[[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]])
     end
-    specify 'for a multi_point' do
 
+    specify 'for a multi_point' do
       expect(@rooms.rendering_hash).to eq(points: [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]])
     end
-    specify 'for a multi_line_string' do
 
+    specify 'for a multi_line_string' do
       expect(@c.rendering_hash).to eq(lines: [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]])
     end
-    specify 'for a multi_polygon' do
 
+    specify 'for a multi_polygon' do
       expect(@g.rendering_hash).to eq(polygons: [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]])
     end
-    specify 'for a geometry_collection' do
 
+    specify 'for a geometry_collection' do
       expect(@all_items.rendering_hash[:points]).to eq [
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [-88.241421, 40.091565],
-                                                         [-88.241417, 40.09161],
-                                                         [-88.241413, 40.091655],
-                                                         [0.0, 0.0],
-                                                         [-29.0, -16.0],
-                                                         [-25.0, -18.0],
-                                                         [-28.0, -21.0],
-                                                         [-19.0, -18.0],
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [32.2, 22.0],
-                                                         [-17.0, 7.0],
-                                                         [-9.8, 5.0],
-                                                         [-10.7, 0.0],
-                                                         [-30.0, 21.0],
-                                                         [-25.0, 18.3],
-                                                         [-23.0, 18.0],
-                                                         [-19.6, -13.0],
-                                                         [-7.6, 14.2],
-                                                         [-4.6, 11.9],
-                                                         [-8.0, -4.0],
-                                                         [-4.0, -3.0],
-                                                         [-10.0, -6.0]
-                                                       ]
+        [3.0, -14.0],
+        [6.0, -12.9],
+        [5.0, -16.0],
+        [4.0, -17.9],
+        [7.0, -17.9],
+        [3.0, -14.0],
+        [6.0, -12.9],
+        [5.0, -16.0],
+        [4.0, -17.9],
+        [7.0, -17.9],
+        [-88.241421, 40.091565],
+        [-88.241417, 40.09161],
+        [-88.241413, 40.091655],
+        [0.0, 0.0],
+        [-29.0, -16.0],
+        [-25.0, -18.0],
+        [-28.0, -21.0],
+        [-19.0, -18.0],
+        [3.0, -14.0],
+        [6.0, -12.9],
+        [5.0, -16.0],
+        [4.0, -17.9],
+        [7.0, -17.9],
+        [32.2, 22.0],
+        [-17.0, 7.0],
+        [-9.8, 5.0],
+        [-10.7, 0.0],
+        [-30.0, 21.0],
+        [-25.0, 18.3],
+        [-23.0, 18.0],
+        [-19.6, -13.0],
+        [-7.6, 14.2],
+        [-4.6, 11.9],
+        [-8.0, -4.0],
+        [-4.0, -3.0],
+        [-10.0, -6.0]
+      ]
 
       expect(@all_items.rendering_hash[:lines]).to eq [
-                                                        [
-                                                          [-32.0, 21.0],
-                                                          [-25.0, 21.0],
-                                                          [-25.0, 16.0],
-                                                          [-21.0, 20.0]
-                                                        ],
-                                                        [
-                                                          [23.0, 21.0],
-                                                          [16.0, 21.0],
-                                                          [16.0, 16.0],
-                                                          [11.0, 20.0]
-                                                        ],
-                                                        [
-                                                          [4.0, 12.6],
-                                                          [16.0, 12.6],
-                                                          [16.0, 7.6]
-                                                        ],
-                                                        [
-                                                          [21.0, 12.6],
-                                                          [26.0, 12.6],
-                                                          [22.0, 17.6]
-                                                        ],
-                                                        [
-                                                          [-33.0, 11.0],
-                                                          [-24.0, 4.0],
-                                                          [-26.0, 13.0],
-                                                          [-31.0, 4.0],
-                                                          [-33.0, 11.0]
-                                                        ],
-                                                        [
-                                                          [-20.0, -1.0],
-                                                          [-26.0, -6.0]
-                                                        ],
-                                                        [
-                                                          [-21.0, -4.0],
-                                                          [-31.0, -4.0]
-                                                        ],
-                                                        [
-                                                          [27.0, -14.0],
-                                                          [18.0, -21.0],
-                                                          [20.0, -12.0],
-                                                          [25.0, -23.0]
-                                                        ],
-                                                        [
-                                                          [27.0, -14.0],
-                                                          [18.0, -21.0],
-                                                          [20.0, -12.0],
-                                                          [25.0, -23.0]
-                                                        ],
-                                                        [
-                                                          [-16.0, -15.5],
-                                                          [-22.0, -20.5]
-                                                        ]
-                                                      ]
+        [
+          [-32.0, 21.0],
+          [-25.0, 21.0],
+          [-25.0, 16.0],
+          [-21.0, 20.0]
+        ],
+        [
+          [23.0, 21.0],
+          [16.0, 21.0],
+          [16.0, 16.0],
+          [11.0, 20.0]
+        ],
+        [
+          [4.0, 12.6],
+          [16.0, 12.6],
+          [16.0, 7.6]
+        ],
+        [
+          [21.0, 12.6],
+          [26.0, 12.6],
+          [22.0, 17.6]
+        ],
+        [
+          [-33.0, 11.0],
+          [-24.0, 4.0],
+          [-26.0, 13.0],
+          [-31.0, 4.0],
+          [-33.0, 11.0]
+        ],
+        [
+          [-20.0, -1.0],
+          [-26.0, -6.0]
+        ],
+        [
+          [-21.0, -4.0],
+          [-31.0, -4.0]
+        ],
+        [
+          [27.0, -14.0],
+          [18.0, -21.0],
+          [20.0, -12.0],
+          [25.0, -23.0]
+        ],
+        [
+          [27.0, -14.0],
+          [18.0, -21.0],
+          [20.0, -12.0],
+          [25.0, -23.0]
+        ],
+        [
+          [-16.0, -15.5],
+          [-22.0, -20.5]
+        ]
+      ]
 
       expect(@all_items.rendering_hash[:polygons]).to eq [
-                                                           [
-                                                             [-14.0, 23.0],
-                                                             [-14.0, 11.0],
-                                                             [-2.0, 11.0],
-                                                             [-2.0, 23.0],
-                                                             [-8.0, 21.0],
-                                                             [-14.0, 23.0]
-                                                           ],
-                                                           [
-                                                             [-19.0, 9.0],
-                                                             [-9.0, 9.0],
-                                                             [-9.0, 2.0],
-                                                             [-19.0, 2.0],
-                                                             [-19.0, 9.0]
-                                                           ],
-                                                           [
-                                                             [5.0, -1.0],
-                                                             [-14.0, -1.0],
-                                                             [-14.0, 6.0],
-                                                             [5.0, 6.0],
-                                                             [5.0, -1.0]
-                                                           ],
-                                                           [
-                                                             [-11.0, -1.0],
-                                                             [-11.0, -5.0],
-                                                             [-7.0, -5.0],
-                                                             [-7.0, -1.0],
-                                                             [-11.0, -1.0]
-                                                           ],
-                                                           [
-                                                             [-3.0, -9.0],
-                                                             [-3.0, -1.0],
-                                                             [-7.0, -1.0],
-                                                             [-7.0, -9.0],
-                                                             [-3.0, -9.0]
-                                                           ],
-                                                           [
-                                                             [-7.0, -9.0],
-                                                             [-7.0, -5.0],
-                                                             [-11.0, -5.0],
-                                                             [-11.0, -9.0],
-                                                             [-7.0, -9.0]
-                                                           ],
-                                                           [
-                                                             [28.0, 2.3],
-                                                             [23.0, -1.7],
-                                                             [26.0, -4.8],
-                                                             [28.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [22.0, -6.8],
-                                                             [22.0, -9.8],
-                                                             [16.0, -6.8],
-                                                             [22.0, -6.8]
-                                                           ],
-                                                           [
-                                                             [16.0, 2.3],
-                                                             [14.0, -2.8],
-                                                             [18.0, -2.8],
-                                                             [16.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [28.0, 2.3],
-                                                             [23.0, -1.7],
-                                                             [26.0, -4.8],
-                                                             [28.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [22.0, -6.8],
-                                                             [22.0, -9.8],
-                                                             [16.0, -6.8],
-                                                             [22.0, -6.8]],
-                                                           [
-                                                             [16.0, 2.3],
-                                                             [14.0, -2.8],
-                                                             [18.0, -2.8],
-                                                             [16.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [-33.0, -11.0],
-                                                             [-33.0, -23.0],
-                                                             [-21.0, -23.0],
-                                                             [-21.0, -11.0],
-                                                             [-27.0, -13.0],
-                                                             [-33.0, -11.0]
-                                                           ]
-                                                         ]
+        [
+          [-14.0, 23.0],
+          [-14.0, 11.0],
+          [-2.0, 11.0],
+          [-2.0, 23.0],
+          [-8.0, 21.0],
+          [-14.0, 23.0]
+        ],
+        [
+          [-19.0, 9.0],
+          [-9.0, 9.0],
+          [-9.0, 2.0],
+          [-19.0, 2.0],
+          [-19.0, 9.0]
+        ],
+        [
+          [5.0, -1.0],
+          [-14.0, -1.0],
+          [-14.0, 6.0],
+          [5.0, 6.0],
+          [5.0, -1.0]
+        ],
+        [
+          [-11.0, -1.0],
+          [-11.0, -5.0],
+          [-7.0, -5.0],
+          [-7.0, -1.0],
+          [-11.0, -1.0]
+        ],
+        [
+          [-3.0, -9.0],
+          [-3.0, -1.0],
+          [-7.0, -1.0],
+          [-7.0, -9.0],
+          [-3.0, -9.0]
+        ],
+        [
+          [-7.0, -9.0],
+          [-7.0, -5.0],
+          [-11.0, -5.0],
+          [-11.0, -9.0],
+          [-7.0, -9.0]
+        ],
+        [
+          [28.0, 2.3],
+          [23.0, -1.7],
+          [26.0, -4.8],
+          [28.0, 2.3]
+        ],
+        [
+          [22.0, -6.8],
+          [22.0, -9.8],
+          [16.0, -6.8],
+          [22.0, -6.8]
+        ],
+        [
+          [16.0, 2.3],
+          [14.0, -2.8],
+          [18.0, -2.8],
+          [16.0, 2.3]
+        ],
+        [
+          [28.0, 2.3],
+          [23.0, -1.7],
+          [26.0, -4.8],
+          [28.0, 2.3]
+        ],
+        [
+          [22.0, -6.8],
+          [22.0, -9.8],
+          [16.0, -6.8],
+          [22.0, -6.8]],
+        [
+          [16.0, 2.3],
+          [14.0, -2.8],
+          [18.0, -2.8],
+          [16.0, 2.3]
+          ],
+          [
+            [-33.0, -11.0],
+            [-33.0, -23.0],
+            [-21.0, -23.0],
+            [-21.0, -11.0],
+            [-27.0, -13.0],
+            [-33.0, -11.0]
+          ]
+      ]
 
       expect(@all_items.rendering_hash).to eq ({lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], points: [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], polygons: [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]]})
     end
@@ -439,9 +417,6 @@ describe GeographicItem do
 end
 
 def build_RGeo_objects()
-
-  #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
-
   @room2024 = GEO_FACTORY.point(-88.241413, 40.091655, 757)
   @room2020 = GEO_FACTORY.point(-88.241421, 40.091565, 757)
   @room2022 = GEO_FACTORY.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
@@ -585,7 +560,6 @@ def build_RGeo_objects()
   @shapeG2 = @shapeG.geometry_n(1)
   @shapeG3 = @shapeG.geometry_n(2)
 
-
   @shapeH = GEO_FACTORY.multi_point([@point5,
                                      @point6,
                                      @point7,
@@ -700,8 +674,6 @@ def build_RGeo_objects()
 
 end
 
-#.methods - Kernel.methods
-
 def gen_db_objects()
   #build_RGeo_objects()
   #gen_wkt_files()
@@ -783,7 +755,6 @@ def gen_db_objects()
   @l.save!
   @all_items.save!
   @outer_limits.save!
-
 end
 
 def prep
@@ -803,31 +774,30 @@ def gen_wkt_files()
   f_line.write(col_header)
   f_poly.write(col_header)
 
-
   @all_wkt_names.each_with_index do |it, index|
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-      when 'Point'
-        f_type = f_point
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-        f_type = $stdout
-      when /^Line[S]*/ #when 'Line' or 'LineString'
-        f_type = f_line
-      when 'MultiLineString'
-        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-        f_type = $stdout
-      when 'Polygon'
-        f_type = f_poly
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        f_type = $stdout
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-        f_type = $stdout
-      else
-        f_type = $stdout
+    when 'Point'
+      f_type = f_point
+    when 'MultiPoint'
+      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+      f_type = $stdout
+    when /^Line[S]*/ #when 'Line' or 'LineString'
+      f_type = f_line
+    when 'MultiLineString'
+      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+      f_type = $stdout
+    when 'Polygon'
+      f_type = f_poly
+    when 'MultiPolygon'
+      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+      f_type = $stdout
+    when 'GeometryCollection'
+      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+      f_type = $stdout
+    else
+      f_type = $stdout
       # ignore it for now
     end
     f_type.write("#{index}:#{wkt}: #{name}\n")
