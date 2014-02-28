@@ -30,4 +30,17 @@ describe Container do
     end
   end
 
+  context 'soft validation' do
+    specify 'inapropriate parent container' do
+      container.type = 'Container::Drawer'
+      expect(container.save).to be_true
+      container1 = FactoryGirl.build_stubbed(:container, type: 'Container::SlideBox', parent: container)
+      container2 = FactoryGirl.build_stubbed(:container, type: 'Container::Cabinet', parent: container)
+      container1.soft_validate(:parent_type)
+      container2.soft_validate(:parent_type)
+      expect(container1.soft_validations.messages_on(:type).count).to eq(1)
+      expect(container2.soft_validations.messages_on(:type).empty?).to be_true
+    end
+  end
+
 end

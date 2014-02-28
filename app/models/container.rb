@@ -58,9 +58,12 @@ class Container < ActiveRecord::Base
   #region SoftValidation
 
   def sv_parent_type
-
+    unless self.parent_id.nil?
+      unless self.type_class.valid_parents.include?(self.parent.type.to_s)
+        soft_validations.add(:type, 'This container has inappropriate parent container')
+      end
+    end
   end
-
 
   #endregion
 
