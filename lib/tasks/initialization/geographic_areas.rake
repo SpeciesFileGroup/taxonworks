@@ -86,15 +86,46 @@ namespace :tw do
     desc 'load shapes for geographic_areas'
     task 'load_geographic_area_shapes' => [:environment] do
 
-      Builder  = 'person1@example.com'
-      builder  = User.where(email: Builder).first
+      Builder = 'person1@example.com'
+      builder = User.where(email: Builder).first
 
-      #'G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp'
-      filename = ENV['table_name']
-      shapes   = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
+      filenames = []
+      filename  = ENV['table_name']
 
-      begin
-        ActiveRecord::Base.transaction do
+      if filename.blank?
+        one_file = false
+      else
+        one_file = true
+      end
+
+      if one_file then
+        filenames.push(filename)
+      else
+        filenames = [
+          '../shapes/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp',
+          '../shapes/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp',
+          '../shapes/TDWG2/level1/level1.shp',
+          '../shapes/TDWG2/level2/level2.shp',
+          '../shapes/TDWG2/level3/level3.shp',
+          '../shapes/TDWG2/level4/level4.shp',
+          '../shapes/gadm_v2_shp/gadm2.shp'
+        ]
+      end
+
+      multiples = []
+      skipped   = {'ne_geo_item'   => [],
+                   'tdwg_geo_item' => [],
+                   'gadm_geo_item' => []}
+      check     ={}
+
+      filenames.each { |filename|
+        shapes = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
+
+        begin
+          #ActiveRecord::Base.transaction do
+          count = shapes.num_records.to_s
+          puts "#{Time.now.strftime "%H:%M:%S"}: #{filename}: #{count} records."
+
           shapes.each do |record|
 
             # there are different ways of locating the record for this shape, depending on where the data came from.
@@ -127,10 +158,21 @@ namespace :tw do
                 placer = nil
             end
 
+            if check[finder]
+              puts "\nDanger"
+              puts
+            end
+            check[finder] = record.index
+
             if finder.nil?
             else
               ga = GeographicArea.where(finder)
-              if ga.nil?
+              if ga.count < 1
+                skipped[placer].push(finder.values.first)
+                $stderr.puts
+                $stderr.print "Skipped #{skipped[placer].count} : (#{record.index}) #{finder} from #{filename} (#{record['name']})."
+                $stderr.puts
+
               else
 
                 # create the shape in which we are interested.
@@ -140,36 +182,33 @@ namespace :tw do
                 gi.save!
 
                 ga.each { |area|
-                  # placer = 'geographic_item'
-                  #area.send("#{placer}=".to_sym, gi)
+                  multiples.push(finder => area.name)
+                  $stderr.puts
+                  $stderr.print "Multiple #{multiples.count}: #{finder} found #{area.name} from #{area.data_origin}."
+                  $stderr.puts
+                } if ga.count > 1
 
-                  case placer
-                    when /tdwg/
-                      area.tdwg_geo_item = gi
-                    when /ne_/
-                      area.ne_geo_item = gi
-                    when /gadm/
-                      area.gadm_geo_item = gi
-                    else
-                      area
-                  end
+                ga.each { |area|
 
+                  print "\r#{record.index + 1} of #{count} (#{finder}) #{area.name}.#{' ' * 50}"
+                  area.send("#{placer}=".to_sym, gi)
                   area.save
-                  area
                 }
               end
             end
           end
 
-          # open the shape/dbf
-          # for each record, check for a  a corresponding Geographic Area
-          # found - > add shape
+            # open the shape/dbf
+            # for each record, check for a  a corresponding Geographic Area
+            # found - > add shape
+            # raise
+            #end
+        rescue
           raise
         end
-      rescue
-        raise
-      end
-
+      }
+      puts
+      puts "#{Time.now.strftime "%H:%M:%S"}: Multiples: #{multiples.count} records, skipped #{skipped} records."
 
     end
   end

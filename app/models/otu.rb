@@ -9,5 +9,6 @@ class Otu < ActiveRecord::Base
 
   has_many :contents, inverse_of: :otu
   has_many :taxon_determinations, inverse_of: :otu
+  has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic  
 end

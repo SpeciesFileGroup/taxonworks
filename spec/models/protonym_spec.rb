@@ -228,7 +228,8 @@ describe Protonym do
       @subgenus.source = @genus.source
       @subgenus.save
 
-      @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
+      #TODO citeproc gem doesn't currently support lastname without firstname
+      @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')
     end
 
     context 'validat project_id' do
@@ -276,7 +277,8 @@ describe Protonym do
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
       end
       specify 'fix author and year from the source' do
-        @source.update(year: 1758, author: 'Linnaeus')
+        #TODO citeproc gem doesn't currently support lastname without firstname
+        @source.update(year: 1758, author: 'Linnaeus, C.')
         @source.save
         @kingdom.source = @source
         @kingdom.soft_validate(:missing_fields)
@@ -286,7 +288,7 @@ describe Protonym do
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_true
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_true
-        expect(@kingdom.verbatim_author).to eq('Linnaeus')
+        expect(@kingdom.verbatim_author).to eq('Linnaeus, C.')
         expect(@kingdom.year_of_publication).to eq(1758)
       end
     end
