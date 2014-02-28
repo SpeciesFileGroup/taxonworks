@@ -10,7 +10,7 @@ describe "people/index" do
         :suffix => "Suffix",
         :prefix => "Prefix",
         :created_by_id => 1,
-        :updated_by_id => 2
+        :updated_by_id => 1
       ),
       stub_model(Person,
         :type => "Type",
@@ -19,7 +19,7 @@ describe "people/index" do
         :suffix => "Suffix",
         :prefix => "Prefix",
         :created_by_id => 1,
-        :updated_by_id => 2
+        :updated_by_id => 1
       )
     ])
   end
@@ -32,7 +32,7 @@ describe "people/index" do
     assert_select "tr>td", :text => "First Name".to_s, :count => 2
     assert_select "tr>td", :text => "Suffix".to_s, :count => 2
     assert_select "tr>td", :text => "Prefix".to_s, :count => 2
-    assert_select "tr>td", :text => 1.to_s, :count => 2
-    assert_select "tr>td", :text => 2.to_s, :count => 2
+    assert_select "tr>td", :text => 'person1@example.com', :count => 4
+    #assert_select "tr>td", :text => 2.to_s, :count => 2
   end
 end

@@ -26,6 +26,11 @@ TaxonWorks::Application.routes.draw do
   get 'taxon_names/marilyn'
 #  resources :taxon_names
 
+  get 'tasks/accessions/quick/verbatim_material/new'
+  post 'tasks/accessions/quick/verbatim_material/create'
+
+
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

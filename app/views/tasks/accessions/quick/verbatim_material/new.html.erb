@@ -1,0 +1,17 @@
+<%= form_tag tasks_accessions_quick_verbatim_material_create_path do %>
+    <div id="error_explanation">
+      <h2>error messages here</h2>
+    </div>
+
+    <div class="field">
+      <%= label_tag :collecting_event %><br>
+      <%= text_field_tag 'collection_object[buffered_collecting_event]' %>
+    </div>
+    <div class="field">
+      <%= label_tag :determinations %><br>
+      <%= text_field_tag 'collection_object[buffered_determinations]' %>
+    </div>
+    <div class="actions">
+      <%= submit_tag %>
+    </div>
+<% end %>
