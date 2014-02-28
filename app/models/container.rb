@@ -21,7 +21,7 @@ class Container < ActiveRecord::Base
 
   # Return a String with the "common" name for this class.
   def self.class_name
-    self.type_name.demodulize.underscore.humanize.downcase
+    self.name.demodulize.underscore.humanize.downcase
   end
 
   def type_name
@@ -60,7 +60,7 @@ class Container < ActiveRecord::Base
   def sv_parent_type
     unless self.parent_id.nil?
       unless self.type_class.valid_parents.include?(self.parent.type.to_s)
-        soft_validations.add(:type, 'This container has inappropriate parent container')
+        soft_validations.add(:type, "This container has inappropriate parent container: '#{self.parent.type_class.class_name}'")
       end
     end
   end

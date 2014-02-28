@@ -116,6 +116,7 @@ class TaxonNameClassification < ActiveRecord::Base
       when 'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished'
         soft_validations.add(:type, 'Please specify the reasons for the name being invalidly published')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished'
+
         soft_validations.add(:type, 'Please specify if the name is legitimate or illegitimate')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')

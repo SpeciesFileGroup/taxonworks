@@ -1,7 +1,7 @@
 class Container::Cabinet < Container
 
   def self.valid_parents
-    'Container::Virtual'
+    ['Container::Virtual']
   end
 
 end
