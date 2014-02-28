@@ -4,12 +4,16 @@ class Container < ActiveRecord::Base
   include Housekeeping
   include Shared::Identifiable
   include Shared::Containable
+  include SoftValidation
+
 
   belongs_to :otu
 
   has_many :physical_collection_objects
   has_many :collection_profiles
   has_many :collection_items
+
+  soft_validate(:sv_parent_type, set: :parent_type)
 
   before_validation :check_type
 
@@ -35,15 +39,28 @@ class Container < ActiveRecord::Base
     r
   end
 
+  def self.valid_parents
+    CONTAINER_TYPE_NAMES
+  end
+
   protected
 
   #region Validation
 
   def check_type
-    unless CONTAINER_TYPES.include?(self.type)
+    unless CONTAINER_TYPE_NAMES.include?(self.type.to_s)
       errors.add(:type, 'Not a legal type of container')
     end
   end
+
+  #endregion
+
+  #region SoftValidation
+
+  def sv_parent_type
+
+  end
+
 
   #endregion
 

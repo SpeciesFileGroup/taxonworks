@@ -25,7 +25,7 @@ describe Container do
     specify 'type' do
       container.type = 'aaa'
       expect(container.valid?).to be_false
-      container.type = Container::Drawer
+      container.type = 'Container::Drawer'
       expect(container.valid?).to be_true
     end
   end
