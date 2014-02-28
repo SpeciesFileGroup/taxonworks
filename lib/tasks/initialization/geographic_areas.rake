@@ -113,83 +113,96 @@ namespace :tw do
       end
 
       multiples = []
-      skipped = 0
+      skipped   = {'ne_geo_item'   => [],
+                   'tdwg_geo_item' => [],
+                   'gadm_geo_item' => []}
+      check     ={}
 
       filenames.each { |filename|
         shapes = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
 
         begin
           #ActiveRecord::Base.transaction do
-            count = shapes.num_records.to_s
-            puts "#{Time.now.strftime "%H:%M:%S"}: #{filename}: #{count} records."
-            shapes.each do |record|
+          count = shapes.num_records.to_s
+          puts "#{Time.now.strftime "%H:%M:%S"}: #{filename}: #{count} records."
 
-              # there are different ways of locating the record for this shape, depending on where the data came from.
-              finder = {}
-              placer = nil
-              case filename
-                when /ne_10m_admin_0_countries\.shp/i
-                  finder = {:neID => record['iso_n3']}
-                  placer = 'ne_geo_item'
-                when /ne_10m_admin_1_states_provinces_shp\.shp/i
-                  finder = {:neID => record['adm1_code']}
-                  placer = 'ne_geo_item'
-                when /level1/i
-                  finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
-                  placer = 'tdwg_geo_item'
-                when /level2/i
-                  finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
-                  placer = 'tdwg_geo_item'
-                when /level3/i
-                  finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
-                  placer = 'tdwg_geo_item'
-                when /level4/i
-                  finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
-                  placer = 'tdwg_geo_item'
-                when /gadm2/i
-                  finder = {:gadmID => record['OBJECTID']}
-                  placer = 'gadm_geo_item'
-                else
-                  finder = nil
-                  placer = nil
-              end
+          shapes.each do |record|
 
-              if finder.nil?
+            # there are different ways of locating the record for this shape, depending on where the data came from.
+            finder = {}
+            placer = nil
+            case filename
+              when /ne_10m_admin_0_countries\.shp/i
+                finder = {:neID => record['iso_n3']}
+                placer = 'ne_geo_item'
+              when /ne_10m_admin_1_states_provinces_shp\.shp/i
+                finder = {:neID => record['adm1_code']}
+                placer = 'ne_geo_item'
+              when /level1/i
+                finder = {:tdwgID => record['LEVEL1_COD'].to_s + '----'}
+                placer = 'tdwg_geo_item'
+              when /level2/i
+                finder = {:tdwgID => record['LEVEL2_COD'].to_s + '---'}
+                placer = 'tdwg_geo_item'
+              when /level3/i
+                finder = {:tdwgID => record['LEVEL2_COD'].to_s + record['LEVEL3_COD']}
+                placer = 'tdwg_geo_item'
+              when /level4/i
+                finder = {:tdwgID => record['Level2_cod'].to_s + record['Level4_cod']}
+                placer = 'tdwg_geo_item'
+              when /gadm2/i
+                finder = {:gadmID => record['OBJECTID']}
+                placer = 'gadm_geo_item'
               else
-                ga = GeographicArea.where(finder)
-                if ga.count < 1
-                  skipped += 1
+                finder = nil
+                placer = nil
+            end
+
+            if check[finder]
+              puts "\nDanger"
+              puts
+            end
+            check[finder] = record.index
+
+            if finder.nil?
+            else
+              ga = GeographicArea.where(finder)
+              if ga.count < 1
+                skipped[placer].push(finder.values.first)
+                $stderr.puts
+                $stderr.print "Skipped #{skipped[placer].count} : (#{record.index}) #{finder} from #{filename} (#{record['name']})."
+                $stderr.puts
+
+              else
+
+                # create the shape in which we are interested.
+                gi = GeographicItem.new(creator:       builder,
+                                        updater:       builder,
+                                        multi_polygon: record.geometry)
+                gi.save!
+
+                ga.each { |area|
+                  multiples.push(finder => area.name)
                   $stderr.puts
-                  $stderr.print "Skipped #{skipped} : (#{record.index}) #{finder} from #{filename} (#{record['name']})."
-                else
+                  $stderr.print "Multiple #{multiples.count}: #{finder} found #{area.name} from #{area.data_origin}."
+                  $stderr.puts
+                } if ga.count > 1
 
-                  # create the shape in which we are interested.
-                  gi = GeographicItem.new(creator:       builder,
-                                          updater:       builder,
-                                          multi_polygon: record.geometry)
-                  gi.save!
-
-                  ga.each { |area|
-                    multiples.push(finder: area.name)
-                    $stderr.puts
-                    $stderr.print "Multiple #{multiples.count}: #{finder} found #{area.name} from #{area.data_origin}."
-                  } if ga.count > 1
-
-                  area = ga.first
+                ga.each { |area|
 
                   print "\r#{record.index + 1} of #{count} (#{finder}) #{area.name}.#{' ' * 50}"
                   area.send("#{placer}=".to_sym, gi)
                   area.save
-
-                end
+                }
               end
             end
+          end
 
             # open the shape/dbf
             # for each record, check for a  a corresponding Geographic Area
             # found - > add shape
             # raise
-          #end
+            #end
         rescue
           raise
         end
