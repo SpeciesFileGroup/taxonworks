@@ -208,7 +208,7 @@ namespace :tw do
         end
       }
       puts
-      puts "#{Time.now.strftime "%H:%M:%S"}: Multiples: #{multiples.count} records, skipped #{skipped} records."
+      puts "#{Time.now.strftime "%H:%M:%S"}: Multiples: #{multiples.count} records, skipped #{skipped[placer].count} records."
 
     end
   end
