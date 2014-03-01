@@ -1,7 +1,8 @@
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
-  # acts_as_nested_set
+  # TODO: Investigate how to do this unconditionally. Use rake BUILD_GEO=1 ... to run incompatible tasks.
+  acts_as_nested_set unless ENV['BUILD_GEO']  
 
   belongs_to :gadm_geo_item, class_name: 'GeographicItem', foreign_key: :gadm_geo_item_id
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
