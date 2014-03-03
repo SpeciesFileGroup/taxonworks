@@ -17,8 +17,6 @@ class Container < ActiveRecord::Base
 
   before_validation :check_type
 
-  #CONTAINER_TYPES = %w(dry wet slide)
-
   # Return a String with the "common" name for this class.
   def self.class_name
     self.name.demodulize.underscore.humanize.downcase
