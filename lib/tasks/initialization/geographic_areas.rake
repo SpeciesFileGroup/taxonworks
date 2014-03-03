@@ -42,7 +42,7 @@ namespace :tw do
             #row_data.delete('lft')
             r             = GeographicArea.new(row_data)
             records[r.id] = r
-            print "Build:  record #{r.id}\r"
+            print "\rBuild:  record #{r.id}"
           }
 
           count = records.count
@@ -58,7 +58,7 @@ namespace :tw do
             v.level2               = records[v.level2_id]
             v.parent               = records[v.parent_id]
             v.geographic_area_type = GeographicAreaType.where(id: v.geographic_area_type_id).first
-            print "Update: record #{v.id} of #{count}.\r"
+            print "\rUpdate: record #{v.id} of #{count}."
           end
           puts
 
@@ -68,9 +68,9 @@ namespace :tw do
             #time_then = snap
 
             r.save!
-            print "Save:   record #{r.id} of #{count}"
+            print "\rSave:   record #{r.id} of #{count}"
             #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
-            print ".\r"
+            print "."
           end
 =begin
           puts
@@ -117,6 +117,8 @@ namespace :tw do
                    'tdwg_geo_item' => [],
                    'gadm_geo_item' => []}
       check     ={}
+      placer = nil
+      finder = {}
 
       filenames.each { |filename|
         shapes = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
@@ -129,8 +131,6 @@ namespace :tw do
           shapes.each do |record|
 
             # there are different ways of locating the record for this shape, depending on where the data came from.
-            finder = {}
-            placer = nil
             case filename
               when /ne_10m_admin_0_countries\.shp/i
                 finder = {:neID => record['iso_n3']}
@@ -158,20 +158,20 @@ namespace :tw do
                 placer = nil
             end
 
-            if check[finder]
-              puts "\nDanger"
-              puts
-            end
-            check[finder] = record.index
+            #if check[finder]
+            #  puts "\nDanger"
+            #  puts
+            #end
+            #check[finder] = record.index
 
             if finder.nil?
             else
               ga = GeographicArea.where(finder)
               if ga.count < 1
                 skipped[placer].push(finder.values.first)
-                $stderr.puts
-                $stderr.print "Skipped #{skipped[placer].count} : (#{record.index}) #{finder} from #{filename} (#{record['name']})."
-                $stderr.puts
+                #$stderr.puts
+                #$stderr.print "Skipped #{skipped[placer].count} : (#{record.index}) #{finder} from #{filename} (#{record['name']})."
+                #$stderr.puts
 
               else
 
@@ -183,9 +183,9 @@ namespace :tw do
 
                 ga.each { |area|
                   multiples.push(finder => area.name)
-                  $stderr.puts
-                  $stderr.print "Multiple #{multiples.count}: #{finder} found #{area.name} from #{area.data_origin}."
-                  $stderr.puts
+                  #$stderr.puts
+                  #$stderr.print "Multiple #{multiples.count}: #{finder} found #{area.name} from #{area.data_origin}."
+                  #$stderr.puts
                 } if ga.count > 1
 
                 ga.each { |area|
