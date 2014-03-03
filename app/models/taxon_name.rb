@@ -75,6 +75,7 @@ class TaxonName < ActiveRecord::Base
                     :check_new_rank_class,
                     :check_new_parent_class,
                     :validate_source_type,
+                    :validate_gender,
                     :set_cached_names
 
   soft_validate(:sv_validate_name, set: :validate_name)
@@ -82,6 +83,8 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
   soft_validate(:sv_cached_names, set: :cached_names)
+
+  GENUS_GENDERS = %w(masculine feminine neuter)
 
   def all_taxon_name_relationships
     # (self.taxon_name_relationships & self.related_taxon_name_relationships)
@@ -216,6 +219,19 @@ class TaxonName < ActiveRecord::Base
     return n
   end
 
+  def name_in_gender(gender)
+    case gender
+      when 'masculine'
+        n = self.masculine_name
+      when 'feminine'
+        n = self.feminine_name
+      when 'neuter'
+        n = self.neuter_name
+      else
+        n = nil
+    end
+    n.blank? ? self.name : n
+  end
 
   #region Set cached fields
 
@@ -300,18 +316,21 @@ class TaxonName < ActiveRecord::Base
       subgenus = ''
       superspecies = ''
       species = ''
+      gender = nil
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
           case i.rank_class.rank_name
-            when 'genus' then genus = '<em>' + i.name + '</em> '
+            when 'genus'
+              genus = '<em>' + i.name + '</em> '
+              gender = i.gender
             when 'subgenus' then subgenus += '<em>' + i.name + '</em> '
             when 'section' then subgenus += 'sect. <em>' + i.name + '</em> '
             when 'subsection' then subgenus += 'subsect. <em>' + i.name + '</em> '
             when 'series' then subgenus += 'ser. <em>' + i.name + '</em> '
             when 'subseries' then subgenus += 'subser. <em>' + i.name + '</em> '
-            when 'species group' then superspecies += '<em>' + i.name + '</em> '
-            when 'species' then species += '<em>' + i.name + '</em> '
-            when 'subspecies' then species += '<em>' + i.name + '</em> '
+            when 'species group' then superspecies += '<em>' + i.name_in_gender(gender) + '</em> '
+            when 'species' then species += '<em>' + i.name_in_gender(gender) + '</em> '
+            when 'subspecies' then species += '<em>' + i.name_in_gender(gender) + '</em> '
             when 'variety' then species += 'var. <em>' + i.name + '</em> '
             when 'subvariety' then species += 'subvar. <em>' + i.name + '</em> '
             when 'form' then species += 'f. <em>' + i.name + '</em> '
@@ -436,8 +455,6 @@ class TaxonName < ActiveRecord::Base
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
-  #TODO: check homotypic synonyms
-
   def get_author_and_year
     if self.rank.nil?
       ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
@@ -532,6 +549,10 @@ class TaxonName < ActiveRecord::Base
     if self.source
       errors.add(:source_id, 'Source must be a Bibtex') if self.source.type != 'Source::Bibtex'
     end
+  end
+
+  def validate_gender
+    errors.add(:gender, 'Incorrect gender') unless self.gender.nil? || GENUS_GENDERS.include?(self.gender)
   end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)

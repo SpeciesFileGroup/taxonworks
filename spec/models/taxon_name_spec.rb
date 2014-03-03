@@ -200,7 +200,7 @@ describe TaxonName do
   end
 
   context 'validation' do
-    before do
+    before(:each) do
       taxon_name.valid?
     end
 
@@ -210,6 +210,22 @@ describe TaxonName do
       end
       specify 'type' do
         expect(taxon_name.type).to eq('Protonym')
+      end
+    end
+
+    context 'gender' do
+      specify 'absent' do
+        expect(taxon_name.errors.include?(:gender)).to be_false
+      end
+      specify 'foo' do
+        taxon_name.gender = 'foo'
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:gender)).to be_true
+      end
+      specify 'feminine' do
+        taxon_name.gender = 'feminine'
+        taxon_name.valid?
+        expect(taxon_name.errors.include?(:gender)).to be_false
       end
     end
 
@@ -302,6 +318,22 @@ describe TaxonName do
           @subgenus.original_genus = @genus
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
+        end
+        specify 'different gender' do
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
+          @species.masculine_name = 'vitus'
+          @species.feminine_name = 'vita'
+          @species.neuter_name = 'vitum'
+          expect(@species.save).to be_true
+          @genus.gender = 'masculine'
+          expect(@genus.save).to be_true
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
+          @genus.gender = 'feminine'
+          expect(@genus.save).to be_true
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
+          @genus.gender = 'neuter'
+          expect(@genus.save).to be_true
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
         specify 'misspelled original combination' do
           g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
