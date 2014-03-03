@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject do
+describe CollectionObject::BiologicalCollectionObject do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
 

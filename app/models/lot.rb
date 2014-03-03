@@ -1,5 +1,5 @@
 # A class representing physical, biological, collection enumerated (precisely, see also RangedLot) to > 1, i.e. a group of individuals.
-class Lot < CollectionObject::PhysicalCollectionObject::BiologicalCollectionObject
+class Lot < CollectionObject::BiologicalCollectionObject
   include Housekeeping
 
   validate :size_of_total
