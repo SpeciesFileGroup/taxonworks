@@ -5,8 +5,12 @@ describe 'Material' do
   context '#create_quick_verbatim' do
   
     before(:each) {
-      @collection_objects_stub = {collection_objects: {}}
-      @collection_objects_stub[:collection_objects][:object1] = {total: nil}
+      @one_object_stub = {collection_objects: {}}
+      @one_object_stub[:collection_objects][:object1] = {total: nil}
+
+      @two_objects_stub = {collection_objects: {}} # need a deep clone method
+      @two_objects_stub[:collection_objects][:object1] = {total: nil}
+      @two_objects_stub[:collection_objects][:object2] = {total: nil}
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -18,32 +22,64 @@ describe 'Material' do
     end
 
     specify 'returns a single collection object when collection_objects[:object1][:total] is set' do
-      @collection_objects_stub[:collection_objects][:object1][:total] = 1
-      expect(Material.create_quick_verbatim(@collection_objects_stub).collection_objects).to have(1).things
+      @one_object_stub[:collection_objects][:object1][:total] = 1
+      expect(Material.create_quick_verbatim(@one_object_stub).collection_objects).to have(1).things
     end
 
     specify 'returns an array of objects when multiple object totals are set' do
-      @collection_objects_stub[:collection_objects][:object1][:total] = 1
-      @collection_objects_stub[:collection_objects][:object2] = {} 
-      @collection_objects_stub[:collection_objects][:object1][:total] = 2
-      expect(Material.create_quick_verbatim(@collection_objects_stub).collection_objects).to have(2).things
+      expect(Material.create_quick_verbatim(@two_objects_stub).collection_objects).to have(2).things
     end
 
     specify 'uses the buffered_ values when provided' do
       event = 'ABCD'
-      @params = @collection_objects_stub.merge(collection_object: {buffered_collecting_event: event}) 
-      @collection_objects_stub[:collection_objects][:object1][:total] = 1
-      expect(Material.create_quick_verbatim(@params).collection_objects).to have(1).things
-      expect(Material.create_quick_verbatim(@params).collection_objects.first.buffered_collecting_event).to eq(event)
+      opts = @one_object_stub.merge(collection_object: {buffered_collecting_event: event}) 
+      @one_object_stub[:collection_objects][:object1][:total] = 1
+      expect(Material.create_quick_verbatim(opts).collection_objects).to have(1).things
+      expect(Material.create_quick_verbatim(opts).collection_objects.first.buffered_collecting_event).to eq(event)
     end
 
     specify 'contains multiple objects with a virtual container when no container provided' do
-      @collection_objects_stub[:collection_objects][:object1][:total] = 1
-      @collection_objects_stub[:collection_objects][:object2] = {} 
-      @collection_objects_stub[:collection_objects][:object1][:total] = 2
-      response = Material.create_quick_verbatim(@collection_objects_stub)
-      expect(response.collection_objects.first.container.class).to eq(Container)
+      @two_objects_stub[:collection_objects][:object1][:total] = 1
+      @two_objects_stub[:collection_objects][:object2][:total] = 2
+      response = Material.create_quick_verbatim(@two_objects_stub)
+      expect(response.collection_objects.first.container.class).to eq(Container::Virtual)
       expect(response.collection_objects.first.container).to eq(response.collection_objects.last.container)
+    end
+
+    specify 'assigns a note when provided' do
+      text = 'Some text.'
+      @one_object_stub[:collection_objects][:object1][:total] = 1
+      opts = @one_object_stub.merge(
+        note: {text: text}
+      )
+      response = Material.create_quick_verbatim(opts)
+      expect(response.collection_objects.first.notes).to have(1).things
+      expect(response.collection_objects.first.notes.first.text).to eq(text)
+    end
+
+    specify 'assigns the "same" note to more than one' do
+      text = 'Some text.'
+      @two_objects_stub[:collection_objects][:object1][:total] = 1
+      @two_objects_stub[:collection_objects][:object2][:total] = 2
+    
+      opts = @two_objects_stub.merge(
+        note: {text: text}
+      )
+      response = Material.create_quick_verbatim(opts)
+      expect(Material.create_quick_verbatim(opts).collection_objects).to have(2).things
+      expect(response.collection_objects.first.notes.first.text).to eq(response.collection_objects.last.notes.first.text)
+    end
+
+    specify 'material can be assigned to a repository' do
+      repository = FactoryGirl.create(:valid_repository)
+      @one_object_stub[:collection_objects][:object1][:total] = 1
+      opts = @one_object_stub.merge(collection_object: {repository_id: repository.id}) 
+      response = Material.create_quick_verbatim(opts)
+      expect(response.collection_objects.first.repository).to eq(repository)
+    end
+
+    specify 'attributes are assigned' do
+
     end
 
   end

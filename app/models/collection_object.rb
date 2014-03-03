@@ -15,6 +15,7 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Containable
   include Shared::Citable
+  include Shared::Notable
 
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects

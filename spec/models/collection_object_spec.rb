@@ -47,6 +47,7 @@ describe CollectionObject do
   context 'concerns' do
     it_behaves_like "identifiable"
     it_behaves_like "containable"
+    it_behaves_like "notable"
   end
 
 end

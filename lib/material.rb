@@ -4,16 +4,20 @@ module Material
   def self.create_quick_verbatim(options  = {}) 
     opts = {
       collection_objects: {},
+      note: nil
     }.merge!(options) 
 
     response = QuickVerbatimResponse.new
 
     stub_object = CollectionObject.new(opts[:collection_object])
-    (stub_object.container ||= Container::Virtual.new) if opts[:collection_objects].size > 1
+    container = Container::Virtual.new if stub_object.container.blank?
+    note = Note.new(opts[:note]) if opts[:note]
 
     opts[:collection_objects].keys.each do |o|
       object = stub_object.clone
       object.total = opts[:collection_objects][o][:total]
+      object.notes << note.clone if note
+      object.container = container if container
       response.collection_objects.push object
     end
 
