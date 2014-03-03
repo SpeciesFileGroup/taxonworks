@@ -6,8 +6,8 @@ describe Container do
 
   context 'associations' do
     context 'has_many' do
-      specify 'physical_collection_objects' do
-        expect(container).to respond_to(:physical_collection_objects)
+      specify 'collection_objects' do
+        expect(container).to respond_to(:collection_objects)
       end
       specify 'type' do
         expect(container).to respond_to(:type)

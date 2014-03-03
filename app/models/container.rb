@@ -6,12 +6,11 @@ class Container < ActiveRecord::Base
   include Shared::Containable
   include SoftValidation
 
-
   belongs_to :otu
 
-  has_many :physical_collection_objects
-  has_many :collection_profiles
   has_many :collection_items
+  has_many :collection_objects, through: :collection_items
+  has_many :collection_profiles
 
   soft_validate(:sv_parent_type, set: :parent_type)
 
