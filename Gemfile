@@ -41,8 +41,8 @@ gem 'awesome_nested_set',
 
 # BibTex handling
 gem 'bibtex-ruby'
-#gem 'citeproc-ruby'
-gem 'citeproc'
+gem 'citeproc-ruby'
+#gem 'citeproc'
 gem 'csl-styles'
 
 # Ordering records

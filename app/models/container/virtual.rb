@@ -1,2 +1,3 @@
-class Container::Virtual < Container 
+class Container::Virtual < Container
+
 end

@@ -69,7 +69,7 @@ describe Content do
       expect(PaperTrail).to be_enabled
     end
 
-    context 'some Paptertrail methods' do
+    context 'some Papertrail methods' do
       before(:each) {
         @c = FactoryGirl.build(:valid_content)
         @c.save!

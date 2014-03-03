@@ -59,7 +59,7 @@ describe Georeference do
       end
     end
 
-    context 'the GeographicItem.object.to_a returns a properly formed array' do
+    context 'the GeographicItem.geo_object.to_a returns a properly formed array' do
       specify 'for point' do
 
         geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
