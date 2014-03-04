@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Georeference do
 
-  let(:georeference) { Georeference.new }
+  let(:georeference) { FactoryGirl.build(:georeference) }
   let(:request_params) {
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
   }

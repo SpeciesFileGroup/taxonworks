@@ -174,6 +174,36 @@ describe GeographicItem do
     end
   end
 
+  context 'that GeographicItems can be found to contain a ' do
+    specify 'method to return its object.' do
+      expect(geographic_item).to respond_to(:geo_object)
+    end
+
+    specify 'method to see if one object is contained by another.' do
+      expect(geographic_item).to respond_to(:contains?)
+    end
+
+    specify 'method to see if one object is within another.' do
+      expect(geographic_item).to respond_to(:within?)
+    end
+
+    specify 'method to to see how far one object is from another.' do
+      expect(geographic_item).to respond_to(:distance?)
+      expect(geographic_item).to respond_to(:near)
+      expect(geographic_item).to respond_to(:far)
+    end
+
+    specify 'method to find objects which contain another objects.' do
+      expect(geographic_item).to respond_to(:find_containing)
+    end
+
+    specify 'point of Lat/Long' do
+      p1                    = GEO_FACTORY.point(-88.241413, 40.091655, 757)
+
+    end
+  end
+
+
   context 'that each type of item knows how to emits its own array' do
     specify 'that represents a point' do
       expect(@r2024.to_a).to eq [-88.241413, 40.091655]

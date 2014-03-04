@@ -130,6 +130,16 @@ class GeographicItem < ActiveRecord::Base
     end
   end
 
+  def self.find_containing(geo_object)
+    data = []
+    GeographicItem(limit: 100).to_a.each {|area|
+      if area.geo_object.contains?(geo_object)
+        data.push(area)
+      end
+    }
+    data
+  end
+
   protected
 
   def point_to_a(point)
