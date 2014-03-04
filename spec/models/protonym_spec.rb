@@ -276,6 +276,13 @@ describe Protonym do
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
       end
+      specify 'missign gender' do
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:gender).empty?).to be_false
+        @genus.gender = 'neuter'
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:gender).empty?).to be_true
+      end
       specify 'fix author and year from the source' do
         #TODO citeproc gem doesn't currently support lastname without firstname
         @source.update(year: 1758, author: 'Linnaeus, C.')
@@ -310,7 +317,6 @@ describe Protonym do
 
         sgen.fix_soft_validations
 
-        #@genus.reload
         @genus.soft_validate(:validate_coordinated_names)
         sgen.soft_validate(:validate_coordinated_names)
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true

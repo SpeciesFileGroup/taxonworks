@@ -237,6 +237,8 @@ class Protonym < TaxonName
                             fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
+        soft_validations.add(:gender, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') unless self.gender == t.gender
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
@@ -272,6 +274,10 @@ class Protonym < TaxonName
       end
       if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
         self.year_of_publication = t.year_of_publication
+        fixed = true
+      end
+      if self.gender.nil? && self.gender != t.gender
+        self.gender = t.gender
         fixed = true
       end
       if self.original_genus.nil? && self.original_genus != t.original_genus
@@ -508,21 +514,17 @@ class Protonym < TaxonName
     end
   end
 
-  def sv_fix_add_relationship(method, object_id)
-    begin
-      Protonym.transaction do
-        self.save
-        return true
-      end
-    rescue
-      return false
-    end
-
-  false
-
-  end
-
-
+#  def sv_fix_add_relationship(method, object_id)
+#    begin
+#      Protonym.transaction do
+#        self.save
+#        return true
+#      end
+#    rescue
+#      return false
+#    end
+#  false
+#  end
 
   #endregion
 

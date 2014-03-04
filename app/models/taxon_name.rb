@@ -316,7 +316,6 @@ class TaxonName < ActiveRecord::Base
       subgenus = ''
       superspecies = ''
       species = ''
-      gender = nil
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
           case i.rank_class.rank_name
@@ -597,6 +596,7 @@ class TaxonName < ActiveRecord::Base
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix: :sv_fix_missing_year,
                          success_message: 'Year was updated') if self.year_of_publication.nil?
+    soft_validations.add(:gender, 'Gender is not selected') if self.rank_class.to_s =~ /Genus/ && self.gender.nil?
   end
 
   def sv_fix_missing_author
