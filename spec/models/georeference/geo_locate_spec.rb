@@ -4,9 +4,10 @@ require 'spec_helper'
 
 describe Georeference::GeoLocate do
 
-  let(:geo_locate) { Georeference::GeoLocate.new }
+  let(:geo_locate) { FactoryGirl.build(:georeference_geo_locate)}
   let(:request_params) {
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
+    # point = [-88.24333, 40.11639]
   }
   let(:set_request) {
     geo_locate.request = request_params
@@ -16,6 +17,7 @@ describe Georeference::GeoLocate do
 
     specify '.request_hash returns the a valid hash to use as a request.' do
       geo_locate.request = {state: 'IL', country: 'USA', locality: 'Urbana'}
+      # {"type"=>"Point", "coordinates"=>[-88.20722, 40.11056]}
       geo_locate.make_request
       expect(geo_locate.request_hash.to_s).to eq '{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "hwyX"=>"false", "enableH2O"=>"false", "doUncert"=>"true", "doPoly"=>"false", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}'
     end
