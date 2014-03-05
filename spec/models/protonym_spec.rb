@@ -439,6 +439,12 @@ describe Protonym do
         @species.soft_validate(:missing_classifications)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_true
       end
+      specify 'possible gender' do
+        g = FactoryGirl.create(:relationship_genus, name: 'Cyclops', parent: @family)
+        g.soft_validate(:missing_classifications)
+        expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_true
+      end
+
 
     end
 

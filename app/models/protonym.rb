@@ -236,8 +236,21 @@ class Protonym < TaxonName
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Part of speech is not specified') if self.part_of_speech_class.nil?
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Gender is not specified') if self.gender_class.nil?
+      if self.gender_class.nil?
+        g = genus_suggested_gender
+        soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
+      end
     end
+  end
+
+  def genus_suggested_gender
+    return nil unless self.rank_class.to_s =~/Genus/
+    TaxonNameClassification::Latinized::Gender.descendants.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.class_name if self.name =~ /^[a-zA-Z]*#{e}$/
+      end
+    end
+    nil
   end
 
   def sv_validate_coordinated_names
