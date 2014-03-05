@@ -28,8 +28,7 @@ describe GeographicItem do
     end
 
     specify 'invalid data for point is invalid' do
-      geographic_item.point = 'Some string'
-      expect(geographic_item.valid?).to be_false
+      expect{      geographic_item.point = 'Some string'}.to raise_error
     end
 
     specify 'a valid point is valid' do
@@ -41,7 +40,7 @@ describe GeographicItem do
     end
 
     specify 'One and only one of point, line_string, etc. is set.' do
-      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
+      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10).to_s
       expect(geographic_item_with_point.valid?).to be_false
     end
   end
@@ -52,11 +51,11 @@ describe GeographicItem do
     end
 
     specify 'Certain line_string shapes cannot be polygons, others can.' do
-      @d.reload
-      @k.reload
+      @k.reload # can't make a polygon out of a line_string which crosses itself
+      @d.reload # can make a (closed) polygon out of a line_string which is either closed, or open
 
       expect(GEO_FACTORY.polygon(@k.geo_object)).to be_nil
-      expect(GEO_FACTORY.polygon(@d.geo_object)).not_to be_nil
+      expect(GEO_FACTORY.polygon(@d.geo_object).to_s).not_to be_nil
     end
 
     specify 'That one object contains another, or not.' do
@@ -170,7 +169,10 @@ describe GeographicItem do
       # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
       # See the model for a method to change the default factory for a given
       # column (in our case, all).
+      geo_id = geographic_item.id
       expect(geographic_item.geo_object).to eq p1
+      geographic_item.reload
+      expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
     end
   end
 
@@ -742,27 +744,27 @@ def gen_db_objects()
 
   @outer_limits = GeographicItem.new
 
-  @r2020.point       = @room2020
-  @r2022.point       = @room2022
-  @r2024.point       = @room2024
-  @rooms.multi_point = @rooms20
+  @r2020.point       = @room2020.to_s
+  @r2022.point       = @room2022.to_s
+  @r2024.point       = @room2024.to_s
+  @rooms.multi_point = @rooms20.to_s
 
-  @p1.point  = point_in
-  @p10.point = @point10
-  @p16.point = @point16
-  @p17.point = point_out
+  @p1.point  = point_in.to_s
+  @p10.point = @point10.to_s
+  @p16.point = @point16.to_s
+  @p17.point = point_out.to_s
 
-  @a.line_string                 = @shapeA
-  @c.multi_line_string           = @shapeC
-  @d.line_string                 = @shapeD
-  @e.geometry_collection         = @shapeE
-  @f.multi_line_string           = @shapeF
-  @g.multi_polygon               = @shapeG
-  @h.multi_point                 = @shapeH
-  @k.polygon                     = @shapeK
-  @l.line_string                 = @shapeL
-  @all_items.geometry_collection = @everything
-  @outer_limits.line_string      = @convex_hull.exterior_ring
+  @a.line_string                 = @shapeA.to_s
+  @c.multi_line_string           = @shapeC.to_s
+  @d.line_string                 = @shapeD.to_s
+  @e.geometry_collection         = @shapeE.to_s
+  @f.multi_line_string           = @shapeF.to_s
+  @g.multi_polygon               = @shapeG.to_s
+  @h.multi_point                 = @shapeH.to_s
+  @k.polygon                     = @shapeK.to_s
+  @l.line_string                 = @shapeL.to_s
+  @all_items.geometry_collection = @everything.to_s
+  @outer_limits.line_string      = @convex_hull.exterior_ring.to_s
 
   @r2020.save!
   @r2022.save!
