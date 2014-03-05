@@ -85,6 +85,7 @@ class Protonym < TaxonName
 
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
+  soft_validate(:sv_missing_classifications, set: :missing_classifications)
   soft_validate(:sv_type_placement, set: :type_placement)
   soft_validate(:sv_primary_types, set: :primary_types)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)

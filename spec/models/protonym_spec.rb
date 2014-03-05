@@ -118,7 +118,7 @@ describe Protonym do
       context 'latinized' do
         specify 'has at most one latinization' do
           c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartsOfSpeech::Ajective')
+          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
           expect(c2.valid?).to be_false
         end
       end
@@ -423,6 +423,23 @@ describe Protonym do
         @species.soft_validate(:primary_types)
         expect(@species.soft_validations.messages_on(:base).count).to eq(1)
       end
+    end
+    context 'missing classifications' do
+      specify 'gender of genus is not selected' do
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'part of speech of species is not selected' do
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_true
+      end
+
     end
 
     context 'problematic relationships' do
