@@ -67,7 +67,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
-  gem 'debugger', {git:  'http://github.com/acarpe/debugger.git'}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end
 
