@@ -13,6 +13,7 @@ gem 'activerecord-postgis-adapter'
 gem 'ffi-geos'
 gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
+#gem 'activerecord-spatial'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0'

@@ -13,11 +13,15 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
+
   column_factory = RGeo::Geos.factory(
     native_interface: :ffi,
     srid:             4326,
     has_z_coordinate: true,
     has_m_coordinate: false)
+
+
+  #column_factory = Georeference::FACTORY
 
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
@@ -30,11 +34,9 @@ class GeographicItem < ActiveRecord::Base
 
   validate :proper_data_is_provided
 
-=begin
   scope :intersecting_boxes, -> (geographic_item) {
-    where('geographic_items.polygon && geographic_items.point',
-          geographic_item.polygon, geographic_item.point) }
-=end
+    select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
+          ) }
 
   def geo_object
     return false if self.new_record?
