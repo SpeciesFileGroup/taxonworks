@@ -1,6 +1,7 @@
 # Be sure to restart your server (or console) when you modify this file.
 
-# All TaxonNameClassification Classes
+# Array of all Latinized TaxonNameClassification classes
+LATINIZED_CLASSES = TaxonNameClassification::Latinized.descendants
 
 # Array of all ICZN TaxonNameClassification classes
 ICZN_TAXON_NAME_CLASSES = TaxonNameClassification::Iczn.descendants
@@ -9,7 +10,10 @@ ICZN_TAXON_NAME_CLASSES = TaxonNameClassification::Iczn.descendants
 ICN_TAXON_NAME_CLASSES = TaxonNameClassification::Icn.descendants
 
 # Array of all ICZN and ICN TaxonNameClassification classes
-TAXON_NAME_CLASSES = ICZN_TAXON_NAME_CLASSES + ICZN_TAXON_NAME_CLASSES
+TAXON_NAME_CLASSES = ICZN_TAXON_NAME_CLASSES + ICZN_TAXON_NAME_CLASSES + LATINIZED_CLASSES
+
+# Array of all Latinized TaxonNameClassification classes, as Strings
+LATINIZED_CLASS_NAMES = LATINIZED_CLASSES.collect{|d| d.to_s}
 
 # Array of all ICZN TaxonNameClassification classes, as Strings
 ICZN_TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASSES.collect{|d| d.to_s}
@@ -18,7 +22,7 @@ ICZN_TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASSES.collect{|d| d.to_s}
 ICN_TAXON_NAME_CLASS_NAMES = ICN_TAXON_NAME_CLASSES.collect{|d| d.to_s}
 
 # Array of all TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASS_NAMES + ICN_TAXON_NAME_CLASS_NAMES
+TAXON_NAME_CLASS_NAMES = ICZN_TAXON_NAME_CLASS_NAMES + ICN_TAXON_NAME_CLASS_NAMES + LATINIZED_CLASS_NAMES
 
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [TaxonNameClassification::Iczn::Unavailable.to_s] +

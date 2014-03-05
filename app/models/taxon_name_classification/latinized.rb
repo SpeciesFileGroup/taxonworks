@@ -1,0 +1,2 @@
+class TaxonNameClassification::Latinized < TaxonNameClassification
+end

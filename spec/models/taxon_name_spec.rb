@@ -214,18 +214,11 @@ describe TaxonName do
     end
 
     context 'gender' do
-      specify 'absent' do
-        expect(taxon_name.errors.include?(:gender)).to be_false
-      end
-      specify 'foo' do
-        taxon_name.gender = 'foo'
+      before(:all) do
+        gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:gender)).to be_true
-      end
-      specify 'feminine' do
-        taxon_name.gender = 'feminine'
-        taxon_name.valid?
-        expect(taxon_name.errors.include?(:gender)).to be_false
+        expect(@genus.gender_name).to eq('masculine')
+        gender.destroy
       end
     end
 
@@ -325,14 +318,13 @@ describe TaxonName do
           @species.feminine_name = 'vita'
           @species.neuter_name = 'vitum'
           expect(@species.save).to be_true
-          @genus.gender = 'masculine'
-          expect(@genus.save).to be_true
+          gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
-          @genus.gender = 'feminine'
-          expect(@genus.save).to be_true
+          gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
+          expect(gender.save).to be_true
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
-          @genus.gender = 'neuter'
-          expect(@genus.save).to be_true
+          gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
+          expect(gender.save).to be_true
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
         specify 'misspelled original combination' do
