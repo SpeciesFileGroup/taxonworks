@@ -4,9 +4,9 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
   include Housekeeping::Users
-  include ActiveRecordSpatial::SpatialColumns
-  include ActiveRecordSpatial::SpatialScopes
-  self.create_spatial_column_accessors! # except: ['point']
+ #  include ActiveRecordSpatial::SpatialColumns
+ #  include ActiveRecordSpatial::SpatialScopes
+ #  self.create_spatial_column_accessors! # except: ['point']
 
 
   DATA_TYPES = [:point,
@@ -42,21 +42,17 @@ class GeographicItem < ActiveRecord::Base
     select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
           ) }
 
+
   def geo_object
     return false if self.new_record?
     DATA_TYPES.each do |t|
-      m = "#{t}_geos"
-      if !self.send(t).nil?
-        return self.send(m)
-      else
-        m
-      end
+      return self.send(t) if !self.send(t).nil?
     end
+    false
   end
 
   def contains?(item)
     self.geo_object.contains?(item.geo_object)
-    #true
   end
 
   def within?(item)

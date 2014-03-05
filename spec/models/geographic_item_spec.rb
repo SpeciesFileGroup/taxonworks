@@ -28,7 +28,8 @@ describe GeographicItem do
     end
 
     specify 'invalid data for point is invalid' do
-      expect{      geographic_item.point = 'Some string'}.to raise_error
+      geographic_item.point = 'Some string'
+      expect(geographic_item.valid?).to be_false
     end
 
     specify 'a valid point is valid' do
@@ -40,7 +41,7 @@ describe GeographicItem do
     end
 
     specify 'One and only one of point, line_string, etc. is set.' do
-      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10).to_s
+      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
       expect(geographic_item_with_point.valid?).to be_false
     end
   end
@@ -744,27 +745,27 @@ def gen_db_objects()
 
   @outer_limits = GeographicItem.new
 
-  @r2020.point       = @room2020.to_s
-  @r2022.point       = @room2022.to_s
-  @r2024.point       = @room2024.to_s
-  @rooms.multi_point = @rooms20.to_s
+  @r2020.point       = @room2020.as_binary
+  @r2022.point       = @room2022.as_binary
+  @r2024.point       = @room2024.as_binary
 
-  @p1.point  = point_in.to_s
-  @p10.point = @point10.to_s
-  @p16.point = @point16.to_s
-  @p17.point = point_out.to_s
+  @rooms.multi_point = @rooms20.as_binary
+  @p1.point  = point_in.as_binary
+  @p10.point = @point10.as_binary
+  @p16.point = @point16.as_binary
+  @p17.point = point_out.as_binary
 
-  @a.line_string                 = @shapeA.to_s
-  @c.multi_line_string           = @shapeC.to_s
-  @d.line_string                 = @shapeD.to_s
-  @e.geometry_collection         = @shapeE.to_s
-  @f.multi_line_string           = @shapeF.to_s
-  @g.multi_polygon               = @shapeG.to_s
-  @h.multi_point                 = @shapeH.to_s
-  @k.polygon                     = @shapeK.to_s
-  @l.line_string                 = @shapeL.to_s
-  @all_items.geometry_collection = @everything.to_s
-  @outer_limits.line_string      = @convex_hull.exterior_ring.to_s
+  @a.line_string                 = @shapeA.as_binary
+  @c.multi_line_string           = @shapeC.as_binary
+  @d.line_string                 = @shapeD.as_binary
+  @e.geometry_collection         = @shapeE.as_binary
+  @f.multi_line_string           = @shapeF.as_binary
+  @g.multi_polygon               = @shapeG.as_binary
+  @h.multi_point                 = @shapeH.as_binary
+  @k.polygon                     = @shapeK.as_binary
+  @l.line_string                 = @shapeL.as_binary
+  @all_items.geometry_collection = @everything.as_binary
+  @outer_limits.line_string      = @convex_hull.exterior_ring.as_binary
 
   @r2020.save!
   @r2022.save!
