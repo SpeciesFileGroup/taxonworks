@@ -1,5 +1,7 @@
 #@ffi_factory = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
+require Rails.root + 'spec/support/geo'
+
 
 FactoryGirl.define do
 

@@ -79,7 +79,20 @@ describe 'Material' do
     end
 
     specify 'attributes are assigned' do
+      attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
+      attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
 
+      attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
+      attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
+
+      @two_objects_stub[:collection_objects][:object1][:total] = 1
+      @two_objects_stub[:collection_objects][:object1][:biocuration_classes] = [attribute1.id, attribute2.id, attribute3.id, attribute4.id]
+      @two_objects_stub[:collection_objects][:object2][:total] = 5
+      @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [attribute1.id, attribute4.id]
+
+      response = Material.create_quick_verbatim(@two_objects_stub)
+      expect(response.collection_objects.first.biocuration_classifications).to have(4).things
+      expect(response.collection_objects.last.biocuration_classifications).to have(2).things
     end
 
   end

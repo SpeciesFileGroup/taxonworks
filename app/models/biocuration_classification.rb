@@ -6,4 +6,6 @@ class BiocurationClassification < ActiveRecord::Base
 
   validates_presence_of :biocuration_class, :biological_collection_object
 
+  # TODO: scope to 'organismal/biological axis'
+
 end

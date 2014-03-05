@@ -3,6 +3,14 @@ describe CollectionObject::BiologicalCollectionObject do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
 
+  context 'associations' do
+    context 'has_many' do
+      specify 'biocuration_classifications' do
+        expect(biological_collection_object).to respond_to(:biocuration_classifications)
+      end
+    end
+  end
+
   describe "instance methods" do
     it "should return the current determination"
     it "should return the depository"
