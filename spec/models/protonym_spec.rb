@@ -106,12 +106,20 @@ describe Protonym do
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
         end 
         specify 'has at most one has_type relationship' do
-          extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
+          extra_type_relation = FactoryGirl.build_stubbed(:taxon_name_relationship,
                                                   subject_taxon_name: @genus,
                                                   object_taxon_name: @family,
-                                                  type: TaxonNameRelationship::Typification::Family)
+                                                  type: 'TaxonNameRelationship::Typification::Family')
           # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
           expect(extra_type_relation.valid?).to be_false
+        end
+      end
+
+      context 'latinized' do
+        specify 'has at most one latinization' do
+          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartsOfSpeech::Ajective')
+          expect(c2.valid?).to be_false
         end
       end
 
@@ -275,13 +283,6 @@ describe Protonym do
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_false
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_false
-      end
-      specify 'missign gender' do
-        @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:gender).empty?).to be_false
-        @genus.gender = 'neuter'
-        @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:gender).empty?).to be_true
       end
       specify 'fix author and year from the source' do
         #TODO citeproc gem doesn't currently support lastname without firstname

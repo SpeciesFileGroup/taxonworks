@@ -158,16 +158,16 @@ describe Combination do
     end
 
     specify 'duplicate combination' do
-      @genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
-      @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus)
-      c1 = FactoryGirl.create(:combination, parent: @species)
-      c2 = FactoryGirl.create(:combination, parent: @species)
-      c1.combination_genus = @genus
-      c1.combination_species = @species
+      genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
+      species = FactoryGirl.create(:iczn_species, name: 'bus', parent: genus)
+      c1 = FactoryGirl.create(:combination, parent: species)
+      c2 = FactoryGirl.create(:combination, parent: species)
+      c1.combination_genus = genus
+      c1.combination_species = species
       expect(c1.save).to be_true
       c1.reload
-      c2.combination_genus = @genus
-      c2.combination_species = @species
+      c2.combination_genus = genus
+      c2.combination_species = species
       expect(c2.save).to be_true
       c2.reload
       expect(c1.cached_original_combination).to eq('<em>Aus bus</em>')

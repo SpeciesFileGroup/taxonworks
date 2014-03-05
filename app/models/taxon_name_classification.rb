@@ -45,6 +45,10 @@ class TaxonNameClassification < ActiveRecord::Base
     self.name.demodulize.underscore.humanize.downcase
   end
 
+  def self.possible_species_endings
+    nil
+  end
+
   def type_name
     r = self.type.to_s
     TAXON_NAME_CLASS_NAMES.include?(r) ? r : nil

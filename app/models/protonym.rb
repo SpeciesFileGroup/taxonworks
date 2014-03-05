@@ -12,6 +12,9 @@ class Protonym < TaxonName
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  has_one :type_taxon_name_classification, -> {
+    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
+  }, class_name: 'TaxonNameClassification'
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
@@ -228,6 +231,14 @@ class Protonym < TaxonName
     end
   end
 
+  def sv_missing_classifications
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Part of speech is not specified') if self.part_of_speech_class.nil?
+    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Gender is not specified') if self.gender_class.nil?
+    end
+  end
+
   def sv_validate_coordinated_names
       list_of_coordinated_names.each do |t|
         foo = matching_primary_types(t, self)
@@ -237,8 +248,10 @@ class Protonym < TaxonName
                             fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
-        soft_validations.add(:gender, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') unless self.gender == t.gender
+        soft_validations.add(:base, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Genus/ && self.gender_class != t.gender_class
+        soft_validations.add(:base, "The part of speech does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
@@ -263,6 +276,8 @@ class Protonym < TaxonName
 
   def sv_fix_coordinated_names
     fixed = false
+    gender = self.gender_class
+    speech = self.part_of_speech_class
     list_of_coordinated_names.each do |t|
       if self.source_id.nil? && self.source_id != t.source_id
         self.source_id = t.source_id
@@ -276,8 +291,18 @@ class Protonym < TaxonName
         self.year_of_publication = t.year_of_publication
         fixed = true
       end
-      if self.gender.nil? && self.gender != t.gender
-        self.gender = t.gender
+      t_gender = t.gender_class
+      if gender.nil? && gender != t_gender
+        self.TaxonNameClassification.build(type: t_gender.to_s)
+        fixed = true
+      end
+      t_speech = t.part_of_speech_class
+      if speech.nil? && speech != t_speech
+        self.TaxonNameClassification.build(type: t_speech.to_s)
+        fixed = true
+      end
+      if self.gender_class.nil? && self.gender_class != t.gender_class
+        self.taxon_name_classification.build(type: t.gender_name)
         fixed = true
       end
       if self.original_genus.nil? && self.original_genus != t.original_genus
