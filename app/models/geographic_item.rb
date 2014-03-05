@@ -4,8 +4,10 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
   include Housekeeping::Users
-  #include ActiveRecordSpatial::SpatialColumns
-  #include ActiveRecordSpatial::SpatialScopes
+  include ActiveRecordSpatial::SpatialColumns
+  include ActiveRecordSpatial::SpatialScopes
+  self.create_spatial_column_accessors! # except: ['point']
+
 
   DATA_TYPES = [:point,
                 :line_string,
@@ -23,7 +25,7 @@ class GeographicItem < ActiveRecord::Base
     has_m_coordinate: false)
 
 
-  #column_factory = Georeference::FACTORY
+  column_factory = Georeference::FACTORY
 
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
@@ -43,7 +45,12 @@ class GeographicItem < ActiveRecord::Base
   def geo_object
     return false if self.new_record?
     DATA_TYPES.each do |t|
-      return self.send(t) if !self.send(t).nil?
+      m = "#{t}_geos"
+      if !self.send(t).nil?
+        return self.send(m)
+      else
+        m
+      end
     end
   end
 
