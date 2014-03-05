@@ -4,6 +4,8 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
   include Housekeeping::Users
+  #include ActiveRecordSpatial::SpatialColumns
+  #include ActiveRecordSpatial::SpatialScopes
 
   DATA_TYPES = [:point,
                 :line_string,
