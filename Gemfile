@@ -10,7 +10,7 @@ gem 'pg', '~> 0.17.0'
 gem 'activerecord-postgis-adapter'
 # gem 'rgeo-activerecord'
 # gem 'activerecord-spatial'
-gem 'squeel'
+ gem 'squeel'
 
 # rgeo support
 gem 'ffi-geos'
