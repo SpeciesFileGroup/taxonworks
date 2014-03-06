@@ -24,7 +24,6 @@ module Material
         object.biocuration_classes << BiocurationClass.find(opts[:collection_objects][o][:biocuration_classes]) 
       end
 
-      # byebug 
       object.notes << note.dup if note
       object.container = container if container
       response.collection_objects.push object

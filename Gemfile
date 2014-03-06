@@ -70,8 +70,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
-  gem 'byebug'
-  gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end
 

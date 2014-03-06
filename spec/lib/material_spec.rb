@@ -94,7 +94,6 @@ describe 'Material' do
       expect(response.collection_objects.first.biocuration_classes).to have(4).things
       expect(response.collection_objects.last.biocuration_classes).to have(2).things
     end
-
   end
 end
 
