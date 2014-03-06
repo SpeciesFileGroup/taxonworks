@@ -3,7 +3,7 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::Geos.preferred_native_interface = :ffi
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
-  include RGeo::ActiveRecord
+  # include RGeo::ActiveRecord
 
   include Housekeeping::Users
  #  include ActiveRecordSpatial::SpatialColumns
