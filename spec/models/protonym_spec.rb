@@ -118,7 +118,7 @@ describe Protonym do
       context 'latinized' do
         specify 'has at most one latinization' do
           c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartsOfSpeech::Ajective')
+          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
           expect(c2.valid?).to be_false
         end
       end
@@ -422,6 +422,59 @@ describe Protonym do
         t2 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'holotype')
         @species.soft_validate(:primary_types)
         expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+      end
+    end
+    context 'missing classifications' do
+      specify 'gender of genus is not selected' do
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'part of speech of species is not selected' do
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'possible gender' do
+        g = FactoryGirl.create(:relationship_genus, name: 'Cyclops', parent: @family)
+        g.soft_validate(:missing_classifications)
+        expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_true
+      end
+      specify 'missing alternative spellings for species participle' do
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+        @species.soft_validate(:species_gender_agreement)
+        expect(@species.soft_validations.messages_on(:masculine_name).count).to eq(1)
+        expect(@species.soft_validations.messages_on(:feminine_name).count).to eq(1)
+        expect(@species.soft_validations.messages_on(:neuter_name).count).to eq(1)
+        c1.destroy
+      end
+      specify 'unnecessary alternative spellings for species noun' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).count).to eq(1)
+        expect(s.soft_validations.messages_on(:feminine_name).count).to eq(1)
+        expect(s.soft_validations.messages_on(:neuter_name).count).to eq(1)
+      end
+      specify 'inproper noun names' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).count).to eq(1)
+        expect(s.soft_validations.messages_on(:feminine_name).count).to eq(1)
+        expect(s.soft_validations.messages_on(:neuter_name).count).to eq(1)
+      end
+      specify 'proper noun names' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'niger', feminine_name: 'nigra', neuter_name: 'nigrum')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:feminine_name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:neuter_name).empty?).to be_true
       end
     end
 

@@ -85,6 +85,8 @@ class Protonym < TaxonName
 
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
+  soft_validate(:sv_missing_classifications, set: :missing_classifications)
+  soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
   soft_validate(:sv_type_placement, set: :type_placement)
   soft_validate(:sv_primary_types, set: :primary_types)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
@@ -235,9 +237,77 @@ class Protonym < TaxonName
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Part of speech is not specified') if self.part_of_speech_class.nil?
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Gender is not specified') if self.gender_class.nil?
+      if self.gender_class.nil?
+        g = genus_suggested_gender
+        soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
+      end
     end
   end
+
+  def genus_suggested_gender
+    return nil unless self.rank_class.to_s =~/Genus/
+    TaxonNameClassification::Latinized::Gender.descendants.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.class_name if self.name =~ /^[a-zA-Z]*#{e}$/
+      end
+    end
+    nil
+  end
+
+  def sv_species_gender_agreement
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+      s = self.part_of_speech_name
+      unless self.part_of_speech_name.nil?
+        if s =~ /(adjective|participle)/
+          if self.feminine_name.blank?
+            soft_validations.add(:feminine_name, 'Spelling in feminine is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine)
+            unless e.nil?
+              soft_validations.add(:feminine_name, "Name has non feminine ending: -#{e}")
+            end
+          end
+          if self.masculine_name.blank?
+            soft_validations.add(:masculine_name, 'Spelling in masculine is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine)
+            unless e.nil?
+              soft_validations.add(:masculine_name, "Name has non masculine ending: -#{e}")
+            end
+          end
+          if self.neuter_name.blank?
+            soft_validations.add(:neuter_name, 'Spelling in neuter is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter)
+            unless e.nil?
+              soft_validations.add(:neuter_name, "Name has non neuter ending: -#{e}")
+            end
+          end
+        else
+          unless self.feminine_name.blank?
+            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name being noun')
+          end
+          unless self.masculine_name.blank?
+            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name being noun')
+          end
+          unless self.neuter_name.blank?
+            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name being noun')
+          end
+
+        end
+      end
+    end
+  end
+
+  def species_questionable_ending(g)
+    n = send(g.class_name + '_name')
+    return nil unless self.rank_class.to_s =~/Species/
+    g.questionable_species_endings.each do |e|
+      return e if n =~ /^[a-z]*#{e}$/
+    end
+    nil
+  end
+
 
   def sv_validate_coordinated_names
       list_of_coordinated_names.each do |t|

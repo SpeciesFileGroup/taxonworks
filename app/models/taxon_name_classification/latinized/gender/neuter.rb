@@ -1,7 +1,17 @@
 class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassification::Latinized::Gender
 
-  def self.possible_species_endings
-    %w(um on u ense ianum lum)
+  def self.possible_genus_endings
+    %w(um on u)
   end
+
+  def self.possible_species_endings
+    %w(ense ianum lum um)
+  end
+
+  def self.questionable_species_endings
+    TaxonNameClassification::Latinized::Gender::Feminine.possible_species_endings +
+        TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings
+  end
+
 
 end
