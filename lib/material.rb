@@ -17,7 +17,7 @@ module Material
     i = 1
     opts[:collection_objects].keys.each do |o|
      
-      object = stub_object.clone
+      object = stub_object.dup
       object.total = opts[:collection_objects][o][:total]
 
       if opts[:collection_objects][o][:biocuration_classes] 
@@ -25,7 +25,7 @@ module Material
       end
 
       # byebug 
-      object.notes << note.clone if note
+      object.notes << note.dup if note
       object.container = container if container
       response.collection_objects.push object
       object = nil

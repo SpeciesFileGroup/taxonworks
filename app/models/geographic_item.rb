@@ -48,6 +48,7 @@ class GeographicItem < ActiveRecord::Base
 
   # The last {} bit comes from Squeel and see bottom of https://github.com/neighborland/activerecord-postgis-adapter/blob/master/Documentation.rdoc
 
+
   scope :intersecting_boxes, -> (geographic_item) {
     select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
           ) }
