@@ -91,8 +91,8 @@ describe 'Material' do
       @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [attribute1.id, attribute4.id]
 
       response = Material.create_quick_verbatim(@two_objects_stub)
-      expect(response.collection_objects.first.biocuration_classifications).to have(4).things
-      expect(response.collection_objects.last.biocuration_classifications).to have(2).things
+      expect(response.collection_objects.first.biocuration_classes).to have(4).things
+      expect(response.collection_objects.last.biocuration_classes).to have(2).things
     end
 
   end

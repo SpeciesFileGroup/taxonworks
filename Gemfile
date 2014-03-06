@@ -8,13 +8,14 @@ gem 'pg', '~> 0.17.0'
 
 # Postgis
 gem 'activerecord-postgis-adapter'
+# gem 'rgeo-activerecord'
+# gem 'activerecord-spatial'
+gem 'squeel'
 
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
-gem 'rgeo-activerecord'
-# gem 'activerecord-spatial'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0'
@@ -69,6 +70,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
+  gem 'byebug'
   gem 'debugger', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end

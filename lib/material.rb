@@ -20,15 +20,11 @@ module Material
       object = stub_object.clone
       object.total = opts[:collection_objects][o][:total]
 
-        foo = 2
-
       if opts[:collection_objects][o][:biocuration_classes] 
-
         object.biocuration_classes << BiocurationClass.find(opts[:collection_objects][o][:biocuration_classes]) 
       end
 
-      i += 1
-
+      # byebug 
       object.notes << note.clone if note
       object.container = container if container
       response.collection_objects.push object

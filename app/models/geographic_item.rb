@@ -3,6 +3,8 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::Geos.preferred_native_interface = :ffi
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
+  include RGeo::ActiveRecord
+
   include Housekeeping::Users
  #  include ActiveRecordSpatial::SpatialColumns
  #  include ActiveRecordSpatial::SpatialScopes
@@ -17,13 +19,11 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
-
-  column_factory = RGeo::Geos.factory(
-    native_interface: :ffi,
-    srid:             4326,
-    has_z_coordinate: true,
-    has_m_coordinate: false)
-
+# column_factory = RGeo::Geos.factory(
+#   native_interface: :ffi,
+#   srid:             4326,
+#   has_z_coordinate: true,
+#   has_m_coordinate: false)
 
   column_factory = Georeference::FACTORY
 
@@ -37,6 +37,16 @@ class GeographicItem < ActiveRecord::Base
   has_many :georeferences
 
   validate :proper_data_is_provided
+
+ 
+  # FactoryGirl.create(:valid_geographic_item)
+  # FactoryGirl.create(:valid_geographic_item)
+  # FactoryGirl.create(:valid_geographic_item)
+  # p = GeographicItem.first.geo_object
+  #
+  # GeographicItem.where{st_intersects(point, p)}.count
+
+  # The last {} bit comes from Squeel and see bottom of https://github.com/neighborland/activerecord-postgis-adapter/blob/master/Documentation.rdoc
 
   scope :intersecting_boxes, -> (geographic_item) {
     select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
