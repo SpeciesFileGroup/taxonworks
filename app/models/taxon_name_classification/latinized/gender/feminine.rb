@@ -9,7 +9,7 @@ class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassifica
   end
 
   def self.questionable_species_endings
-    TaxonNameClassification::Latinized::Gender::Feminine.possible_species_endings +
+    TaxonNameClassification::Latinized::Gender::Neuter.possible_species_endings +
         TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings
   end
 
