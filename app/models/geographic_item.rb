@@ -53,6 +53,41 @@ class GeographicItem < ActiveRecord::Base
     select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
           ) }
 
+  def self.find_containing(geo_object)
+    data = []
+    GeographicItem.all.to_a.each { |area|
+      if area.geo_object.contains?(geo_object)
+        data.push(area)
+      end
+    }
+    data
+  end
+
+  def self.clean!
+    # create table t20140306(id int);
+    # insert into t20140306 select id from geographic_items;
+
+    # delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null);
+    # delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null);
+    # delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null);
+    # delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null);
+
+    # delete from geographic_items where id in (select id from t20140306);
+
+    # drop table t20140306;
+
+    GeographicItem.connection.exec('create table t20140306(id int)')
+    GeographicItem.connection.exec('insert into t20140306 select id from geographic_items')
+
+    GeographicItem.connection.exec('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
+    GeographicItem.connection.exec('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
+    GeographicItem.connection.exec('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
+    GeographicItem.connection.exec('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
+
+    GeographicItem.connection.exec('delete from geographic_items where id in (select id from t20140306)')
+    GeographicItem.connection.exec('drop table t20140306')
+
+  end
 
   def geo_object
     return false if self.new_record?
@@ -152,16 +187,6 @@ class GeographicItem < ActiveRecord::Base
     else
       []
     end
-  end
-
-  def self.find_containing(geo_object)
-    data = []
-    GeographicItem(limit: 100).to_a.each { |area|
-      if area.geo_object.contains?(geo_object)
-        data.push(area)
-      end
-    }
-    data
   end
 
   protected
