@@ -231,6 +231,9 @@ class Protonym < TaxonName
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
+    if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
+      soft_validations.add(:base, 'The replacement name for the homonym is not selected') if self.iczn_set_as_synonym_of.nil?
+    end
   end
 
   def sv_missing_classifications
@@ -262,7 +265,7 @@ class Protonym < TaxonName
           if self.feminine_name.blank?
             soft_validations.add(:feminine_name, 'Spelling in feminine is not provided')
           else
-            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine)
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, self.feminine_name)
             unless e.nil?
               soft_validations.add(:feminine_name, "Name has non feminine ending: -#{e}")
             end
@@ -270,7 +273,7 @@ class Protonym < TaxonName
           if self.masculine_name.blank?
             soft_validations.add(:masculine_name, 'Spelling in masculine is not provided')
           else
-            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine)
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, self.masculine_name)
             unless e.nil?
               soft_validations.add(:masculine_name, "Name has non masculine ending: -#{e}")
             end
@@ -278,9 +281,18 @@ class Protonym < TaxonName
           if self.neuter_name.blank?
             soft_validations.add(:neuter_name, 'Spelling in neuter is not provided')
           else
-            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter)
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, self.neuter_name)
             unless e.nil?
               soft_validations.add(:neuter_name, "Name has non neuter ending: -#{e}")
+            end
+          end
+          if self.masculine_name.blank? && self.feminine_name.blank? && self.neuter_name.blank?
+            g = self.ancestor_at_rank('genus').gender_class
+            unless g.nil?
+              e = species_questionable_ending(g, self.name)
+              unless e.nil?
+                soft_validations.add(:name, "Name has non #{g.class_name} ending: -#{e}")
+              end
             end
           end
         else
@@ -299,8 +311,7 @@ class Protonym < TaxonName
     end
   end
 
-  def species_questionable_ending(g)
-    n = send(g.class_name + '_name')
+  def species_questionable_ending(g, n)
     return nil unless self.rank_class.to_s =~/Species/
     g.questionable_species_endings.each do |e|
       return e if n =~ /^[a-z]*#{e}$/

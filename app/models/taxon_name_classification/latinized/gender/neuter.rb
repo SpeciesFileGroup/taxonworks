@@ -5,12 +5,13 @@ class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassificati
   end
 
   def self.possible_species_endings
-    %w(ense ianum lum um)
+    %w(ense ianum culum ulum lum ium rum um on e)
   end
 
   def self.questionable_species_endings
     TaxonNameClassification::Latinized::Gender::Feminine.possible_species_endings +
-        TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings
+        TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings -
+        self.possible_species_endings
   end
 
 

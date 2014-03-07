@@ -5,12 +5,13 @@ class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassifica
   end
 
   def self.possible_species_endings
-    %w(ensis iana la a)
+    %w(ensis iana cula ula la ra os is ia a)
   end
 
   def self.questionable_species_endings
     TaxonNameClassification::Latinized::Gender::Neuter.possible_species_endings +
-        TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings
+        TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings -
+        self.possible_species_endings
   end
 
 end

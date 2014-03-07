@@ -460,7 +460,7 @@ describe Protonym do
         expect(s.soft_validations.messages_on(:feminine_name).count).to eq(1)
         expect(s.soft_validations.messages_on(:neuter_name).count).to eq(1)
       end
-      specify 'inproper noun names' do
+      specify 'unproper noun names' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
@@ -475,6 +475,14 @@ describe Protonym do
         expect(s.soft_validations.messages_on(:masculine_name).empty?).to be_true
         expect(s.soft_validations.messages_on(:feminine_name).empty?).to be_true
         expect(s.soft_validations.messages_on(:neuter_name).empty?).to be_true
+      end
+      specify 'species matches genus' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'niger')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        c1.destroy
       end
     end
 
@@ -668,6 +676,20 @@ describe Protonym do
         expect(f1.soft_validations.messages_on(:base).count).to eq(1)
         expect(f2.soft_validations.messages_on(:base).empty?).to be_true
         expect(f3.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'homonym without replacement name' do
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
+        g2 = FactoryGirl.create(:relationship_genus, name: 'Cccus', parent: @family)
+        g3 = FactoryGirl.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
+        g3.type_species = @species
+        g3.iczn_set_as_homonym_of = g1
+        expect(g3.save).to be_true
+        g3.soft_validate(:missing_relationships)
+        expect(g3.soft_validations.messages_on(:base).count).to eq(1)
+        g3.iczn_set_as_synonym_of = g2
+        expect(g3.save).to be_true
+        g3.soft_validate(:missing_relationships)
+        expect(g3.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
     context 'fossils' do
