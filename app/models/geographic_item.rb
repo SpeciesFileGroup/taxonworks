@@ -6,18 +6,18 @@ class GeographicItem < ActiveRecord::Base
   # include RGeo::ActiveRecord
 
   include Housekeeping::Users
- #  include ActiveRecordSpatial::SpatialColumns
- #  include ActiveRecordSpatial::SpatialScopes
- #  self.create_spatial_column_accessors! # except: ['point']
+  #  include ActiveRecordSpatial::SpatialColumns
+  #  include ActiveRecordSpatial::SpatialScopes
+  #  self.create_spatial_column_accessors! # except: ['point']
 
 
-  DATA_TYPES = [:point,
-                :line_string,
-                :polygon,
-                :multi_point,
-                :multi_line_string,
-                :multi_polygon,
-                :geometry_collection]
+  DATA_TYPES     = [:point,
+                    :line_string,
+                    :polygon,
+                    :multi_point,
+                    :multi_line_string,
+                    :multi_polygon,
+                    :geometry_collection]
 
 # column_factory = RGeo::Geos.factory(
 #   native_interface: :ffi,
@@ -38,7 +38,7 @@ class GeographicItem < ActiveRecord::Base
 
   validate :proper_data_is_provided
 
- 
+
   # FactoryGirl.create(:valid_geographic_item)
   # FactoryGirl.create(:valid_geographic_item)
   # FactoryGirl.create(:valid_geographic_item)
@@ -49,43 +49,39 @@ class GeographicItem < ActiveRecord::Base
   # The last {} bit comes from Squeel and see bottom of https://github.com/neighborland/activerecord-postgis-adapter/blob/master/Documentation.rdoc
 
 
-  scope :intersecting_boxes, -> (geographic_item) {
-    select("ST_Contains(geographic_items.polygon, #{geographic_item.geo_object})",
-          ) }
+=begin
+  scope :intersecting_boxes, -> (column_name, geographic_item) {
+    select("ST_Contains(geographic_items.#{column_name}, #{geographic_item.geo_object})",
+    ) }
+=end
 
-  def self.find_containing(geo_object)
-    data = []
-    GeographicItem.all.to_a.each { |area|
-      if area.geo_object.contains?(geo_object)
-        data.push(area)
-      end
-    }
+  def self.contains(column_name, geo_object)
+    where{st_contains(st_geomfromewkb(column_name), geo_object)}
+  end
+  def self.intersecting(column_name, geographic_item)
+    data = where("ST_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
     data
   end
 
   def self.clean!
-    # create table t20140306(id int);
-    # insert into t20140306 select id from geographic_items;
+    list = clean?
+    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
+    GeographicItem.connection.execute('drop table t20140306')
+    list
+  end
 
-    # delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null);
-    # delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null);
-    # delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null);
-    # delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null);
+  def self.clean?
+    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
+    GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
+    GeographicItem.connection.execute('delete from t20140306')
+    GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
 
-    # delete from geographic_items where id in (select id from t20140306);
+    GeographicItem.connection.execute('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
 
-    # drop table t20140306;
-
-    GeographicItem.connection.exec('create table t20140306(id int)')
-    GeographicItem.connection.exec('insert into t20140306 select id from geographic_items')
-
-    GeographicItem.connection.exec('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
-    GeographicItem.connection.exec('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
-    GeographicItem.connection.exec('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
-    GeographicItem.connection.exec('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
-
-    GeographicItem.connection.exec('delete from geographic_items where id in (select id from t20140306)')
-    GeographicItem.connection.exec('drop table t20140306')
+    list = GeographicItem.connection.execute('select id from t20140306').to_a
 
   end
 
@@ -354,4 +350,12 @@ class GeographicItem < ActiveRecord::Base
     end
     true
   end
+
+  def gi_helper
+    user = User.find(1)
+    pt = GEO_FACTORY.point(-88.241413, 40.091655)
+    gi = GeographicItem.new(point: pt, creator: user, updater: user)
+    gi.save
+  end
+
 end
