@@ -48,6 +48,9 @@ gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
 
+# file upload manager & image processor
+gem 'paperclip', '~> 4.1'
+
 # Ordering records
 gem 'acts_as_list'
 

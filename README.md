@@ -23,6 +23,7 @@ Minimally, the following steps are required.  If you have postgres installed ski
    ``` 
    brew install postgres
    brew install postgis
+   brew install imagemagick
    ```
 
 2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session.
