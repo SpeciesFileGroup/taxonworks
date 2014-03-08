@@ -32,7 +32,7 @@ module Material
     response 
   end
 
-    # A Container to store results
+    # A Container to store results of create_quick_verbatim
     class QuickVerbatimResponse
       attr_accessor :collection_objects
       attr_accessor :identifier
