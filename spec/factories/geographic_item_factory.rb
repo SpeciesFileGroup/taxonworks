@@ -9,16 +9,16 @@ FactoryGirl.define do
 
     factory :valid_geographic_item, aliases: [:geographic_item_with_point] do
 
-      point { GEO_FACTORY.point(-88.241413, 40.091655) }
+      point { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655) }
 
     end
 
     factory :geographic_item_with_line_string do
 
-      line_string { GEO_FACTORY.line_string([GEO_FACTORY.point(-32, 21),
-                                             GEO_FACTORY.point(-25, 21),
-                                             GEO_FACTORY.point(-25, 16),
-                                             GEO_FACTORY.point(-21, 20)]) }
+      line_string { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
+                                             RSPEC_GEO_FACTORY.point(-25, 21),
+                                             RSPEC_GEO_FACTORY.point(-25, 16),
+                                             RSPEC_GEO_FACTORY.point(-21, 20)]) }
 
     end
 

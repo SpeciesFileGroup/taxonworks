@@ -38,7 +38,6 @@ class GeographicItem < ActiveRecord::Base
 
   validate :proper_data_is_provided
 
-
   # FactoryGirl.create(:valid_geographic_item)
   # FactoryGirl.create(:valid_geographic_item)
   # FactoryGirl.create(:valid_geographic_item)
@@ -56,21 +55,22 @@ class GeographicItem < ActiveRecord::Base
 =end
 
   def self.contains(column_name, geo_object)
+    # ST_Contains(geometry, geometry) or
+    # ST_Contains(geography, geography)
     where{st_contains(st_geomfromewkb(column_name), geo_object)}
   end
+
+=begin
   def self.intersecting(column_name, geographic_item)
     data = where("ST_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
     data
   end
-
-  def self.clean!
-    list = clean?
-    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
-    GeographicItem.connection.execute('drop table t20140306')
-    list
-  end
+=end
 
   def self.clean?
+    # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
+    # This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
+    # array to the caller.
     GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
     GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
     GeographicItem.connection.execute('delete from t20140306')
@@ -85,9 +85,19 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
-  def geo_object
+  def self.clean!
+    # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
+    # probably not very useful).
+    list = clean?
+    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
+    GeographicItem.connection.execute('drop table t20140306')
+    list
+  end
+
+  def geo_object  # return false if the record has not been saved, or if there are no geographic objects in the record.
     return false if self.new_record?
     DATA_TYPES.each do |t|
+      # otherwise, return the first-found object, according to the list of DATA_TYPES
       return self.send(t) if !self.send(t).nil?
     end
     false

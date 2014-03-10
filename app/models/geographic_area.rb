@@ -22,6 +22,9 @@ class GeographicArea < ActiveRecord::Base
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :parent, presence: true, unless: 'self.name == "Earth"'
+
+  validates_uniqueness_of :name, scope: [:level0, :level1, :level2]
+
   # TODO: still need to figure out why the validations of RGeo object associations fail.  These xxx_geo_item entry are commented out for this reason.
   #validates :ne_geo_item, presence: true, allow_nil: true
   #validates :gadm_geo_item, presence: true, allow_nil: true

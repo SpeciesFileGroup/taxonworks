@@ -32,13 +32,12 @@ class Georeference < ActiveRecord::Base
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
 
 #  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
-# TODO: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
-# TODO: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
+# TODone: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
+# TODone: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
 
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,
                                                projection_proj4:          '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
-                                               #proj4:                   RGeo::CoordSys::Proj4.create(''), #'+proj=longlat +ellps=WGS84 +no_defs '
                                                uses_lenient_assertions: true,
                                                has_z_coordinate:        true)
 =begin

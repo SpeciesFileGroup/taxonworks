@@ -163,12 +163,12 @@ describe GeographicArea do
   context 'interaction with geographic_items' do
     before(:each) {
       @geographic_area = FactoryGirl.build(:level2_geographic_area)
-      listK      = GEO_FACTORY.line_string([GEO_FACTORY.point(-33, -11),
-                                            GEO_FACTORY.point(-33, -23),
-                                            GEO_FACTORY.point(-21, -23),
-                                            GEO_FACTORY.point(-21, -11),
-                                            GEO_FACTORY.point(-27, -13)])
-      @gi         = GeographicItem.new(polygon: GEO_FACTORY.polygon(listK))
+      listK      = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
+                                            RSPEC_GEO_FACTORY.point(-33, -23),
+                                            RSPEC_GEO_FACTORY.point(-21, -23),
+                                            RSPEC_GEO_FACTORY.point(-21, -11),
+                                            RSPEC_GEO_FACTORY.point(-27, -13)])
+      @gi         = GeographicItem.new(polygon: RSPEC_GEO_FACTORY.polygon(listK))
       @gi.save!
       @gi
     }
