@@ -3,6 +3,7 @@ module Shared::Notable
 
   included do
     has_many :notes, as: :note_object, validate: false
+    accepts_nested_attributes_for :notes
   end 
 
   module ClassMethods

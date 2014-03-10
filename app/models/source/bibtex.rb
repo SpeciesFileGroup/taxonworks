@@ -259,6 +259,7 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
+  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_inclusion_of :bibtex_type,
     in: ::VALID_BIBTEX_TYPES,
     message: '%{value} is not a valid source type'
