@@ -3,6 +3,7 @@ module Shared::DataAttributes
 
   included do
     has_many :data_attributes, as: :attribute_subject, validate: false
+    accepts_nested_attributes_for :data_attributes
   end 
 
   def has_data_attributes?

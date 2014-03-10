@@ -43,6 +43,7 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
 
+  # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :start_date_year,
     only_integer: true, greater_than: 0,
     less_than_or_equal_to: Time.now.year,

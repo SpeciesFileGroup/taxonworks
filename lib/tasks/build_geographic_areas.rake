@@ -403,7 +403,7 @@ def read_dbf(filenames)
     end
   }
 
-  n10, n50, n110, ne_names, ne_ids, ne_a3, ne_a2, ne_adm0                      = {}, {}, {}, {}, {}, {}, {}, {}
+  n10, n50, n110, all_names, ne_ids, ne_a3, ne_a2, ne_adm0                      = {}, {}, {}, {}, {}, {}, {}, {}
   @lvl0_items, @lvl1_items, @lvl2_items, @lvl3_items, @lvl4_items, @lvl5_items = {}, {}, {}, {}, {}, {}
 
   # @global_keys will be filled such that ga.name is the key for easier location later
@@ -557,7 +557,7 @@ def read_dbf(filenames)
           ga.data_origin          = NE_110 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(ga.name => ga)
+        all_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -687,7 +687,7 @@ def read_dbf(filenames)
           ga.data_origin          = NE_110 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(ga.name => ga)
+        all_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -841,7 +841,7 @@ def read_dbf(filenames)
           ga.data_origin          = NE_50 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(ga.name => ga)
+        all_names.merge!(ga.name => ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -962,7 +962,7 @@ def read_dbf(filenames)
         names_key = {'l0' => nation_name}
         # check to see if we have a nation by the current name in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if ne_names[names_key].nil?
+        if all_names[names_key].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -998,7 +998,7 @@ def read_dbf(filenames)
           ga.data_origin          = NE0_10 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
-        ne_names.merge!(names_key => ga)
+        all_names.merge!(names_key => ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
         ne_adm0.merge!(ga.adm0_a3 => ga) if add_adm0_a3
@@ -1096,7 +1096,7 @@ def read_dbf(filenames)
         next if area_name.empty?
 
         # check to see if we have a nation by the current name in our list
-        ga = ne_names[names_key]
+        ga = all_names[names_key]
         if ga.nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
@@ -1159,7 +1159,7 @@ def read_dbf(filenames)
           ne_a3.merge!(ga.iso_3166_a3 => ga)
         end
 
-        ne_names.merge!(names_key => ga)
+        all_names.merge!(names_key => ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -1198,8 +1198,8 @@ def read_dbf(filenames)
             ne_a2.merge!(nation_code => ga) if !(ga.nil?)
 
             names_key = {'l0' => ga.name}
-            if ne_names[names_key].nil?
-              ne_names.merge!(names_key => ga)
+            if all_names[names_key].nil?
+              all_names.merge!(names_key => ga)
             else
               names_key
             end
@@ -1215,7 +1215,7 @@ def read_dbf(filenames)
     }
 
     #puts 'Saving ISO-3166-1-alpha-2 countries and codes.'
-    #ne_names.each { |key, area|
+    #all_names.each { |key, area|
     # puts "Saving #{area.name}"
     # area.save
     #}
@@ -1401,7 +1401,7 @@ def read_dbf(filenames)
                     'l1' => l1_name,
                     'l2' => l2_name}
 
-      if ne_names[record_key].nil?
+      if all_names[record_key].nil?
       else
         next # we have processed a record containing this information, so we skip this one
       end
@@ -1438,8 +1438,8 @@ def read_dbf(filenames)
 
       # look in ne_a3 for an existing record by iso_a3
       #ga = ne_a3[l0_iso]
-      #look in ne_names for an existing record by name-set
-      ga = ne_names[names_key]
+      #look in all_names for an existing record by name-set
+      ga = all_names[names_key]
       if ga.nil?
 
         # names_key = {'l0' => 'Åland'}
@@ -1455,7 +1455,7 @@ def read_dbf(filenames)
                                 gadmID:               nil,
                                 geographic_area_type: gat5,
                                 name:                 l0_name)
-        ne_names.merge!({names_key => ga})
+        all_names.merge!({names_key => ga})
         ne_ga = ne_a3[l0_iso]
         if ne_ga.nil?
           # is not in table
@@ -1502,7 +1502,6 @@ def read_dbf(filenames)
         # make the parent of level 2 (extant?) the level 0 area
         # thereby skipping the level 1 emptiness
         l1 = l0
-
       else
 
         # process level 1, using level 0 as parent
@@ -1538,7 +1537,7 @@ def read_dbf(filenames)
                      'l1' => l1_name}
 
         # ga = @lvl1_items[l1_key]
-        ga        = ne_names[names_key]
+        ga        = all_names[names_key]
         if ga.nil?
           # puts "Adding Level 1: #{names_key}."
           # create a record for level 1, and the @global_keys list
@@ -1551,15 +1550,19 @@ def read_dbf(filenames)
                                   gadmID:               gadm_id,
                                   geographic_area_type: add_gat(item['ENGTYPE_1']))
           # put the item in the name list
-          ne_names.merge!({names_key => ga})
+          all_names.merge!({names_key => ga})
           place = {l1_key => ga}
           @lvl1_items.merge!(place)
           # and the @global_keys list
           @global_keys.merge!(place)
         else # found a record at level 1; been here before
+      
+     
           # nothing to do
           # puts "Found  Level 1: #{names_key}."
           l1_name
+        
+        
         end
         ga.gadm_valid_from = item['VALIDFR_1']
         ga.gadm_valid_to   = item['VALIDTO_1']
@@ -1597,7 +1600,7 @@ def read_dbf(filenames)
                      'l2' => l2_name}
 
         # l2 = @lvl2_items[l2_key]
-        ga        = ne_names[names_key]
+        ga        = all_names[names_key]
         if ga.nil?
           # puts "Adding Level 2: #{names_key}."
           # create a record for level 2, and the @global_keys list
@@ -1621,7 +1624,7 @@ def read_dbf(filenames)
           @lvl2_items.merge!(place)
           # and the @global_keys list
           @global_keys.merge!(place)
-          ne_names.merge!({names_key => ga})
+          all_names.merge!({names_key => ga})
 
         else
           # nothing to do
@@ -1748,10 +1751,10 @@ parent:               l4,
       @lvl1_items.merge!(l1c => ga)
       @global_keys.merge!(ga.tdwgID => ga)
 
-      ne_ga = ne_names[names_key]
+      ne_ga = all_names[names_key]
       if ne_ga.nil?
         # if not in name list, stick this one in the name list
-        ne_names.merge!({names_key => ga})
+        all_names.merge!({names_key => ga})
       else
         l1n
       end
@@ -1782,11 +1785,11 @@ parent:               l4,
       @lvl2_items.merge!(l2c => ga)
       @global_keys.merge!(ga.tdwgID => ga)
 
-      ne_ga = ne_names[names_key]
+      ne_ga = all_names[names_key]
       if ne_ga.nil?
         # if not in name list, stick this one in the name list
-        ne_names.merge!({names_key => ga})
-      else
+        all_names.merge!({names_key => ga})
+      else # why return something here? Debugging?
         l2n
       end
     }
@@ -1809,7 +1812,7 @@ parent:               l4,
 
       # we are most likely to find a match by name, so
       # we check names first.
-      ne_ga = ne_names[names_key]
+      ne_ga = all_names[names_key]
 
       if ne_ga.nil?
         ga = @lvl3_items[l3c]
@@ -1828,7 +1831,7 @@ parent:               l4,
           ga.level2 = ga
           @lvl3_items.merge!(l3c => ga)
           @global_keys.merge!(ga.tdwgID => ga)
-          ne_names.merge!({names_key => ga})
+          all_names.merge!({names_key => ga})
 
         else
           # then try by iso a3
@@ -1940,7 +1943,7 @@ parent:               l4,
       puts "4-#{index}:\t\t#{l4c} for #{this_area_name} in #{nation.name}."
 
       # find the matching name-set record by name (not likely)
-      ga = ne_names[names_key]
+      ga = all_names[names_key]
       if ga.nil?
         # failed to find an area by this name in the TDWG data, so we need to create one
         # so we set the parent to the object pointed to by the level 3 code
@@ -1960,7 +1963,7 @@ parent:               l4,
         ga.level2 = l3_ga
         @lvl4_items.merge!(l4c => ga)
         @global_keys.merge!(ga.tdwgID => ga)
-        ne_names.merge!({names_key => ga})
+        all_names.merge!({names_key => ga})
 
       else
         this_area_name
@@ -1980,8 +1983,11 @@ parent:               l4,
   index = 0
   # breakpoint.save
 
+  # TODO: Jim: ?!@#!!! Why are you saving ne_ off so many times?  Shouldn't you have a single
+  # global hash of records?
+
   puts 'Saving by name.'
-  ne_names.each { |key, area|
+  all_names.each { |key, area|
     if area.new_record?
       index += 1
       area.save!
@@ -1989,84 +1995,84 @@ parent:               l4,
     end
   }
 
-  puts 'Saving by neID.'
-  ne_ids.each { |key, area|
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By id   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving by neID.'
+# ne_ids.each { |key, area|
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By id   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving by A3.'
-  ne_a3.each { |key, area|
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By A3   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving by A3.'
+# ne_a3.each { |key, area|
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By A3   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving by adm0.'
-  ne_adm0.each { |key, area|
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By adm0 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving by adm0.'
+# ne_adm0.each { |key, area|
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By adm0 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving by A2.'
-  ne_a2.each { |key, area|
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By A2   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving by A2.'
+# ne_a2.each { |key, area|
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By A2   - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving Level 0 areas.'
-  @lvl0_items.each { |key, area|
-    area.data_origin = GADM2_0 if area.data_origin.nil?
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By lvl0 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving Level 0 areas.'
+# @lvl0_items.each { |key, area|
+#   area.data_origin = GADM2_0 if area.data_origin.nil?
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By lvl0 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving Level 1 areas.'
-  @lvl1_items.each { |key, area|
-    area.data_origin = GADM2_1 if area.data_origin.nil?
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By lvl1 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving Level 1 areas.'
+# @lvl1_items.each { |key, area|
+#   area.data_origin = GADM2_1 if area.data_origin.nil?
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By lvl1 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving Level 2 areas.'
-  @lvl2_items.each { |key, area|
-    area.data_origin = GADM2_2 if area.data_origin.nil?
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By lvl2 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# puts 'Saving Level 2 areas.'
+# @lvl2_items.each { |key, area|
+#   area.data_origin = GADM2_2 if area.data_origin.nil?
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By lvl2 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
-  puts 'Saving Level 3 areas.'
-  @lvl3_items.each { |key, area|
-    area.data_origin = GADM2_3 if area.data_origin.nil?
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By lvl3 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
+# puts 'Saving Level 3 areas.'
+# @lvl3_items.each { |key, area|
+#   area.data_origin = GADM2_3 if area.data_origin.nil?
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By lvl3 - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
 
-    # rebuilding the awesome_nested_set-edness
-    # GeographicArea.rebuild!
-  }
+#   # rebuilding the awesome_nested_set-edness
+#   # GeographicArea.rebuild!
+# }
 =begin
 
   puts 'Saving Level 4 areas.'
@@ -2082,15 +2088,15 @@ parent:               l4,
   }
 =end
 
-  # what is left over?
-  puts 'Saving non-Level(0, 1, 2) areas.'
-  @global_keys.each { |key, area|
-    if area.new_record?
-      index += 1
-      area.save!
-      puts "By key  - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
-    end
-  }
+# # what is left over?
+# puts 'Saving non-Level(0, 1, 2) areas.'
+# @global_keys.each { |key, area|
+#   if area.new_record?
+#     index += 1
+#     area.save!
+#     puts "By key  - #{index}: #{area.geographic_area_type.name} of #{area.name} from #{area.data_origin}."
+#   end
+# }
 
 end
 

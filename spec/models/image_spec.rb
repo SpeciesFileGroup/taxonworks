@@ -21,15 +21,26 @@ describe Image do
   pending 'it should save width' 
 
   context 'should manipulate the file system' do
-    specify 'by saving the image on object save' do
+    specify 'destroying an image should remove it form the filesystem' do
       i=FactoryGirl.build(:valid_image)
       expect(i.save).to be_true
-      #check the file system for the file
+    
+      # setup with likely something like
+      # some_file_path = i.url
 
-      #expect(i.update(image_file: nil)).to be_true
-      #expect(i.save).to be_true
+      # TODO: write this
+      # expect(some_file_path.exists?).to be_true
+
       expect(i.destroy).to be_true
+      
+      # TODO: Update when Paperclip or Rspec get's modified, or transaction integration gets resolved 
+      # This causes the necessary callback to get fired within an rspec test, clearing the images.
+      # Any destroy method will have to use the same.
+      i.run_callbacks(:commit)
+
+      # TODO: write this
       #check the file system that the file is gone
+      # expect(some_file_path.exists?).to be_false
     end
   end
 

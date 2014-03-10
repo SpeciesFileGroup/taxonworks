@@ -8,14 +8,50 @@ describe CollectionObject::BiologicalCollectionObject do
       specify 'biocuration_classifications' do
         expect(biological_collection_object).to respond_to(:biocuration_classifications)
       end
+
+      specify 'biocuration_classes' do
+        expect(biological_collection_object).to respond_to(:biocuration_classes)
+      end
+
+      specify 'taxon_determinations' do
+        expect(biological_collection_object).to respond_to(:taxon_determinations)
+      end
+
+      specify 'otus' do
+        expect(biological_collection_object).to respond_to(:otus)
+      end
+    end
+  end
+
+  describe "use" do
+    specify "create and also create otus, and determinations (nested_attributes_for :otus)" do
+      o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
+      expect(o.save).to be_true
+      expect(o.otus).to have(2).things
+      expect(o.taxon_determinations).to have(2).things
+    end
+
+    specify "#reorder_determinations_by(:year)" do
+      expect(biological_collection_object).to respond_to(:reorder_determinations_by)
+      o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
+      expect(o.save).to be_true
+     expect(o.current_determination).to eq o.taxon_determinations.first
+
+      o.taxon_determinations.first.update(year_made:  '1920')
+      o.taxon_determinations.last.update(year_made:  '1980')
+
+      expect(o.reorder_determinations_by()).to be_true
+      expect(o.taxon_determinations.map(&:year_made)).to eq(['1980', '1920', nil])
     end
   end
 
   describe "instance methods" do
-    it "should return the current determination"
-    it "should return the depository"
-    it "on update it should SCREAM AT YOU when you change implied verbatim data if more than one biological_collection_object uses that data" 
-    it "should permit arbitrary requirable properties (key/value pairs)"
+    specify "#current_determination" do
+      expect(biological_collection_object).to respond_to(:current_determination)
+      o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
+      expect(o.save).to be_true
+      expect(o.current_determination).to eq(o.taxon_determinations.first)
+    end
   end
 
   describe "mx, 3i,SpeciesFile features otherwise unplaced" do 
@@ -30,44 +66,8 @@ describe CollectionObject::BiologicalCollectionObject do
     end
   end
 
- # Columns 
-  describe "properties" do
-    specify "current_location (the present location [time axis])" 
-    specify "disposition ()"  # was boolean lost or not
-    specify "destroyed? (gone, for real, never ever EVER coming back)"
-    specify "condition (damaged/level)"
-    specify "preparation" # pin/etc./etoh <- questions here
-    specify "accession source (from whom the biological_collection_object came)"
-    specify "deaccession recipient (to whom the biological_collection_object went)"
-    specify "depository (where the)"  
-  end
-
-  # Foreign key relationships 
-  describe "reflections/associations" do
-    context "belongs_to" do
-      specify "collecting event (field notes - who, where, when, how)" do
-        pending
-        # Includes verbatim fields pertaining to the collecting event etc.
-      end
-      specify "preparation (pin, etc.)"
-    end
-
-    context "has_many" do
-    end
-  end 
-
   describe "concerns" do
-    specify "biological properties" # any property you want to define such as sex, host, Ph, unladen speed
-    specify "determinable (taxon names)"
-    specify "locatable (location)"
-    specify "identifiable (catalog numbers)"
-    specify "figurable (images)"
-    specify "notable (notes)" # 
-    specify "tagable (tags)"
-  end
-
-  describe "validation" do
-    specify "once set, a verbatim label can not change"
+    specify "biological attributes" # any property you want to define such as sex, host, Ph, unladen speed
   end
 
 end
