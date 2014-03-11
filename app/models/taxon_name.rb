@@ -193,13 +193,14 @@ class TaxonName < ActiveRecord::Base
     elsif self.rank_class.to_s =~ /Species/
       n = self.name.squish # remove extra spaces and line brakes
       n = n.split(' ').last
-      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # iae > ae in the end of word
-      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # iorum > orum
-      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # iarum > arum
-      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # um > a
-      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # us > a
-      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # iensis > ensis
-      n = n[0..-5] + 'ana' if n =~ /^[a-z]*self.rank_classiana$/      # iensis > ensis
+      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # -iae > -ae in the end of word
+      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # -iorum > -orum
+      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # -iarum > -arum
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # -um > -a
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # -us > -a
+      n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/         # -er > -ra
+      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # -iensis > -ensis
+      n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/      # -iana > -ana
       n = n.gsub('ae', 'e').
           gsub('oe', 'e').
           gsub('ai', 'i').

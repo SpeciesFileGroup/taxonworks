@@ -40,4 +40,34 @@ describe CollectionProfile do
       end
     end
   end
+
+  context 'indices' do
+    specify 'count' do
+      expect(CollectionProfile.favret_conservation_status_indices('dry').count).to eq(3)
+      expect(CollectionProfile.favret_conservation_status_indices('wet').count).to eq(3)
+      expect(CollectionProfile.favret_conservation_status_indices('slide').count).to eq(3)
+      expect(CollectionProfile.favret_processing_state_indices('dry').count).to eq(3)
+      expect(CollectionProfile.favret_processing_state_indices('wet').count).to eq(3)
+      expect(CollectionProfile.favret_processing_state_indices('slide').count).to eq(2)
+      expect(CollectionProfile.favret_container_condition_indices('dry').count).to eq(4)
+      expect(CollectionProfile.favret_container_condition_indices('wet').count).to eq(4)
+      expect(CollectionProfile.favret_container_condition_indices('slide').count).to eq(4)
+      expect(CollectionProfile.favret_condition_of_labels_indices('dry').count).to eq(3)
+      expect(CollectionProfile.favret_condition_of_labels_indices('wet').count).to eq(3)
+      expect(CollectionProfile.favret_condition_of_labels_indices('slide').count).to eq(3)
+      expect(CollectionProfile.favret_identification_level_indices('dry').count).to eq(4)
+      expect(CollectionProfile.favret_identification_level_indices('wet').count).to eq(4)
+      expect(CollectionProfile.favret_identification_level_indices('slide').count).to eq(4)
+      expect(CollectionProfile.favret_arrangement_level_indices('dry').count).to eq(4)
+      expect(CollectionProfile.favret_arrangement_level_indices('wet').count).to eq(4)
+      expect(CollectionProfile.favret_arrangement_level_indices('slide').count).to eq(4)
+      expect(CollectionProfile.favret_data_quality_indices('dry').count).to eq(4)
+      expect(CollectionProfile.favret_data_quality_indices('wet').count).to eq(4)
+      expect(CollectionProfile.favret_data_quality_indices('slide').count).to eq(4)
+      expect(CollectionProfile.favret_computerization_level_indices('dry').count).to eq(3)
+      expect(CollectionProfile.favret_computerization_level_indices('wet').count).to eq(3)
+      expect(CollectionProfile.favret_computerization_level_indices('slide').count).to eq(3)
+      expect(CollectionProfile.favret_computerization_level_indices('aaa').count).to eq(0)
+    end
+  end
 end
