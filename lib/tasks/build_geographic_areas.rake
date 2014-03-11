@@ -105,6 +105,10 @@ namespace :tw do
 
       @builder = User.where(email: builder).first
 
+      @area_names = {}
+      @cross_ref  = {'Canada'        => ['Western Canada', 'Central Canada', 'Eastern Canada'],
+                     'United States' => ['U.S.A']}
+
       index = index.nil? ? 0 : index.to_i
 
       if divisions.nil?
@@ -213,7 +217,6 @@ def read_dbf(filenames)
   gat5                                                                         = GeographicAreaType.where(name: 'Country').first
   gat6                                                                         = GeographicAreaType.where(name: 'Area').first
 
-  puts
   if ne0_10 != nil
 
     ne0_10_example = {"scalerank"  => 3,
@@ -280,6 +283,7 @@ def read_dbf(filenames)
                       "tiny"       => 4.0,
                       "homepart"   => -99.0}
 
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     ne0_10.each { |item|
 
       #set up future process
@@ -329,6 +333,7 @@ def read_dbf(filenames)
       names_key = {'l0' => nation_name,
                    'l1' => nil,
                    'l2' => nil}
+      keys_key  = names_key.merge('ne10_id' => ne10_id) # add this to the hash
 
       ga = all_names[names_key]
 
@@ -344,7 +349,7 @@ def read_dbf(filenames)
       if add_record
         # check to see if we have a nation by the current name in our list
         # this is unlikely, if we have not processed any of the 110m data
-        if all_keys[names_key].nil?
+        if all_keys[keys_key].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -365,8 +370,8 @@ def read_dbf(filenames)
           ga.iso_3166_a2 = nation_code2 if ga.iso_3166_a2.nil?
           ga.level0      = ga
 
-          # puts "'#{nation_code3}'(#{ga.neID})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (10m)"
-          print "#{' ' * 40}\r'#{nation_code3}' (10m)"
+          print "#{' ' * 40}\r'#{nation_code3}'(#{ga.neID})#{p1}for #{area_type.name} of #{nation_name}\t\tAdded. (10m)"
+          # print "#{' ' * 40}\r'#{nation_code3}' (10m)"
 
         else
           ga = ne_a3[nation_code3]
@@ -380,8 +385,9 @@ def read_dbf(filenames)
           ga.data_origin          = NE0_10 if ga.data_origin.nil?
         end
         ne_a3.merge!(ga.iso_3166_a3 => ga)
-        all_keys.merge!(names_key => ga)
+        all_keys.merge!(keys_key => ga)
         all_names.merge!(names_key => ga)
+        add_area_name(names_key, ga)
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
         ne_adm0.merge!(ga.adm0_a3 => ga) if add_adm0_a3
@@ -436,7 +442,7 @@ def read_dbf(filenames)
                       'mapcolor13' => 7}
 
     index = 0
-    puts
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     ne1_10.each { |item|
 
       index      += 1
@@ -479,7 +485,7 @@ def read_dbf(filenames)
       names_key = {'l0' => adm0_name,
                    'l1' => area_name,
                    'l2' => nil}
-      keys_key  = names_key.merge!('ne10_id' => ne10_id) # add this to the hash
+      keys_key  = names_key.merge('ne10_id' => ne10_id) # add this to the hash
       ga        = all_names[names_key]
 
       #if ga.nil?
@@ -563,13 +569,15 @@ def read_dbf(filenames)
           ne_a3.merge!(ga.iso_3166_a3 => ga)
         end
 
-        all_keys.merge!(names_key => ga)
+        all_keys.merge!(keys_key => ga)
         if all_names[names_key] == nil
           # stick it in the names table as-is
           all_names.merge!(names_key => ga)
+          add_area_name(names_key, ga)
         else
           # so that it will have its own geo_area and shape, but can't be found again
           all_names.merge!(keys_key => ga)
+          add_area_name(names_key, ga)
         end
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
@@ -579,7 +587,7 @@ def read_dbf(filenames)
 
 
   if iso != nil
-    puts
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     iso.each { |line|
       # this section is for capturing country names and iso_a2 codes from the "country_names_and_code_elements" file.
       if line.squish.length > 6 # minimum line size to contain useful data
@@ -592,12 +600,15 @@ def read_dbf(filenames)
         names_key = {'l0' => nation_name,
                      'l1' => nil,
                      'l2' => nil}
+        keys_key  = names_key.merge('iso_a2' => nation_code) # add this to the hash
 
         ga = all_names[names_key]
 
+        # Search by name-set first
         if ga.nil?
           # search by A2 nation code
-          if ne_a2[nation_code].nil?
+          ga = ne_a2[nation_code]
+          if ga.nil?
             # We will need to create new @global_keys records so that we can check for typing anomalies and
             # misplaced areas later, and so that we have the iso codes up to which to match during lvl4 processing.
 
@@ -617,10 +628,12 @@ def read_dbf(filenames)
               ga.level0 = ga
               ne_a2.merge!(nation_code => ga) if !(ga.nil?)
 
+              # any time we create an area record, we add a new entry in the name-set
               all_names.merge!(names_key => ga)
+              add_area_name(names_key, ga)
 
-              if all_keys[names_key].nil?
-                all_keys.merge!(names_key => ga)
+              if all_keys[keys_key].nil?
+                all_keys.merge!(keys_key => ga)
               else
                 names_key
               end
@@ -628,7 +641,6 @@ def read_dbf(filenames)
               puts
             end
           else
-            ga = ne_a2[nation_code]
             # found a record with the right nation code
             print "#{' ' * 40}\r'#{nation_code}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched by iso a2 #{ga.geographic_area_type.name} of #{ga.name}."
             ga
@@ -636,7 +648,7 @@ def read_dbf(filenames)
         else
           # found a record with the right name
           ga.iso_3166_a2 = nation_code if ga.iso_3166_a2.nil?
-          print "#{' ' * 40}\r'#{nation_code}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched by name #{ga.geographic_area_type.name} of #{ga.name}."
+          print "#{' ' * 40}\r'#{ga.iso_3166_a2}' for #{ga.geographic_area_type.name} of #{nation_name}\t\tMatched by name #{ga.geographic_area_type.name} of #{ga.name}."
           ga
         end
 
@@ -755,7 +767,7 @@ def read_dbf(filenames)
     last_record = false
 
     index = 0
-    puts
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     gadm2.each { |item|
 
       index   += 1
@@ -786,11 +798,13 @@ def read_dbf(filenames)
       l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/[\n\r]/, '') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
       l5_type   = item['ENGTYPE_5']
 
-      record_key = {'l0' => l0_name,
-                    'l1' => l1_name,
-                    'l2' => l2_name}
+      names_key = {'l0' => l0_name,
+                   'l1' => l1_name.blank? ? nil : l1_name,
+                   'l2' => l2_name.blank? ? nil : l2_name}
 
-      if all_names[record_key].nil?
+      #look in all_names for an existing record by name-set
+      ga        = all_names[names_key]
+      if ga.nil?
       else
         next # we have processed a record containing this information, so we skip this one
       end
@@ -814,44 +828,39 @@ def read_dbf(filenames)
 
       # build lvl0 key value from lvl0 data
 
-      l0_key    = {
+      l0_key = {
         'ID_0'   => l0_id,
         'ISO'    => l0_iso,
         'NAME_0' => l0_name
       }
-      names_key = {'l0' => l0_name}
 
-      if !(l0_iso =~ /\A[A-Z]{3}\z/)
+      if !(l0_iso =~ /\A[A-Z]{3}\z/) # broken ISO A3 code?
         next # just bail on the record
       end
 
-      # look in ne_a3 for an existing record by iso_a3
-      #ga = ne_a3[l0_iso]
-      #look in ne_names for an existing record by name-set
-      ga = all_keys[names_key]
-      if ga.nil?
+      if ga.nil? # this record may have new names to record
 
         # names_key = {'l0' => 'Åland'}
-        # if not in name list, stick this one in the name list
-        # puts "Adding Level 0: #{names_key}."
-        # create a record for the zero level, and the @global_keys list
-        ga = GeographicArea.new(creator:              @builder,
-                                updater:              @builder,
-                                parent:               earth,
-                                iso_3166_a3:          l0_iso,
-                                data_origin:          GADM2_0,
-                                # when the record is first created for this named place
-                                gadmID:               nil,
-                                geographic_area_type: gat5,
-                                name:                 l0_name)
-        all_keys.merge!({names_key => ga})
-        ne_ga = ne_a3[l0_iso]
-        if ne_ga.nil?
-          # is not in table
-          ne_a3.merge!({l0_iso => ga})
+        pseudo_key = names_key.merge('l1' => nil,
+                                     'l2' => nil)
+        ga         = all_names[pseudo_key]
+        if ga.nil?
+          # create a record for the zero level, and the @global_keys list
+          ga = GeographicArea.new(creator:              @builder,
+                                  updater:              @builder,
+                                  parent:               earth,
+                                  iso_3166_a3:          l0_iso,
+                                  data_origin:          GADM2_0,
+                                  # when the record is first created for this named place
+                                  gadmID:               nil,
+                                  geographic_area_type: gat5,
+                                  name:                 l0_name)
+          all_names.merge!(pseudo_key => ga)
+          add_area_name(pseudo_key, ga)
+          all_keys.merge!(l0_key => ga)
+          puts
         else
-          # found an entry, what do we have to update?
-          l0_iso
+          ga
         end
       else # found in name-set, update for gadm
         # data_origin will already have been set
@@ -864,9 +873,11 @@ def read_dbf(filenames)
       # l0 is now the object we want
       l0 = ga
 
+      # check for top level only record
       if (l1_name.empty? and l2_name.empty? and l3_name.empty? and l4_name.empty? and l5_name.empty?)
         ga.gadmID = gadm_id
       end
+
       if l1_name.empty?
         if !l2_name.empty?
           if l2_name == 'Dhaualagiri'
@@ -911,7 +922,7 @@ def read_dbf(filenames)
           "REMARKS_1" => "",
         }
 
-        l1_key    = {
+        l1_key     = {
           'ID_1'      => l1_id,
           'NAME_1'    => l1_name,
           'VARNAME_1' => item['VARNAME_1'],
@@ -924,11 +935,10 @@ def read_dbf(filenames)
           'VALIDTO_1' => item['VALIDTO_1'],
           'REMARKS_1' => item['REMARKS_1']
         }
-        names_key = {'l0' => l0_name,
-                     'l1' => l1_name}
+        pseudo_key = names_key.merge('l2' => nil)
 
         # ga = @lvl1_items[l1_key]
-        ga        = all_keys[names_key]
+        ga         = all_names[pseudo_key]
         if ga.nil?
           # puts "Adding Level 1: #{names_key}."
           # create a record for level 1, and the @global_keys list
@@ -941,7 +951,9 @@ def read_dbf(filenames)
                                   gadmID:               gadm_id,
                                   geographic_area_type: add_gat(item['ENGTYPE_1']))
           # put the item in the name list
-          all_keys.merge!({names_key => ga})
+          all_names.merge!(pseudo_key => ga)
+          add_area_name(pseudo_key, ga)
+          all_keys.merge!(l1_key => ga)
           place = {l1_key => ga}
           @lvl1_items.merge!(place)
           # and the @global_keys list
@@ -969,7 +981,7 @@ def read_dbf(filenames)
 
         # process level 2, using level 1 as parent
 
-        l2_key    = {
+        l2_key     = {
           'ID_2'      => l2_id,
           'NAME_2'    => l2_name,
           'VARNAME_2' => item['VARNAME_2'],
@@ -982,12 +994,10 @@ def read_dbf(filenames)
           'VALIDTO_2' => item['VALIDTO_2'],
           'REMARKS_2' => item['REMARKS_2']
         }
-        names_key = {'l0' => l0_name,
-                     'l1' => l1_name,
-                     'l2' => l2_name}
+        pseudo_key = names_key
 
         # l2 = @lvl2_items[l2_key]
-        ga        = all_keys[names_key]
+        ga         = all_names[pseudo_key]
         if ga.nil?
           # puts "Adding Level 2: #{names_key}."
           # create a record for level 2, and the @global_keys list
@@ -1011,7 +1021,9 @@ def read_dbf(filenames)
           @lvl2_items.merge!(place)
           # and the @global_keys list
           @global_keys.merge!(place)
-          all_keys.merge!({names_key => ga})
+          all_names.merge!(pseudo_key => ga)
+          add_area_name(pseudo_key, ga)
+          all_keys.merge!(l2_key => ga)
 
         else
           # nothing to do
@@ -1038,71 +1050,87 @@ def read_dbf(filenames)
     # processing the TDWG2 level files into memory
 
     index = 0
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     lvl1.each { |item|
 
-      index     += 1
-      l1n       = item['LEVEL1_NAM'].titlecase
-      l1c       = item['LEVEL1_COD'].to_s + '----'
-      names_key = {'l0' => l1n}
+      index += 1
+      l1n   = item['LEVEL1_NAM'].titlecase
+      l1c   = item['LEVEL1_COD'].to_s + '----'
+
+      names_key = {'l0' => l1n,
+                   'l1' => nil,
+                   'l2' => nil}
 
       puts "1-#{index}:\t\t#{l1c} for #{l1n}."
 
-      ga        = GeographicArea.new(creator:              @builder,
-                                     updater:              @builder,
-                                     parent:               earth,
-                                     tdwg_parent:          earth,
-                                     tdwgID:               l1c,
-                                     data_origin:          TDWG2_L1,
-                                     name:                 l1n,
-                                     geographic_area_type: gat1)
-      ga.level0 = ga
-      @lvl1_items.merge!(l1c => ga)
-      @global_keys.merge!(ga.tdwgID => ga)
+      ga = all_names[names_key] # this stuff will never really match; we will be adding them
+      if ga.nil?
 
-      ne_ga = all_keys[names_key]
-      if ne_ga.nil?
-        # if not in name list, stick this one in the name list
-        all_keys.merge!({names_key => ga})
+        ga        = GeographicArea.new(creator:              @builder,
+                                       updater:              @builder,
+                                       parent:               earth,
+                                       tdwg_parent:          earth,
+                                       tdwgID:               l1c,
+                                       data_origin:          TDWG2_L1,
+                                       name:                 l1n,
+                                       geographic_area_type: gat1)
+        ga.level0 = ga
+        @lvl1_items.merge!(l1c => ga)
+        @global_keys.merge!(ga.tdwgID => ga)
+        all_names.merge!(names_key => ga)
+        add_area_name(names_key, ga)
       else
-        l1n
+        ga
+
       end
     }
 
     index = 0
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     lvl2.each { |item|
 
-      index     += 1
-      l2p       = @lvl1_items[item['LEVEL1_COD'].to_s + '----']
-      l2n       = item['LEVEL2_NAM'].titlecase # two_tick(item['LEVEL2_NAM'].titlecase)
-      l2c       = item['LEVEL2_COD'].to_s + '---'
-      names_key = {'l0' => l2p.name,
-                   'l1' => l2n}
+      index += 1
+      l2p   = @lvl1_items[item['LEVEL1_COD'].to_s + '----']
+      l2n   = item['LEVEL2_NAM'].titlecase # two_tick(item['LEVEL2_NAM'].titlecase)
+      l2c   = item['LEVEL2_COD'].to_s + '---'
+
+      tdwg_key  = {'l0' => l2p.name,
+                   'l1' => l2n,
+                   'l2' => nil}
+
+      # for name-search purposes, we search for the level 2 names as a level 0 item
+      names_key = {'l0' => l2n,
+                   'l1' => nil,
+                   'l2' => nil}
+
 
       puts "2-#{index}:\t\t#{l2c} for #{l2n} in #{l2p.name}."
 
-      ga        = GeographicArea.new(creator:              @builder,
-                                     updater:              @builder,
-                                     parent:               l2p,
-                                     tdwg_parent:          l2p,
-                                     tdwgID:               l2c,
-                                     name:                 l2n,
-                                     data_origin:          TDWG2_L2,
-                                     geographic_area_type: gat2)
-      ga.level0 = l2p
-      ga.level1 = ga
-      @lvl2_items.merge!(l2c => ga)
-      @global_keys.merge!(ga.tdwgID => ga)
+      ga = all_names[names_key]
+      if ga.nil?
+        ga        = GeographicArea.new(creator:              @builder,
+                                       updater:              @builder,
+                                       parent:               l2p,
+                                       tdwg_parent:          l2p,
+                                       tdwgID:               l2c,
+                                       name:                 l2n,
+                                       data_origin:          TDWG2_L2,
+                                       geographic_area_type: gat2)
+        ga.level0 = l2p
+        ga.level1 = ga
+        @lvl2_items.merge!(l2c => ga)
+        @global_keys.merge!(ga.tdwgID => ga)
+        all_names.merge!(names_key => ga)
+        add_area_name(names_key, ga)
 
-      ne_ga = all_keys[names_key]
-      if ne_ga.nil?
-        # if not in name list, stick this one in the name list
-        all_keys.merge!({names_key => ga})
       else
-        l2n
+        ga.tdwgID      = l2c
+        ga.tdwg_parent = l2p
       end
     }
 
     index = 0
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     lvl3.each { |item|
 
       index       += 1
@@ -1112,15 +1140,30 @@ def read_dbf(filenames)
       l3n         = item['LEVEL3_NAM'] # two_tick(item['LEVEL3_NAM'].titlecase)
       l3a3        = item['LEVEL3_COD']
       l3c         = l2c + l3a3
-      names_key   = {'l0' => l3p.parent.name,
-                     'l1' => l3p.name,
-                     'l2' => l3n}
+
+      tdwg_key = {'l0' => l3p.parent.name,
+                  'l1' => l3p.name,
+                  'l2' => l3n}
+
+      names_key = {'l0' => l3p.name,
+                   'l1' => l3n,
+                   'l2' => nil}
 
       puts "3-#{index}:\t\t#{l3c} for #{l3n} in #{l3p.name}."
 
       # we are most likely to find a match by name, so
       # we check names first.
-      ne_ga = all_keys[names_key]
+      ga_hashs = @area_names[l3n]
+      case ga_hashs.count
+        when 0
+          ne_ga = nil
+        when 1
+          ne_ga = ga_hashs.first.values.first
+        else
+          ga_hashs.each { |ga|
+
+          }
+      end
 
       if ne_ga.nil?
         ga = @lvl3_items[l3c]
@@ -1139,7 +1182,9 @@ def read_dbf(filenames)
           ga.level2 = ga
           @lvl3_items.merge!(l3c => ga)
           @global_keys.merge!(ga.tdwgID => ga)
-          all_keys.merge!({names_key => ga})
+          all_keys.merge!(tdwg_key => ga)
+          all_names.merge!(names_key => ga)
+          add_area_name(names_key, ga)
 
         else
           # then try by iso a3
@@ -1159,11 +1204,13 @@ def read_dbf(filenames)
         end
       else
         update_tdwg = true
+        ga = ne_ga
       end
 
       if update_tdwg
         ga.tdwgID      = l3c
         ga.tdwg_parent = l3p
+        update_tdwg = false
       end
     }
 
@@ -1173,6 +1220,7 @@ def read_dbf(filenames)
     # add, where possible, ISO 3166 country codes
 
     index = 0
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
     lvl4.each { |item|
       # When processing lvl4, there are two different ways we need to process the line data:
       #   If this entry has a sub-code of 'OO', it should be represented in one of the earlier levels
@@ -1227,10 +1275,14 @@ def read_dbf(filenames)
         end
       end
 
-      names_key = {'l0' => @lvl1_items[l1c].name,
-                   'l1' => @lvl2_items[l2c].name,
-                   'l2' => l3_ga.name,
-                   'l3' => this_area_name}
+      tdwg_key = {'l0' => @lvl1_items[l1c].name,
+                  'l1' => @lvl2_items[l2c].name,
+                  'l2' => l3_ga.name,
+                  'l3' => this_area_name}
+
+      names_key = {'l0' => @lvl2_items[l2c].name,
+                   'l1' => l3_ga.name,
+                   'l2' => this_area_name}
 
 =begin
 # here are some problem level 4 records:
@@ -1251,7 +1303,7 @@ def read_dbf(filenames)
       puts "4-#{index}:\t\t#{l4c} for #{this_area_name} in #{nation.name}."
 
       # find the matching name-set record by name (not likely)
-      ga = all_keys[names_key]
+      ga = all_names[names_key]
       if ga.nil?
         # failed to find an area by this name in the TDWG data, so we need to create one
         # so we set the parent to the object pointed to by the level 3 code
@@ -1271,7 +1323,9 @@ def read_dbf(filenames)
         ga.level2 = l3_ga
         @lvl4_items.merge!(l4c => ga)
         @global_keys.merge!(ga.tdwgID => ga)
-        all_keys.merge!({names_key => ga})
+        all_names.merge!(names_key => ga)
+        add_area_name(names_key, ga)
+        all_keys.merge!(keys_key => ga)
 
       else
         this_area_name
@@ -1289,6 +1343,7 @@ def read_dbf(filenames)
   puts 'Saving NaturalEarth records...'
 
   index = 0
+  puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
   # breakpoint.save
 
   begin
@@ -2314,6 +2369,29 @@ def gadm_divisions
       }
     end
 
+  end
+
+  def add_area_name(names_key, ga)
+    # find the highest (numeric) level containing a name, and add this ga to the array for this name
+    # 1)  find this name
+    this_name = names_key['l2']
+    if this_name.nil?
+      this_name = names_key['l1']
+      if this_name.nil?
+        this_name = names_key['l0']
+      end
+    end
+
+    if @area_names[this_name].nil? then
+      # never seen this name before?
+      # we need to make a new entry
+      @area_names[this_name] = [names_key => ga]
+    else
+      # collect another ga for this name
+      @area_names[this_name].push(names_key => ga)
+    end
+
+    @area_names[this_name]
   end
 
 end
