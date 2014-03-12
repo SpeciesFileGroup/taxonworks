@@ -25,6 +25,23 @@ class CollectionProfile < ActiveRecord::Base
 
   COLLECTION_PROFILE_TYPES = %w(dry wet slide)
 
+  def collection_profile_indices
+    i = [self.conservation_status,
+         self.processing_state,
+         self.container_condition,
+         self.condition_of_labels,
+         self.identification_level,
+         self.arrangement_level,
+         self.data_quality,
+         self.computerization_level].compact
+    i.size == 8 ? i : []
+  end
+
+  def average_profile_index
+    i = self.collection_profile_indices
+    i.empty? ? nil : i.sum / i.size.to_f
+  end
+
   def self.favret_conservation_status_indices(t)
     case t
       when 'dry'
@@ -191,6 +208,8 @@ class CollectionProfile < ActiveRecord::Base
   #endregion
 
   #region Validation
+
+  private
 
   def validate_type
     unless (self.type.blank? || COLLECTION_PROFILE_TYPES.include?(self.type.to_s))
