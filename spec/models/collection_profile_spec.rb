@@ -62,12 +62,10 @@ describe CollectionProfile do
       expect(p.errors.include?(:number_of_collection_objects)).to be_true
       expect(p.errors.include?(:number_of_containers)).to be_true
     end
-    specify 'valid profile' do
-      p = FactoryGirl.build_stubbed(:collection_profile, conservation_status: 3, processing_state: 3,
-                                    container_condition: 3, condition_of_labels: 3, identification_level: 3,
-                                    arrangement_level: 3, data_quality: 3, computerization_level: 3,
-                                    type: 'dry', number_of_collection_objects: 1)
-      expect(p.valid?).to be_true
+    specify 'invalid updated_at' do
+      p = FactoryGirl.build_stubbed(:collection_profile)
+      p.updated_at = Time.now + 5.days
+      expect(p.valid?).to be_false
     end
   end
 

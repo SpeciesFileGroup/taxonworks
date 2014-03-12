@@ -16,9 +16,10 @@ class CollectionProfile < ActiveRecord::Base
   validates_presence_of :computerization_level, message: 'Computerization_level is not selected'
   validates_presence_of :type, message: 'Type is not selected'
 
-  before_validation :validate_type
-  before_validation :validate_number
-  before_validation :validate_indices
+  before_validation :validate_type,
+                    :validate_number,
+                    :validate_indices,
+                    :validate_date
 
   #region Profile indices
 
@@ -235,6 +236,12 @@ class CollectionProfile < ActiveRecord::Base
       unless self.computerization_level.blank?
         errors.add(:computerization_level, 'Invalid entry') if CollectionProfile.favret_computerization_level_indices(self.type)[self.computerization_level].nil?
       end
+    end
+  end
+
+  def validate_date
+    unless self.created_at == self.updated_at
+      errors.add(:updated_at, 'Collection profile should not be updated. Updated version should be saved as a new record')
     end
   end
 
