@@ -41,6 +41,36 @@ describe CollectionProfile do
     end
   end
 
+  context 'validate' do
+    specify 'valid profile' do
+      expect(@collection_profile.valid?).to be_true
+    end
+    specify 'missing fields' do
+      p = FactoryGirl.build_stubbed(:collection_profile, conservation_status: 5, processing_state: 5,
+                                    container_condition: 5, condition_of_labels: 5, identification_level: 5,
+                                    arrangement_level: 5, data_quality: 5, computerization_level: 5,
+                                    number_of_collection_objects: nil)
+      expect(p.valid?).to be_false
+      expect(p.errors.include?(:conservation_status)).to be_true
+      expect(p.errors.include?(:processing_state)).to be_true
+      expect(p.errors.include?(:container_condition)).to be_true
+      expect(p.errors.include?(:condition_of_labels)).to be_true
+      expect(p.errors.include?(:identification_level)).to be_true
+      expect(p.errors.include?(:arrangement_level)).to be_true
+      expect(p.errors.include?(:data_quality)).to be_true
+      expect(p.errors.include?(:computerization_level)).to be_true
+      expect(p.errors.include?(:number_of_collection_objects)).to be_true
+      expect(p.errors.include?(:number_of_containers)).to be_true
+    end
+    specify 'valid profile' do
+      p = FactoryGirl.build_stubbed(:collection_profile, conservation_status: 3, processing_state: 3,
+                                    container_condition: 3, condition_of_labels: 3, identification_level: 3,
+                                    arrangement_level: 3, data_quality: 3, computerization_level: 3,
+                                    type: 'dry', number_of_collection_objects: 1)
+      expect(p.valid?).to be_true
+    end
+  end
+
   context 'indices' do
     specify 'count' do
       expect(CollectionProfile.favret_conservation_status_indices('dry').count).to eq(3)
@@ -68,6 +98,10 @@ describe CollectionProfile do
       expect(CollectionProfile.favret_computerization_level_indices('wet').count).to eq(3)
       expect(CollectionProfile.favret_computerization_level_indices('slide').count).to eq(3)
       expect(CollectionProfile.favret_computerization_level_indices('aaa').count).to eq(0)
+    end
+    specify 'index value' do
+      expect(CollectionProfile.favret_conservation_status_indices('dry')[1].class).to eq(String)
+      expect(CollectionProfile.favret_conservation_status_indices('wet')[5]).to eq(nil)
     end
   end
 end

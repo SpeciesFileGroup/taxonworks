@@ -14,9 +14,11 @@ class CollectionProfile < ActiveRecord::Base
   validates_presence_of :arrangement_level, message: 'Arrangement level is not selected'
   validates_presence_of :data_quality, message: 'Data quality is not selected'
   validates_presence_of :computerization_level, message: 'Computerization_level is not selected'
+  validates_presence_of :type, message: 'Type is not selected'
 
   before_validation :validate_type
   before_validation :validate_number
+  before_validation :validate_indices
 
   #region Profile indices
 
@@ -190,20 +192,49 @@ class CollectionProfile < ActiveRecord::Base
   #region Validation
 
   def validate_type
-    unless COLLECTION_PROFILE_TYPES.include?(self.type.to_s)
-      errors.add(:type, 'Not a legal type of profile')
+    unless (self.type.blank? || COLLECTION_PROFILE_TYPES.include?(self.type.to_s))
+      errors.add(:type, 'Invalid profile type')
     end
   end
 
   def validate_number
     t = self.type.to_s
     if self.number_of_collection_objects.nil? && self.number_of_containers.nil?
-      errors.add(:number_of_collection_objects, 'At least one number of specimens or number of containers should be specified') if self.parent_id.blank?
-      errors.add(:number_of_containers, 'At least one number of specimens or number of containers should be specified') if self.parent_id.blank?
+      errors.add(:number_of_collection_objects, 'At least one number of specimens or number of containers should be specified')
+      errors.add(:number_of_containers, 'At least one number of specimens or number of containers should be specified')
     elsif t == 'dry' && self.number_of_collection_objects.nil?
-      errors.add(:number_of_collection_objects, 'Number of specimens should be specified') if self.parent_id.blank?
+      errors.add(:number_of_collection_objects, 'Number of specimens should be specified')
     elsif (t == 'wet' || t == 'slide') && self.number_of_containers.nil?
-      errors.add(:number_of_containers, 'Number of slides or vials should be specified') if self.parent_id.blank?
+      errors.add(:number_of_containers, 'Number of slides or vials should be specified')
+    end
+  end
+
+  def validate_indices
+    unless self.type.blank?
+      unless self.conservation_status.blank?
+        errors.add(:conservation_status, 'Invalid entry') if CollectionProfile.favret_conservation_status_indices(self.type)[self.conservation_status].nil?
+      end
+      unless self.processing_state.blank?
+        errors.add(:processing_state, 'Invalid entry') if CollectionProfile.favret_processing_state_indices(self.type)[self.processing_state].nil?
+      end
+      unless self.container_condition.blank?
+        errors.add(:container_condition, 'Invalid entry') if CollectionProfile.favret_container_condition_indices(self.type)[self.container_condition].nil?
+      end
+      unless self.condition_of_labels.blank?
+        errors.add(:condition_of_labels, 'Invalid entry') if CollectionProfile.favret_condition_of_labels_indices(self.type)[self.condition_of_labels].nil?
+      end
+      unless self.identification_level.blank?
+        errors.add(:identification_level, 'Invalid entry') if CollectionProfile.favret_identification_level_indices(self.type)[self.identification_level].nil?
+      end
+      unless self.arrangement_level.blank?
+        errors.add(:arrangement_level, 'Invalid entry') if CollectionProfile.favret_arrangement_level_indices(self.type)[self.arrangement_level].nil?
+      end
+      unless self.data_quality.blank?
+        errors.add(:data_quality, 'Invalid entry') if CollectionProfile.favret_data_quality_indices(self.type)[self.data_quality].nil?
+      end
+      unless self.computerization_level.blank?
+        errors.add(:computerization_level, 'Invalid entry') if CollectionProfile.favret_computerization_level_indices(self.type)[self.computerization_level].nil?
+      end
     end
   end
 
