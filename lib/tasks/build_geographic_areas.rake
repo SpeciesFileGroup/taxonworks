@@ -39,29 +39,6 @@ namespace :tw do
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
     task :build_geographic_areas => [:environment] do
 
-=begin
-      class GARecord < GeographicArea
-        @new_stuff = ''
-        @attributes
-
-        def attributes=(attributes)
-          @attributes = attributes
-        end
-
-        def attributes
-          @attributes
-        end
-
-        def new_stuff=(stuff)
-          @new_stuff = stuff
-        end
-
-        def stuff
-          @new_stuff
-        end
-      end
-=end
-
       place     = ENV['place']
       shapes    = ENV['shapes']
       builder   = ENV['user']
@@ -106,8 +83,63 @@ namespace :tw do
       @builder = User.where(email: builder).first
 
       @area_names = {}
-      @cross_ref  = {'Canada'        => ['Western Canada', 'Central Canada', 'Eastern Canada'],
-                     'United States' => ['U.S.A']}
+      #noinspection RubyStringKeysInHashInspection
+      #
+      #               TDWG Regional phrase       =>    Political phrase
+      @tdwg_xlate = {'Argentina Northeast'       => 'Agrentina',
+                     'Argentina South'           => 'Agrentina',
+                     'Argentina Northwest'       => 'Agrentina',
+                     'Western Australia'         => 'Australia',
+                     'Brazil West-Central'       => 'Brazil',
+                     'Brazil Northeast'          => 'Brazil',
+                     'Brazil Southeast'          => 'Brazil',
+                     'Brazil North'              => 'Brazil',
+                     'Brazil South'              => 'Brazil',
+                     'Western Canada'            => 'Canada',
+                     'Central  Canada'           => 'Canada',
+                     'Eastern Canada'            => 'Canada',
+                     'Chile Central'             => 'Chile',
+                     'Chile North'               => 'Chile',
+                     'Chile South'               => 'Chile',
+
+                     'China North-Central'       => 'China',
+                     'China South-Central'       => 'China',
+                     'China Southeast'           => 'China',
+                     'Hainan'                    => 'China',
+                     'Inner Mongolia'            => 'China',
+                     'Manchuria'                 => 'China',
+                     'Qinghai'                   => 'China',
+                     'Tibet'                     => 'China',
+                     'Xinjiang'                  => 'China',
+                     'Mongolia'                  => 'China',
+
+                     'Indian Subcontinent' => 'India',
+
+                     'New Zealand North'         => 'New Zealand',
+                     'New Zealand South'         => 'New Zealand',
+
+                     'East European Russia'      => 'Russia',
+                     'Central European Russia'   => 'Russia',
+                     'North European Russia'     => 'Russia',
+                     'South European Russia'     => 'Russia',
+                     'Northwest European Russia' => 'Russia',
+                     'West Siberia'              => 'Russia',
+                     'Siberia'                   => 'Russia',
+                     'Russian Far East'          => 'Russia',
+
+                     'Turkey-in-Europe'          => 'Turkey',
+
+                     'Northwestern U.S.A.'       => 'United States of America',
+                     'North-Central U.S.A.'      => 'United States of America',
+                     'Northeastern U.S.A.'       => 'United States of America',
+                     'Southwestern U.S.A.'       => 'United States of America',
+                     'South-Central U.S.A.'      => 'United States of America',
+                     'Southeastern U.S.A.'       => 'United States of America',
+                     'Subarctic America'         => 'United States of America',
+
+                     'Macaronesia' => false,
+                     'West Central Tropical Africa' => false
+      }
 
       index = index.nil? ? 0 : index.to_i
 
@@ -143,6 +175,7 @@ namespace :tw do
   end
 end
 
+#noinspection RubyStringKeysInHashInspection
 def read_dbf(filenames)
 
   # things to do before any file
@@ -204,7 +237,7 @@ def read_dbf(filenames)
       when /country_names_and_code_elements/i
         iso = File.open(filename)
       when /gadm2/i
-        gadm2 = DBF::Table.new(filename)
+        gadm2 = nil # DBF::Table.new(filename)
       else
     end
   }
@@ -219,71 +252,71 @@ def read_dbf(filenames)
 
   if ne0_10 != nil
 
-    ne0_10_example = {"scalerank"  => 3,
-                      "featurecla" => "Admin-0 country",
-                      "labelrank"  => 5.0,
-                      "sovereignt" => "Netherlands",
-                      "sov_a3"     => "NL1",
-                      "adm0_dif"   => 1.0,
-                      "level"      => 2.0,
-                      "type"       => "Country",
-                      "admin"      => "Aruba",
-                      "adm0_a3"    => "ABW",
-                      "geou_dif"   => 0.0,
-                      "geounit"    => "Aruba",
-                      "gu_a3"      => "ABW",
-                      "su_dif"     => 0.0,
-                      "subunit"    => "Aruba",
-                      "su_a3"      => "ABW",
-                      "brk_diff"   => 0.0,
-                      "name"       => "Aruba",
-                      "name_long"  => "Aruba",
-                      "brk_a3"     => "ABW",
-                      "brk_name"   => "Aruba",
-                      "brk_group"  => "",
-                      "abbrev"     => "Aruba",
-                      "postal"     => "AW",
-                      "formal_en"  => "Aruba",
-                      "formal_fr"  => "",
-                      "note_adm0"  => "Neth.",
-                      "note_brk"   => "",
-                      "name_sort"  => "Aruba",
-                      "name_alt"   => "",
-                      "mapcolor7"  => 4.0,
-                      "mapcolor8"  => 2.0,
-                      "mapcolor9"  => 2.0,
-                      "mapcolor13" => 9.0,
-                      "pop_est"    => 103065.0,
-                      "gdp_md_est" => 2258.0,
-                      "pop_year"   => -99.0,
-                      "lastcensus" => 2010.0,
-                      "gdp_year"   => -99.0,
-                      "economy"    => "6. Developing region",
-                      "income_grp" => "2. High income: nonOECD",
-                      "wikipedia"  => -99.0,
-                      "fips_10"    => "",
-                      "iso_a2"     => "AW",
-                      "iso_a3"     => "ABW",
-                      "iso_n3"     => "533",
-                      "un_a3"      => "533",
-                      "wb_a2"      => "AW",
-                      "wb_a3"      => "ABW",
-                      "woe_id"     => -99.0,
-                      "adm0_a3_is" => "ABW",
-                      "adm0_a3_us" => "ABW",
-                      "adm0_a3_un" => -99.0,
-                      "adm0_a3_wb" => -99.0,
-                      "continent"  => "North America",
-                      "region_un"  => "Americas",
-                      "subregion"  => "Caribbean",
-                      "region_wb"  => "Latin America & Caribbean",
-                      "name_len"   => 5.0,
-                      "long_len"   => 5.0,
-                      "abbrev_len" => 5.0,
-                      "tiny"       => 4.0,
-                      "homepart"   => -99.0}
+    ne0_10_example = {'scalerank'  => 3,
+                      'featurecla' => 'Admin-0 country',
+                      'labelrank'  => 5.0,
+                      'sovereignt' => 'Netherlands',
+                      'sov_a3'     => 'NL1',
+                      'adm0_dif'   => 1.0,
+                      'level'      => 2.0,
+                      'type'       => 'Country',
+                      'admin'      => 'Aruba',
+                      'adm0_a3'    => 'ABW',
+                      'geou_dif'   => 0.0,
+                      'geounit'    => 'Aruba',
+                      'gu_a3'      => 'ABW',
+                      'su_dif'     => 0.0,
+                      'subunit'    => 'Aruba',
+                      'su_a3'      => 'ABW',
+                      'brk_diff'   => 0.0,
+                      'name'       => 'Aruba',
+                      'name_long'  => 'Aruba',
+                      'brk_a3'     => 'ABW',
+                      'brk_name'   => 'Aruba',
+                      'brk_group'  => '',
+                      'abbrev'     => 'Aruba',
+                      'postal'     => 'AW',
+                      'formal_en'  => 'Aruba',
+                      'formal_fr'  => '',
+                      'note_adm0'  => 'Neth.',
+                      'note_brk'   => '',
+                      'name_sort'  => 'Aruba',
+                      'name_alt'   => '',
+                      'mapcolor7'  => 4.0,
+                      'mapcolor8'  => 2.0,
+                      'mapcolor9'  => 2.0,
+                      'mapcolor13' => 9.0,
+                      'pop_est'    => 103065.0,
+                      'gdp_md_est' => 2258.0,
+                      'pop_year'   => -99.0,
+                      'lastcensus' => 2010.0,
+                      'gdp_year'   => -99.0,
+                      'economy'    => '6. Developing region',
+                      'income_grp' => '2. High income: nonOECD',
+                      'wikipedia'  => -99.0,
+                      'fips_10'    => '',
+                      'iso_a2'     => 'AW',
+                      'iso_a3'     => 'ABW',
+                      'iso_n3'     => '533',
+                      'un_a3'      => '533',
+                      'wb_a2'      => 'AW',
+                      'wb_a3'      => 'ABW',
+                      'woe_id'     => -99.0,
+                      'adm0_a3_is' => 'ABW',
+                      'adm0_a3_us' => 'ABW',
+                      'adm0_a3_un' => -99.0,
+                      'adm0_a3_wb' => -99.0,
+                      'continent'  => 'North America',
+                      'region_un'  => 'Americas',
+                      'subregion'  => 'Caribbean',
+                      'region_wb'  => 'Latin America & Caribbean',
+                      'name_len'   => 5.0,
+                      'long_len'   => 5.0,
+                      'abbrev_len' => 5.0,
+                      'tiny'       => 4.0,
+                      'homepart'   => -99.0}
 
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"} NaturalEarth adm0\n\n"
     ne0_10.each { |item|
 
       #set up future process
@@ -442,7 +475,7 @@ def read_dbf(filenames)
                       'mapcolor13' => 7}
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"} NaturalEarth adm1\n\n"
     ne1_10.each { |item|
 
       index      += 1
@@ -502,7 +535,7 @@ def read_dbf(filenames)
         # there is no reasonable thing to do, if the name is blank, so we bail.
         next if area_name.empty?
 
-        # check to see if we have a nation by the current name in our list
+        # check to see if we have an area by the current name in our list
         ga = all_keys[keys_key]
         if ga.nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
@@ -565,20 +598,24 @@ def read_dbf(filenames)
           # this would be used to process alternate names
           item.name_alt
         end
-        if ne_a3[ga.iso_3166_a3].nil?
-          ne_a3.merge!(ga.iso_3166_a3 => ga)
+
+        if ga.iso_3166_a3.nil?
+        else
+          if ne_a3[ga.iso_3166_a3].nil?
+            ne_a3.merge!(ga.iso_3166_a3 => ga)
+          end
         end
 
         all_keys.merge!(keys_key => ga)
         if all_names[names_key] == nil
           # stick it in the names table as-is
           all_names.merge!(names_key => ga)
-          add_area_name(names_key, ga)
         else
           # so that it will have its own geo_area and shape, but can't be found again
           all_names.merge!(keys_key => ga)
-          add_area_name(names_key, ga)
         end
+        add_area_name(names_key, ga)
+
         ne_ids.merge!(ga.neID => ga)
         ne_a2.merge!(ga.iso_3166_a2 => ga) if ga.iso_3166_a2 =~ /\A[A-Z]{2}\z/
       end
@@ -587,7 +624,7 @@ def read_dbf(filenames)
 
 
   if iso != nil
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"} ISO 3166 A2\n\n"
     iso.each { |line|
       # this section is for capturing country names and iso_a2 codes from the "country_names_and_code_elements" file.
       if line.squish.length > 6 # minimum line size to contain useful data
@@ -666,65 +703,67 @@ def read_dbf(filenames)
     # we are processing non-TDWG data; right now, that is gadm data
     # this processing is specifically for GADM2
 
-    gadm_example = {"OBJECTID"   => 1,
-                    "ID_0"       => 1,
-                    "ISO"        => "AFG",
+    #noinspection RubyStringKeysInHashInspection
+    #
+    gadm_example = {'OBJECTID'   => 1,
+                    'ID_0'       => 1,
+                    'ISO'        => 'AFG',
 
-                    "NAME_0"     => "Afghanistan",
+                    'NAME_0'     => 'Afghanistan',
 
-                    "ID_1"       => 12,
-                    "NAME_1"     => "Jawzjan",
-                    "VARNAME_1"  => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
-                    "NL_NAME_1"  => "",
-                    "HASC_1"     => "AF.JW",
-                    "CC_1"       => "",
-                    "TYPE_1"     => "Velayat",
-                    "ENGTYPE_1"  => "Province",
-                    "VALIDFR_1"  => "19640430",
-                    "VALIDTO_1"  => "198804",
-                    "REMARKS_1"  => "",
+                    'ID_1'       => 12,
+                    'NAME_1'     => 'Jawzjan',
+                    'VARNAME_1'  => 'Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan',
+                    'NL_NAME_1'  => '',
+                    'HASC_1'     => 'AF.JW',
+                    'CC_1'       => '',
+                    'TYPE_1'     => 'Velayat',
+                    'ENGTYPE_1'  => 'Province',
+                    'VALIDFR_1'  => '19640430',
+                    'VALIDTO_1'  => '198804',
+                    'REMARKS_1'  => '',
 
-                    "ID_2"       => 129,
-                    "NAME_2"     => "Khamyab",
-                    "VARNAME_2"  => "",
-                    "NL_NAME_2"  => "",
-                    "HASC_2"     => "AF.JW.KM",
-                    "CC_2"       => "",
-                    "TYPE_2"     => "",
-                    "ENGTYPE_2"  => "",
-                    "VALIDFR_2"  => "Unknown",
-                    "VALIDTO_2"  => "Present",
-                    "REMARKS_2"  => "",
+                    'ID_2'       => 129,
+                    'NAME_2'     => 'Khamyab',
+                    'VARNAME_2'  => '',
+                    'NL_NAME_2'  => '',
+                    'HASC_2'     => 'AF.JW.KM',
+                    'CC_2'       => '',
+                    'TYPE_2'     => '',
+                    'ENGTYPE_2'  => '',
+                    'VALIDFR_2'  => 'Unknown',
+                    'VALIDTO_2'  => 'Present',
+                    'REMARKS_2'  => '',
 
-                    "ID_3"       => 0,
-                    "NAME_3"     => "",
-                    "VARNAME_3"  => "",
-                    "NL_NAME_3"  => "",
-                    "HASC_3"     => "",
-                    "TYPE_3"     => "",
-                    "ENGTYPE_3"  => "",
-                    "VALIDFR_3"  => "",
-                    "VALIDTO_3"  => "",
-                    "REMARKS_3"  => "",
+                    'ID_3'       => 0,
+                    'NAME_3'     => '',
+                    'VARNAME_3'  => '',
+                    'NL_NAME_3'  => '',
+                    'HASC_3'     => '',
+                    'TYPE_3'     => '',
+                    'ENGTYPE_3'  => '',
+                    'VALIDFR_3'  => '',
+                    'VALIDTO_3'  => '',
+                    'REMARKS_3'  => '',
 
-                    "ID_4"       => 0,
-                    "NAME_4"     => "",
-                    "VARNAME_4"  => "",
-                    "TYPE4"      => "",
-                    "ENGTYPE4"   => "",
-                    "TYPE_4"     => "",
-                    "ENGTYPE_4"  => "",
-                    "VALIDFR_4"  => "",
-                    "VALIDTO_4"  => "",
-                    "REMARKS_4"  => "",
+                    'ID_4'       => 0,
+                    'NAME_4'     => '',
+                    'VARNAME_4'  => '',
+                    'TYPE4'      => '',
+                    'ENGTYPE4'   => '',
+                    'TYPE_4'     => '',
+                    'ENGTYPE_4'  => '',
+                    'VALIDFR_4'  => '',
+                    'VALIDTO_4'  => '',
+                    'REMARKS_4'  => '',
 
-                    "ID_5"       => 0,
-                    "NAME_5"     => "",
-                    "TYPE_5"     => "",
-                    "ENGTYPE_5"  => "",
+                    'ID_5'       => 0,
+                    'NAME_5'     => '',
+                    'TYPE_5'     => '',
+                    'ENGTYPE_5'  => '',
 
-                    "Shape_Leng" => 1.30495037416,
-                    "Shape_Area" => 0.0798353069113}
+                    'Shape_Leng' => 1.30495037416,
+                    'Shape_Area' => 0.0798353069113}
 
     if divisions == true
       # this section is specifically, and only, for gathering the English names of the divisions from level_1 and level_2 named areas
@@ -767,7 +806,7 @@ def read_dbf(filenames)
     last_record = false
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"} GADM\n\n"
     gadm2.each { |item|
 
       index   += 1
@@ -909,17 +948,17 @@ def read_dbf(filenames)
 
         l1_key = {
 
-          "ID_1"      => 12,
-          "NAME_1"    => "Jawzjan",
-          "VARNAME_1" => "Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan",
-          "NL_NAME_1" => "",
-          "HASC_1"    => "AF.JW",
-          "CC_1"      => "",
-          "TYPE_1"    => "Velayat",
-          "ENGTYPE_1" => "Province",
-          "VALIDFR_1" => "19640430",
-          "VALIDTO_1" => "198804",
-          "REMARKS_1" => "",
+          'ID_1'      => 12,
+          'NAME_1'    => 'Jawzjan',
+          'VARNAME_1' => 'Jaozjan|Jozjan|Juzjan|Jouzjan|Shibarghan',
+          'NL_NAME_1' => '',
+          'HASC_1'    => 'AF.JW',
+          'CC_1'      => '',
+          'TYPE_1'    => 'Velayat',
+          'ENGTYPE_1' => 'Province',
+          'VALIDFR_1' => '19640430',
+          'VALIDTO_1' => '198804',
+          'REMARKS_1' => '',
         }
 
         l1_key     = {
@@ -1050,7 +1089,7 @@ def read_dbf(filenames)
     # processing the TDWG2 level files into memory
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"} TDWG Level 1\n\n"
     lvl1.each { |item|
 
       index += 1
@@ -1086,7 +1125,7 @@ def read_dbf(filenames)
     }
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}} TDWG Level 2\n\n"
     lvl2.each { |item|
 
       index += 1
@@ -1118,7 +1157,6 @@ def read_dbf(filenames)
                                        geographic_area_type: gat2)
         ga.level0 = l2p
         ga.level1 = ga
-        @lvl2_items.merge!(l2c => ga)
         @global_keys.merge!(ga.tdwgID => ga)
         all_names.merge!(names_key => ga)
         add_area_name(names_key, ga)
@@ -1127,10 +1165,11 @@ def read_dbf(filenames)
         ga.tdwgID      = l2c
         ga.tdwg_parent = l2p
       end
-    }
+      @lvl2_items.merge!(l2c => ga)
+    } # end of lvl2.each
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}} TDWG Level 3\n\n"
     lvl3.each { |item|
 
       index       += 1
@@ -1153,21 +1192,22 @@ def read_dbf(filenames)
 
       # we are most likely to find a match by name, so
       # we check names first.
-      ga_hashs = @area_names[l3n]
-      case ga_hashs.count
-        when 0
-          ne_ga = nil
-        when 1
-          ne_ga = ga_hashs.first.values.first
-        else
-          ga_hashs.each { |ga|
-
-          }
+      name_gas = @area_names[l3n]
+      # turn name_gas into an array of zero or more GeographicArea
+      if name_gas.class == Hash
+        name_gas = [name_gas]
+      else
+        if name_gas.nil?
+          name_gas = []
+        end
       end
 
-      if ne_ga.nil?
+      if name_gas.count == 0 # none found, need a new one
+
+        # search for this item in the level 3 gas
         ga = @lvl3_items[l3c]
-        if ga.nil?
+
+        if ga.nil? # we didn't find one, so create it
           # new TDWG-only record
           ga        = GeographicArea.new(creator:              @builder,
                                          updater:              @builder,
@@ -1180,7 +1220,6 @@ def read_dbf(filenames)
           ga.level0 = l3p.parent
           ga.level1 = l3p
           ga.level2 = ga
-          @lvl3_items.merge!(l3c => ga)
           @global_keys.merge!(ga.tdwgID => ga)
           all_keys.merge!(tdwg_key => ga)
           all_names.merge!(names_key => ga)
@@ -1201,18 +1240,54 @@ def read_dbf(filenames)
               update_tdwg = true
             end
           end
+          @lvl3_items.merge!(l3c => ga)
         end
-      else
-        update_tdwg = true
-        ga = ne_ga
-      end
 
-      if update_tdwg
-        ga.tdwgID      = l3c
-        ga.tdwg_parent = l3p
-        update_tdwg = false
+        if update_tdwg
+          ga.tdwgID      = l3c
+          ga.tdwg_parent = l3p
+          update_tdwg    = false
+        end
+
+      else # found some name matches
+        name_gas.each { |ga_hash|
+          # process each found ga to add this TDWG data to the record
+          update_tdwg = false
+          ga          = ga_hash.values.first
+          ga_key      = ga_hash.keys.first
+
+          if match_ref(names_key.dup, ga_key.dup)
+            update_tdwg = true
+          else
+            # new TDWG-only record
+            ga        = GeographicArea.new(creator:              @builder,
+                                           updater:              @builder,
+                                           parent:               l3p,
+                                           tdwg_parent:          l3p,
+                                           tdwgID:               l3c,
+                                           name:                 l3n,
+                                           data_origin:          TDWG2_L3,
+                                           geographic_area_type: gat3)
+            ga.level0 = l3p.parent
+            ga.level1 = l3p
+            ga.level2 = ga
+            @lvl3_items.merge!(l3c => ga)
+            @global_keys.merge!(ga.tdwgID => ga)
+            all_keys.merge!(tdwg_key => ga)
+            all_names.merge!(names_key => ga)
+            add_area_name(names_key, ga)
+
+          end
+
+          if update_tdwg
+            ga.tdwgID      = l3c
+            ga.tdwg_parent = l3p
+            update_tdwg    = false
+          end
+        }
       end
-    }
+      @lvl3_items.merge!(l3c => ga)
+    } # end of lvl3.each
 
     # Before we process the lvl4 data, we will process the iso codes information, so that the iso codes in lvl4 will
     # have some meaning when we process *them*.
@@ -1220,7 +1295,7 @@ def read_dbf(filenames)
     # add, where possible, ISO 3166 country codes
 
     index = 0
-    puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
+    puts "\n\n#{Time.now.strftime "%H:%M:%S"}} TDWG Level 4\n\n"
     lvl4.each { |item|
       # When processing lvl4, there are two different ways we need to process the line data:
       #   If this entry has a sub-code of 'OO', it should be represented in one of the earlier levels
@@ -1242,6 +1317,9 @@ def read_dbf(filenames)
       l4c            = item['Level2_cod'].to_s + item['Level4_cod']
       l4n            = this_area_name
 
+      if l4c_a2 == 'OO'
+        next
+      end
 
       case iso_a2
         when 'UK'
@@ -1325,7 +1403,7 @@ def read_dbf(filenames)
         @global_keys.merge!(ga.tdwgID => ga)
         all_names.merge!(names_key => ga)
         add_area_name(names_key, ga)
-        all_keys.merge!(keys_key => ga)
+        all_keys.merge!(tdwg_key => ga)
 
       else
         this_area_name
@@ -1337,7 +1415,7 @@ def read_dbf(filenames)
       else
         # puts nation.name
       end
-    }
+    } # end of lvl4.each
   end # of TDWG Level processing
 
   puts 'Saving NaturalEarth records...'
@@ -1367,6 +1445,7 @@ def read_dbf(filenames)
 
 end
 
+#noinspection RubyStringKeysInHashInspection
 def read_csv(file)
 
   # data = CSV.open(file)
@@ -1433,6 +1512,7 @@ def read_csv(file)
   }
 end
 
+#noinspection RubyStringKeysInHashInspection
 def read_shape(filename, index)
 
   # TODO: For some reason, Georeference::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
@@ -1633,6 +1713,7 @@ def read_shape(filename, index)
 
 end
 
+#noinspection RubyStringKeysInHashInspection
 def add_gat(gat)
   # extracted out to enable single insert
 
@@ -1647,6 +1728,7 @@ def add_gat(gat)
   area_type
 end
 
+#noinspection RubyStringKeysInHashInspection
 def build_gat_table
 
   # create our list
@@ -1700,6 +1782,7 @@ def build_gat_table
   @gat_list.merge!(nil => @gat_list[l_var])
 end
 
+#noinspection RubyStringKeysInHashInspection
 def ne_divisions
 
   # create our list
@@ -1718,6 +1801,7 @@ def ne_divisions
   }
 end
 
+#noinspection RubyStringKeysInHashInspection
 def gadm_divisions
   ['Reef',
    'Metropolitan Borough (city)',
@@ -1929,6 +2013,8 @@ def gadm_divisions
 
     if ne0_50 != nil
 
+      #noinspection RubyStringKeysInHashInspection
+      #
       ne0_50_example = {'scalerank'  => 5,
                         'featurecla' => 'Admin-0 country',
                         'labelrank'  => 5.0,
@@ -2087,69 +2173,72 @@ def gadm_divisions
 
     if ne0_110 != nil
 
-      ne0_110_example = {"scalerank"  => 1,
-                         "featurecla" => "Admin-0 country",
-                         "labelrank"  => 3.0,
-                         "sovereignt" => "Afghanistan",
-                         "sov_a3"     => "AFG",
-                         "adm0_dif"   => 0.0,
-                         "level"      => 2.0,
-                         "type"       => "Sovereign country",
-                         "admin"      => "Afghanistan",
-                         "adm0_a3"    => "AFG",
-                         "geou_dif"   => 0.0,
-                         "geounit"    => "Afghanistan",
-                         "gu_a3"      => "AFG",
-                         "su_dif"     => 0.0,
-                         "subunit"    => "Afghanistan",
-                         "su_a3"      => "AFG",
-                         "brk_diff"   => 0.0,
-                         "name"       => "Afghanistan",
-                         "name_long"  => "Afghanistan",
-                         "brk_a3"     => "AFG",
-                         "brk_name"   => "Afghanistan",
-                         "brk_group"  => "",
-                         "abbrev"     => "Afg.",
-                         "postal"     => "AF",
-                         "formal_en"  => "Islamic State of Afghanistan",
-                         "formal_fr"  => "",
-                         "note_adm0"  => "",
-                         "note_brk"   => "",
-                         "name_sort"  => "Afghanistan",
-                         "name_alt"   => "",
-                         "mapcolor7"  => 5.0,
-                         "mapcolor8"  => 6.0,
-                         "mapcolor9"  => 8.0,
-                         "mapcolor13" => 7.0,
-                         "pop_est"    => 28400000.0,
-                         "gdp_md_est" => 22270.0,
-                         "pop_year"   => -99.0,
-                         "lastcensus" => 1979.0,
-                         "gdp_year"   => -99.0,
-                         "economy"    => "7. Least developed region",
-                         "income_grp" => "5. Low income",
-                         "wikipedia"  => -99.0,
-                         "fips_10"    => "",
-                         "iso_a2"     => "AF",
-                         "iso_a3"     => "AFG",
-                         "iso_n3"     => "004",
-                         "un_a3"      => "004",
-                         "wb_a2"      => "AF",
-                         "wb_a3"      => "AFG",
-                         "woe_id"     => -99.0,
-                         "adm0_a3_is" => "AFG",
-                         "adm0_a3_us" => "AFG",
-                         "adm0_a3_un" => -99.0,
-                         "adm0_a3_wb" => -99.0,
-                         "continent"  => "Asia",
-                         "region_un"  => "Asia",
-                         "subregion"  => "Southern Asia",
-                         "region_wb"  => "South Asia",
-                         "name_len"   => 11.0,
-                         "long_len"   => 11.0,
-                         "abbrev_len" => 4.0,
-                         "tiny"       => -99.0,
-                         "homepart"   => 1.0}
+      #noinspection RubyStringKeysInHashInspection
+      #
+      ne0_110_example = {'scalerank'  => 1,
+                         'featurecla' => 'Admin-0 country',
+                         'labelrank'  => 3.0,
+                         'sovereignt' => 'Afghanistan',
+                         'sov_a3'     => 'AFG',
+                         'adm0_dif'   => 0.0,
+                         'level'      => 2.0,
+                         'type'       => 'Sovereign country',
+                         'admin'      => 'Afghanistan',
+                         'adm0_a3'    => 'AFG',
+                         'geou_dif'   => 0.0,
+                         'geounit'    => 'Afghanistan',
+                         'gu_a3'      => 'AFG',
+                         'su_dif'     => 0.0,
+                         'subunit'    => 'Afghanistan',
+                         'su_a3'      => 'AFG',
+                         'brk_diff'   => 0.0,
+                         'name'       => 'Afghanistan',
+                         'name_long'  => 'Afghanistan',
+                         'brk_a3'     => 'AFG',
+                         'brk_name'   => 'Afghanistan',
+                         'brk_group'  => '',
+                         'abbrev'     => 'Afg.',
+                         'postal'     => 'AF',
+                         'formal_en'  => 'Islamic State of Afghanistan',
+                         'formal_fr'  => '',
+                         'note_adm0'  => '',
+                         'note_brk'   => '',
+                         'name_sort'  => 'Afghanistan',
+                         'name_alt'   => '',
+                         'mapcolor7'  => 5.0,
+                         'mapcolor8'  => 6.0,
+                         'mapcolor9'  => 8.0,
+                         'mapcolor13' => 7.0,
+                         'pop_est'    => 28400000.0,
+                         'gdp_md_est' => 22270.0,
+                         'pop_year'   => -99.0,
+                         'lastcensus' => 1979.0,
+                         'gdp_year'   => -99.0,
+                         'economy'    => '7. Least developed region',
+                         'income_grp' => '5. Low income',
+                         'wikipedia'  => -99.0,
+                         'fips_10'    => '',
+                         'iso_a2'     => 'AF',
+                         'iso_a3'     => 'AFG',
+                         'iso_n3'     => '004',
+                         'un_a3'      => '004',
+                         'wb_a2'      => 'AF',
+                         'wb_a3'      => 'AFG',
+                         'woe_id'     => -99.0,
+                         'adm0_a3_is' => 'AFG',
+                         'adm0_a3_us' => 'AFG',
+                         'adm0_a3_un' => -99.0,
+                         'adm0_a3_wb' => -99.0,
+                         'continent'  => 'Asia',
+                         'region_un'  => 'Asia',
+                         'subregion'  => 'Southern Asia',
+                         'region_wb'  => 'South Asia',
+                         'name_len'   => 11.0,
+                         'long_len'   => 11.0,
+                         'abbrev_len' => 4.0,
+                         'tiny'       => -99.0,
+                         'homepart'   => 1.0
+      }
 
       ne0_110.each { |item|
 
@@ -2240,46 +2329,48 @@ def gadm_divisions
 
     if ne1_110 != nil
 
-      ne1_110_example = {"scalerank"  => 2,
-                         "featurecla" => "Admin-1 scale rank",
-                         "adm1_code"  => "USA-3514",
-                         "diss_me"    => 3514,
-                         "adm1_cod_1" => "USA-3514",
-                         "iso_3166_2" => "US-MN",
-                         "wikipedia"  => "http://en.wikipedia.org/wiki/Minnesota",
-                         "sr_sov_a3"  => "US1",
-                         "sr_adm0_a3" => "USA",
-                         "iso_a2"     => "US",
-                         "adm0_sr"    => 1,
-                         "admin0_lab" => 2,
-                         "name"       => "Minnesota",
-                         "name_alt"   => "MN|Minn.",
-                         "name_local" => "",
-                         "type"       => "State",
-                         "type_en"    => "State",
-                         "code_local" => "US32",
-                         "code_hasc"  => "US.MN",
-                         "note"       => "",
-                         "hasc_maybe" => "",
-                         "region"     => "Midwest",
-                         "region_cod" => "",
-                         "region_big" => "West North Central",
-                         "big_code"   => "",
-                         "provnum_ne" => 0,
-                         "gadm_level" => 1,
-                         "check_me"   => 10,
-                         "scaleran_1" => 2,
-                         "datarank"   => 1,
-                         "abbrev"     => "Minn.",
-                         "postal"     => "MN",
-                         "area_sqkm"  => 0.0,
-                         "sameascity" => -99,
-                         "labelrank"  => 0,
-                         "featurec_1" => "Admin-1 scale rank",
-                         "admin"      => "United States of America",
-                         "name_len"   => 9,
-                         "mapcolor9"  => 1,
-                         "mapcolor13" => 1}
+      #noinspection RubyStringKeysInHashInspection
+      #
+      ne1_110_example = {'scalerank'  => 2,
+                         'featurecla' => 'Admin-1 scale rank',
+                         'adm1_code'  => 'USA-3514',
+                         'diss_me'    => 3514,
+                         'adm1_cod_1' => 'USA-3514',
+                         'iso_3166_2' => 'US-MN',
+                         'wikipedia'  => 'http://en.wikipedia.org/wiki/Minnesota',
+                         'sr_sov_a3'  => 'US1',
+                         'sr_adm0_a3' => 'USA',
+                         'iso_a2'     => 'US',
+                         'adm0_sr'    => 1,
+                         'admin0_lab' => 2,
+                         'name'       => 'Minnesota',
+                         'name_alt'   => 'MN|Minn.',
+                         'name_local' => '',
+                         'type'       => 'State',
+                         'type_en'    => 'State',
+                         'code_local' => 'US32',
+                         'code_hasc'  => 'US.MN',
+                         'note'       => '',
+                         'hasc_maybe' => '',
+                         'region'     => 'Midwest',
+                         'region_cod' => '',
+                         'region_big' => 'West North Central',
+                         'big_code'   => '',
+                         'provnum_ne' => 0,
+                         'gadm_level' => 1,
+                         'check_me'   => 10,
+                         'scaleran_1' => 2,
+                         'datarank'   => 1,
+                         'abbrev'     => 'Minn.',
+                         'postal'     => 'MN',
+                         'area_sqkm'  => 0.0,
+                         'sameascity' => -99,
+                         'labelrank'  => 0,
+                         'featurec_1' => 'Admin-1 scale rank',
+                         'admin'      => 'United States of America',
+                         'name_len'   => 9,
+                         'mapcolor9'  => 1,
+                         'mapcolor13' => 1}
 
       ne1_110.each { |item|
 
@@ -2371,9 +2462,8 @@ def gadm_divisions
 
   end
 
-  def add_area_name(names_key, ga)
-    # find the highest (numeric) level containing a name, and add this ga to the array for this name
-    # 1)  find this name
+  def find_this_name(names_key)
+    # search for and return the contents of the highest (numeric) level containing a name
     this_name = names_key['l2']
     if this_name.nil?
       this_name = names_key['l1']
@@ -2381,17 +2471,116 @@ def gadm_divisions
         this_name = names_key['l0']
       end
     end
+    this_name
+  end
 
-    if @area_names[this_name].nil? then
+  def add_area_name(names_key, ga)
+    # 1)  find this name, and add this ga to the array for this name
+    this_name  = find_this_name(names_key)
+    store_this = {names_key => ga}
+    found_this = @area_names[this_name]
+
+    if found_this.nil?
       # never seen this name before?
       # we need to make a new entry
-      @area_names[this_name] = [names_key => ga]
+      @area_names[this_name] = store_this
     else
-      # collect another ga for this name
-      @area_names[this_name].push(names_key => ga)
+      if found_this.class == Array
+        # collect another ga for this name
+        @area_names[this_name].push(store_this)
+      else
+        # make this entry an array of geographic_areas, with the previous entry
+        # (found_this) as the first one
+        @area_names[this_name] = [found_this, store_this]
+      end
     end
 
     @area_names[this_name]
+  end
+
+  def matching_level(names_key, ga_key)
+    names_key.each { |k, v|
+      ga_key.each { |k1, v1|
+        return k, k1 if v == v1
+      }
+    }
+    return false
+  end
+
+  def match_ref(names_key, ga_key)
+    result = false
+
+    if names_key == ga_key
+      result = true
+    else
+      n, g = matching_level(names_key, ga_key)
+      n =~ /l(\d)/
+
+      level_up_n = "l#{$1.to_i - 1}"
+
+      g =~ /l(\d)/
+
+      level_up_g = "l#{$1.to_i - 1}"
+
+      a = (level_up_g == 'l-1') ? nil : names_key[level_up_n]
+      b = (level_up_n == 'l-1') ? nil : ga_key[level_up_g]
+
+      if [names_key[n], a] == [ga_key[g], b]
+        return true
+      end
+
+      if !a.nil?
+
+        c = @tdwg_xlate[names_key[level_up_n]]
+
+        if (c == false) && (names_key[n] == ga_key[g]) &&
+          return true
+        end
+
+        names_key.merge!(level_up_n => c)
+
+        if [names_key[n], names_key[level_up_n]] == [ga_key[g], ga_key[level_up_g]]
+          return true
+        else
+          return false
+        end
+
+      else
+        return true
+      end
+
+      #return true if names_key == ga_key
+
+      return false
+
+      nk_l0 = names_key['l0']
+      nk_l1 = names_key['l1']
+      nk_l2 = names_key['l2']
+
+      ga_l0 = ga_key['l0']
+      ga_l1 = ga_key['l1']
+      ga_l2 = ga_key['l2']
+
+      # first, compare level 0 to level 0
+      test1 = @tdwg_xlate[nk_l0]
+
+      if test1.nil? # no translation found
+        # second, compare level 1 against level 0
+        test2 = (nk_l1 == ga_l0)
+        if test2
+          result = true
+        else
+          !test2
+        end
+      else
+        if ga_l0 == test1
+          result = true
+        else
+          test1
+        end
+      end
+    end
+    result
   end
 
 end
