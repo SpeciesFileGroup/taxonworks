@@ -2533,7 +2533,7 @@ def gadm_divisions
 
         c = @tdwg_xlate[names_key[level_up_n]]
 
-        if (c == false) && (names_key[n] == ga_key[g]) &&
+        if (c == false) && (names_key[n] == ga_key[g])
           return true
         end
 
