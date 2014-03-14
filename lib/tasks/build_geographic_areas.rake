@@ -93,6 +93,7 @@ namespace :tw do
       @tdwg_xlate = {'Argentina Northeast'          => 'Agrentina',
                      'Argentina South'              => 'Agrentina',
                      'Argentina Northwest'          => 'Agrentina',
+
                      'Western Australia'            => 'Australia',
 
                      'Brazil West-Central'          => 'Brazil',
@@ -102,7 +103,6 @@ namespace :tw do
                      'Brazil South'                 => 'Brazil',
 
                      'Western Canada'               => 'Canada',
-                     'Central  Canada'              => 'Canada',
                      'Eastern Canada'               => 'Canada',
 
                      'Chile Central'                => 'Chile',
