@@ -83,16 +83,16 @@ namespace :tw do
       @builder = User.where(email: builder).first
 
       @area_names = {}
-      @gadm_xlate = { 'Åland' => 'Aland'
-                      #'United States Minor Outlying Islands'=> 'United States of America',
-                      #'United States' => 'United States of America'
+      @gadm_xlate = {'Åland' => 'Aland'
+                     #'United States Minor Outlying Islands'=> 'United States of America',
+                     #'United States' => 'United States of America'
       }
       #noinspection RubyStringKeysInHashInspection
       #
       #               TDWG Regional phrase       =>    Political phrase
-      @tdwg_xlate = {'Argentina Northeast'          => 'Agrentina',
-                     'Argentina South'              => 'Agrentina',
-                     'Argentina Northwest'          => 'Agrentina',
+      @tdwg_xlate = {'Argentina Northeast'          => 'Argentina',
+                     'Argentina South'              => 'Argentina',
+                     'Argentina Northwest'          => 'Arrentina',
 
                      'Western Australia'            => 'Australia',
 
@@ -1166,7 +1166,7 @@ def read_dbf(filenames)
                    'l2' => nil}
 
 
-      puts "2-#{index}:\t\t#{l2c} for #{l2n} in #{l2p.name}."
+      print "#{' ' * 40}\r2-#{index}:\t\t#{l2c} for #{l2n} in #{l2p.name}."
 
       ga = all_names[names_key]
       if ga.nil?
@@ -1211,12 +1211,13 @@ def read_dbf(filenames)
                    'l1' => l3n,
                    'l2' => nil}
 
-      puts "3-#{index}:\t\t#{l3c} for #{l3n} in #{l3p.name}."
+      print "#{' ' * 40}\r3-#{index}:\t\t#{l3c} for #{l3n} in #{l3p.name}."
 
       # we are most likely to find a match by name, so
       # we check names first.
       name_gas = @area_names[l3n]
-      # turn name_gas into an array of zero or more GeographicArea
+      # turn name_gas into an array of zero or more hashes consisting of the a hash of the
+      # level names as key to a GeographicArea
       if name_gas.class == Hash
         name_gas = [name_gas]
       else
@@ -1383,14 +1384,34 @@ def read_dbf(filenames)
         end
       end
 
-      tdwg_key = {'l0' => @lvl1_items[l1c].name,
-                  'l1' => @lvl2_items[l2c].name,
-                  'l2' => l3_ga.name,
+      l0_name=@lvl1_items[l1c].name
+      l1_name=@lvl2_items[l2c].name
+      t_l3_name = l3_ga.name
+
+      tdwg_key = {'l0' => l0_name,
+                  'l1' => l1_name,
+                  'l2' => t_l3_name,
                   'l3' => this_area_name}
 
-      names_key = {'l0' => @lvl2_items[l2c].name,
-                   'l1' => l3_ga.name,
+      names_key = {'l0' => l1_name,
+                   'l1' => t_l3_name,
                    'l2' => this_area_name}
+
+      # now we translate some names to others so that we can match up GADM names with NaturalEarth names, i.e., 'Åland' to 'Aland'
+      # in addition, we need to translate both the level 0 and level 1 names:
+      # 'Northwestern U.S.A.'          => 'United States'
+
+      x_name = @tdwg_xlate[l1_name]
+      if !x_name.nil? && x_name != false
+        names_key.merge!('l0' => x_name)
+      end
+      # 'Argentina Northeast'          => 'Agrentina'
+      x_name = @tdwg_xlate[t_l3_name]
+      if !x_name.nil? && x_name != false
+        names_key.merge!('l1' => x_name)
+      end
+
+
 
 =begin
 # here are some problem level 4 records:
@@ -1408,42 +1429,99 @@ def read_dbf(filenames)
 {"ISO_Code"=>"YU", "Level_4_Na"=>"Serbia", "Level4_cod"=>"YUG-SE", "Level4_2"=>"SE", "Level3_cod"=>"YUG", "Level2_cod"=>13, "Level1_cod"=>1}
 =end
 
-      puts "4-#{index}:\t\t#{l4c} for #{this_area_name} in #{nation.name}."
+      print "#{' ' * 40}\r4-#{index}:\t\t#{l4c} for #{this_area_name} in #{nation.name}."
 
-      # find the matching name-set record by name (not likely)
-      ga = all_names[names_key]
-      if ga.nil?
-        # failed to find an area by this name in the TDWG data, so we need to create one
-        # so we set the parent to the object pointed to by the level 3 code
-        ga        = GeographicArea.new(creator:              @builder,
-                                       updater:              @builder,
-                                       parent:               l3_ga,
-                                       tdwg_parent:          l3_ga,
-                                       tdwgID:               l4c,
-                                       name:                 this_area_name,
-                                       iso_3166_a2:          nil,
-                                       data_origin:          TDWG2_L4,
-                                       # we show this is from the TDWG data, *not* the iso data
-                                       geographic_area_type: gat4)
-        # even if nation is nil, this will do what we want.
-        ga.level0 = nation
-        ga.level1 = l3_ga.parent
-        ga.level2 = l3_ga
-        @lvl4_items.merge!(l4c => ga)
-        @global_keys.merge!(ga.tdwgID => ga)
-        all_names.merge!(names_key => ga)
-        add_area_name(names_key, ga)
-        all_keys.merge!(tdwg_key => ga)
+      # at level 4, like level 3, we are most likely to match on a single name
 
+      names_gas = @area_names[this_area_name]
+      # turn name_gas into an array of zero or more hashes consisting of the a hash of the
+      # level names as key to a GeographicArea
+      if names_gas.class == Hash
+        names_gas = [names_gas]
       else
-        this_area_name
+        if names_gas.nil?
+          names_gas = []
+        end
       end
 
-      if nation.nil?
+      if names_gas.count > 0
+        # process the objects we found
+        new_record = true
+        names_gas.each { |ga_hash|
+          # process each found ga to add this TDWG data to the record
+          update_tdwg = false
 
-        puts "#{nation.nil? ? 'Unmatchable record' : nation.name}::#{item.attributes}"
+          ga     = ga_hash.values.first
+          ga_key = ga_hash.keys.first
+
+          if match_keys(names_key.dup, ga_key)
+            ga.tdwgID      = l4c
+            ga.tdwg_parent = l3_ga
+            new_record     = false # because we found at least one record to update
+          else
+            #puts "'#{names_key}' => false,"
+            ga
+          end
+        }
+
+        if new_record
+          # new TDWG-only record
+          ga        = GeographicArea.new(creator:              @builder,
+                                         updater:              @builder,
+                                         parent:               l3_ga,
+                                         tdwg_parent:          l3_ga,
+                                         tdwgID:               l4c,
+                                         name:                 this_area_name,
+                                         iso_3166_a2:          nil,
+                                         data_origin:          TDWG2_L4,
+                                         # we show this is from the TDWG data, *not* the iso data
+                                         geographic_area_type: gat4)
+          ga.level0 = nation
+          ga.level1 = l3_ga.parent
+          ga.level2 = l3_ga
+          @lvl4_items.merge!(l4c => ga)
+          @global_keys.merge!(ga.tdwgID => ga)
+          all_keys.merge!(tdwg_key => ga)
+          all_names.merge!(names_key => ga)
+          add_area_name(names_key, ga)
+        end
+
       else
-        # puts nation.name
+        # find the matching name-set record by name (not likely)
+        ga = all_names[names_key]
+        if ga.nil?
+          # failed to find an area by this name in the TDWG data, so we need to create one
+          # so we set the parent to the object pointed to by the level 3 code
+          ga        = GeographicArea.new(creator:              @builder,
+                                         updater:              @builder,
+                                         parent:               l3_ga,
+                                         tdwg_parent:          l3_ga,
+                                         tdwgID:               l4c,
+                                         name:                 this_area_name,
+                                         iso_3166_a2:          nil,
+                                         data_origin:          TDWG2_L4,
+                                         # we show this is from the TDWG data, *not* the iso data
+                                         geographic_area_type: gat4)
+          # even if nation is nil, this will do what we want.
+          ga.level0 = nation
+          ga.level1 = l3_ga.parent
+          ga.level2 = l3_ga
+          @lvl4_items.merge!(l4c => ga)
+          @global_keys.merge!(ga.tdwgID => ga)
+          all_keys.merge!(tdwg_key => ga)
+          all_names.merge!(names_key => ga)
+          add_area_name(names_key, ga)
+
+        else
+          this_area_name
+        end
+
+        if nation.nil?
+
+          puts "#{nation.nil? ? 'Unmatchable record' : nation.name}::#{item.attributes}"
+        else
+          # puts nation.name
+        end
       end
     } # end of lvl4.each
   end # of TDWG Level processing
@@ -2531,9 +2609,13 @@ def gadm_divisions
   def matching_level(l_key, r_key)
     # find the first levels at which the names match
     # iterate through the right values
-    l_key.each { |l_level, l_name|
-      r_key.each { |r_level, r_name|
-        if l_name == r_name && !l_name.nil?
+    l_key.keys.sort.reverse.each { |l_level|
+       l_name = l_key[l_level]
+      next if l_name.nil?
+      r_key.keys.sort.reverse.each { |r_level|
+        r_name = r_key[r_level]
+        next if r_name.nil?
+        if l_name == r_name
           return l_level, r_level
         end
       }
