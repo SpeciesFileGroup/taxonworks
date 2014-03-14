@@ -83,61 +83,77 @@ namespace :tw do
       @builder = User.where(email: builder).first
 
       @area_names = {}
+      @gadm_xlate = { 'Åland' => 'Aland'
+                      #'United States Minor Outlying Islands'=> 'United States of America',
+                      #'United States' => 'United States of America'
+      }
       #noinspection RubyStringKeysInHashInspection
       #
       #               TDWG Regional phrase       =>    Political phrase
-      @tdwg_xlate = {'Argentina Northeast'       => 'Agrentina',
-                     'Argentina South'           => 'Agrentina',
-                     'Argentina Northwest'       => 'Agrentina',
-                     'Western Australia'         => 'Australia',
-                     'Brazil West-Central'       => 'Brazil',
-                     'Brazil Northeast'          => 'Brazil',
-                     'Brazil Southeast'          => 'Brazil',
-                     'Brazil North'              => 'Brazil',
-                     'Brazil South'              => 'Brazil',
-                     'Western Canada'            => 'Canada',
-                     'Central  Canada'           => 'Canada',
-                     'Eastern Canada'            => 'Canada',
-                     'Chile Central'             => 'Chile',
-                     'Chile North'               => 'Chile',
-                     'Chile South'               => 'Chile',
+      @tdwg_xlate = {'Argentina Northeast'          => 'Agrentina',
+                     'Argentina South'              => 'Agrentina',
+                     'Argentina Northwest'          => 'Agrentina',
+                     'Western Australia'            => 'Australia',
 
-                     'China North-Central'       => 'China',
-                     'China South-Central'       => 'China',
-                     'China Southeast'           => 'China',
-                     'Hainan'                    => 'China',
-                     'Inner Mongolia'            => 'China',
-                     'Manchuria'                 => 'China',
-                     'Qinghai'                   => 'China',
-                     'Tibet'                     => 'China',
-                     'Xinjiang'                  => 'China',
-                     'Mongolia'                  => 'China',
+                     'Brazil West-Central'          => 'Brazil',
+                     'Brazil Northeast'             => 'Brazil',
+                     'Brazil Southeast'             => 'Brazil',
+                     'Brazil North'                 => 'Brazil',
+                     'Brazil South'                 => 'Brazil',
 
-                     'Indian Subcontinent' => 'India',
+                     'Western Canada'               => 'Canada',
+                     'Central  Canada'              => 'Canada',
+                     'Eastern Canada'               => 'Canada',
 
-                     'New Zealand North'         => 'New Zealand',
-                     'New Zealand South'         => 'New Zealand',
+                     'Chile Central'                => 'Chile',
+                     'Chile North'                  => 'Chile',
+                     'Chile South'                  => 'Chile',
 
-                     'East European Russia'      => 'Russia',
-                     'Central European Russia'   => 'Russia',
-                     'North European Russia'     => 'Russia',
-                     'South European Russia'     => 'Russia',
-                     'Northwest European Russia' => 'Russia',
-                     'West Siberia'              => 'Russia',
-                     'Siberia'                   => 'Russia',
-                     'Russian Far East'          => 'Russia',
+                     'China North-Central'          => 'China',
+                     'China South-Central'          => 'China',
+                     'China Southeast'              => 'China',
+                     'Hainan'                       => 'China',
+                     'Inner Mongolia'               => 'China',
+                     'Manchuria'                    => 'China',
+                     'Qinghai'                      => 'China',
+                     'Tibet'                        => 'China',
+                     'Xinjiang'                     => 'China',
+                     'Mongolia'                     => 'China',
 
-                     'Turkey-in-Europe'          => 'Turkey',
+                     'Indian Subcontinent'          => 'India',
 
-                     'Northwestern U.S.A.'       => 'United States of America',
-                     'North-Central U.S.A.'      => 'United States of America',
-                     'Northeastern U.S.A.'       => 'United States of America',
-                     'Southwestern U.S.A.'       => 'United States of America',
-                     'South-Central U.S.A.'      => 'United States of America',
-                     'Southeastern U.S.A.'       => 'United States of America',
-                     'Subarctic America'         => 'United States of America',
+                     'New Zealand North'            => 'New Zealand',
+                     'New Zealand South'            => 'New Zealand',
 
-                     'Macaronesia' => false,
+                     'East European Russia'         => 'Russia',
+                     'Central European Russia'      => 'Russia',
+                     'North European Russia'        => 'Russia',
+                     'South European Russia'        => 'Russia',
+                     'Northwest European Russia'    => 'Russia',
+                     'West Siberia'                 => 'Russia',
+                     'Siberia'                      => 'Russia',
+                     'Russian Far East'             => 'Russia',
+
+                     'Turkey-in-Europe'             => 'Turkey',
+
+                     'Northwestern U.S.A.'          => 'United States',
+                     'North Central U.S.A.'         => 'United States',
+                     'Northeastern U.S.A.'          => 'United States',
+                     'Southwestern U.S.A.'          => 'United States',
+                     'South Central U.S.A.'         => 'United States',
+                     'Southeastern U.S.A.'          => 'United States',
+
+                     'Subarctic America'            => false,
+                     'Northern South America'       => false,
+                     'Western South America'        => false,
+                     'North Central Pacific'        => false,
+                     'Southeastern Europe'          => false,
+                     'Malesia'                      => false,
+                     'Southern Africa'              => false,
+                     'West Tropical Africa'         => false,
+                     'Northern Europe'              => false,
+                     'Southwestern Europe'          => false,
+                     'Macaronesia'                  => false,
                      'West Central Tropical Africa' => false
       }
 
@@ -848,6 +864,7 @@ def read_dbf(filenames)
         next # we have processed a record containing this information, so we skip this one
       end
 
+
       if true # (gadm_id % 1000) == 238
         i5 = l5_name
         s5 = i5.empty? ? '' : ("#{l5_type} of \"" + i5 + "\", ")
@@ -875,6 +892,12 @@ def read_dbf(filenames)
 
       if !(l0_iso =~ /\A[A-Z]{3}\z/) # broken ISO A3 code?
         next # just bail on the record
+      end
+
+      # now we translate some names to others so that we can match up GADM names with NaturalEarth names, i.e., 'Åland' to 'Aland'
+      x_name = @gadm_xlate[l0_name]
+      if !x_name.nil?
+        names_key.merge!('l0' => x_name)
       end
 
       if ga.nil? # this record may have new names to record
@@ -1250,41 +1273,48 @@ def read_dbf(filenames)
         end
 
       else # found some name matches
+        new_record = true
+        # for as many of these as there are, we need to accumulate some knowledge:
+        #   1. Is there a direct match? ("There can be only one.")
+        #   2. Is there a level-shifted match?
+        #   3. Is there a translated match? ('Southwestern U.S.A' matches 'United States of America')
         name_gas.each { |ga_hash|
           # process each found ga to add this TDWG data to the record
           update_tdwg = false
-          ga          = ga_hash.values.first
-          ga_key      = ga_hash.keys.first
 
-          if match_ref(names_key.dup, ga_key.dup)
-            update_tdwg = true
-          else
-            # new TDWG-only record
-            ga        = GeographicArea.new(creator:              @builder,
-                                           updater:              @builder,
-                                           parent:               l3p,
-                                           tdwg_parent:          l3p,
-                                           tdwgID:               l3c,
-                                           name:                 l3n,
-                                           data_origin:          TDWG2_L3,
-                                           geographic_area_type: gat3)
-            ga.level0 = l3p.parent
-            ga.level1 = l3p
-            ga.level2 = ga
-            @lvl3_items.merge!(l3c => ga)
-            @global_keys.merge!(ga.tdwgID => ga)
-            all_keys.merge!(tdwg_key => ga)
-            all_names.merge!(names_key => ga)
-            add_area_name(names_key, ga)
+          ga     = ga_hash.values.first
+          ga_key = ga_hash.keys.first
 
-          end
-
-          if update_tdwg
+          if match_keys(names_key.dup, ga_key)
             ga.tdwgID      = l3c
             ga.tdwg_parent = l3p
-            update_tdwg    = false
+            new_record     = false # because we found at least one record to update
+          else
+            #puts "'#{names_key}' => false,"
+            ga
           end
         }
+
+        if new_record
+          # new TDWG-only record
+          ga        = GeographicArea.new(creator:              @builder,
+                                         updater:              @builder,
+                                         parent:               l3p,
+                                         tdwg_parent:          l3p,
+                                         tdwgID:               l3c,
+                                         name:                 l3n,
+                                         data_origin:          TDWG2_L3,
+                                         geographic_area_type: gat3)
+          ga.level0 = l3p.parent
+          ga.level1 = l3p
+          ga.level2 = ga
+          @lvl3_items.merge!(l3c => ga)
+          @global_keys.merge!(ga.tdwgID => ga)
+          all_keys.merge!(tdwg_key => ga)
+          all_names.merge!(names_key => ga)
+          add_area_name(names_key, ga)
+        end
+
       end
       @lvl3_items.merge!(l3c => ga)
     } # end of lvl3.each
@@ -2498,89 +2528,69 @@ def gadm_divisions
     @area_names[this_name]
   end
 
-  def matching_level(names_key, ga_key)
-    names_key.each { |k, v|
-      ga_key.each { |k1, v1|
-        return k, k1 if v == v1
+  def matching_level(l_key, r_key)
+    # find the first levels at which the names match
+    # iterate through the right values
+    l_key.each { |l_level, l_name|
+      r_key.each { |r_level, r_name|
+        if l_name == r_name && !l_name.nil?
+          return l_level, r_level
+        end
       }
     }
-    return false
+    return false, false
   end
 
-  def match_ref(names_key, ga_key)
+  def match_keys(names_key, ga_key)
+    #   1. Is there a direct match? ("There can be only one.")
+    #   2. Is there a level-shifted match?
+    #   3. Is there a translated match? ('Southwestern U.S.A' matches 'United States of America')
+
     result = false
 
     if names_key == ga_key
+      # 1. straight-up match
       result = true
     else
-      n, g = matching_level(names_key, ga_key)
-      n =~ /l(\d)/
+      l_level, r_level = matching_level(names_key, ga_key)
 
-      level_up_n = "l#{$1.to_i - 1}"
+      l_level =~ /l(\d)/
+      l_level_up = "l#{$1.to_i - 1}"
 
-      g =~ /l(\d)/
+      r_level =~ /l(\d)/
+      r_level_up = "l#{$1.to_i - 1}"
 
-      level_up_g = "l#{$1.to_i - 1}"
+      a = (r_level_up == 'l-1') ? nil : names_key[l_level_up]
+      b = (l_level_up == 'l-1') ? nil : ga_key[r_level_up]
 
-      a = (level_up_g == 'l-1') ? nil : names_key[level_up_n]
-      b = (level_up_n == 'l-1') ? nil : ga_key[level_up_g]
-
-      if [names_key[n], a] == [ga_key[g], b]
-        return true
-      end
-
-      if !a.nil?
-
-        c = @tdwg_xlate[names_key[level_up_n]]
-
-        if (c == false) && (names_key[n] == ga_key[g])
-          return true
-        end
-
-        names_key.merge!(level_up_n => c)
-
-        if [names_key[n], names_key[level_up_n]] == [ga_key[g], ga_key[level_up_g]]
-          return true
-        else
-          return false
-        end
-
+      if [names_key[l_level], a] == [ga_key[r_level], b]
+        # 2. level-shifted match
+        result = true
       else
-        return true
-      end
 
-      #return true if names_key == ga_key
+        if !a.nil? # this would mean that the sought top name was not the matched name, i.e., was l1 or l2
 
-      return false
+          # 3. translate
+          xlate = @tdwg_xlate[names_key[l_level_up]]
 
-      nk_l0 = names_key['l0']
-      nk_l1 = names_key['l1']
-      nk_l2 = names_key['l2']
+          if (xlate == false) && (names_key[l_level] == ga_key[r_level])
+            # no translation
+            result = true
+          else
 
-      ga_l0 = ga_key['l0']
-      ga_l1 = ga_key['l1']
-      ga_l2 = ga_key['l2']
+            # modify the sought key with the translation found
+            names_key.merge!(l_level_up => xlate)
 
-      # first, compare level 0 to level 0
-      test1 = @tdwg_xlate[nk_l0]
-
-      if test1.nil? # no translation found
-        # second, compare level 1 against level 0
-        test2 = (nk_l1 == ga_l0)
-        if test2
-          result = true
+            if [names_key[l_level], names_key[l_level_up]] == [ga_key[r_level], ga_key[r_level_up]]
+              result = true
+            end
+          end
         else
-          !test2
-        end
-      else
-        if ga_l0 == test1
-          result = true
-        else
-          test1
+          # no level shift and no translation and no match
+          result = false
         end
       end
     end
     result
   end
-
 end
