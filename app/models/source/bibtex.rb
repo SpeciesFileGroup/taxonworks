@@ -294,7 +294,6 @@ class Source::Bibtex < Source
 
   before_validation :check_has_field
   before_save :set_nomenclature_date, :set_cached_values
-  #TODO before_save set cached values
 
 #endregion validations
 
