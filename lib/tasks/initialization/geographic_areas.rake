@@ -190,7 +190,7 @@ namespace :tw do
 
                 ga.each { |area|
 
-                  print "\r#{record.index + 1} of #{count} (#{finder}) #{area.name}.#{' ' * 50}"
+                  print "#{' ' * 50}\r#{record.index + 1} of #{count} (#{finder}) #{area.name}."
                   area.send("#{placer}=".to_sym, gi)
                   area.save
                 }

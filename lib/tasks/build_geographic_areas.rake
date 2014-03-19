@@ -259,7 +259,7 @@ def read_dbf(filenames)
         iso = File.open(filename)
       when /gadm2/i
         gadm2 = DBF::Table.new(filename)
-        #gadm2 = nil
+      #gadm2 = nil
       else
     end
   }
@@ -403,8 +403,7 @@ def read_dbf(filenames)
 
       if add_record
         # check to see if we have a nation by the current name in our list
-        # this is unlikely, if we have not processed any of the 110m data
-        if all_keys[keys_key].nil?
+        if all_names[names_key].nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
 
@@ -557,8 +556,8 @@ def read_dbf(filenames)
         # there is no reasonable thing to do, if the name is blank, so we bail.
         next if area_name.empty?
 
-        # check to see if we have an area by the current name in our list
-        ga = all_keys[keys_key]
+        # check to see if we have an area by the current name-set in our list
+        ga = all_names[names_key]
         if ga.nil?
           # We will need to create new GeoArea records so that we can check for typing anomalies and
           # misplaced areas later, and so that we have the iso codes up to which to match during later processing.
@@ -591,6 +590,8 @@ def read_dbf(filenames)
               ne_adm0.merge!(adm0_a3 => adm0_ga)
               ne_a2.merge!(area_code2 => adm0_ga) if !area_code2.nil?
               all_keys.merge!(keys_key => ga)
+              psudeo_key = names_key.merge('l1' => nil)
+              all_names.merge!(psudeo_key => ga)
 
             else
               # already set
@@ -599,6 +600,7 @@ def read_dbf(filenames)
             # already set
           end
 
+          # now add the area for this record
           ga        = GeographicArea.new(creator:              @builder,
                                          updater:              @builder,
                                          parent:               adm0_ga,
@@ -689,13 +691,19 @@ def read_dbf(filenames)
               ne_a2.merge!(nation_code => ga) if !(ga.nil?)
 
               # any time we create an area record, we add a new entry in the name-set
-              all_names.merge!(names_key => ga)
+              if all_names[names_key].nil?
+                all_names.merge!(names_key => ga)
+              else
+                names_key
+              end
+
+              # make sure it is in the names list
               add_area_name(names_key, ga)
 
               if all_keys[keys_key].nil?
                 all_keys.merge!(keys_key => ga)
               else
-                names_key
+                keys_key
               end
               print "#{' ' * 40}\r'#{nation_code}' for Country of #{nation_name}\t\tAdded. (ISO)"
               puts
@@ -864,13 +872,9 @@ def read_dbf(filenames)
                    'l1' => l1_name.blank? ? nil : l1_name,
                    'l2' => l2_name.blank? ? nil : l2_name}
 
-      #look in all_names for an existing record by name-set
-      ga        = all_names[names_key]
-      if ga.nil?
-      else
-        next # we have processed a record containing this information, so we skip this one
-      end
-
+      # look in all_names for an existing record by name-set
+      # we have processed a record containing this information, so we skip this one if we have used this name-set
+      next unless all_names[names_key].nil?
 
       if true # (gadm_id % 1000) == 238
         i5 = l5_name
@@ -901,6 +905,7 @@ def read_dbf(filenames)
         next # just bail on the record
       end
 
+      ga = all_names[names_key]
       if ga.nil? # this record may have new names to record
 
         # names_key = {'l0' => 'Åland'}
