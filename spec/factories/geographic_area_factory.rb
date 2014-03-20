@@ -13,7 +13,7 @@ FactoryGirl.define do
 
   trait :parent_country do
     parent {
-      if o = GeographicArea.where(name: 'United States').first
+      if o = GeographicArea.where(name: 'United States of America').first
         o
       else
         FactoryGirl.build(:level0_geographic_area)
