@@ -198,7 +198,7 @@ require 'csl/styles'
 #
 #
 # @!endgroup
-# @!group TW add attributes that are not part of the standard attribute list
+# @!group TW added attributes that are not part of the standard attribute list
 # @!endgroup
 #
 class Source::Bibtex < Source

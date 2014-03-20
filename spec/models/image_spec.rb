@@ -6,45 +6,80 @@ describe Image do
     it { should have_attached_file(:image_file) }
     it { should validate_attachment_presence(:image_file) }
     it { should validate_attachment_content_type(:image_file).
-         allowing('image/png', 'image/gif').
-         rejecting('text/plain', 'text/xml') }
+                  allowing('image/png', 'image/gif').
+                  rejecting('text/plain', 'text/xml') }
     it { should validate_attachment_size(:image_file).
-         greater_than(1.kilobytes) }
+                  greater_than(1.kilobytes) }
+  end
+
+  before(:each) do
+    @i=FactoryGirl.build(:valid_image)
   end
 
   # paperclip MD5 add-on tests
-  pending 'it should have a computed MD5 checksum on save'
+  specify 'should have a computed MD5 checksum' do
+    expect(@i.image_file_fingerprint.blank?).to be_false
+    expect(@i.image_file_fingerprint).to eq('00ec7e524efd83ab3533c47bcb659bf6')
+  end
 
-  # TW add on attributes
-  pending 'valid images have a user_file_name'
-  pending 'it should save height'
-  pending 'it should save width' 
+  specify 'it should soft validate for duplicate images' do
+    expect(@i.save).to be_true
+    @i.soft_validate
+    expect(@i.soft_validations.messages.empty?).to be_true
 
+    k = FactoryGirl.build(:valid_image)
+    k.save
+
+    j = FactoryGirl.build(:valid_image)
+    expect(j.has_duplicate?).to be_true
+    image_array = j.duplicate_images
+    expect(image_array.count).to eq(2)
+
+    j.soft_validate
+    expect(j.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
+  end
+
+  specify 'TW attributes should be set before save' do
+    weird = FactoryGirl.build(:weird_image)
+    expect(@i.save).to be_true
+    expect(weird.save).to be_true
+
+    #'valid images have an unmodified user_file_name' do
+    expect(@i.user_file_name).to eq('tiny.png')
+    expect(weird.user_file_name).to eq('W3$rd fi(le%=name!.png')
+
+    #check height & width
+    expect(@i.height).to eq(18)
+    expect(@i.width).to eq(18)
+    expect(weird.height).to eq(68)
+    expect(weird.width).to eq(400)
+
+    #'the image_file_file_name should not contain any special characters'
+    expect(@i.image_file_file_name).to eq('tiny.png')
+    expect(weird.image_file_file_name).to eq('w3_rd_fi_le__name_.png')
+    # TODO Is it ok that I'm not getting it to lower case the letters?
+  end
   context 'should manipulate the file system' do
-    specify 'destroying an image should remove it form the filesystem' do
-      i=FactoryGirl.build(:valid_image)
-      expect(i.save).to be_true
-    
-      # setup with likely something like
-      # some_file_path = i.url
+    specify 'creating an image should add it to the filesystem' do
+      expect(@i.save).to be_true
+      expect(File.exist?(@i.image_file.path)).to be_true
+    end
+    specify 'destroying an image should remove it from the filesystem' do
+      expect(@i.destroy).to be_true
 
-      # TODO: write this
-      # expect(some_file_path.exists?).to be_true
-
-      expect(i.destroy).to be_true
-      
-      # TODO: Update when Paperclip or Rspec get's modified, or transaction integration gets resolved 
+      # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
       # This causes the necessary callback to get fired within an rspec test, clearing the images.
       # Any destroy method will have to use the same.
-      i.run_callbacks(:commit)
+      @i.run_callbacks(:commit)
 
-      # TODO: write this
-      #check the file system that the file is gone
-      # expect(some_file_path.exists?).to be_false
+      expect(File.exist?(@i.image_file.url)).to be_false
     end
   end
 
-  # TODO: Leave testing out here- needs to be abstracted, and will only add lenght here.
+  pending 'calling for a missing image should bring up the missing image gif'
+  pending 'exif or jfif data should be available if it was provided in the original image'
+
+  # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do
     # it_behaves_like 'identifiable'
     # it_behaves_like 'notable'
