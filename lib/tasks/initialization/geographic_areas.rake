@@ -112,6 +112,7 @@ namespace :tw do
       end
     end
 
+    # rake tw:initialization:load_geographic_area_shapes
     desc 'load shapes for geographic_areas'
     task 'load_geographic_area_shapes' => [:environment] do
 
@@ -150,12 +151,14 @@ namespace :tw do
       finder = {}
 
       filenames.each { |filename|
+        # puts "\n\n#{Time.now.strftime "%H:%M:%S"} => #{filename}.\n\n"
+
         shapes = RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY)
 
         begin
           #ActiveRecord::Base.transaction do
           count = shapes.num_records.to_s
-          puts "#{Time.now.strftime "%H:%M:%S"}: #{filename}: #{count} records."
+          puts "\n\n#{Time.now.strftime "%H:%M:%S"}: #{filename}: #{count} records.\n\n"
 
           shapes.each do |record|
 
@@ -219,7 +222,7 @@ namespace :tw do
 
                 ga.each { |area|
 
-                  print "#{' ' * 50}\r#{record.index + 1} of #{count} (#{finder}) #{area.name}."
+                  print "\r#{' ' * 80}\r#{record.index + 1} of #{count} (#{finder}) #{area.name}."
                   area.send("#{placer}=".to_sym, gi)
                   area.save
                 }
@@ -237,7 +240,7 @@ namespace :tw do
         end
       }
       puts
-      puts "#{Time.now.strftime "%H:%M:%S"}: Multiples: #{multiples.count} records, skipped #{skipped[placer].count} records."
+      puts "\n\n#{Time.now.strftime "%H:%M:%S"}: Multiples: #{multiples.count} records, skipped #{skipped[placer].count} records."
 
     end
   end
