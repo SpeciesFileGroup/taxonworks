@@ -1,13 +1,45 @@
+# (Re)Building the Geographic data
+=begin
+  1:  rake db:setup
+      (Make sure that there are no processes connected to the development data base, including (but not limited to:
+        pgAdmin
+        psql
+        RubyMine))
+
+  2:  rake tw:init:build_geographic_areas place=../shapes/ shapes=false divisions=false user=person1@example.com NO_GEO_NESTING=1 NO_GEO_VALID=1
+
+  3:  rake tw:init:rebuild_geographic_areas_nesting
+
+  4:  rake tw:export:table table_name=geographic_area_types > ../shapes/csv/geographic_area_types.csv
+
+  5:  rake tw:export:table table_name=geographic_areas > ../shapes/csv/geographic_areas.csv
+
+  (Reloading)
+  6: rake db:setup
+      (Make sure that there are no processes connected to the development data base, including (but not limited to:
+        pgAdmin
+        psql
+        RubyMine))
+
+  7:  rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
+
+  8:  rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
+
+  9:  rake tw:init:rebuild_geographic_areas_nesting
+
+=end
+
 namespace :tw do
   namespace :initialization do
 
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
+    # rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
     desc 'call like "rake tw:initialization:load_geographic_area_types[/Users/matt/Downloads/geographic_area_types.csv]"'
-    task :load_geographic_area_types, [:data_directory] => [:environment] do |t, args|
-      args.with_defaults(:data_directory => './tmp/geographic_area_types.csv')
+    task :load_geographic_area_types, [:data_file] => [:environment] do |t, args|
+      args.with_defaults(:data_file => '../shapes/csv/geographic_area_types.csv')
       raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0
       begin
-        data = CSV.read(args[:data_directory], options = {headers: true, col_sep: "\t"})
+        data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
         ActiveRecord::Base.transaction do
           count = data.count
           puts
@@ -24,14 +56,15 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area
-    desc 'call like "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]"'
-    task :load_geographic_areas, [:data_directory] => [:environment] do |t, args|
-      args.with_defaults(:data_directory => './tmp/geographic_areas.csv')
-      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ./tmp/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
+    # rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
+    desc 'call like "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]  NO_GEO_NESTING=1"'
+    task :load_geographic_areas, [:data_file] => [:environment] do |t, args|
+      args.with_defaults(:data_file => './tmp/geographic_areas.csv')
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
       raise 'There are existing geographic_areas, doing nothing.' if GeographicArea.all.count > 0
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}."
-        data    = CSV.read(args[:data_directory], options = {headers: true, col_sep: "\t"})
+        data    = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
         records = {}
 
         ActiveRecord::Base.transaction do
@@ -72,11 +105,7 @@ namespace :tw do
             #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
             print "."
           end
-=begin
-          puts
-          elapsed = Time.now - time_start
-          puts "#{Time.at(elapsed).getgm.strftime "%H:%M:%S"}:"
-=end
+          puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
         end
       rescue
         raise

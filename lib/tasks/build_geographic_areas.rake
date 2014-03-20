@@ -32,9 +32,18 @@ NE_110 = 'NaturalEarth (110m)'
 
 EXTRA = 'Extra'
 
-#
+# rake tw:init:build_geographic_areas NO_GEO_NESTING=1;NO_GEO_VALID=1
 namespace :tw do
   namespace :init do
+
+    desc 'call like "rake tw:initialization:rebuild_geographic_areas_nesting"'
+    task :rebuild_geographic_areas_nesting => [:environment] do
+      puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
+      GeographicArea.rebuild!
+      puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
+    end
+
+
 
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
     task :build_geographic_areas => [:environment] do
@@ -590,8 +599,8 @@ def read_dbf(filenames)
               ne_adm0.merge!(adm0_a3 => adm0_ga)
               ne_a2.merge!(area_code2 => adm0_ga) if !area_code2.nil?
               all_keys.merge!(keys_key => ga)
-              psudeo_key = names_key.merge('l1' => nil)
-              all_names.merge!(psudeo_key => ga)
+              pseudo_key = names_key.merge('l1' => nil)
+              all_names.merge!(pseudo_key => ga)
 
             else
               # already set
@@ -868,6 +877,10 @@ def read_dbf(filenames)
       l5_name   = (l5_id == 0) ? '' : item['NAME_5'].gsub(/[\n\r]/, '') # two_tick(item['NAME_5'].titlecase.gsub(/\n/, ' '))
       l5_type   = item['ENGTYPE_5']
 
+      # make sure that l1 and l2 are nil, and not just blank, as they may be if just lifted from the item.
+      # this has ramifications as to whether or not the hashes will match with earlier (or later) entries in the
+      # names_key array
+      #
       names_key = {'l0' => xlate_from_array(l0_name, @gadm_xlate),
                    'l1' => l1_name.blank? ? nil : l1_name,
                    'l2' => l2_name.blank? ? nil : l2_name}
@@ -908,7 +921,7 @@ def read_dbf(filenames)
       ga = all_names[names_key]
       if ga.nil? # this record may have new names to record
 
-        # names_key = {'l0' => 'Åland'}
+        # check for country (area) name only
         pseudo_key = names_key.merge('l1' => nil,
                                      'l2' => nil)
         ga         = all_names[pseudo_key]
@@ -926,6 +939,7 @@ def read_dbf(filenames)
           all_names.merge!(pseudo_key => ga)
           add_area_name(pseudo_key, ga)
           all_keys.merge!(l0_key => ga)
+          l0 = ga
           puts
         else
           ga
@@ -1084,6 +1098,8 @@ def read_dbf(filenames)
           ga.level1          = ga.parent
           ga.level2          = ga
 
+          l2 = ga
+
           # put the item in the lvl2 list
           place              = {l2_key => ga}
           @lvl2_items.merge!(place)
@@ -1104,9 +1120,11 @@ def read_dbf(filenames)
         end
 
       end
+
       l2 = ga
-    } # of GADM processing
-  end
+      ga
+    } # of each GADM processing
+  end # of all gadm processing
 
   if lvl1 != nil
 
