@@ -89,13 +89,13 @@ describe GeographicArea do
         specify 'parent string' do
           expect(@champaign.name).to eq('Champaign')
           expect(@champaign.parent.name).to eq('Illinois')
-          expect(@champaign.parent.parent.name).to eq('United States')
+          expect(@champaign.parent.parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
         end
 
         specify 'TDWG parent string' do
           expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          expect(@champaign.parent.tdwg_parent.name).to eq('United States')
+          expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
         end
 
