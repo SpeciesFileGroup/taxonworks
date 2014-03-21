@@ -24,85 +24,101 @@ describe GeographicItem do
   context 'database functions' do
 
     specify 'ST_Geometry_Same' do
-      expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
-                                 geographic_item_with_line_string.geo_object)).to be_true
-      expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
-                                 geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
+      #                           geographic_item_with_line_string.geo_object)).to be_true
+      #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
+      #                           geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_Area' do
-      expect(GeographicItem.area(geographic_item_with_polygon.geo_object)).to eq 0.123
+      pending
+      #expect(GeographicItem.area(geographic_item_with_polygon.geo_object)).to eq 0.123
     end
 
     specify 'ST_Azimuth' do
-      expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
-                                    geographic_item_with_point_b.geo_object)).to eq 44.5
-      expect(GeographicItem.azimuth(geographic_item_with_point_b.geo_object,
-                                    geographic_item_with_point_a.geo_object)).to eq 44.5
-      expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
-                                    geographic_item_with_point_a.geo_object)).to eq 44.5
+      pending
+      #expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
+      #                              geographic_item_with_point_b.geo_object)).to eq 44.5
+      #expect(GeographicItem.azimuth(geographic_item_with_point_b.geo_object,
+      #                              geographic_item_with_point_a.geo_object)).to eq 44.5
+      #expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
+      #                              geographic_item_with_point_a.geo_object)).to eq 44.5
     end
 
     specify 'ST_Centroid' do
-      expect(GeographicItem.centroid(geographic_item_with_polygon.polygon)).to eq geographic_item_with_point_c
+      pending
+      #expect(GeographicItem.centroid(geographic_item_with_polygon.polygon)).to eq geographic_item_with_point_c
     end
 
     specify 'ST_Contains' do
-      expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
-                                     geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.contains(geographic_item_with_point_c.geo_object,
-                                     geographic_item_with_polygon.geo_object)).to be_false
-      expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
-                                     geographic_item_with_polygon.geo_object)).to be_true
+      pending
+      #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
+      #                               geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.contains(geographic_item_with_point_c.geo_object,
+      #                               geographic_item_with_polygon.geo_object)).to be_false
+      #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
+      #                               geographic_item_with_polygon.geo_object)).to be_true
+    end
+
+    specify 'self.find_contains ' do
+      pending 'building a City of Champaign shape, and a point inside it'
     end
 
     specify 'ST_ContainsProperly ' do
-      expect(GeographicItem.contains_properly(geographic_item_with_polygon.geo_object,
-                                              geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.contains_properly(geographic_item_with_point_c.geo_object,
-                                              geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.contains_properly(geographic_item_with_polygon.geo_object,
+      #                                        geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.contains_properly(geographic_item_with_point_c.geo_object,
+      #                                        geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_Covers' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_CoveredBy' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_Crosses' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_LineCrossingDirection' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_Disjoint' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
     specify 'ST_Distance' do
-      expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-                                   geographic_item_with_point_c.geo_object)).to be_true
-      expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-                                   geographic_item_with_polygon.geo_object)).to be_false
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
     end
 
   end
@@ -122,16 +138,16 @@ describe GeographicItem do
     end
 
     specify 'a valid point is valid' do
-      expect(geographic_item_with_point.valid?).to be_true
+      expect(geographic_item_with_point_a.valid?).to be_true
     end
 
     specify 'A good point that didn\'t change.' do
-      expect(geographic_item_with_point.point.x).to eq -88.241413
+      expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
 
     specify 'One and only one of point, line_string, etc. is set.' do
-      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
-      expect(geographic_item_with_point.valid?).to be_false
+      geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
+      expect(geographic_item_with_point_a.valid?).to be_false
     end
   end
 
@@ -539,261 +555,261 @@ describe GeographicItem do
 end
 
 def build_RGeo_objects()
-  @room2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-  @room2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
-  @room2022 = RSPEC_GEO_FACTORY.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
-                                      (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
-                                      (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
+  #ROOM2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
+  #ROOM2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
+  #ROOM2022 = RSPEC_GEO_FACTORY.point((ROOM2020.x + ((ROOM2024.x - ROOM2020.x) / 2)),
+  #                                    (ROOM2020.y + ((ROOM2024.y - ROOM2020.y) / 2)),
+  #                                    (ROOM2020.z + ((ROOM2024.z - ROOM2020.z) / 2)))
 
-  @rooms20 = RSPEC_GEO_FACTORY.multi_point([@room2020,
-                                            @room2022,
-                                            @room2024])
+  #ROOMS20NN = RSPEC_GEO_FACTORY.multi_point([ROOM2020,
+  #                                          ROOM2022,
+  #                                          ROOM2024])
 
-  @point0  = RSPEC_GEO_FACTORY.point(0, 0)
-  @point1  = RSPEC_GEO_FACTORY.point(-29, -16)
-  @point2  = RSPEC_GEO_FACTORY.point(-25, -18)
-  @point3  = RSPEC_GEO_FACTORY.point(-28, -21)
-  @point4  = RSPEC_GEO_FACTORY.point(-19, -18)
-  @point5  = RSPEC_GEO_FACTORY.point(3, -14)
-  @point6  = RSPEC_GEO_FACTORY.point(6, -12.9)
-  @point7  = RSPEC_GEO_FACTORY.point(5, -16)
-  @point8  = RSPEC_GEO_FACTORY.point(4, -17.9)
-  @point9  = RSPEC_GEO_FACTORY.point(7, -17.9)
-  @point10 = RSPEC_GEO_FACTORY.point(32.2, 22)
-  @point11 = RSPEC_GEO_FACTORY.point(-17, 7)
-  @point12 = RSPEC_GEO_FACTORY.point(-9.8, 5)
-  @point13 = RSPEC_GEO_FACTORY.point(-10.7, 0)
-  @point14 = RSPEC_GEO_FACTORY.point(-30, 21)
-  @point15 = RSPEC_GEO_FACTORY.point(-25, 18.3)
-  @point16 = RSPEC_GEO_FACTORY.point(-23, 18)
-  @point17 = RSPEC_GEO_FACTORY.point(-19.6, -13)
-  @point18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2)
-  @point19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9)
-  @point20 = RSPEC_GEO_FACTORY.point(-8, -4)
-  @point21 = RSPEC_GEO_FACTORY.point(-4, -3)
-  @point22 = RSPEC_GEO_FACTORY.point(-10, -6)
+  #POINT0  = RSPEC_GEO_FACTORY.point(0, 0)
+  #POINT1  = RSPEC_GEO_FACTORY.point(-29, -16)
+  #POINT2  = RSPEC_GEO_FACTORY.point(-25, -18)
+  #POINT3  = RSPEC_GEO_FACTORY.point(-28, -21)
+  #POINT4  = RSPEC_GEO_FACTORY.point(-19, -18)
+  #POINT5  = RSPEC_GEO_FACTORY.point(3, -14)
+  #POINT6  = RSPEC_GEO_FACTORY.point(6, -12.9)
+  #POINT7  = RSPEC_GEO_FACTORY.point(5, -16)
+  #POINT8  = RSPEC_GEO_FACTORY.point(4, -17.9)
+  #POINT9  = RSPEC_GEO_FACTORY.point(7, -17.9)
+  #POINT10 = RSPEC_GEO_FACTORY.point(32.2, 22)
+  #POINT11 = RSPEC_GEO_FACTORY.point(-17, 7)
+  #POINT12 = RSPEC_GEO_FACTORY.point(-9.8, 5)
+  #POINT13 = RSPEC_GEO_FACTORY.point(-10.7, 0)
+  #POINT14 = RSPEC_GEO_FACTORY.point(-30, 21)
+  #POINT15 = RSPEC_GEO_FACTORY.point(-25, 18.3)
+  #POINT16 = RSPEC_GEO_FACTORY.point(-23, 18)
+  #POINT17 = RSPEC_GEO_FACTORY.point(-19.6, -13)
+  #POINT18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2)
+  #POINT19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9)
+  #POINT20 = RSPEC_GEO_FACTORY.point(-8, -4)
+  #POINT21 = RSPEC_GEO_FACTORY.point(-4, -3)
+  #POINT22 = RSPEC_GEO_FACTORY.point(-10, -6)
+  #
+  #SHAPE_A = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
+  #                                         RSPEC_GEO_FACTORY.point(-25, 21),
+  #                                         RSPEC_GEO_FACTORY.point(-25, 16),
+  #                                         RSPEC_GEO_FACTORY.point(-21, 20)])
 
-  @shapeA = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                           RSPEC_GEO_FACTORY.point(-25, 21),
-                                           RSPEC_GEO_FACTORY.point(-25, 16),
-                                           RSPEC_GEO_FACTORY.point(-21, 20)])
-
-  listB1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-14, 23),
-                                          RSPEC_GEO_FACTORY.point(-14, 11),
-                                          RSPEC_GEO_FACTORY.point(-2, 11),
-                                          RSPEC_GEO_FACTORY.point(-2, 23),
-                                          RSPEC_GEO_FACTORY.point(-8, 21)])
-
-  listB2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18),
-                                          RSPEC_GEO_FACTORY.point(-8, 17),
-                                          RSPEC_GEO_FACTORY.point(-6, 20),
-                                          RSPEC_GEO_FACTORY.point(-4, 16),
-                                          RSPEC_GEO_FACTORY.point(-7, 13),
-                                          RSPEC_GEO_FACTORY.point(-11, 14)])
-
-  @shapeB = RSPEC_GEO_FACTORY.polygon(listB1, [listB2])
-
-  listC1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21),
-                                          RSPEC_GEO_FACTORY.point(16, 21),
-                                          RSPEC_GEO_FACTORY.point(16, 16),
-                                          RSPEC_GEO_FACTORY.point(11, 20)])
-
-  listC2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(4, 12.6),
-                                          RSPEC_GEO_FACTORY.point(16, 12.6),
-                                          RSPEC_GEO_FACTORY.point(16, 7.6)])
-
-  listC3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(21, 12.6),
-                                          RSPEC_GEO_FACTORY.point(26, 12.6),
-                                          RSPEC_GEO_FACTORY.point(22, 17.6)])
-
-  @shapeC  = RSPEC_GEO_FACTORY.multi_line_string([listC1, listC2, listC3])
-  @shapeC1 = @shapeC.geometry_n(0)
-  @shapeC2 = @shapeC.geometry_n(1)
-  @shapeC3 = @shapeC.geometry_n(2)
-
-  @shapeD = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11),
-                                           RSPEC_GEO_FACTORY.point(-24, 4),
-                                           RSPEC_GEO_FACTORY.point(-26, 13),
-                                           RSPEC_GEO_FACTORY.point(-31, 4),
-                                           RSPEC_GEO_FACTORY.point(-33, 11)])
-
-  listE1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9),
-                                          RSPEC_GEO_FACTORY.point(-9, 9),
-                                          RSPEC_GEO_FACTORY.point(-9, 2),
-                                          RSPEC_GEO_FACTORY.point(-19, 2),
-                                          RSPEC_GEO_FACTORY.point(-19, 9)])
-
-  listE2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(5, -1),
-                                          RSPEC_GEO_FACTORY.point(-14, -1),
-                                          RSPEC_GEO_FACTORY.point(-14, 6),
-                                          RSPEC_GEO_FACTORY.point(5, 6),
-                                          RSPEC_GEO_FACTORY.point(5, -1)])
-
-  listE3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, -1),
-                                          RSPEC_GEO_FACTORY.point(-11, -5),
-                                          RSPEC_GEO_FACTORY.point(-7, -5),
-                                          RSPEC_GEO_FACTORY.point(-7, -1),
-                                          RSPEC_GEO_FACTORY.point(-11, -1)])
-
-  listE4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, -9),
-                                          RSPEC_GEO_FACTORY.point(-3, -1),
-                                          RSPEC_GEO_FACTORY.point(-7, -1),
-                                          RSPEC_GEO_FACTORY.point(-7, -9),
-                                          RSPEC_GEO_FACTORY.point(-3, -9)])
-
-  listE5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9),
-                                          RSPEC_GEO_FACTORY.point(-7, -5),
-                                          RSPEC_GEO_FACTORY.point(-11, -5),
-                                          RSPEC_GEO_FACTORY.point(-11, -9),
-                                          RSPEC_GEO_FACTORY.point(-7, -9)])
-
-  @shapeE  = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(listE1), RSPEC_GEO_FACTORY.polygon(listE2), RSPEC_GEO_FACTORY.polygon(listE3), RSPEC_GEO_FACTORY.polygon(listE4), RSPEC_GEO_FACTORY.polygon(listE5)])
-  @shapeE1 = @shapeE.geometry_n(0)
-  @shapeE2 = @shapeE.geometry_n(1)
-  @shapeE3 = @shapeE.geometry_n(2)
-  @shapeE4 = @shapeE.geometry_n(3)
-  @shapeE5 = @shapeE.geometry_n(4)
-
-  @shapeF1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
-                                    RSPEC_GEO_FACTORY.point(-26, -6))
-
-  @shapeF2 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-21, -4),
-                                    RSPEC_GEO_FACTORY.point(-31, -4))
-
-  @shapeF = RSPEC_GEO_FACTORY.multi_line_string([@shapeF1, @shapeF2])
-
-  listG1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(28, 2.3),
-                                          RSPEC_GEO_FACTORY.point(23, -1.7),
-                                          RSPEC_GEO_FACTORY.point(26, -4.8),
-                                          RSPEC_GEO_FACTORY.point(28, 2.3)])
-
-  listG2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(22, -6.8),
-                                          RSPEC_GEO_FACTORY.point(22, -9.8),
-                                          RSPEC_GEO_FACTORY.point(16, -6.8),
-                                          RSPEC_GEO_FACTORY.point(22, -6.8)])
-
-  listG3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3),
-                                          RSPEC_GEO_FACTORY.point(14, -2.8),
-                                          RSPEC_GEO_FACTORY.point(18, -2.8),
-                                          RSPEC_GEO_FACTORY.point(16, 2.3)])
-
-  @shapeG  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(listG1), RSPEC_GEO_FACTORY.polygon(listG2), RSPEC_GEO_FACTORY.polygon(listG3)])
-  @shapeG1 = @shapeG.geometry_n(0)
-  @shapeG2 = @shapeG.geometry_n(1)
-  @shapeG3 = @shapeG.geometry_n(2)
-
-  @shapeH = RSPEC_GEO_FACTORY.multi_point([@point5,
-                                           @point6,
-                                           @point7,
-                                           @point8,
-                                           @point9])
-
-  @shapeI = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(27, -14),
-                                           RSPEC_GEO_FACTORY.point(18, -21),
-                                           RSPEC_GEO_FACTORY.point(20, -12),
-                                           RSPEC_GEO_FACTORY.point(25, -23)])
-
-  @shapeJ = RSPEC_GEO_FACTORY.collection([@shapeG, @shapeH, @shapeI])
-
-  listK = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
-                                         RSPEC_GEO_FACTORY.point(-33, -23),
-                                         RSPEC_GEO_FACTORY.point(-21, -23),
-                                         RSPEC_GEO_FACTORY.point(-21, -11),
-                                         RSPEC_GEO_FACTORY.point(-27, -13)])
-
-  @shapeK = RSPEC_GEO_FACTORY.polygon(listK)
-
-  @shapeL = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5),
-                                   RSPEC_GEO_FACTORY.point(-22, -20.5))
-
-  @everything = RSPEC_GEO_FACTORY.collection([@shapeA,
-                                              @shapeB,
-                                              @shapeC,
-                                              @shapeD,
-                                              @shapeE,
-                                              @shapeF,
-                                              @shapeG,
-                                              @shapeH,
-                                              @shapeI,
-                                              @shapeJ,
-                                              @shapeK,
-                                              @shapeL,
-                                              @rooms20,
-                                              @point0,
-                                              @point1,
-                                              @point2,
-                                              @point3,
-                                              @point4,
-                                              @point5,
-                                              @point6,
-                                              @point7,
-                                              @point8,
-                                              @point9,
-                                              @point10,
-                                              @point11,
-                                              @point12,
-                                              @point13,
-                                              @point14,
-                                              @point15,
-                                              @point16,
-                                              @point17,
-                                              @point18,
-                                              @point19,
-                                              @point20,
-                                              @point21,
-                                              @point22])
-
-  @convex_hull = @everything.convex_hull()
-
-  @all_wkt_names = [[@convex_hull.exterior_ring, 'Outer Limits'],
-                    [@shapeA, 'A'],
-                    [@shapeB, 'B'],
-                    [@shapeC1, 'C1'],
-                    [@shapeC2, 'C2'],
-                    [@shapeC3, 'C3'],
-                    [@shapeD, 'D'],
-                    [@shapeE2, 'E2'],
-                    [@shapeE1, 'E1'],
-                    [@shapeE3, 'E3'],
-                    [@shapeE4, 'E4'],
-                    [@shapeE5, 'E5'],
-                    [@shapeF1, 'F1'],
-                    [@shapeF2, 'F2'],
-                    [@shapeG1, 'G1'],
-                    [@shapeG2, 'G2'],
-                    [@shapeG3, 'G3'],
-                    #[@shapeH, 'H'],
-                    [@shapeI, 'I'],
-                    #[@shapeJ, 'J'],
-                    [@shapeK, 'K'],
-                    [@shapeL, 'L'],
-                    [@room2020, 'Room 2020'],
-                    [@room2022, 'Room 2022'],
-                    [@room2024, 'Room 2024'],
-                    [@point0, 'P0'],
-                    [@point1, 'P1'],
-                    [@point2, 'P2'],
-                    [@point3, 'P3'],
-                    [@point4, 'P4'],
-                    [@point5, 'P5'],
-                    [@point6, 'P6'],
-                    [@point7, 'P7'],
-                    [@point8, 'P8'],
-                    [@point9, 'P9'],
-                    [@point10, 'P10'],
-                    [@point11, 'P11'],
-                    [@point12, 'P12'],
-                    [@point13, 'P13'],
-                    [@point14, 'P14'],
-                    [@point15, 'P15'],
-                    [@point16, 'P16'],
-                    [@point17, 'P17'],
-                    [@point18, 'P18'],
-                    [@point19, 'P19'],
-                    [@point20, 'P20'],
-                    [@point21, 'P21'],
-                    [@point22, 'P22']]
-
+  #LIST_B1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-14, 23),
+  #                                        RSPEC_GEO_FACTORY.point(-14, 11),
+  #                                        RSPEC_GEO_FACTORY.point(-2, 11),
+  #                                        RSPEC_GEO_FACTORY.point(-2, 23),
+  #                                        RSPEC_GEO_FACTORY.point(-8, 21)])
+  #
+  #LIST_B2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18),
+  #                                        RSPEC_GEO_FACTORY.point(-8, 17),
+  #                                        RSPEC_GEO_FACTORY.point(-6, 20),
+  #                                        RSPEC_GEO_FACTORY.point(-4, 16),
+  #                                        RSPEC_GEO_FACTORY.point(-7, 13),
+  #                                        RSPEC_GEO_FACTORY.point(-11, 14)])
+  #
+  #SHAPE_B = RSPEC_GEO_FACTORY.polygon(LIST_B1, [LIST_B2])
+  #
+  #LIST_C1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21),
+  #                                        RSPEC_GEO_FACTORY.point(16, 21),
+  #                                        RSPEC_GEO_FACTORY.point(16, 16),
+  #                                        RSPEC_GEO_FACTORY.point(11, 20)])
+  #
+  #LIST_C2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(4, 12.6),
+  #                                        RSPEC_GEO_FACTORY.point(16, 12.6),
+  #                                        RSPEC_GEO_FACTORY.point(16, 7.6)])
+  #
+  #LIST_C3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(21, 12.6),
+  #                                        RSPEC_GEO_FACTORY.point(26, 12.6),
+  #                                        RSPEC_GEO_FACTORY.point(22, 17.6)])
+  #
+  #SHAPE_C  = RSPEC_GEO_FACTORY.multi_line_string([LIST_C1, LIST_C2, LIST_C3])
+  #SHAPE_C1 = SHAPE_C.geometry_n(0)
+  #SHAPE_C2 = SHAPE_C.geometry_n(1)
+  #SHAPE_C3 = SHAPE_C.geometry_n(2)
+  #
+  #SHAPE_D = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11),
+  #                                         RSPEC_GEO_FACTORY.point(-24, 4),
+  #                                         RSPEC_GEO_FACTORY.point(-26, 13),
+  #                                         RSPEC_GEO_FACTORY.point(-31, 4),
+  #                                         RSPEC_GEO_FACTORY.point(-33, 11)])
+  #
+  #LIST_E1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9),
+  #                                        RSPEC_GEO_FACTORY.point(-9, 9),
+  #                                        RSPEC_GEO_FACTORY.point(-9, 2),
+  #                                        RSPEC_GEO_FACTORY.point(-19, 2),
+  #                                        RSPEC_GEO_FACTORY.point(-19, 9)])
+  #
+  #LIST_E2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(5, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-14, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-14, 6),
+  #                                        RSPEC_GEO_FACTORY.point(5, 6),
+  #                                        RSPEC_GEO_FACTORY.point(5, -1)])
+  #
+  #LIST_E3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-11, -5),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -5),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-11, -1)])
+  #
+  #LIST_E4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, -9),
+  #                                        RSPEC_GEO_FACTORY.point(-3, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -1),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -9),
+  #                                        RSPEC_GEO_FACTORY.point(-3, -9)])
+  #
+  #LIST_E5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -5),
+  #                                        RSPEC_GEO_FACTORY.point(-11, -5),
+  #                                        RSPEC_GEO_FACTORY.point(-11, -9),
+  #                                        RSPEC_GEO_FACTORY.point(-7, -9)])
+  #
+  #SHAPE_E  = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(LIST_E1), RSPEC_GEO_FACTORY.polygon(LIST_E2), RSPEC_GEO_FACTORY.polygon(LIST_E3), RSPEC_GEO_FACTORY.polygon(LIST_E4), RSPEC_GEO_FACTORY.polygon(LIST_E5)])
+  #SHAPE_E1 = SHAPE_E.geometry_n(0)
+  #SHAPE_E2 = SHAPE_E.geometry_n(1)
+  #SHAPE_E3 = SHAPE_E.geometry_n(2)
+  #SHAPE_E4 = SHAPE_E.geometry_n(3)
+  #SHAPE_E5 = SHAPE_E.geometry_n(4)
+  #
+  #SHAPE_F1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
+  #                                  RSPEC_GEO_FACTORY.point(-26, -6))
+  #
+  #SHAPE_F2 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-21, -4),
+  #                                  RSPEC_GEO_FACTORY.point(-31, -4))
+  #
+  #SHAPE_F = RSPEC_GEO_FACTORY.multi_line_string([SHAPE_F1, SHAPE_F2])
+  #
+  #LIST_G1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(28, 2.3),
+  #                                        RSPEC_GEO_FACTORY.point(23, -1.7),
+  #                                        RSPEC_GEO_FACTORY.point(26, -4.8),
+  #                                        RSPEC_GEO_FACTORY.point(28, 2.3)])
+  #
+  #LIST_G2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(22, -6.8),
+  #                                        RSPEC_GEO_FACTORY.point(22, -9.8),
+  #                                        RSPEC_GEO_FACTORY.point(16, -6.8),
+  #                                        RSPEC_GEO_FACTORY.point(22, -6.8)])
+  #
+  #LIST_G3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3),
+  #                                        RSPEC_GEO_FACTORY.point(14, -2.8),
+  #                                        RSPEC_GEO_FACTORY.point(18, -2.8),
+  #                                        RSPEC_GEO_FACTORY.point(16, 2.3)])
+  #
+  #SHAPE_G  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_G1), RSPEC_GEO_FACTORY.polygon(LIST_G2), RSPEC_GEO_FACTORY.polygon(LIST_G3)])
+  #SHAPE_G1 = SHAPE_G.geometry_n(0)
+  #SHAPE_G2 = SHAPE_G.geometry_n(1)
+  #SHAPE_G3 = SHAPE_G.geometry_n(2)
+  #
+  #SHAPE_H = RSPEC_GEO_FACTORY.multi_point([POINT5,
+  #                                         POINT6,
+  #                                         POINT7,
+  #                                         POINT8,
+  #                                         POINT9])
+  #
+  #SHAPE_I = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(27, -14),
+  #                                         RSPEC_GEO_FACTORY.point(18, -21),
+  #                                         RSPEC_GEO_FACTORY.point(20, -12),
+  #                                         RSPEC_GEO_FACTORY.point(25, -23)])
+  #
+  #SHAPE_J = RSPEC_GEO_FACTORY.collection([SHAPE_G, SHAPE_H, SHAPE_I])
+  #
+  #LIST_K = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
+  #                                       RSPEC_GEO_FACTORY.point(-33, -23),
+  #                                       RSPEC_GEO_FACTORY.point(-21, -23),
+  #                                       RSPEC_GEO_FACTORY.point(-21, -11),
+  #                                       RSPEC_GEO_FACTORY.point(-27, -13)])
+  #
+  #SHAPE_K = RSPEC_GEO_FACTORY.polygon(LIST_K)
+  #
+  #SHAPE_L = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5),
+  #                                 RSPEC_GEO_FACTORY.point(-22, -20.5))
+  #
+  #ALL_SHAPES = RSPEC_GEO_FACTORY.collection([SHAPE_A,
+  #                                            SHAPE_B,
+  #                                            SHAPE_C,
+  #                                            SHAPE_D,
+  #                                            SHAPE_E,
+  #                                            SHAPE_F,
+  #                                            SHAPE_G,
+  #                                            SHAPE_H,
+  #                                            SHAPE_I,
+  #                                            SHAPE_J,
+  #                                            SHAPE_K,
+  #                                            SHAPE_L,
+  #                                            ROOMS20NN,
+  #                                            POINT0,
+  #                                            POINT1,
+  #                                            POINT2,
+  #                                            POINT3,
+  #                                            POINT4,
+  #                                            POINT5,
+  #                                            POINT6,
+  #                                            POINT7,
+  #                                            POINT8,
+  #                                            POINT9,
+  #                                            POINT10,
+  #                                            POINT11,
+  #                                            POINT12,
+  #                                            POINT13,
+  #                                            POINT14,
+  #                                            POINT15,
+  #                                            POINT16,
+  #                                            POINT17,
+  #                                            POINT18,
+  #                                            POINT19,
+  #                                            POINT20,
+  #                                            POINT21,
+  #                                            POINT22])
+  #
+  #CONVEX_HULL = ALL_SHAPES.convex_hull()
+  #
+  #ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
+  #                  [SHAPE_A, 'A'],
+  #                  [SHAPE_B, 'B'],
+  #                  [SHAPE_C1, 'C1'],
+  #                  [SHAPE_C2, 'C2'],
+  #                  [SHAPE_C3, 'C3'],
+  #                  [SHAPE_D, 'D'],
+  #                  [SHAPE_E2, 'E2'],
+  #                  [SHAPE_E1, 'E1'],
+  #                  [SHAPE_E3, 'E3'],
+  #                  [SHAPE_E4, 'E4'],
+  #                  [SHAPE_E5, 'E5'],
+  #                  [SHAPE_F1, 'F1'],
+  #                  [SHAPE_F2, 'F2'],
+  #                  [SHAPE_G1, 'G1'],
+  #                  [SHAPE_G2, 'G2'],
+  #                  [SHAPE_G3, 'G3'],
+  #                  #[SHAPE_H, 'H'],
+  #                  [SHAPE_I, 'I'],
+  #                  #[SHAPE_J, 'J'],
+  #                  [SHAPE_K, 'K'],
+  #                  [SHAPE_L, 'L'],
+  #                  [ROOM2020, 'Room 2020'],
+  #                  [ROOM2022, 'Room 2022'],
+  #                  [ROOM2024, 'Room 2024'],
+  #                  [POINT0, 'P0'],
+  #                  [POINT1, 'P1'],
+  #                  [POINT2, 'P2'],
+  #                  [POINT3, 'P3'],
+  #                  [POINT4, 'P4'],
+  #                  [POINT5, 'P5'],
+  #                  [POINT6, 'P6'],
+  #                  [POINT7, 'P7'],
+  #                  [POINT8, 'P8'],
+  #                  [POINT9, 'P9'],
+  #                  [POINT10, 'P10'],
+  #                  [POINT11, 'P11'],
+  #                  [POINT12, 'P12'],
+  #                  [POINT13, 'P13'],
+  #                  [POINT14, 'P14'],
+  #                  [POINT15, 'P15'],
+  #                  [POINT16, 'P16'],
+  #                  [POINT17, 'P17'],
+  #                  [POINT18, 'P18'],
+  #                  [POINT19, 'P19'],
+  #                  [POINT20, 'P20'],
+  #                  [POINT21, 'P21'],
+  #                  [POINT22, 'P22']]
+  #
 end
 
 def gen_db_objects()
@@ -807,8 +823,8 @@ def gen_db_objects()
     v = GeographicItem.new
   end
 
-  point_in  = @point1
-  point_out = @point17
+  point_in  = POINT1
+  point_out = POINT17
 
   @r2020 = GeographicItem.new
   @r2022 = GeographicItem.new
@@ -834,27 +850,27 @@ def gen_db_objects()
 
   @outer_limits = GeographicItem.new
 
-  @r2020.point = @room2020.as_binary
-  @r2022.point = @room2022.as_binary
-  @r2024.point = @room2024.as_binary
+  @r2020.point = ROOM2020.as_binary
+  @r2022.point = ROOM2022.as_binary
+  @r2024.point = ROOM2024.as_binary
 
-  @rooms.multi_point = @rooms20.as_binary
+  @rooms.multi_point = ROOMS20NN.as_binary
   @p1.point          = point_in.as_binary
-  @p10.point         = @point10.as_binary
-  @p16.point         = @point16.as_binary
+  @p10.point         = POINT10.as_binary
+  @p16.point         = POINT16.as_binary
   @p17.point         = point_out.as_binary
 
-  @a.line_string                 = @shapeA.as_binary
-  @c.multi_line_string           = @shapeC.as_binary
-  @d.line_string                 = @shapeD.as_binary
-  @e.geometry_collection         = @shapeE.as_binary
-  @f.multi_line_string           = @shapeF.as_binary
-  @g.multi_polygon               = @shapeG.as_binary
-  @h.multi_point                 = @shapeH.as_binary
-  @k.polygon                     = @shapeK.as_binary
-  @l.line_string                 = @shapeL.as_binary
-  @all_items.geometry_collection = @everything.as_binary
-  @outer_limits.line_string      = @convex_hull.exterior_ring.as_binary
+  @a.line_string                 = SHAPE_A.as_binary
+  @c.multi_line_string           = SHAPE_C.as_binary
+  @d.line_string                 = SHAPE_D.as_binary
+  @e.geometry_collection         = SHAPE_E.as_binary
+  @f.multi_line_string           = SHAPE_F.as_binary
+  @g.multi_polygon               = SHAPE_G.as_binary
+  @h.multi_point                 = SHAPE_H.as_binary
+  @k.polygon                     = SHAPE_K.as_binary
+  @l.line_string                 = SHAPE_L.as_binary
+  @all_items.geometry_collection = ALL_SHAPES.as_binary
+  @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
 
   @r2020.save!
   @r2022.save!
@@ -896,7 +912,7 @@ def gen_wkt_files()
   f_line.write(col_header)
   f_poly.write(col_header)
 
-  @all_wkt_names.each_with_index do |it, index|
+  ALL_WKT_NAMES.each_with_index do |it, index|
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name

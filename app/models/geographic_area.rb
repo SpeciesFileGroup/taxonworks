@@ -49,6 +49,15 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
 
+  def self.ancestors_and_descendants_of(geographic_area)
+    where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
+           ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
+           (geographic_areas.id != ?)',
+        geographic_area.lft, geographic_area.rgt,
+        geographic_area.lft, geographic_area.rgt,
+        geographic_area.id).order(:lft)
+  end
+
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
