@@ -23,17 +23,36 @@ describe Image do
   end
 
   specify 'it should soft validate for duplicate images' do
-    expect(@i.save).to be_true
+    # step through all existing records first and delete all the duplicate images.
+    Image.all.each do |a|
+      if a.image_file_fingerprint == @i.image_file_fingerprint
+        a.destroy
+        # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
+        # This causes the necessary callback to get fired within an rspec test, clearing the images.
+        # Any destroy method will have to use the same.
+        a.run_callbacks(:commit)
+      end
+  end
+
     @i.soft_validate
     expect(@i.soft_validations.messages.empty?).to be_true
+    expect(@i.save).to be_true
 
     k = FactoryGirl.build(:valid_image)
-    k.save
+    k.soft_validate
+    expect(k.soft_validations.messages_on(:image_file_fingerprint).empty?).to be_false
+    expect(k.soft_validations.messages).to \
+      include 'This image is a duplicate of an image already stored.'
+    expect(k.has_duplicate?).to be_true
+    expect(k.duplicate_images.count).to eq(1)
+    expect(k.save).to be_true
 
     j = FactoryGirl.build(:valid_image)
     expect(j.has_duplicate?).to be_true
     image_array = j.duplicate_images
     expect(image_array.count).to eq(2)
+    #expect(image_array).to include
+    #TODO how do I check what is included in the array. it should in include objects @i & k
 
     j.soft_validate
     expect(j.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
@@ -76,7 +95,13 @@ describe Image do
     end
   end
 
-  pending 'calling for a missing image should bring up the missing image gif'
+  specify 'calling for a missing image should bring up the missing image gif' do
+    expect(@i.save).to be_true
+    expect(File.exist?(@i.image_file.path)).to be_true
+    expect(File.delete(@i.image_file.path)).to eq(1)
+    #todo How do I test this?
+  end
+
   pending 'exif or jfif data should be available if it was provided in the original image'
 
   # TODO: Leave testing out here- needs to be abstracted, and will only add length here.

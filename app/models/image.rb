@@ -26,8 +26,8 @@ class Image < ActiveRecord::Base
 
   before_save :extract_tw_attributes
 
-  has_attached_file :image_file, :styles => {:medium => '300x300>', :thumb => '100x100>', \
-   :default_url => '/public/images/missing.png'}, :restricted_characters => /[^A-Za-z0-9\.]/
+  has_attached_file :image_file, :styles => {:medium => '300x300>', :thumb => '100x100>'}, \
+   :default_url => '/public/images/missing.png', :restricted_characters => /[^A-Za-z0-9\.]/
   #:filename_cleaner => Paperclip::FilenameCleaner.new(/[^A-Za-z0-9\.]/)}, \
    #, :restricted_characters => "/[^A-Za-z0-9]/"}
     #:filename_cleaner => FileNameCleaner}
