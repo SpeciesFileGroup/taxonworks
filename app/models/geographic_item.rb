@@ -82,19 +82,45 @@ class GeographicItem < ActiveRecord::Base
     # returns a point
   end
 
-  def self.contains(geo_object_a, geo_object_b)
+  def self.contains?(geo_object_a, geo_object_b)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where{st_contains(geo_object_a, geo_object_b)}
   end
 
-  def self.find_contains(column_name, geo_object)
+  def self.find_containing(column_name, geo_object)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where{st_contains(st_geomfromewkb(column_name), geo_object)}
   end
 
-  def self.intersecting(column_name, geographic_item)
+  def self.intersecting(object_array)
+    object_array.each {|object|
+    where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{geographic_item.geo_object}'))")
+    }
+  end
+
+  def self.meters_away_from(object, distance)
+
+  end
+
+  def self.disjoint_from(object_array)
+
+  end
+
+  def self.containing(object_array)
+
+  end
+
+  def self.ordered_by_shortest_distance_from(object)
+
+  end
+
+  def self.ordered_by_longest_distance_from(object)
+
+  end
+
+  def self.intersections(column_name, geographic_item)
     where("st_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
   end
 

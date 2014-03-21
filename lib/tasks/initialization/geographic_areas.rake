@@ -14,14 +14,18 @@
 
   5:  rake tw:export:table table_name=geographic_areas > ../shapes/csv/geographic_areas.csv
 
+  6:  rake tw:export:table table_name=geographic_items > ../shapes/csv/geographic_items.csv
+
   (Reloading)
-  6: rake db:setup
+  7: rake db:setup
       (Make sure that there are no processes connected to the development data base, including (but not limited to:
         pgAdmin
         psql
         RubyMine))
 
-  7:  rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
+  8:  rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
+
+  9:  rake tw:initialization:load_geographic_items[../shapes/csv/geographic_items.csv]
 
   8:  rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
 
@@ -55,12 +59,52 @@ namespace :tw do
       end
     end
 
+    # Assumes input is from rake tw:export:table table_name=geographic_items
+    # rake tw:initialization:load_geographic_items[../shapes/csv/geographic_area_types.csv]
+    desc 'call like "rake tw:initialization:load_geographic_items[/Users/matt/Downloads/geographic_items.csv]"'
+    task :load_geographic_items, [:data_file] => [:environment] do |t, args|
+      args.with_defaults(:data_file => '../shapes/csv/geographic_items.csv')
+      raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
+      begin
+        data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
+        ActiveRecord::Base.transaction do
+          data.each { |row|
+
+            row_data      = row.to_h
+            #row_data.delete('rgt')
+            #row_data.delete('lft')
+            r             = GeographicItem.new(row_data)
+            records[r.id] = r
+            print "\rBuild:  record #{r.id}"
+          }
+
+          count = records.count
+          puts
+
+          records.values.each do |r|
+            #snap      = Time.now
+            #elapsed   = snap - time_then
+            #time_then = snap
+
+            r.save!
+            print "\rSave:   record #{r.id} of #{count}"
+            #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
+            print "."
+          end
+          puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n."
+        end
+      rescue
+        raise
+      end
+    end
+
     # Assumes input is from rake tw:export:table table_name=geographic_area
     # rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
     desc 'call like "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]  NO_GEO_NESTING=1"'
     task :load_geographic_areas, [:data_file] => [:environment] do |t, args|
       args.with_defaults(:data_file => './tmp/geographic_areas.csv')
       raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/csv/geographic_area_types.csv\' first.' if GeographicItem.all.count < 1
       raise 'There are existing geographic_areas, doing nothing.' if GeographicArea.all.count > 0
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}."
