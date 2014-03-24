@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Identifier::Guid::Isbn do
+describe Identifier::Global::Doi do
   pending "add some examples to (or delete) #{__FILE__}"
 end

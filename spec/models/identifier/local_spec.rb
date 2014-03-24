@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Identifier::LocalId do
-  let(:local_identifier) {Identifier::LocalId.new}
+describe Identifier::Local do
+  let(:local_identifier) {Identifier::Local.new}
 
   context 'validation' do
     before(:each) {

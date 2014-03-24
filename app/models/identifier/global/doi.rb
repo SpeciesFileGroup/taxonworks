@@ -1,4 +1,4 @@
-class Identifier::Guid::Doi < Identifier::Guid
+class Identifier::Global::Doi < Identifier::Global
 =begin
   per  http://www.doi.org/doi_handbook/2_Numbering.html section 2.2  on 1/31/2014
   The DOI syntax shall be made up of a DOI prefix and a DOI suffix separated by a forward slash.

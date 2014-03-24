@@ -2,13 +2,13 @@ class Identifier < ActiveRecord::Base
   include Housekeeping::Users
 
   SHORT_NAMES = {
-    doi:   Identifier::Guid::Doi,
-    isbn:  Identifier::Guid::Isbn,
-    issn:  Identifier::Guid::Issn,
-    lccn:  Identifier::Guid::Lccn,
-    orcid: Identifier::Guid::OrcidId,
-    uri:   Identifier::Guid::Uri,
-    uuid:  Identifier::Guid::Uuid
+    doi:   Identifier::Global::Doi,
+    isbn:  Identifier::Global::Isbn,
+    issn:  Identifier::Global::Issn,
+    lccn:  Identifier::Global::Lccn,
+    orcid: Identifier::Global::Orcid,
+    uri:   Identifier::Global::Uri,
+    uuid:  Identifier::Global::Uuid
   }
 
   belongs_to :identified_object, polymorphic: :true

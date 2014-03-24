@@ -1,4 +1,4 @@
-class Identifier::Guid::Isbn < Identifier::Guid
+class Identifier::Global::Isbn < Identifier::Global
   # Officially all ISBNs are now 13 digits - however anything published prior to 2007 may have a 10 digit format that
   # requires special processing (see isbn.org) to convert a 10 digit ISBN to a 13 digit ISBN. For our purposes we will
   # allow either a 10 digit or a 13 digit ISBN. - 1/31/2014

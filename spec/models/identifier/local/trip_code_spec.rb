@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Identifier::LocalId::ImportId do
+describe Identifier::Local::TripCode do
   pending "add some examples to (or delete) #{__FILE__}"
 end

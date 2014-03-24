@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Identifier::Guid::Issn do
+describe Identifier::Global::Orcid do
   pending "add some examples to (or delete) #{__FILE__}"
 end

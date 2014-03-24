@@ -1,4 +1,4 @@
-class Identifier::Guid::Issn < Identifier::Guid
+class Identifier::Global::Issn < Identifier::Global
 =begin
   From http://www.issn.org/understanding-the-issn/what-is-an-issn/ on 1/31/2014
     An ISSN takes the following form:
