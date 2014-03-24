@@ -56,8 +56,11 @@ module Material
       end
 
       def save
-        # TODO
+        ActiveRecord::Base.transaction do
+          @collection_objects.map(&:save!)
+        end
       end
+
 
     end
 

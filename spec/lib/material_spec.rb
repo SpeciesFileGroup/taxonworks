@@ -11,6 +11,11 @@ describe 'Material' do
       @two_objects_stub = {collection_objects: {}} # need a deep clone method
       @two_objects_stub[:collection_objects][:object1] = {total: nil}
       @two_objects_stub[:collection_objects][:object2] = {total: nil}
+    
+      @attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
+      @attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
+      @attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
+      @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -65,35 +70,36 @@ describe 'Material' do
       opts = @two_objects_stub.merge(
         note: {text: text}
       )
-      response = Material.create_quick_verbatim(opts)
+      r = Material.create_quick_verbatim(opts)
       expect(Material.create_quick_verbatim(opts).collection_objects).to have(2).things
-      expect(response.collection_objects.first.notes.first.text).to eq(response.collection_objects.last.notes.first.text)
+      expect(r.collection_objects.first.notes.first.text).to eq(r.collection_objects.last.notes.first.text)
     end
 
     specify 'material can be assigned to a repository' do
       repository = FactoryGirl.create(:valid_repository)
       @one_object_stub[:collection_objects][:object1][:total] = 1
       opts = @one_object_stub.merge(collection_object: {repository_id: repository.id}) 
-      response = Material.create_quick_verbatim(opts)
-      expect(response.collection_objects.first.repository).to eq(repository)
+      r = Material.create_quick_verbatim(opts)
+      expect(r.collection_objects.first.repository).to eq(repository)
     end
 
     specify 'attributes are assigned' do
-      attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
-      attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
-
-      attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
-      attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
-
       @two_objects_stub[:collection_objects][:object1][:total] = 1
-      @two_objects_stub[:collection_objects][:object1][:biocuration_classes] = [attribute1.id, attribute2.id, attribute3.id, attribute4.id]
+      @two_objects_stub[:collection_objects][:object1][:biocuration_classes] = [@attribute1.id, @attribute2.id, @attribute3.id, @attribute4.id]
       @two_objects_stub[:collection_objects][:object2][:total] = 5
-      @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [attribute1.id, attribute4.id]
+      @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [@attribute1.id, @attribute4.id]
 
-      response = Material.create_quick_verbatim(@two_objects_stub)
-      expect(response.collection_objects.first.biocuration_classes).to have(4).things
-      expect(response.collection_objects.last.biocuration_classes).to have(2).things
+      r = Material.create_quick_verbatim(@two_objects_stub)
+      expect(r.collection_objects.first.biocuration_classes).to have(4).things
+      expect(r.collection_objects.last.biocuration_classes).to have(2).things
     end
+
+    specify 'records are saved' do
+      @two_objects_stub[:collection_objects][:object1][:total] = 1
+      @two_objects_stub[:collection_objects][:object2][:total] = 5
+      @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [@attribute1.id, @attribute4.id]
+    end
+
   end
 end
 
@@ -121,6 +127,17 @@ describe Material::QuickVerbatimResponse do
 
   specify '#note' do
     expect(@response.note.class).to eq(Note) 
+  end
+
+  specify 'save' do
+    @response.collection_objects.push a = FactoryGirl.build(:valid_specimen)
+    @response.collection_objects.push b = FactoryGirl.build(:valid_identifier)
+    b.identified_object = a
+    expect(Specimen.count).to eq(0)
+    expect(Identifier.count).to eq(0)
+    expect(@response.save).to be_true
+    expect(Specimen.count).to eq(1)
+    expect(Identifier.count).to eq(1)
   end
 
 end
