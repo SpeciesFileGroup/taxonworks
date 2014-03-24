@@ -54,18 +54,75 @@ class GeographicItem < ActiveRecord::Base
     ) }
 =end
 
-  def self.contains(column_name, geo_object)
+  def self.same(geo_object_a, geo_object_b)
+    # http://postgis.refractions.net/documentation/manual-1.4/ST_Geometry_Same.html
+    # boolean ~=( geometry A , geometry B );
+    # TODO: not sure how to specify '~=', syntactically substituting 'same'
+    where(st_geometry_same(geo_object_a, geo_object_b))
+    # returns true if the two objects are, vertex-by-vertex, the same
+  end
+
+  def self.area(geo_polygon)  # or multi_polygon
+    # http://postgis.refractions.net/documentation/manual-1.4/ST_Area.html
+    # float ST_Area(geometry g1);
+    where(st_area(geo_polygon))
+    # returns the area area of the geometry as a float
+  end
+
+  def self.azimuth(geo_point_a, geo_point_b)
+     # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
+    # float ST_Azimuth(geometry pointA, geometry pointB);
+    where(st_azimuth(geo_point_a, geo_point_b))
+  end
+
+  def self.centroid(geo_object)
+    # http://postgis.refractions.net/documentation/manual-1.4/ST_Centroid.html
+    # geometry ST_Centroid(geometry g1);
+    where(st_centroid(geo_object))
+    # returns a point
+  end
+
+  def self.contains?(geo_object_a, geo_object_b)
+    # ST_Contains(geometry, geometry) or
+    # ST_Contains(geography, geography)
+    where{st_contains(geo_object_a, geo_object_b)}
+  end
+
+  def self.find_containing(column_name, geo_object)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where{st_contains(st_geomfromewkb(column_name), geo_object)}
   end
 
-=begin
-  def self.intersecting(column_name, geographic_item)
-    data = where("ST_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
-    data
+  def self.intersecting(object_array)
+    object_array.each {|object|
+    where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{geographic_item.geo_object}'))")
+    }
   end
-=end
+
+  def self.meters_away_from(object, distance)
+
+  end
+
+  def self.disjoint_from(object_array)
+
+  end
+
+  def self.containing(object_array)
+
+  end
+
+  def self.ordered_by_shortest_distance_from(object)
+
+  end
+
+  def self.ordered_by_longest_distance_from(object)
+
+  end
+
+  def self.intersections(column_name, geographic_item)
+    where("st_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
+  end
 
   def self.clean?
     # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.

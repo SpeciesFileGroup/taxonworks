@@ -29,6 +29,41 @@ class TaxonDetermination < ActiveRecord::Base
   has_one :determiner_role, class_name: 'Determiner', as: :role_object
   has_one :determiner, through: :determiner_role, source: :person
 
+  # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
+  validates_numericality_of :start_date_year,
+    only_integer: true, greater_than: 0,
+    less_than_or_equal_to: Time.now.year,
+    allow_nil: true,
+    message: 'start date year must be an integer greater than 0'
+  validates_inclusion_of :start_date_month,
+    in: 1..12, 
+    allow_nil: true,
+    message: ' start date month'
+  validates_numericality_of :start_date_day,
+    allow_nil: true,
+    only_integer: true,
+    greater_than: 0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
+    :unless => 'start_date_year.nil? || start_date_month.nil?',
+    message: '%{value} is not a valid start_date_day for the month provided'
+  validates_numericality_of :end_date_year,
+    only_integer: true, greater_than: 0,
+    less_than_or_equal_to: Time.now.year,
+    allow_nil: true,
+    message: 'start date year must be an integer greater than 0'
+  validates_inclusion_of :end_date_month,
+    in: 1..12,
+    allow_nil: true,
+    message: ' start date month'
+  validates_numericality_of :end_date_day,
+    allow_nil: true,
+    only_integer: true,
+    greater_than: 0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
+    :unless => 'end_date_year.nil? || end_date_month.nil?',
+    message: '%{value} is not a valid end_date_day for the month provided'
+
+
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
@@ -38,7 +73,6 @@ class TaxonDetermination < ActiveRecord::Base
   protected
 
   def set_made_fields_if_none_provided
-    byebug
     if year_made.blank? && month_made.blank? && day_made.blank?
       year_made = Time.now.year 
       month_made = Time.now.month

@@ -21,7 +21,7 @@ describe TaxonNameClassification do
           r1 = ['a'] + r1
           r1 = r1.collect{|i| i.class.to_s}.uniq
           expect(r1.first).to eq('String')
-          expect(r1.count).to eq(1)
+          expect(r1.size).to eq(1)
         end
       end
       specify 'applicable_ranks' do
@@ -30,7 +30,7 @@ describe TaxonNameClassification do
           r1 = ['a'] + r1
           r1 = r1.collect{|i| i.class.to_s}.uniq
           expect(r1.first).to eq('String')
-          expect(r1.count).to eq(1)
+          expect(r1.size).to eq(1)
         end
       end
     end
@@ -70,12 +70,12 @@ describe TaxonNameClassification do
     specify "unapplicable type" do
       c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
       c.soft_validate(:proper_classification)
-      expect(c.soft_validations.messages_on(:type).count).to eq(1)
+      expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify "unapplicable year" do
       c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
       c.soft_validate(:proper_classification)
-      expect(c.soft_validations.messages_on(:type).count).to eq(1)
+      expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'disjoint classes' do
       g = FactoryGirl.create(:iczn_genus, parent: @family)
@@ -86,17 +86,17 @@ describe TaxonNameClassification do
       c1.soft_validate(:validate_disjoint_classes)
       c2.soft_validate(:validate_disjoint_classes)
       #conflicting with c2
-      expect(c1.soft_validations.messages_on(:type).count).to eq(1)
+      expect(c1.soft_validations.messages_on(:type).size).to eq(1)
       #conflicting with c1
-      expect(c2.soft_validations.messages_on(:type).count).to eq(1)
+      expect(c2.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'not specific classes' do
       c1 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
       c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
       c1.soft_validate(:not_specific_classes)
       c2.soft_validate(:not_specific_classes)
-      expect(c1.soft_validations.messages_on(:type).count).to eq(1)
-      expect(c2.soft_validations.messages_on(:type).count).to eq(1)
+      expect(c1.soft_validations.messages_on(:type).size).to eq(1)
+      expect(c2.soft_validations.messages_on(:type).size).to eq(1)
     end
 
   end

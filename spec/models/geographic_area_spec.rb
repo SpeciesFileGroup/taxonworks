@@ -89,13 +89,13 @@ describe GeographicArea do
         specify 'parent string' do
           expect(@champaign.name).to eq('Champaign')
           expect(@champaign.parent.name).to eq('Illinois')
-          expect(@champaign.parent.parent.name).to eq('United States')
+          expect(@champaign.parent.parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
         end
 
         specify 'TDWG parent string' do
           expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          expect(@champaign.parent.tdwg_parent.name).to eq('United States')
+          expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
         end
 
@@ -119,8 +119,12 @@ describe GeographicArea do
       @champaign = FactoryGirl.create(:level2_geographic_area)
     }
 
+    specify 'should be able to find a country by ISO_A2' do
+      expect(GeographicArea.where(:iso_3166_a2 => 'US').first.name).to eq('United States of America')
+    end
+
     specify 'should be able to find a country by ISO_A3' do
-      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq('United States')
+      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq('United States of America')
     end
 
     context 'scopes/AREL' do

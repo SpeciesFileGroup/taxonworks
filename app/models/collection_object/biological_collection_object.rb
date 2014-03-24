@@ -14,7 +14,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
-      byebug 
       determinations = taxon_determinations.sort{|a, b| a.sort_date <=> b.sort_date }
     else
       determinations = taxon_determinations.order(attribute)

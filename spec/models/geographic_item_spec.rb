@@ -15,8 +15,113 @@ describe GeographicItem do
   #                                        :has_z_coordinate => true,
   #                                        :has_m_coordinate => false) }
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
-  let(:geographic_item_with_point) { FactoryGirl.build(:geographic_item_with_point) }
+  let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }
+  let(:geographic_item_with_point_b) { FactoryGirl.build(:geographic_item_with_point_b) }
+  let(:geographic_item_with_point_c) { FactoryGirl.build(:geographic_item_with_point_c) }
   let(:geographic_item_with_line_string) { FactoryGirl.build(:geographic_item_with_line_string) }
+  let(:geographic_item_with_polygon) { FactoryGirl.build(:geographic_item_with_polygon) }
+
+  context 'database functions' do
+
+    specify 'ST_Geometry_Same' do
+      pending
+      #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
+      #                           geographic_item_with_line_string.geo_object)).to be_true
+      #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
+      #                           geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_Area' do
+      pending
+      #expect(GeographicItem.area(geographic_item_with_polygon.geo_object)).to eq 0.123
+    end
+
+    specify 'ST_Azimuth' do
+      pending
+      #expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
+      #                              geographic_item_with_point_b.geo_object)).to eq 44.5
+      #expect(GeographicItem.azimuth(geographic_item_with_point_b.geo_object,
+      #                              geographic_item_with_point_a.geo_object)).to eq 44.5
+      #expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
+      #                              geographic_item_with_point_a.geo_object)).to eq 44.5
+    end
+
+    specify 'ST_Centroid' do
+      pending
+      #expect(GeographicItem.centroid(geographic_item_with_polygon.polygon)).to eq geographic_item_with_point_c
+    end
+
+    specify 'ST_Contains' do
+      pending
+      #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
+      #                               geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.contains(geographic_item_with_point_c.geo_object,
+      #                               geographic_item_with_polygon.geo_object)).to be_false
+      #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
+      #                               geographic_item_with_polygon.geo_object)).to be_true
+    end
+
+    specify 'self.find_contains ' do
+      pending 'building a City of Champaign shape, and a point inside it'
+    end
+
+    specify 'ST_ContainsProperly ' do
+      pending
+      #expect(GeographicItem.contains_properly(geographic_item_with_polygon.geo_object,
+      #                                        geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.contains_properly(geographic_item_with_point_c.geo_object,
+      #                                        geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_Covers' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_CoveredBy' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_Crosses' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_LineCrossingDirection' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_Disjoint' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+    specify 'ST_Distance' do
+      pending
+      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
+      #                             geographic_item_with_polygon.geo_object)).to be_false
+    end
+
+  end
 
   context 'validation' do
     before(:each) {
@@ -33,16 +138,16 @@ describe GeographicItem do
     end
 
     specify 'a valid point is valid' do
-      expect(geographic_item_with_point.valid?).to be_true
+      expect(geographic_item_with_point_a.valid?).to be_true
     end
 
     specify 'A good point that didn\'t change.' do
-      expect(geographic_item_with_point.point.x).to eq -88.241413
+      expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
 
     specify 'One and only one of point, line_string, etc. is set.' do
-      geographic_item_with_point.polygon = geographic_item_with_point.point.buffer(10)
-      expect(geographic_item_with_point.valid?).to be_false
+      geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
+      expect(geographic_item_with_point_a.valid?).to be_false
     end
   end
 
@@ -77,22 +182,17 @@ describe GeographicItem do
       shapeE4 = e0.geometry_n(3)
       shapeE5 = e0.geometry_n(4)
 
-      e1and2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
-      e1or2  = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
-      e1and4 = RSPEC_GEO_FACTORY.parse_wkt("GEOMETRYCOLLECTION EMPTY")
-      e1or5  = RSPEC_GEO_FACTORY.parse_wkt("MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))")
-
       expect(shapeE1.intersects?(shapeE2)).to be_true
       expect(shapeE1.intersects?(shapeE3)).to be_false
 
       expect(shapeE1.overlaps?(shapeE2)).to be_true
       expect(shapeE1.overlaps?(shapeE3)).to be_false
 
-      expect(shapeE1.intersection(shapeE2)).to eq(e1and2)
-      expect(shapeE1.intersection(shapeE4)).to eq(e1and4)
+      expect(shapeE1.intersection(shapeE2)).to eq(E1_AND_E2)
+      expect(shapeE1.intersection(shapeE4)).to eq(E1_AND_E4)
 
-      expect(shapeE1.union(shapeE2)).to eq(e1or2)
-      expect(shapeE1.union(shapeE5)).to eq(e1or5)
+      expect(shapeE1.union(shapeE2)).to eq(E1_OR_E2)
+      expect(shapeE1.union(shapeE5)).to eq(E1_OR_E5)
     end
 
     specify 'Two polygons may have various adjacencies.' do
@@ -122,8 +222,7 @@ describe GeographicItem do
       f2  = f.geometry_n(1)
       p16 = @p16.geo_object
 
-      p16ona = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
-      expect(a.intersection(p16)).to eq(p16ona)
+      expect(a.intersection(p16)).to eq(P16_ON_A)
 
       # f1crosses2 = RSPEC_FACTORY.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
@@ -153,16 +252,14 @@ describe GeographicItem do
 
     specify 'Outer Limits' do
       everything  = @all_items.geo_object
-      convex_hull = RSPEC_GEO_FACTORY.parse_wkt("POLYGON ((-33.0 -23.0 0.0, -88.241421 40.091565 757.0, -88.241413 40.091655 757.0, 32.2 22.0 0.0, 27.0 -14.0 0.0, 25.0 -23.0 0.0, -33.0 -23.0 0.0))")
-      expect(everything.convex_hull()).to eq(convex_hull)
+      expect(everything.convex_hull()).to eq(CONVEX_HULL)
     end
 
   end
 
   context 'That GeographicItems provide certain methods.' do
     specify 'self.geo_object returns stored data' do
-      p1                    = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-      geographic_item.point = p1
+      geographic_item.point = ROOM2024
       expect(geographic_item.save).to be_true
       # also 'respond_to'
       # after the save, the default factory type of geographic_item is
@@ -171,40 +268,72 @@ describe GeographicItem do
       # See the model for a method to change the default factory for a given
       # column (in our case, all).
       geo_id = geographic_item.id
-      expect(geographic_item.geo_object).to eq p1
+      expect(geographic_item.geo_object).to eq ROOM2024
       geographic_item.reload
       expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
     end
   end
 
-  context 'that GeographicItems can be found to contain a ' do
-    specify 'method to return its object.' do
+  context 'that GeographicItems can be found to contain a(n)' do
+    specify 'instance method to return its object.' do
       expect(geographic_item).to respond_to(:geo_object)
     end
 
-    specify 'method to see if one object is contained by another.' do
+    specify 'instance method to see if one object is contained by another.' do
       expect(geographic_item).to respond_to(:contains?)
     end
 
-    specify 'method to see if one object is within another.' do
+    specify 'instance method to see if one object is within another.' do
       expect(geographic_item).to respond_to(:within?)
     end
 
-    specify 'method to to see how far one object is from another.' do
+    specify 'instance method to to see how far one object is from another.' do
       expect(geographic_item).to respond_to(:distance?)
       expect(geographic_item).to respond_to(:near)
       expect(geographic_item).to respond_to(:far)
     end
 
-    specify 'method to find objects which contain another objects.' do
-      #expect(geographic_item).to respond_to(:find_containing)
-      pending ' construction of intersection finder.'
+    specify 'class method to find objects which contain another objects.' do
+      expect(GeographicItem).to respond_to(:find_containing)
     end
 
-    specify 'point of Lat/Long' do
-      p1                    = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-
+    specify 'class method to discover orphan records.' do
+      expect(GeographicItem).to respond_to(:clean?)
     end
+
+    specify 'class method to delete orphan records.' do
+      expect(GeographicItem).to respond_to(:clean!)
+    end
+
+    specify 'class method to see if one object contains another.' do
+      expect(GeographicItem).to respond_to(:contains?)
+    end
+
+    specify 'class method to specify ordering of found objects.' do
+      expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
+      expect(GeographicItem).to respond_to(:ordered_by_longest_distance_from)
+    end
+
+    specify 'class method to find all objects which contain an \'or\' list of objects.' do
+      expect(GeographicItem).to respond_to(:containing)
+    end
+
+    specify 'class method to find all objects which are disjoint from an \'and\' list of objects.' do
+      expect(GeographicItem).to respond_to(:disjoint_from)
+    end
+
+    specify 'class method to find all objects which are within a specific distance of an object.' do
+      expect(GeographicItem).to respond_to(:meters_away_from)
+    end
+
+    specify 'class method to intersecting an \'or\' list of objects.' do
+      expect(GeographicItem).to respond_to(:intersecting)
+    end
+
+    #specify 'point of Lat/Long' do
+    #  p1 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
+    #
+    #end
   end
 
 
@@ -450,260 +579,6 @@ describe GeographicItem do
 end
 
 def build_RGeo_objects()
-  @room2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-  @room2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
-  @room2022 = RSPEC_GEO_FACTORY.point((@room2020.x + ((@room2024.x - @room2020.x) / 2)),
-                                (@room2020.y + ((@room2024.y - @room2020.y) / 2)),
-                                (@room2020.z + ((@room2024.z - @room2020.z) / 2)))
-
-  @rooms20 = RSPEC_GEO_FACTORY.multi_point([@room2020,
-                                      @room2022,
-                                      @room2024])
-
-  @point0  = RSPEC_GEO_FACTORY.point(0, 0)
-  @point1  = RSPEC_GEO_FACTORY.point(-29, -16)
-  @point2  = RSPEC_GEO_FACTORY.point(-25, -18)
-  @point3  = RSPEC_GEO_FACTORY.point(-28, -21)
-  @point4  = RSPEC_GEO_FACTORY.point(-19, -18)
-  @point5  = RSPEC_GEO_FACTORY.point(3, -14)
-  @point6  = RSPEC_GEO_FACTORY.point(6, -12.9)
-  @point7  = RSPEC_GEO_FACTORY.point(5, -16)
-  @point8  = RSPEC_GEO_FACTORY.point(4, -17.9)
-  @point9  = RSPEC_GEO_FACTORY.point(7, -17.9)
-  @point10 = RSPEC_GEO_FACTORY.point(32.2, 22)
-  @point11 = RSPEC_GEO_FACTORY.point(-17, 7)
-  @point12 = RSPEC_GEO_FACTORY.point(-9.8, 5)
-  @point13 = RSPEC_GEO_FACTORY.point(-10.7, 0)
-  @point14 = RSPEC_GEO_FACTORY.point(-30, 21)
-  @point15 = RSPEC_GEO_FACTORY.point(-25, 18.3)
-  @point16 = RSPEC_GEO_FACTORY.point(-23, 18)
-  @point17 = RSPEC_GEO_FACTORY.point(-19.6, -13)
-  @point18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2)
-  @point19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9)
-  @point20 = RSPEC_GEO_FACTORY.point(-8, -4)
-  @point21 = RSPEC_GEO_FACTORY.point(-4, -3)
-  @point22 = RSPEC_GEO_FACTORY.point(-10, -6)
-
-  @shapeA = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                     RSPEC_GEO_FACTORY.point(-25, 21),
-                                     RSPEC_GEO_FACTORY.point(-25, 16),
-                                     RSPEC_GEO_FACTORY.point(-21, 20)])
-
-  listB1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-14, 23),
-                                    RSPEC_GEO_FACTORY.point(-14, 11),
-                                    RSPEC_GEO_FACTORY.point(-2, 11),
-                                    RSPEC_GEO_FACTORY.point(-2, 23),
-                                    RSPEC_GEO_FACTORY.point(-8, 21)])
-
-  listB2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18),
-                                    RSPEC_GEO_FACTORY.point(-8, 17),
-                                    RSPEC_GEO_FACTORY.point(-6, 20),
-                                    RSPEC_GEO_FACTORY.point(-4, 16),
-                                    RSPEC_GEO_FACTORY.point(-7, 13),
-                                    RSPEC_GEO_FACTORY.point(-11, 14)])
-
-  @shapeB = RSPEC_GEO_FACTORY.polygon(listB1, [listB2])
-
-  listC1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21),
-                                    RSPEC_GEO_FACTORY.point(16, 21),
-                                    RSPEC_GEO_FACTORY.point(16, 16),
-                                    RSPEC_GEO_FACTORY.point(11, 20)])
-
-  listC2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(4, 12.6),
-                                    RSPEC_GEO_FACTORY.point(16, 12.6),
-                                    RSPEC_GEO_FACTORY.point(16, 7.6)])
-
-  listC3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(21, 12.6),
-                                    RSPEC_GEO_FACTORY.point(26, 12.6),
-                                    RSPEC_GEO_FACTORY.point(22, 17.6)])
-
-  @shapeC  = RSPEC_GEO_FACTORY.multi_line_string([listC1, listC2, listC3])
-  @shapeC1 = @shapeC.geometry_n(0)
-  @shapeC2 = @shapeC.geometry_n(1)
-  @shapeC3 = @shapeC.geometry_n(2)
-
-  @shapeD = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11),
-                                     RSPEC_GEO_FACTORY.point(-24, 4),
-                                     RSPEC_GEO_FACTORY.point(-26, 13),
-                                     RSPEC_GEO_FACTORY.point(-31, 4),
-                                     RSPEC_GEO_FACTORY.point(-33, 11)])
-
-  listE1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9),
-                                    RSPEC_GEO_FACTORY.point(-9, 9),
-                                    RSPEC_GEO_FACTORY.point(-9, 2),
-                                    RSPEC_GEO_FACTORY.point(-19, 2),
-                                    RSPEC_GEO_FACTORY.point(-19, 9)])
-
-  listE2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(5, -1),
-                                    RSPEC_GEO_FACTORY.point(-14, -1),
-                                    RSPEC_GEO_FACTORY.point(-14, 6),
-                                    RSPEC_GEO_FACTORY.point(5, 6),
-                                    RSPEC_GEO_FACTORY.point(5, -1)])
-
-  listE3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, -1),
-                                    RSPEC_GEO_FACTORY.point(-11, -5),
-                                    RSPEC_GEO_FACTORY.point(-7, -5),
-                                    RSPEC_GEO_FACTORY.point(-7, -1),
-                                    RSPEC_GEO_FACTORY.point(-11, -1)])
-
-  listE4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, -9),
-                                    RSPEC_GEO_FACTORY.point(-3, -1),
-                                    RSPEC_GEO_FACTORY.point(-7, -1),
-                                    RSPEC_GEO_FACTORY.point(-7, -9),
-                                    RSPEC_GEO_FACTORY.point(-3, -9)])
-
-  listE5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9),
-                                    RSPEC_GEO_FACTORY.point(-7, -5),
-                                    RSPEC_GEO_FACTORY.point(-11, -5),
-                                    RSPEC_GEO_FACTORY.point(-11, -9),
-                                    RSPEC_GEO_FACTORY.point(-7, -9)])
-
-  @shapeE  = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(listE1), RSPEC_GEO_FACTORY.polygon(listE2), RSPEC_GEO_FACTORY.polygon(listE3), RSPEC_GEO_FACTORY.polygon(listE4), RSPEC_GEO_FACTORY.polygon(listE5)])
-  @shapeE1 = @shapeE.geometry_n(0)
-  @shapeE2 = @shapeE.geometry_n(1)
-  @shapeE3 = @shapeE.geometry_n(2)
-  @shapeE4 = @shapeE.geometry_n(3)
-  @shapeE5 = @shapeE.geometry_n(4)
-
-  @shapeF1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
-                              RSPEC_GEO_FACTORY.point(-26, -6))
-
-  @shapeF2 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-21, -4),
-                              RSPEC_GEO_FACTORY.point(-31, -4))
-
-  @shapeF = RSPEC_GEO_FACTORY.multi_line_string([@shapeF1, @shapeF2])
-
-  listG1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(28, 2.3),
-                                    RSPEC_GEO_FACTORY.point(23, -1.7),
-                                    RSPEC_GEO_FACTORY.point(26, -4.8),
-                                    RSPEC_GEO_FACTORY.point(28, 2.3)])
-
-  listG2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(22, -6.8),
-                                    RSPEC_GEO_FACTORY.point(22, -9.8),
-                                    RSPEC_GEO_FACTORY.point(16, -6.8),
-                                    RSPEC_GEO_FACTORY.point(22, -6.8)])
-
-  listG3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3),
-                                    RSPEC_GEO_FACTORY.point(14, -2.8),
-                                    RSPEC_GEO_FACTORY.point(18, -2.8),
-                                    RSPEC_GEO_FACTORY.point(16, 2.3)])
-
-  @shapeG  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(listG1), RSPEC_GEO_FACTORY.polygon(listG2), RSPEC_GEO_FACTORY.polygon(listG3)])
-  @shapeG1 = @shapeG.geometry_n(0)
-  @shapeG2 = @shapeG.geometry_n(1)
-  @shapeG3 = @shapeG.geometry_n(2)
-
-  @shapeH = RSPEC_GEO_FACTORY.multi_point([@point5,
-                                     @point6,
-                                     @point7,
-                                     @point8,
-                                     @point9])
-
-  @shapeI = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(27, -14),
-                                     RSPEC_GEO_FACTORY.point(18, -21),
-                                     RSPEC_GEO_FACTORY.point(20, -12),
-                                     RSPEC_GEO_FACTORY.point(25, -23)])
-
-  @shapeJ = RSPEC_GEO_FACTORY.collection([@shapeG, @shapeH, @shapeI])
-
-  listK = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
-                                   RSPEC_GEO_FACTORY.point(-33, -23),
-                                   RSPEC_GEO_FACTORY.point(-21, -23),
-                                   RSPEC_GEO_FACTORY.point(-21, -11),
-                                   RSPEC_GEO_FACTORY.point(-27, -13)])
-
-  @shapeK = RSPEC_GEO_FACTORY.polygon(listK)
-
-  @shapeL = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5),
-                             RSPEC_GEO_FACTORY.point(-22, -20.5))
-
-  @everything = RSPEC_GEO_FACTORY.collection([@shapeA,
-                                        @shapeB,
-                                        @shapeC,
-                                        @shapeD,
-                                        @shapeE,
-                                        @shapeF,
-                                        @shapeG,
-                                        @shapeH,
-                                        @shapeI,
-                                        @shapeJ,
-                                        @shapeK,
-                                        @shapeL,
-                                        @rooms20,
-                                        @point0,
-                                        @point1,
-                                        @point2,
-                                        @point3,
-                                        @point4,
-                                        @point5,
-                                        @point6,
-                                        @point7,
-                                        @point8,
-                                        @point9,
-                                        @point10,
-                                        @point11,
-                                        @point12,
-                                        @point13,
-                                        @point14,
-                                        @point15,
-                                        @point16,
-                                        @point17,
-                                        @point18,
-                                        @point19,
-                                        @point20,
-                                        @point21,
-                                        @point22])
-
-  @convex_hull = @everything.convex_hull()
-
-  @all_wkt_names = [[@convex_hull.exterior_ring, 'Outer Limits'],
-                    [@shapeA, 'A'],
-                    [@shapeB, 'B'],
-                    [@shapeC1, 'C1'],
-                    [@shapeC2, 'C2'],
-                    [@shapeC3, 'C3'],
-                    [@shapeD, 'D'],
-                    [@shapeE2, 'E2'],
-                    [@shapeE1, 'E1'],
-                    [@shapeE3, 'E3'],
-                    [@shapeE4, 'E4'],
-                    [@shapeE5, 'E5'],
-                    [@shapeF1, 'F1'],
-                    [@shapeF2, 'F2'],
-                    [@shapeG1, 'G1'],
-                    [@shapeG2, 'G2'],
-                    [@shapeG3, 'G3'],
-                    #[@shapeH, 'H'],
-                    [@shapeI, 'I'],
-                    #[@shapeJ, 'J'],
-                    [@shapeK, 'K'],
-                    [@shapeL, 'L'],
-                    [@room2020, 'Room 2020'],
-                    [@room2022, 'Room 2022'],
-                    [@room2024, 'Room 2024'],
-                    [@point0, 'P0'],
-                    [@point1, 'P1'],
-                    [@point2, 'P2'],
-                    [@point3, 'P3'],
-                    [@point4, 'P4'],
-                    [@point5, 'P5'],
-                    [@point6, 'P6'],
-                    [@point7, 'P7'],
-                    [@point8, 'P8'],
-                    [@point9, 'P9'],
-                    [@point10, 'P10'],
-                    [@point11, 'P11'],
-                    [@point12, 'P12'],
-                    [@point13, 'P13'],
-                    [@point14, 'P14'],
-                    [@point15, 'P15'],
-                    [@point16, 'P16'],
-                    [@point17, 'P17'],
-                    [@point18, 'P18'],
-                    [@point19, 'P19'],
-                    [@point20, 'P20'],
-                    [@point21, 'P21'],
-                    [@point22, 'P22']]
 
 end
 
@@ -718,8 +593,8 @@ def gen_db_objects()
     v = GeographicItem.new
   end
 
-  point_in  = @point1
-  point_out = @point17
+  point_in  = POINT1
+  point_out = POINT17
 
   @r2020 = GeographicItem.new
   @r2022 = GeographicItem.new
@@ -745,27 +620,27 @@ def gen_db_objects()
 
   @outer_limits = GeographicItem.new
 
-  @r2020.point       = @room2020.as_binary
-  @r2022.point       = @room2022.as_binary
-  @r2024.point       = @room2024.as_binary
+  @r2020.point = ROOM2020.as_binary
+  @r2022.point = ROOM2022.as_binary
+  @r2024.point = ROOM2024.as_binary
 
-  @rooms.multi_point = @rooms20.as_binary
-  @p1.point  = point_in.as_binary
-  @p10.point = @point10.as_binary
-  @p16.point = @point16.as_binary
-  @p17.point = point_out.as_binary
+  @rooms.multi_point = ROOMS20NN.as_binary
+  @p1.point          = point_in.as_binary
+  @p10.point         = POINT10.as_binary
+  @p16.point         = POINT16.as_binary
+  @p17.point         = point_out.as_binary
 
-  @a.line_string                 = @shapeA.as_binary
-  @c.multi_line_string           = @shapeC.as_binary
-  @d.line_string                 = @shapeD.as_binary
-  @e.geometry_collection         = @shapeE.as_binary
-  @f.multi_line_string           = @shapeF.as_binary
-  @g.multi_polygon               = @shapeG.as_binary
-  @h.multi_point                 = @shapeH.as_binary
-  @k.polygon                     = @shapeK.as_binary
-  @l.line_string                 = @shapeL.as_binary
-  @all_items.geometry_collection = @everything.as_binary
-  @outer_limits.line_string      = @convex_hull.exterior_ring.as_binary
+  @a.line_string                 = SHAPE_A.as_binary
+  @c.multi_line_string           = SHAPE_C.as_binary
+  @d.line_string                 = SHAPE_D.as_binary
+  @e.geometry_collection         = SHAPE_E.as_binary
+  @f.multi_line_string           = SHAPE_F.as_binary
+  @g.multi_polygon               = SHAPE_G.as_binary
+  @h.multi_point                 = SHAPE_H.as_binary
+  @k.polygon                     = SHAPE_K.as_binary
+  @l.line_string                 = SHAPE_L.as_binary
+  @all_items.geometry_collection = ALL_SHAPES.as_binary
+  @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
 
   @r2020.save!
   @r2022.save!
@@ -807,7 +682,7 @@ def gen_wkt_files()
   f_line.write(col_header)
   f_poly.write(col_header)
 
-  @all_wkt_names.each_with_index do |it, index|
+  ALL_WKT_NAMES.each_with_index do |it, index|
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name

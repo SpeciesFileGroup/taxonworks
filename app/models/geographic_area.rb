@@ -2,10 +2,7 @@ class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
   # TODO: Investigate how to do this unconditionally. Use rake BUILD_GEO=1 ... to run incompatible tasks.
-  acts_as_nested_set unless ENV['BUILD_GEO']
-
-  # !! Jim- this is what we want, ... I think
-  validates_uniqueness_of :name, scope: [:level0, :level1, :level2]
+  acts_as_nested_set unless ENV['NO_GEO_NESTING']
 
   belongs_to :gadm_geo_item, class_name: 'GeographicItem', foreign_key: :gadm_geo_item_id
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
@@ -26,7 +23,7 @@ class GeographicArea < ActiveRecord::Base
   validates :level2, presence: true, allow_nil: true
   validates :parent, presence: true, unless: 'self.name == "Earth"'
 
-  validates_uniqueness_of :name, scope: [:level0, :level1, :level2]
+  validates_uniqueness_of :name, scope: [:level0, :level1, :level2] unless ENV['NO_GEO_VALID']
 
   # TODO: still need to figure out why the validations of RGeo object associations fail.  These xxx_geo_item entry are commented out for this reason.
   #validates :ne_geo_item, presence: true, allow_nil: true
@@ -51,6 +48,15 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.lft, geographic_area.rgt,
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
+
+  def self.ancestors_and_descendants_of(geographic_area)
+    where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
+           ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
+           (geographic_areas.id != ?)',
+        geographic_area.lft, geographic_area.rgt,
+        geographic_area.lft, geographic_area.rgt,
+        geographic_area.id).order(:lft)
+  end
 
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
