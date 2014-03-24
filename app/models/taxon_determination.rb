@@ -43,7 +43,7 @@ class TaxonDetermination < ActiveRecord::Base
     allow_nil: true,
     only_integer: true,
     greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.day_made).end_of_month.day },
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
     :unless => 'year_made.nil? || month_made.nil?',
     message: '%{value} is not a valid day_made for the month provided'
 

@@ -97,7 +97,6 @@ describe 'Material' do
   end
 end
 
-
 describe Material::QuickVerbatimResponse do
 
   before(:each) {
