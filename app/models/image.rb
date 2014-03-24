@@ -24,13 +24,16 @@ class Image < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
 
+  #constants
+  MISSING_IMAGE_PATH = '/public/images/missing.png'
+
   before_save :extract_tw_attributes
 
-  has_attached_file :image_file, :styles => {:medium => '300x300>', :thumb => '100x100>'}, \
-   :default_url => '/public/images/missing.png', :restricted_characters => /[^A-Za-z0-9\.]/
-  #:filename_cleaner => Paperclip::FilenameCleaner.new(/[^A-Za-z0-9\.]/)}, \
-   #, :restricted_characters => "/[^A-Za-z0-9]/"}
-    #:filename_cleaner => FileNameCleaner}
+  has_attached_file :image_file,
+       :styles => {:medium => '300x300>', :thumb => '100x100>'},
+       :default_url => MISSING_IMAGE_PATH,
+       :restricted_characters => /[^A-Za-z0-9\.]/
+  #:filename_cleaner => FileNameCleaner}
   validates_attachment_content_type :image_file, :content_type => /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validates_attachment_size :image_file, greater_than: 1.kilobytes
@@ -42,28 +45,40 @@ class Image < ActiveRecord::Base
   end
 
   def duplicate_images
-    Image.where(:image_file_fingerprint => self.image_file_fingerprint)
+    Image.where(:image_file_fingerprint => self.image_file_fingerprint).to_a
+  end
+
+  def exif
+=begin
+    if self.new_record?
+      return false
+    end
+=end
+    # drop to the shell
+    # run an imageMagick command (identify?) pass to that command self.image_file.url
+
   end
 
   protected
 
   def extract_tw_attributes
-    # NOTE assumes content type is an image.
+    # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
     if tempfile.nil?
-      self.width  = 0
-      self.height = 0
+      self.width          = 0
+      self.height         = 0
       self.user_file_name = ''
+      #TODO should an error be thrown here?
     else
       self.user_file_name = tempfile.original_filename
-      geometry    = Paperclip::Geometry.from_file(tempfile)
-      self.width  = geometry.width.to_i
-      self.height = geometry.height.to_i
+      geometry            = Paperclip::Geometry.from_file(tempfile)
+      self.width          = geometry.width.to_i
+      self.height         = geometry.height.to_i
     end
   end
 
   #region soft_validation
-  #todo check md5 fingerprint against existing fingerprints
+  # Check md5 fingerprint against existing fingerprints
   def sv_duplicate_image?
     if has_duplicate?
       soft_validations.add(:image_file_fingerprint, 'This image is a duplicate of an image already stored.')

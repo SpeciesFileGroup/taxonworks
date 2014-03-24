@@ -32,7 +32,7 @@ describe Image do
         # Any destroy method will have to use the same.
         a.run_callbacks(:commit)
       end
-  end
+    end
 
     @i.soft_validate
     expect(@i.soft_validations.messages.empty?).to be_true
@@ -51,8 +51,7 @@ describe Image do
     expect(j.has_duplicate?).to be_true
     image_array = j.duplicate_images
     expect(image_array.count).to eq(2)
-    #expect(image_array).to include
-    #TODO how do I check what is included in the array. it should in include objects @i & k
+    expect(image_array.sort).to eq([@i,k].sort)
 
     j.soft_validate
     expect(j.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
@@ -95,11 +94,8 @@ describe Image do
     end
   end
 
-  specify 'calling for a missing image should bring up the missing image gif' do
-    expect(@i.save).to be_true
-    expect(File.exist?(@i.image_file.path)).to be_true
-    expect(File.delete(@i.image_file.path)).to eq(1)
-    #todo How do I test this?
+  specify 'is the missing image gif path set & present' do
+    expect(File.exist?(Image::MISSING_IMAGE_PATH)).to be_true
   end
 
   pending 'exif or jfif data should be available if it was provided in the original image'
