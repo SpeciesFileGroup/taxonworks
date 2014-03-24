@@ -30,53 +30,36 @@ class TaxonDetermination < ActiveRecord::Base
   has_one :determiner, through: :determiner_role, source: :person
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
-  validates_numericality_of :start_date_year,
+  validates_numericality_of :year_made,
     only_integer: true, greater_than: 0,
     less_than_or_equal_to: Time.now.year,
     allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
-  validates_inclusion_of :start_date_month,
+    message: 'year made must be an integer greater than 0'
+  validates_inclusion_of :month_made,
     in: 1..12, 
     allow_nil: true,
-    message: ' start date month'
-  validates_numericality_of :start_date_day,
+    message: ' month made'
+  validates_numericality_of :day_made,
     allow_nil: true,
     only_integer: true,
     greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
-    :unless => 'start_date_year.nil? || start_date_month.nil?',
-    message: '%{value} is not a valid start_date_day for the month provided'
-  validates_numericality_of :end_date_year,
-    only_integer: true, greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
-  validates_inclusion_of :end_date_month,
-    in: 1..12,
-    allow_nil: true,
-    message: ' start date month'
-  validates_numericality_of :end_date_day,
-    allow_nil: true,
-    only_integer: true,
-    greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
-    :unless => 'end_date_year.nil? || end_date_month.nil?',
-    message: '%{value} is not a valid end_date_day for the month provided'
-
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.day_made).end_of_month.day },
+    :unless => 'year_made.nil? || month_made.nil?',
+    message: '%{value} is not a valid day_made for the month provided'
 
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
-  before_save :set_made_fields_if_none_provided
+  before_save :set_made_fields_if_not_provided
 
   protected
 
-  def set_made_fields_if_none_provided
-    if year_made.blank? && month_made.blank? && day_made.blank?
-      year_made = Time.now.year 
-      month_made = Time.now.month
-      day_made = Time.now.day
+  def set_made_fields_if_not_provided
+    if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
+      self.year_made = Time.now.year 
+      self.month_made = Time.now.month
+      self.day_made = Time.now.day
     end
   end
 
