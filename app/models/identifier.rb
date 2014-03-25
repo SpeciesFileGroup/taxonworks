@@ -4,6 +4,9 @@ class Identifier < ActiveRecord::Base
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identified_object, polymorphic: :true
 
+  # TODO: this likely has to be refactored/considered
+  # !! If there are inheritance issues with validation the position
+  # !! of this constant is likely the problem
   SHORT_NAMES = {
     doi:   Identifier::Global::Doi,
     isbn:  Identifier::Global::Isbn,
