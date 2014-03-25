@@ -1,5 +1,8 @@
 class Identifier < ActiveRecord::Base
-  include Housekeeping::Users
+  include Housekeeping
+
+  # must come before SHORT_NAMES for weird inheritance issue
+  belongs_to :identified_object, polymorphic: :true
 
   SHORT_NAMES = {
     doi:   Identifier::Global::Doi,
@@ -8,11 +11,21 @@ class Identifier < ActiveRecord::Base
     lccn:  Identifier::Global::Lccn,
     orcid: Identifier::Global::Orcid,
     uri:   Identifier::Global::Uri,
-    uuid:  Identifier::Global::Uuid
+    uuid:  Identifier::Global::Uuid,
+    catalog_number: Identifier::Local::CatalogNumber,
+    trip_code: Identifier::Local::TripCode,
+    import: Identifier::Local::Import,
+
   }
 
-  belongs_to :identified_object, polymorphic: :true
-  validates_presence_of :identifier, :type, :identified_object_id, :identified_object_type
+  validates :identified_object, presence: true
+  validates_presence_of :type, :identifier
+
+  # identifiers are unique across types for a class of objects
+  validates_uniqueness_of :identifier, scope: [:type, :identified_object_type, :namespace_id]
+
+  # no more of one identifier of a type per object 
+  validates_uniqueness_of :type, scope: [:identified_object_id, :identified_object_type, :namespace_id, :project_id] 
 
   #before_validation :validate_format_of_identifier
 

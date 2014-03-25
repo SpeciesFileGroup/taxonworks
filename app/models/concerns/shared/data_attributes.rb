@@ -11,7 +11,7 @@ module Shared::DataAttributes
   end
 
   def keyword_value_hash
-    self.data_attributes.inject({}) do |hsh, a| 
+    self.data_attributes.inject({}) do |hsh, a|   
       if a.class == ImportAttribute
         hsh.merge!(a.import_predicate => a.value)
       else # there are only two
