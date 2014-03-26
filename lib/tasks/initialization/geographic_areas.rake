@@ -1,4 +1,3 @@
-
 # (Re)Building the Geographic data
 =begin
 
@@ -14,26 +13,30 @@
 
   3:  rake tw:init:rebuild_geographic_areas_nesting
 
-  4:  rake tw:export:table table_name=geographic_area_types > ../shapes/data/internal/csv/geographic_area_types.csv
+  4.  rake tw:initialization:save_geo_data ../shapes/data/internal/dump/
 
-  5:  rake tw:export:table table_name=geographic_areas > ../shapes/data/internal/csv/geographic_areas.csv
+      alt:
+      a:  rake tw:export:table table_name=geographic_area_types > ../shapes/data/internal/csv/geographic_area_types.csv
 
-  6:  rake tw:export:table table_name=geographic_items > ../shapes/data/internal/csv/geographic_items.csv
-      alt:  pg_dump -Fc -t geographic_items -a taxonworks_development > ../shapes/data/internal/dump/geographic_items.dump
+      b:  rake tw:export:table table_name=geographic_areas > ../shapes/data/internal/csv/geographic_areas.csv
+
+      c:  rake tw:export:table table_name=geographic_items > ../shapes/data/internal/csv/geographic_items.csv
 
   (Reloading)
-  7: rake db:setup
+  1: rake db:setup
       (Make sure that there are no processes connected to the development data base, including (but not limited to:
         pgAdmin
         psql
         RubyMine))
 
-  8:  rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
+  2.  rake tw:initialization:restore_geo_data ../shapes/data/internal/dump/
 
-  9:  rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_items.csv]
-      alt:  pg_restore -Fc -d taxonworks_development -t geographic_items ../shapes/data/internal/dump/geographic_items.dump
+      alt:
+      a:  rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
 
-  10: rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
+      b:  rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_items.csv]
+
+      c:  rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
 
   11: rake tw:init:rebuild_geographic_areas_nesting
 
@@ -41,6 +44,46 @@
 
 namespace :tw do
   namespace :initialization do
+
+    # rake tw:initialization:save_geo_data ../shapes/data/internal/dump/
+    desc 'Save geographic area information in compressed form.'
+    task :save_geo_data, [:data_store] => [:environment] do |t, args|
+      args.with_defaults(:data_store => '../shapes/data/internal/dump/')
+      data_store = args[:data_store]
+      # TODO: Add condition for abort, i.e., dupm files exist in the data_store directory.
+      raise "There are existing dump files in #{data_store}, doing nothing." if false
+      begin
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_area_types.dump"
+        a = pg_dump('geographic_area_types', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_items.dump"
+        b = pg_dump('geographic_items', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_areas.dump"
+        c = pg_dump('geographic_areas', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}."
+      rescue
+        raise
+      end
+    end
+
+    # rake tw:initialization:restore_geo_data ../shapes/data/internal/dump/
+    desc 'Restore geographic area information from compressed form.'
+    task :restore_geo_data, [:data_store] => [:environment] do |t, args|
+      args.with_defaults(:data_store => '../shapes/data/internal/dump/')
+      data_store = args[:data_store]
+      # TODO: Add condition for abort, i.e., dupm files do not exist in the data_store directory.
+      raise "There are no existing dump files in #{data_store}, doing nothing." if false
+      begin
+        puts "#{Time.now.strftime "%H:%M:%S"}: From #{data_store}geographic_area_types.dump"
+        a = pg_restore('geographic_area_types', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: From #{data_store}geographic_items.dump"
+        b = pg_restore('geographic_items', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: From #{data_store}geographic_areas.dump"
+        c = pg_restore('geographic_areas', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}."
+      rescue
+        raise
+      end
+    end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
     # rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
@@ -66,43 +109,43 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_items
-    # rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_area_types.csv]
+    # rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_itemss.csv]
     desc 'call with "rake tw:initialization:load_geographic_items[/Users/matt/Downloads/geographic_items.csv]"'
     task :load_geographic_items, [:data_file] => [:environment] do |t, args|
       args.with_defaults(:data_file => '../shapes/data/internal/csv/geographic_items.csv')
       #raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
       begin
-        data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
+        data    = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
         records = {}
 
+        count = data.count
+        puts "#{args[:data_file]}: #{count} records."
         puts "#{Time.now.strftime "%H:%M:%S"}."
-        puts "#{args[:data_file]}: #{data.count} records."
 
-        ActiveRecord::Base.transaction do
-          data.each { |row|
+        #ActiveRecord::Base.transaction do
+        data.each { |row|
 
-            row_data      = row.to_h
-            #row_data.delete('rgt')
-            #row_data.delete('lft')
-            r             = GeographicItem.new(row_data)
-            records[r.id] = r
-            print "\rBuild:  record #{r.id}"
-          }
+          row_data      = row.to_h
+          #row_data.delete('rgt')
+          #row_data.delete('lft')
+          r             = GeographicItem.new(row_data)
+          records[r.id] = r
+          print "\rBuild:  record #{r.id}"
+        }
 
-          count = records.count
-          puts
+        puts "#{Time.now.strftime "%H:%M:%S"}."
 
-          records.values.each do |r|
-            #snap      = Time.now
-            #elapsed   = snap - time_then
-            #time_then = snap
+        records.values.each do |r|
+          #snap      = Time.now
+          #elapsed   = snap - time_then
+          #time_then = snap
 
-            r.save!
-            print "\rSave:   record #{r.id} of #{count}"
-            #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
-          end
-          puts "\n\n#{Time.now.strftime "%H:%M:%S"}.\n\n"
+          r.save!
+          print "\rSave:   record #{r.id} of #{count}"
+          #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
         end
+        puts "\n\n#{Time.now.strftime "%H:%M:%S"}.\n\n"
+          #end
       rescue
         raise
       end
@@ -201,8 +244,8 @@ namespace :tw do
                    'tdwg_geo_item' => [],
                    'gadm_geo_item' => []}
       check     ={}
-      placer = nil
-      finder = {}
+      placer    = nil
+      finder    = {}
 
       filenames.each { |filename|
         # puts "\n\n#{Time.now.strftime "%H:%M:%S"} => #{filename}.\n\n"
@@ -300,11 +343,13 @@ namespace :tw do
   end
 end
 
-def pg_dump(table_name)
-  a = `pg_dump -Fc -t #{table_name} -a taxonworks_development > ../shapes/data/internal/dump/#{table_name}.dump`
+def pg_dump(table_name, data_store)
+  a = `pg_dump -Fc -t #{table_name} -a taxonworks_development > #{data_store}/#{table_name}.dump`
+  a
 end
 
-def pg_restore(table_name)
-  a = `pg_restore -Fc -d taxonworks_development -t #{table_name} ../shapes/data/internal/dump/#{table_name}.dump`
+def pg_restore(table_name, data_store)
+  a = `pg_restore -Fc -d taxonworks_development -t #{table_name} #{data_store}/#{table_name}.dump`
+  a
 end
 

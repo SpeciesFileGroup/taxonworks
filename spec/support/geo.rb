@@ -57,7 +57,9 @@ LIST_B2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18),
                                          RSPEC_GEO_FACTORY.point(-7, 13),
                                          RSPEC_GEO_FACTORY.point(-11, 14)])
 
-SHAPE_B = RSPEC_GEO_FACTORY.polygon(LIST_B1, [LIST_B2])
+SHAPE_B       = RSPEC_GEO_FACTORY.polygon(LIST_B1, [LIST_B2])
+SHAPE_B_OUTER = RSPEC_GEO_FACTORY.polygon(LIST_B1)
+SHAPE_B_INNER = RSPEC_GEO_FACTORY.polygon(LIST_B2)
 
 LIST_C1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21),
                                          RSPEC_GEO_FACTORY.point(16, 21),
@@ -113,17 +115,23 @@ LIST_E5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9),
                                          RSPEC_GEO_FACTORY.point(-11, -9),
                                          RSPEC_GEO_FACTORY.point(-7, -9)])
 
-SHAPE_E  = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(LIST_E1),
-                                         RSPEC_GEO_FACTORY.polygon(LIST_E2),
-                                         RSPEC_GEO_FACTORY.polygon(LIST_E3),
-                                         RSPEC_GEO_FACTORY.polygon(LIST_E4),
-                                         RSPEC_GEO_FACTORY.polygon(LIST_E5)])
+SHAPE_E = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(LIST_E1),
+                                        RSPEC_GEO_FACTORY.polygon(LIST_E2),
+                                        RSPEC_GEO_FACTORY.polygon(LIST_E3),
+                                        RSPEC_GEO_FACTORY.polygon(LIST_E4),
+                                        RSPEC_GEO_FACTORY.polygon(LIST_E5)])
 
 SHAPE_E1 = SHAPE_E.geometry_n(0)
 SHAPE_E2 = SHAPE_E.geometry_n(1)
 SHAPE_E3 = SHAPE_E.geometry_n(2)
 SHAPE_E4 = SHAPE_E.geometry_n(3)
 SHAPE_E5 = SHAPE_E.geometry_n(4)
+
+POLY_E1 = RSPEC_GEO_FACTORY.polygon(LIST_E1)
+POLY_E2 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(1))
+POLY_E3 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(2))
+POLY_E4 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(3))
+POLY_E5 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(4))
 
 SHAPE_F1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
                                   RSPEC_GEO_FACTORY.point(-26, -6))

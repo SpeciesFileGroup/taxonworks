@@ -21,6 +21,7 @@ describe GeographicItem do
   let(:geographic_item_with_line_string) { FactoryGirl.build(:geographic_item_with_line_string) }
   let(:geographic_item_with_polygon) { FactoryGirl.build(:geographic_item_with_polygon) }
 
+=begin
   context 'database functions' do
 
     specify 'ST_Geometry_Same' do
@@ -122,6 +123,7 @@ describe GeographicItem do
     end
 
   end
+=end
 
   context 'validation' do
     before(:each) {
@@ -251,7 +253,7 @@ describe GeographicItem do
     end
 
     specify 'Outer Limits' do
-      everything  = @all_items.geo_object
+      everything = @all_items.geo_object
       expect(everything.convex_hull()).to eq(CONVEX_HULL)
     end
 
@@ -274,7 +276,7 @@ describe GeographicItem do
     end
   end
 
-  context 'that GeographicItems can be found to contain a(n)' do
+  context 'that GeographicItems can be found to respond to an' do
     specify 'instance method to return its object.' do
       expect(geographic_item).to respond_to(:geo_object)
     end
@@ -334,6 +336,48 @@ describe GeographicItem do
     #  p1 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
     #
     #end
+  end
+
+  context 'that GeographicItems can be found by searching with a' do
+
+    specify 'class method to find objects which contain another objects.' do
+      expect(GeographicItem.containing([@p1, @p2, @p3])).to eq [@k]
+      expect(GeographicItem.containing([@p4])).to eq []
+      expect(GeographicItem.containing([@p12])).to eq [@e1, @e2]
+      expect(GeographicItem.containing([@p1, @p2, @p3, @p4])).to eq [@k]
+      expect(GeographicItem.containing([@p1, @p11])).to eq [@e1, @k]
+    end
+
+    specify 'class method to see if one object contains another.' do
+
+      expect(GeographicItem.contains?(@k, @p1)).to be_true
+      expect(GeographicItem.contains?(@e1, @p10)).to be_false
+    end
+
+    specify 'instance method to see if one object contains another.' do
+
+      expect(@k.contains?(@p1)).to be_true
+      expect(@e1.contains?(@p0)).to be_false
+    end
+
+    specify 'class method to specify ordering of found objects.' do
+      expect(GeographicItem.ordered_by_shortest_distance_from(@p0)).to eq []
+      expect(GeographicItem.ordered_by_longest_distance_from(@p0)).to eq []
+    end
+
+    specify 'class method to find all objects which are disjoint from an \'and\' list of objects.' do
+      expect(GeographicItem.disjoint_from([@e1, @e2, @e3, @e4, @e5])).to eq [@b]
+    end
+
+    specify 'class method to find all objects which are within a specific distance of an object.' do
+      expect(GeographicItem.meters_away_from(@p0, 10)).to eq []
+    end
+
+    specify 'class method to find all objects intersecting with an \'or\' list of objects.' do
+      expect(GeographicItem.intersecting([@l])).to eq [@k]
+      expect(GeographicItem.intersecting([@f1])).to eq []
+    end
+
   end
 
 
@@ -593,28 +637,40 @@ def gen_db_objects()
     v = GeographicItem.new
   end
 
-  point_in  = POINT1
-  point_out = POINT17
-
   @r2020 = GeographicItem.new
   @r2022 = GeographicItem.new
   @r2024 = GeographicItem.new
   @rooms = GeographicItem.new
 
+  @p0  = GeographicItem.new
   @p1  = GeographicItem.new
+  @p2  = GeographicItem.new
+  @p3  = GeographicItem.new
+  @p4  = GeographicItem.new
   @p10 = GeographicItem.new
+  @p11 = GeographicItem.new
+  @p12 = GeographicItem.new
   @p16 = GeographicItem.new
   @p17 = GeographicItem.new
 
-  @a = GeographicItem.new
-  @c = GeographicItem.new
-  @d = GeographicItem.new
-  @e = GeographicItem.new
-  @f = GeographicItem.new
-  @g = GeographicItem.new
-  @h = GeographicItem.new
-  @k = GeographicItem.new
-  @l = GeographicItem.new
+  @a  = GeographicItem.new
+  @b1  = GeographicItem.new
+  @b2  = GeographicItem.new
+  @c  = GeographicItem.new
+  #@d  = GeographicItem.new
+  @e  = GeographicItem.new
+  @e1  = GeographicItem.new
+  @e2  = GeographicItem.new
+  @e3  = GeographicItem.new
+  @e4  = GeographicItem.new
+  @e5  = GeographicItem.new
+  @f  = GeographicItem.new
+  @f1 = GeographicItem.new
+  @f2 = GeographicItem.new
+  @g  = GeographicItem.new
+  @h  = GeographicItem.new
+  @k  = GeographicItem.new
+  @l  = GeographicItem.new
 
   @all_items = GeographicItem.new
 
@@ -625,15 +681,28 @@ def gen_db_objects()
   @r2024.point = ROOM2024.as_binary
 
   @rooms.multi_point = ROOMS20NN.as_binary
-  @p1.point          = point_in.as_binary
+  @p0.point          = POINT0.as_binary
+  @p1.point          = POINT1.as_binary
+  @p2.point          = POINT2.as_binary
+  @p3.point          = POINT3.as_binary
+  @p4.point          = POINT4.as_binary
   @p10.point         = POINT10.as_binary
+  @p11.point         = POINT11.as_binary
+  @p12.point         = POINT12.as_binary
   @p16.point         = POINT16.as_binary
-  @p17.point         = point_out.as_binary
+  @p17.point         = POINT17.as_binary
 
   @a.line_string                 = SHAPE_A.as_binary
+  @b1.polygon = SHAPE_B_OUTER.as_binary
+  @b2.polygon = SHAPE_B_INNER.as_binary
   @c.multi_line_string           = SHAPE_C.as_binary
-  @d.line_string                 = SHAPE_D.as_binary
+  #@d.line_string                 = SHAPE_D.as_binary
   @e.geometry_collection         = SHAPE_E.as_binary
+  @e1.polygon         = POLY_E1.as_binary
+  @e2.polygon         = POLY_E1.as_binary
+  @e3.polygon         = POLY_E1.as_binary
+  @e4.polygon         = POLY_E1.as_binary
+  @e5.polygon         = POLY_E1.as_binary
   @f.multi_line_string           = SHAPE_F.as_binary
   @g.multi_polygon               = SHAPE_G.as_binary
   @h.multi_point                 = SHAPE_H.as_binary
@@ -647,15 +716,28 @@ def gen_db_objects()
   @r2024.save!
   @rooms.save!
 
+  @p0.save!
   @p1.save!
+  @p2.save!
+  @p3.save!
+  @p4.save!
   @p10.save!
+  @p11.save!
+  @p12.save!
   @p16.save!
   @p17.save!
 
   @a.save!
   @c.save!
-  @d.save!
+  @b1.save!
+  @b2.save!
+  #@d.save!
   @e.save!
+  @e1.save!
+  @e2.save!
+  @e3.save!
+  @e4.save!
+  @e5.save!
   @f.save!
   @g.save!
   @h.save!

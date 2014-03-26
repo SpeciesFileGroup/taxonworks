@@ -62,7 +62,7 @@ class GeographicItem < ActiveRecord::Base
     # returns true if the two objects are, vertex-by-vertex, the same
   end
 
-  def self.area(geo_polygon)  # or multi_polygon
+  def self.area(geo_polygon) # or multi_polygon
     # http://postgis.refractions.net/documentation/manual-1.4/ST_Area.html
     # float ST_Area(geometry g1);
     where(st_area(geo_polygon))
@@ -70,7 +70,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.azimuth(geo_point_a, geo_point_b)
-     # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
+    # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
     # float ST_Azimuth(geometry pointA, geometry pointB);
     where(st_azimuth(geo_point_a, geo_point_b))
   end
@@ -85,18 +85,20 @@ class GeographicItem < ActiveRecord::Base
   def self.contains?(geo_object_a, geo_object_b)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
-    where{st_contains(geo_object_a, geo_object_b)}
+    where { st_contains(geo_object_a, geo_object_b) }
   end
 
+=begin
   def self.find_containing(column_name, geo_object)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where{st_contains(st_geomfromewkb(column_name), geo_object)}
   end
+=end
 
-  def self.intersecting(object_array)
-    object_array.each {|object|
-    where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{geographic_item.geo_object}'))")
+  def self.intersecting(geographic_items)
+    geographic_items.each { |object|
+      where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{object.to_s}'))")
     }
   end
 
@@ -108,8 +110,8 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
-  def self.containing(object_array)
-
+  def self.containing(geographic_items)
+    where { st_contains(st_geomfromewkb(:polygon), ["?", geographic_items.map(&:geo_object)]) }
   end
 
   def self.ordered_by_shortest_distance_from(object)
@@ -151,7 +153,7 @@ class GeographicItem < ActiveRecord::Base
     list
   end
 
-  def geo_object  # return false if the record has not been saved, or if there are no geographic objects in the record.
+  def geo_object # return false if the record has not been saved, or if there are no geographic objects in the record.
     return false if self.new_record?
     DATA_TYPES.each do |t|
       # otherwise, return the first-found object, according to the list of DATA_TYPES
@@ -420,8 +422,8 @@ class GeographicItem < ActiveRecord::Base
 
   def gi_helper
     user = User.find(1)
-    pt = GEO_FACTORY.point(-88.241413, 40.091655)
-    gi = GeographicItem.new(point: pt, creator: user, updater: user)
+    pt   = GEO_FACTORY.point(-88.241413, 40.091655)
+    gi   = GeographicItem.new(point: pt, creator: user, updater: user)
     gi.save
   end
 
