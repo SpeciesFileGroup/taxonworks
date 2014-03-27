@@ -130,14 +130,22 @@ describe Material::QuickVerbatimResponse do
   end
 
   specify 'save' do
-    @response.collection_objects.push a = FactoryGirl.build(:valid_specimen)
-    @response.collection_objects.push b = FactoryGirl.build(:valid_identifier_local_catalog_number, identified_object: a)
+    a = FactoryGirl.build(:valid_specimen)
+    i = FactoryGirl.build(:valid_identifier_local_catalog_number, identified_object: nil)
+    n = Note.new(text: "fasdfasdf")
+
+    a.identifiers << i 
+    a.notes << n
+
+    @response.collection_objects.push(a)
 
     expect(Specimen.count).to eq(0)
     expect(Identifier.count).to eq(0)
+    expect(Note.count).to eq(0)
     expect(@response.save).to be_true
     expect(Specimen.count).to eq(1)
     expect(Identifier.count).to eq(1)
+    expect(Note.count).to eq(1)
   end
 
 end
