@@ -52,7 +52,6 @@ class GeographicItem < ActiveRecord::Base
   scope :intersecting_boxes, -> (column_name, geographic_item) {
     select("ST_Contains(geographic_items.#{column_name}, #{geographic_item.geo_object})",
     ) }
-=end
 
   def self.same(geo_object_a, geo_object_b)
     # http://postgis.refractions.net/documentation/manual-1.4/ST_Geometry_Same.html
@@ -82,13 +81,6 @@ class GeographicItem < ActiveRecord::Base
     # returns a point
   end
 
-  def self.contains?(geo_object_a, geo_object_b)
-    # ST_Contains(geometry, geometry) or
-    # ST_Contains(geography, geography)
-    where { st_contains(geo_object_a, geo_object_b) }
-  end
-
-=begin
   def self.find_containing(column_name, geo_object)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
@@ -96,35 +88,60 @@ class GeographicItem < ActiveRecord::Base
   end
 =end
 
-  def self.intersecting(geographic_items)
-    geographic_items.each { |object|
-      where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{object.to_s}'))")
+  def self.contains?(geo_object_a, geo_object_b)
+    # ST_Contains(geometry, geometry) or
+    # ST_Contains(geography, geography)
+    where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
+  end
+
+  def self.intersecting(column_name, geographic_items)
+    geographic_items.each { |geographic_item|
+      # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
+      where { st_contains(st_geomfromewkb("geographic_items.#{column_name}"), geographic_item.geo_object.as_binary) }
+      # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
     }
   end
 
-  def self.meters_away_from(object, distance)
+  def self.meters_away_from(column_name, object, distance)
 
   end
 
-  def self.disjoint_from(object_array)
+  def self.disjoint_from(column_name, geographic_items)
 
   end
 
-  def self.containing(geographic_items)
-    where { st_contains(st_geomfromewkb(:polygon), ["?", geographic_items.map(&:geo_object)]) }
+  # if this method is given an array of GeographicItems as a second parameter, it will return the 'or' of each of the
+  # objects against the table
+  def self.containing(column_name, *geographic_items)
+    # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
+
+    where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
   end
 
-  def self.ordered_by_shortest_distance_from(object)
+  def self.containing_sql(column_name, geographic_item)
+    # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
+
+    if check_geo_params(column_name, geographic_item)
+      "ST_Contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_item.geo_object}'))"
+    else
+      'false'
+    end
 
   end
 
-  def self.ordered_by_longest_distance_from(object)
+  def self.ordered_by_shortest_distance_from(column_name, geographic_item)
 
   end
 
+  def self.ordered_by_longest_distance_from(column_name, geographic_item)
+
+  end
+
+=begin
   def self.intersections(column_name, geographic_item)
     where("st_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
   end
+=end
 
   def self.clean?
     # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
@@ -425,6 +442,10 @@ class GeographicItem < ActiveRecord::Base
     pt   = GEO_FACTORY.point(-88.241413, 40.091655)
     gi   = GeographicItem.new(point: pt, creator: user, updater: user)
     gi.save
+  end
+
+  def self.check_geo_params(column_name, geographic_item)
+    (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
   end
 
 end
