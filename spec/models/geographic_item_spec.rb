@@ -295,10 +295,6 @@ describe GeographicItem do
       expect(geographic_item).to respond_to(:far)
     end
 
-    specify 'class method to find objects which contain another objects.' do
-      expect(GeographicItem).to respond_to(:find_containing)
-    end
-
     specify 'class method to discover orphan records.' do
       expect(GeographicItem).to respond_to(:clean?)
     end
@@ -341,11 +337,33 @@ describe GeographicItem do
   context 'that GeographicItems can be found by searching with a' do
 
     specify 'class method to find objects which contain another objects.' do
-      expect(GeographicItem.containing([@p1, @p2, @p3])).to eq [@k]
-      expect(GeographicItem.containing([@p4])).to eq []
-      expect(GeographicItem.containing([@p12])).to eq [@e1, @e2]
-      expect(GeographicItem.containing([@p1, @p2, @p3, @p4])).to eq [@k]
-      expect(GeographicItem.containing([@p1, @p11])).to eq [@e1, @k]
+
+      expect(GeographicItem.containing('not_a_column_name', @p1).to_a).to eq([])
+      expect(GeographicItem.containing('point', 'Some devious SQL string').to_a).to eq([])
+
+      # one thing inside k
+      expect(GeographicItem.containing('polygon', @p1).to_a).to eq([@k])
+      # three things inside k
+      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3])).to eq [@k]
+      # one thing outside k
+      expect(GeographicItem.containing('polygon', @p4).to_a).to eq([])
+      # one thing inside two things (overlapping)
+      expect(GeographicItem.containing('polygon', @p12).to_a).to have(2).things
+      expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
+      expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
+      # three things inside and one thing outside k
+      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p4])).to eq([@k])
+      # one thing inside one thing, and another thing inside another thing
+      #expect(GeographicItem.containing('polygon', [@p1, @p11])).to eq([@e1, @k])
+
+      expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
+      expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
+
+    end
+
+    specify 'containing_sql' do
+      expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, ST_GeomFromText(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
+      expect(GeographicItem.containing_sql('polygon', @p2)).not_to eq('ST_Contains(polygon::geometry, ST_GeomFromText(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
     end
 
     specify 'class method to see if one object contains another.' do
@@ -361,21 +379,21 @@ describe GeographicItem do
     end
 
     specify 'class method to specify ordering of found objects.' do
-      expect(GeographicItem.ordered_by_shortest_distance_from(@p0)).to eq []
-      expect(GeographicItem.ordered_by_longest_distance_from(@p0)).to eq []
+      expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p0)).to eq []
+      expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p0)).to eq []
     end
 
     specify 'class method to find all objects which are disjoint from an \'and\' list of objects.' do
-      expect(GeographicItem.disjoint_from([@e1, @e2, @e3, @e4, @e5])).to eq [@b]
+      expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq [@b]
     end
 
     specify 'class method to find all objects which are within a specific distance of an object.' do
-      expect(GeographicItem.meters_away_from(@p0, 10)).to eq []
+      expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq []
     end
 
     specify 'class method to find all objects intersecting with an \'or\' list of objects.' do
-      expect(GeographicItem.intersecting([@l])).to eq [@k]
-      expect(GeographicItem.intersecting([@f1])).to eq []
+      expect(GeographicItem.intersecting('polygon', [@l])).to eq [@k]
+      expect(GeographicItem.intersecting('polygon', [@f1])).to eq []
     end
 
   end
@@ -652,18 +670,21 @@ def gen_db_objects()
   @p12 = GeographicItem.new
   @p16 = GeographicItem.new
   @p17 = GeographicItem.new
+  @p18 = GeographicItem.new
+  @p19 = GeographicItem.new
 
   @a  = GeographicItem.new
-  @b1  = GeographicItem.new
-  @b2  = GeographicItem.new
+  @b  = GeographicItem.new
+  @b1 = GeographicItem.new
+  @b2 = GeographicItem.new
   @c  = GeographicItem.new
-  #@d  = GeographicItem.new
+  @d  = GeographicItem.new
   @e  = GeographicItem.new
-  @e1  = GeographicItem.new
-  @e2  = GeographicItem.new
-  @e3  = GeographicItem.new
-  @e4  = GeographicItem.new
-  @e5  = GeographicItem.new
+  @e1 = GeographicItem.new
+  @e2 = GeographicItem.new
+  @e3 = GeographicItem.new
+  @e4 = GeographicItem.new
+  @e5 = GeographicItem.new
   @f  = GeographicItem.new
   @f1 = GeographicItem.new
   @f2 = GeographicItem.new
@@ -691,19 +712,24 @@ def gen_db_objects()
   @p12.point         = POINT12.as_binary
   @p16.point         = POINT16.as_binary
   @p17.point         = POINT17.as_binary
+  @p18.point         = POINT18.as_binary
+  @p19.point         = POINT19.as_binary
 
   @a.line_string                 = SHAPE_A.as_binary
-  @b1.polygon = SHAPE_B_OUTER.as_binary
-  @b2.polygon = SHAPE_B_INNER.as_binary
+  @b.polygon                 = SHAPE_B.as_binary
+  @b1.polygon                    = SHAPE_B_OUTER.as_binary
+  @b2.polygon                    = SHAPE_B_INNER.as_binary
   @c.multi_line_string           = SHAPE_C.as_binary
-  #@d.line_string                 = SHAPE_D.as_binary
+  @d.line_string                 = SHAPE_D.as_binary
   @e.geometry_collection         = SHAPE_E.as_binary
-  @e1.polygon         = POLY_E1.as_binary
-  @e2.polygon         = POLY_E1.as_binary
-  @e3.polygon         = POLY_E1.as_binary
-  @e4.polygon         = POLY_E1.as_binary
-  @e5.polygon         = POLY_E1.as_binary
+  @e1.polygon                    = POLY_E1.as_binary
+  @e2.polygon                    = POLY_E2.as_binary
+  @e3.polygon                    = POLY_E3.as_binary
+  @e4.polygon                    = POLY_E4.as_binary
+  @e5.polygon                    = POLY_E5.as_binary
   @f.multi_line_string           = SHAPE_F.as_binary
+  @f1.line_string                = SHAPE_F1.as_binary
+  @f2.line_string                = SHAPE_F2.as_binary
   @g.multi_polygon               = SHAPE_G.as_binary
   @h.multi_point                 = SHAPE_H.as_binary
   @k.polygon                     = SHAPE_K.as_binary
@@ -726,12 +752,15 @@ def gen_db_objects()
   @p12.save!
   @p16.save!
   @p17.save!
+  @p18.save!
+  @p19.save!
 
   @a.save!
-  @c.save!
+  @b.save!
   @b1.save!
   @b2.save!
-  #@d.save!
+  @c.save!
+  @d.save!
   @e.save!
   @e1.save!
   @e2.save!
@@ -739,6 +768,8 @@ def gen_db_objects()
   @e4.save!
   @e5.save!
   @f.save!
+  @f1.save!
+  @f1.save!
   @g.save!
   @h.save!
   @k.save!

@@ -6,6 +6,19 @@
 RSPEC_GEO_FACTORY = Georeference::FACTORY
 
 ROOM2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
+
+# select count(id) from geographic_items where ST_Distance(multi_polygon, ST_GeographyFromText('srid=4326;POINT(-88.241413 40.091655)')) < 10000 ;
+# select count(id) from geographic_items where ST_contains(multi_polygon::geometry, ST_GeomFromText('srid=4326;POINT(-88.241413 40.091655)')) ;
+
+=begin
+-- same as geometry example but note units in meters - use sphere for slightly faster less accurate
+SELECT ST_Distance(gg1, gg2) As spheroid_dist, ST_Distance(gg1, gg2, false) As sphere_dist
+FROM (SELECT
+	ST_GeographyFromText('SRID=4326;POINT(-88.241413 40.091655)') As gg1,
+	ST_GeographyFromText('SRID=4326;POINT(-88.203595 40.089355)') As gg2
+	) As trial  ;
+=end
+
 ROOM2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
 ROOM2022 = RSPEC_GEO_FACTORY.point((ROOM2020.x + ((ROOM2024.x - ROOM2020.x) / 2)),
                                    (ROOM2020.y + ((ROOM2024.y - ROOM2020.y) / 2)),
@@ -128,10 +141,10 @@ SHAPE_E4 = SHAPE_E.geometry_n(3)
 SHAPE_E5 = SHAPE_E.geometry_n(4)
 
 POLY_E1 = RSPEC_GEO_FACTORY.polygon(LIST_E1)
-POLY_E2 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(1))
-POLY_E3 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(2))
-POLY_E4 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(3))
-POLY_E5 = RSPEC_GEO_FACTORY.polygon(SHAPE_E.geometry_n(4))
+POLY_E2 = RSPEC_GEO_FACTORY.polygon(LIST_E2)
+POLY_E3 = RSPEC_GEO_FACTORY.polygon(LIST_E3)
+POLY_E4 = RSPEC_GEO_FACTORY.polygon(LIST_E4)
+POLY_E5 = RSPEC_GEO_FACTORY.polygon(LIST_E5)
 
 SHAPE_F1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
                                   RSPEC_GEO_FACTORY.point(-26, -6))
