@@ -110,23 +110,10 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
-  def self.containing(column_name, geographic_items)
+  def self.containing(column_name, *geographic_items)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
 
-    case geographic_items.class.name
-      when 'GeographicItem'
-        if check_geo_params(column_name, geographic_items)
-          where { "ST_Contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_items.geo_object}'))" }
-        else
-          where { 'false' }
-        end
-
-# where {eval("containing_sql(#{column_name}, #{geographic_items})")}
-      when 'Array'
-      else
-        where { 'false' }
-    end
-
+    where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
   end
 
   def self.containing_sql(column_name, geographic_item)
@@ -456,7 +443,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.check_geo_params(column_name, geographic_item)
-    !(!DATA_TYPES.include?(column_name.to_sym) || geographic_item.class != GeographicItem)
+    (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
   end
 
 end

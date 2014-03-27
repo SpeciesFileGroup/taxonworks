@@ -344,7 +344,7 @@ describe GeographicItem do
       # one thing inside k
       expect(GeographicItem.containing('polygon', @p1).to_a).to eq([@k])
       # three things inside k
-      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3])).to eq [@k]
+      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3]).to_a).to eq [@k]
       # one thing outside k
       expect(GeographicItem.containing('polygon', @p4).to_a).to eq([])
       # one thing inside two things (overlapping)
