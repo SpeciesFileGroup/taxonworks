@@ -110,6 +110,8 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
+  # if this method is given an array of GeographicItems as a second parameter, it will return the 'or' of each of the
+  # objects against the table
   def self.containing(column_name, *geographic_items)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
 

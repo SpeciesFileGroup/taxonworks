@@ -352,9 +352,10 @@ describe GeographicItem do
       expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
       expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
       # three things inside and one thing outside k
-      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p4])).to eq([@k])
+      expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p11]).to_a).to eq([@e1, @k])
       # one thing inside one thing, and another thing inside another thing
-      #expect(GeographicItem.containing('polygon', [@p1, @p11])).to eq([@e1, @k])
+      expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to eq([@e1, @k])
+      # two things inside one thing, and
 
       expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
       expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
