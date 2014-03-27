@@ -12,6 +12,9 @@ class Protonym < TaxonName
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  has_one :type_taxon_name_classification, -> {
+    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
+  }, class_name: 'TaxonNameClassification'
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
@@ -82,6 +85,8 @@ class Protonym < TaxonName
 
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
+  soft_validate(:sv_missing_classifications, set: :missing_classifications)
+  soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
   soft_validate(:sv_type_placement, set: :type_placement)
   soft_validate(:sv_primary_types, set: :primary_types)
   soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
@@ -226,7 +231,94 @@ class Protonym < TaxonName
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
+    if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
+      soft_validations.add(:base, 'The replacement name for the homonym is not selected') if self.iczn_set_as_synonym_of.nil?
+    end
   end
+
+  def sv_missing_classifications
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+      soft_validations.add(:base, 'Part of speech is not specified') if self.part_of_speech_class.nil?
+    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
+      if self.gender_class.nil?
+        g = genus_suggested_gender
+        soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
+      end
+    end
+  end
+
+  def genus_suggested_gender
+    return nil unless self.rank_class.to_s =~/Genus/
+    TaxonNameClassification::Latinized::Gender.descendants.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.class_name if self.name =~ /^[a-zA-Z]*#{e}$/
+      end
+    end
+    nil
+  end
+
+  def sv_species_gender_agreement
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+      s = self.part_of_speech_name
+      unless self.part_of_speech_name.nil?
+        if s =~ /(adjective|participle)/
+          if self.feminine_name.blank?
+            soft_validations.add(:feminine_name, 'Spelling in feminine is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, self.feminine_name)
+            unless e.nil?
+              soft_validations.add(:feminine_name, "Name has non feminine ending: -#{e}")
+            end
+          end
+          if self.masculine_name.blank?
+            soft_validations.add(:masculine_name, 'Spelling in masculine is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, self.masculine_name)
+            unless e.nil?
+              soft_validations.add(:masculine_name, "Name has non masculine ending: -#{e}")
+            end
+          end
+          if self.neuter_name.blank?
+            soft_validations.add(:neuter_name, 'Spelling in neuter is not provided')
+          else
+            e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, self.neuter_name)
+            unless e.nil?
+              soft_validations.add(:neuter_name, "Name has non neuter ending: -#{e}")
+            end
+          end
+          if self.masculine_name.blank? && self.feminine_name.blank? && self.neuter_name.blank?
+            g = self.ancestor_at_rank('genus').gender_class
+            unless g.nil?
+              e = species_questionable_ending(g, self.name)
+              unless e.nil?
+                soft_validations.add(:name, "Name has non #{g.class_name} ending: -#{e}")
+              end
+            end
+          end
+        else
+          unless self.feminine_name.blank?
+            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name being noun')
+          end
+          unless self.masculine_name.blank?
+            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name being noun')
+          end
+          unless self.neuter_name.blank?
+            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name being noun')
+          end
+
+        end
+      end
+    end
+  end
+
+  def species_questionable_ending(g, n)
+    return nil unless self.rank_class.to_s =~/Species/
+    g.questionable_species_endings.each do |e|
+      return e if n =~ /^[a-z]*#{e}$/
+    end
+    nil
+  end
+
 
   def sv_validate_coordinated_names
       list_of_coordinated_names.each do |t|
@@ -237,6 +329,10 @@ class Protonym < TaxonName
                             fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
+        soft_validations.add(:base, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Genus/ && self.gender_class != t.gender_class
+        soft_validations.add(:base, "The part of speech does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
@@ -261,6 +357,8 @@ class Protonym < TaxonName
 
   def sv_fix_coordinated_names
     fixed = false
+    gender = self.gender_class
+    speech = self.part_of_speech_class
     list_of_coordinated_names.each do |t|
       if self.source_id.nil? && self.source_id != t.source_id
         self.source_id = t.source_id
@@ -272,6 +370,20 @@ class Protonym < TaxonName
       end
       if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
         self.year_of_publication = t.year_of_publication
+        fixed = true
+      end
+      t_gender = t.gender_class
+      if gender.nil? && gender != t_gender
+        self.TaxonNameClassification.build(type: t_gender.to_s)
+        fixed = true
+      end
+      t_speech = t.part_of_speech_class
+      if speech.nil? && speech != t_speech
+        self.TaxonNameClassification.build(type: t_speech.to_s)
+        fixed = true
+      end
+      if self.gender_class.nil? && self.gender_class != t.gender_class
+        self.taxon_name_classification.build(type: t.gender_name)
         fixed = true
       end
       if self.original_genus.nil? && self.original_genus != t.original_genus
@@ -508,21 +620,17 @@ class Protonym < TaxonName
     end
   end
 
-  def sv_fix_add_relationship(method, object_id)
-    begin
-      Protonym.transaction do
-        self.save
-        return true
-      end
-    rescue
-      return false
-    end
-
-  false
-
-  end
-
-
+#  def sv_fix_add_relationship(method, object_id)
+#    begin
+#      Protonym.transaction do
+#        self.save
+#        return true
+#      end
+#    rescue
+#      return false
+#    end
+#  false
+#  end
 
   #endregion
 

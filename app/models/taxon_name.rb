@@ -128,6 +128,26 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def gender_class
+    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
+    c.nil? ? nil : c.type_class
+  end
+
+  def gender_name
+    c = self.gender_class
+    c.nil? ? nil : c.class_name
+  end
+
+  def part_of_speech_class
+    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
+    c.nil? ? nil : c.type_class
+  end
+
+  def part_of_speech_name
+    c = self.part_of_speech_class
+    c.nil? ? nil : c.class_name
+  end
+
   def cached_name_and_author_year
     if self.rank_class.to_s =~ /::(Species|Genus)/
       (self.cached_name.to_s + ' ' + self.cached_author_year.to_s).squish!
@@ -173,13 +193,14 @@ class TaxonName < ActiveRecord::Base
     elsif self.rank_class.to_s =~ /Species/
       n = self.name.squish # remove extra spaces and line brakes
       n = n.split(' ').last
-      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # iae > ae in the end of word
-      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # iorum > orum
-      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # iarum > arum
-      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # um > a
-      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # us > a
-      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # iensis > ensis
-      n = n[0..-5] + 'ana' if n =~ /^[a-z]*self.rank_classiana$/      # iensis > ensis
+      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/        # -iae > -ae in the end of word
+      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/    # -iorum > -orum
+      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/    # -iarum > -arum
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/          # -um > -a
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/          # -us > -a
+      n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/         # -er > -ra
+      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/  # -iensis > -ensis
+      n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/      # -iana > -ana
       n = n.gsub('ae', 'e').
           gsub('oe', 'e').
           gsub('ai', 'i').
@@ -216,6 +237,19 @@ class TaxonName < ActiveRecord::Base
     return n
   end
 
+  def name_in_gender(gender)
+    case gender
+      when 'masculine'
+        n = self.masculine_name
+      when 'feminine'
+        n = self.feminine_name
+      when 'neuter'
+        n = self.neuter_name
+      else
+        n = nil
+    end
+    n.blank? ? self.name : n
+  end
 
   #region Set cached fields
 
@@ -227,9 +261,9 @@ class TaxonName < ActiveRecord::Base
     # if updated, update also sv_cached_names
     set_cached_misspelling
     set_cached_full_name
-    set_cached_original_combination
     set_cached_author_year
     if self.class.to_s == 'Protonym'
+      set_cached_original_combination
       set_cached_higher_classification
       set_primaty_homonym
       set_primary_homonym_alt
@@ -237,6 +271,8 @@ class TaxonName < ActiveRecord::Base
         set_secondary_homonym
         set_secondary_homonym_alt
       end
+    elsif self.cached_original_combination.blank?
+      set_cached_original_combination
     end
   end
 
@@ -300,22 +336,25 @@ class TaxonName < ActiveRecord::Base
       subgenus = ''
       superspecies = ''
       species = ''
+      gender = nil
       (self.ancestors + [self]).each do |i|
         if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
           case i.rank_class.rank_name
-            when 'genus' then genus = '<em>' + i.name + '</em> '
+            when 'genus'
+              genus = '<em>' + i.name + '</em> '
+              gender = i.gender_name
             when 'subgenus' then subgenus += '<em>' + i.name + '</em> '
             when 'section' then subgenus += 'sect. <em>' + i.name + '</em> '
             when 'subsection' then subgenus += 'subsect. <em>' + i.name + '</em> '
             when 'series' then subgenus += 'ser. <em>' + i.name + '</em> '
             when 'subseries' then subgenus += 'subser. <em>' + i.name + '</em> '
-            when 'species group' then superspecies += '<em>' + i.name + '</em> '
-            when 'species' then species += '<em>' + i.name + '</em> '
-            when 'subspecies' then species += '<em>' + i.name + '</em> '
-            when 'variety' then species += 'var. <em>' + i.name + '</em> '
-            when 'subvariety' then species += 'subvar. <em>' + i.name + '</em> '
-            when 'form' then species += 'f. <em>' + i.name + '</em> '
-            when 'subform' then species += 'subf. <em>' + i.name + '</em> '
+            when 'species group' then superspecies += '<em>' + i.name_in_gender(gender) + '</em> '
+            when 'species' then species += '<em>' + i.name_in_gender(gender) + '</em> '
+            when 'subspecies' then species += '<em>' + i.name_in_gender(gender) + '</em> '
+            when 'variety' then species += 'var. <em>' + i.name_in_gender(gender) + '</em> '
+            when 'subvariety' then species += 'subvar. <em>' + i.name_in_gender(gender) + '</em> '
+            when 'form' then species += 'f. <em>' + i.name_in_gender(gender) + '</em> '
+            when 'subform' then species += 'subf. <em>' + i.name_in_gender(gender) + '</em> '
             else
           end
         end
@@ -323,11 +362,18 @@ class TaxonName < ActiveRecord::Base
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+      cached_name.blank? ? nil : cached_name
     end
   end
 
-  def name_with_misspelling
-    self.name.to_s + (self.cached_misspelling ? ' [sic]' : '')
+  def name_with_misspelling(gender)
+    if self.cached_misspelling
+      self.name.to_s + ' [sic]'
+    elsif gender.nil? || self.rank_class.to_s =~ /Genus/
+      self.name.to_s
+    else
+      self.name_in_gender(gender)
+    end
   end
 
   def get_original_combination
@@ -340,34 +386,37 @@ class TaxonName < ActiveRecord::Base
       subgenus = ''
       superspecies = ''
       species = ''
+      gender = nil
       relationships.each do |i|
         case i.type_class.object_relationship_name
-          when 'original genus' then genus = '<em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'original subgenus' then subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original species' then species += '<em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original subspecies' then species += '<em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original variety' then species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          when 'original form' then species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling  + '</em> '
-          else
+          when 'original genus'
+            genus = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            gender = i.subject_taxon_name.gender_name
+          when 'original subgenus' then subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil)  + '</em> '
+          when 'original section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil)  + '</em> '
+          when 'original subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil)  + '</em> '
+          when 'original series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil)  + '</em> '
+          when 'original subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil)  + '</em> '
+          when 'original species' then species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender)  + '</em> '
+          when 'original subspecies' then species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender)  + '</em> '
+          when 'original variety' then species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender)  + '</em> '
+          when 'original subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender)  + '</em> '
+          when 'original form' then species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender)  + '</em> '
         end
       end
       if self.rank_class.to_s =~ /Genus/
         if genus.blank?
-          genus += '<em>' + self.name_with_misspelling  + '</em> '
+          genus += '<em>' + self.name_with_misspelling(nil)  + '</em> '
         else
-          subgenus += '<em>' + self.name_with_misspelling  + '</em> '
+          subgenus += '<em>' + self.name_with_misspelling(nil)  + '</em> '
         end
       elsif self.rank_class.to_s =~ /Species/
-        species += '<em>' + self.name_with_misspelling  + '</em> '
-        genus = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+        species += '<em>' + self.name_with_misspelling(nil)  + '</em> '
+        genus = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
       end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+      cached_name.blank? ? nil : cached_name
     end
   end
 
@@ -381,20 +430,23 @@ class TaxonName < ActiveRecord::Base
       subgenus = ''
       superspecies = ''
       species = ''
+      gender = nil
       relationships.each do |i|
         case i.type_class.object_relationship_name
-          when 'genus' then genus = '<em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subgenus' then subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'species' then species += '<em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subspecies' then species += '<em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'variety' then species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'form' then species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
-          when 'subform' then species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling + '</em> '
+          when 'genus'
+            genus = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            gender = i.subject_taxon_name.gender_name
+          when 'subgenus' then subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+          when 'section' then subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+          when 'subsection' then subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+          when 'series' then subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+          when 'subseries' then subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+          when 'species' then species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'subspecies' then species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'variety' then species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'subvariety' then species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'form' then species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'subform' then species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
           else
         end
       end
@@ -402,15 +454,16 @@ class TaxonName < ActiveRecord::Base
 #      parent_rank = self.parent.rank_class.to_s
 #      if parent_rank =~ /Genus/
 #        if genus.blank?
-#          genus += '<em>' + self.parent.name_with_misspelling + '</em> '
+#          genus += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
 #        else
-#          subgenus += '<em>' + self.parent.name_with_misspelling + '</em> '
+#          subgenus += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
 #        end
 #      elsif parent_rank =~ /Species/
-#        species += '<em>' + self.parent.name_with_misspelling + '</em> '
+#        species += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
 #      end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+      cached_name.blank? ? nil : cached_name
     end
   end
 
@@ -435,8 +488,6 @@ class TaxonName < ActiveRecord::Base
     end
     (genus.to_s + ' ' + name1.to_s).squish
   end
-
-  #TODO: check homotypic synonyms
 
   def get_author_and_year
     if self.rank.nil?
@@ -581,7 +632,7 @@ class TaxonName < ActiveRecord::Base
   def sv_fix_missing_author
     if self.source_id
       unless self.source.author.blank?
-        self.verbatim_author = self.source.author
+        self.verbatim_author = self.source.authority_name
         begin
           TaxonName.transaction do
             self.save

@@ -10,6 +10,17 @@ describe Api::V1::TaxonNamesController do
         get 'all', format: :json
         expect(response).to be_success
       end
+      
+      it "assigns TaxonName.all to @names" do
+        get 'all', format: :json
+        expect(assigns(:names)).to eq(TaxonName.all)
+      end 
+
+      it "renders template all" do
+        get 'all', format: :json
+        expect(response).to render_template "api/v1/taxon_names/all"
+      end
+      
     end
   end
 

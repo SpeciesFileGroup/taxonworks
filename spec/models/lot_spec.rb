@@ -1,13 +1,11 @@
 require 'spec_helper'
 describe Lot do
-
   let(:lot) { FactoryGirl.build(:lot) }
 
   context "validation" do
-  
-    before do 
-      lot.save
-    end
+    before(:each) {
+      lot.valid?
+    }
 
     context "before validation" do
       specify "total must be > 1" do 

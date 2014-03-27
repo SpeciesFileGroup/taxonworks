@@ -27,6 +27,14 @@ describe CollectionObject do
       specify 'repository' do
         expect(collection_object).to respond_to(:repository)
       end
+
+      specify 'collecting_event' do
+        expect(collection_object).to respond_to(:collecting_event)
+      end
+
+      specify 'preparation_type' do
+        expect(collection_object).to respond_to(:preparation_type)
+      end
     end
   end
 
@@ -44,9 +52,36 @@ describe CollectionObject do
     end
   end
 
+  context 'general functionality' do
+    it "should return the repository"
+    it "should permit arbitrary requirable properties (key/value pairs)"
+    it "on update it should SCREAM AT YOU when you change implied data if more than one biological_collection_object uses that data" 
+  end
+
+  context 'attributes' do
+    specify "current_location (the present location [time axis])" 
+    specify "disposition ()"  # was boolean lost or not
+    specify "destroyed? (gone, for real, never ever EVER coming back)"
+    specify "condition (damaged/level)"
+    specify "accession source (from whom the biological_collection_object came)"
+    specify "deaccession recipient (to whom the biological_collection_object went)"
+    specify "depository (where the)"  
+  end
+
+  describe "validation" do
+    specify "once set, a verbatim label can not change"
+  end
+
   context 'concerns' do
-    it_behaves_like "identifiable"
+    it_behaves_like "identifiable" 
     it_behaves_like "containable"
+    it_behaves_like "notable"
+    it_behaves_like "data_attributes"
+    it_behaves_like "taggable"
+  
+    specify "locatable (location)"
+    specify "figurable (images)"
+
   end
 
 end

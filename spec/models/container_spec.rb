@@ -6,13 +6,35 @@ describe Container do
 
   context 'associations' do
     context 'has_many' do
-      specify 'physical_collection_objects' do
-        expect(container).to respond_to(:physical_collection_objects)
+      specify 'container_items' do
+        expect(container).to respond_to(:container_items)
       end
+
+      specify 'collection_objects' do
+        expect(container).to respond_to(:collection_objects)
+      end
+
+      specify 'collection_profiles' do
+        expect(container).to respond_to(:collection_profiles)
+      end
+
       specify 'type' do
         expect(container).to respond_to(:type)
       end
     end
+  end
+
+  context 'containable items' do
+   before(:each) {
+     container.type_class = Container::Virtual
+   }
+
+   specify 'add items to an unsaved container' do
+     container.collection_objects << (FactoryGirl.create(:valid_specimen))
+     expect(container.save).to be_true
+     expect(container.container_items).to have(1).things   
+   end
+
   end
 
   context 'from awesome_nested_set' do
