@@ -300,8 +300,7 @@ describe GeographicItem do
       expect(@e1.contains?(@p10)).to be_false
     end
 
-
-
+    
     context 'that each type of item knows how to emits its own array' do
       specify 'that represents a point' do
         expect(@r2024.to_a).to eq [-88.241413, 40.091655]
@@ -618,118 +617,116 @@ describe GeographicItem do
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p0)).to eq []
+        expect(GeographicItem.ordered_by_shortest_distance_from('point', @p3).limit(3)).to eq([@p2, @p1, @p4])
       end
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p0)).to eq []
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@p4, @p1, @p2])
       end
 
+      #TODO: Is this test right?  What about @k, @d?
       specify "#disjoint_from list of objects (uses 'and')." do
-        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq [@b]
+        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq([@b])
       end
 
       specify '#meters_away_from returns objects within a specific distance of an object.' do
-        expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq []
+        expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq([])
       end
 
       specify "#intersecting list of objects (uses 'or')" do
-        expect(GeographicItem.intersecting('polygon', [@l])).to eq [@k]
-        expect(GeographicItem.intersecting('polygon', [@f1])).to eq []
+        expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
+        expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
       end
     end
   end
 
+  def generate_test_objects
+    @r2020 = GeographicItem.new
+    @r2022 = GeographicItem.new
+    @r2024 = GeographicItem.new
+    @rooms = GeographicItem.new
+
+    @p0  = GeographicItem.new
+    @p1  = GeographicItem.new
+    @p2  = GeographicItem.new
+    @p3  = GeographicItem.new
+    @p4  = GeographicItem.new
+    @p10 = GeographicItem.new
+    @p11 = GeographicItem.new
+    @p12 = GeographicItem.new
+    @p16 = GeographicItem.new
+    @p17 = GeographicItem.new
+    @p18 = GeographicItem.new
+    @p19 = GeographicItem.new
+
+    @a  = GeographicItem.new
+    @b  = GeographicItem.new
+    @b1 = GeographicItem.new
+    @b2 = GeographicItem.new
+    @c  = GeographicItem.new
+    @d  = GeographicItem.new
+    @e  = GeographicItem.new
+    @e1 = GeographicItem.new
+    @e2 = GeographicItem.new
+    @e3 = GeographicItem.new
+    @e4 = GeographicItem.new
+    @e5 = GeographicItem.new
+    @f  = GeographicItem.new
+    @f1 = GeographicItem.new
+    @f2 = GeographicItem.new
+    @g  = GeographicItem.new
+    @h  = GeographicItem.new
+    @k  = GeographicItem.new
+    @l  = GeographicItem.new
+
+    @all_items = GeographicItem.new
+
+    @outer_limits = GeographicItem.new
+
+    @r2020.point = ROOM2020.as_binary
+    @r2022.point = ROOM2022.as_binary
+    @r2024.point = ROOM2024.as_binary
+
+    @rooms.multi_point = ROOMS20NN.as_binary
+    @p0.point          = POINT0.as_binary
+    @p1.point          = POINT1.as_binary
+    @p2.point          = POINT2.as_binary
+    @p3.point          = POINT3.as_binary
+    @p4.point          = POINT4.as_binary
+    @p10.point         = POINT10.as_binary
+    @p11.point         = POINT11.as_binary
+    @p12.point         = POINT12.as_binary
+    @p16.point         = POINT16.as_binary
+    @p17.point         = POINT17.as_binary
+    @p18.point         = POINT18.as_binary
+    @p19.point         = POINT19.as_binary
+
+    @a.line_string                 = SHAPE_A.as_binary
+    @b.polygon                     = SHAPE_B.as_binary
+    @b1.polygon                    = SHAPE_B_OUTER.as_binary
+    @b2.polygon                    = SHAPE_B_INNER.as_binary
+    @c.multi_line_string           = SHAPE_C.as_binary
+    @d.line_string                 = SHAPE_D.as_binary
+    @e.geometry_collection         = SHAPE_E.as_binary
+    @e1.polygon                    = POLY_E1.as_binary
+    @e2.polygon                    = POLY_E2.as_binary
+    @e3.polygon                    = POLY_E3.as_binary
+    @e4.polygon                    = POLY_E4.as_binary
+    @e5.polygon                    = POLY_E5.as_binary
+    @f.multi_line_string           = SHAPE_F.as_binary
+    @f1.line_string                = SHAPE_F1.as_binary
+    @f2.line_string                = SHAPE_F2.as_binary
+    @g.multi_polygon               = SHAPE_G.as_binary
+    @h.multi_point                 = SHAPE_H.as_binary
+    @k.polygon                     = SHAPE_K.as_binary
+    @l.line_string                 = SHAPE_L.as_binary
+    @all_items.geometry_collection = ALL_SHAPES.as_binary
+    @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
+
+    [@r2020,@r2022,@r2024,@rooms,
+     @p0,@p1,@p2,@p3,@p4,@p10,@p11,@p12,@p16,@p17,@p18,@p19,
+     @a,@b,@b1,@b2,@c,@d,@e,@e1,@e2,@e3,@e4,@e5,@f,@f1,@f1,@g,@h,@k,@l,
+     @all_items,@outer_limits].map(&:save!)
+  end
+
 end
-
-
-def generate_test_objects
-  @r2020 = GeographicItem.new
-  @r2022 = GeographicItem.new
-  @r2024 = GeographicItem.new
-  @rooms = GeographicItem.new
-
-  @p0  = GeographicItem.new
-  @p1  = GeographicItem.new
-  @p2  = GeographicItem.new
-  @p3  = GeographicItem.new
-  @p4  = GeographicItem.new
-  @p10 = GeographicItem.new
-  @p11 = GeographicItem.new
-  @p12 = GeographicItem.new
-  @p16 = GeographicItem.new
-  @p17 = GeographicItem.new
-  @p18 = GeographicItem.new
-  @p19 = GeographicItem.new
-
-  @a  = GeographicItem.new
-  @b  = GeographicItem.new
-  @b1 = GeographicItem.new
-  @b2 = GeographicItem.new
-  @c  = GeographicItem.new
-  @d  = GeographicItem.new
-  @e  = GeographicItem.new
-  @e1 = GeographicItem.new
-  @e2 = GeographicItem.new
-  @e3 = GeographicItem.new
-  @e4 = GeographicItem.new
-  @e5 = GeographicItem.new
-  @f  = GeographicItem.new
-  @f1 = GeographicItem.new
-  @f2 = GeographicItem.new
-  @g  = GeographicItem.new
-  @h  = GeographicItem.new
-  @k  = GeographicItem.new
-  @l  = GeographicItem.new
-
-  @all_items = GeographicItem.new
-
-  @outer_limits = GeographicItem.new
-
-  @r2020.point = ROOM2020.as_binary
-  @r2022.point = ROOM2022.as_binary
-  @r2024.point = ROOM2024.as_binary
-
-  @rooms.multi_point = ROOMS20NN.as_binary
-  @p0.point          = POINT0.as_binary
-  @p1.point          = POINT1.as_binary
-  @p2.point          = POINT2.as_binary
-  @p3.point          = POINT3.as_binary
-  @p4.point          = POINT4.as_binary
-  @p10.point         = POINT10.as_binary
-  @p11.point         = POINT11.as_binary
-  @p12.point         = POINT12.as_binary
-  @p16.point         = POINT16.as_binary
-  @p17.point         = POINT17.as_binary
-  @p18.point         = POINT18.as_binary
-  @p19.point         = POINT19.as_binary
-
-  @a.line_string                 = SHAPE_A.as_binary
-  @b.polygon                     = SHAPE_B.as_binary
-  @b1.polygon                    = SHAPE_B_OUTER.as_binary
-  @b2.polygon                    = SHAPE_B_INNER.as_binary
-  @c.multi_line_string           = SHAPE_C.as_binary
-  @d.line_string                 = SHAPE_D.as_binary
-  @e.geometry_collection         = SHAPE_E.as_binary
-  @e1.polygon                    = POLY_E1.as_binary
-  @e2.polygon                    = POLY_E2.as_binary
-  @e3.polygon                    = POLY_E3.as_binary
-  @e4.polygon                    = POLY_E4.as_binary
-  @e5.polygon                    = POLY_E5.as_binary
-  @f.multi_line_string           = SHAPE_F.as_binary
-  @f1.line_string                = SHAPE_F1.as_binary
-  @f2.line_string                = SHAPE_F2.as_binary
-  @g.multi_polygon               = SHAPE_G.as_binary
-  @h.multi_point                 = SHAPE_H.as_binary
-  @k.polygon                     = SHAPE_K.as_binary
-  @l.line_string                 = SHAPE_L.as_binary
-  @all_items.geometry_collection = ALL_SHAPES.as_binary
-  @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
-
-  [@r2020,@r2022,@r2024,@rooms,
-   @p0,@p1,@p2,@p3,@p4,@p10,@p11,@p12,@p16,@p17,@p18,@p19,
-   @a,@b,@b1,@b2,@c,@d,@e,@e1,@e2,@e3,@e4,@e5,@f,@f1,@f1,@g,@h,@k,@l,
-   @all_items,@outer_limits].map(&:save!)
-end
-
-
