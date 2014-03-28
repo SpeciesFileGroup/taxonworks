@@ -118,12 +118,18 @@ class GeographicItem < ActiveRecord::Base
   def self.containing_sql(column_name, geographic_item)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
     # was ST_GeomFromText
-    check_geo_params(column_name, geographic_item) ? 
-      "ST_Contains(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" : 
+    check_geo_params(column_name, geographic_item) ?
+      "ST_Contains(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" :
       'false'
   end
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+  check_geo_params(column_name, geographic_item) ?
+      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
+      'false'
+
   end
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
