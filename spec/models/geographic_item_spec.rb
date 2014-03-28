@@ -631,7 +631,14 @@ describe GeographicItem do
       end
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@p4, @p1, @p2])
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@r2024, @r2022, @r2020])
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
+        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
+        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
+        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
       end
 
       #TODO: Is this test right?  What about @k, @d?
@@ -806,17 +813,17 @@ describe GeographicItem do
       p9:           @p9.id,
       p10:          @p10.id,
       p11:          @p11.id,
-      p12:          @p2.id,
-      p13:          @p3.id,
-      p14:          @p4.id,
-      p15:          @p5.id,
-      p16:          @p6.id,
-      p17:          @p7.id,
-      p18:          @p8.id,
-      p19:          @p9.id,
-      p20:          @p10.id,
-      p21:          @p11.id,
-      p22:          @p11.id,
+      p12:          @p12.id,
+      p13:          @p13.id,
+      p14:          @p14.id,
+      p15:          @p15.id,
+      p16:          @p16.id,
+      p17:          @p17.id,
+      p18:          @p18.id,
+      p19:          @p19.id,
+      p20:          @p20.id,
+      p21:          @p21.id,
+      p22:          @p21.id,
 
       a:            @a.id,
       b1:           @b1.id,
