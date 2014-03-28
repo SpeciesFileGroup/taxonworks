@@ -789,14 +789,34 @@ describe GeographicItem do
      @l,
      @all_items, @outer_limits].map(&:save!)
 
-    puts "#{@r2020.id} = @r2020"
-    puts "#{@r2022.id} = @r2022"
-    puts "#{@r2024.id} = @r2024"
-    puts "#{@rooms.id} = @rooms"
+     @debug_names = {
+      r2020: @r2020,
+      r2022: @r2022,
+      r2024: @r2024,
+      rooms: @rooms, 
+      all_items: @all_items,
+      outer_limits: @outer_limits,
+      p0:  @p0,
+      p1:  @p1,
+      p2:  @p2,
+      p3:  @p3,
+      p4:  @p4,
+      p5:  @p5,
+      p6:  @p6,
+      p7:  @p7,
+      p8:  @p8,
+      p9:  @p9,
+      p10: @p10,
+      p11: @p11
+     }
+     # ...
 
-    [@p0, @p1, @p2, @p3, @p4,
-     @p5, @p6, @p7, @p8, @p9,
-     @p10, @p11, @p12, @p13, @p14,
+    @debug_names.collect{|k,v| puts v.id.to_s + ": " + k.to_s}
+
+    puts @debug_names.invert[@p1]
+
+    # DO above
+    [@p12, @p13, @p14,
      @p15, @p16, @p17, @p18, @p19,
      @p20, @p21, @p22,
      @a,
@@ -810,8 +830,8 @@ describe GeographicItem do
      @i,
      @j,
      @k,
-     @l,
-     @all_items, @outer_limits].each { |item|
+     @l
+     ].each { |item|
       puts "#{item.id}: #{item}"
     }
 
