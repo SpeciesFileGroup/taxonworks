@@ -198,7 +198,7 @@ require 'csl/styles'
 #
 #
 # @!endgroup
-# @!group TW add attributes that are not part of the standard attribute list
+# @!group TW added attributes that are not part of the standard attribute list
 # @!endgroup
 #
 class Source::Bibtex < Source
@@ -294,7 +294,6 @@ class Source::Bibtex < Source
 
   before_validation :check_has_field
   before_save :set_nomenclature_date, :set_cached_values
-  #TODO before_save set cached values
 
 #endregion validations
 
