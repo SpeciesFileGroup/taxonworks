@@ -11,8 +11,13 @@ TaxonWorks::Application.routes.draw do
       get "taxon_names/all(.:format)"
     end
   end
-  
-#  resources :taxon_names
+
+  resources :sessions, only: :create
+  match '/signin',  to: 'sessions#new',     via: 'get'
+  match '/signout', to: 'sessions#destroy', via: 'delete'
+
+  resources :users, except: :new
+  match '/signup', to: 'users#new', via: 'get'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

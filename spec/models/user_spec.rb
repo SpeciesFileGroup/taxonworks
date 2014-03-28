@@ -3,51 +3,44 @@ require 'spec_helper'
 describe User do
 
   let(:user) { User.new password: 'password',
-               password_confirmation: 'password',
-               email: 'user@example.com'}
+                        password_confirmation: 'password',
+                        email: 'user_model@example.com' }
 
   subject { user }
 
-  it { should be_valid }
-
-  describe "when password is not present" do
-    before do
-      user.password = user.password_confirmation = ' '
-    end
-    it { should_not be_valid }
+  context 'with password, password confirmation and email' do
+    it { should be_valid }
   end
 
-  describe "when password doesn't match confirmation" do
-    before { user.password_confirmation = "mismatch" }
-    it { should_not be_valid }
-  end
-
-  describe "when password too short" do
-    before { user.password = user.password_confirmation = "a" * 5 }
+  context 'when password is empty' do
+    before { user.password = user.password_confirmation = '' }
     it { should be_invalid }
   end
 
-  describe "when email is not present" do
+  context 'when password confirmation doesn\'t match' do
+    before { user.password_confirmation = 'mismatch' }
+    it { should be_invalid }
+  end
+
+  context 'when password is too short' do
+    before { user.password = user.password_confirmation = 'a' * 5 }
+    it { should be_invalid }
+  end
+
+  context 'when email is empty' do
     before { user.email = '' }
     it { should be_invalid }
   end
 
-  describe "when email doesn't match expected format" do
+  context 'when email doesn\'t match expected format' do
     before { user.email = 'a b@c.d' }
     it { should be_invalid }
   end
 
-  context 'factory valid_user is valid' do
-    let(:factory_user) {
-      FactoryGirl.build(:valid_user)
-    }
-    specify 'is valid' do
-      expect(factory_user.valid?).to be_true
-    end 
+  describe 'remember token' do
+    before { user.save }
+    its(:remember_token) { should_not be_blank }
   end
 
-  # TODO: Us AntCat flow here
-  pending 'should know where (IP) their last logon was from' 
-  pending 'should know when their last logon was from'
 
 end

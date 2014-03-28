@@ -449,8 +449,8 @@ class Source::Bibtex < Source
 
   def isbn=(value)
     write_attribute(:isbn, value)
-    #TODO if there is already an 'Identifier::Guid::Isbn' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
   def isbn
     # This relies on the identifier class to enforce a single version of any identifier
@@ -459,8 +459,8 @@ class Source::Bibtex < Source
 
   def doi=(value)
     write_attribute(:doi, value)
-    #TODO if there is already an 'Identifier::Guid::Doi' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Doi', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Doi' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
   end
   def doi
     # This relies on the identifier class to enforce a single version of any identifier
@@ -469,8 +469,8 @@ class Source::Bibtex < Source
 
   def issn=(value)
     write_attribute(:issn, value)
-    #TODO if there is already an 'Identifier::Guid::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Issn', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Issn' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
   end
   def issn
     # This relies on the identifier class to enforce a single version of any identifier

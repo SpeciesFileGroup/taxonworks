@@ -1,7 +1,9 @@
 # Methods for handling the "bulk" accession of collection objects
 module Material
 
+    
   def self.create_quick_verbatim(options  = {}) 
+    # We could refactor this to use nested attributes, but it's not that much cleaner 
     opts = {
       collection_objects: {},
       note: nil,
@@ -16,7 +18,7 @@ module Material
 
     i = 1
     opts[:collection_objects].keys.each do |o|
-     
+
       object = stub_object.dup
       object.total = opts[:collection_objects][o][:total]
 
@@ -29,38 +31,41 @@ module Material
       response.collection_objects.push object
       object = nil
     end
+
     response 
   end
 
-    # A Container to store results of create_quick_verbatim
-    class QuickVerbatimResponse
-      attr_accessor :collection_objects
-      attr_accessor :identifier
-      attr_accessor :repository
-      attr_accessor :note
+  # A Container to store results of create_quick_verbatim
+  class QuickVerbatimResponse
+    attr_accessor :collection_objects
+    attr_accessor :identifier
+    attr_accessor :repository
+    attr_accessor :note
 
-      def initialize(options = {})
-        @collection_objects = []
-      end
-
-      def identifier
-        @identifier ? @identifier : Identifier.new
-      end
-
-      def repository
-        @repository ? @repository : Repository.new
-      end
-
-      def note 
-        @note ? @note : Note.new
-      end
-
-      def save
-        # TODO
-      end
-
+    def initialize(options = {})
+      @collection_objects = []
     end
+
+    def identifier
+      @identifier ? @identifier : Identifier.new
+    end
+
+    def repository
+      @repository ? @repository : Repository.new
+    end
+
+    def note 
+      @note ? @note : Note.new
+    end
+
+    def save
+      ActiveRecord::Base.transaction do
+        @collection_objects.map(&:save!)
+      end
+    end
+
 
   end
 
+end
 

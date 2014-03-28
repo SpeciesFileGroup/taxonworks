@@ -1,1 +1,6 @@
-<h1>TaxonWorks temporary homepage</h1>
+<% if sessions_signed_in? %>
+  <div>
+    <h1><%= @page_title %></h1>
+    <p>Your dashboard is not ready yet. Sorry about that.</p>
+  </div>
+<% end %>

@@ -3,27 +3,24 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::Geos.preferred_native_interface = :ffi
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
-  # include RGeo::ActiveRecord
-
   include Housekeeping::Users
   #  include ActiveRecordSpatial::SpatialColumns
   #  include ActiveRecordSpatial::SpatialScopes
   #  self.create_spatial_column_accessors! # except: ['point']
 
+  DATA_TYPES = [:point,
+                :line_string,
+                :polygon,
+                :multi_point,
+                :multi_line_string,
+                :multi_polygon,
+                :geometry_collection]
 
-  DATA_TYPES     = [:point,
-                    :line_string,
-                    :polygon,
-                    :multi_point,
-                    :multi_line_string,
-                    :multi_polygon,
-                    :geometry_collection]
-
-# column_factory = RGeo::Geos.factory(
-#   native_interface: :ffi,
-#   srid:             4326,
-#   has_z_coordinate: true,
-#   has_m_coordinate: false)
+  # column_factory = RGeo::Geos.factory(
+  #   native_interface: :ffi,
+  #   srid:             4326,
+  #   has_z_coordinate: true,
+  #   has_m_coordinate: false)
 
   column_factory = Georeference::FACTORY
 
@@ -52,7 +49,6 @@ class GeographicItem < ActiveRecord::Base
   scope :intersecting_boxes, -> (column_name, geographic_item) {
     select("ST_Contains(geographic_items.#{column_name}, #{geographic_item.geo_object})",
     ) }
-=end
 
   def self.same(geo_object_a, geo_object_b)
     # http://postgis.refractions.net/documentation/manual-1.4/ST_Geometry_Same.html
@@ -62,7 +58,7 @@ class GeographicItem < ActiveRecord::Base
     # returns true if the two objects are, vertex-by-vertex, the same
   end
 
-  def self.area(geo_polygon)  # or multi_polygon
+  def self.area(geo_polygon) # or multi_polygon
     # http://postgis.refractions.net/documentation/manual-1.4/ST_Area.html
     # float ST_Area(geometry g1);
     where(st_area(geo_polygon))
@@ -70,7 +66,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.azimuth(geo_point_a, geo_point_b)
-     # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
+    # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
     # float ST_Azimuth(geometry pointA, geometry pointB);
     where(st_azimuth(geo_point_a, geo_point_b))
   end
@@ -82,47 +78,80 @@ class GeographicItem < ActiveRecord::Base
     # returns a point
   end
 
-  def self.contains?(geo_object_a, geo_object_b)
-    # ST_Contains(geometry, geometry) or
-    # ST_Contains(geography, geography)
-    where{st_contains(geo_object_a, geo_object_b)}
-  end
-
   def self.find_containing(column_name, geo_object)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where{st_contains(st_geomfromewkb(column_name), geo_object)}
   end
+=end
 
-  def self.intersecting(object_array)
-    object_array.each {|object|
-    where("st_Contains(geographic_items.polygon, ST_GeomFromText('#{geographic_item.geo_object}'))")
+  def self.contains?(geo_object_a, geo_object_b)
+    # ST_Contains(geometry, geometry) or
+    # ST_Contains(geography, geography)
+    where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
+  end
+
+  def self.intersecting(column_name, geographic_items)
+    geographic_items.each { |geographic_item|
+      # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
+      where { st_contains(st_geomfromewkb("geographic_items.#{column_name}"), geographic_item.geo_object.as_binary) }
+      # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
     }
   end
 
-  def self.meters_away_from(object, distance)
+  def self.meters_away_from(column_name, object, distance)
 
   end
 
-  def self.disjoint_from(object_array)
+  def self.disjoint_from(column_name, geographic_items)
 
   end
 
-  def self.containing(object_array)
+  # If this method is given an Array of GeographicItems as a second parameter, it will return the 'or' of each of the
+  # objects against the table
+  def self.containing(column_name, *geographic_items)
+    # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
+    where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
+  end
+
+  def self.containing_sql(column_name, geographic_item)
+    # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
+    # was ST_GeomFromText
+    check_geo_params(column_name, geographic_item) ?
+      "ST_Contains(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" :
+      'false'
+  end
+
+  def self.ordered_by_shortest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+
+#      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
+
+    if check_geo_params(column_name, geographic_item) 
+      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+      f = select{'*'}.
+        select{ "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.
+        where{ "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.
+          order{'distance'} 
+    else 
+      where {     'false' }
+    end
 
   end
 
-  def self.ordered_by_shortest_distance_from(object)
-
+  def self.ordered_by_longest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+    check_geo_params(column_name, geographic_item) ?
+      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance desc'} :
+      'false'
   end
 
-  def self.ordered_by_longest_distance_from(object)
-
-  end
-
+=begin
   def self.intersections(column_name, geographic_item)
     where("st_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
   end
+=end
 
   def self.clean?
     # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
@@ -139,7 +168,6 @@ class GeographicItem < ActiveRecord::Base
     GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
 
     list = GeographicItem.connection.execute('select id from t20140306').to_a
-
   end
 
   def self.clean!
@@ -151,7 +179,7 @@ class GeographicItem < ActiveRecord::Base
     list
   end
 
-  def geo_object  # return false if the record has not been saved, or if there are no geographic objects in the record.
+  def geo_object # return false if the record has not been saved, or if there are no geographic objects in the record.
     return false if self.new_record?
     DATA_TYPES.each do |t|
       # otherwise, return the first-found object, according to the list of DATA_TYPES
@@ -190,7 +218,6 @@ class GeographicItem < ActiveRecord::Base
   #  lines:   [],
   #  polygons: []
   #  }
-
   def rendering_hash
     data = {}
     if self.geo_object
@@ -420,9 +447,13 @@ class GeographicItem < ActiveRecord::Base
 
   def gi_helper
     user = User.find(1)
-    pt = GEO_FACTORY.point(-88.241413, 40.091655)
-    gi = GeographicItem.new(point: pt, creator: user, updater: user)
+    pt   = GEO_FACTORY.point(-88.241413, 40.091655)
+    gi   = GeographicItem.new(point: pt, creator: user, updater: user)
     gi.save
+  end
+
+  def self.check_geo_params(column_name, geographic_item)
+    (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
   end
 
 end

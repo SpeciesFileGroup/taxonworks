@@ -1,5 +1,10 @@
-# (Re)Building the Geographic data
+
 =begin
+
+# (Re)Building the Geographic data
+
+  In Rails.root directory (/taxonworks):
+
   1:  rake db:setup
       (Make sure that there are no processes connected to the development data base, including (but not limited to:
         pgAdmin
@@ -10,37 +15,89 @@
 
   3:  rake tw:init:rebuild_geographic_areas_nesting
 
-  4:  rake tw:export:table table_name=geographic_area_types > ../shapes/csv/geographic_area_types.csv
+  4.  rake tw:initialization:save_geo_data ../shapes/data/internal/dump/
 
-  5:  rake tw:export:table table_name=geographic_areas > ../shapes/csv/geographic_areas.csv
+      alt:
+      a:  rake tw:export:table table_name=geographic_area_types > ../shapes/data/internal/csv/geographic_area_types.csv
 
-  6:  rake tw:export:table table_name=geographic_items > ../shapes/csv/geographic_items.csv
+      b:  rake tw:export:table table_name=geographic_areas > ../shapes/data/internal/csv/geographic_areas.csv
+
+      c:  rake tw:export:table table_name=geographic_items > ../shapes/data/internal/csv/geographic_items.csv
 
   (Reloading)
-  7: rake db:setup
+  1: rake db:setup
       (Make sure that there are no processes connected to the development data base, including (but not limited to:
         pgAdmin
         psql
         RubyMine))
 
-  8:  rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
+  2.  rake tw:initialization:restore_geo_data[../shapes/data/internal/dump/]
 
-  9:  rake tw:initialization:load_geographic_items[../shapes/csv/geographic_items.csv]
+      Alternately, load them individually:
+      a:  rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
 
-  8:  rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
+      b:  rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_items.csv]
 
-  9:  rake tw:init:rebuild_geographic_areas_nesting
+      c:  rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
+
+  11: rake tw:init:rebuild_geographic_areas_nesting
 
 =end
 
 namespace :tw do
+
+  # TODO: Lock initialization down to (mostly) empty databases
   namespace :initialization do
 
+    GAZ_DATA = '~/src/gaz/data/internal/dump/'
+
+    # rake tw:initialization:save_geo_data[../shapes/data/internal/dump/]
+    desc 'Save geographic area information in native pg_dump compressed form.'
+    task :save_geo_data, [:data_store] => [:environment] do |t, args|
+      args.with_defaults(:data_store => '/tmp/' )
+      data_store = args[:data_store]
+      begin
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_area_types.dump"
+        a = pg_dump('geographic_area_types', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_items.dump"
+        b = pg_dump('geographic_items', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_areas.dump"
+        c = pg_dump('geographic_areas', data_store)
+        puts "#{Time.now.strftime "%H:%M:%S"}."
+      rescue
+        raise
+      end
+    end
+
+    # rake tw:initialization:restore_geo_data[../shapes/data/internal/dump/]
+    desc 'Restore geographic area information from compressed form.'
+    task :restore_geo_data, [:data_store] => [:environment] do |t, args|
+      args.with_defaults(:data_store => GAZ_DATA)
+      data_store = args[:data_store]
+      # TODO: Add condition for abort, i.e., dupm files do not exist in the data_store directory.
+    
+      geographic_areas_file = "#{data_store}geographic_areas.dump"
+      geographic_area_types_file = "#{data_store}geographic_area_types.dump"
+      geographic_items_file = "#{data_store}geographic_items.dump"
+
+      raise "Missing #{geographic_areas_file}, doing nothing." if !File.exists?(geographic_areas_file )
+      raise "Missing #{geographic_items_file}, doing nothing." if !File.exists?(geographic_items_file) 
+      raise "Missing #{geographic_area_types_file}, doing nothing." if !File.exists?(geographic_area_types_file) 
+
+      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
+      a = pg_restore('geographic_area_types', data_store)
+      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
+      b = pg_restore('geographic_items', data_store)
+      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
+      c = pg_restore('geographic_areas', data_store)
+      puts "#{Time.now.strftime "%H:%M:%S"}."
+    end
+
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
-    # rake tw:initialization:load_geographic_area_types[../shapes/csv/geographic_area_types.csv]
-    desc 'call like "rake tw:initialization:load_geographic_area_types[/Users/matt/Downloads/geographic_area_types.csv]"'
+    # rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
+    desc 'call with "rake tw:initialization:load_geographic_area_types[/path/to/geographic_area_types.csv]"'
     task :load_geographic_area_types, [:data_file] => [:environment] do |t, args|
-      args.with_defaults(:data_file => '../shapes/csv/geographic_area_types.csv')
+      args.with_defaults(:data_file => '../shapes/data/internal/csv/geographic_area_types.csv')
       raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0
       begin
         data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
@@ -60,51 +117,55 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_items
-    # rake tw:initialization:load_geographic_items[../shapes/csv/geographic_area_types.csv]
-    desc 'call like "rake tw:initialization:load_geographic_items[/Users/matt/Downloads/geographic_items.csv]"'
+    # rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_itemss.csv]
+    desc 'call with "rake tw:initialization:load_geographic_items[/path/to/geographic_items.csv]"'
     task :load_geographic_items, [:data_file] => [:environment] do |t, args|
-      args.with_defaults(:data_file => '../shapes/csv/geographic_items.csv')
-      raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
+      args.with_defaults(:data_file => '../shapes/data/internal/csv/geographic_items.csv')
+      #raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
       begin
-        data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
-        ActiveRecord::Base.transaction do
-          data.each { |row|
+        data    = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
+        records = {}
 
-            row_data      = row.to_h
-            #row_data.delete('rgt')
-            #row_data.delete('lft')
-            r             = GeographicItem.new(row_data)
-            records[r.id] = r
-            print "\rBuild:  record #{r.id}"
-          }
+        count = data.count
+        puts "#{args[:data_file]}: #{count} records."
+        puts "#{Time.now.strftime "%H:%M:%S"}."
 
-          count = records.count
-          puts
+        #ActiveRecord::Base.transaction do
+        data.each { |row|
 
-          records.values.each do |r|
-            #snap      = Time.now
-            #elapsed   = snap - time_then
-            #time_then = snap
+          row_data      = row.to_h
+          #row_data.delete('rgt')
+          #row_data.delete('lft')
+          r             = GeographicItem.new(row_data)
+          records[r.id] = r
+          print "\rBuild:  record #{r.id}"
+        }
 
-            r.save!
-            print "\rSave:   record #{r.id} of #{count}"
-            #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
-            print "."
-          end
-          puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n."
+        puts "#{Time.now.strftime "%H:%M:%S"}."
+
+        records.values.each do |r|
+          #snap      = Time.now
+          #elapsed   = snap - time_then
+          #time_then = snap
+
+          r.save!
+          print "\rSave:   record #{r.id} of #{count}"
+          #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
         end
+        puts "\n\n#{Time.now.strftime "%H:%M:%S"}.\n\n"
+          #end
       rescue
         raise
       end
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area
-    # rake tw:initialization:load_geographic_areas[../shapes/csv/geographic_areas.csv] NO_GEO_NESTING=1
-    desc 'call like "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]  NO_GEO_NESTING=1"'
+    # rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
+    desc 'call with "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]  NO_GEO_NESTING=1"'
     task :load_geographic_areas, [:data_file] => [:environment] do |t, args|
       args.with_defaults(:data_file => './tmp/geographic_areas.csv')
-      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
-      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/csv/geographic_area_types.csv\' first.' if GeographicItem.all.count < 1
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/data/internal/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/data/internal/csv/geographic_area_types.csv\' first.' if GeographicItem.all.count < 1
       raise 'There are existing geographic_areas, doing nothing.' if GeographicArea.all.count > 0
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}."
@@ -176,13 +237,13 @@ namespace :tw do
         filenames.push(filename)
       else
         filenames = [
-          '../shapes/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp',
-          '../shapes/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp',
-          '../shapes/TDWG2/level1/level1.shp',
-          '../shapes/TDWG2/level2/level2.shp',
-          '../shapes/TDWG2/level3/level3.shp',
-          '../shapes/TDWG2/level4/level4.shp',
-          '../shapes/gadm_v2_shp/gadm2.shp'
+          '../shapes/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp',
+          '../shapes/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp',
+          '../shapes/data/external/shapefiles/tdwg/level1/level1.shp',
+          '../shapes/data/external/shapefiles/tdwg/level2/level2.shp',
+          '../shapes/data/external/shapefiles/tdwg/level3/level3.shp',
+          '../shapes/data/external/shapefiles/tdwg/level4/level4.shp',
+          '../shapes/data/external/shapefiles/gadm/gadm_v2_shp/gadm2.shp'
         ]
       end
 
@@ -191,8 +252,8 @@ namespace :tw do
                    'tdwg_geo_item' => [],
                    'gadm_geo_item' => []}
       check     ={}
-      placer = nil
-      finder = {}
+      placer    = nil
+      finder    = {}
 
       filenames.each { |filename|
         # puts "\n\n#{Time.now.strftime "%H:%M:%S"} => #{filename}.\n\n"
@@ -289,3 +350,14 @@ namespace :tw do
     end
   end
 end
+
+def pg_dump(table_name, data_store)
+  a = `pg_dump -Fc -t #{table_name} -a taxonworks_development > #{data_store}/#{table_name}.dump`
+  a
+end
+
+def pg_restore(table_name, data_store)
+  a = `pg_restore -Fc -d taxonworks_development -t #{table_name} #{data_store}/#{table_name}.dump`
+  a
+end
+

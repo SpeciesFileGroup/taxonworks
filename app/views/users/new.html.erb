@@ -1,0 +1,16 @@
+<div>
+
+  <h1><%= @page_title %></h1>
+
+  <%= form_for @user do |f| %>
+    <%= render 'shared/errors', thing: @user %>
+    <%= f.label :email %>
+    <%= f.text_field :email %>
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+    <%= f.label :password_confirmation %>
+    <%= f.password_field :password_confirmation %>
+    <%= f.submit 'Create account' %>
+  <% end %>
+
+</div>

@@ -1,18 +1,34 @@
 class Identifier < ActiveRecord::Base
-  include Housekeeping::Users
+  include Housekeeping
 
+  # must come before SHORT_NAMES for weird inheritance issue
+  belongs_to :identified_object, polymorphic: :true
+
+  # TODO: this likely has to be refactored/considered
+  # !! If there are inheritance issues with validation the position
+  # !! of this constant is likely the problem
   SHORT_NAMES = {
-    doi:   Identifier::Guid::Doi,
-    isbn:  Identifier::Guid::Isbn,
-    issn:  Identifier::Guid::Issn,
-    lccn:  Identifier::Guid::Lccn,
-    orcid: Identifier::Guid::OrcidId,
-    uri:   Identifier::Guid::Uri,
-    uuid:  Identifier::Guid::Uuid
+    doi:   Identifier::Global::Doi,
+    isbn:  Identifier::Global::Isbn,
+    issn:  Identifier::Global::Issn,
+    lccn:  Identifier::Global::Lccn,
+    orcid: Identifier::Global::Orcid,
+    uri:   Identifier::Global::Uri,
+    uuid:  Identifier::Global::Uuid,
+    catalog_number: Identifier::Local::CatalogNumber,
+    trip_code: Identifier::Local::TripCode,
+    import: Identifier::Local::Import,
+
   }
 
-  belongs_to :identified_object, polymorphic: :true
-  validates_presence_of :identifier, :type, :identified_object_id, :identified_object_type
+  validates :identified_object, presence: true
+  validates_presence_of :type, :identifier
+
+  # identifiers are unique across types for a class of objects
+  validates_uniqueness_of :identifier, scope: [:type, :identified_object_type, :namespace_id]
+
+  # no more of one identifier of a type per object 
+  validates_uniqueness_of :type, scope: [:identified_object_id, :identified_object_type, :namespace_id, :project_id] 
 
   #before_validation :validate_format_of_identifier
 
