@@ -616,8 +616,8 @@ describe GeographicItem do
         expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
       end
 
-      specify '#exclude_self to drop self from any list of objects' do
-        expect(GeographicItem.exclude_self(@p1, [@p0, @p1, @p2, @p3])).to eq([@p0, @p2, @p3])
+      specify '#excluding([]) drop selves from any list of objects' do
+        expect(GeographicItem.excluding(@p2).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, nil]) # update nill
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do

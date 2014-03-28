@@ -129,7 +129,6 @@ class GeographicItem < ActiveRecord::Base
 
     if check_geo_params(column_name, geographic_item) 
       #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
-
       f = select{'*'}.
         select{ "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.
         where{ "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.
