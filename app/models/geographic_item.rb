@@ -3,8 +3,6 @@ class GeographicItem < ActiveRecord::Base
   # RGeo::Geos.preferred_native_interface = :ffi
   # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
 
-  # include RGeo::ActiveRecord
-
   include Housekeeping::Users
   #  include ActiveRecordSpatial::SpatialColumns
   #  include ActiveRecordSpatial::SpatialScopes
@@ -19,11 +17,11 @@ class GeographicItem < ActiveRecord::Base
                     :multi_polygon,
                     :geometry_collection]
 
-# column_factory = RGeo::Geos.factory(
-#   native_interface: :ffi,
-#   srid:             4326,
-#   has_z_coordinate: true,
-#   has_m_coordinate: false)
+  # column_factory = RGeo::Geos.factory(
+  #   native_interface: :ffi,
+  #   srid:             4326,
+  #   has_z_coordinate: true,
+  #   has_m_coordinate: false)
 
   column_factory = Georeference::FACTORY
 
@@ -110,42 +108,25 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
-  def self.disjoint_from_sql(column_name, geographic_items)
-    # where{"ST_Disjoint(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_item.geo_object}'))"}
-
-    if check_geo_params(column_name, geographic_item)
-      "ST_Contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_item.geo_object}'))"
-    else
-      'false'
-    end
-
-  end
-
-  # if this method is given an array of GeographicItems as a second parameter, it will return the 'or' of each of the
+  # If this method is given an Array of GeographicItems as a second parameter, it will return the 'or' of each of the
   # objects against the table
   def self.containing(column_name, *geographic_items)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
-
     where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
   end
 
   def self.containing_sql(column_name, geographic_item)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
-
-    if check_geo_params(column_name, geographic_item)
-      "ST_Contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_item.geo_object}'))"
-    else
+    # was ST_GeomFromText
+    check_geo_params(column_name, geographic_item) ? 
+      "ST_Contains(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" : 
       'false'
-    end
-
   end
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
-
   end
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
-
   end
 
 =begin
@@ -169,7 +150,6 @@ class GeographicItem < ActiveRecord::Base
     GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
 
     list = GeographicItem.connection.execute('select id from t20140306').to_a
-
   end
 
   def self.clean!
@@ -220,7 +200,6 @@ class GeographicItem < ActiveRecord::Base
   #  lines:   [],
   #  polygons: []
   #  }
-
   def rendering_hash
     data = {}
     if self.geo_object
