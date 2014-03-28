@@ -121,7 +121,7 @@ class GeographicItem < ActiveRecord::Base
 
   end
 
-  # if this method is given an array of GeographicItems as a second parameter, it will return the 'or' of each of the
+  # If this method is given an array of GeographicItems as a second parameter, it will return the 'or' of each of the
   # objects against the table
   def self.containing(column_name, *geographic_items)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
@@ -131,21 +131,16 @@ class GeographicItem < ActiveRecord::Base
 
   def self.containing_sql(column_name, geographic_item)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
-
-    if check_geo_params(column_name, geographic_item)
-      "ST_Contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;#{geographic_item.geo_object}'))"
-    else
+    # was ST_GeomFromText
+    (check_geo_params(column_name, geographic_item)) ?
+      "ST_Contains(#{column_name}::geometry, GeomFromText('srid=4326;#{geographic_item.geo_object}'))" :
       'false'
-    end
-
   end
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
-
   end
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
-
   end
 
 =begin
@@ -169,7 +164,6 @@ class GeographicItem < ActiveRecord::Base
     GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
 
     list = GeographicItem.connection.execute('select id from t20140306').to_a
-
   end
 
   def self.clean!
@@ -220,7 +214,6 @@ class GeographicItem < ActiveRecord::Base
   #  lines:   [],
   #  polygons: []
   #  }
-
   def rendering_hash
     data = {}
     if self.geo_object
