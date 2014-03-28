@@ -1,6 +1,5 @@
 class User < ActiveRecord::Base
 
-
   before_create :set_remember_token
 
   # TODO: downcase does not work for non-ascii characters which means our
@@ -15,6 +14,8 @@ class User < ActiveRecord::Base
                     uniqueness: { case_sensitive: true }
   has_secure_password
   validates :password, length: { minimum: 8 }
+
+  has_many :project_members
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64

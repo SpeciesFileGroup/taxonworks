@@ -7,7 +7,7 @@ describe 'Users' do
   describe '/users' do
 
     before do
-      @existing_user = FactoryGirl.create(:user)
+      @existing_user = FactoryGirl.create(:valid_user)
       visit users_path
     end
 
@@ -20,7 +20,7 @@ describe 'Users' do
 
   describe '/users/:id' do
     before do
-      @existing_user = FactoryGirl.create(:user)
+      @existing_user = FactoryGirl.create(:valid_user)
       visit user_path(@existing_user)
     end
 
@@ -34,7 +34,7 @@ describe 'Users' do
   describe '/users/:id/edit' do
 
     before do
-      @existing_user = FactoryGirl.create(:user)
+      @existing_user = FactoryGirl.create(:valid_user)
       visit edit_user_path(@existing_user)
     end
 

@@ -43,7 +43,7 @@ describe 'Authentication' do
 
     context 'when credentials match existing user' do
 
-      before { @existing_user = FactoryGirl.create(:user) }
+      before { @existing_user = FactoryGirl.create(:valid_user) }
 
       it 'should sign user in' do
         sign_in_with(@existing_user.email, @existing_user.password)
@@ -70,7 +70,7 @@ describe 'Authentication' do
   describe '/signout' do
 
     before do
-      @existing_user = FactoryGirl.create(:user)
+      @existing_user = FactoryGirl.create(:valid_user)
       sign_in_with(@existing_user.email, @existing_user.password)
     end
 
