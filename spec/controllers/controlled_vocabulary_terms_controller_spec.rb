@@ -23,7 +23,7 @@ describe ControlledVocabularyTermsController do
   # This should return the minimal set of attributes required to create a valid
   # ControlledVocabularyTerm. As you add validations to ControlledVocabularyTerm, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "type" => "" } }
+  let(:valid_attributes) { FactoryGirl.build(:valid_controlled_vocabulary_term).attributes }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
