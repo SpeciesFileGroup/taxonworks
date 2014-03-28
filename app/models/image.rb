@@ -25,15 +25,15 @@ class Image < ActiveRecord::Base
   include SoftValidation
 
   #constants
-  MISSING_IMAGE_PATH = '/public/images/missing.png'
+  MISSING_IMAGE_PATH = '/public/images/missing.jpg'
 
   before_save :extract_tw_attributes
 
   has_attached_file :image_file,
        :styles => {:medium => '300x300>', :thumb => '100x100>'},
        :default_url => MISSING_IMAGE_PATH,
-       :restricted_characters => /[^A-Za-z0-9\.]/
-  #:filename_cleaner => FileNameCleaner}
+       :filename_cleaner => CleanseFilename
+       #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, :content_type => /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validates_attachment_size :image_file, greater_than: 1.kilobytes

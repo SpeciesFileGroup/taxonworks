@@ -75,7 +75,6 @@ describe Image do
     #'the image_file_file_name should not contain any special characters'
     expect(@i.image_file_file_name).to eq('tiny.png')
     expect(weird.image_file_file_name).to eq('w3_rd_fi_le__name_.png')
-    # TODO Is it ok that I'm not getting it to lower case the letters?
   end
   context 'should manipulate the file system' do
     specify 'creating an image should add it to the filesystem' do
@@ -95,7 +94,9 @@ describe Image do
   end
 
   specify 'is the missing image gif path set & present' do
-    expect(File.exist?(Image::MISSING_IMAGE_PATH)).to be_true
+    #TODO we'll need to test that this actually works like we think it does.
+    # I believe that paperclip just looks for that path as stated in the const.
+    expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_true
   end
 
   pending 'exif or jfif data should be available if it was provided in the original image'
