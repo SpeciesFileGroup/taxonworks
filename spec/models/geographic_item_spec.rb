@@ -621,10 +621,13 @@ describe GeographicItem do
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_shortest_distance_from('line_string', @p3).limit(2).to_a).to eq([@outer_limits, @l])
-        expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p3).limit(3).to_a).to eq([@k, @e5, @e3])
-        expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
         expect(GeographicItem.ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
+        expect(GeographicItem.ordered_by_shortest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
+        expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
+        expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
       end
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
@@ -648,66 +651,67 @@ describe GeographicItem do
   end
 
   def generate_test_objects
-    @r2020 = GeographicItem.new
-    @r2022 = GeographicItem.new
-    @r2024 = GeographicItem.new
-    @rooms = GeographicItem.new
 
-    @p0  = GeographicItem.new
-    @p1  = GeographicItem.new
-    @p2  = GeographicItem.new
-    @p3  = GeographicItem.new
-    @p4  = GeographicItem.new
-    @p5  = GeographicItem.new
-    @p6  = GeographicItem.new
-    @p7  = GeographicItem.new
-    @p8  = GeographicItem.new
-    @p9  = GeographicItem.new
-    @p10 = GeographicItem.new
-    @p11 = GeographicItem.new
-    @p12 = GeographicItem.new
-    @p13 = GeographicItem.new
-    @p14 = GeographicItem.new
-    @p15 = GeographicItem.new
-    @p16 = GeographicItem.new
-    @p17 = GeographicItem.new
-    @p18 = GeographicItem.new
-    @p19 = GeographicItem.new
-    @p20 = GeographicItem.new
-    @p21 = GeographicItem.new
-    @p22 = GeographicItem.new
 
-    @a  = GeographicItem.new
-    @b1 = GeographicItem.new
-    @b2 = GeographicItem.new
-    @b  = GeographicItem.new
-    @c1 = GeographicItem.new
-    @c2 = GeographicItem.new
-    @c3 = GeographicItem.new
-    @c  = GeographicItem.new
-    @d  = GeographicItem.new
-    @e1 = GeographicItem.new
-    @e2 = GeographicItem.new
-    @e3 = GeographicItem.new
-    @e4 = GeographicItem.new
-    @e5 = GeographicItem.new
-    @e  = GeographicItem.new
-    @f1 = GeographicItem.new
-    @f2 = GeographicItem.new
-    @f  = GeographicItem.new
-    @g1 = GeographicItem.new
-    @g2 = GeographicItem.new
-    @g3 = GeographicItem.new
-    @g  = GeographicItem.new
-    @h  = GeographicItem.new
-    @i  = GeographicItem.new
-    @j  = GeographicItem.new
-    @k  = GeographicItem.new
-    @l  = GeographicItem.new
+    @p0  = GeographicItem.new # 0
+    @p1  = GeographicItem.new # 1
+    @p2  = GeographicItem.new # 2
+    @p3  = GeographicItem.new # 3
+    @p4  = GeographicItem.new # 4
+    @p5  = GeographicItem.new # 5
+    @p6  = GeographicItem.new # 6
+    @p7  = GeographicItem.new # 7
+    @p8  = GeographicItem.new # 8
+    @p9  = GeographicItem.new # 9
+    @p10 = GeographicItem.new # 10
+    @p11 = GeographicItem.new # 11
+    @p12 = GeographicItem.new # 12
+    @p13 = GeographicItem.new # 13
+    @p14 = GeographicItem.new # 14
+    @p15 = GeographicItem.new # 15
+    @p16 = GeographicItem.new # 16
+    @p17 = GeographicItem.new # 17
+    @p18 = GeographicItem.new # 18
+    @p19 = GeographicItem.new # 19
+    @p20 = GeographicItem.new # 20
+    @p21 = GeographicItem.new # 21
+    @p22 = GeographicItem.new # 22
 
-    @all_items = GeographicItem.new
+    @a  = GeographicItem.new # 23
+    @b1 = GeographicItem.new # 24
+    @b2 = GeographicItem.new # 25
+    @b  = GeographicItem.new # 26
+    @c1 = GeographicItem.new # 27
+    @c2 = GeographicItem.new # 28
+    @c3 = GeographicItem.new # 29
+    @c  = GeographicItem.new # 30
+    @d  = GeographicItem.new # 31
+    @e1 = GeographicItem.new # 32
+    @e2 = GeographicItem.new # 33
+    @e3 = GeographicItem.new # 34
+    @e4 = GeographicItem.new # 35
+    @e5 = GeographicItem.new # 36
+    @e  = GeographicItem.new # 37
+    @f1 = GeographicItem.new # 38
+    @f2 = GeographicItem.new # 39
+    @f  = GeographicItem.new # 40
+    @g1 = GeographicItem.new # 41
+    @g2 = GeographicItem.new # 42
+    @g3 = GeographicItem.new # 43
+    @g  = GeographicItem.new # 44
+    @h  = GeographicItem.new # 45
+    @i  = GeographicItem.new # 46
+    @j  = GeographicItem.new # 47
+    @k  = GeographicItem.new # 48
+    @l  = GeographicItem.new # 49
 
-    @outer_limits = GeographicItem.new
+    @r2020 = GeographicItem.new # 50
+    @r2022 = GeographicItem.new # 51
+    @r2024 = GeographicItem.new # 52
+    @rooms = GeographicItem.new # 53
+
+    @all_items    = GeographicItem.new # 54
+    @outer_limits = GeographicItem.new # 55
 
     @r2020.point       = ROOM2020.as_binary
     @r2022.point       = ROOM2022.as_binary
@@ -769,8 +773,7 @@ describe GeographicItem do
     @all_items.geometry_collection = ALL_SHAPES.as_binary
     @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
 
-    [@r2020, @r2022, @r2024, @rooms,
-     @p0, @p1, @p2, @p3, @p4,
+    [@p0, @p1, @p2, @p3, @p4,
      @p5, @p6, @p7, @p8, @p9,
      @p10, @p11, @p12, @p13, @p14,
      @p15, @p16, @p17, @p18, @p19,
@@ -787,53 +790,74 @@ describe GeographicItem do
      @j,
      @k,
      @l,
+     @r2020, @r2022, @r2024, @rooms,
      @all_items, @outer_limits].map(&:save!)
 
-     @debug_names = {
-      r2020: @r2020,
-      r2022: @r2022,
-      r2024: @r2024,
-      rooms: @rooms, 
-      all_items: @all_items,
-      outer_limits: @outer_limits,
-      p0:  @p0,
-      p1:  @p1,
-      p2:  @p2,
-      p3:  @p3,
-      p4:  @p4,
-      p5:  @p5,
-      p6:  @p6,
-      p7:  @p7,
-      p8:  @p8,
-      p9:  @p9,
-      p10: @p10,
-      p11: @p11
-     }
-     # ...
+    @debug_names = {
+      p0:           @p0.id,
+      p1:           @p1.id,
+      p2:           @p2.id,
+      p3:           @p3.id,
+      p4:           @p4.id,
+      p5:           @p5.id,
+      p6:           @p6.id,
+      p7:           @p7.id,
+      p8:           @p8.id,
+      p9:           @p9.id,
+      p10:          @p10.id,
+      p11:          @p11.id,
+      p12:          @p2.id,
+      p13:          @p3.id,
+      p14:          @p4.id,
+      p15:          @p5.id,
+      p16:          @p6.id,
+      p17:          @p7.id,
+      p18:          @p8.id,
+      p19:          @p9.id,
+      p20:          @p10.id,
+      p21:          @p11.id,
+      p22:          @p11.id,
 
-    @debug_names.collect{|k,v| puts v.id.to_s + ": " + k.to_s}
+      a:            @a.id,
+      b1:           @b1.id,
+      b2:           @b2.id,
+      b:            @b.id,
+      c1:           @c1.id,
+      c2:           @c2.id,
+      c3:           @c3.id,
+      c:            @c.id,
+      d:            @d.id,
+      e1:           @e1.id,
+      e2:           @e2.id,
+      e3:           @e3.id,
+      e4:           @e4.id,
+      e5:           @e5.id,
+      e:            @e.id,
+      f1:           @f1.id,
+      f2:           @f2.id,
+      f:            @f.id,
+      g1:           @g1.id,
+      g2:           @g2.id,
+      g3:           @g3.id,
+      g:            @g.id,
+      h:            @h.id,
+      i:            @i.id,
+      j:            @j.id,
+      k:            @k.id,
+      l:            @l.id,
+
+      r2020:        @r2020.id,
+      r2022:        @r2022.id,
+      r2024:        @r2024.id,
+      rooms:        @rooms.id,
+      all_items:    @all_items.id,
+      outer_limits: @outer_limits.id
+    }
+    # ...
+
+    @debug_names.collect { |k, v| print v.to_s + ": " + k.to_s + "       "}
 
     puts @debug_names.invert[@p1]
-
-    # DO above
-    [@p12, @p13, @p14,
-     @p15, @p16, @p17, @p18, @p19,
-     @p20, @p21, @p22,
-     @a,
-     @b1, @b2, @b,
-     @c1, @c2, @c3, @c,
-     @d,
-     @e1, @e2, @e3, @e4, @e5, @e,
-     @f1, @f1, @f,
-     @g1, @g2, @g3, @g,
-     @h,
-     @i,
-     @j,
-     @k,
-     @l
-     ].each { |item|
-      puts "#{item.id}: #{item}"
-    }
 
   end
 
