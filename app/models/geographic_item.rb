@@ -140,6 +140,11 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+    check_geo_params(column_name, geographic_item) ?
+      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance desc'} :
+      'false'
   end
 
 =begin
