@@ -1,4 +1,9 @@
 TaxonWorks::Application.routes.draw do
+  # The priority is based upon order of creation: first created -> highest priority.
+  # See how all your routes lay out with "rake routes".
+  
+  root 'dashboard#index'
+
   resources :biocuration_classes
   resources :biocuration_classifications
   resources :collecting_events
@@ -15,16 +20,9 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_names
   resources :taxon_name_classifications
   resources :taxon_name_relationships
-  resources :users
-
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  root 'dashboard#index'
 
   get 'taxon_names/demo'
   get 'taxon_names/marilyn'
-#  resources :taxon_names
   
   get 'tasks/accessions/quick/verbatim_material/new'
   post 'tasks/accessions/quick/verbatim_material/create'
