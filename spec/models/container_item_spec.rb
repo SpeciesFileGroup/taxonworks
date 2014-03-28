@@ -9,16 +9,12 @@ describe ContainerItem do
       before(:each) {
         container_item.valid?
       }
-      specify "contained_object_id" do
-        expect(container_item.errors.include?(:contained_object_id)).to be_true
+      specify "contained_object" do
+        expect(container_item.errors.include?(:contained_object)).to be_true
       end
 
-      specify "contained_object_type" do
-        expect(container_item.errors.include?(:contained_object_type)).to be_true
-      end
-
-      specify "container_id" do
-        expect(container_item.errors.include?(:container_id)).to be_true
+      specify "container" do
+        expect(container_item.errors.include?(:container)).to be_true
       end
     end
   end

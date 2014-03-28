@@ -6,18 +6,17 @@ class Container < ActiveRecord::Base
   include Shared::Containable
   include SoftValidation
 
+  # TODO: rethinking this 
+  # belongs_to :otu
 
-  belongs_to :otu
-
-  has_many :physical_collection_objects
+  has_many :container_items, validate: false 
+  # has_many :contained_objects, through: :container_items, source: :contained_object, validate: false, source_type: true
+  has_many :collection_objects, through: :container_items, source: :contained_object,  source_type: 'CollectionObject', validate: false 
   has_many :collection_profiles
-  has_many :collection_items
 
   soft_validate(:sv_parent_type, set: :parent_type)
 
   before_validation :check_type
-
-  #CONTAINER_TYPES = %w(dry wet slide)
 
   # Return a String with the "common" name for this class.
   def self.class_name

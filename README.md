@@ -14,15 +14,16 @@ TaxonWorks is Ruby on Rails application that facilitates biodiversity informatic
 Installation
 ------------
 
-TaxonWorks is a Rails 4 application using Ruby 2.0 and rubygems.  It requires PostgreSQL with the postgis extension.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
+TaxonWorks is a Rails 4 application using Ruby 2.0 and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
 
 Minimally, the following steps are required.  If you have postgres installed skip to 3. 
 
-1. Install Postgres and postgis.
+1. Install Postgres and postgis and image magick.
   
    ``` 
    brew install postgres
-   brew install postgis
+   brew install postgis 
+   brew install imagemagick
    ```
 
 2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session.

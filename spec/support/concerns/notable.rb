@@ -20,49 +20,57 @@ shared_examples 'notable' do
     end 
   end 
 
-  context 'reflections / foreign keys' do
+  context 'associations' do
     specify 'has many notes' do
       expect(class_with_note).to respond_to(:notes) # tests that the method notations exists
       expect(class_with_note.notes.count == 0).to be_true # currently has no notes
     end
+  end
 
-    specify 'adding a object note works' do
-      expect(class_with_note.save).to be_true
-      expect(class_with_note.notes << FactoryGirl.build(:note, text: 'foo')).to be_true
-      expect(class_with_note.save).to be_true
-      expect(class_with_note.notes.count == 1).to be_true
-      expect(class_with_note.notes[0].text).to eq('foo')
-    end
-    specify 'adding a attribute (column) note works' do
-      expect(class_with_note.save).to be_true
-      expect(class_with_note.notes << FactoryGirl.build(
-          :note, text: 'foo', note_object_attribute: described_class.columns[1].name)).to be_true
-      expect(class_with_note.save).to be_true
-      expect(class_with_note.notes.count == 1).to be_true
-      expect(class_with_note.notes[0].text).to eq('foo')
-      expect(class_with_note.notes[0].note_object_attribute).to eq(described_class.columns[1].name)
-    end
+  specify 'accepts_nested_attributes_for' do
+    notes = {notes_attributes: [{text: "a"}, {text: "b"}]}
+    class_with_note.attributes = notes
+    expect(class_with_note.save).to be_true
+    expect(class_with_note.notes).to have(2).things
+  end
 
-    context 'can not add note to housekeeping columns' do
-      before (:each) {
-        @bad_note = FactoryGirl.build(:note, text: 'foo')
-        expect(class_with_note.save).to be_true
+  specify 'adding a object note works' do
+    expect(class_with_note.save).to be_true
+    expect(class_with_note.notes << FactoryGirl.build(:note, text: 'foo')).to be_true
+    expect(class_with_note.save).to be_true
+    expect(class_with_note.notes.count == 1).to be_true
+    expect(class_with_note.notes[0].text).to eq('foo')
+  end
+
+  specify 'adding a attribute (column) note works' do
+    expect(class_with_note.save).to be_true
+    expect(class_with_note.notes << FactoryGirl.build(
+      :note, text: 'foo', note_object_attribute: described_class.columns[1].name)).to be_true
+    expect(class_with_note.save).to be_true
+    expect(class_with_note.notes.count == 1).to be_true
+    expect(class_with_note.notes[0].text).to eq('foo')
+    expect(class_with_note.notes[0].note_object_attribute).to eq(described_class.columns[1].name)
+  end
+
+  context 'can not add note to housekeeping columns' do
+    before (:each) {
+      @bad_note = FactoryGirl.build(:note, text: 'foo')
+      expect(class_with_note.save).to be_true
+      expect(class_with_note.notes.count == 0).to be_true
+      @error_message = 'can not add a note to this attribute (column)'
+    }
+
+    # for each column in ::NON_ANNOTATABLE_COLUMNS test that you can't add a note to it.
+    ::NON_ANNOTATABLE_COLUMNS.each do |attr|
+      specify "can not add a note to #{attr.to_s}" do
+        @bad_note.note_object_attribute = attr
+        @bad_note.text                  = "note to #{attr.to_s}"
+        expect(class_with_note.notes << @bad_note).to be_false
         expect(class_with_note.notes.count == 0).to be_true
-        @error_message = 'can not add a note to this attribute (column)'
-      }
-
-      # for each column in ::NON_ANNOTATABLE_COLUMNS test that you can't add a note to it.
-      ::NON_ANNOTATABLE_COLUMNS.each do |attr|
-        specify "can not add a note to #{attr.to_s}" do
-          @bad_note.note_object_attribute = attr
-          @bad_note.text                  = "note to #{attr.to_s}"
-          expect(class_with_note.notes << @bad_note).to be_false
-          expect(class_with_note.notes.count == 0).to be_true
-          expect(@bad_note.errors.messages[:note_object_attribute].include?(@error_message)).to be_true
-          # now add note to a different column
-          @bad_note.note_object_attribute = described_class.columns[1].name
-          expect(@bad_note.errors.full_messages.include?(@error_message)).to be_false
-        end
+        expect(@bad_note.errors.messages[:note_object_attribute].include?(@error_message)).to be_true
+        # now add note to a different column
+        @bad_note.note_object_attribute = described_class.columns[1].name
+        expect(@bad_note.errors.full_messages.include?(@error_message)).to be_false
       end
     end
 

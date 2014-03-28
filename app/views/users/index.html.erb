@@ -1,29 +1,13 @@
-<h1>Listing users</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>Email</th>
-      <th>Password digest</th>
-      <th>Created by</th>
-      <th>Updated by</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-
-  <tbody>
+<section>
+  <header>
+    <h1><%= @page_title %></h1>
+  </header>
+  <% if @users.empty? %>
+    <p>No users found.</p>
+  <% else %>
+    <ul>
     <% @users.each do |user| %>
-      <tr>
-        <td><%= user.email %></td>
-        <td><%= user.password_digest %></td>
-        <td><%= user.created_by_id %></td>
-        <td><%= user.updated_by_id %></td>
-        <td><%= link_to 'Show', user %></td>
-        <td><%= link_to 'Edit', edit_user_path(user) %></td>
-        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <li><%= link_to "User #{user.id}", user_path(user) %></li>
     <% end %>
   </tbody>
 </table>

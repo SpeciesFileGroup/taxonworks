@@ -106,12 +106,20 @@ describe Protonym do
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
         end 
         specify 'has at most one has_type relationship' do
-          extra_type_relation = FactoryGirl.build(:taxon_name_relationship,
+          extra_type_relation = FactoryGirl.build_stubbed(:taxon_name_relationship,
                                                   subject_taxon_name: @genus,
                                                   object_taxon_name: @family,
-                                                  type: TaxonNameRelationship::Typification::Family)
+                                                  type: 'TaxonNameRelationship::Typification::Family')
           # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
           expect(extra_type_relation.valid?).to be_false
+        end
+      end
+
+      context 'latinized' do
+        specify 'has at most one latinization' do
+          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
+          expect(c2.valid?).to be_false
         end
       end
 
@@ -197,7 +205,7 @@ describe Protonym do
       expect(genus.save).to be_true
       genus.iczn_set_as_synonym_of = @o
       expect(genus.save).to be_true
-      expect(genus.taxon_name_relationships.count).to be(1)
+      expect(genus.taxon_name_relationships.size).to be(1)
     end
   end
 
@@ -310,7 +318,6 @@ describe Protonym do
 
         sgen.fix_soft_validations
 
-        #@genus.reload
         @genus.soft_validate(:validate_coordinated_names)
         sgen.soft_validate(:validate_coordinated_names)
         expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_true
@@ -346,9 +353,9 @@ describe Protonym do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
         s2.soft_validate(:validate_coordinated_names)
         #author in speciec and incorrect original spelling are different
-        expect(s2.soft_validations.messages_on(:verbatim_author).count).to eq(1)
+        expect(s2.soft_validations.messages_on(:verbatim_author).size).to eq(1)
         #year in speciec and incorrect original spelling are different
-        expect(s2.soft_validations.messages_on(:year_of_publication).count).to eq(1)
+        expect(s2.soft_validations.messages_on(:year_of_publication).size).to eq(1)
         s2.fix_soft_validations
         s2.soft_validate(:validate_coordinated_names)
         expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_true
@@ -359,8 +366,8 @@ describe Protonym do
         type_material = FactoryGirl.create(:valid_type_material, protonym: ssp)
         @species.soft_validate(:validate_coordinated_names)
         ssp.soft_validate(:validate_coordinated_names)
-        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
-        expect(ssp.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
+        expect(ssp.soft_validations.messages_on(:base).size).to eq(1)
         @species.fix_soft_validations
         @species.soft_validate(:validate_coordinated_names)
         ssp.soft_validate(:validate_coordinated_names)
@@ -373,10 +380,10 @@ describe Protonym do
       specify 'type genus and nominotypical subfamily' do
         #missing nominotypical subfamily
         @subfamily.soft_validate(:single_sub_taxon)
-        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
         #missign type genus
         @subfamily.soft_validate(:missing_relationships)
-        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
         g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
         r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         @subfamily.soft_validate
@@ -402,19 +409,80 @@ describe Protonym do
         @genus.soft_validate(:missing_relationships)
         @family.soft_validate(:missing_relationships)
         # type species is not selected
-        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
         # type genus is not selected
-        expect(@family.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@family.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'type specimen is not selected' do
         @species.soft_validate(:primary_types)
-        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'more than one type is selected' do
         t1 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'neotype')
         t2 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'holotype')
         @species.soft_validate(:primary_types)
-        expect(@species.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
+      end
+    end
+    context 'missing classifications' do
+      specify 'gender of genus is not selected' do
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        @genus.soft_validate(:missing_classifications)
+        expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'part of speech of species is not selected' do
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
+        @species.soft_validate(:missing_classifications)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'possible gender' do
+        g = FactoryGirl.create(:relationship_genus, name: 'Cyclops', parent: @family)
+        g.soft_validate(:missing_classifications)
+        expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_true
+      end
+      specify 'missing alternative spellings for species participle' do
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+        @species.soft_validate(:species_gender_agreement)
+        expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(1)
+        expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(1)
+        expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(1)
+        c1.destroy
+      end
+      specify 'unnecessary alternative spellings for species noun' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
+      end
+      specify 'unproper noun names' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
+      end
+      specify 'proper noun names' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'niger', feminine_name: 'nigra', neuter_name: 'nigrum')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:masculine_name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:feminine_name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:neuter_name).empty?).to be_true
+      end
+      specify 'species matches genus' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'niger')
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:name).size).to eq(1)
+        c1.destroy
       end
     end
 
@@ -464,7 +532,7 @@ describe Protonym do
         @subgenus.reload
         @genus.soft_validate(:validate_coordinated_names)
         #The type species does not match with the type species of the coordinated subgenus
-        expect(@genus.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
         @genus.fix_soft_validations
         @genus.soft_validate(:validate_coordinated_names)
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_true
@@ -473,7 +541,7 @@ describe Protonym do
         species = FactoryGirl.create(:relationship_species, parent: @family)
         expect(species.valid?).to be_true
         species.soft_validate(:validate_parent_rank)
-        expect(species.soft_validations.messages_on(:rank_class).count).to eq(1)
+        expect(species.soft_validations.messages_on(:rank_class).size).to eq(1)
         species.iczn_uncertain_placement = @family
         expect(species.save).to be_true
         species.soft_validate(:validate_parent_rank)
@@ -484,7 +552,7 @@ describe Protonym do
       specify 'parent priority' do
         subgenus = FactoryGirl.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
         subgenus.soft_validate(:parent_priority)
-        expect(subgenus.soft_validations.messages_on(:base).count).to eq(1)
+        expect(subgenus.soft_validations.messages_on(:base).size).to eq(1)
         subgenus.year_of_publication = 2000
         subgenus.soft_validate(:parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).empty?).to be_true
@@ -495,7 +563,7 @@ describe Protonym do
       specify 'single nominotypical taxon' do
         @subgenus.soft_validate(:single_sub_taxon)
         #single subgenus in the nominal genus
-        expect(@subgenus.soft_validations.messages_on(:base).count).to eq(1)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
       end
     end
 
@@ -509,7 +577,7 @@ describe Protonym do
         expect(g1.save).to be_true
         expect(g2.save).to be_true
         g1.soft_validate(:homotypic_synonyms)
-        expect(g1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(g1.soft_validations.messages_on(:base).size).to eq(1)
         g1.iczn_set_as_unnecessary_replaced_name = g2
         expect(g1.save).to be_true
         g1.soft_validate(:homotypic_synonyms)
@@ -523,7 +591,7 @@ describe Protonym do
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:homotypic_synonyms)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1)
         s1.iczn_set_as_unjustified_emendation_of = s2
         expect(s1.save).to be_true
         s1.soft_validate(:homotypic_synonyms)
@@ -537,7 +605,7 @@ describe Protonym do
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1)
         FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
@@ -551,7 +619,7 @@ describe Protonym do
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1)
         FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
@@ -563,7 +631,7 @@ describe Protonym do
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1)
         s1.iczn_set_as_homonym_of = s2
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
@@ -575,7 +643,7 @@ describe Protonym do
         expect(s1.save).to be_true
         expect(s2.save).to be_true
         s1.soft_validate(:potential_homonyms)
-        expect(s1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1)
         FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
         expect(s1.save).to be_true
         s1.soft_validate(:potential_homonyms)
@@ -591,7 +659,7 @@ describe Protonym do
         g1.soft_validate(:potential_homonyms)
         g2.soft_validate(:potential_homonyms)
         g3.soft_validate(:potential_homonyms)
-        expect(g1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(g1.soft_validations.messages_on(:base).size).to eq(1)
         expect(g2.soft_validations.messages_on(:base).empty?).to be_true
         expect(g3.soft_validations.messages_on(:base).empty?).to be_true
       end
@@ -605,9 +673,23 @@ describe Protonym do
         f1.soft_validate(:potential_homonyms)
         f2.soft_validate(:potential_homonyms)
         f3.soft_validate(:potential_homonyms)
-        expect(f1.soft_validations.messages_on(:base).count).to eq(1)
+        expect(f1.soft_validations.messages_on(:base).size).to eq(1)
         expect(f2.soft_validations.messages_on(:base).empty?).to be_true
         expect(f3.soft_validations.messages_on(:base).empty?).to be_true
+      end
+      specify 'homonym without replacement name' do
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
+        g2 = FactoryGirl.create(:relationship_genus, name: 'Cccus', parent: @family)
+        g3 = FactoryGirl.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
+        g3.type_species = @species
+        g3.iczn_set_as_homonym_of = g1
+        expect(g3.save).to be_true
+        g3.soft_validate(:missing_relationships)
+        expect(g3.soft_validations.messages_on(:base).size).to eq(1)
+        g3.iczn_set_as_synonym_of = g2
+        expect(g3.save).to be_true
+        g3.soft_validate(:missing_relationships)
+        expect(g3.soft_validations.messages_on(:base).empty?).to be_true
       end
     end
     context 'fossils' do
@@ -730,14 +812,14 @@ describe Protonym do
         expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_object_taxon_name_relationships).to have(1).things
       end
       specify 'without_taxon_name_relationships' do 
-        expect(Protonym.without_taxon_name_relationships).to have(Protonym.all.count - 2).things
+        expect(Protonym.without_taxon_name_relationships).to have(Protonym.all.size - 2).things
         expect(Protonym.without_taxon_name_relationships.named('vitis')).to have(0).things
         expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
         expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
       end
 
       specify 'as_subject_without_taxon_name_relationship_base' do
-        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship')).to have(Protonym.all.count - 1).things
+        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship')).to have(Protonym.all.size - 1).things
       end
 
     end
@@ -756,7 +838,7 @@ describe Protonym do
         expect(Protonym.with_taxon_name_classifications).to have(2).things
       end
       specify 'without_taxon_name_classifications' do
-        expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.count - 2).things
+        expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.size - 2).things
       end
 
       specify 'without_taxon_name_classification' do

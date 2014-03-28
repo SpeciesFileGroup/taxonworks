@@ -15,12 +15,15 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Containable
   include Shared::Citable
+  include Shared::Notable
+  include Shared::DataAttributes
+  include Shared::Taggable
 
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects
+  belongs_to :collecting_event
 
   validates_presence_of :type
-
   before_validation :check_that_both_of_category_and_total_are_not_present
 
   def check_that_both_of_category_and_total_are_not_present

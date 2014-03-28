@@ -89,13 +89,13 @@ describe GeographicArea do
         specify 'parent string' do
           expect(@champaign.name).to eq('Champaign')
           expect(@champaign.parent.name).to eq('Illinois')
-          expect(@champaign.parent.parent.name).to eq('United States')
+          expect(@champaign.parent.parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
         end
 
         specify 'TDWG parent string' do
           expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          expect(@champaign.parent.tdwg_parent.name).to eq('United States')
+          expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
         end
 
@@ -119,8 +119,12 @@ describe GeographicArea do
       @champaign = FactoryGirl.create(:level2_geographic_area)
     }
 
+    specify 'should be able to find a country by ISO_A2' do
+      expect(GeographicArea.where(:iso_3166_a2 => 'US').first.name).to eq('United States of America')
+    end
+
     specify 'should be able to find a country by ISO_A3' do
-      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq('United States')
+      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq('United States of America')
     end
 
     context 'scopes/AREL' do
@@ -163,12 +167,12 @@ describe GeographicArea do
   context 'interaction with geographic_items' do
     before(:each) {
       @geographic_area = FactoryGirl.build(:level2_geographic_area)
-      listK      = GEO_FACTORY.line_string([GEO_FACTORY.point(-33, -11),
-                                            GEO_FACTORY.point(-33, -23),
-                                            GEO_FACTORY.point(-21, -23),
-                                            GEO_FACTORY.point(-21, -11),
-                                            GEO_FACTORY.point(-27, -13)])
-      @gi         = GeographicItem.new(polygon: GEO_FACTORY.polygon(listK))
+      listK      = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
+                                            RSPEC_GEO_FACTORY.point(-33, -23),
+                                            RSPEC_GEO_FACTORY.point(-21, -23),
+                                            RSPEC_GEO_FACTORY.point(-21, -11),
+                                            RSPEC_GEO_FACTORY.point(-27, -13)])
+      @gi         = GeographicItem.new(polygon: RSPEC_GEO_FACTORY.polygon(listK))
       @gi.save!
       @gi
     }

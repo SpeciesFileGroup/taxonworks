@@ -1,6 +1,3 @@
-class Georeference < ActiveRecord::Base
-  include Housekeeping::Users
-
 # Contains information about a location on the face of the Earth, consisting of:
 #
 # @!attribute geographic_item_id
@@ -30,24 +27,31 @@ class Georeference < ActiveRecord::Base
 # @!attribute request
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
+class Georeference < ActiveRecord::Base
+  include Housekeeping::Users
 
 #  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
-# TODO: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
-# TODO: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
+# TODone: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
+# TODone: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
+
+  FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
+                                               projection_srid:         4326,
+                                               projection_proj4:          '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+                                               uses_lenient_assertions: true,
+                                               has_z_coordinate:        true)
+=begin
   FACTORY = ::RGeo::Geos.factory(native_interface:                      :ffi,
                                  uses_lenient_multi_polygon_assertions: true,
                                  srid:                                  4326,
                                  has_z_coordinate:                      true)
+=end
 
-  # 'belongs_to' indicates that there is a record ID for this type of object (collecting_event) in *this* table, which
-  # is used to find the object we want, 'collecting_event_id' is the column name, and refers to the 'collecting_events'
-  # table
-  belongs_to :collecting_event
-
+  
   # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name of the column used in the table;
   # therefore, we need to tell it *which* table, and what to use to address the record we want
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
-
+  
+  belongs_to :collecting_event
   belongs_to :geographic_item
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item

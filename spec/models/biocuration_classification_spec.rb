@@ -24,6 +24,29 @@ describe BiocurationClassification do
     specify 'biocuration_class is required' do
       expect(biocuration_classification.errors.include?(:biocuration_class)).to be_true 
     end
+
+    context 'with a biocuration class' do
+      before(:each) {
+        biocuration_classification.biocuration_class = FactoryGirl.create(:valid_biocuration_class)
+      }
+
+      specify 'a specimen can be biocuration classified' do
+        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_specimen)
+        expect(biocuration_classification.save).to be_true 
+      end
+
+      specify 'a lot can be biocuration classified' do
+        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_lot)
+        expect(biocuration_classification.save).to be_true 
+      end
+
+      specify 'a ranged_lot can be biocuration classified' do
+        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_ranged_lot)
+        expect(biocuration_classification.save).to be_true 
+      end
+
+
+    end
   end
 
 end

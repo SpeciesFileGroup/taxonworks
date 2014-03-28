@@ -13,7 +13,7 @@ FactoryGirl.define do
 
   trait :parent_country do
     parent {
-      if o = GeographicArea.where(name: 'United States').first
+      if o = GeographicArea.where(name: 'United States of America').first
         o
       else
         FactoryGirl.build(:level0_geographic_area)
@@ -63,8 +63,9 @@ FactoryGirl.define do
       end
 
       factory :level0_geographic_area do
-        name 'United States'
+        name 'United States of America'
         iso_3166_a3  'USA'
+        iso_3166_a2  'US'
         parent_earth
         association :geographic_area_type, factory: :country_geographic_area_type
         after(:build) {|o| o.level0 = o}

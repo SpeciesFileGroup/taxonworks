@@ -259,6 +259,7 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
+  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_inclusion_of :bibtex_type,
     in: ::VALID_BIBTEX_TYPES,
     message: '%{value} is not a valid source type'
@@ -449,8 +450,8 @@ class Source::Bibtex < Source
 
   def isbn=(value)
     write_attribute(:isbn, value)
-    #TODO if there is already an 'Identifier::Guid::Isbn' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Isbn', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
   def isbn
     # This relies on the identifier class to enforce a single version of any identifier
@@ -459,8 +460,8 @@ class Source::Bibtex < Source
 
   def doi=(value)
     write_attribute(:doi, value)
-    #TODO if there is already an 'Identifier::Guid::Doi' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Doi', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Doi' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
   end
   def doi
     # This relies on the identifier class to enforce a single version of any identifier
@@ -469,8 +470,8 @@ class Source::Bibtex < Source
 
   def issn=(value)
     write_attribute(:issn, value)
-    #TODO if there is already an 'Identifier::Guid::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Guid::Issn', identifier: value)
+    #TODO if there is already an 'Identifier::Global::Issn' update instead of add
+    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
   end
   def issn
     # This relies on the identifier class to enforce a single version of any identifier

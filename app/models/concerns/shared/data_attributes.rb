@@ -3,6 +3,7 @@ module Shared::DataAttributes
 
   included do
     has_many :data_attributes, as: :attribute_subject, validate: false
+    accepts_nested_attributes_for :data_attributes
   end 
 
   def has_data_attributes?
@@ -10,7 +11,7 @@ module Shared::DataAttributes
   end
 
   def keyword_value_hash
-    self.data_attributes.inject({}) do |hsh, a| 
+    self.data_attributes.inject({}) do |hsh, a|   
       if a.class == ImportAttribute
         hsh.merge!(a.import_predicate => a.value)
       else # there are only two

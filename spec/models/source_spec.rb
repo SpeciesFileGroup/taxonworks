@@ -64,6 +64,8 @@ describe Source do
     it_behaves_like 'notable'
     it_behaves_like 'has_roles'
     it_behaves_like 'alternate_values'
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'taggable'
   end
 
 end

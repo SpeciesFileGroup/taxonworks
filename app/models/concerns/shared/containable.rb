@@ -2,7 +2,7 @@ module Shared::Containable
   extend ActiveSupport::Concern
 
   included do
-    has_one :container_item
+    has_one :container_item, as: :contained_object
     has_one :container, through: :container_item
   end 
 
@@ -10,5 +10,4 @@ module Shared::Containable
     !self.container.nil?
   end
 
-  protected
 end

@@ -3,6 +3,7 @@ module Shared::Identifiable
   included do
 
     has_many :identifiers, as: :identified_object, validate: false
+    accepts_nested_attributes_for :identifiers
 
    #scope :creator_missing_first_name, -> { where(people: {first_name: nil}).joins(:creator)}
    #scope :created_by,  lambda {|person| where("created_by_id = ?", person) }

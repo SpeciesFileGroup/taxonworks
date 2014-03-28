@@ -200,7 +200,7 @@ describe TaxonName do
   end
 
   context 'validation' do
-    before do
+    before(:each) do
       taxon_name.valid?
     end
 
@@ -210,6 +210,15 @@ describe TaxonName do
       end
       specify 'type' do
         expect(taxon_name.type).to eq('Protonym')
+      end
+    end
+
+    context 'gender' do
+      before(:all) do
+        gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        taxon_name.valid?
+        expect(@genus.gender_name).to eq('masculine')
+        gender.destroy
       end
     end
 
@@ -302,6 +311,21 @@ describe TaxonName do
           @subgenus.original_genus = @genus
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
+        end
+        specify 'different gender' do
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
+          @species.masculine_name = 'vitus'
+          @species.feminine_name = 'vita'
+          @species.neuter_name = 'vitum'
+          expect(@species.save).to be_true
+          gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
+          gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
+          expect(gender.save).to be_true
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
+          gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
+          expect(gender.save).to be_true
+          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
         specify 'misspelled original combination' do
           g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')

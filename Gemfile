@@ -1,13 +1,16 @@
 source 'https://rubygems.org'
 ruby '2.1.1'
 
-gem 'rails', '4.0.3'
+gem 'rails', '4.0.4'
 
 # PostgreSQL
 gem 'pg', '~> 0.17.0'
 
 # Postgis
 gem 'activerecord-postgis-adapter'
+# gem 'rgeo-activerecord'
+# gem 'activerecord-spatial'
+ gem 'squeel'
 
 # rgeo support
 gem 'ffi-geos'
@@ -45,6 +48,9 @@ gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
 
+# file upload manager & image processor
+gem 'paperclip', '~> 4.1'
+
 # Ordering records
 gem 'acts_as_list'
 
@@ -67,7 +73,7 @@ gem 'rabl'
 
 group :test, :development do
   gem 'rspec-rails'
-  gem 'debugger', {git:  'http://github.com/acarpe/debugger.git'}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
 end
 
@@ -78,6 +84,7 @@ end
 group :test do
   gem "rspec"
   gem 'coveralls', '~> 0.7', require: false
+  gem 'capybara', '~> 2.1'
 end
 
 group :development do 

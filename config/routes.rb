@@ -25,11 +25,16 @@ TaxonWorks::Application.routes.draw do
   get 'taxon_names/demo'
   get 'taxon_names/marilyn'
 #  resources :taxon_names
-
+  
   get 'tasks/accessions/quick/verbatim_material/new'
   post 'tasks/accessions/quick/verbatim_material/create'
 
+  resources :sessions, only: :create
+  match '/signin',  to: 'sessions#new',     via: 'get'
+  match '/signout', to: 'sessions#destroy', via: 'delete'
 
+  resources :users, except: :new
+  match '/signup', to: 'users#new', via: 'get'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
