@@ -6,6 +6,15 @@ class CollectionProfile < ActiveRecord::Base
   belongs_to :container
   belongs_to :otu
 
+  scope :with_project_id, -> (project) {where(project_id: project)}
+  scope :with_type_string, -> (type_string) {where(type: type_string)}
+  scope :with_container_id, -> (container) {where(container_id: container).order('created_at DESC') }
+  scope :with_otu_id, -> (otu) {where(otu_id: otu).order('created_at DESC') }
+  scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
+#  scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles GROUP BY collection_profiles.container_id, collection_profiles.otu_id HAVING created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
+
+
+
   validates_presence_of :conservation_status, message: 'Conservation status is not selected'
   validates_presence_of :processing_state, message: 'Processing state is not selected'
   validates_presence_of :container_condition, message: 'Container condition is not selected'
