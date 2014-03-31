@@ -23,7 +23,7 @@ describe ControlledVocabularyTermsController do
   # This should return the minimal set of attributes required to create a valid
   # ControlledVocabularyTerm. As you add validations to ControlledVocabularyTerm, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "type" => "" } }
+  let(:valid_attributes) { FactoryGirl.build(:valid_controlled_vocabulary_term).attributes }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -77,7 +77,7 @@ describe ControlledVocabularyTermsController do
 
       it "redirects to the created controlled_vocabulary_term" do
         post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
-        response.should redirect_to(ControlledVocabularyTerm.last)
+        response.should redirect_to(ControlledVocabularyTerm.last.becomes(ControlledVocabularyTerm))
       end
     end
 
@@ -85,14 +85,14 @@ describe ControlledVocabularyTermsController do
       it "assigns a newly created but unsaved controlled_vocabulary_term as @controlled_vocabulary_term" do
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => { "type" => "invalid value" }}, valid_session
+        post :create, {:controlled_vocabulary_term => { "name" => nil }}, valid_session
         assigns(:controlled_vocabulary_term).should be_a_new(ControlledVocabularyTerm)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => { "type" => "invalid value" }}, valid_session
+        post :create, {:controlled_vocabulary_term => { "name" => nil }}, valid_session
         response.should render_template("new")
       end
     end
@@ -119,7 +119,7 @@ describe ControlledVocabularyTermsController do
       it "redirects to the controlled_vocabulary_term" do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => valid_attributes}, valid_session
-        response.should redirect_to(controlled_vocabulary_term)
+        response.should redirect_to(controlled_vocabulary_term.becomes(ControlledVocabularyTerm))
       end
     end
 
