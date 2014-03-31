@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe GeographicItem do
   before(:all) {
-    prep
-    gen_wkt_files
+    generate_test_objects
+    # TODO: Remove this line, it's not needed, right?:  gen_wkt_files (code is now in support/geo
   }
 
   after(:all) {
@@ -153,11 +153,7 @@ describe GeographicItem do
     end
   end
 
-  context 'when Geographical objects interact.' do
-    before do
-      #gen_db_objects()
-    end
-
+  context 'geo_object interactions (Geographical attribute of GeographicItem)' do
     specify 'Certain line_string shapes cannot be polygons, others can.' do
       @k.reload # can't make a polygon out of a line_string which crosses itself
       @d.reload # can make a (closed) polygon out of a line_string which is either closed, or open
@@ -256,7 +252,6 @@ describe GeographicItem do
       everything = @all_items.geo_object
       expect(everything.convex_hull()).to eq(CONVEX_HULL)
     end
-
   end
 
   context 'That GeographicItems provide certain methods.' do
@@ -276,29 +271,282 @@ describe GeographicItem do
     end
   end
 
-  context 'that GeographicItems can be found to respond to an' do
-    specify 'instance method to return its object.' do
+  context 'instance methods' do
+    specify '#geo_object' do
       expect(geographic_item).to respond_to(:geo_object)
     end
 
-    specify 'instance method to see if one object is contained by another.' do
+    specify '#contains? - to see if one object is contained by another.' do
       expect(geographic_item).to respond_to(:contains?)
     end
 
-    specify 'instance method to see if one object is within another.' do
+    specify '#within? -  to see if one object is within another.' do
       expect(geographic_item).to respond_to(:within?)
     end
 
-    specify 'instance method to to see how far one object is from another.' do
+    specify '#distance? - to see how far one object is from another.' do
       expect(geographic_item).to respond_to(:distance?)
+    end
+
+    specify '#near' do
       expect(geographic_item).to respond_to(:near)
+    end
+    specify '#far' do
       expect(geographic_item).to respond_to(:far)
     end
 
-    specify 'class method to find objects which contain another objects.' do
-      expect(GeographicItem).to respond_to(:find_containing)
+    specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
+      expect(@k.contains?(@p1)).to be_true
+      expect(@e1.contains?(@p10)).to be_false
     end
 
+
+    context 'that each type of item knows how to emits its own array' do
+      specify 'that represents a point' do
+        expect(@r2024.to_a).to eq [-88.241413, 40.091655]
+      end
+
+      specify 'that represents a line_string' do
+        expect(@a.to_a).to eq [[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]
+      end
+
+      specify 'that represents a polygon' do
+        expect(@k.to_a).to eq [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]
+      end
+
+      specify 'that represents a multi_point' do
+        expect(@rooms.to_a).to eq [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]]
+      end
+
+      specify 'that represents a multi_line_string' do
+        expect(@c.to_a).to eq [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]]
+      end
+
+      specify 'that represents a multi_polygon' do
+        expect(@g.to_a).to eq [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]]
+      end
+    end
+
+    context 'that each type of item knows how to emits its own hash' do
+      specify 'for a point' do
+        expect(@r2024.rendering_hash).to eq(points: [[-88.241413, 40.091655]])
+      end
+
+      specify 'for a line_string' do
+        expect(@a.rendering_hash).to eq(lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]])
+      end
+
+      specify 'for a polygon' do
+        expect(@k.rendering_hash).to eq(polygons: [[[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]])
+      end
+
+      specify 'for a multi_point' do
+        expect(@rooms.rendering_hash).to eq(points: [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]])
+      end
+
+      specify 'for a multi_line_string' do
+        expect(@c.rendering_hash).to eq(lines: [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]])
+      end
+
+      specify 'for a multi_polygon' do
+        expect(@g.rendering_hash).to eq(polygons: [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]])
+      end
+
+      specify 'for a geometry_collection' do
+        expect(@all_items.rendering_hash[:points]).to eq [
+                                                           [3.0, -14.0],
+                                                           [6.0, -12.9],
+                                                           [5.0, -16.0],
+                                                           [4.0, -17.9],
+                                                           [7.0, -17.9],
+                                                           [3.0, -14.0],
+                                                           [6.0, -12.9],
+                                                           [5.0, -16.0],
+                                                           [4.0, -17.9],
+                                                           [7.0, -17.9],
+                                                           [-88.241421, 40.091565],
+                                                           [-88.241417, 40.09161],
+                                                           [-88.241413, 40.091655],
+                                                           [0.0, 0.0],
+                                                           [-29.0, -16.0],
+                                                           [-25.0, -18.0],
+                                                           [-28.0, -21.0],
+                                                           [-19.0, -18.0],
+                                                           [3.0, -14.0],
+                                                           [6.0, -12.9],
+                                                           [5.0, -16.0],
+                                                           [4.0, -17.9],
+                                                           [7.0, -17.9],
+                                                           [32.2, 22.0],
+                                                           [-17.0, 7.0],
+                                                           [-9.8, 5.0],
+                                                           [-10.7, 0.0],
+                                                           [-30.0, 21.0],
+                                                           [-25.0, 18.3],
+                                                           [-23.0, 18.0],
+                                                           [-19.6, -13.0],
+                                                           [-7.6, 14.2],
+                                                           [-4.6, 11.9],
+                                                           [-8.0, -4.0],
+                                                           [-4.0, -3.0],
+                                                           [-10.0, -6.0]
+                                                         ]
+
+        expect(@all_items.rendering_hash[:lines]).to eq [
+                                                          [
+                                                            [-32.0, 21.0],
+                                                            [-25.0, 21.0],
+                                                            [-25.0, 16.0],
+                                                            [-21.0, 20.0]
+                                                          ],
+                                                          [
+                                                            [23.0, 21.0],
+                                                            [16.0, 21.0],
+                                                            [16.0, 16.0],
+                                                            [11.0, 20.0]
+                                                          ],
+                                                          [
+                                                            [4.0, 12.6],
+                                                            [16.0, 12.6],
+                                                            [16.0, 7.6]
+                                                          ],
+                                                          [
+                                                            [21.0, 12.6],
+                                                            [26.0, 12.6],
+                                                            [22.0, 17.6]
+                                                          ],
+                                                          [
+                                                            [-33.0, 11.0],
+                                                            [-24.0, 4.0],
+                                                            [-26.0, 13.0],
+                                                            [-31.0, 4.0],
+                                                            [-33.0, 11.0]
+                                                          ],
+                                                          [
+                                                            [-20.0, -1.0],
+                                                            [-26.0, -6.0]
+                                                          ],
+                                                          [
+                                                            [-21.0, -4.0],
+                                                            [-31.0, -4.0]
+                                                          ],
+                                                          [
+                                                            [27.0, -14.0],
+                                                            [18.0, -21.0],
+                                                            [20.0, -12.0],
+                                                            [25.0, -23.0]
+                                                          ],
+                                                          [
+                                                            [27.0, -14.0],
+                                                            [18.0, -21.0],
+                                                            [20.0, -12.0],
+                                                            [25.0, -23.0]
+                                                          ],
+                                                          [
+                                                            [-16.0, -15.5],
+                                                            [-22.0, -20.5]
+                                                          ]
+                                                        ]
+
+        expect(@all_items.rendering_hash[:polygons]).to eq [
+                                                             [
+                                                               [-14.0, 23.0],
+                                                               [-14.0, 11.0],
+                                                               [-2.0, 11.0],
+                                                               [-2.0, 23.0],
+                                                               [-8.0, 21.0],
+                                                               [-14.0, 23.0]
+                                                             ],
+                                                             [
+                                                               [-19.0, 9.0],
+                                                               [-9.0, 9.0],
+                                                               [-9.0, 2.0],
+                                                               [-19.0, 2.0],
+                                                               [-19.0, 9.0]
+                                                             ],
+                                                             [
+                                                               [5.0, -1.0],
+                                                               [-14.0, -1.0],
+                                                               [-14.0, 6.0],
+                                                               [5.0, 6.0],
+                                                               [5.0, -1.0]
+                                                             ],
+                                                             [
+                                                               [-11.0, -1.0],
+                                                               [-11.0, -5.0],
+                                                               [-7.0, -5.0],
+                                                               [-7.0, -1.0],
+                                                               [-11.0, -1.0]
+                                                             ],
+                                                             [
+                                                               [-3.0, -9.0],
+                                                               [-3.0, -1.0],
+                                                               [-7.0, -1.0],
+                                                               [-7.0, -9.0],
+                                                               [-3.0, -9.0]
+                                                             ],
+                                                             [
+                                                               [-7.0, -9.0],
+                                                               [-7.0, -5.0],
+                                                               [-11.0, -5.0],
+                                                               [-11.0, -9.0],
+                                                               [-7.0, -9.0]
+                                                             ],
+                                                             [
+                                                               [28.0, 2.3],
+                                                               [23.0, -1.7],
+                                                               [26.0, -4.8],
+                                                               [28.0, 2.3]
+                                                             ],
+                                                             [
+                                                               [22.0, -6.8],
+                                                               [22.0, -9.8],
+                                                               [16.0, -6.8],
+                                                               [22.0, -6.8]
+                                                             ],
+                                                             [
+                                                               [16.0, 2.3],
+                                                               [14.0, -2.8],
+                                                               [18.0, -2.8],
+                                                               [16.0, 2.3]
+                                                             ],
+                                                             [
+                                                               [28.0, 2.3],
+                                                               [23.0, -1.7],
+                                                               [26.0, -4.8],
+                                                               [28.0, 2.3]
+                                                             ],
+                                                             [
+                                                               [22.0, -6.8],
+                                                               [22.0, -9.8],
+                                                               [16.0, -6.8],
+                                                               [22.0, -6.8]],
+                                                             [
+                                                               [16.0, 2.3],
+                                                               [14.0, -2.8],
+                                                               [18.0, -2.8],
+                                                               [16.0, 2.3]
+                                                             ],
+                                                             [
+                                                               [-33.0, -11.0],
+                                                               [-33.0, -23.0],
+                                                               [-21.0, -23.0],
+                                                               [-21.0, -11.0],
+                                                               [-27.0, -13.0],
+                                                               [-33.0, -11.0]
+                                                             ]
+                                                           ]
+
+        expect(@all_items.rendering_hash).to eq ({lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], points: [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], polygons: [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]]})
+      end
+    end
+
+
+  end
+
+  context 'class methods' do
+
+    # TODO: Move 'clean' code completely into a Rake task
     specify 'class method to discover orphan records.' do
       expect(GeographicItem).to respond_to(:clean?)
     end
@@ -307,529 +555,316 @@ describe GeographicItem do
       expect(GeographicItem).to respond_to(:clean!)
     end
 
+
     specify 'class method to see if one object contains another.' do
       expect(GeographicItem).to respond_to(:contains?)
     end
 
-    specify 'class method to specify ordering of found objects.' do
+    specify '.ordered_by_shortest_distance_from to specify ordering of found objects.' do
       expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
+    end
+
+    specify '.ordered_by_longest_distance_from' do
       expect(GeographicItem).to respond_to(:ordered_by_longest_distance_from)
     end
 
-    specify 'class method to find all objects which contain an \'or\' list of objects.' do
-      expect(GeographicItem).to respond_to(:containing)
-    end
-
-    specify 'class method to find all objects which are disjoint from an \'and\' list of objects.' do
+    specify '.disjoint_from to find all objects which are disjoint from an \'and\' list of objects.' do
       expect(GeographicItem).to respond_to(:disjoint_from)
     end
 
-    specify 'class method to find all objects which are within a specific distance of an object.' do
+    specify '.meters_away_from to find all objects which are within a specific distance of an object.' do
       expect(GeographicItem).to respond_to(:meters_away_from)
     end
 
-    specify 'class method to intersecting an \'or\' list of objects.' do
+    specify '.intersecting method to intersecting an \'or\' list of objects.' do
       expect(GeographicItem).to respond_to(:intersecting)
     end
+
 
     #specify 'point of Lat/Long' do
     #  p1 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
     #
     #end
-  end
 
-  context 'that GeographicItems can be found by searching with a' do
-
-    specify 'class method to find objects which contain another objects.' do
-      expect(GeographicItem.containing([@p1, @p2, @p3])).to eq [@k]
-      expect(GeographicItem.containing([@p4])).to eq []
-      expect(GeographicItem.containing([@p12])).to eq [@e1, @e2]
-      expect(GeographicItem.containing([@p1, @p2, @p3, @p4])).to eq [@k]
-      expect(GeographicItem.containing([@p1, @p11])).to eq [@e1, @k]
+    specify '.containing_sql' do
+      expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
+      expect(GeographicItem.containing_sql('polygon', @p2)).not_to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
     end
 
-    specify 'class method to see if one object contains another.' do
+    context 'scopes (GeographicItems can be found by searching with) ' do
+      specify '.containing - returns objects which contain another objects.' do
 
-      expect(GeographicItem.contains?(@k, @p1)).to be_true
-      expect(GeographicItem.contains?(@e1, @p10)).to be_false
-    end
+        expect(GeographicItem.containing('not_a_column_name', @p1).to_a).to eq([])
+        expect(GeographicItem.containing('point', 'Some devious SQL string').to_a).to eq([])
 
-    specify 'instance method to see if one object contains another.' do
+        # one thing inside k
+        expect(GeographicItem.containing('polygon', @p1).to_a).to eq([@k])
+        # three things inside k
+        expect(GeographicItem.containing('polygon', [@p1, @p2, @p3]).to_a).to eq [@k]
+        # one thing outside k
+        expect(GeographicItem.containing('polygon', @p4).to_a).to eq([])
+        # one thing inside two things (overlapping)
+        expect(GeographicItem.containing('polygon', @p12).to_a).to have(2).things
+        expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
+        expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
+        # three things inside and one thing outside k
+        expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p11]).to_a).to eq([@e1, @k])
+        # one thing inside one thing, and another thing inside another thing
+        expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to eq([@e1, @k])
+        # two things inside one thing, and
+        expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
+        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
+      end
 
-      expect(@k.contains?(@p1)).to be_true
-      expect(@e1.contains?(@p0)).to be_false
-    end
+      specify '#excluding([]) drop selves from any list of objects' do
+        expect(GeographicItem.excluding(@p2).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, nil]) # update nill
+      end
 
-    specify 'class method to specify ordering of found objects.' do
-      expect(GeographicItem.ordered_by_shortest_distance_from(@p0)).to eq []
-      expect(GeographicItem.ordered_by_longest_distance_from(@p0)).to eq []
-    end
+      specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
+        expect(GeographicItem.ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
+        expect(GeographicItem.ordered_by_shortest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
+        expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
+        expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
+      end
 
-    specify 'class method to find all objects which are disjoint from an \'and\' list of objects.' do
-      expect(GeographicItem.disjoint_from([@e1, @e2, @e3, @e4, @e5])).to eq [@b]
-    end
+      specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@r2024, @r2022, @r2020])
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
+        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
+        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
+        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
+      end
 
-    specify 'class method to find all objects which are within a specific distance of an object.' do
-      expect(GeographicItem.meters_away_from(@p0, 10)).to eq []
-    end
+      #TODO: Is this test right?  What about @k, @d?
+      specify "#disjoint_from list of objects (uses 'and')." do
+        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq([@b])
+      end
 
-    specify 'class method to find all objects intersecting with an \'or\' list of objects.' do
-      expect(GeographicItem.intersecting([@l])).to eq [@k]
-      expect(GeographicItem.intersecting([@f1])).to eq []
-    end
+      specify '#meters_away_from returns objects within a specific distance of an object.' do
+        expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq([])
+      end
 
-  end
-
-
-  context 'that each type of item knows how to emits its own array' do
-    specify 'that represents a point' do
-      expect(@r2024.to_a).to eq [-88.241413, 40.091655]
-    end
-
-    specify 'that represents a line_string' do
-      expect(@a.to_a).to eq [[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]
-    end
-
-    specify 'that represents a polygon' do
-      expect(@k.to_a).to eq [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]
-    end
-
-    specify 'that represents a multi_point' do
-      expect(@rooms.to_a).to eq [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]]
-    end
-
-    specify 'that represents a multi_line_string' do
-      expect(@c.to_a).to eq [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]]
-    end
-
-    specify 'that represents a multi_polygon' do
-      expect(@g.to_a).to eq [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]]
-    end
-  end
-
-  context 'that each type of item knows how to emits its own hash' do
-    specify 'for a point' do
-      expect(@r2024.rendering_hash).to eq(points: [[-88.241413, 40.091655]])
-    end
-
-    specify 'for a line_string' do
-      expect(@a.rendering_hash).to eq(lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]])
-    end
-
-    specify 'for a polygon' do
-      expect(@k.rendering_hash).to eq(polygons: [[[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]])
-    end
-
-    specify 'for a multi_point' do
-      expect(@rooms.rendering_hash).to eq(points: [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]])
-    end
-
-    specify 'for a multi_line_string' do
-      expect(@c.rendering_hash).to eq(lines: [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]])
-    end
-
-    specify 'for a multi_polygon' do
-      expect(@g.rendering_hash).to eq(polygons: [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]])
-    end
-
-    specify 'for a geometry_collection' do
-      expect(@all_items.rendering_hash[:points]).to eq [
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [-88.241421, 40.091565],
-                                                         [-88.241417, 40.09161],
-                                                         [-88.241413, 40.091655],
-                                                         [0.0, 0.0],
-                                                         [-29.0, -16.0],
-                                                         [-25.0, -18.0],
-                                                         [-28.0, -21.0],
-                                                         [-19.0, -18.0],
-                                                         [3.0, -14.0],
-                                                         [6.0, -12.9],
-                                                         [5.0, -16.0],
-                                                         [4.0, -17.9],
-                                                         [7.0, -17.9],
-                                                         [32.2, 22.0],
-                                                         [-17.0, 7.0],
-                                                         [-9.8, 5.0],
-                                                         [-10.7, 0.0],
-                                                         [-30.0, 21.0],
-                                                         [-25.0, 18.3],
-                                                         [-23.0, 18.0],
-                                                         [-19.6, -13.0],
-                                                         [-7.6, 14.2],
-                                                         [-4.6, 11.9],
-                                                         [-8.0, -4.0],
-                                                         [-4.0, -3.0],
-                                                         [-10.0, -6.0]
-                                                       ]
-
-      expect(@all_items.rendering_hash[:lines]).to eq [
-                                                        [
-                                                          [-32.0, 21.0],
-                                                          [-25.0, 21.0],
-                                                          [-25.0, 16.0],
-                                                          [-21.0, 20.0]
-                                                        ],
-                                                        [
-                                                          [23.0, 21.0],
-                                                          [16.0, 21.0],
-                                                          [16.0, 16.0],
-                                                          [11.0, 20.0]
-                                                        ],
-                                                        [
-                                                          [4.0, 12.6],
-                                                          [16.0, 12.6],
-                                                          [16.0, 7.6]
-                                                        ],
-                                                        [
-                                                          [21.0, 12.6],
-                                                          [26.0, 12.6],
-                                                          [22.0, 17.6]
-                                                        ],
-                                                        [
-                                                          [-33.0, 11.0],
-                                                          [-24.0, 4.0],
-                                                          [-26.0, 13.0],
-                                                          [-31.0, 4.0],
-                                                          [-33.0, 11.0]
-                                                        ],
-                                                        [
-                                                          [-20.0, -1.0],
-                                                          [-26.0, -6.0]
-                                                        ],
-                                                        [
-                                                          [-21.0, -4.0],
-                                                          [-31.0, -4.0]
-                                                        ],
-                                                        [
-                                                          [27.0, -14.0],
-                                                          [18.0, -21.0],
-                                                          [20.0, -12.0],
-                                                          [25.0, -23.0]
-                                                        ],
-                                                        [
-                                                          [27.0, -14.0],
-                                                          [18.0, -21.0],
-                                                          [20.0, -12.0],
-                                                          [25.0, -23.0]
-                                                        ],
-                                                        [
-                                                          [-16.0, -15.5],
-                                                          [-22.0, -20.5]
-                                                        ]
-                                                      ]
-
-      expect(@all_items.rendering_hash[:polygons]).to eq [
-                                                           [
-                                                             [-14.0, 23.0],
-                                                             [-14.0, 11.0],
-                                                             [-2.0, 11.0],
-                                                             [-2.0, 23.0],
-                                                             [-8.0, 21.0],
-                                                             [-14.0, 23.0]
-                                                           ],
-                                                           [
-                                                             [-19.0, 9.0],
-                                                             [-9.0, 9.0],
-                                                             [-9.0, 2.0],
-                                                             [-19.0, 2.0],
-                                                             [-19.0, 9.0]
-                                                           ],
-                                                           [
-                                                             [5.0, -1.0],
-                                                             [-14.0, -1.0],
-                                                             [-14.0, 6.0],
-                                                             [5.0, 6.0],
-                                                             [5.0, -1.0]
-                                                           ],
-                                                           [
-                                                             [-11.0, -1.0],
-                                                             [-11.0, -5.0],
-                                                             [-7.0, -5.0],
-                                                             [-7.0, -1.0],
-                                                             [-11.0, -1.0]
-                                                           ],
-                                                           [
-                                                             [-3.0, -9.0],
-                                                             [-3.0, -1.0],
-                                                             [-7.0, -1.0],
-                                                             [-7.0, -9.0],
-                                                             [-3.0, -9.0]
-                                                           ],
-                                                           [
-                                                             [-7.0, -9.0],
-                                                             [-7.0, -5.0],
-                                                             [-11.0, -5.0],
-                                                             [-11.0, -9.0],
-                                                             [-7.0, -9.0]
-                                                           ],
-                                                           [
-                                                             [28.0, 2.3],
-                                                             [23.0, -1.7],
-                                                             [26.0, -4.8],
-                                                             [28.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [22.0, -6.8],
-                                                             [22.0, -9.8],
-                                                             [16.0, -6.8],
-                                                             [22.0, -6.8]
-                                                           ],
-                                                           [
-                                                             [16.0, 2.3],
-                                                             [14.0, -2.8],
-                                                             [18.0, -2.8],
-                                                             [16.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [28.0, 2.3],
-                                                             [23.0, -1.7],
-                                                             [26.0, -4.8],
-                                                             [28.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [22.0, -6.8],
-                                                             [22.0, -9.8],
-                                                             [16.0, -6.8],
-                                                             [22.0, -6.8]],
-                                                           [
-                                                             [16.0, 2.3],
-                                                             [14.0, -2.8],
-                                                             [18.0, -2.8],
-                                                             [16.0, 2.3]
-                                                           ],
-                                                           [
-                                                             [-33.0, -11.0],
-                                                             [-33.0, -23.0],
-                                                             [-21.0, -23.0],
-                                                             [-21.0, -11.0],
-                                                             [-27.0, -13.0],
-                                                             [-33.0, -11.0]
-                                                           ]
-                                                         ]
-
-      expect(@all_items.rendering_hash).to eq ({lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], points: [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], polygons: [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]]})
+      specify "#intersecting list of objects (uses 'or')" do
+        expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
+        expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
+      end
     end
   end
-end
 
-def build_RGeo_objects()
+  def generate_test_objects
 
-end
 
-def gen_db_objects()
-  #build_RGeo_objects()
-  #gen_wkt_files()
+    @p0  = GeographicItem.new # 0
+    @p1  = GeographicItem.new # 1
+    @p2  = GeographicItem.new # 2
+    @p3  = GeographicItem.new # 3
+    @p4  = GeographicItem.new # 4
+    @p5  = GeographicItem.new # 5
+    @p6  = GeographicItem.new # 6
+    @p7  = GeographicItem.new # 7
+    @p8  = GeographicItem.new # 8
+    @p9  = GeographicItem.new # 9
+    @p10 = GeographicItem.new # 10
+    @p11 = GeographicItem.new # 11
+    @p12 = GeographicItem.new # 12
+    @p13 = GeographicItem.new # 13
+    @p14 = GeographicItem.new # 14
+    @p15 = GeographicItem.new # 15
+    @p16 = GeographicItem.new # 16
+    @p17 = GeographicItem.new # 17
+    @p18 = GeographicItem.new # 18
+    @p19 = GeographicItem.new # 19
+    @p20 = GeographicItem.new # 20
+    @p21 = GeographicItem.new # 21
+    @p22 = GeographicItem.new # 22
 
-  # build the records
+    @a  = GeographicItem.new # 23
+    @b1 = GeographicItem.new # 24
+    @b2 = GeographicItem.new # 25
+    @b  = GeographicItem.new # 26
+    @c1 = GeographicItem.new # 27
+    @c2 = GeographicItem.new # 28
+    @c3 = GeographicItem.new # 29
+    @c  = GeographicItem.new # 30
+    @d  = GeographicItem.new # 31
+    @e1 = GeographicItem.new # 32
+    @e2 = GeographicItem.new # 33
+    @e3 = GeographicItem.new # 34
+    @e4 = GeographicItem.new # 35
+    @e5 = GeographicItem.new # 36
+    @e  = GeographicItem.new # 37
+    @f1 = GeographicItem.new # 38
+    @f2 = GeographicItem.new # 39
+    @f  = GeographicItem.new # 40
+    @g1 = GeographicItem.new # 41
+    @g2 = GeographicItem.new # 42
+    @g3 = GeographicItem.new # 43
+    @g  = GeographicItem.new # 44
+    @h  = GeographicItem.new # 45
+    @i  = GeographicItem.new # 46
+    @j  = GeographicItem.new # 47
+    @k  = GeographicItem.new # 48
+    @l  = GeographicItem.new # 49
 
-  [@a, @b, @c].each do |v|
-    # this *does NOT* work the way I want it to!
-    v = GeographicItem.new
+    @r2020 = GeographicItem.new # 50
+    @r2022 = GeographicItem.new # 51
+    @r2024 = GeographicItem.new # 52
+    @rooms = GeographicItem.new # 53
+
+    @all_items    = GeographicItem.new # 54
+    @outer_limits = GeographicItem.new # 55
+
+    @r2020.point       = ROOM2020.as_binary
+    @r2022.point       = ROOM2022.as_binary
+    @r2024.point       = ROOM2024.as_binary
+    @rooms.multi_point = ROOMS20NN.as_binary
+
+    @p0.point  = POINT0.as_binary
+    @p1.point  = POINT1.as_binary
+    @p2.point  = POINT2.as_binary
+    @p3.point  = POINT3.as_binary
+    @p4.point  = POINT4.as_binary
+    @p5.point  = POINT5.as_binary
+    @p6.point  = POINT6.as_binary
+    @p7.point  = POINT7.as_binary
+    @p8.point  = POINT8.as_binary
+    @p9.point  = POINT9.as_binary
+    @p10.point = POINT10.as_binary
+    @p11.point = POINT11.as_binary
+    @p12.point = POINT12.as_binary
+    @p13.point = POINT13.as_binary
+    @p14.point = POINT14.as_binary
+    @p15.point = POINT15.as_binary
+    @p16.point = POINT16.as_binary
+    @p17.point = POINT17.as_binary
+    @p18.point = POINT18.as_binary
+    @p19.point = POINT19.as_binary
+    @p20.point = POINT20.as_binary
+    @p21.point = POINT21.as_binary
+    @p22.point = POINT22.as_binary
+
+    @a.line_string         = SHAPE_A.as_binary
+    @b1.polygon            = SHAPE_B_OUTER.as_binary
+    @b2.polygon            = SHAPE_B_INNER.as_binary
+    @b.polygon             = SHAPE_B.as_binary
+    @c1.line_string        =SHAPE_C1
+    @c2.line_string        =SHAPE_C2
+    @c3.line_string        =SHAPE_C3
+    @c.multi_line_string   = SHAPE_C.as_binary
+    @d.line_string         = SHAPE_D.as_binary
+    @e1.polygon            = POLY_E1.as_binary
+    @e2.polygon            = POLY_E2.as_binary
+    @e3.polygon            = POLY_E3.as_binary
+    @e4.polygon            = POLY_E4.as_binary
+    @e5.polygon            = POLY_E5.as_binary
+    @e.geometry_collection = SHAPE_E.as_binary
+    @f1.line_string        = SHAPE_F1.as_binary
+    @f2.line_string        = SHAPE_F2.as_binary
+    @f.multi_line_string   = SHAPE_F.as_binary
+    @g1.polygon            = SHAPE_G1.as_binary
+    @g2.polygon            = SHAPE_G2.as_binary
+    @g3.polygon            = SHAPE_G3.as_binary
+    @g.multi_polygon       = SHAPE_G.as_binary
+    @h.multi_point         = SHAPE_H.as_binary
+    @i.line_string         =SHAPE_I
+    @j.geometry_collection =SHAPE_J
+    @k.polygon             = SHAPE_K.as_binary
+    @l.line_string         = SHAPE_L.as_binary
+
+    @all_items.geometry_collection = ALL_SHAPES.as_binary
+    @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
+
+    [@p0, @p1, @p2, @p3, @p4,
+     @p5, @p6, @p7, @p8, @p9,
+     @p10, @p11, @p12, @p13, @p14,
+     @p15, @p16, @p17, @p18, @p19,
+     @p20, @p21, @p22,
+     @a,
+     @b1, @b2, @b,
+     @c1, @c2, @c3, @c,
+     @d,
+     @e1, @e2, @e3, @e4, @e5, @e,
+     @f1, @f2, @f,
+     @g1, @g2, @g3, @g,
+     @h,
+     @i,
+     @j,
+     @k,
+     @l,
+     @r2020, @r2022, @r2024, @rooms,
+     @all_items, @outer_limits].map(&:save!)
+
+    @debug_names = {
+      p0:           @p0.id,
+      p1:           @p1.id,
+      p2:           @p2.id,
+      p3:           @p3.id,
+      p4:           @p4.id,
+      p5:           @p5.id,
+      p6:           @p6.id,
+      p7:           @p7.id,
+      p8:           @p8.id,
+      p9:           @p9.id,
+      p10:          @p10.id,
+      p11:          @p11.id,
+      p12:          @p12.id,
+      p13:          @p13.id,
+      p14:          @p14.id,
+      p15:          @p15.id,
+      p16:          @p16.id,
+      p17:          @p17.id,
+      p18:          @p18.id,
+      p19:          @p19.id,
+      p20:          @p20.id,
+      p21:          @p21.id,
+      p22:          @p21.id,
+
+      a:            @a.id,
+      b1:           @b1.id,
+      b2:           @b2.id,
+      b:            @b.id,
+      c1:           @c1.id,
+      c2:           @c2.id,
+      c3:           @c3.id,
+      c:            @c.id,
+      d:            @d.id,
+      e1:           @e1.id,
+      e2:           @e2.id,
+      e3:           @e3.id,
+      e4:           @e4.id,
+      e5:           @e5.id,
+      e:            @e.id,
+      f1:           @f1.id,
+      f2:           @f2.id,
+      f:            @f.id,
+      g1:           @g1.id,
+      g2:           @g2.id,
+      g3:           @g3.id,
+      g:            @g.id,
+      h:            @h.id,
+      i:            @i.id,
+      j:            @j.id,
+      k:            @k.id,
+      l:            @l.id,
+
+      r2020:        @r2020.id,
+      r2022:        @r2022.id,
+      r2024:        @r2024.id,
+      rooms:        @rooms.id,
+      all_items:    @all_items.id,
+      outer_limits: @outer_limits.id
+    }
+
+  # @debug_names.collect { |k, v| print v.to_s + ": " + k.to_s + "       "}
+
+  # puts @debug_names.invert[@p1]
+
   end
 
-  @r2020 = GeographicItem.new
-  @r2022 = GeographicItem.new
-  @r2024 = GeographicItem.new
-  @rooms = GeographicItem.new
-
-  @p0  = GeographicItem.new
-  @p1  = GeographicItem.new
-  @p2  = GeographicItem.new
-  @p3  = GeographicItem.new
-  @p4  = GeographicItem.new
-  @p10 = GeographicItem.new
-  @p11 = GeographicItem.new
-  @p12 = GeographicItem.new
-  @p16 = GeographicItem.new
-  @p17 = GeographicItem.new
-
-  @a  = GeographicItem.new
-  @b1  = GeographicItem.new
-  @b2  = GeographicItem.new
-  @c  = GeographicItem.new
-  #@d  = GeographicItem.new
-  @e  = GeographicItem.new
-  @e1  = GeographicItem.new
-  @e2  = GeographicItem.new
-  @e3  = GeographicItem.new
-  @e4  = GeographicItem.new
-  @e5  = GeographicItem.new
-  @f  = GeographicItem.new
-  @f1 = GeographicItem.new
-  @f2 = GeographicItem.new
-  @g  = GeographicItem.new
-  @h  = GeographicItem.new
-  @k  = GeographicItem.new
-  @l  = GeographicItem.new
-
-  @all_items = GeographicItem.new
-
-  @outer_limits = GeographicItem.new
-
-  @r2020.point = ROOM2020.as_binary
-  @r2022.point = ROOM2022.as_binary
-  @r2024.point = ROOM2024.as_binary
-
-  @rooms.multi_point = ROOMS20NN.as_binary
-  @p0.point          = POINT0.as_binary
-  @p1.point          = POINT1.as_binary
-  @p2.point          = POINT2.as_binary
-  @p3.point          = POINT3.as_binary
-  @p4.point          = POINT4.as_binary
-  @p10.point         = POINT10.as_binary
-  @p11.point         = POINT11.as_binary
-  @p12.point         = POINT12.as_binary
-  @p16.point         = POINT16.as_binary
-  @p17.point         = POINT17.as_binary
-
-  @a.line_string                 = SHAPE_A.as_binary
-  @b1.polygon = SHAPE_B_OUTER.as_binary
-  @b2.polygon = SHAPE_B_INNER.as_binary
-  @c.multi_line_string           = SHAPE_C.as_binary
-  #@d.line_string                 = SHAPE_D.as_binary
-  @e.geometry_collection         = SHAPE_E.as_binary
-  @e1.polygon         = POLY_E1.as_binary
-  @e2.polygon         = POLY_E1.as_binary
-  @e3.polygon         = POLY_E1.as_binary
-  @e4.polygon         = POLY_E1.as_binary
-  @e5.polygon         = POLY_E1.as_binary
-  @f.multi_line_string           = SHAPE_F.as_binary
-  @g.multi_polygon               = SHAPE_G.as_binary
-  @h.multi_point                 = SHAPE_H.as_binary
-  @k.polygon                     = SHAPE_K.as_binary
-  @l.line_string                 = SHAPE_L.as_binary
-  @all_items.geometry_collection = ALL_SHAPES.as_binary
-  @outer_limits.line_string      = CONVEX_HULL.exterior_ring.as_binary
-
-  @r2020.save!
-  @r2022.save!
-  @r2024.save!
-  @rooms.save!
-
-  @p0.save!
-  @p1.save!
-  @p2.save!
-  @p3.save!
-  @p4.save!
-  @p10.save!
-  @p11.save!
-  @p12.save!
-  @p16.save!
-  @p17.save!
-
-  @a.save!
-  @c.save!
-  @b1.save!
-  @b2.save!
-  #@d.save!
-  @e.save!
-  @e1.save!
-  @e2.save!
-  @e3.save!
-  @e4.save!
-  @e5.save!
-  @f.save!
-  @g.save!
-  @h.save!
-  @k.save!
-  @l.save!
-  @all_items.save!
-  @outer_limits.save!
-end
-
-def prep
-  build_RGeo_objects
-  gen_db_objects
-end
-
-def gen_wkt_files()
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
-  f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
-  f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
-  f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
-
-  col_header = "id:wkt:name\n"
-
-  f_point.write(col_header)
-  f_line.write(col_header)
-  f_poly.write(col_header)
-
-  ALL_WKT_NAMES.each_with_index do |it, index|
-    wkt  = it[0].as_text
-    name = it[1]
-    case it[0].geometry_type.type_name
-      when 'Point'
-        f_type = f_point
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-        f_type = $stdout
-      when /^Line[S]*/ #when 'Line' or 'LineString'
-        f_type = f_line
-      when 'MultiLineString'
-        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-        f_type = $stdout
-      when 'Polygon'
-        f_type = f_poly
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        f_type = $stdout
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-        f_type = $stdout
-      else
-        f_type = $stdout
-      # ignore it for now
-    end
-    f_type.write("#{index}:#{wkt}: #{name}\n")
-  end
-
-  f_point.close
-  f_line.close
-  f_poly.close
-end
-
-def point_methods()
-  [:x, :y, :z, :m, :geometry_type, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def line_string_methods()
-  [:length, :start_point, :end_point, :is_closed?, :is_ring?, :num_points, :point_n, :points, :factory, :z_geometry, :m_geometry, :dimension, :geometry_type, :srid, :envelope, :as_text, :as_binary, :is_empty?, :is_simple?, :boundary, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :union, :difference, :sym_difference, :rep_equals?, :-, :+, :*, :_copy_state_from, :marshal_dump, :marshal_load, :encode_with, :init_with]
-end
-
-def line_methods()
-  [:geometry_type, :length, :num_points, :point_n, :start_point, :end_point, :points, :is_closed?, :is_ring?, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def linear_ring_methods()
-  [:to_i, :to_f, :to_a, :to_h, :&, :|, :^, :to_r, :rationalize, :to_c, :encode_json]
-end
-
-def polygon_methods()
-  [:geometry_type, :area, :centroid, :point_on_surface, :exterior_ring, :num_interior_rings, :interior_ring_n, :interior_rings, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def multi_point_methods()
-  [:geometry_type, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def multi_line_string_methods()
-  [:geometry_type, :length, :is_closed?, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def multi_polygon_methods
-  [:geometry_type, :area, :centroid, :point_on_surface, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-end
-
-def collection_methods()
-  [:num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :factory, :z_geometry, :m_geometry, :dimension, :geometry_type, :srid, :envelope, :as_text, :as_binary, :is_empty?, :is_simple?, :boundary, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :union, :difference, :sym_difference, :rep_equals?, :-, :+, :*, :_copy_state_from, :marshal_dump, :marshal_load, :encode_with, :init_with]
 end

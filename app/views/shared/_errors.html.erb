@@ -1,0 +1,5 @@
+<% if thing.errors.any? %>
+  <p class="alert alert--error">
+    <%= thing.errors.full_messages.join('. ') %>
+  </p>
+<% end %>

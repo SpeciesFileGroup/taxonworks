@@ -1,19 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>TaxonWorks</title>
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8">
+    <title><%= meta_title %></title>
+    <% meta_data.each do |name, content| %>
+      <% next if content.to_s.empty? || name.to_s.empty? %>
+    <meta name="<%= name.to_s %>" content="<%= content.to_s %>">
+      <% end %>
+    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= csrf_meta_tags %>
+    <%= yield :head %>
+  </head>
+  
+  <body>
+  <header>
+    <h1><%= link_to site_name, root_path %></h1>
+    <%= render partial: 'sessions/summary' %>
+    <nav>
+      <ul>
+        <li><%= link_to 'Home', root_path %></li>
+      </ul>
+    </nav>
+  </header>
 
-<h1> * TaxonWorks *</h1>
-<%= render "header" %>
+  <aside>
+    <% flash.each do |key, value| %>
+      <p class="alert alert--<%= key %>"><%= value %></p>
+  <% end %>
+  </aside>
 
-<%= yield %>
-<%= render "footer" %>
+
+  <%= @page_title -%>
+
+  <%= yield %>
+
+  <%= render "footer" %>
 
 
-</body>
+  </body>
 </html>

@@ -1,24 +1,8 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Email:</strong>
-  <%= @user.email %>
-</p>
-
-<p>
-  <strong>Password digest:</strong>
-  <%= @user.password_digest %>
-</p>
-
-<p>
-  <strong>Created by:</strong>
-  <%= @user.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @user.updated_by_id %>
-</p>
-
-<%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Back', users_path %>
+<article>
+  <header>
+    <h1><%= @page_title %></h1>
+  </header>
+</article>
+<aside>
+  <%= link_to 'Edit account', edit_user_path(@user) %>
+</aside>
