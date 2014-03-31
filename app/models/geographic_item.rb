@@ -141,17 +141,17 @@ class GeographicItem < ActiveRecord::Base
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
-    check_geo_params(column_name, geographic_item) ?
-      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
-      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance desc'} :
-      'false'
+    if check_geo_params(column_name, geographic_item)
+      f = select{'*'}.select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order { 'distance desc' }
+    else
+      where {     'false' }
+    end
   end
 
-=begin
-  def self.intersections(column_name, geographic_item)
-    where("st_Contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.geo_object}'))")
+  def self.excluding(*geographic_items)
+
+    where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
   end
-=end
 
   def self.clean?
     # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.

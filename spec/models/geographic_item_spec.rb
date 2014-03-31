@@ -581,11 +581,6 @@ describe GeographicItem do
     end
 
 
-    #specify 'point of Lat/Long' do
-    #  p1 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-    #
-    #end
-
     specify '.containing_sql' do
       expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
       expect(GeographicItem.containing_sql('polygon', @p2)).not_to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
@@ -613,11 +608,16 @@ describe GeographicItem do
         expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to eq([@e1, @k])
         # two things inside one thing, and
         expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
-        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
+        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b1, @b])
       end
 
       specify '#excluding([]) drop selves from any list of objects' do
-        expect(GeographicItem.excluding(@p2).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, nil]) # update nill
+        # @p2 would have been in the list, except for the exclude
+        expect(GeographicItem.excluding([@p2]).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, @p17])
+        # @p2 would *not* have been in the list anyway
+        expect(GeographicItem.excluding([@p2]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
+        # @r2022 would  have been in the list, except for the exclude
+        expect(GeographicItem.excluding([@r2022]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2020, @p10])
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
@@ -631,8 +631,7 @@ describe GeographicItem do
       end
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@r2024, @r2022, @r2020])
-        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
         expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
         expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
         expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
@@ -861,9 +860,9 @@ describe GeographicItem do
       outer_limits: @outer_limits.id
     }
 
-  # @debug_names.collect { |k, v| print v.to_s + ": " + k.to_s + "       "}
+  @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
 
-  # puts @debug_names.invert[@p1]
+  puts @debug_names.invert[@p1]
 
   end
 
