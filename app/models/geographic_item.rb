@@ -8,13 +8,13 @@ class GeographicItem < ActiveRecord::Base
   #  include ActiveRecordSpatial::SpatialScopes
   #  self.create_spatial_column_accessors! # except: ['point']
 
-  DATA_TYPES = [:point,
-                :line_string,
-                :polygon,
-                :multi_point,
-                :multi_line_string,
-                :multi_polygon,
-                :geometry_collection]
+  DATA_TYPES     = [:point,
+                    :line_string,
+                    :polygon,
+                    :multi_point,
+                    :multi_line_string,
+                    :multi_polygon,
+                    :geometry_collection]
 
   # column_factory = RGeo::Geos.factory(
   #   native_interface: :ffi,
@@ -91,20 +91,33 @@ class GeographicItem < ActiveRecord::Base
     where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
   end
 
-  def self.intersecting(column_name, geographic_items)
+  def self.intersecting(column_name, *geographic_items)
+
+    where { geographic_items.flatten.collect { |geographic_item| "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" }.join(' and ') }
+
+=begin
     geographic_items.each { |geographic_item|
       # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
-      where { st_contains(st_geomfromewkb("geographic_items.#{column_name}"), geographic_item.geo_object.as_binary) }
+      # TODO: see if st_intersects, instead of st_contains makes a difference
+      where {"st_intersects(#{column_name}, #{geographic_item.geo_object})"}
+      #where { st_intersects(st_geomfromewkb("geographic_items.#{column_name}"), geographic_item.geo_object.as_binary) }
       # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
     }
+=end
   end
 
-  def self.meters_away_from(column_name, object, distance)
-
+  def self.within_radius_of(column_name, geographic_item, distance)
+    if check_geo_params(column_name, geographic_item)
+      where {"st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}"}
+    else
+      where { 'false' }
+    end
   end
 
-  def self.disjoint_from(column_name, geographic_items)
+  def self.disjoint_from(column_name, *geographic_items)
+    # select id from geographic_items where st_disjoint( polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))') ) = true ;
 
+    where { geographic_items.flatten.collect { |geographic_item| "st_disjoint(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" }.join(' and ') }
   end
 
   # If this method is given an Array of GeographicItems as a second parameter, it will return the 'or' of each of the
@@ -112,6 +125,32 @@ class GeographicItem < ActiveRecord::Base
   def self.containing(column_name, *geographic_items)
     # where{"ST_contains(#{column_name}::geometry, ST_GeomFromText('srid=4326;POINT(-29 -16)'))"}
     where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
+  end
+
+  def self.ordered_by_shortest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+
+    #      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
+
+    if check_geo_params(column_name, geographic_item)
+      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+      f = select { '*' }.
+        select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.
+        where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.
+        order { 'distance' }
+    else
+      where { 'false' }
+    end
+
+  end
+
+  def self.ordered_by_longest_distance_from(column_name, geographic_item)
+    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+    if check_geo_params(column_name, geographic_item)
+      f = select { '*' }.select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order { 'distance desc' }
+    else
+      where { 'false' }
+    end
   end
 
   def self.containing_sql(column_name, geographic_item)
@@ -122,35 +161,19 @@ class GeographicItem < ActiveRecord::Base
       'false'
   end
 
-  def self.ordered_by_shortest_distance_from(column_name, geographic_item)
-    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
+  def ordered_by_shortest_distance_from_sql(column_name, geographic_item)
+    # TODO: factor out common string text for shortest and longest, and add 'desc' to order_by
 
-#      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
-
-    if check_geo_params(column_name, geographic_item) 
-      #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
-      f = select{'*'}.
-        select{ "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.
-        where{ "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.
-          order{'distance'} 
-    else 
-      where {     'false' }
-    end
+    check_geo_params(column_name, geographic_item) ?
+      "true" :
+      "false"
 
   end
 
-  def self.ordered_by_longest_distance_from(column_name, geographic_item)
-    # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
-    if check_geo_params(column_name, geographic_item)
-      f = select{'*'}.select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order { 'distance desc' }
-    else
-      where {     'false' }
-    end
-  end
+  def self.excluding(geographic_items)
 
-  def self.excluding(*geographic_items)
-
-    where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
+    # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
+    where.not(id: geographic_items)
   end
 
   def self.clean?

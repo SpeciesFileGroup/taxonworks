@@ -572,8 +572,8 @@ describe GeographicItem do
       expect(GeographicItem).to respond_to(:disjoint_from)
     end
 
-    specify '.meters_away_from to find all objects which are within a specific distance of an object.' do
-      expect(GeographicItem).to respond_to(:meters_away_from)
+    specify '.within_radius_of to find all objects which are within a specific distance of an object.' do
+      expect(GeographicItem).to respond_to(:within_radius_of)
     end
 
     specify '.intersecting method to intersecting an \'or\' list of objects.' do
@@ -632,21 +632,21 @@ describe GeographicItem do
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
         expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
-        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
-        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
-        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
-        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@c3, @c1, @c2])
+        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(4).to_a).to eq([@g1, @g2, @g3, @b2])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@rooms, @h])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@c, @f])
         expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
-        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
+        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@j, @e])
       end
 
       #TODO: Is this test right?  What about @k, @d?
       specify "#disjoint_from list of objects (uses 'and')." do
-        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq([@b])
+        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to eq([@b1, @b2, @b, @g1])
       end
 
-      specify '#meters_away_from returns objects within a specific distance of an object.' do
-        expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq([])
+      specify '#within_radius of returns objects within a specific distance of an object.' do
+        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5])
       end
 
       specify "#intersecting list of objects (uses 'or')" do
