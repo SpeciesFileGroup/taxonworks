@@ -135,8 +135,8 @@ class GeographicItem < ActiveRecord::Base
     if check_geo_params(column_name, geographic_item)
       #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
       f = select { '*' }.
-        select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.
-        where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.
+        select_distance(column_name, geographic_item).
+        where_distance_greater_than_zero(column_name,geographic_item).
         order { 'distance' }
     else
       where { 'false' }
@@ -147,7 +147,10 @@ class GeographicItem < ActiveRecord::Base
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
     if check_geo_params(column_name, geographic_item)
-      f = select { '*' }.select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order { 'distance desc' }
+      f = select { '*' }.
+        select_distance(column_name, geographic_item).
+        where_distance_greater_than_zero(column_name,geographic_item).
+        order { 'distance desc' }
     else
       where { 'false' }
     end
@@ -161,13 +164,20 @@ class GeographicItem < ActiveRecord::Base
       'false'
   end
 
+  def self.select_distance(column_name, geographic_item)
+    select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
+  end
+
+  def self.where_distance_greater_than_zero(column_name,geographic_item)
+    where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
+  end
+
   def ordered_by_shortest_distance_from_sql(column_name, geographic_item)
     # TODO: factor out common string text for shortest and longest, and add 'desc' to order_by
 
     check_geo_params(column_name, geographic_item) ?
       "true" :
       "false"
-
   end
 
   def self.excluding(geographic_items)
