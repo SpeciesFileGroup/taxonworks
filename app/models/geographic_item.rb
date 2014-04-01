@@ -168,16 +168,12 @@ class GeographicItem < ActiveRecord::Base
     select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
   end
 
-  def self.where_distance_greater_than_zero(column_name,geographic_item)
-    where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
+  def self.select_distance_with_geo_object(column_name, geographic_item)
+    select{'*'}.select_distance(column_name, geographic_item)
   end
 
-  def ordered_by_shortest_distance_from_sql(column_name, geographic_item)
-    # TODO: factor out common string text for shortest and longest, and add 'desc' to order_by
-
-    check_geo_params(column_name, geographic_item) ?
-      "true" :
-      "false"
+  def self.where_distance_greater_than_zero(column_name,geographic_item)
+    where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
   end
 
   def self.excluding(geographic_items)

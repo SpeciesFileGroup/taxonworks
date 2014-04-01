@@ -640,7 +640,8 @@ describe GeographicItem do
         expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@j, @e])
       end
 
-      #TODO: Is this test right?  What about @k, @d?
+      #TODOone: Is this test right?  What about @k, @d?
+      #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
       specify "#disjoint_from list of objects (uses 'and')." do
         expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to eq([@b1, @b2, @b, @g1])
       end
@@ -653,6 +654,15 @@ describe GeographicItem do
         expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
         expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
       end
+
+      specify '#select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
+        result = GeographicItem.select_distance_with_geo_object('point', @r2020).limit(3).order('distance').where_distance_greater_than_zero('point', @r2020).to_a
+        expect(result).to eq([@r2022, @r2024, @p14])
+        expect(result.first.distance).to eq(5.008268179)
+        expect(result[1].distance).to eq(10.016536381)
+        expect(result[2].distance).to eq(5862006.0029975)
+      end
+
     end
   end
 
@@ -860,9 +870,9 @@ describe GeographicItem do
       outer_limits: @outer_limits.id
     }
 
-  @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
+    @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
 
-  puts @debug_names.invert[@p1]
+    puts @debug_names.invert[@p1]
 
   end
 
