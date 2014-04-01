@@ -1,4 +1,5 @@
 require 'spec_helper'
+require_relative '../support/geo'
 
 describe GeographicItem do
   before(:all) {
@@ -874,9 +875,9 @@ describe GeographicItem do
       outer_limits: @outer_limits.id
     }
 
-    @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
+    # @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
 
-    puts @debug_names.invert[@p1]
+    # puts @debug_names.invert[@p1]
 
   end
 

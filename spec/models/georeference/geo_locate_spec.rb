@@ -41,7 +41,6 @@ describe Georeference::GeoLocate do
       geo_locate.locate
       geo_locate.make_geographic_item
       expect(geo_locate.geographic_item).not_to be_nil
-
     end
 
     specify '.make_error_geographic_item populates .error_geographic_item when @response contains a result' do

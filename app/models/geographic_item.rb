@@ -116,7 +116,6 @@ class GeographicItem < ActiveRecord::Base
 
   def self.disjoint_from(column_name, *geographic_items)
     # select id from geographic_items where st_disjoint( polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))') ) = true ;
-
     where { geographic_items.flatten.collect { |geographic_item| "st_disjoint(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" }.join(' and ') }
   end
 
@@ -129,14 +128,13 @@ class GeographicItem < ActiveRecord::Base
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
     # select id, st_distance(point, geomfromewkt('srid=4326;POINT(-28 -21)')) as distance from geographic_items where point is not null order by delta limit 4;
-
-    #      select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
+    # select { "geographic_items.*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }.where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }.order{'distance'} :
 
     if check_geo_params(column_name, geographic_item)
       #"ST_Distance(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
       f = select { '*' }.
         select_distance(column_name, geographic_item).
-        where_distance_greater_than_zero(column_name,geographic_item).
+        where_distance_greater_than_zero(column_name, geographic_item).
         order { 'distance' }
     else
       where { 'false' }
@@ -177,7 +175,6 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.excluding(geographic_items)
-
     # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
   end
