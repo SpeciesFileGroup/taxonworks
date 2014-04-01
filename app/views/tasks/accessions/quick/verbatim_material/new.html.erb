@@ -36,27 +36,30 @@
     <div class="field">
       <%= label_tag :collecting_event %>
       <%= text_area_tag 'collection_object[buffered_collecting_event]' %>
-      <%= check_box_tag :lock %>
-      <%= label_tag 'lock_collecting_event' %>
+      <%= check_box_tag :lock_collecting_event %>
+      <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :determinations %>
       <%= text_area_tag 'collection_object[buffered_determinations]' %>
-      <%= check_box_tag :lock %>
-      <%= label_tag 'lock_buffered_determinations' %>
+      <%= check_box_tag :lock_buffered_determinations %>
+      <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :other_labels %>
       <%= text_area_tag 'collection_object[buffered_other_labels]' %>
-      <%= check_box_tag :lock %>
-      <%= label_tag 'lock_other_labels' %>
+      <%= check_box_tag :lock_other_labels %>
+      <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :notes %> (attached to all material)
       <%= text_area_tag 'note[text]' %>
-      <%= check_box_tag :lock %>
-      <%= label_tag 'lock_note' %>
+      <%= check_box_tag :lock_note %>
+      <%= label_tag 'lock' %>
     </div>
+
+    <%= render 'attribute_form' %>
+
 
     <div class="actions">
       <%= submit_tag %>
