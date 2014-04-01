@@ -657,9 +657,13 @@ describe GeographicItem do
 
       specify '#select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
         result = GeographicItem.select_distance_with_geo_object('point', @r2020).limit(3).order('distance').where_distance_greater_than_zero('point', @r2020).to_a
+        # get back these three points
         expect(result).to eq([@r2022, @r2024, @p14])
+        # 5 meters
         expect(result.first.distance).to eq(5.008268179)
+        # 10 meters
         expect(result[1].distance).to eq(10.016536381)
+        # 5,862 km (3,642 miles)
         expect(result[2].distance).to eq(5862006.0029975)
       end
 
