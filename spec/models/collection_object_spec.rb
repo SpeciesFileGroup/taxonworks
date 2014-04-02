@@ -9,7 +9,7 @@ describe CollectionObject do
       collection_object.valid?
       expect(collection_object.errors.include?(:type)).to be_true
     end
- 
+
     specify 'both total and ranged_lot_category_id can not be present' do
       collection_object.total = 10
       collection_object.ranged_lot_category_id = 10
@@ -78,10 +78,9 @@ describe CollectionObject do
     it_behaves_like "notable"
     it_behaves_like "data_attributes"
     it_behaves_like "taggable"
-  
+
     specify "locatable (location)"
     specify "figurable (images)"
 
   end
-
 end

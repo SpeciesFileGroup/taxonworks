@@ -18,6 +18,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 
+
+ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+
 RSpec.configure do |config|
   # ## Mock Framework
   #

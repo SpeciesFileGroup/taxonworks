@@ -14,6 +14,7 @@ describe 'Authentication' do
         sign_up_with('user@signup.com', 'password', 'password')
         @signup_user = User.find_by_email('user@signup.com')
       end
+
       after { User.find_by_email('user@signup.com').destroy rescue nil }
 
       it 'should create user account and provide feedback' do

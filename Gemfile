@@ -66,6 +66,8 @@ gem 'bcrypt-ruby', '~> 3.1.5'
 # API view template engine
 gem 'rabl'
 
+gem 'rmagick', '~> 2.13.2'
+
 group :test, :development do
   gem 'rspec-rails', '~> 2.14.2'
   gem 'inch'
