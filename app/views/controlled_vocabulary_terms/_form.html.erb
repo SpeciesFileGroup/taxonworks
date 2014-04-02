@@ -1,4 +1,4 @@
-<%= form_for(@controlled_vocabulary_term) do |f| %>
+<%= form_for(@controlled_vocabulary_term.becomes(ControlledVocabularyTerm)) do |f| %>
   <% if @controlled_vocabulary_term.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@controlled_vocabulary_term.errors.count, "error") %> prohibited this controlled_vocabulary_term from being saved:</h2>
@@ -13,7 +13,7 @@
 
   <div class="field">
     <%= f.label :type %><br>
-    <%= f.text_field :type %>
+    <%= f.select :type, ControlledVocabularyTerm.descendants.collect{|d| [d.name, d]} %>
   </div>
   <div class="field">
     <%= f.label :name %><br>
@@ -22,18 +22,6 @@
   <div class="field">
     <%= f.label :definition %><br>
     <%= f.text_area :definition %>
-  </div>
-  <div class="field">
-    <%= f.label :created_by_id %><br>
-    <%= f.number_field :created_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :updated_by_id %><br>
-    <%= f.number_field :updated_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
-    <%= f.number_field :project_id %>
   </div>
   <div class="actions">
     <%= f.submit %>

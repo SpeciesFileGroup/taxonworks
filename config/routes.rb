@@ -4,7 +4,6 @@ TaxonWorks::Application.routes.draw do
   
   root 'dashboard#index'
 
-  resources :biocuration_classes
   resources :biocuration_classifications
   resources :collecting_events
   resources :collection_objects
