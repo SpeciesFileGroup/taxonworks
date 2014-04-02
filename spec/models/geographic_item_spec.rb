@@ -661,11 +661,11 @@ describe GeographicItem do
         # get back these three points
         expect(result).to eq([@r2022, @r2024, @p14])
         # 5 meters
-        expect(result.first.distance).to eq(5.008268179)
+        expect(result.first.distance).to be_within(0.1).of(5.008268179)
         # 10 meters
-        expect(result[1].distance).to eq(10.016536381)
+        expect(result[1].distance).to be_within(0.1).of(10.016536381)
         # 5,862 km (3,642 miles)
-        expect(result[2].distance).to eq(5862006.0029975)
+        expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
       end
 
     end
