@@ -67,7 +67,7 @@ gem 'bcrypt-ruby', '~> 3.1.5'
 gem 'rabl'
 
 group :test, :development do
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 2.14.2'
   gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
@@ -79,7 +79,7 @@ group :doc do
 end
 
 group :test do
-  gem "rspec"
+  gem "rspec", '~> 2.14.1'
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
 end
