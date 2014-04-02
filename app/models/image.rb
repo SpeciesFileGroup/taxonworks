@@ -54,7 +54,15 @@ class Image < ActiveRecord::Base
       return false
     end
 =end
+=begin
+bash shell extraction notes:
+identify -format "%[EXIF:*]" ExifImage.jpg
+a=`identify -format "%[EXIF:*]" ExifImage.jpg`
+
+a.split("\n").collect{|b| b.gsub("exif:", "").split("=")}.inject({}){|hsh, c| hsh.merge(c[0]=>c[1])}
+
     # drop to the shell
+=end
     # run an imageMagick command (identify?) pass to that command self.image_file.url
 
   end

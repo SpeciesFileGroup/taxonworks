@@ -1,4 +1,5 @@
 require 'spec_helper'
+require_relative '../support/geo'
 
 describe GeographicItem do
   before(:all) {
@@ -572,19 +573,14 @@ describe GeographicItem do
       expect(GeographicItem).to respond_to(:disjoint_from)
     end
 
-    specify '.meters_away_from to find all objects which are within a specific distance of an object.' do
-      expect(GeographicItem).to respond_to(:meters_away_from)
+    specify '.within_radius_of to find all objects which are within a specific distance of an object.' do
+      expect(GeographicItem).to respond_to(:within_radius_of)
     end
 
     specify '.intersecting method to intersecting an \'or\' list of objects.' do
       expect(GeographicItem).to respond_to(:intersecting)
     end
 
-
-    #specify 'point of Lat/Long' do
-    #  p1 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-    #
-    #end
 
     specify '.containing_sql' do
       expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
@@ -613,11 +609,16 @@ describe GeographicItem do
         expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to eq([@e1, @k])
         # two things inside one thing, and
         expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
-        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b, @b1])
+        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b1, @b])
       end
 
       specify '#excluding([]) drop selves from any list of objects' do
-        expect(GeographicItem.excluding(@p2).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, nil]) # update nill
+        # @p2 would have been in the list, except for the exclude
+        expect(GeographicItem.excluding([@p2]).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, @p17])
+        # @p2 would *not* have been in the list anyway
+        expect(GeographicItem.excluding([@p2]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
+        # @r2022 would  have been in the list, except for the exclude
+        expect(GeographicItem.excluding([@r2022]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2020, @p10])
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
@@ -631,29 +632,42 @@ describe GeographicItem do
       end
 
       specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
-        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3)).to eq([@r2024, @r2022, @r2020])
-        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
-        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
-        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
-        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
-        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
+        expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
+        expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@c3, @c1, @c2])
+        expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(4).to_a).to eq([@g1, @g2, @g3, @b2])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@rooms, @h])
+        expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@c, @f])
         expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
-        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
+        expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@j, @e])
       end
 
-      #TODO: Is this test right?  What about @k, @d?
+      #TODOone: Is this test right?  What about @k, @d?
+      #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
       specify "#disjoint_from list of objects (uses 'and')." do
-        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5])).to eq([@b])
+        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to eq([@b1, @b2, @b, @g1])
       end
 
-      specify '#meters_away_from returns objects within a specific distance of an object.' do
-        expect(GeographicItem.meters_away_from('polygon', @p0, 10)).to eq([])
+      specify '#within_radius of returns objects within a specific distance of an object.' do
+        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5])
       end
 
       specify "#intersecting list of objects (uses 'or')" do
         expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
         expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
       end
+
+      specify '#select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
+        result = GeographicItem.select_distance_with_geo_object('point', @r2020).limit(3).order('distance').where_distance_greater_than_zero('point', @r2020).to_a
+        # get back these three points
+        expect(result).to eq([@r2022, @r2024, @p14])
+        # 5 meters
+        expect(result.first.distance).to be_within(0.1).of(5.008268179)
+        # 10 meters
+        expect(result[1].distance).to be_within(0.1).of(10.016536381)
+        # 5,862 km (3,642 miles)
+        expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
+      end
+
     end
   end
 
@@ -861,9 +875,9 @@ describe GeographicItem do
       outer_limits: @outer_limits.id
     }
 
-  # @debug_names.collect { |k, v| print v.to_s + ": " + k.to_s + "       "}
+    # @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
 
-  # puts @debug_names.invert[@p1]
+    # puts @debug_names.invert[@p1]
 
   end
 

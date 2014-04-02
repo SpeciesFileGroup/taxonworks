@@ -1,6 +1,5 @@
 # Methods for handling the "bulk" accession of collection objects
 module Material
-
     
   def self.create_quick_verbatim(options  = {}) 
     # We could refactor this to use nested attributes, but it's not that much cleaner 

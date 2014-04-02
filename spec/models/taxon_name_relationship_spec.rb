@@ -384,6 +384,16 @@ describe TaxonNameRelationship do
           r1.soft_validate('validate_homonym_relationships')
           expect(r1.soft_validations.messages_on(:type).empty?).to be_true
         end
+        specify 'subsequent type designation after 1930' do
+          @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+          expect(@r1.save).to be_true
+          @r1.soft_validate('specific_relationship')
+          expect(@r1.soft_validations.messages_on(:type).empty?).to be_true
+          @r1.object_taxon_name.year_of_publication = 1950
+          expect(@r1.save).to be_true
+          @r1.soft_validate('specific_relationship')
+          expect(@r1.soft_validations.messages_on(:type).size).to eq(1)
+        end
       end
 
       context 'not specific relationships' do

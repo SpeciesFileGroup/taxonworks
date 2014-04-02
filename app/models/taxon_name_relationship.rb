@@ -255,7 +255,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_specific_relationship
-    #TODO validate that homonyms spelled identically with variable spelling
     s = self.subject_taxon_name
     o = self.object_taxon_name
     case self.type_name
@@ -291,6 +290,9 @@ class TaxonNameRelationship < ActiveRecord::Base
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be accepted as a replacement name before 1961') if self.source.year > 1960
         end
+      when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
+
     end
   end
 

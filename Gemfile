@@ -8,9 +8,7 @@ gem 'pg', '~> 0.17.0'
 
 # Postgis
 gem 'activerecord-postgis-adapter'
-# gem 'rgeo-activerecord'
-# gem 'activerecord-spatial'
- gem 'squeel'
+gem 'squeel'
 
 # rgeo support
 gem 'ffi-geos'
@@ -65,16 +63,17 @@ gem 'validates_timeliness', "~> 3.0.14"
 # Password encryption
 gem 'bcrypt-ruby', '~> 3.1.5'
 
-# Build instances from factories
-gem "factory_girl_rails", "~> 4.0"
-
 # API view template engine
 gem 'rabl'
 
+gem 'rmagick', '~> 2.13.2'
+
 group :test, :development do
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 2.14.2'
+  gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
+  gem "factory_girl_rails", "~> 4.0"
 end
 
 group :doc do
@@ -82,13 +81,8 @@ group :doc do
 end
 
 group :test do
-  gem "rspec"
+  gem "rspec", '~> 2.14.1'
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
 end
-
-group :development do 
-  # gem 'foreigner', '~> 1.6' # conflicts with postgis adapter at present
-end
-
 

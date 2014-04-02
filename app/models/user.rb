@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
 
   private
 
-    def set_remember_token
-      self.remember_token = User.encrypt(User.secure_random_token)
-    end
+  def set_remember_token
+    self.remember_token = User.encrypt(User.secure_random_token)
+  end
 end
