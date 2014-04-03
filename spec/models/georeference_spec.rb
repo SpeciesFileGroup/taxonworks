@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe Georeference do
 
+  let(:georeference) {FactoryGirl.build(:georeference)}
+
   let(:collecting_event) { FactoryGirl.build(:valid_collecting_event,
                                              verbatim_label: 'The Office of the Marilyn of Beckman',
                                              verbatim_latitude:  '40.092067',
@@ -15,14 +17,16 @@ describe Georeference do
 
   context 'validation' do
     before(:each) {
+      georeference.save
       # nominal request already exists, do the elocation
-      georef_located.locate
+      # georef_located.locate
       # and try to save the record
-      georef_located.save
+      # georef_located.save
     }
 
     specify '#geographic_item is required' do
       pending 'validation of existance of proper geographic_item'
+      expect(georeference.errors.keys.include?(:collecting_event)).to be_true
       #  expect(georeference.geographic_item.class).to eq(GeographicItem)
       # expect(georeference.geographic_utem.type).to eq('Polygon')
     end
@@ -40,8 +44,15 @@ describe Georeference do
     end
 
     context 'legal values' do
+    
       specify '#error_radius is < some Earth based limit' do
+        georeference.error_radius = 'some big radius'
+        expect(georeference.save).to be_false
+        expect(georeference.errors.keys.include?(:error_georeference)).to be_true
         pending 'setting error radius to some reasonable distance'
+
+        
+
       end
       specify '#error_depth is < some Earth based limit' do
         pending 'setting error depth to some reasonable distance'
@@ -59,8 +70,11 @@ describe Georeference do
   context 'associations' do
     context 'belongs_to' do
 
+      # Build a valid_georeference
+
       specify 'geographic_item' do
         expect(georef_located).to respond_to :geographic_item
+        expect(valid_georeference.geographic_item.class).to eq(GeographicItem)
       end
 
       specify 'error_geographic_item' do
