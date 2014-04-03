@@ -2,24 +2,37 @@ require 'spec_helper'
 
 describe Georeference do
 
-  let(:georeference) { FactoryGirl.build(:georeference) }
+  let(:collecting_event) { FactoryGirl.build(:valid_collecting_event,
+                                             verbatim_label: 'The Office of the Marilyn of Beckman',
+                                             verbatim_latitude:  '40.092067',
+                                             verbatim_longitude: '-88.249519') }
+  let(:georef_located) { FactoryGirl.build(:city_of_champaign) }
+  let(:georef_stated) { FactoryGirl.build(:point_georeference) }
+
   let(:request_params) {
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
   }
 
   context 'validation' do
     before(:each) {
-      georeference.save!
+      # nominal request already exists, do the elocation
+      georef_located.locate
+      # and try to save the record
+      georef_located.save
     }
 
     specify '#geographic_item is required' do
       pending 'validation of existance of proper geographic_item'
+      #  expect(georeference.geographic_item.class).to eq(GeographicItem)
+      # expect(georeference.geographic_utem.type).to eq('Polygon')
     end
     specify '#collecting_event is required' do
       pending 'validation of existance of proper collection event'
+      # expect(georeference.collecting_event.class).to eq(CollectingEvent)
     end
     specify '#type is required' do
       pending 'information about whet #type is supposed to do'
+      # expect(georeference.type).to eq('GeoLocate')
     end
     specify "#error_geographic_item is required" do
       # <- what did we conclude if no error is provided, just nil? -> will cause issues if so for calculations
@@ -39,7 +52,7 @@ describe Georeference do
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
         pending 'determininization of what \'something like this\' means in the context of collecting_event'
       end
-    end 
+    end
   end
 
 
@@ -47,15 +60,15 @@ describe Georeference do
     context 'belongs_to' do
 
       specify 'geographic_item' do
-        expect(georeference).to respond_to :geographic_item
+        expect(georef_located).to respond_to :geographic_item
       end
 
       specify 'error_geographic_item' do
-        expect(georeference).to respond_to :error_geographic_item
+        expect(georef_located).to respond_to :error_geographic_item
       end
 
       specify 'collecting_event' do
-        expect(georeference).to respond_to :collecting_event
+        expect(georef_located).to respond_to :collecting_event
       end
     end
 
@@ -63,11 +76,11 @@ describe Georeference do
 
   context 'scopes' do
 
-    before(:each) { 
+    before(:each) {
       # build some geo-references for testing using existing factories and geometries, something roughly like this 
       @gr1 = FactoryGirl.build(:valid_georeference,
-                               #collecting_event: FactoryGirl.build(:valid_collecting_event, locality: 'Some string'),
-                               geographic_item: FactoryGirl.build(:geographic_item_with_polygon))    # swap out the polygon with another shape if needed
+                               collecting_event: FactoryGirl.build(:valid_collecting_event, verbatim_locality: 'Some string'),
+                               geographic_item: FactoryGirl.build(:geographic_item_with_polygon)) # swap out the polygon with another shape if needed
 
       # ...
       # @gr2
@@ -107,12 +120,21 @@ describe Georeference do
 
   context 'request responses' do
     specify 'creates a geo_object' do
+      #pending 'fixup on \'c\' vs. \'georeference\''
       c = Georeference::GeoLocate.new(request: request_params)
       c.locate
       c.save
+
       expect(c.geographic_item.class).to eq(GeographicItem)
       expect(c.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
     end
+=begin
+      georeference.locate
+      georeference.save!
+      expect(georeference.geographic_item.class).to eq(GeographicItem)
+      expect(georeference.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
+    end
+=end
 
     specify 'can be geometrically compared through #geographic_item.geo_object' do
       c_locator = Georeference::GeoLocate.new(request: request_params)
