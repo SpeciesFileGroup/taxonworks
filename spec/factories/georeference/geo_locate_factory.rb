@@ -2,6 +2,8 @@ FactoryGirl.define do
 
   factory :georeference_geo_locate, class: 'Georeference::GeoLocate', traits: [:housekeeping] do
 
+    association :collecting_event, factory: :valid_collecting_event, verbatim_latitude: '40.092067', verbatim_longitude: '-88.249519'
+
     factory :valid_georeference_geo_locate, aliases: [:city_of_champaign] do
 
       request { {country:      'usa',
