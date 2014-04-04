@@ -2,14 +2,13 @@ require 'spec_helper'
 
 describe Georeference do
 
-  let(:georeference) {FactoryGirl.build(:georeference)}
+  #grgl = Georeference::GeoLocate.new()
+  #grvd = Georeference::VerbatimData.new()
 
-  let(:collecting_event) { FactoryGirl.build(:valid_collecting_event,
-                                             verbatim_label: 'The Office of the Marilyn of Beckman',
-                                             verbatim_latitude:  '40.092067',
-                                             verbatim_longitude: '-88.249519') }
-  let(:georef_located) { FactoryGirl.build(:city_of_champaign) }
-  let(:georef_stated) { FactoryGirl.build(:point_georeference) }
+  let(:georeference) {FactoryGirl.build(:georeference)}
+  let(:valid_georeference) {FactoryGirl.build(:valid_georeference)}
+  let(:valid_georeference_geo_locate) {FactoryGirl.build(:valid_georeference_geo_locate)}
+  let(:valid_georeference_verbatim_data) {FactoryGirl.build(:valid_georeference_verbatim_data)}
 
   let(:request_params) {
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
@@ -18,25 +17,16 @@ describe Georeference do
   context 'validation' do
     before(:each) {
       georeference.save
-      # nominal request already exists, do the elocation
-      # georef_located.locate
-      # and try to save the record
-      # georef_located.save
     }
 
     specify '#geographic_item is required' do
-      pending 'validation of existance of proper geographic_item'
-      expect(georeference.errors.keys.include?(:collecting_event)).to be_true
-      #  expect(georeference.geographic_item.class).to eq(GeographicItem)
-      # expect(georeference.geographic_utem.type).to eq('Polygon')
+      expect(georeference.errors.keys.include?(:geographic_item)).to be_true
     end
     specify '#collecting_event is required' do
-      pending 'validation of existance of proper collection event'
-      # expect(georeference.collecting_event.class).to eq(CollectingEvent)
+      expect(georeference.errors.keys.include?(:collecting_event)).to be_true
     end
     specify '#type is required' do
-      pending 'information about whet #type is supposed to do'
-      # expect(georeference.type).to eq('GeoLocate')
+      expect(georeference.errors.keys.include?(:type)).to be_true
     end
     specify "#error_geographic_item is required" do
       # <- what did we conclude if no error is provided, just nil? -> will cause issues if so for calculations
@@ -46,12 +36,10 @@ describe Georeference do
     context 'legal values' do
     
       specify '#error_radius is < some Earth based limit' do
-        georeference.error_radius = 'some big radius'
-        expect(georeference.save).to be_false
-        expect(georeference.errors.keys.include?(:error_georeference)).to be_true
         pending 'setting error radius to some reasonable distance'
-
-        
+        #georeference.error_radius = 'some big radius'
+        #expect(georeference.save).to be_false
+        #expect(georeference.errors.keys.include?(:error_georeference)).to be_true
 
       end
       specify '#error_depth is < some Earth based limit' do
@@ -73,16 +61,16 @@ describe Georeference do
       # Build a valid_georeference
 
       specify 'geographic_item' do
-        expect(georef_located).to respond_to :geographic_item
-        expect(valid_georeference.geographic_item.class).to eq(GeographicItem)
+        expect(valid_georeference_geo_locate).to respond_to :geographic_item
+        expect(valid_georeference_geo_locate.geographic_item.class).to eq(GeographicItem)
       end
 
       specify 'error_geographic_item' do
-        expect(georef_located).to respond_to :error_geographic_item
+        expect(valid_georeference_geo_locate).to respond_to :error_geographic_item
       end
 
       specify 'collecting_event' do
-        expect(georef_located).to respond_to :collecting_event
+        expect(valid_georeference_geo_locate).to respond_to :collecting_event
       end
     end
 
@@ -135,7 +123,8 @@ describe Georeference do
   context 'request responses' do
     specify 'creates a geo_object' do
       #pending 'fixup on \'c\' vs. \'georeference\''
-      c = Georeference::GeoLocate.new(request: request_params)
+      c = Georeference::GeoLocate.new(request: request_params,
+                                      collecting_event: FactoryGirl.build(:valid_collecting_event))
       c.locate
       c.save
 
@@ -151,9 +140,11 @@ describe Georeference do
 =end
 
     specify 'can be geometrically compared through #geographic_item.geo_object' do
-      c_locator = Georeference::GeoLocate.new(request: request_params)
+      c_locator = Georeference::GeoLocate.new(request: request_params,
+                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
       c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+      u_locator = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
 
       c_locator.save
       u_locator.save
@@ -170,7 +161,8 @@ describe Georeference do
     context 'the object returns a type' do
       specify 'which is GeoLocate' do
 
-        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
         geo_locate.build
         geo_locate.save
 
@@ -189,7 +181,8 @@ describe Georeference do
     # TODO: The question here is *not* wether or not the geo_object is valid, but one of precisly *which* object was selected through the geolocate process
     context 'the GeographicItem.geo_object.to_a returns a properly formed array' do
       specify 'for point' do
-        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
         geo_locate.build
         geo_locate.save
 
@@ -201,7 +194,8 @@ describe Georeference do
       end
 
       specify 'for polygon' do
-        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'})
+        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
         geo_locate.build
         geo_locate.save
 
