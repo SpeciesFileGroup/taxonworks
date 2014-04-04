@@ -20,9 +20,6 @@ describe "biocuration_classifications/edit" do
       assert_select "input#biocuration_classification_biocuration_class_id[name=?]", "biocuration_classification[biocuration_class_id]"
       assert_select "input#biocuration_classification_biological_collection_object_id[name=?]", "biocuration_classification[biological_collection_object_id]"
       assert_select "input#biocuration_classification_position[name=?]", "biocuration_classification[position]"
-      assert_select "input#biocuration_classification_created_by_id[name=?]", "biocuration_classification[created_by_id]"
-      assert_select "input#biocuration_classification_updated_by_id[name=?]", "biocuration_classification[updated_by_id]"
-      assert_select "input#biocuration_classification_project_id[name=?]", "biocuration_classification[project_id]"
     end
   end
 end

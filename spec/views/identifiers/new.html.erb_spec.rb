@@ -25,8 +25,6 @@ describe "identifiers/new" do
       assert_select "input#identifier_type[name=?]", "identifier[type]"
       assert_select "input#identifier_cached_identifier[name=?]", "identifier[cached_identifier]"
       assert_select "input#identifier_namespace_id[name=?]", "identifier[namespace_id]"
-      assert_select "input#identifier_created_by_id[name=?]", "identifier[created_by_id]"
-      assert_select "input#identifier_updated_by_id[name=?]", "identifier[updated_by_id]"
     end
   end
 end

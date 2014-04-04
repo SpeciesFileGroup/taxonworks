@@ -68,9 +68,6 @@ describe "collecting_events/edit" do
       assert_select "textarea#collecting_event_field_notes[name=?]", "collecting_event[field_notes]"
       assert_select "input#collecting_event_md5_of_verbatim_label[name=?]", "collecting_event[md5_of_verbatim_label]"
       assert_select "textarea#collecting_event_cached_display[name=?]", "collecting_event[cached_display]"
-      assert_select "input#collecting_event_created_by_id[name=?]", "collecting_event[created_by_id]"
-      assert_select "input#collecting_event_updated_by_id[name=?]", "collecting_event[updated_by_id]"
-      assert_select "input#collecting_event_project_id[name=?]", "collecting_event[project_id]"
     end
   end
 end

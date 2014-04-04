@@ -19,8 +19,6 @@ describe "namespaces/new" do
       assert_select "input#namespace_institution[name=?]", "namespace[institution]"
       assert_select "input#namespace_name[name=?]", "namespace[name]"
       assert_select "input#namespace_short_name[name=?]", "namespace[short_name]"
-      assert_select "input#namespace_created_by_id[name=?]", "namespace[created_by_id]"
-      assert_select "input#namespace_updated_by_id[name=?]", "namespace[updated_by_id]"
     end
   end
 end

@@ -21,9 +21,6 @@ describe "taxon_name_relationships/new" do
       assert_select "input#taxon_name_relationship_subject_taxon_name_id[name=?]", "taxon_name_relationship[subject_taxon_name_id]"
       assert_select "input#taxon_name_relationship_object_taxon_name_id[name=?]", "taxon_name_relationship[object_taxon_name_id]"
       assert_select "input#taxon_name_relationship_type[name=?]", "taxon_name_relationship[type]"
-      assert_select "input#taxon_name_relationship_created_by_id[name=?]", "taxon_name_relationship[created_by_id]"
-      assert_select "input#taxon_name_relationship_updated_by_id[name=?]", "taxon_name_relationship[updated_by_id]"
-      assert_select "input#taxon_name_relationship_project_id[name=?]", "taxon_name_relationship[project_id]"
       assert_select "input#taxon_name_relationship_source_id[name=?]", "taxon_name_relationship[source_id]"
     end
   end

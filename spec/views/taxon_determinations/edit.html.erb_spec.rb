@@ -26,9 +26,6 @@ describe "taxon_determinations/edit" do
       assert_select "input#taxon_determination_year_made[name=?]", "taxon_determination[year_made]"
       assert_select "input#taxon_determination_month_made[name=?]", "taxon_determination[month_made]"
       assert_select "input#taxon_determination_day_made[name=?]", "taxon_determination[day_made]"
-      assert_select "input#taxon_determination_created_by_id[name=?]", "taxon_determination[created_by_id]"
-      assert_select "input#taxon_determination_updated_by_id[name=?]", "taxon_determination[updated_by_id]"
-      assert_select "input#taxon_determination_project_id[name=?]", "taxon_determination[project_id]"
     end
   end
 end

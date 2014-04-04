@@ -22,9 +22,6 @@ describe "collection_objects/new" do
       assert_select "input#collection_object_type[name=?]", "collection_object[type]"
       assert_select "input#collection_object_preparation_type_id[name=?]", "collection_object[preparation_type_id]"
       assert_select "input#collection_object_repository_id[name=?]", "collection_object[repository_id]"
-      assert_select "input#collection_object_created_by_id[name=?]", "collection_object[created_by_id]"
-      assert_select "input#collection_object_updated_by_id[name=?]", "collection_object[updated_by_id]"
-      assert_select "input#collection_object_project_id[name=?]", "collection_object[project_id]"
-    end
+     end
   end
 end
