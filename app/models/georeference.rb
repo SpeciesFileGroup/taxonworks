@@ -56,10 +56,10 @@ class Georeference < ActiveRecord::Base
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
-  validate :proper_data_is_provided
-  validates_presence_of :geographic_item
-  validates_presence_of :collecting_event
-  validates_presence_of :type
+  #validate :proper_data_is_provided
+  validates :geographic_item, presence: true
+  validates :collecting_event, presence: true
+  validates :type, presence: true
 
   protected
 
