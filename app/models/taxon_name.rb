@@ -7,7 +7,7 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set scope: [:project_id]
 
-  belongs_to :source 
+  belongs_to :source
   has_many :taxon_name_classifications
 
   #relationships as a subject
@@ -249,6 +249,14 @@ class TaxonName < ActiveRecord::Base
         n = nil
     end
     n.blank? ? self.name : n
+  end
+
+  def all_generic_placements
+    valid_name = self.get_valid_taxon_name
+    return nil unless valid_name.rank_class.to_s !=~ /Species/
+    descendants_and_self = valid_name.descendants + [self]
+    relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
+    relationships.collect{|r| r.subject_taxon_name.name} + [self.ancestor_at_rank('genus').name]
   end
 
   #region Set cached fields
