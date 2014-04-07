@@ -312,6 +312,12 @@ describe TaxonName do
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
+        specify 'source_classified_as' do
+          c = FactoryGirl.create(:combination, parent: @species)
+          c.source_classified_as = @family
+          expect(c.save).to be_true
+          expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
+        end
         specify 'different gender' do
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
           @species.masculine_name = 'vitus'

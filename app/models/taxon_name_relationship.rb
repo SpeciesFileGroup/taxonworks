@@ -295,7 +295,8 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
-
+      when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
+        #TODO: Check if more than one species associated with the genus in the original paper
     end
   end
 
