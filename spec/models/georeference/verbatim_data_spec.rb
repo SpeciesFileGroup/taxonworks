@@ -4,7 +4,7 @@ describe Georeference::VerbatimData do
   context 'VerbatimData uses self.collecting_event to internalize data' do
 
     specify 'without elevation' do
-      pending "without elevation"
+      #pending "without elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))

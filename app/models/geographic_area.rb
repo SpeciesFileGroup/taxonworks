@@ -1,7 +1,7 @@
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
-  # TODO: Investigate how to do this unconditionally. Use rake BUILD_GEO=1 ... to run incompatible tasks.
+  # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
   acts_as_nested_set unless ENV['NO_GEO_NESTING']
 
   belongs_to :gadm_geo_item, class_name: 'GeographicItem', foreign_key: :gadm_geo_item_id
@@ -13,6 +13,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :parent, class_name: 'GeographicArea', foreign_key: :parent_id
   belongs_to :tdwg_geo_item, class_name: 'GeographicItem', foreign_key: :tdwg_geo_item_id
   belongs_to :tdwg_parent, class_name: 'GeographicArea', foreign_key: :tdwg_parent_id
+  belongs_to :collecting_events, inverse_of: :geographic_area
 
   validates_presence_of :data_origin
   validates_presence_of :name

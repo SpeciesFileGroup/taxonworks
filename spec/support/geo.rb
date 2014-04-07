@@ -293,10 +293,32 @@ E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
 
+LIST_T1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1),
+                                         RSPEC_GEO_FACTORY.point(1, 1),
+                                         RSPEC_GEO_FACTORY.point(1, -1),
+                                         RSPEC_GEO_FACTORY.point(-1, -1)])
 
+LIST_T2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2),
+                                         RSPEC_GEO_FACTORY.point(2, 2),
+                                         RSPEC_GEO_FACTORY.point(2, -2),
+                                         RSPEC_GEO_FACTORY.point(-2, -2)])
 
+LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3),
+                                         RSPEC_GEO_FACTORY.point(3, 3),
+                                         RSPEC_GEO_FACTORY.point(3, -3),
+                                         RSPEC_GEO_FACTORY.point(-3, -3)])
 
-def gen_wkt_files()
+LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
+                                         RSPEC_GEO_FACTORY.point(4, 4),
+                                         RSPEC_GEO_FACTORY.point(4, -4),
+                                         RSPEC_GEO_FACTORY.point(-4, -4)])
+
+BOX_B = RSPEC_GEO_FACTORY.polygon(LIST_T1)
+BOX_C = RSPEC_GEO_FACTORY.polygon(LIST_T2)
+BOX_D = RSPEC_GEO_FACTORY.polygon(LIST_T3)
+BOX_E = RSPEC_GEO_FACTORY.polygon(LIST_T4)
+
+def gen_wkt_files_1()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
   f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
   f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
@@ -341,10 +363,6 @@ def gen_wkt_files()
   f_line.close
   f_poly.close
 end
-
-
-
-
 
 def gen_wkt_files()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.

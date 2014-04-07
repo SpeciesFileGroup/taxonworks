@@ -19,7 +19,7 @@ class Georeference::VerbatimData < Georeference
       if z1.blank?
         # no valid elevation provided
         self.is_undefined_z = true
-        delta_z        = 0.0
+        delta_z             = 0.0
       else
         # we have at least half of the range data
         delta_z = z1
@@ -28,17 +28,16 @@ class Georeference::VerbatimData < Georeference
           delta_z = z1
         else
           # we have full range data, so elevation is (top - bottom) / 2
-          z2 = z2.to_f
-          delta_z = (z2 - z1) * 0.5
+          z2               = z2.to_f
+          delta_z          = (z2 - z1) * 0.5
           # and show calculated median
           self.is_median_z = true
         end
       end
-      geographic_item       = GeographicItem.new
-      geographic_item.point = Georeference::FACTORY.point(long, lat, delta_z)
+      #if geographic_item.nil?
+        self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(long, lat, delta_z))
+      #end
+      geographic_item
     end
-  end
-
-  def xlate_lat_long
   end
 end

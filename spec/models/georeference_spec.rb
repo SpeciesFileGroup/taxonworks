@@ -5,10 +5,10 @@ describe Georeference do
   #grgl = Georeference::GeoLocate.new()
   #grvd = Georeference::VerbatimData.new()
 
-  let(:georeference) {FactoryGirl.build(:georeference)}
-  let(:valid_georeference) {FactoryGirl.build(:valid_georeference)}
-  let(:valid_georeference_geo_locate) {FactoryGirl.build(:valid_georeference_geo_locate)}
-  let(:valid_georeference_verbatim_data) {FactoryGirl.build(:valid_georeference_verbatim_data)}
+  let(:georeference) { FactoryGirl.build(:georeference) }
+  let(:valid_georeference) { FactoryGirl.build(:valid_georeference) }
+  let(:valid_georeference_geo_locate) { FactoryGirl.build(:valid_georeference_geo_locate) }
+  let(:valid_georeference_verbatim_data) { FactoryGirl.build(:valid_georeference_verbatim_data) }
 
   let(:request_params) {
     {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
@@ -16,6 +16,7 @@ describe Georeference do
 
   context 'validation' do
     before(:each) {
+      # the 'nothing special, not even valid' georeference
       georeference.save
     }
 
@@ -28,31 +29,80 @@ describe Georeference do
     specify '#type is required' do
       expect(georeference.errors.keys.include?(:type)).to be_true
     end
-    specify "#error_geographic_item is required" do
+    specify "#error_geographic_item is not required" do
       # <- what did we conclude if no error is provided, just nil? -> will cause issues if so for calculations
-      pending 'setting error distance to 3 meters if not provided'
+      #pending 'setting error distance to 3 meters if not provided'
+      expect(georeference.errors.keys.include?(:error_geographic_item)).not_to be_true
+    end
+    specify 'error_radius is not required' do
+      expect(georeference.errors.keys.include?(:error_radius)).to be_false
+    end
+    specify 'error_depth is not required' do
+      expect(georeference.errors.keys.include?(:error_depth)).to be_false
     end
 
     context 'legal values' do
-    
-      specify '#error_radius is < some Earth based limit' do
-        # 12,000 miles
-        pending 'setting error radius to some reasonable distance'
-        #georeference.error_radius = 'some big radius'
-        #expect(georeference.save).to be_false
-        #expect(georeference.errors.keys.include?(:error_georeference)).to be_true
+      before(:each) {
+        georeference.error_radius = 30000000
+        georeference.error_depth  = 9000
+      }
+
+      specify '#error_radius is < some Earth-based limit' do
+        # 12,400 miles, 20,000 km
+        #pending 'setting error radius to some reasonable distance'
+        expect(georeference.save).to be_false # many other reasons
+        expect(georeference.errors.keys.include?(:error_radius)).to be_true
+
+        georeference.error_radius = 3
+        expect(georeference.save).to be_false # many other reasons
+        expect(georeference.errors.keys.include?(:error_radius)).to be_false
 
       end
-      specify '#error_depth is < some Earth based limit' do
-        # 10,000 meters
-        pending 'setting error depth to some reasonable distance'
+      specify '#error_depth is < some Earth-based limit' do
+        # 8,800 meters
+        #pending 'setting error depth to some reasonable distance'
+        expect(georeference.save).to be_false # many other reasons
+        expect(georeference.errors.keys.include?(:error_depth)).to be_true
+
+        georeference.error_depth = 3
+        expect(georeference.save).to be_false # many other reasons
+        expect(georeference.errors.keys.include?(:error_depth)).to be_false
+
       end
       specify 'error_geographic_item.geo_object, when provided, should contain geographic_item.geo_object' do
         # case 1
-        pending 'validation of the accceptability of the error geo_object, if provided'
+        #   GeoRef    A (POINT0)
+        #   GeoItem   B (BOX_B)
+        #pending 'validation of the accceptability of the error geo_object, if provided'
+        #
+        # building up a georeference:
+        #
+        # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
+        c_e = CollectingEvent.new(verbatim_locality:  'Test Event',
+                                  minimum_elevation:  0.1,
+                                  verbatim_latitude:  '0.1',
+                                  verbatim_longitude: '0.1')
+
+        e_g_i = GeographicItem.new(polygon: BOX_B)
+
+        georeference = Georeference::VerbatimData.new(collecting_event:      c_e,
+                                                      error_geographic_item: e_g_i)
+
+        georeference.save
+
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+        georeference
+
       end
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
         pending 'determininization of what \'something like this\' means in the context of collecting_event'
+        #   Need a GeographicArea somewhere on earth called
+        # need a collecting event using box_b
+        box_b = GeographicArea.new(name:            'Box_B',
+                                   data_origin:     'Test Data',
+                                   parent:          FactoryGirl.build(:earth_geographic_area),
+                                   geographic_item: FactoryGirl.build(:valid_geographic_item_with_polygon, polygon: BOX_B))
+
       end
     end
   end
@@ -85,7 +135,7 @@ describe Georeference do
       # build some geo-references for testing using existing factories and geometries, something roughly like this 
       @gr1 = FactoryGirl.build(:valid_georeference,
                                collecting_event: FactoryGirl.build(:valid_collecting_event, verbatim_locality: 'Some string'),
-                               geographic_item: FactoryGirl.build(:geographic_item_with_polygon)) # swap out the polygon with another shape if needed
+                               geographic_item:  FactoryGirl.build(:geographic_item_with_polygon)) # swap out the polygon with another shape if needed
 
       # ...
       # @gr2
@@ -129,7 +179,7 @@ describe Georeference do
   context 'request responses' do
     specify 'creates a geo_object' do
       #pending 'fixup on \'c\' vs. \'georeference\''
-      c = Georeference::GeoLocate.new(request: request_params,
+      c = Georeference::GeoLocate.new(request:          request_params,
                                       collecting_event: FactoryGirl.build(:valid_collecting_event))
       c.locate
       c.save
@@ -146,10 +196,10 @@ describe Georeference do
 =end
 
     specify 'can be geometrically compared through #geographic_item.geo_object' do
-      c_locator = Georeference::GeoLocate.new(request: request_params,
+      c_locator = Georeference::GeoLocate.new(request:          request_params,
                                               collecting_event: FactoryGirl.build(:valid_collecting_event))
       c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+      u_locator = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
                                               collecting_event: FactoryGirl.build(:valid_collecting_event))
 
       c_locator.save
@@ -167,7 +217,7 @@ describe Georeference do
     context 'the object returns a type' do
       specify 'which is GeoLocate' do
 
-        geo_locate = Georeference::GeoLocate.new(request: {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
+        geo_locate = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
                                                  collecting_event: FactoryGirl.build(:valid_collecting_event))
         geo_locate.build
         geo_locate.save
@@ -177,8 +227,8 @@ describe Georeference do
 
       specify 'which is Verbatim' do
         georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
-                                                                                          minimum_elevation: 795,
-                                                                                          verbatim_latitude: '40.092067',
+                                                                                          minimum_elevation:  795,
+                                                                                          verbatim_latitude:  '40.092067',
                                                                                           verbatim_longitude: '-88.249519'))
         #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
         expect(georeference.type).to eq 'Georeference::VerbatimData'

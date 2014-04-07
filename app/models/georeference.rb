@@ -56,7 +56,7 @@ class Georeference < ActiveRecord::Base
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
-  #validate :proper_data_is_provided
+  validate :proper_data_is_provided
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
@@ -64,6 +64,7 @@ class Georeference < ActiveRecord::Base
   protected
 
   def proper_data_is_provided
+    retval = true
     #case
     #when GeographicItem.find(geographic_item_id) == nil
     #  errors.add(:geographic_item, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
@@ -75,7 +76,19 @@ class Georeference < ActiveRecord::Base
     #  Type.find(type).to_s != 'Georeference::GeoreferenceType'
     #  errors.add(:georeference, 'type must be of class Georeference::GeoreferenceType.')
     #else
-    true
+    #true
     #end
+    unless error_radius.nil?
+      errors.add(:error_radius, 'error_radius must be less than 20,000 kilometers (12,400 miles).') if error_radius > 20000000 # 20,000 km
+      retval = false
+    end
+    unless error_depth.nil?
+      errors.add(:error_depth, 'error_depth must be less than 8,800 kilometers (5.5 miles).') if error_depth > 8800 # 8,800 meters
+      retval = false
+    end
+    #unless error_geographic_item.nil?
+    #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
+    #end
+    retval
   end
 end
