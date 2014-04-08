@@ -3,6 +3,7 @@ module Shared::Taggable
 
   included do
     has_many :tags, as: :tag_object, validate: false
+    has_many :keywords, through: :tags 
   end 
 
   def tagged?

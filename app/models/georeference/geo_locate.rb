@@ -105,7 +105,7 @@ g.locate('USA', 'Champaign', 'IL')
   def make_error_geographic_item
 
     # evaluate for error_radius only if called for (default)
-    self.error_radius = @request[:doUncert] ? @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters'] : 0.0
+    self.error_radius = @request[:doUncert] ? @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters'] : 3.0
 
     #evaluate for error polygon only if called for (non-default)
     if @request[:doPoly]

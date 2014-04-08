@@ -4,7 +4,9 @@ class Container < ActiveRecord::Base
   include Housekeeping
   include Shared::Identifiable
   include Shared::Containable
+  include Shared::Taggable
   include SoftValidation
+
 
   # TODO: rethinking this 
   # belongs_to :otu

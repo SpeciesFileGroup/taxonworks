@@ -9,7 +9,7 @@ require 'spec_helper'
 # TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
 describe GeographicArea do
-  let(:geographic_area) { FactoryGirl.build(:geographic_area) }
+  let(:geographic_area) { FactoryGirl.build(:valid_geographic_area_stack) }
   #before :each do
   #  @county = FactoryGirl.create(:level2_geographic_area)
   #end
@@ -167,12 +167,12 @@ describe GeographicArea do
   context 'interaction with geographic_items' do
     before(:each) {
       @geographic_area = FactoryGirl.build(:level2_geographic_area)
-      listK      = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
-                                            RSPEC_GEO_FACTORY.point(-33, -23),
-                                            RSPEC_GEO_FACTORY.point(-21, -23),
-                                            RSPEC_GEO_FACTORY.point(-21, -11),
-                                            RSPEC_GEO_FACTORY.point(-27, -13)])
-      @gi         = GeographicItem.new(polygon: RSPEC_GEO_FACTORY.polygon(listK))
+      listK            = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
+                                                        RSPEC_GEO_FACTORY.point(-33, -23),
+                                                        RSPEC_GEO_FACTORY.point(-21, -23),
+                                                        RSPEC_GEO_FACTORY.point(-21, -11),
+                                                        RSPEC_GEO_FACTORY.point(-27, -13)])
+      @gi              = GeographicItem.new(polygon: RSPEC_GEO_FACTORY.polygon(listK))
       @gi.save!
       @gi
     }

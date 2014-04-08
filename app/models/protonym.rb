@@ -55,7 +55,7 @@ class Protonym < TaxonName
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
-  #  find classifications for taxon
+  # find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
 
   # find taxa with classifications

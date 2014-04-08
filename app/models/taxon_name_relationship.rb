@@ -41,6 +41,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
+  scope :where_object_in_taxon_names, -> (taxon_name_array) {where('object_taxon_name_id IN (?)', taxon_name_array)}
   scope :with_type_string, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_two_type_bases, -> (base_string1, base_string2) {where("type LIKE '#{base_string1}%' OR type LIKE '#{base_string2}%'" ) }
@@ -278,6 +279,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         elsif s.cached_secondary_homonym_alt != o.cached_secondary_homonym_alt
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
+        soft_validations.add(:base, 'No combination available showing both species placed in the same genus') if (s.all_generic_placements & o.all_generic_placements).empty?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_genus == o.original_genus && !s.original_genus.nil?
@@ -285,6 +287,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
         end
+        soft_validations.add(:base, 'No combination available showing both species placed in the same genus') if (s.all_generic_placements & o.all_generic_placements).empty?
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         if !!self.source_id
@@ -292,7 +295,8 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
-
+      when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
+        #TODO: Check if more than one species associated with the genus in the original paper
     end
   end
 

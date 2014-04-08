@@ -22,7 +22,7 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
     'as classified for'
   end
 
-  def self.subject_relationship_name
+  def self.object_relationship_name
     'classified as'
   end
 

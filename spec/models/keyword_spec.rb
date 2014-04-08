@@ -1,15 +1,39 @@
 require 'spec_helper'
 
 describe Keyword do
-  let(:topic) { Keyword.new }
-
-  context "associations" do
-  end
+  let(:keyword) { FactoryGirl.build(:keyword) }
 
   context "validation" do
-    specify "can be used for tags"
-    specify "can not be used for citations"
+    before(:each) {  @k = FactoryGirl.create(:valid_keyword) }
+
+    specify "can be used for tags" do
+      t = Tag.new(keyword: @k, tag_object: FactoryGirl.build(:valid_otu))
+      expect(t.save).to be_true
+    end
+
+    specify "can not be used for other things" do
+      expect {c = CitationTopic.new(topic: @k)}.to raise_error
+    end
   end
+
+  context 'associations' do
+    context 'has_many' do
+      specify 'tags' do
+        expect(keyword.tags << FactoryGirl.build(:valid_tag)).to be_true
+      end
+    end
+  end
+
+  specify 'tagged_objects' do
+    expect(keyword).to respond_to(:tagged_objects)
+    k = FactoryGirl.create(:valid_keyword)
+    t1 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_otu))
+    t2 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_specimen))
+    expect(k.tagged_objects).to have(2).things
+    expect(k.tags).to have(2).things
+  end
+
+
 
 end
 

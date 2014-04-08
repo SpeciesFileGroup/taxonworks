@@ -76,7 +76,8 @@ describe Georeference::GeoLocate do
 
     context 'after .save' do
       specify '.save successfully completes' do
-        g = Georeference::GeoLocate.new(request: request_params)
+        g = Georeference::GeoLocate.new(request: request_params,
+        collecting_event: FactoryGirl.build(:valid_collecting_event))
         g.save
         expect(g.error_geographic_item.geo_object.contains?(g.geographic_item.geo_object)).to be_true
       end
@@ -125,7 +126,7 @@ describe Georeference::GeoLocate do
       # make sure they are the same point
       expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
       expect(geo_locate.error_radius).not_to eq geo_locate_2.error_radius
-      expect(geo_locate.error_radius).to eq 0
+      expect(geo_locate.error_radius).to eq 3.0
     end
   end
 

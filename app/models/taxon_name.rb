@@ -7,7 +7,7 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set scope: [:project_id]
 
-  belongs_to :source 
+  belongs_to :source
   has_many :taxon_name_classifications
 
   #relationships as a subject
@@ -251,6 +251,14 @@ class TaxonName < ActiveRecord::Base
     n.blank? ? self.name : n
   end
 
+  def all_generic_placements #array of genera where the species was placed
+    valid_name = self.get_valid_taxon_name
+    return nil unless valid_name.rank_class.to_s !=~ /Species/
+    descendants_and_self = valid_name.descendants + [self]
+    relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
+    relationships.collect{|r| r.subject_taxon_name.name} + [self.ancestor_at_rank('genus').name]
+  end
+
   #region Set cached fields
 
   def set_type_if_empty
@@ -262,6 +270,7 @@ class TaxonName < ActiveRecord::Base
     set_cached_misspelling
     set_cached_full_name
     set_cached_author_year
+    set_cached_classified_as
     if self.class.to_s == 'Protonym'
       set_cached_original_combination
       set_cached_higher_classification
@@ -320,6 +329,10 @@ class TaxonName < ActiveRecord::Base
 
   def set_secondary_homonym_alt
     self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
+  end
+
+  def set_cached_classified_as
+    self.cached_classified_as = get_classified_as
   end
 
   def get_cached_misspelling
@@ -521,6 +534,18 @@ class TaxonName < ActiveRecord::Base
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
     (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
+  end
+
+  def get_classified_as
+    unless self.class == Combination || self.class == Protonym
+      return nil
+    end
+    c = self.source_classified_as
+    if c.nil?
+      nil
+    else
+      ' (as ' + c.name + ')'
+    end
   end
 
   #endregion

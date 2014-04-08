@@ -137,7 +137,6 @@ class TaxonNameClassification < ActiveRecord::Base
     end
   end
 
-
   #endregion
   
   private

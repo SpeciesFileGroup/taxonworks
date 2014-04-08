@@ -28,7 +28,7 @@
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
 class Georeference < ActiveRecord::Base
-  include Housekeeping::Users
+  include Housekeeping
 
 #  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
 # TODone: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
@@ -36,7 +36,7 @@ class Georeference < ActiveRecord::Base
 
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,
-                                               projection_proj4:          '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+                                               projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
                                                uses_lenient_assertions: true,
                                                has_z_coordinate:        true)
 =begin
@@ -46,32 +46,49 @@ class Georeference < ActiveRecord::Base
                                  has_z_coordinate:                      true)
 =end
 
-  
+
   # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name of the column used in the table;
   # therefore, we need to tell it *which* table, and what to use to address the record we want
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
-  
+
   belongs_to :collecting_event
   belongs_to :geographic_item
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
   validate :proper_data_is_provided
+  validates :geographic_item, presence: true
+  validates :collecting_event, presence: true
+  validates :type, presence: true
 
   protected
 
   def proper_data_is_provided
-    # case
-    # when GeographicItem.find(geographic_item_id) == nil
-    #  errors.add(:georef, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
-    # when CollectingEvent.find(collecting_event_id) == nil
-    #  errors.add(:georef, 'ID must be from item of class CollectingEvent.')
-    # when GeographicItem.find(error_geographic_item_id).geo_object.geometry_type.type_name != 'Polygon'
-    #  errors.add(:georef, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
-    # when GeoreferenceHash[*arr]Type.find(type).to_s != 'Georeference::GeoreferenceType'
-    #  errors.add(:georef, 'type must be of class Georeference::GeoreferenceType.')
-    # else
-    true
-    # end
+    retval = true
+    #case
+    #when GeographicItem.find(geographic_item_id) == nil
+    #  errors.add(:geographic_item, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
+    #when CollectingEvent.find(collecting_event_id) == nil
+    #  errors.add(:collecting_event, 'ID must be from item of class CollectingEvent.')
+    #when GeographicItem.find(error_geographic_item_id).geo_object.geometry_type.type_name != 'Polygon'
+    #  errors.add(:geographic_item, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
+    #when GeoreferenceHash[*arr]
+    #  Type.find(type).to_s != 'Georeference::GeoreferenceType'
+    #  errors.add(:georeference, 'type must be of class Georeference::GeoreferenceType.')
+    #else
+    #true
+    #end
+    unless error_radius.nil?
+      errors.add(:error_radius, 'error_radius must be less than 20,000 kilometers (12,400 miles).') if error_radius > 20000000 # 20,000 km
+      retval = false
+    end
+    unless error_depth.nil?
+      errors.add(:error_depth, 'error_depth must be less than 8,800 kilometers (5.5 miles).') if error_depth > 8800 # 8,800 meters
+      retval = false
+    end
+    #unless error_geographic_item.nil?
+    #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
+    #end
+    retval
   end
 end

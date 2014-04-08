@@ -394,6 +394,20 @@ describe TaxonNameRelationship do
           @r1.soft_validate('specific_relationship')
           expect(@r1.soft_validations.messages_on(:type).size).to eq(1)
         end
+        specify 'secondary homonyms missing combination' do
+          g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+          s1 = FactoryGirl.create(:relationship_species, parent: g1)
+          expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
+          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
+          r1.soft_validate('specific_relationship')
+          expect(r1.soft_validations.messages_on(:base).size).to eq(1)
+          c = FactoryGirl.create(:combination, parent: s1)
+          c.combination_genus = @genus
+          expect(c.save).to be_true
+          s1.reload
+          r1.soft_validate('specific_relationship')
+          expect(r1.soft_validations.messages_on(:base).empty?).to be_true
+        end
       end
 
       context 'not specific relationships' do
