@@ -6,7 +6,11 @@ describe Tag do
 
   context 'associations' do
     specify 'tag_object' do 
-      expect(tag).to respond_to(:tag_object)
+      expect(tag.tag_object = FactoryGirl.create(:valid_biocuration_class)).to be_true
+    end
+
+    specify 'keyword' do
+      expect(tag.keyword = FactoryGirl.create(:valid_keyword)).to be_true
     end
   end
 
@@ -24,7 +28,8 @@ describe Tag do
     end
 
     specify 'a topic can not be used' do
-      pending
+      t = Topic.new(name: 'foo', definition: 'Something about foo')
+      expect{tag.keyword = t}.to raise_error
     end
 
     specify 'a tagged object is only tagged once per keyword' do
@@ -39,6 +44,36 @@ describe Tag do
       dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: b) 
       dupe_tag.valid?
       expect(dupe_tag.errors.include?(:keyword_id)).to be_true
+    end
+
+    context 'STI based tag behaviour' do
+      before(:each) {
+        tag.keyword = FactoryGirl.create(:valid_keyword) 
+        tag.tag_object = FactoryGirl.create(:valid_specimen)
+      }
+
+      specify 'tagging an subclass of an STI model instance *stores* the tag_type as the superclass' do
+        expect(tag.save).to be_true
+        expect(tag.tag_object_type).to eq('CollectionObject')
+      end
+
+      specify 'tagging an subclass of an STI model instance, with subclass namespace, *stores* the tag_type as the superclass' do
+        tag.tag_object = FactoryGirl.create(:valid_container_box)
+        expect(tag.save).to be_true
+        expect(tag.tag_object_type).to eq('Container')
+      end
+
+      specify 'tagging a subclass of an STI model *returns* the subclassed object' do
+        expect(tag.save).to be_true
+        expect(tag.tag_object.class).to eq(Specimen) 
+      end
+    end
+
+    context 'acts_as_list' do
+      specify 'position is set' do
+        t1 = FactoryGirl.create(:valid_tag)
+        expect(t1.position).to eq(1)
+      end
     end
 
     # TODO: Determine if we want to tag individual fields. 
