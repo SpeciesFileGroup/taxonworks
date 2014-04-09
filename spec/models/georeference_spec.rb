@@ -45,9 +45,9 @@ describe Georeference do
       before(:each) {
         georeference.error_radius = 30000000
         georeference.error_depth  = 9000
-        @e_g_i                    = GeographicItem.new(polygon: BOX_B)
-        @area_d                   = GeographicItem.new(polygon: BOX_D)
-        @g_a                      = GeographicArea.new(name:        'Box_D',
+        @e_g_i                    = GeographicItem.new(polygon: BOX_1)
+        @area_d                   = GeographicItem.new(polygon: BOX_4)
+        @g_a                      = GeographicArea.new(name:        'Box_4',
                                                        data_origin: 'Test Data',
                                                        parent:      FactoryGirl.build(:earth_geographic_area),
                                                        ne_geo_item: @area_d)
@@ -69,6 +69,9 @@ describe Georeference do
         @point1n.save!
         @point10w.save!
         @point10n.save!
+
+        #result = @point0.geo_object.distance(@point1w.geo_object)
+        #result = GeographicItem.select_distance_with_geo_object('point', @point0).excluding(@point0).to_a
       }
 
       specify '#error_radius is < some Earth-based limit' do
@@ -82,6 +85,7 @@ describe Georeference do
         expect(georeference.errors.keys.include?(:error_radius)).to be_false
 
       end
+
       specify '#error_depth is < some Earth-based limit' do
         # 8,800 meters
         #pending 'setting error depth to some reasonable distance'
@@ -93,6 +97,7 @@ describe Georeference do
         expect(georeference.errors.keys.include?(:error_depth)).to be_false
 
       end
+
       specify 'error_geographic_item.geo_object, when provided, should contain geographic_item.geo_object' do
         # case 1
         #   GeoRef    A (POINT0)
@@ -106,48 +111,59 @@ describe Georeference do
         georeference.save
         expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
       end
-      specify '.error_box returns a shape which can be searched for contained objects' do
-        # case 2a
-        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_radius:          160000)
+
+      specify '.error_box with error_radius returns a square which can be searched for contained objects' do
+        # case 2a - radius
+        georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
+                                                      error_radius:     160000)
         georeference.save
-        result = @point0.geo_object.distance(@point1w.geo_object)
-        result = GeographicItem.select_distance_with_geo_object('point', @point0).excluding(@point0).to_a
         expect(georeference.error_box?.to_s).to eq('POLYGON ((-1.337304454772868 -1.3469896879975283 0.0, 1.537304454772868 -1.3469896879975283 0.0, 1.537304454772868 1.5469896879975282 0.0, -1.337304454772868 1.5469896879975282 0.0, -1.337304454772868 -1.3469896879975283 0.0))')
       end
+
+      specify '.error_box with error_geographic_item returns a shape which can be searched for contained objects' do
+        # case 2a - error geo_item
+        @e_g_i.save
+        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                      error_geographic_item: @e_g_i)
+        expect(georeference.save).to be_true
+        expect(georeference.error_box?.geo_object.to_s).to eq(BOX_1.to_s)
+      end
+
       specify 'error_radius, when provided, should contain geographic_item' do
         # case 2c
-        pending 'implementation of geo_object for geographic_area'
-=begin
-        georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
-                                                      error_radius:     16000)
-        georeference.save
-        result = GeographicItem.select_distance_with_geo_object('point', @point0).limit(10).to_a
-        expect(GeographicItem.within_radius_of('point',
-                                               georeference.geographic_item.geo_object,
-                                               georeference.error_radius).limit(1).to_a).to eq([@point0])
-        georeference
-=end
+        # pending 'implementation of geo_object for geographic_area'
         # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
         # must ALWAYS be 'contained' within the radius
-        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_geographic_item: @e_g_i,
-                                                      error_radius:          16000)
-        georeference.save
-        expect(georeference.error_box?.contains?(georeference.collecting_event.geographic_area.geo_object)).to be_true
+        georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
+                                                      error_radius:     16000)
+        expect(georeference.save).to be_true
+        expect(georeference.error_box?.contains?(georeference.geographic_item.geo_object)).to be_true
       end
+
       specify 'error_radius, when provided, should contain error_geographic_item, when provided' do
         # case 3
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_geographic_item: @e_g_i)
+                                                      error_geographic_item: @e_g_i,
+                                                      error_radius:          160000)
         georeference.save
         expect(georeference).to be_true
         expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+        # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
+        expect(georeference.error_box?.contains?(georeference.error_geographic_item.geo_object)).to be_true
       end
+
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
         pending 'determination of what \'something like this\' means in the context of collecting_event'
         #   Need a GeographicArea somewhere on earth called
-        # need a collecting event using box_b
+        # need a collecting event using box_1
+        georeference = Georeference::VerbatimData.new(collecting_event: @c_e)
+        georeference.save
+
+        expect(@c_e.new_record?).to be_false
+        expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.save).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_false
 
       end
     end

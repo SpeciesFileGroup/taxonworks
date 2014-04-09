@@ -73,6 +73,7 @@ class Georeference < ActiveRecord::Base
         retval = nil
       else
         retval = error_geographic_item.dup
+        #retval = error_geographic_item
       end
     else
       # if this object is a point

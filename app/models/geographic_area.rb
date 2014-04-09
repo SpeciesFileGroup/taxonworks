@@ -13,7 +13,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :parent, class_name: 'GeographicArea', foreign_key: :parent_id
   belongs_to :tdwg_geo_item, class_name: 'GeographicItem', foreign_key: :tdwg_geo_item_id
   belongs_to :tdwg_parent, class_name: 'GeographicArea', foreign_key: :tdwg_parent_id
-  belongs_to :collecting_events, inverse_of: :geographic_area
+  has_many :collecting_events, inverse_of: :geographic_area
 
   validates_presence_of :data_origin
   validates_presence_of :name
@@ -75,7 +75,7 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_type})
   end
 
-  def geo_object
+  def default_geographic_item
     # priority:
     #   1)  NaturalEarth
     #   2)  GADM
@@ -97,4 +97,8 @@ class GeographicArea < ActiveRecord::Base
     retval
   end
 
+  def geo_object
+    retval = default_geographic_item
+    retval.nil? ? nil : retval.geo_object
+  end
 end

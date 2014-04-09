@@ -42,6 +42,7 @@ class CollectingEvent < ActiveRecord::Base
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id]
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
+  validates :geographic_area, presence: true, allow_nil: true
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :start_date_year,

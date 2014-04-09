@@ -313,10 +313,10 @@ LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
                                          RSPEC_GEO_FACTORY.point(4, -4),
                                          RSPEC_GEO_FACTORY.point(-4, -4)])
 
-BOX_B = RSPEC_GEO_FACTORY.polygon(LIST_T1)
-BOX_C = RSPEC_GEO_FACTORY.polygon(LIST_T2)
-BOX_D = RSPEC_GEO_FACTORY.polygon(LIST_T3)
-BOX_E = RSPEC_GEO_FACTORY.polygon(LIST_T4)
+BOX_1 = RSPEC_GEO_FACTORY.polygon(LIST_T1)
+BOX_2 = RSPEC_GEO_FACTORY.polygon(LIST_T2)
+BOX_3 = RSPEC_GEO_FACTORY.polygon(LIST_T3)
+BOX_4 = RSPEC_GEO_FACTORY.polygon(LIST_T4)
 
 def gen_wkt_files_1()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.

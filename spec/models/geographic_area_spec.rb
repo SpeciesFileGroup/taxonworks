@@ -185,14 +185,14 @@ describe GeographicArea do
       @geographic_area.gadmID = 44
       @geographic_area.save!
       expect(@geographic_area.save).to be_true
-      expect(@geographic_area.geo_object).to eq(@gi)
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
     end
 
     specify 'saving NaturalEarth Shape' do
       expect(@geographic_area.ne_geo_item = @gi).to be_true
       @geographic_area.neID = 'MPX-044'
       expect(@geographic_area.save).to be_true
-      expect(@geographic_area.geo_object).to eq(@gi)
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
       @geographic_area
     end
 
@@ -200,13 +200,13 @@ describe GeographicArea do
       expect(@geographic_area.tdwg_geo_item = @gi).to be_true
       @geographic_area.tdwgID = '44---'
       expect(@geographic_area.save).to be_true
-      expect(@geographic_area.geo_object).to eq(@gi)
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
       @geographic_area
     end
 
     specify 'retrieving the geo_object' do
       expect(@geographic_area.ne_geo_item = @gi).to be_true
-      expect(@geographic_area.geo_object).to eq(@gi)
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
     end
   end
 
