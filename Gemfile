@@ -8,7 +8,7 @@ gem 'pg', '~> 0.17.0'
 
 # Postgis
 gem 'activerecord-postgis-adapter'
-# gem 'squeel', git: 'https://github.com/nybex/squeel.git'
+gem 'squeel', git: 'https://github.com/nybex/squeel.git'
 
 # rgeo support
 gem 'ffi-geos'
