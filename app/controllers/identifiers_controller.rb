@@ -28,8 +28,8 @@ class IdentifiersController < ApplicationController
 
     respond_to do |format|
       if @identifier.save
-        format.html { redirect_to @identifier, notice: 'Identifier was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @identifier }
+        format.html { redirect_to @identifier.becomes(Identifier), notice: 'Identifier was successfully created.' }
+        format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render action: 'new' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
@@ -42,7 +42,7 @@ class IdentifiersController < ApplicationController
   def update
     respond_to do |format|
       if @identifier.update(identifier_params)
-        format.html { redirect_to @identifier, notice: 'Identifier was successfully updated.' }
+        format.html { redirect_to @identifier.becomes(Identifier), notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

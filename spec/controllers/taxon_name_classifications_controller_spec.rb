@@ -77,7 +77,7 @@ describe TaxonNameClassificationsController do
 
       it "redirects to the created taxon_name_classification" do
         post :create, {:taxon_name_classification => valid_attributes}, valid_session
-        response.should redirect_to(TaxonNameClassification.last)
+        response.should redirect_to(TaxonNameClassification.last.becomes(TaxonNameClassification))
       end
     end
 
@@ -119,7 +119,7 @@ describe TaxonNameClassificationsController do
       it "redirects to the taxon_name_classification" do
         taxon_name_classification = TaxonNameClassification.create! valid_attributes
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => valid_attributes}, valid_session
-        response.should redirect_to(taxon_name_classification)
+        response.should redirect_to(taxon_name_classification.becomes(TaxonNameClassification))
       end
     end
 

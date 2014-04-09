@@ -33,6 +33,10 @@ TaxonWorks::Application.routes.draw do
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
 
+
+  # API STUB
+  get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

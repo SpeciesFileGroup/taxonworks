@@ -23,7 +23,7 @@ describe UsersController do
   # This should return the minimal set of attributes required to create a valid
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_user).attributes}
+  let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com'} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -32,6 +32,7 @@ describe UsersController do
 
   describe "GET index" do
     it "assigns all users as @users" do
+      User.destroy_all
       user = User.create! valid_attributes
       get :index, {}, valid_session
       assigns(:users).should eq([user])
@@ -77,7 +78,7 @@ describe UsersController do
 
       it "redirects to the created user" do
         post :create, {:user => valid_attributes}, valid_session
-        response.should redirect_to(User.last)
+        response.should redirect_to(root_path)
       end
     end
 
@@ -99,15 +100,18 @@ describe UsersController do
   end
 
   describe "PUT update" do
+
     describe "with valid params" do
       it "updates the requested user" do
+
         user = User.create! valid_attributes
         # Assuming there are no other users in the database, this
         # specifies that the User created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        User.any_instance.should_receive(:update).with({ "email" => "MyString" })
-        put :update, {:id => user.to_param, :user => { "email" => "MyString" }}, valid_session
+        
+        User.any_instance.should_receive(:update).with({ "email" => "foo1@bar.com" })
+        put :update, {:id => user.to_param, :user => { "email" => "foo1@bar.com" }}, valid_session
       end
 
       it "assigns the requested user as @user" do
@@ -153,7 +157,7 @@ describe UsersController do
     it "redirects to the users list" do
       user = User.create! valid_attributes
       delete :destroy, {:id => user.to_param}, valid_session
-      response.should redirect_to(users_url)
+      response.should redirect_to(root_path)
     end
   end
 

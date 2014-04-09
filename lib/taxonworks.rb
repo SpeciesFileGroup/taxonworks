@@ -11,7 +11,7 @@ module TaxonWorks
 
   require 'soft_validation'
   require 'activerecord_utilities'
-  require 'squeel'
+  # require 'squeel'
 
   # TODO: Move this out of here before production
   # paperclip requires information on where ImageMagick is installed.

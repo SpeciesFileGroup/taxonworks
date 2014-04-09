@@ -13,7 +13,7 @@ FactoryGirl.define do
   end
 
   factory :user do
-    factory :valid_user, aliases: [:creator, :updater], traits: [:user_password]  do
+    factory :valid_user, aliases: [:creator, :updater], traits: [:user_password] do
       email
     end
   end

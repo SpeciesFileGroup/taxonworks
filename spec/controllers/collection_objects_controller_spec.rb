@@ -77,7 +77,7 @@ describe CollectionObjectsController do
 
       it "redirects to the created collection_object" do
         post :create, {:collection_object => valid_attributes}, valid_session
-        response.should redirect_to(CollectionObject.last)
+        response.should redirect_to(CollectionObject.last.becomes(CollectionObject))
       end
     end
 
@@ -119,7 +119,7 @@ describe CollectionObjectsController do
       it "redirects to the collection_object" do
         collection_object = CollectionObject.create! valid_attributes
         put :update, {:id => collection_object.to_param, :collection_object => valid_attributes}, valid_session
-        response.should redirect_to(collection_object)
+        response.should redirect_to(collection_object.becomes(CollectionObject))
       end
     end
 
