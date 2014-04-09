@@ -13,11 +13,11 @@
 
   <div class="field">
     <%= f.label :biological_collection_object_id %><br>
-    <%= f.number_field :biological_collection_object_id %>
+    <%= f.select :biological_collection_object_id, options_from_collection_for_select(CollectionObject.all, :id, :id) %>
   </div>
   <div class="field">
     <%= f.label :otu_id %><br>
-    <%= f.number_field :otu_id %>
+    <%= f.select :otu_id, options_from_collection_for_select(Otu.all, :id, :name) %>
   </div>
   <div class="field">
     <%= f.label :position %><br>
