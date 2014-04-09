@@ -75,4 +75,26 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_type})
   end
 
+  def geo_object
+    # priority:
+    #   1)  NaturalEarth
+    #   2)  GADM
+    #   3)  TDWG
+    retval = nil
+    if !ne_geo_item.nil?
+      retval = ne_geo_item
+    else
+      if !gadm_geo_item.nil?
+        retval = gadm_geo_item
+      else
+        if !tdwg_geo_item.nil?
+          retval = tdwg_geo_item
+        else
+          retval = nil
+        end
+      end
+    end
+    retval
+  end
+
 end
