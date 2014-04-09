@@ -28,14 +28,14 @@ class Georeference::VerbatimData < Georeference
           delta_z = z1
         else
           # we have full range data, so elevation is (top - bottom) / 2
-          z2               = z2.to_f
-          delta_z          = (z2 - z1) * 0.5
+          #z2               = z2.to_f
+          delta_z          = z1 + ((z2 - z1) * 0.5)
           # and show calculated median
           self.is_median_z = true
         end
       end
       #if geographic_item.nil?
-        self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(long, lat, delta_z))
+      self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(long, lat, delta_z))
       #end
       geographic_item
     end
