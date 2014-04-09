@@ -11,7 +11,7 @@
 <% else %>
     <ul>
     <% @users.each do |user| %>
-      <li><%= link_to "User #{user.id}", user_path(user) %></li>
+      <li><%= link_to user.email.to_s, user_path(user) %></li>
   <% end %>
 
   <% end %>
