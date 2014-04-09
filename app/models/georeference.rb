@@ -61,6 +61,44 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
+  def error_box?
+    # start with a copy of the point of the reference
+    #retval = geographic_item.dup
+
+    # returns a square which represents either the bounding box of the
+    # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater
+    if error_radius.nil?
+      # use the bounding box of the error_geo_item
+      if error_geographic_item.nil?
+        retval = nil
+      else
+        retval = error_geographic_item.dup
+      end
+    else
+      # if this object is a point
+      case geographic_item.data_type?
+        when :point
+          p0      = self.geographic_item.geo_object
+          delta_x = error_radius / ONE_WEST
+          delta_y = error_radius / ONE_NORTH
+          # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+          retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                         FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                         FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                         FACTORY.point(p0.x - delta_x, p0.y)  # west
+                                                        ]))
+        when :polygon
+          retval = geographic_item
+        else
+          retval = nil
+      end
+      box = RGeo::Cartesian::BoundingBox.new(FACTORY)
+      box.add(retval)
+      retval = box.to_geometry
+    end
+    retval
+  end
+
   protected
 
   def proper_data_is_provided
@@ -90,5 +128,28 @@ class Georeference < ActiveRecord::Base
     #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
     #end
     retval
+  end
+
+  POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662
+  ONE_WEST           = 111319.490779206
+  ONE_NORTH          = 110574.38855796
+  TEN_WEST           = 1113194.90779206
+  TEN_NORTH          = 1105854.83323573
+
+  EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius)
+  RADIANS_PER_DEGREE = ::Math::PI/180.0
+  DEGREES_PER_RADIAN = 180.0/::Math::PI
+
+  # Given two latitude/longitude pairs in degrees, find the heading between them.
+  # Heading is returned as an angle in degrees clockwise from north.
+
+  def heading(from_lat_, from_lon_, to_lat_, to_lon_)
+    from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_
+    to_lat_rad_    = RADIANS_PER_DEGREE * to_lat_
+    delta_lon_rad_ = RADIANS_PER_DEGREE * (to_lon_ - from_lon_)
+    y_             = ::Math.sin(delta_lon_rad_) * ::Math.cos(to_lat_rad_)
+    x_             = ::Math.cos(from_lat_rad_) * ::Math.sin(to_lat_rad_) -
+      ::Math.sin(from_lat_rad_) * ::Math.cos(to_lat_rad_) * ::Math.cos(delta_lon_rad_)
+    DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end
 end

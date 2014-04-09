@@ -45,6 +45,30 @@ describe Georeference do
       before(:each) {
         georeference.error_radius = 30000000
         georeference.error_depth  = 9000
+        @e_g_i                    = GeographicItem.new(polygon: BOX_B)
+        @area_d                   = GeographicItem.new(polygon: BOX_D)
+        @g_a                      = GeographicArea.new(name:        'Box_D',
+                                                       data_origin: 'Test Data',
+                                                       parent:      FactoryGirl.build(:earth_geographic_area),
+                                                       ne_geo_item: @area_d)
+
+        # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
+        @point0                   = GeographicItem.new(point: POINT0)
+        @point1w                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-1, 0))
+        @point1n                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 1))
+        @point10w                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-10, 0))
+        @point10n                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 10))
+        @c_e                      = CollectingEvent.new(geographic_area:    @g_a,
+                                                        verbatim_locality:  'Test Event',
+                                                        minimum_elevation:  0.0,
+                                                        verbatim_latitude:  '0.1',
+                                                        verbatim_longitude: '0.1')
+
+        @point0.save!
+        @point1w.save!
+        @point1n.save!
+        @point10w.save!
+        @point10n.save!
       }
 
       specify '#error_radius is < some Earth-based limit' do
@@ -77,31 +101,53 @@ describe Georeference do
         #
         # building up a georeference:
         #
-        # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
-        c_e = CollectingEvent.new(verbatim_locality:  'Test Event',
-                                  minimum_elevation:  0.1,
-                                  verbatim_latitude:  '0.1',
-                                  verbatim_longitude: '0.1')
-
-        e_g_i = GeographicItem.new(polygon: BOX_B)
-
-        georeference = Georeference::VerbatimData.new(collecting_event:      c_e,
-                                                      error_geographic_item: e_g_i)
-
+        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                      error_geographic_item: @e_g_i)
         georeference.save
-
         expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+      end
+      specify '.error_box returns a shape which can be searched for contained objects' do
+        # case 2a
+        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                      error_radius:          160000)
+        georeference.save
+        result = @point0.geo_object.distance(@point1w.geo_object)
+        result = GeographicItem.select_distance_with_geo_object('point', @point0).excluding(@point0).to_a
+        expect(georeference.error_box?.to_s).to eq('POLYGON ((-1.337304454772868 -1.3469896879975283 0.0, 1.537304454772868 -1.3469896879975283 0.0, 1.537304454772868 1.5469896879975282 0.0, -1.337304454772868 1.5469896879975282 0.0, -1.337304454772868 -1.3469896879975283 0.0))')
+      end
+      specify 'error_radius, when provided, should contain geographic_item' do
+        # case 2c
+        pending 'implementation of geo_object for geographic_area'
+=begin
+        georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
+                                                      error_radius:     16000)
+        georeference.save
+        result = GeographicItem.select_distance_with_geo_object('point', @point0).limit(10).to_a
+        expect(GeographicItem.within_radius_of('point',
+                                               georeference.geographic_item.geo_object,
+                                               georeference.error_radius).limit(1).to_a).to eq([@point0])
         georeference
-
+=end
+        # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
+        # must ALWAYS be 'contained' within the radius
+        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                      error_geographic_item: @e_g_i,
+                                                      error_radius:          16000)
+        georeference.save
+        expect(georeference.error_box?.contains?(georeference.collecting_event.geographic_area.geo_object)).to be_true
+      end
+      specify 'error_radius, when provided, should contain error_geographic_item, when provided' do
+        # case 3
+        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                      error_geographic_item: @e_g_i)
+        georeference.save
+        expect(georeference).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
       end
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
-        pending 'determininization of what \'something like this\' means in the context of collecting_event'
+        pending 'determination of what \'something like this\' means in the context of collecting_event'
         #   Need a GeographicArea somewhere on earth called
         # need a collecting event using box_b
-        box_b = GeographicArea.new(name:            'Box_B',
-                                   data_origin:     'Test Data',
-                                   parent:          FactoryGirl.build(:earth_geographic_area),
-                                   geographic_item: FactoryGirl.build(:valid_geographic_item_with_polygon, polygon: BOX_B))
 
       end
     end

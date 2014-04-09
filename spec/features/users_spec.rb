@@ -13,7 +13,7 @@ describe 'Users' do
 
     it 'should list users' do
       subject.should have_selector('h1', 'Users')
-      subject.should have_content("User #{@existing_user.id}")
+      subject.should have_content("#{@existing_user.email}")
     end
 
   end
@@ -44,7 +44,7 @@ describe 'Users' do
       fill_in 'Email', with: 'edit_user_modified@example.com'
       fill_in 'Password', with: @existing_user.password
       fill_in 'Password confirmation', with: @existing_user.password_confirmation
-      click_button 'Save changes'
+      click_button 'Update User'
       subject.should have_selector('.alert--success', 'Your changes have been saved.')
     end
 
