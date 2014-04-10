@@ -62,6 +62,7 @@ class Georeference < ActiveRecord::Base
   validates :type, presence: true
 
   def error_box?
+    retval = nil
     # start with a copy of the point of the reference
     #retval = geographic_item.dup
 
@@ -76,31 +77,95 @@ class Georeference < ActiveRecord::Base
         #retval = error_geographic_item
       end
     else
-      # if this object is a point
-      case geographic_item.data_type?
-        when :point
-          p0      = self.geographic_item.geo_object
-          delta_x = error_radius / ONE_WEST
-          delta_y = error_radius / ONE_NORTH
-          # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-          retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                         FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                         FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                         FACTORY.point(p0.x - delta_x, p0.y)  # west
-                                                        ]))
-        when :polygon
-          retval = geographic_item
-        else
-          retval = nil
+      if geographic_item.nil?
+        retval = nil
+      else
+        # if this object is a point
+        case geographic_item.data_type?
+          when :point
+            p0      = self.geographic_item.geo_object
+            delta_x = error_radius / ONE_WEST
+            delta_y = error_radius / ONE_NORTH
+            # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                           FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                           FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                           FACTORY.point(p0.x - delta_x, p0.y) # west
+                                                          ]))
+          when :polygon
+            retval = geographic_item
+          else
+            retval = nil
+        end
+        box = RGeo::Cartesian::BoundingBox.new(FACTORY)
+        box.add(retval)
+        retval = box.to_geometry
       end
-      box = RGeo::Cartesian::BoundingBox.new(FACTORY)
-      box.add(retval)
-      retval = box.to_geometry
     end
     retval
   end
 
   protected
+
+  def chk_obj_inside_err_geo_item
+    # case 1
+    retval = true
+    if error_geographic_item.nil? == false && geographic_item.nil? == false
+      retval = self.error_geographic_item.contains?(self.geographic_item)
+    end
+    retval
+  end
+
+  def chk_obj_inside_err_radius
+    # case 2
+    retval = true
+    if error_radius.nil? == false && geographic_item.nil? == false
+      retval = self.error_box?.contains?(self.geographic_item.geo_object)
+    end
+    retval
+  end
+
+  def chk_err_geo_item_inside_err_radius
+    # case 3
+    retval = true
+    if error_radius.nil? == false && error_geographic_item.nil? == false
+      retval = self.error_box?.contains?(error_geographic_item.geo_object)
+    end
+    retval
+  end
+
+  def chk_error_radius_inside_area
+    # case 4
+    retval = true
+    unless collecting_event.nil?
+      if error_radius.nil? == false && collecting_event.geographic_area.nil? == false
+        retval = collecting_event.geographic_area.geo_object.contains?(error_box?)
+      end
+    end
+    retval
+  end
+
+  def chk_error_geo_item_inside_area
+    # case 5
+    retval = true
+    unless collecting_event.nil?
+      if error_geographic_item.nil? == false && collecting_event.geographic_area.nil? == false
+        retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item)
+      end
+    end
+    retval
+  end
+
+  def chk_obj_inside_area
+    # case 6
+    retval = true
+    unless collecting_event.nil?
+      unless collecting_event.geographic_area.nil?
+        retval = collecting_event.geographic_area.geo_object.contains?(geographic_item.geo_object)
+      end
+    end
+    retval
+  end
 
   def proper_data_is_provided
     retval = true
@@ -128,6 +193,39 @@ class Georeference < ActiveRecord::Base
     #unless error_geographic_item.nil?
     #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
     #end
+    unless chk_obj_inside_err_geo_item
+      errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.')
+      retval = false
+    end
+    unless chk_obj_inside_err_radius
+      errors.add(:error_radius, 'error_radius must contain geographic_item.')
+      retval = false
+    end
+    unless chk_err_geo_item_inside_err_radius
+      problem = 'error_radius must contain error_geographic_item.'
+      errors.add(:error_radius, problem)
+      errors.add(:error_geographic_item, problem)
+      retval = false
+    end
+    unless chk_error_radius_inside_area
+      problem = 'collecting_event area must contain error_radius bounding box.'
+      errors.add(:error_radius, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+    unless chk_error_geo_item_inside_area
+      problem = 'collecting_event area must contain error_geographic_item.'
+      errors.add(:error_geographic_item, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+    unless chk_obj_inside_area
+      problem = 'collecting_event area must contain geographic_item.'
+      errors.add(:geographic_item, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+
     retval
   end
 
