@@ -84,22 +84,25 @@ class Georeference < ActiveRecord::Base
         case geographic_item.data_type?
           when :point
             p0      = self.geographic_item.geo_object
-            delta_x = error_radius / ONE_WEST
-            delta_y = error_radius / ONE_NORTH
+            delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)  # 111319.490779206 meters/degree
+            delta_y = error_radius / ONE_NORTH  # 110574.38855796 meters/degree
             # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                           FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                           FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                           FACTORY.point(p0.x - delta_x, p0.y) # west
+            # or
+            # make the rectangle directly
+            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                                           FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                                           FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                                           FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
                                                           ]))
           when :polygon
             retval = geographic_item
           else
             retval = nil
         end
-        box = RGeo::Cartesian::BoundingBox.new(FACTORY)
-        box.add(retval)
-        retval = box.to_geometry
+        #box = RGeo::Cartesian::BoundingBox.new(FACTORY)
+        #box.add(retval)
+        #retval = box.to_geometry
+        #retval = retval.to_geometry
       end
     end
     retval

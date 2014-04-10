@@ -55,10 +55,12 @@ describe Georeference do
 
         # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
         @point0                   = GeographicItem.new(point: POINT0)
-        @point1w                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-1, 0))
-        @point1n                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 1))
-        @point10w                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-10, 0))
-        @point10n                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 10))
+        #@point1w                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-1, 0))
+        #@point1n                  = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 1))
+        #@point10w                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-10, 0))
+        #@point10n                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 10))
+        @point90n                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 90))
+        @point89n                 = GeographicItem.new(point: RSPEC_GEO_FACTORY.point(0, 45))
         @c_e                      = CollectingEvent.new(geographic_area:    @g_a,
                                                         verbatim_locality:  'Test Event',
                                                         minimum_elevation:  0.1,
@@ -66,10 +68,12 @@ describe Georeference do
                                                         verbatim_longitude: '0.1')
 
         @point0.save!
-        @point1w.save!
-        @point1n.save!
-        @point10w.save!
-        @point10n.save!
+        #@point1w.save!
+        #@point1n.save!
+        #@point10w.save!
+        #@point10n.save!
+        @point90n.save!
+        @point89n.save!
 
         #result = @point0.geo_object.distance(@point1w.geo_object)
         #result = GeographicItem.select_distance_with_geo_object('point', @point0).excluding(@point0).to_a
@@ -159,7 +163,7 @@ describe Georeference do
         expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
       end
 
-      specify '.error_box with error_radius returns a square' do
+      specify '.error_box with error_radius returns a key-stone' do
         # case 2a - radius
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                       error_radius:     160000)
@@ -167,7 +171,7 @@ describe Georeference do
         # here, we make sure the geographic_item gets saved.
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
         georeference.save
-        expect(georeference.error_box?.to_s).to eq('POLYGON ((-1.337304454772868 -1.3469896879975283 0.0, 1.537304454772868 -1.3469896879975283 0.0, 1.537304454772868 1.5469896879975282 0.0, -1.337304454772868 1.5469896879975282 0.0, -1.337304454772868 -1.3469896879975283 0.0))')
+        expect(georeference.error_box?.to_s).to eq('POLYGON ((-1.344521043156894 1.5469896879975282 0.0, 1.5445210431568939 1.5469896879975282 0.0, 1.5445210431568939 -1.3469896879975283 0.0, -1.344521043156894 -1.3469896879975283 0.0, -1.344521043156894 1.5469896879975282 0.0))')
       end
 
       specify '.error_box with error_geographic_item returns a shape' do
@@ -204,16 +208,22 @@ describe Georeference do
       end
 
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
-        pending 'determination of what \'something like this\' means in the context of collecting_event'
+        # TODO: Don't know what 'or larger than georeference ?!' is supposed to mean
+        #pending 'determination of what \'something like this\' means in the context of collecting_event'
         #   Need a GeographicArea somewhere on earth called
         # need a collecting event using box_1
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e)
-        georeference.save
+        expect(georeference.save).to be_true
 
+        # @c_e got saved...
         expect(@c_e.new_record?).to be_false
+        #
+        # TODO: follow the save propagation chain and figure out why @c_e.@g_a.@area_d DID NOT get saved
         expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_true
+        # force the save
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
-        expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_false
+
+        expect(georeference.collecting_event.geographic_area.geo_object.contains?(georeference.geographic_item.geo_object)).to be_true
 
       end
     end
