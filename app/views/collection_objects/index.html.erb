@@ -26,9 +26,9 @@
         <td><%= collection_object.created_by_id %></td>
         <td><%= collection_object.updated_by_id %></td>
         <td><%= collection_object.project_id %></td>
-        <td><%= link_to 'Show', collection_object %></td>
-        <td><%= link_to 'Edit', edit_collection_object_path(collection_object) %></td>
-        <td><%= link_to 'Destroy', collection_object, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', collection_object.becomes(CollectionObject) %></td>
+        <td><%= link_to 'Edit', edit_collection_object_path(collection_object.becomes(CollectionObject)) %></td>
+        <td><%= link_to 'Destroy', collection_object.becomes(CollectionObject), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
