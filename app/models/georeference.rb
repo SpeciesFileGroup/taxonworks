@@ -62,7 +62,6 @@ class Georeference < ActiveRecord::Base
   validates :type, presence: true
 
   def error_box?
-    retval = nil
     # start with a copy of the point of the reference
     #retval = geographic_item.dup
 
@@ -87,6 +86,15 @@ class Georeference < ActiveRecord::Base
             delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)  # 111319.490779206 meters/degree
             delta_y = error_radius / ONE_NORTH  # 110574.38855796 meters/degree
             # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                           FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                           FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                           FACTORY.point(p0.x - delta_x, p0.y)  # west
+                                                          ]))
+            box = RGeo::Cartesian::BoundingBox.new(FACTORY)
+            box.add(retval)
+            box_geom = box.to_geometry
+
             # or
             # make the rectangle directly
             retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
@@ -99,9 +107,6 @@ class Georeference < ActiveRecord::Base
           else
             retval = nil
         end
-        #box = RGeo::Cartesian::BoundingBox.new(FACTORY)
-        #box.add(retval)
-        #retval = box.to_geometry
         #retval = retval.to_geometry
       end
     end
