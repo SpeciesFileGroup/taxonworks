@@ -172,8 +172,8 @@ describe Georeference do
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
         georeference.save
         # TODO: the following expectation will not be met, under some circumstances (different math packages on different operating systems), and has been temporarily disabled
-        #expect(georeference.error_box?.to_s).to eq('POLYGON ((-1.344521043156894 1.5469896879975282 0.0, 1.5445210431568939 1.5469896879975282 0.0, 1.5445210431568939 -1.3469896879975283 0.0, -1.344521043156894 -1.3469896879975283 0.0, -1.344521043156894 1.5469896879975282 0.0))')
-        expect(georeference.error_box?.to_s).to start_with 'POLYGON ((-1.34452104315689'
+        expect(georeference.error_box?.to_s).to match(/POLYGON \(\(-1\.3445210431568\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* 1\.54698968799752\d* 0\.0\)\)/)
+        #expect(georeference.error_box?.to_s).to start_with 'POLYGON ((-1.34452104315689'
       end
 
       specify '.error_box with error_geographic_item returns a shape' do
@@ -255,16 +255,21 @@ describe Georeference do
 
   context 'scopes' do
 
+    before(:all) {generate_test_objects}
+
     before(:each) {
-      # build some geo-references for testing using existing factories and geometries, something roughly like this 
+      # build some geo-references for testing using existing factories and geometries, something roughly like this
+      #@center_point = FactoryGirl.build()
       @gr1 = FactoryGirl.build(:valid_georeference,
                                collecting_event: FactoryGirl.build(:valid_collecting_event, verbatim_locality: 'Some string'),
-                               geographic_item:  FactoryGirl.build(:geographic_item_with_polygon)) # swap out the polygon with another shape if needed
+                               geographic_item:  FactoryGirl.build(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
-      # ...
-      # @gr2
-      # @gr3 
+      @gr2 = FactoryGirl.build(:valid_georeference_geo_locate )
+
+      @gr3 = FactoryGirl.build(:valid_georeference_verbatim_data)
     }
+
+    after(:all) {GeographicItem.destroy_all}
 
     specify '.within_radius_of(geographic_item, distance)' do
       pending 'determinization of what is intended'

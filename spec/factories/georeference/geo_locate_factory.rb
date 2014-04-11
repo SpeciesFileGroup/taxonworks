@@ -2,11 +2,11 @@ FactoryGirl.define do
 
   factory :georeference_geo_locate, class: 'Georeference::GeoLocate', traits: [:housekeeping] do
 
-    association :collecting_event, factory: :valid_collecting_event, verbatim_latitude: '40.092067', verbatim_longitude: '-88.249519'
+    association :collecting_event, factory: :valid_collecting_event
 
     factory :valid_georeference_geo_locate, aliases: [:city_of_champaign] do
 
-      request { {country:      'usa',
+      api_request " {country:      'usa',
                  state:        'illinois',
                  county:       nil,
                  locality:     'champaign',
@@ -17,7 +17,7 @@ FactoryGirl.define do
                  displacePoly: 'false',
                  languageKey:  '0',
                  fmt:          'json'
-      } }
+      }"
       #response { JSON.parse(request) }
       geographic_item { FactoryGirl.build(:geographic_item_with_point_a) }
       error_radius 7338.0
