@@ -16,23 +16,16 @@
   </head>
   
   <body>
+
   <header>
-    <h1><%= link_to site_name, root_path %></h1>
-    <%= render partial: 'sessions/summary' %>
-    <nav>
-      <ul>
-        <li><%= link_to 'Home', root_path %></li>
-      </ul>
-    </nav>
-  </header>
+    <%= render partial: 'sessions/summary' if sessions_signed_in? %>
+ </header>
 
   <aside>
     <% flash.each do |key, value| %>
       <p class="alert alert--<%= key %>"><%= value %></p>
   <% end %>
   </aside>
-
-  <%= @page_title -%>
 
   <%= yield %>
 

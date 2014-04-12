@@ -4,6 +4,12 @@ TaxonWorks::Application.routes.draw do
   
   root 'dashboard#index'
 
+  resources :sessions, only: :create
+  match '/signin',  to: 'sessions#new',     via: 'get'
+  match '/signout', to: 'sessions#destroy', via: 'delete'
+
+  match '/forgot_password', to: 'users#forgot_password', via: 'get'
+
   resources :biocuration_classifications
   resources :collecting_events
   resources :collection_objects
@@ -25,10 +31,6 @@ TaxonWorks::Application.routes.draw do
   
   get 'tasks/accessions/quick/verbatim_material/new'
   post 'tasks/accessions/quick/verbatim_material/create'
-
-  resources :sessions, only: :create
-  match '/signin',  to: 'sessions#new',     via: 'get'
-  match '/signout', to: 'sessions#destroy', via: 'delete'
 
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'

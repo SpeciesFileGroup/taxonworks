@@ -8,8 +8,8 @@ FactoryGirl.define do
   end
 
   trait :user_password do
-    password 'abcdefgZ123*'
-    password_confirmation 'abcdefgZ123*'
+    password 'Abcd123!'
+    password_confirmation 'Abcd123!'
   end
 
   factory :user do
