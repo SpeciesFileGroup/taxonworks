@@ -1,6 +1,5 @@
 
 
-
 <section>
   <header>
     <h1><%= @page_title %></h1>
@@ -13,9 +12,8 @@
     <% @users.each do |user| %>
       <li><%= link_to user.email.to_s, user_path(user) %></li>
   <% end %>
-
   <% end %>
 
-  <br>
-
+    <br>
+  </section>
 
