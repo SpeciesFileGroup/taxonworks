@@ -115,7 +115,7 @@ describe Georeference do
 
       specify 'errors which result from badly formed error_radius values' do
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_radius: 16000,
+                                                      error_radius:          16000,
                                                       error_geographic_item: @e_g_i)
         georeference.save
         expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
@@ -124,10 +124,10 @@ describe Georeference do
       end
 
       specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
-        @area_d = GeographicItem.new(polygon: POLY_E1)
+        @area_d          = GeographicItem.new(polygon: POLY_E1)
         @g_a.ne_geo_item = @area_d
-        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_geographic_item: @e_g_i)
+        georeference     = Georeference::VerbatimData.new(collecting_event:      @c_e,
+                                                          error_geographic_item: @e_g_i)
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
         georeference.save
         expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
@@ -137,10 +137,10 @@ describe Georeference do
       end
 
       specify 'errors which result from badly formed collecting_event area values and error_radius' do
-        @area_d = GeographicItem.new(polygon: POLY_E1)
+        @area_d          = GeographicItem.new(polygon: POLY_E1)
         @g_a.ne_geo_item = @area_d
-        georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
-                                                      error_radius:     160000)
+        georeference     = Georeference::VerbatimData.new(collecting_event: @c_e,
+                                                          error_radius:     160000)
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
         georeference.save
         expect(georeference.errors.keys.include?(:error_radius)).to be_true
@@ -255,27 +255,35 @@ describe Georeference do
 
   context 'scopes' do
 
-    before(:all) {generate_test_objects}
+    before(:all) { generate_test_objects }
 
     before(:each) {
       # build some geo-references for testing using existing factories and geometries, something roughly like this
       #@center_point = FactoryGirl.build()
-      @gr1 = FactoryGirl.build(:valid_georeference,
-                               collecting_event: FactoryGirl.build(:valid_collecting_event, verbatim_locality: 'Some string'),
+      @gr1 = FactoryGirl.create(:valid_georeference,
+                               collecting_event: FactoryGirl.build(:valid_collecting_event),
                                geographic_item:  FactoryGirl.build(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
-      @gr2 = FactoryGirl.build(:valid_georeference_geo_locate )
+      @gr2 = FactoryGirl.create(:valid_georeference_geo_locate)
 
-      @gr3 = FactoryGirl.build(:valid_georeference_verbatim_data)
+      @gr3 = FactoryGirl.create(:valid_georeference_verbatim_data)
+
     }
 
-    after(:all) {GeographicItem.destroy_all}
+    after(:all) { GeographicItem.destroy_all }
 
     specify '.within_radius_of(geographic_item, distance)' do
-      pending 'determinization of what is intended'
+      #pending 'determination of what is intended'
       # Return all Georeferences within some distance of a geographic_item
       # You're just going to use existing scopes in geographic item here, something like:
       # .where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
+
+      expect(Georeference).to respond_to :within_radius_of
+
+      expect(@gr1.save).to be_true
+      expect(@gr2.save).to be_true
+      expect(Georeference.within_radius_of(@gr3.geographic_item, 112000)).to eq([@gr2, @gr3])
+
     end
 
     specify '.where_in_error_range_of(geographic_item, distance)' do

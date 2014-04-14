@@ -1,8 +1,16 @@
 FactoryGirl.define do
+
+  sequence :verbatim_label do |n|
+    "Place #{n} for testing..."
+  end
+
   factory :collecting_event, traits: [:housekeeping] do
 
     factory :valid_collecting_event do
-      verbatim_label "USA:TX:Brazos Co.\nCollege Station\nLick Creek Park\nii.15.1975 YPT"
+      verbatim_label
+      # verbatim_label "USA:TX:Brazos Co.\nCollege Station-#{label_maker}\nLick Creek Park\nii.15.1975 YPT"
+      # minimum_elevation 735 # ,
+      # verbatim_label { label_maker }
     end
 
     factory :collecting_event_my_office do

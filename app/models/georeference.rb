@@ -61,6 +61,18 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
+  def self.within_radius_of(geographic_item, distance)
+    #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
+    # geographic_item may be a polygon, or a point (04/14/14)
+    partial_gi = GeographicItem.within_radius_of('polygon', geographic_item, distance).to_a
+    partial_gi += GeographicItem.within_radius_of('point', geographic_item, distance).to_a
+
+    partial_gr = []
+    partial_gi.each {|geographic_item|
+      partial_gr.push(Georeference.where(geographic_item_id:  geographic_item.id).limit(1).to_a)
+    }
+    partial_gr.flatten
+  end
   def error_box?
     # start with a copy of the point of the reference
     #retval = geographic_item.dup
