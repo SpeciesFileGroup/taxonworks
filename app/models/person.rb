@@ -1,6 +1,8 @@
 class Person < ActiveRecord::Base
 
   include Housekeeping::Users
+  include Shared::Identifiable
+  include Shared::Notable
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank

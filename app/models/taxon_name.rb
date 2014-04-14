@@ -2,10 +2,12 @@ class TaxonName < ActiveRecord::Base
 
   include Housekeeping
   include Shared::Identifiable
+  include Shared::DataAttributes
   include Shared::Citable
   include SoftValidation
+  include Shared::Notable
 
-  acts_as_nested_set scope: [:project_id]
+  acts_as_nested_set scope: [:project_id] 
 
   belongs_to :source
   has_many :taxon_name_classifications
@@ -230,7 +232,13 @@ class TaxonName < ActiveRecord::Base
           gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6  # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif self.rank_class.to_s =~ /Family/
-      n = Protonym.family_group_base(self.name) + 'idae'
+      n_base = Protonym.family_group_base(self.name)  
+      if n_base.nil?
+        # TODO: Dmitry, case this out specifically in the rspec test (hits when name is actually misspelled)
+        n = "FIX ME ERROR #{self.name}"
+      else
+        n = Protonym.family_group_base(self.name) + 'idae'
+      end
     else
       n = self.name.squish
     end

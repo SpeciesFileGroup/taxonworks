@@ -2,10 +2,12 @@ require 'fileutils'
 
 namespace :tw do
   namespace :project_import do
-    namespace :insects do 
+    namespace :insects do
+
       desc 'a default method to argmuments'
       task  :data_directory, [:data_directory] => :environment do |t, args| 
-        @args = args.with_defaults(:data_directory => '~/src/sf/import/inhs-insect-collection-data/TXT/')
+
+        @args = args.with_defaults(:data_directory => "#{ENV['HOME']}/src/sf/import/inhs-insect-collection-data/TXT/")
       end
 
       desc 'the full loop' 
@@ -14,14 +16,40 @@ namespace :tw do
 
         ActiveRecord::Base.transaction do 
           begin
-            @project, @user = initiate_project_and_users
-            @namespace = Namespace.new(name: 'UCD', short_name: 'UCD')
-            @namespace.save!
+            @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
 
- #          Rake::Task["tw:project_import:ucd:handle_keywords"].execute
- #          Rake::Task["tw:project_import:ucd:handle_refs"].execute
+            @import_namespace = Namespace.new(name: 'INHS Import Identifiers', short_name: 'INHS Import')
+            @import_namespace.save!
 
-            Rake::Task["tw:project_import:ucd:handle_names"].execute
+
+            @data =  ImportData.new
+
+            # handle the tables in this order
+            #--- mostly done 
+            #  people.txt
+            #  taxa_hierarchical.txt
+
+            #--- mostly done 
+            #  geography.txt
+            #  accessions_new.txt
+            #  associations.txt
+            #  collection_profile.txt
+            #  ledgers.txt
+            #  letters.txt
+            #  loan_reminders.txt
+            #  loan_specimen.txt
+            #  loans.txt
+            #  localities.txt
+            #  specimens.txt
+            #  specimens_from_3i.txt
+            #  specimens_new.txt
+            #  specimens_new_partially_resolved.txt
+            #  taxa.txt
+            #  types.txt
+
+            #  Rake::Task["tw:project_import:insects:handle_people"].execute
+
+            Rake::Task["tw:project_import:insects:handle_taxa"].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -31,13 +59,155 @@ namespace :tw do
         end
       end
 
-      def initiate_project_and_users
-        @project = FactoryGirl.create(:valid_project, name: 'INHS Insect Collection') 
-        @user = FactoryGirl.create(:user, email: 'fake@user.org', password: '3242341aas', password_confirmation: '3242341aas')
-        $project_id = @project.id
-        $user_id = @user.id
-        return @project, @user
-      end      
+      desc 'handle taxa'
+      task :handle_taxa => [:data_directory, :environment] do |t, args|
+        #   ID             Not Included (parent use only)
+        #   TaxonCode      New Namespace Identifier 
+        #   Name           TaxonName#name  
+        #   Author         TaxonName#verbatim_author
+        #   Year           TaxonName#year_of_publication
+        #   Parens         TaxonName#verbatim_author addition
+        #   Rank           TaxonName#rank
+        #   Parent         TaxonName#parent_id
+        #   Synonyms       'Taxa#Synonyms'  
+        #   References     'Taxa#References' 
+        #   Remarks         Note
+        #   CreatedOn 
+        #   ModifiedOn
+        #   CreatedBy 
+        #   ModifiedBy
+
+        path = @args[:data_directory] + 'taxa_hierarchical.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        parent_index = {}
+
+
+        @data.keywords.merge!(  
+                              'Taxa:Synonyms' => Predicate.new(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'), 
+                              'Taxa:References' => Predicate.new(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.') 
+                             )
+
+        f = CSV.open(path, col_sep: "\t", :headers => true)
+
+        code = :iczn
+      
+        f.each_with_index do |row, i|
+          author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
+          author ||= nil
+
+          code = :icn if row['Name'] == 'Plantae'
+          rank = Ranks.lookup(code, row['Rank'])
+          rank ||= NomenclaturalRank
+          name = row['Name']
+          parent = parent_index[row['Parent']]
+          # puts "\r#{name}                          #{rank}                           "
+
+          # raise 'no parent' if parent.nil? && rank != NomenclaturalRank
+
+          p = Protonym.new(
+            name: name,
+            verbatim_author: author,
+            year_of_publication: row['Year'],
+            rank_class: rank,
+            creator: find_or_create_user(row['CreatedBy'], @data),
+            updater: find_or_create_user(row['ModifiedBy'], @data),
+            parent: parent
+          )
+
+          p.created_at = time_from_field(row['CreatedOn'])
+          p.updated_at = time_from_field(row['ModifiedOn'])
+
+          p.data_attributes.build(type: 'InternalAttribute', predicate: @data.keywords['Taxa:Synonyms'], value: row['Synonyms'])
+          p.data_attributes.build(type: 'InternalAttribute', predicate: @data.keywords['Taxa:References'], value: row['References'])
+          p.notes.build(text: row['Remarks']) if !row['Remarks'].blank?
+
+          p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
+
+          if rank == NomenclaturalRank || !p.parent_id.blank?
+            p.save
+            if p.valid?
+              parent_index.merge!(row['ID'] => p) 
+              print "\r#{name}                          #{rank}                           "
+            else
+              puts 
+              puts p.name
+              puts p.errors.messages
+              puts
+            end
+          else
+            puts "\n\t!!? No parent for #{p.name}\n"
+          end
+
+        end
+
+        byebug
+        foo = 1
+
+      end
+
+
+
+      def time_from_field(time)
+        return nil if time.nil?
+        Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
+      end
+
+      def find_or_create_user(id, data)
+        if data.users[id]
+          data.users[id]
+        else
+          u = User.new
+          data.users.merge!(id => u) 
+          u 
+        end
+      end
+
+
+      desc 'handle people'
+      task :handle_people => [:data_directory, :environment] do |t, args|
+
+        #- 0 PeopleID          Import Identifier
+        #  1 SupervisorID      Loan#supervisor_person_id  ?
+
+        #- 2 LastName           
+        #- 3 FirstName
+
+        #  4 Honorarium        Loan#recipient_honorarium 
+        #  5 Address           Loan#recipient_address
+        #  6 Country           Loan#recipient_country 
+        #  7 Email             Loan#recipient_email 
+        #  8 Phone             Loan#recipent_phone
+
+        # - 9 Comments          Note.new 
+
+        path = @args[:data_directory] + 'people.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        f = CSV.open(path, col_sep: "\t", :headers => true)
+
+        f.each do |row|
+          p = Person::Vetted.new(
+            last_name: row['LastName'],
+            first_name: row['FirstName'],
+            identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
+          )
+          p.notes.build(text: row['Comments']) if !row['Comments'].blank?
+          @data.people.merge!(p => row)
+        end
+
+      end
+
+      class ImportData
+        attr_accessor :people, :keywords, :users
+        def initialize()
+          @people = {}
+          @users = {}
+          @keywords = {}
+        end
+
+      end
+
 
       desc 'reconcile colls'
       task :reconcile_colls => [:data_directory, :environment] do |t, args| 
@@ -118,19 +288,19 @@ namespace :tw do
         # 2  ValSpecies     # 2  PageRef      # 2  PageRef      # 2  Country    
         # 3  HomCode        # 3  H_levelTax   # 3  Code         # 3  State      
         # 4  ValAuthor      # 4  Of_for_to    # 4  CitGenus     # 4  RefCode    
-                            # 5  Status       # 5  CitSpecies   # 4  PageRef    
+        # 5  Status       # 5  CitSpecies   # 4  PageRef    
         # 5  CitGenus       # 6  CitGenus     # 6  CitAuthor    # 5  Figures    
         # 6  CitSubgen      # 7  CitAuthor    # 7  TypeDesign   # 6  Sex        
         # 7  CitSpecies     # 8  Code         # 8  Designator   # 7  CurrStat   
         # 8  CitSubsp       # 9 Notes         # 9  PageDesign   # 8  PrimType   
         # 9 CitAuthor                         # 10 Status       # 9  TypeSex    
-                                                                # 10 Designator 
+        # 10 Designator 
         # 10 Family                                             # 11 Pages      
         # 11 ValDate                                            # 12 Depository 
         # 12 CitDate                                            # 13 Notes      
-                                                                # 14 TypeNumber 
-                                                                # 15 DeposB     
-                                                                # 16 DeposC     
+        # 14 TypeNumber 
+        # 15 DeposB     
+        # 16 DeposC     
 
 
         puts "names ... "
@@ -148,7 +318,7 @@ namespace :tw do
         ft = CSV.open(path2, col_sep: "\t")
         g  = CSV.open(path3, col_sep: "\t")
         s  = CSV.open(path4, col_sep: "\t")
-        
+
         root = TaxonName.new(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil)
         root.save!
 
@@ -165,54 +335,46 @@ namespace :tw do
         count_higher_taxa = 0
 
         valid_names = { }
-    
+
         # valid pass
         m.each do |row|
 
-        rank = nil
-         
-        # puts row[0]
+          rank = nil
 
-        valid_genus = row[1]
-        valid_species = row[2]
-        valid_author = row[4]
+          # puts row[0]
 
-        if valid_genus.blank? && valid_species.blank?
-          rank = :higher
-        elsif valid_species.blank?
-          rank = :genus
-        else
-          rank = :species
-        end
-         
-        higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher 
+          valid_genus = row[1]
+          valid_species = row[2]
+          valid_author = row[4]
 
-        # superfamilies = length(family) = 0 and valgenus 
+          if valid_genus.blank? && valid_species.blank?
+            rank = :higher
+          elsif valid_species.blank?
+            rank = :genus
+          else
+            rank = :species
+          end
 
-        if rank == :higher
-          puts row[0], higher_taxon,  authors , ""
-          count_higher_taxa += 1
-        end
-        # o.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
+          higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher 
+
+          # superfamilies = length(family) = 0 and valgenus 
+
+          if rank == :higher
+            puts row[0], higher_taxon,  authors , ""
+            count_higher_taxa += 1
+          end
+          # o.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
         end
         puts count_higher_taxa
       end
 
-     
+
 
 
       desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_famtrib => [:data_directory, :environment] do |t, args| 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
       end
 
       desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
@@ -289,7 +451,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path2)
 
         fext_data = {}
-        
+
         File.foreach(path2) do |csv_line| 
           r = column_values(fix_line(csv_line))
           fext_data.merge!(
