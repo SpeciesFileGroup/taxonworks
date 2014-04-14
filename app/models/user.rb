@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
   validates :password, length: { minimum: 8 }
 
   has_many :project_members
+  has_many :projects, through: :project_members
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64

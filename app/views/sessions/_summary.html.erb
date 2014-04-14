@@ -1,7 +1,9 @@
+<h1> TaxonWorks </h1>
+
 <div>
-  <p>Signed in as user <%= sessions_current_user.email %></p>
-  <ul>
-    <li><%= link_to 'Your account', sessions_current_user %></li>
-    <li><%= link_to 'Sign out', signout_path, method: 'delete' %></li>
-  </ul>
+  <p>Signed in as <mark><%= sessions_current_user.email %></mark></p>
+  <nav>
+    Settings: 
+    <%= session_header_links -%>
+  </nav>
 </div>

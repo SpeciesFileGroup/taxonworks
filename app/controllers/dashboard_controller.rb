@@ -3,7 +3,7 @@ class DashboardController < ApplicationController
   # GET '/'
   def index
     redirect_to signin_path, status: 301 and return unless sessions_signed_in?
-    @page_title = 'Your dashboard'
+    @projects = sessions_current_user.projects
   end
 
 end

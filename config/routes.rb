@@ -8,6 +8,7 @@ TaxonWorks::Application.routes.draw do
   match '/signin',  to: 'sessions#new',     via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
 
+
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
   resources :biocuration_classifications
@@ -19,7 +20,13 @@ TaxonWorks::Application.routes.draw do
   resources :notes
   resources :otus
   resources :people
-  resources :projects
+  resources :projects do 
+    member do
+      get 'select'
+    end
+  end
+  
+  
   resources :repositories
   resources :taxon_determinations
   resources :taxon_names

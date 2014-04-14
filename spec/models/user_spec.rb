@@ -2,11 +2,19 @@ require 'spec_helper'
 
 describe User do
 
-  let(:user) { User.new password: 'password',
+  let(:user) { User.new(password: 'password',
                         password_confirmation: 'password',
-                        email: 'user_model@example.com' }
+                        email: 'user_model@example.com')}
 
   subject { user }
+
+  context 'associations' do
+    context 'has_many' do
+      specify 'projects' do
+        expect(user.projects << Project.new()).to be_true
+      end
+    end
+  end
 
   context 'with password, password confirmation and email' do
     it { should be_valid }
@@ -41,6 +49,5 @@ describe User do
     before { user.save }
     its(:remember_token) { should_not be_blank }
   end
-
 
 end
