@@ -82,7 +82,6 @@ namespace :tw do
 
         parent_index = {}
 
-
         @data.keywords.merge!(  
                               'Taxa:Synonyms' => Predicate.new(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'), 
                               'Taxa:References' => Predicate.new(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.') 
@@ -140,29 +139,7 @@ namespace :tw do
           end
 
         end
-
-        byebug
-        foo = 1
-
       end
-
-
-
-      def time_from_field(time)
-        return nil if time.nil?
-        Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
-      end
-
-      def find_or_create_user(id, data)
-        if data.users[id]
-          data.users[id]
-        else
-          u = User.new
-          data.users.merge!(id => u) 
-          u 
-        end
-      end
-
 
       desc 'handle people'
       task :handle_people => [:data_directory, :environment] do |t, args|
@@ -195,7 +172,6 @@ namespace :tw do
           p.notes.build(text: row['Comments']) if !row['Comments'].blank?
           @data.people.merge!(p => row)
         end
-
       end
 
       class ImportData

@@ -7,7 +7,7 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::Notable
 
-  acts_as_nested_set scope: [:project_id] 
+  acts_as_nested_set scope: [:project_id]  
 
   belongs_to :source
   has_many :taxon_name_classifications

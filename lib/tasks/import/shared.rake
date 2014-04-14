@@ -21,7 +21,20 @@ namespace :tw do
       line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
     end
 
+      def time_from_field(time)
+        return nil if time.nil?
+        Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
+      end
 
+      def find_or_create_user(id, data)
+        if data.users[id]
+          data.users[id]
+        else
+          u = User.new
+          data.users.merge!(id => u) 
+          u 
+        end
+      end
 
   end
 end
