@@ -8,7 +8,6 @@ FactoryGirl.define do
       association :collecting_event, factory: :collecting_event_my_office
 
       association :geographic_item, factory: :valid_geographic_item
-      association :error_geographic_item, factory: :geographic_item_with_polygon
 
       error_radius 16000
 
