@@ -7,7 +7,7 @@ FactoryGirl.define do
       association :collecting_event, factory: :collecting_event_my_office
       association :geographic_item, factory: :geographic_item_with_point_a
 
-      type  'Georeference::Unknown'
+      type  'Georeference::VerbatimData'
 
     end
 
