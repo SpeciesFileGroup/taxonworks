@@ -63,7 +63,7 @@ class Georeference < ActiveRecord::Base
 
   def self.within_radius_of(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
-    # geographic_item may be a polygon, or a point (04/14/14)
+    # geographic_item may be a polygon, or a point TODO: (04/14/14) figure out how to use a 'join' here
     partial_gi = GeographicItem.within_radius_of('polygon', geographic_item, distance).to_a
     partial_gi += GeographicItem.within_radius_of('point', geographic_item, distance).to_a
 
@@ -73,6 +73,22 @@ class Georeference < ActiveRecord::Base
     }
     partial_gr.flatten
   end
+
+  def self.with_locality_like(string)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # includes String somewhere TODO: (04/15/14) figure out how to use a 'join' here
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    partial_ce = CollectingEvent.where("verbatim_locality like '%#{string}%'")
+
+    partial_gr = []
+    partial_ce.each {|collecting_event|
+      partial_gr.push(Georeference.where(collecting_event_id: collecting_event.id).to_a)
+    }
+    partial_gr.flatten
+  end
+
   def error_box?
     # start with a copy of the point of the reference
     #retval = geographic_item.dup

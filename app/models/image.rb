@@ -30,10 +30,10 @@ class Image < ActiveRecord::Base
   before_save :extract_tw_attributes
 
   has_attached_file :image_file,
-       :styles => {:medium => '300x300>', :thumb => '100x100>'},
-       :default_url => MISSING_IMAGE_PATH,
-       :filename_cleaner => CleanseFilename
-       #:restricted_characters => /[^A-Za-z0-9\.]/,
+                    :styles           => {:medium => '300x300>', :thumb => '100x100>'},
+                    :default_url      => MISSING_IMAGE_PATH,
+                    :filename_cleaner => CleanseFilename
+  #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, :content_type => /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validates_attachment_size :image_file, greater_than: 1.kilobytes
@@ -49,21 +49,44 @@ class Image < ActiveRecord::Base
   end
 
   def exif
-=begin
-    if self.new_record?
-      return false
+    # returns a hash of EXIF data if present, empty hash if not.do
+    # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
+
+    ret_val = {} # return value
+
+    unless self.new_record? # only process if record exists
+      tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
+      # following removes the exif, spits and recombines string as a hash
+      ret_val = tmp.split("\n").collect { |b|
+                                          b.gsub("exif:", "").split("=")
+                                        }.inject({}) { |hsh, c|
+                                                        hsh.merge(c[0] => c[1])
+                                                    }
+      # might be able to tmp.split("\n").collect { |b|
+      # b.gsub("exif:", "").split("=")
+      # }.inject(ret_val) { |hsh, c|
+      #   hsh.merge(c[0] => c[1])
+      # }
     end
-=end
-=begin
-bash shell extraction notes:
-identify -format "%[EXIF:*]" ExifImage.jpg
-a=`identify -format "%[EXIF:*]" ExifImage.jpg`
 
-a.split("\n").collect{|b| b.gsub("exif:", "").split("=")}.inject({}){|hsh, c| hsh.merge(c[0]=>c[1])}
 
-    # drop to the shell
-=end
-    # run an imageMagick command (identify?) pass to that command self.image_file.url
+    ret_val # return
+  end
+
+  def gps_data
+    # if there is EXIF data, pulls out geographic coordinates & returns hash of lat/long in decimal degrees
+    # (5 digits after decimal point if available)
+    # EXIF gps information is in http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF section 4.6.6
+    # note that cameras follow specifications, but EXIF data can be edited manually and may not follow specifications.
+
+    # check if gps data is in d m s (could be edited manually)
+    #   => format dd/1,mm/1,ss/1 or dd/1,mmmm/100,0/1 or 40/1, 5/1, 314437/10000
+    # N = +
+    # S = -
+    # E = +
+    # W = -
+    # Altitude should be based on reference of sea level
+    # GPSAltitudeRef is 0 for above sea level, and 1 for below sea level
 
   end
 
