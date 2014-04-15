@@ -12,7 +12,12 @@ describe Serial do
 
   it 'should soft validate duplicate serials' do
     s = FactoryGirl.build(:valid_serial)
+    s.soft_validate()
+    expect(s.soft_validations.messages_on(:name).empty?).to be_true
     expect(s.save).to be_true
+    s.soft_validate()
+    expect(s.soft_validations.messages_on(:name).empty?).to be_true
+
     j = FactoryGirl.build(:valid_serial)
     expect(j.valid?).to be_true
 
@@ -25,6 +30,8 @@ describe Serial do
     # soft validate edited record
     k = FactoryGirl.build(:preceding_serial)
     expect(k.save).to be_true
+    k.soft_validate()
+    expect(k.soft_validations.messages_on(:name).empty?).to be_true
     k.name = s.name
     k.soft_validate()
     expect(k.soft_validations.messages_on(:name).empty?).to be_false

@@ -40,7 +40,19 @@ class Serial < ActiveRecord::Base
     if self.new_record?
       Serial.exists?(name: self.name)
     else
-      dup = Serial.where("name = ? AND id <> ?", self.name, self.id)
+      # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
+=begin
+        f = select { '*' }.
+          select_distance(column_name, geographic_item).
+          where_distance_greater_than_zero(column_name,geographic_item).
+          order { 'distance desc' }
+
+select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
+
+=end
+      dup = Serial.where("name = ? AND id <> ?", self.name, self.id).to_a
+      # select { "name = #{self.name} AND NOT (id = #{self.id})"}
+      dup
     end
 
   end

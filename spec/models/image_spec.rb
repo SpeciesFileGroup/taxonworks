@@ -99,7 +99,13 @@ describe Image do
     expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_true
   end
 
-  pending 'exif or jfif data should be available if it was provided in the original image'
+  specify 'exif data should be available if it was provided in the original image' do
+    # return empty hash when no EXIF data present
+    # return correct EXIF data on following images:
+
+  end
+
+  pending 'return gps data as decimal degrees'
 
   # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do
