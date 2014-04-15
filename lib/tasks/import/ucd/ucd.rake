@@ -31,13 +31,6 @@ namespace :tw do
         end
       end
 
-      def initiate_project_and_users
-        @project = FactoryGirl.create(:valid_project, name: 'UCD') 
-        @user = FactoryGirl.create(:user, email: 'john@bm.org', password: '3242341aas', password_confirmation: '3242341aas')
-        $project_id = @project.id
-        $user_id = @user.id
-        return @project, @user
-      end      
 
       desc 'reconcile colls'
       task :reconcile_colls => [:data_directory, :environment] do |t, args| 
@@ -72,13 +65,14 @@ namespace :tw do
         f.close
       end
 
-      def fix_line(line)
-        line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
-      end
+    # def fix_line(line)
+    #   line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
+    # end
 
-      def column_values(fixed_line)
-        CSV.parse(fixed_line, col_sep: "\t").first
-      end
+     # See shared.rake
+     # def column_values(fixed_line)
+     #    CSV.parse(fixed_line, col_sep: "\t").first
+     # end
 
       desc 'reconcile Refs::Chalcfam (look for unique values'
       task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args| 
