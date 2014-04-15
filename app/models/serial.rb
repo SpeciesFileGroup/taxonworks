@@ -23,39 +23,48 @@ class Serial < ActiveRecord::Base
   has_many :preceding_serials, through: :serial_chronologies_as_object, class_name: 'Serial'
 
   # Scopes, clustered by function
+  # select all serials with this name
+  # select all serials with this abbreviation
+  # select all serials with this translation name
+  # select all serials that match this name or alternate value
 
   # "Hard" Validations
   validates_presence_of :name
+  # TODO validate language
 
   # "Soft" Validations
   soft_validate(:sv_duplicate?)
 
   # Getters/Setters
+  # TODO set language via string name
 
   # Class methods
 
   # Instance methods
   def duplicate?
     # Boolean is there another serial with the same name?
+    ret_val = false
     if self.new_record?
-      Serial.exists?(name: self.name)
+      ret_val = Serial.exists?(name: self.name)
     else
-      # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
-=begin
-        f = select { '*' }.
-          select_distance(column_name, geographic_item).
-          where_distance_greater_than_zero(column_name,geographic_item).
-          order { 'distance desc' }
-
-select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
-
-=end
-      dup = Serial.where("name = ? AND id <> ?", self.name, self.id).to_a
-      # select { "name = #{self.name} AND NOT (id = #{self.id})"}
-      dup
+      ret_val = Serial.where( "name = '#{self.name}' AND NOT (id = #{self.id})").to_a.count > 0
     end
 
+    ret_val # return
   end
+
+  def previous_serial
+    # return previous serial object or nil
+  end
+
+  def succeeding_serial
+    # return succeeding serial object or nil
+  end
+
+  def chronology
+    # return ordered array of serials associated with this serial
+  end
+
   protected
 
 
@@ -63,8 +72,11 @@ select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.
     if self.duplicate?
       soft_validations.add(:name, 'There is another serial with this name in the database.')
     end
+    # TODO soft validation of name matching an alternate value for name of a different serial
   end
 
-  # TODO soft validation of name matching an alternate value for name of a different serial
+  def match_alternate_value?
+    #Select value from AlternateValue WHERE alternate_object_type = 'Serial' AND alternate_object_attribute = 'name'
 
+  end
 end

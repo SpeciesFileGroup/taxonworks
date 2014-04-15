@@ -37,16 +37,18 @@ describe Serial do
     expect(k.soft_validations.messages_on(:name).empty?).to be_false
     expect(k.soft_validations.messages).to include 'There is another serial with this name in the database.'
 
+    # TODO 'should check for duplicate between name & other serial tags'
+    # create alternate value/types synonym, translation, abbreviation
   end
   it 'should set the language based on valid languages' do
-    pending 'not implemented yet'
+    pending 'no languages in the language table yet'
   end
 
   it 'should use English as the default language' do
     pending 'is this true?'
   end
 
-
+  it 'should list the Serial Chronology'
 
   it 'should list all preceding serials' do
     pending 'not implemented yet'

@@ -88,6 +88,11 @@ class Image < ActiveRecord::Base
     # Altitude should be based on reference of sea level
     # GPSAltitudeRef is 0 for above sea level, and 1 for below sea level
 
+    # From discussion with Jim -
+    # create a utility library called "GeoConvert" and define single method
+    # that will convert from degrees min sec to decimal degree
+    # - maybe 2 versions? - one returns string, other decimal?
+
   end
 
   protected
