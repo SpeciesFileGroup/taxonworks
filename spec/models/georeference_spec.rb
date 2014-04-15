@@ -261,8 +261,8 @@ describe Georeference do
       # build some geo-references for testing using existing factories and geometries, something roughly like this
       #@center_point = FactoryGirl.build()
       @gr1 = FactoryGirl.create(:valid_georeference,
-                               collecting_event: FactoryGirl.build(:valid_collecting_event),
-                               geographic_item:  FactoryGirl.build(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
+                               collecting_event: FactoryGirl.create(:valid_collecting_event),
+                               geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
       @gr2 = FactoryGirl.create(:valid_georeference_geo_locate)
 
@@ -286,29 +286,30 @@ describe Georeference do
 
     end
 
-    specify '.where_in_error_range_of(geographic_item, distance)' do
-      pending 'adding #within_error_range of to georeference'
-      # same as prior, but
-      # .where{geographic_item_error_id: ... } 
-    end
-
     specify '.with_locality_like(String)' do
-      pending 'determinization of what is intended'
+      # pending 'determination of what is intended'
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that includes String somewhere
       # Joins collecting_event.rb and matches %String% against verbatim_locality 
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+      expect(Georeference).to respond_to :with_locality_like
+      expect(@gr1.save!).to be_true
+      expect(@gr2.save!).to be_true
+      expect(@gr3.save!).to be_true
+      expect(Georeference.with_locality_like('Illinois')).to eq([@gr3])
+      expect(Georeference.with_locality_like('Locality ')).to eq([@gr1, @gr2])
+
     end
 
     specify '.with_locality(String)' do
-      pending 'determinization of what is intended'
+      pending 'determination of what is intended'
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality = String
       # Joins collecting_event.rb and matches String against verbatim_locality,
       # .where(id in CollectingEvent.where{verbatim_locality = "var"})
     end
 
     specify '.with_geographic_area(geographic_area)' do
-      pending 'determinization of what is intended'
+      pending 'determination of what is intended'
       # where{geograhic_item_id: geographic_area.id}
     end
   end
