@@ -4,7 +4,7 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @taxon_names = TaxonName.all
+    @taxon_names = TaxonName.limit(100)
   end
 
   # GET /taxon_names/1
@@ -43,7 +43,7 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
-        format.html { redirect_to @taxon_name, notice: 'Taxon name was successfully updated.' }
+        format.html { redirect_to @taxon_name.becomes(TaxonName), notice: 'Taxon name was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

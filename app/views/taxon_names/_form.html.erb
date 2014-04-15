@@ -1,4 +1,4 @@
-<%= form_for(@taxon_name) do |f| %>
+<%= form_for(@taxon_name.becomes(TaxonName)) do |f| %>
   <% if @taxon_name.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@taxon_name.errors.count, "error") %> prohibited this taxon_name from being saved:</h2>
@@ -31,14 +31,7 @@
     <%= f.label :cached_higher_classification %><br>
     <%= f.text_field :cached_higher_classification %>
   </div>
-  <div class="field">
-    <%= f.label :lft %><br>
-    <%= f.number_field :lft %>
-  </div>
-  <div class="field">
-    <%= f.label :rgt %><br>
-    <%= f.number_field :rgt %>
-  </div>
+
   <div class="field">
     <%= f.label :source_id %><br>
     <%= f.number_field :source_id %>

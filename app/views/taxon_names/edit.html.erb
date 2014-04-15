@@ -2,5 +2,5 @@
 
 <%= render 'form' %>
 
-<%= link_to 'Show', @taxon_name %> |
+<%= link_to 'Show', @taxon_name.becomes(TaxonName) %> |
 <%= link_to 'Back', taxon_names_path %>
