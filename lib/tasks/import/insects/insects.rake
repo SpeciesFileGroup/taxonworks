@@ -29,6 +29,7 @@ namespace :tw do
             #--- mostly done 
             #  people.txt
             #  taxa_hierarchical.txt
+            #  localities.txt
 
             #--- mostly done 
             #  geography.txt
@@ -40,12 +41,14 @@ namespace :tw do
             #  loan_reminders.txt
             #  loan_specimen.txt
             #  loans.txt
-            #  localities.txt
+          
+            
             #  specimens.txt
             #  specimens_from_3i.txt
             #  specimens_new.txt
             #  specimens_new_partially_resolved.txt
-            #  taxa.txt
+            
+            
             #  types.txt
 
             #  Rake::Task["tw:project_import:insects:handle_people"].execute
@@ -59,6 +62,162 @@ namespace :tw do
           end
 #        end
       end
+
+
+      desc 'handle specimens'
+      task :handle_specimens => [:data_directory, :environment] do |t, args|
+
+          # localities.txt
+          #      LocalityCode
+       
+          # -- lookups ?! 
+          #      Country
+          #      State
+          #      County
+         
+          #      Locality                      # verbatim_locality
+          
+         
+          #      NS
+          #      Lat_deg
+          #      Lat_min
+          #      Lat_sec
+          #      EW
+          #      Long_deg
+          #      Long_min
+          #      Long_sec
+          #      Latitude
+          #      Longitude
+                                                                                                                      #
+          #      Elev_m
+          #      Elev_ft
+          
+          #      Elevation
+        
+          # --Georeference 
+          #      GBIF_precission  (radius in meters, calculate vs. assert)
+      
+          #      PrecisionCode   (1-6 -?)  - assert it vs. assign it?
+
+          # -- Geographic_Area?! 
+          
+          #      DrainageBasinLesser
+          #      DrainageBasinGreater
+          #      StreamSize
+          #      INDrainage
+          #      WisconsinGlaciated
+          #      BodyOfWater
+         
+          #      Park
+
+          #      Comments
+        
+          #      OldLocalityCode
+          #      CreatedOn
+          #      ModifiedOn
+          #      CreatedBy
+          #      ModifiedBy
+
+
+          # --- specimens.txt
+          # -- Collection Object
+          #     LocalityLabel                 # buffered_collecting_event
+          #     AccessionNumber               # identifier
+          #     DeterminationLabel            # buffered
+          #     OtherLabel                    # buffered
+          #     PreparationType               # Preparation#id
+          #     AccessionSource        # people_id  # Asserts a person donated the specimen.
+          #     DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
+          #     DeaccessionCause       # cause      # A reason the specimen is no longer (= owned (= under the responsibility of an organization) by) the identified repository_id
+          #     DeaccessionDate        # date       # Date ownership was given up. 
+
+
+          # -- Identifier
+          #     Prefix
+          #     CatalogNumber
+      
+          # -- Otu   
+          #     TaxonCode
+      
+          # -- Collecting Event 
+          # -    LocalityCode
+          # -    DateCollectedBeginning
+          # -    DateCollectedEnding
+          # -    Collector
+          # -    CollectionMethod
+          # -    Habitat
+          # -    OldLocalityCode    # tags on CE
+          # -    OldCollector       # tags on CE
+                  
+          #     CreatedBy
+          #     CreatedOn
+          #     ModifiedOn
+          #     ModifiedBy
+        
+          # -- Taxon Determination
+          #     IdentifiedBy
+          #     YearIdentified
+          #     OldIdentifiedBy   # Data attribute on this
+
+          # -- TypeMaterial 
+          #     Type           # status
+          #     TypeName       # names of species <- no ID  "aus" -> annotation on Type
+          
+          # -- InternalAttribute
+          #     Checked    # tag on collection_object
+          #     SpecialCollection             # tag value on object
+
+          # -- Notes
+          #     Remarks    # Note on collection
+
+
+          # --  BiocurationClass       
+          #     AdultMale
+          #     AdultFemale
+          #     Immature
+          #     Pupa
+          #     Exuvium
+          #     AdultUnsexed
+          #     AgeUnknown
+          #     OtherSpecimens
+        
+          # --- not used 
+          #     LocalityCompare     # related to hash md5
+
+        path1 = @args[:data_directory] + 'localities.txt'
+        raise 'file not found' if not File.exists?(path1)
+
+        path2 = @args[:data_directory] + 'specimens.txt'
+        raise 'file not found' if not File.exists?(path2)
+
+
+        @data.keywords.merge!(  
+                              'AdultMale' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult male(s).'), 
+                              'AdultFemale' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult female(s).'), 
+                              'Immature' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of immature(s).'), 
+                              'Pupa' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of pupa.'), 
+                              'Exuvium' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of exuviae.'), 
+                              'AdultUnsexed' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
+                              'AgeUnknown' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of individuals of indtermined age.'), 
+                              'OtherSpecimens' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
+                             )
+
+
+        co = CSV.open(path1, col_sep: "\t", :headers => true)
+        ce = CSV.open(path2, col_sep: "\t", :headers => true)
+
+        co.each_with_index do |row, i|
+         
+          o = CollectionObject
+        end
+      end
+
+
+      def objects_from_co_row(row)
+
+      end
+
+
 
       desc 'handle taxa'
       task :handle_taxa => [:data_directory, :environment] do |t, args|
@@ -175,11 +334,13 @@ namespace :tw do
       end
 
       class ImportData
-        attr_accessor :people, :keywords, :users
+        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects
         def initialize()
           @people = {}
           @users = {}
           @keywords = {}
+          @collecting_events = {}
+          @collection_objects = {}
         end
 
       end
@@ -278,7 +439,6 @@ namespace :tw do
         # 15 DeposB     
         # 16 DeposC     
 
-
         puts "names ... "
 
         path1 = @args[:data_directory] + 'master.csv'
@@ -301,7 +461,7 @@ namespace :tw do
         chalcidoidea = TaxonName.new(name: 'Chalcidoidea', parent: root, rank_class: Ranks.lookup(:iczn, 'superfamily'))
         chalcidoidea.save!
 
-        #mi = ft.inject({}).{|hsh, row| hsh.merge!(row[0] => row[0.. 
+        # mi = ft.inject({}).{|hsh, row| hsh.merge!(row[0] => row[0.. 
 
         ft.each do |row|
 
@@ -344,13 +504,8 @@ namespace :tw do
         puts count_higher_taxa
       end
 
-
-
-
       desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_famtrib => [:data_directory, :environment] do |t, args| 
-
-
       end
 
       desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
