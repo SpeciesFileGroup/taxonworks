@@ -1,4 +1,4 @@
-# This is a 1:1 represntation of ISO 639-2.  
+# This is a 1:1 representation of ISO 639-2.
 # It is built on initialization with a rake task, and not further touched.
 class Language < ActiveRecord::Base
 
