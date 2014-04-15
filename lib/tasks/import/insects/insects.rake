@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'benchmark'
 
 namespace :tw do
   namespace :project_import do
@@ -14,7 +15,7 @@ namespace :tw do
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
 
-        ActiveRecord::Base.transaction do 
+#        ActiveRecord::Base.transaction do 
           begin
             @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
 
@@ -56,7 +57,7 @@ namespace :tw do
           rescue
             raise
           end
-        end
+#        end
       end
 
       desc 'handle taxa'
@@ -124,10 +125,10 @@ namespace :tw do
           p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
           if rank == NomenclaturalRank || !p.parent_id.blank?
-            p.save
+            bench = Benchmark.measure {p.save}
             if p.valid?
               parent_index.merge!(row['ID'] => p) 
-              print "\r#{name}                          #{rank}                           "
+              print "\r#{i}\t#{bench.to_s.strip}\t#{name}        \t\t#{rank}                           "
             else
               puts 
               puts p.name
@@ -137,7 +138,6 @@ namespace :tw do
           else
             puts "\n\t!!? No parent for #{p.name}\n"
           end
-
         end
       end
 
