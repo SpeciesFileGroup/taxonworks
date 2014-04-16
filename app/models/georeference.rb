@@ -76,17 +76,26 @@ class Georeference < ActiveRecord::Base
 
   def self.with_locality_like(string)
     # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-    # includes String somewhere TODO: (04/15/14) figure out how to use a 'join' here
+    # includes String somewhere
     # Joins collecting_event.rb and matches %String% against verbatim_locality
     # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
 
-    partial_ce = CollectingEvent.where("verbatim_locality like '%#{string}%'")
+    # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
+    with_locality_as(string, true)
+end
 
-    partial_gr = []
-    partial_ce.each {|collecting_event|
-      partial_gr.push(Georeference.where(collecting_event_id: collecting_event.id).to_a)
-    }
-    partial_gr.flatten
+
+  def self.with_locality(string)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # equals String somewhere
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    with_locality_as(string, false)
+  end
+
+  def self.with_geographic_area(geographic_area)
+    # returns all georeferences which have geographic_items which match geographic_areas
   end
 
   def error_box?
@@ -142,6 +151,27 @@ class Georeference < ActiveRecord::Base
   end
 
   protected
+
+  def self.with_locality_as(string, like)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # includes, or is equal to 'string' somewhere TODO: (04/15/14) figure out how to use a 'join' here
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    likeness = like ? '%' : ''
+    like = like ? 'like' : '='
+    query = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
+    # where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+    partial_ce = CollectingEvent.where(query)
+
+    partial_gr = []
+    partial_ce.each {|collecting_event|
+      partial_gr.push(Georeference.where(collecting_event_id: collecting_event.id).to_a)
+    }
+    partial_gr.flatten
+
+   # where { geographic_item_id: where {CollectingEvent}  }
+  end
 
   def chk_obj_inside_err_geo_item
     # case 1

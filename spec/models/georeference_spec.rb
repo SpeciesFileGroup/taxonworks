@@ -261,16 +261,24 @@ describe Georeference do
       # build some geo-references for testing using existing factories and geometries, something roughly like this
       #@center_point = FactoryGirl.build()
       @gr1 = FactoryGirl.create(:valid_georeference,
-                               collecting_event: FactoryGirl.create(:valid_collecting_event),
-                               geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
+                                collecting_event: FactoryGirl.create(:valid_collecting_event),
+                                geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
       @gr2 = FactoryGirl.create(:valid_georeference_geo_locate)
 
       @gr3 = FactoryGirl.create(:valid_georeference_verbatim_data)
 
+      @gr1.save!
+      @gr2.save!
+      @gr3.save!
+
     }
 
-    after(:all) { GeographicItem.destroy_all }
+    after(:all) {
+      GeographicItem.destroy_all
+      Georeference.destroy_all
+      CollectingEvent.destroy_all
+    }
 
     specify '.within_radius_of(geographic_item, distance)' do
       #pending 'determination of what is intended'
@@ -280,37 +288,44 @@ describe Georeference do
 
       expect(Georeference).to respond_to :within_radius_of
 
-      expect(@gr1.save).to be_true
-      expect(@gr2.save).to be_true
-      expect(Georeference.within_radius_of(@gr3.geographic_item, 112000)).to eq([@gr2, @gr3])
+      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      expect(Georeference.within_radius_of(@gr3.geographic_item, 112000).to_a).to eq([@gr2, @gr3])
 
     end
 
     specify '.with_locality_like(String)' do
-      # pending 'determination of what is intended'
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that includes String somewhere
       # Joins collecting_event.rb and matches %String% against verbatim_locality 
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
       expect(Georeference).to respond_to :with_locality_like
-      expect(@gr1.save!).to be_true
-      expect(@gr2.save!).to be_true
-      expect(@gr3.save!).to be_true
-      expect(Georeference.with_locality_like('Illinois')).to eq([@gr3])
-      expect(Georeference.with_locality_like('Locality ')).to eq([@gr1, @gr2])
+      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr3])
+      pending 'construction of appropriate Georeference objects'
+      expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1, @gr2])
+      expect(Georeference.wiht_locality_like('Saskatoon').to_a).to eq([])
 
     end
 
     specify '.with_locality(String)' do
-      pending 'determination of what is intended'
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality = String
       # Joins collecting_event.rb and matches String against verbatim_locality,
       # .where(id in CollectingEvent.where{verbatim_locality = "var"})
+      expect(Georeference).to respond_to :with_locality
+      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr3])
+      pending 'construction of appropriate Georeference objects'
+      expect(Georeference.with_locality('Locality 1 for testing...').to_a).to eq([@gr1])
+      expect(Georeference.wiht_locality('Saskatoon').to_a).to eq([])
+
     end
 
     specify '.with_geographic_area(geographic_area)' do
-      pending 'determination of what is intended'
+      expect(Georeference).to respond_to :with_geographic_area
+      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      pending 'construction of appropriate Georeference objects'
       # where{geograhic_item_id: geographic_area.id}
+
     end
   end
 

@@ -522,10 +522,12 @@ def generate_test_objects
     outer_limits: @outer_limits.id
   }
 
-  @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
+  my_debug = false
 
-  puts @debug_names.invert[@p1]
-
+  if my_debug
+    @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
+    puts @debug_names.invert[@p1]
+  end
 end
 
 
@@ -545,26 +547,26 @@ def gen_wkt_files_1()
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-    when 'Point'
-      f_type = f_point
-    when 'MultiPoint'
-      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-      f_type = $stdout
-    when /^Line[S]*/ #when 'Line' or 'LineString'
-      f_type = f_line
-    when 'MultiLineString'
-      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-      f_type = $stdout
-    when 'Polygon'
-      f_type = f_poly
-    when 'MultiPolygon'
-      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-      f_type = $stdout
-    when 'GeometryCollection'
-      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-      f_type = $stdout
-    else
-      f_type = $stdout
+      when 'Point'
+        f_type = f_point
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+        f_type = $stdout
+      when /^Line[S]*/ #when 'Line' or 'LineString'
+        f_type = f_line
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+        f_type = $stdout
+      when 'Polygon'
+        f_type = f_poly
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        f_type = $stdout
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        f_type = $stdout
+      else
+        f_type = $stdout
       # ignore it for now
     end
     f_type.write("#{index}:#{wkt}: #{name}\n")
@@ -591,26 +593,26 @@ def gen_wkt_files()
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-    when 'Point'
-      f_type = f_point
-    when 'MultiPoint'
-      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-      f_type = $stdout
-    when /^Line[S]*/ #when 'Line' or 'LineString'
-      f_type = f_line
-    when 'MultiLineString'
-      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-      f_type = $stdout
-    when 'Polygon'
-      f_type = f_poly
-    when 'MultiPolygon'
-      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-      f_type = $stdout
-    when 'GeometryCollection'
-      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-      f_type = $stdout
-    else
-      f_type = $stdout
+      when 'Point'
+        f_type = f_point
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+        f_type = $stdout
+      when /^Line[S]*/ #when 'Line' or 'LineString'
+        f_type = f_line
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+        f_type = $stdout
+      when 'Polygon'
+        f_type = f_poly
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        f_type = $stdout
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        f_type = $stdout
+      else
+        f_type = $stdout
       # ignore it for now
     end
     f_type.write("#{index}:#{wkt}: #{name}\n")
