@@ -1,7 +1,7 @@
 namespace :tw do
 
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
-  task :user_id => [:environement] do
+  task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]
     raise "User #{ENV['user_id']} doesn't exist." if !User.find(ENV["user_id"])
     $user_id = ENV["user_id"].to_i
