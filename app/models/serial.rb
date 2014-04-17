@@ -23,20 +23,61 @@ class Serial < ActiveRecord::Base
   has_many :preceding_serials, through: :serial_chronologies_as_object, class_name: 'Serial'
 
   # Scopes, clustered by function
-  # select all serials with this name
-  # select all serials with this abbreviation
-  # select all serials with this translation name
-  # select all serials that match this name or alternate value
+  # select all serials with this name this will handled by
+  # TODO to be implemented include shared::scopes
+  # ^= scope :with_<attribute name>, ->(<search value>) {where <attribute name>:<search value>}
+
+=begin   discussion with Matt 4/16/2014 - types of likely searches
+  Serial.with_name('foo')   vs.   Serial.where(name: 'foo')
+  settled on above to do - create a shared scope so any attribute can be called as Class.with_<attr_name>
+
+  params = {name:"J. Stuff", placed_published:"New York", creator: @beth}
+  Serial.where(params)
+
+  # select all serials that match this name or alternate value should be an alternate value scope?
+  Serial.with_value_and_alternates(:name, 'Beth')
+  # extend alternate value so that you look up via class;column_name;value
+
+  # select all serials with this abbreviation - fine to implement scope here, but primary
+    test should be in alternate value
+  # select all serials with this translation name - fine to implement scope here, but primary
+    test should be in alternate value
+=end
 
   # "Hard" Validations
   validates_presence_of :name
   # TODO validate language
+  #  language ID should be nil or in the language table - default language value of English will be set in view.
 
   # "Soft" Validations
   soft_validate(:sv_duplicate?)
 
   # Getters/Setters
-  # TODO set language via string name
+  # TODO set language via string name (english_name: & french_name)  & short form (alpha_3_bibliographic)
+  # set language based on 3 letter abbreviation (do not use 2 letter abbreviations because there are several missing)
+  def language_abbrev=(value)
+    lang = Language.exact_abr(value)
+    if lang.nil?
+      self.primary_language_id = nil
+    else
+      self.primary_language_id = lang.id
+    end
+   end
+  def language_abbrev
+     lang = Language.where(id: self.primary_language_id).to_a[0].alpha_3_bibliographic
+  end
+
+  def language=(value)
+    lang = Language.exact_eng(value)
+    if lang.nil?
+      self.primary_language_id = nil
+    else
+      self.primary_language_id = lang.id
+    end
+  end
+  def language
+    lang = Language.where(id: self.primary_language_id).to_a[0].english_name
+  end
 
   # Class methods
 

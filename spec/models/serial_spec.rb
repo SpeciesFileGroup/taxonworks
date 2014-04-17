@@ -40,12 +40,41 @@ describe Serial do
     # TODO 'should check for duplicate between name & other serial tags'
     # create alternate value/types synonym, translation, abbreviation
   end
-  it 'should set the language based on valid languages' do
-    pending 'no languages in the language table yet'
-  end
+  context 'should set the language based on valid languages' do
+    before(:each) do
+      @eng = FactoryGirl.build(:english)
+      @eng.save
+      @rus = FactoryGirl.build(:russian)
+      @rus.save
+      @cre = FactoryGirl.build(:creole_eng)
+      @cre.save
+      @s = FactoryGirl.build(:valid_serial)
+    end
+    specify 'should be able to get & set language by 3 letter abbreviation' do
+      @s.language_abbrev = 'eng'
+      expect(@s.save).to be_true
+      expect(@s.primary_language_id).to eq(@eng.id)
+      expect(@s.language_abbrev).to eq('eng')
+      @s.language_abbrev = 'test'
+      expect(@s.primary_language_id).to be_nil
+      expect(@s.save).to be_true
+    end
+    specify 'should be able to get & set language by full name' do
+      @s.language = 'English'
+      expect(@s.save).to be_true
+      expect(@s.primary_language_id).to eq(@eng.id)
+      expect(@s.language).to eq('English')
+      @s.language = 'test'
+      expect(@s.primary_language_id).to be_nil
+      expect(@s.save).to be_true
+     end
+    specify 'if set by primary language id, should be able to get language full name & abbreviation' do
+      @s.primary_language_id = @eng.id
+      expect(@s.language).to eq('English')
+      expect(@s.language_abbrev).to eq('eng')
+      expect(@s.save).to be_true
+    end
 
-  it 'should use English as the default language' do
-    pending 'is this true?'
   end
 
   it 'should list the Serial Chronology'
