@@ -1,15 +1,7 @@
 
-def clean_slate 
-  Project.delete_all 
-  User.delete_all
-  ProjectMember.delete_all
-  $user_id = nil
-  $project_id = nil
-end
-
 RSpec.configure do |config|
   config.before(:suite) { 
-    clean_slate
+    ProjectsAndUsers.clean_slate
     # Order matters 
     FactoryGirl.create(:valid_user, id: 1)
     $user_id = 1
@@ -22,9 +14,20 @@ RSpec.configure do |config|
   } 
 
   config.after(:suite) { 
-    clean_slate
+    ProjectsAndUsers.clean_slate
   }
+end
 
+
+module ProjectsAndUsers
+
+  def self.clean_slate 
+    Project.delete_all 
+    User.delete_all
+    ProjectMember.delete_all
+    $user_id = nil
+    $project_id = nil
+  end
 
 end
 

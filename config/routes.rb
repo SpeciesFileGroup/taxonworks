@@ -1,14 +1,16 @@
 TaxonWorks::Application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
-  
+ 
+  # Vetted / tested
+
   root 'dashboard#index'
 
   resources :sessions, only: :create
   match '/signin',  to: 'sessions#new',     via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
 
-
+  # Stubbed
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
   resources :biocuration_classifications
@@ -25,7 +27,6 @@ TaxonWorks::Application.routes.draw do
       get 'select'
     end
   end
-  
   
   resources :repositories
   resources :taxon_determinations

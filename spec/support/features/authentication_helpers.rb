@@ -16,5 +16,11 @@ module Features
       click_button 'Sign in'
     end
 
+    def sign_in_valid_user
+      existing_user = FactoryGirl.create(:valid_user) 
+      visit signin_path
+      sign_in_with(existing_user.email, existing_user.password)
+    end
+
   end
 end
