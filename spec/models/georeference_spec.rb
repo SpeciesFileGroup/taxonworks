@@ -264,13 +264,13 @@ describe Georeference do
                                 collecting_event: FactoryGirl.create(:valid_collecting_event),
                                 geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
-      @gr2 = FactoryGirl.create(:valid_georeference_geo_locate)
+      @gr_poly = FactoryGirl.create(:valid_georeference_geo_locate)
 
-      @gr3 = FactoryGirl.create(:valid_georeference_verbatim_data)
+      @gr_point = FactoryGirl.create(:valid_georeference_verbatim_data)
 
       @gr1.save!
-      @gr2.save!
-      @gr3.save!
+      @gr_poly.save!
+      @gr_point.save!
 
     }
 
@@ -288,22 +288,24 @@ describe Georeference do
 
       expect(Georeference).to respond_to :within_radius_of
 
-      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
-      expect(Georeference.within_radius_of(@gr3.geographic_item, 112000).to_a).to eq([@gr2, @gr3])
+      # TODOne: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      expect(Georeference.within_radius_of(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
+      # but specifically *not* @gr1
+      #pending 'construction of appropriate Georeference method'
 
     end
 
-    specify '.with_locality_like(String)' do
+    specify '.with_locality_like(string)' do
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that includes String somewhere
       # Joins collecting_event.rb and matches %String% against verbatim_locality 
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
       expect(Georeference).to respond_to :with_locality_like
       # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
-      expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr3])
-      pending 'construction of appropriate Georeference objects'
-      expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1, @gr2])
-      expect(Georeference.wiht_locality_like('Saskatoon').to_a).to eq([])
+      expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr_point])
+      expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1.becomes(Georeference::VerbatimData), @gr_poly])
+      expect(Georeference.with_locality_like('Saskatoon').to_a).to eq([])
+      # pending 'construction of appropriate Georeference objects'
 
     end
 
@@ -313,10 +315,10 @@ describe Georeference do
       # .where(id in CollectingEvent.where{verbatim_locality = "var"})
       expect(Georeference).to respond_to :with_locality
       # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
-      expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr3])
-      pending 'construction of appropriate Georeference objects'
-      expect(Georeference.with_locality('Locality 1 for testing...').to_a).to eq([@gr1])
-      expect(Georeference.wiht_locality('Saskatoon').to_a).to eq([])
+      expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
+      expect(Georeference.with_locality('Locality 5 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+      expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
+      # pending 'construction of appropriate Georeference objects'
 
     end
 
@@ -324,7 +326,7 @@ describe Georeference do
       expect(Georeference).to respond_to :with_geographic_area
       # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
       pending 'construction of appropriate Georeference objects'
-      # where{geograhic_item_id: geographic_area.id}
+      # where{geographic_item_id: geographic_area.id}
 
     end
   end

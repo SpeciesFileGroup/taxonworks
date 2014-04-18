@@ -525,7 +525,7 @@ def generate_test_objects
   my_debug = false
 
   if my_debug
-    @debug_names.collect { |k, v| print "       " + v.to_s + ": " + k.to_s }
+    @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
   end
 end

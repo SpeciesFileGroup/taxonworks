@@ -63,15 +63,18 @@ class Georeference < ActiveRecord::Base
 
   def self.within_radius_of(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
-    # geographic_item may be a polygon, or a point TODO: (04/14/14) figure out how to use a 'join' here
-    partial_gi = GeographicItem.within_radius_of('polygon', geographic_item, distance).to_a
-    partial_gi += GeographicItem.within_radius_of('point', geographic_item, distance).to_a
+    # geographic_item may be a polygon, or a point
+    # TODOne: (04/16/14) figure out how to return an ActiveRecord::Relation here
+    # partial_poly = GeographicItem.within_radius_of('polygon', geographic_item, distance).arel.constraints
+    # partial_point = GeographicItem.within_radius_of('point', geographic_item, distance).arel.constraints
+    # partials = GeographicItem.where(partial_point.and(partial_poly))
 
-    partial_gr = []
-    partial_gi.each {|geographic_item|
-      partial_gr.push(Georeference.where(geographic_item_id:  geographic_item.id).limit(1).to_a)
-    }
-    partial_gr.flatten
+    temp = GeographicItem.within_radius_of('polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of('point', geographic_item, distance)
+    partials = GeographicItem.where('id in (?)', temp.map(&:id))
+
+    partial_gr = Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
+    partial_gr
   end
 
   def self.with_locality_like(string)
@@ -82,7 +85,7 @@ class Georeference < ActiveRecord::Base
 
     # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
     with_locality_as(string, true)
-end
+  end
 
 
   def self.with_locality(string)
@@ -120,25 +123,25 @@ end
         case geographic_item.data_type?
           when :point
             p0      = self.geographic_item.geo_object
-            delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)  # 111319.490779206 meters/degree
-            delta_y = error_radius / ONE_NORTH  # 110574.38855796 meters/degree
+            delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) # 111319.490779206 meters/degree
+            delta_y = error_radius / ONE_NORTH # 110574.38855796 meters/degree
             # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
             retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
                                                            FACTORY.point(p0.x + delta_x, p0.y), # east
                                                            FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                           FACTORY.point(p0.x - delta_x, p0.y)  # west
+                                                           FACTORY.point(p0.x - delta_x, p0.y) # west
                                                           ]))
-            box = RGeo::Cartesian::BoundingBox.new(FACTORY)
+            box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
             box.add(retval)
             box_geom = box.to_geometry
 
             # or
             # make the rectangle directly
-            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                                           FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                                           FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                                           FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
-                                                          ]))
+            retval   = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                                            FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                                            FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                                            FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+                                                           ]))
           when :polygon
             retval = geographic_item
           else
@@ -158,19 +161,14 @@ end
     # Joins collecting_event.rb and matches %String% against verbatim_locality
     # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
 
-    likeness = like ? '%' : ''
-    like = like ? 'like' : '='
-    query = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
+    likeness   = like ? '%' : ''
+    like       = like ? 'like' : '='
+    query      = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
     # where(id in CollectingEvent.where{verbatim_locality like "%var%"})
     partial_ce = CollectingEvent.where(query)
 
-    partial_gr = []
-    partial_ce.each {|collecting_event|
-      partial_gr.push(Georeference.where(collecting_event_id: collecting_event.id).to_a)
-    }
-    partial_gr.flatten
-
-   # where { geographic_item_id: where {CollectingEvent}  }
+    partial_gr = Georeference.where('collecting_event_id in (?)', partial_ce.pluck(:id))
+    partial_gr
   end
 
   def chk_obj_inside_err_geo_item
