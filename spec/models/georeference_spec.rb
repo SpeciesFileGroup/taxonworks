@@ -314,11 +314,11 @@ describe Georeference do
       # Joins collecting_event.rb and matches String against verbatim_locality,
       # .where(id in CollectingEvent.where{verbatim_locality = "var"})
       expect(Georeference).to respond_to :with_locality
-      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
+      # TODOne: (04/15/14) these have to be turned into ActiveRecord::Relationship
       expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
-      pending 'construction of appropriate Georeference objects'
-      expect(Georeference.with_locality('Locality 5 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
       expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
+      #expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+      # pending 'construction of appropriate Georeference objects'
 
     end
 
