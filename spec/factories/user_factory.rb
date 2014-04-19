@@ -7,9 +7,10 @@ FactoryGirl.define do
     email 'default@example.com'
   end
 
-  trait :user_password do
-    password 'Abcd123!'
-    password_confirmation 'Abcd123!'
+  # See spec/support/projects_and_users.rb for the TEST_USER_PASSWORD
+  trait :user_password do     
+    password { TEST_USER_PASSWORD }              # {} let's us lazy load the variable
+    password_confirmation { TEST_USER_PASSWORD }  
   end
 
   factory :user do

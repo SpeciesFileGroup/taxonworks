@@ -29,7 +29,7 @@ describe 'Dashboard' do
 
     it 'should show user\'s dashboard' do
       subject.should have_selector('h1', 'Dashboard')
-      subject.should have_sele  ctor('h2', 'Projects')
+      subject.should have_selector('h2', 'Projects')
     end
 
   end

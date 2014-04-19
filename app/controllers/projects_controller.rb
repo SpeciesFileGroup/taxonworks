@@ -61,6 +61,11 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def select
+    @project = Project.find(params[:id])
+    redirect_to @project.workbench_settings.
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_project

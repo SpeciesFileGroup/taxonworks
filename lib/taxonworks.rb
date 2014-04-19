@@ -10,7 +10,7 @@ module TaxonWorks
     file = Rails.root.to_s + '/app/models/' + cv_class.underscore + '.rb'
     require file
   end
-
+  
   require 'soft_validation'
   require 'activerecord_utilities'
   require 'squeel'

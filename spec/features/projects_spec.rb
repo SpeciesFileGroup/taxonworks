@@ -8,18 +8,16 @@ describe 'Project Handling' do
 
     before {
       sign_in_valid_user
-      FactoryGirl.create(:valid_project_member) 
     }
 
     context 'when a user is signed in they see a list of projects (in the hub)' do
       it 'should have a list of project links' do 
-        byebug
         subject.should have_link('My Project', href: select_project_path(Project.find(1)) )
       end
     end
 
     context 'when user clicks a project link' do
-      before {  click_link 'My Project' }
+      before { click_link 'My Project' }
 
       it 'should select that project' do
         expect(sessions_current_project_id).to eq(1)

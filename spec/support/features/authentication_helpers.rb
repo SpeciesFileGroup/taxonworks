@@ -1,3 +1,4 @@
+# See spec/support/projects_and_users for project/user setup for testing framework
 module Features
   module AuthenticationHelpers
 
@@ -16,10 +17,10 @@ module Features
       click_button 'Sign in'
     end
 
+    # See the valid_user factory.
     def sign_in_valid_user
-      existing_user = FactoryGirl.create(:valid_user) 
-      visit signin_path
-      sign_in_with(existing_user.email, existing_user.password)
+      existing_user = User.find(1)  
+      sign_in_with(existing_user.email, TEST_USER_PASSWORD) 
     end
 
   end

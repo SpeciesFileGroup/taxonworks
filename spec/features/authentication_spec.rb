@@ -44,10 +44,10 @@ describe 'Authentication' do
   describe '/signin' do
     context 'when credentials match existing user' do
 
-      before { @existing_user = FactoryGirl.create(:valid_user) }
+      before { @valid_user = User.find(1) }
 
       it 'should sign user in' do
-        sign_in_with(@existing_user.email, @existing_user.password)
+        sign_in_with(@valid_user.email, TEST_USER_PASSWORD)
 
         subject.should have_link('Account') # TODO, add href
         subject.should_not have_link('Sign out', href: signin_path)

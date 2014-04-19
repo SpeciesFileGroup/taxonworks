@@ -1,4 +1,16 @@
 
+TEST_USER_PASSWORD = 'Abcd123!'
+
+module ProjectsAndUsers
+  def self.clean_slate 
+    Project.delete_all 
+    User.delete_all
+    ProjectMember.delete_all
+    $user_id = nil
+    $project_id = nil
+  end
+end
+
 RSpec.configure do |config|
   config.before(:suite) { 
     ProjectsAndUsers.clean_slate
@@ -16,18 +28,5 @@ RSpec.configure do |config|
   config.after(:suite) { 
     ProjectsAndUsers.clean_slate
   }
-end
-
-
-module ProjectsAndUsers
-
-  def self.clean_slate 
-    Project.delete_all 
-    User.delete_all
-    ProjectMember.delete_all
-    $user_id = nil
-    $project_id = nil
-  end
-
 end
 
