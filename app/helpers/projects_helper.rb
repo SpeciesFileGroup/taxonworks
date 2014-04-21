@@ -1,31 +1,6 @@
+# A controller include, need to split out session methods
+# verus those that aren't
 module ProjectsHelper
-
-  def sessions_project_selected?
-    !sessions_current_project_id.nil?
-  end
-
-  def sessions_current_project_id=(project_id)
-    @sessions_current_project_id = project_id
-  end
-
-  def sessions_current_project_id
-    @sessions_current_project_id = session[:project_id]
-  end
-
-  def sessions_current_project
-   return nil unless sessions_current_project_id 
-   @sessions_current_project ||= Project.find(@sessions_current_project_id)
-  end
-
-  def sessions_select_project(project)
-   self.sessions_current_project_id = project.id
-   session[:project_id] = @sessions_current_project_id 
-   @sessions_current_project ||= Project.find(@sessions_current_project_id)
-  end
-
-  def sessions_clear_selected_project
-    session[:project_id] = nil
-  end
 
   def project_link(project)
     l = link_to(project.name, select_project_path(project))

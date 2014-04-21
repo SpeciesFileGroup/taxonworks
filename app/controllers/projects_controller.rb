@@ -64,7 +64,7 @@ class ProjectsController < ApplicationController
   def select
     set_project
     sessions_select_project(@project) 
-    redirect_to root_path
+    redirect_to @project.workbench_settings.default_path
     # redirect_to @project.workbench_settings.default_path
 
   end
