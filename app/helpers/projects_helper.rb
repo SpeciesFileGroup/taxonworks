@@ -3,6 +3,7 @@
 module ProjectsHelper
 
   def project_link(project)
+    return nil if project.nil?
     l = link_to(project.name, select_project_path(project))
     project.id == session[:project_id] ?
       content_tag(:mark, l) :
