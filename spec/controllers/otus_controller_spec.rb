@@ -23,7 +23,7 @@ describe OtusController do
   # This should return the minimal set of attributes required to create a valid
   # Otu. As you add validations to Otu, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "name" => "MyString" } }
+  let(:valid_attributes) { FactoryGirl.build(:valid_otu).attributes }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
