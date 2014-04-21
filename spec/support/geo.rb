@@ -381,6 +381,11 @@ def generate_test_objects
   @all_items    = GeographicItem.new # 54
   @outer_limits = GeographicItem.new # 55
 
+  @area_a = GeographicItem.new(polygon: BOX_1)
+  @area_b = GeographicItem.new(polygon: BOX_2)
+  @area_c = GeographicItem.new(polygon: BOX_3)
+  @area_d = GeographicItem.new(polygon: BOX_4)
+
   @r2020.point       = ROOM2020.as_binary
   @r2022.point       = ROOM2022.as_binary
   @r2024.point       = ROOM2024.as_binary
@@ -459,7 +464,8 @@ def generate_test_objects
    @k,
    @l,
    @r2020, @r2022, @r2024, @rooms,
-   @all_items, @outer_limits].map(&:save!)
+   @all_items, @outer_limits,
+   @area_a, @area_b, @area_c, @area_d].map(&:save!)
 
   @debug_names = {
     p0:           @p0.id,
@@ -484,7 +490,7 @@ def generate_test_objects
     p19:          @p19.id,
     p20:          @p20.id,
     p21:          @p21.id,
-    p22:          @p21.id,
+    p22:          @p22.id,
 
     a:            @a.id,
     b1:           @b1.id,
@@ -519,10 +525,15 @@ def generate_test_objects
     r2024:        @r2024.id,
     rooms:        @rooms.id,
     all_items:    @all_items.id,
-    outer_limits: @outer_limits.id
+    outer_limits: @outer_limits.id,
+
+    area_a:       @area_a.id,
+    area_b:       @area_b.id,
+    area_c:       @area_c.id,
+    area_d:       @area_d.id
   }
 
-  my_debug = false
+  my_debug = true
 
   if my_debug
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }

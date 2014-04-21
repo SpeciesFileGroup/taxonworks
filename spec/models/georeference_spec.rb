@@ -317,16 +317,58 @@ describe Georeference do
       # TODOne: (04/15/14) these have to be turned into ActiveRecord::Relationship
       expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
       expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
-      #expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+      # expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
       # pending 'construction of appropriate Georeference objects'
 
     end
 
     specify '.with_geographic_area(geographic_area)' do
-      expect(Georeference).to respond_to :with_geographic_area
-      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
-      pending 'construction of appropriate Georeference objects'
       # where{geographic_item_id: geographic_area.id}
+      expect(Georeference).to respond_to :with_geographic_area
+
+      # build some special pieces
+
+      p_a   = FactoryGirl.build(:earth_geographic_area)
+      g_a_t = FactoryGirl.build(:testbox_geographic_area_type)
+
+      @g_a1 = GeographicArea.new(name:                 'Box_1',
+                                 data_origin:          'Test Data',
+                                 neID:                 'TD-001',
+                                 geographic_area_type: g_a_t,
+                                 parent:               p_a,
+                                 level0:               p_a,
+                                 ne_geo_item:          @area_a)
+      @g_a2 = GeographicArea.new(name:                 'Box_2',
+                                 data_origin:          'Test Data',
+                                 gadmID:               2,
+                                 geographic_area_type: g_a_t,
+                                 parent:               p_a,
+                                 level0:               p_a,
+                                 gadm_geo_item:        @area_b)
+      @g_a3 = GeographicArea.new(name:                 'Box_3',
+                                 data_origin:          'Test Data',
+                                 tdwgID:               '12ABC',
+                                 geographic_area_type: g_a_t,
+                                 parent:               p_a,
+                                 level0:               p_a,
+                                 tdwg_geo_item:        @area_c)
+      @g_a4 = GeographicArea.new(name:                 'Box_4',
+                                 data_origin:          'Test Data',
+                                 neID:                 'TD-004',
+                                 geographic_area_type: g_a_t,
+                                 parent:               p_a,
+                                 level0:               p_a,
+                                 ne_geo_item:          @area_d)
+
+      # there are no georeferences which have collecting_events which have geographic_areas which refer to @g_a1
+      pending 'construction of appropriate Georeference objects'
+      expect(Georeference.with_geographic_area(@g_a1).to_a).to eq([])
+
+      @gr1.collecting_event.georgaphic_area = @g_a1
+      @gr1.save
+
+      expect(Georeference.with_geographic_area(@g_a1).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+
 
     end
   end

@@ -98,7 +98,12 @@ class Georeference < ActiveRecord::Base
   end
 
   def self.with_geographic_area(geographic_area)
-    # returns all georeferences which have geographic_items which match geographic_areas
+    # returns all georeferences which have collecting_events which have geographic_areas which match
+    # geographic_areas as a GeographicArea
+    # TODO: or, (in the future) a string matching a geographic_area.name
+    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
+    partial_gr
   end
 
   def error_box?

@@ -646,7 +646,7 @@ describe GeographicItem do
       end
 
       specify '#within_radius of returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5])
+        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5, @area_a, @area_b, @area_c, @area_d])
       end
 
       specify "#intersecting list of objects (uses 'or')" do

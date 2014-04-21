@@ -71,8 +71,12 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).where('level2_id IS NOT NULL')
   end
 
-  def descendents_of_geographic_area_type(geographic_area_type)
+  def descendants_of_geographic_area_type(geographic_area_type)
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_type})
+  end
+
+  def descendants_of_geographic_area_types(geographic_area_types)
+    GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_types})
   end
 
   def default_geographic_item
