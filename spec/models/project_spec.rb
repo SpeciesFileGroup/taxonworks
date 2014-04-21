@@ -39,6 +39,15 @@ describe Project do
       expect(project.workbench_settings[:workbench_starting_path]).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
+    specify 'updating an attribute is a little tricky, use _will_change!' do
+     expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
+     expect(project.workbench_settings_will_change!).to eq(nil)
+     expect(project.workbench_settings[:workbench_starting_path] = '/hub').to be_true
+     expect(project.save!).to be_true
+     project.reload
+     expect(project.workbench_starting_path).to eq('/hub')
+    end
+
   end
 
   context 'validation' do

@@ -1,6 +1,9 @@
-<h1> TaxonWorks </h1>
+<h1> <%= link_to 'TaxonWorks', root_path -%> </h1>
+
 
 <div>
+
+  <%= project_link(sessions_current_project) -%> 
   <p>Signed in as <mark><%= sessions_current_user.email %></mark></p>
   <nav>
     Settings: 

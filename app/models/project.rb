@@ -21,7 +21,7 @@ class Project < ActiveRecord::Base
 
   protected
   def set_default_workbench_settings
-    self.workbench_settings = DEFAULT_WORKBENCH_SETTINGS    
+    self.workbench_settings = DEFAULT_WORKBENCH_SETTINGS.merge(self.workbench_settings ||= {})
   end
 
 end

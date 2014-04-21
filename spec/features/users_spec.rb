@@ -12,27 +12,26 @@ describe 'Users' do
     end
 
     it 'should list users' do
-      subject.should have_selector('h1', 'Users')
+      subject.should have_selector('h1', text: 'Users')
       subject.should have_content("#{@existing_user.email}")
     end
 
   end
 
   describe '/users/:id' do
-    before do
+    before {
       @existing_user = FactoryGirl.create(:valid_user)
       visit user_path(@existing_user)
-    end
+    } 
 
     it 'should show a user\'s profile' do
-      subject.should have_selector('h1', "User #{@existing_user.id}")
+      subject.should have_selector('h1', text: "User #{@existing_user.id}")
       subject.should have_title("User #{@existing_user.id} | TaxonWorks")
     end
 
   end
 
   describe '/users/:id/edit' do
-
     before do
       @existing_user = FactoryGirl.create(:valid_user)
       visit edit_user_path(@existing_user)

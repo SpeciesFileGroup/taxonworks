@@ -63,10 +63,8 @@ class ProjectsController < ApplicationController
 
   def select
     set_project
-    sessions_select_project(@project) 
-    redirect_to @project.workbench_settings.default_path
-    # redirect_to @project.workbench_settings.default_path
-
+    sessions_select_project(@project)
+    redirect_to @project.workbench_starting_path
   end
 
   private
@@ -75,8 +73,8 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
   end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def project_params
-      params.require(:project).permit(:name, :created_by_id, :updated_by_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def project_params
+    params.require(:project).permit(:name, :created_by_id, :updated_by_id)
+  end
 end
