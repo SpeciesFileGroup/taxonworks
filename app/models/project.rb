@@ -3,7 +3,7 @@ class Project < ActiveRecord::Base
 
   store_accessor :workbench_settings, :worker_tasks, :workbench_starting_path
 
-  DEFAULT_WORKBENCH_STARTING_PATH = '/'
+  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'
   DEFAULT_WORKBENCH_SETTINGS = {
     workbench_starting_path: DEFAULT_WORKBENCH_STARTING_PATH
   }
