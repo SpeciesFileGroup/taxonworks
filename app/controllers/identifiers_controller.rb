@@ -24,8 +24,8 @@ class IdentifiersController < ApplicationController
   # POST /identifiers
   # POST /identifiers.json
   def create
-    @identifier = Identifier.new(identifier_params)
 
+    @identifier = Identifier.new(identifier_params)
     respond_to do |format|
       if @identifier.save
         format.html { redirect_to @identifier.becomes(Identifier), notice: 'Identifier was successfully created.' }
@@ -69,6 +69,6 @@ class IdentifiersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def identifier_params
-      params.require(:identifier).permit(:identified_object_id, :identified_object_type, :identifier, :type, :cached_identifier, :namespace_id, :created_by_id, :updated_by_id)
+      params.require(:identifier).permit(:identified_object_id, :identified_object_type, :identifier, :type, :cached_identifier, :namespace_id, :created_by_id, :updated_by_id, :project_id)
     end
 end

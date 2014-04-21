@@ -1,3 +1,5 @@
+require_relative '../../spec/support/initialization_constants'
+
 FactoryGirl.define do
   sequence :email do |n|
     "person#{n}@example.com"

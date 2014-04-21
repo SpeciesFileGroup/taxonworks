@@ -1,5 +1,6 @@
 
-TEST_USER_PASSWORD = 'Abcd123!'
+require 'initialization_constants' 
+
 
 module ProjectsAndUsers
   def self.clean_slate 
