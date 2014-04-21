@@ -17,10 +17,15 @@ describe 'Project Handling' do
     end
 
     context 'when user clicks a project link' do
-      before { click_link 'My Project' }
+      before(:each) {
+        click_link 'My Project' 
+      }
 
       it 'should select that project' do
-        expect(sessions_current_project_id).to eq(1)
+       subject.should have_link('My Project', href: select_project_path(Project.find(1)) )
+ 
+       expect($user_id).to eq(1)
+       expect($project_id).to eq(1)
         #       Capybara
         #       .current_session # Capybara::Session
         #       .driver          # Capybara::RackTest::Driver

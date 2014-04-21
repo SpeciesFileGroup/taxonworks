@@ -13,6 +13,10 @@ module SessionsHelper
     @sessions_current_user ||= User.find_by(remember_token: remember_token)
   end
 
+  def sessions_current_user_id
+    sessions_current_user ? sessions_current_user.id : nil
+  end
+
   def sessions_sign_in(user)
     remember_token = User.secure_random_token
     cookies.permanent[:remember_token] = remember_token

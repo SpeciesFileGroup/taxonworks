@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project, only: [:show, :edit, :update, :destroy]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :select]
 
   # GET /projects
   # GET /projects.json
@@ -62,15 +62,18 @@ class ProjectsController < ApplicationController
   end
 
   def select
-    @project = Project.find(params[:id])
-    redirect_to @project.workbench_settings.
+    set_project
+    sessions_select_project(@project) 
+    redirect_to root_path
+    # redirect_to @project.workbench_settings.default_path
+
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_project
-      @project = Project.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_project
+    @project = Project.find(params[:id])
+  end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def project_params
