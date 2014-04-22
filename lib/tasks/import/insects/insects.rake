@@ -15,13 +15,12 @@ namespace :tw do
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
 
-#        ActiveRecord::Base.transaction do 
+        ActiveRecord::Base.transaction do 
           begin
             @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
 
             @import_namespace = Namespace.new(name: 'INHS Import Identifiers', short_name: 'INHS Import')
             @import_namespace.save!
-
 
             @data =  ImportData.new
 
@@ -51,16 +50,16 @@ namespace :tw do
             
             #  types.txt
 
-            #  Rake::Task["tw:project_import:insects:handle_people"].execute
-
+            Rake::Task["tw:project_import:insects:handle_people"].execute
             Rake::Task["tw:project_import:insects:handle_taxa"].execute
+            Rake::Task["tw:project_import:insects:handle_specimens"].execute
 
             puts "\n\n !! Success \n\n"
             raise
           rescue
             raise
           end
-#        end
+        end
       end
 
 
@@ -119,6 +118,7 @@ namespace :tw do
           #      ModifiedBy
 
 
+
           # --- specimens.txt
           # -- Collection Object
           #     LocalityLabel                 # buffered_collecting_event
@@ -130,7 +130,6 @@ namespace :tw do
           #     DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
           #     DeaccessionCause       # cause      # A reason the specimen is no longer (= owned (= under the responsibility of an organization) by) the identified repository_id
           #     DeaccessionDate        # date       # Date ownership was given up. 
-
 
           # -- Identifier
           #     Prefix
@@ -190,6 +189,8 @@ namespace :tw do
         path2 = @args[:data_directory] + 'specimens.txt'
         raise 'file not found' if not File.exists?(path2)
 
+        ce = CSV.open(path1, col_sep: "\t", :headers => true)
+        co = CSV.open(path2, col_sep: "\t", :headers => true)
 
         @data.keywords.merge!(  
                               'AdultMale' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult male(s).'), 
@@ -201,28 +202,68 @@ namespace :tw do
                               'AgeUnknown' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of individuals of indtermined age.'), 
                               'OtherSpecimens' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
                              )
-
-
-        co = CSV.open(path1, col_sep: "\t", :headers => true)
-        ce = CSV.open(path2, col_sep: "\t", :headers => true)
-
-        co.each_with_index do |row, i|
-         
-          o = CollectionObject
+        
+        tmp_namespaces = {} 
+        co.each do |row|
+          tmp_namespaces.merge!(row['Prefix'] => nil)
         end
+        tmp_namespaces.keys.delete_if{|k,v| k.nil? || k.to_s == ""} 
+        tmp_namespaces.keys.each do |k|
+          @data.namespaces.merge!(k => Namespace.create(short_name: k) ) 
+        end
+
+        co.rewind
+        co.each_with_index do |row, i|
+          if @data.otus[row['TaxonCode']] 
+            @data.collection_objects.merge!(i => objects_from_co_row(row) )
+          end
+        end
+        byebug 
       end
 
+      CONTAINER_TYPE = {
+        '' => 'Container::Virtual', # update with propper
+        'amber' => 'Container::PillBox', # remove
+        'bulk dry' => 'Container::PillBox',
+        'envelope' => 'Container::Envelope',
+        'jar' => 'Container::Jar',
+        'jars' => 'Container::Jar', # remove
+        'pill box' => 'Container::PillBox',
+        'pin' => 'Container::Pin',
+        'slide' => 'Container::Slide',
+        'vial' => 'Container::Vial',
+        'other' => 'Container::Vial'
+      }
 
       def objects_from_co_row(row)
+        otu = @data.otus[row['TaxonCode']]
+        # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identified_object
+        return [] if otu.nil?
 
+        objects = []
+        %w{AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens}.each do |c|
+          total = row[c].to_i
+          objects.push(CollectionObject::BiologicalCollectionObject.create(total: total, taxon_determinations_attributes: [{ otu: otu  }] )) if total > 0
+        end
+      
+        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber'])
+
+        if objects.count > 1 
+          c = Container.containerize(objects)
+          puts row['PreparationType']
+          c.type = CONTAINER_TYPE[row['PreparationType'].to_s.downcase]
+          c.identifiers << identifier
+          c.save! 
+        else
+          objects.first.identifiers << identifier
+          objects.first.save
+        end
       end
-
-
 
       desc 'handle taxa'
       task :handle_taxa => [:data_directory, :environment] do |t, args|
         #   ID             Not Included (parent use only)
-        #   TaxonCode      New Namespace Identifier 
+
         #   Name           TaxonName#name  
         #   Author         TaxonName#verbatim_author
         #   Year           TaxonName#year_of_publication
@@ -237,6 +278,9 @@ namespace :tw do
         #   CreatedBy 
         #   ModifiedBy
 
+        # -- is on the OTU
+        #   TaxonCode      New Namespace Identifier 
+
         path = @args[:data_directory] + 'taxa_hierarchical.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -250,8 +294,9 @@ namespace :tw do
         f = CSV.open(path, col_sep: "\t", :headers => true)
 
         code = :iczn
-      
+
         f.each_with_index do |row, i|
+          break if i > 100
           author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
           author ||= nil
 
@@ -284,7 +329,12 @@ namespace :tw do
           p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
           if rank == NomenclaturalRank || !p.parent_id.blank?
-            bench = Benchmark.measure {p.save}
+            bench = Benchmark.measure {
+              p.save
+              o = Otu.create(taxon_name_id: p.id, identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ] )
+              @data.otus.merge!(row['TaxonCode'] => o)
+            }
+            
             if p.valid?
               parent_index.merge!(row['ID'] => p) 
               print "\r#{i}\t#{bench.to_s.strip}\t#{name}        \t\t#{rank}                           "
@@ -334,13 +384,15 @@ namespace :tw do
       end
 
       class ImportData
-        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects
+        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
+          @namespaces = {}
           @people = {}
           @users = {}
           @keywords = {}
           @collecting_events = {}
           @collection_objects = {}
+          @otus = {}
         end
 
       end
