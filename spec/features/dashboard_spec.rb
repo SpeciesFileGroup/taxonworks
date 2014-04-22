@@ -23,8 +23,7 @@ describe 'Dashboard' do
 
   context 'when user is signed in' do
     before do
-      @existing_user = FactoryGirl.create(:valid_user)
-      sign_in_with(@existing_user.email, @existing_user.password)
+      sign_in_valid_user
     end
 
     it 'should show user\'s dashboard' do

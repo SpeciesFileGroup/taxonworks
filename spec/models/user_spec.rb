@@ -45,6 +45,10 @@ describe User do
     it { should be_invalid }
   end
 
+  describe 'saved user' do
+    pending 'password is only validated on .update() when both password and password_confirmation are provided'
+  end
+
   describe 'remember token' do
     before { user.save }
     its(:remember_token) { should_not be_blank }

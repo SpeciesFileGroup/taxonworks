@@ -7,6 +7,7 @@ describe 'Users' do
   describe '/users' do
 
     before do
+      # sign_in_valid_user
       @existing_user = FactoryGirl.create(:valid_user)
       visit users_path
     end

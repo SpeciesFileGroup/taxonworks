@@ -34,7 +34,6 @@ describe Person do
     end
   end
 
-
   context 'associations' do
 
     #role orders: source_authors, source_editors, source_sources, collectors, (taxon_)determiners, taxon_name_authors, type_designators
