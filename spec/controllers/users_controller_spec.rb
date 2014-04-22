@@ -30,13 +30,18 @@ describe UsersController do
   # UsersController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  after(:all) {
+    User.delete_all
+    FactoryGirl.create(:valid_user, id: 1)
+  }
 
   describe "GET index" do
     it "assigns all users as @users" do
-      # User.delete_all
+      User.destroy_all
+
       user = User.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:users).should eq([User.find(1), user])
+      assigns(:users).should eq([user])
     end
   end
 
@@ -111,7 +116,7 @@ describe UsersController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         
-        User.find(user.id).should_receive(:update).with({ "email" => "fooa1@bar.com" })
+        User.any_instance.should_receive(:update_attributes).with({ "email" => "fooa1@bar.com" })
         put :update, {:id => user.to_param, :user => { "email" => "fooa1@bar.com" }}, valid_session
       end
 

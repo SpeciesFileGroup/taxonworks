@@ -12,8 +12,11 @@ class User < ActiveRecord::Base
   validates :email, presence:   true,
                     format:     { with: VALID_EMAIL_REGEX },
                     uniqueness: { case_sensitive: true }
+
   has_secure_password
-  validates :password, length: { minimum: 8 }
+ 
+  # See http://vikinghammer.com/2013/02/20/rails-has-secure-password-reminder/
+  validates :password, length: { minimum: 8, :if => :validate_password? }, :confirmation => { :if => :validate_password? }
 
   has_many :project_members
   has_many :projects, through: :project_members
@@ -31,4 +34,9 @@ class User < ActiveRecord::Base
   def set_remember_token
     self.remember_token = User.encrypt(User.secure_random_token)
   end
+
+  def validate_password?
+    password.present? || password_confirmation.present?
+  end
+
 end
