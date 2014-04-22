@@ -11,6 +11,21 @@ namespace :tw do
         @args = args.with_defaults(:data_directory => "#{ENV['HOME']}/src/sf/import/inhs-insect-collection-data/TXT/")
       end
 
+      
+      # A utility class to index data.
+      class ImportData
+        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
+        def initialize()
+          @namespaces = {}
+          @people = {}
+          @users = {}
+          @keywords = {}
+          @collecting_events = {}
+          @collection_objects = {}
+          @otus = {}
+        end
+      end
+
       desc 'the full loop' 
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
@@ -19,8 +34,8 @@ namespace :tw do
           begin
             @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
 
-            @import_namespace = Namespace.new(name: 'INHS Import Identifiers', short_name: 'INHS Import')
-            @import_namespace.save!
+            @import_namespace = Namespace.create(name: 'INHS Import Identifiers', short_name: 'INHS Import')
+            @accession_namespace = Namespace.create(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code')
 
             @data =  ImportData.new
 
@@ -47,7 +62,6 @@ namespace :tw do
             #  specimens_new.txt
             #  specimens_new_partially_resolved.txt
             
-            
             #  types.txt
 
             Rake::Task["tw:project_import:insects:handle_people"].execute
@@ -61,7 +75,6 @@ namespace :tw do
           end
         end
       end
-
 
       desc 'handle specimens'
       task :handle_specimens => [:data_directory, :environment] do |t, args|
@@ -117,27 +130,30 @@ namespace :tw do
           #      CreatedBy
           #      ModifiedBy
 
-
-
-          # --- specimens.txt
+          # ------- specimens.txt ------------------------------
+          #  
           # -- Collection Object
-          #     LocalityLabel                 # buffered_collecting_event
-          #     AccessionNumber               # identifier
-          #     DeterminationLabel            # buffered
-          #     OtherLabel                    # buffered
-          #     PreparationType               # Preparation#id
-          #     AccessionSource        # people_id  # Asserts a person donated the specimen.
-          #     DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
-          #     DeaccessionCause       # cause      # A reason the specimen is no longer (= owned (= under the responsibility of an organization) by) the identified repository_id
-          #     DeaccessionDate        # date       # Date ownership was given up. 
+          # *   AccessionNumber               # catalog_number of particular namespace Legacy Namespace
 
-          # -- Identifier
-          #     Prefix
-          #     CatalogNumber
+
+          # *   LocalityLabel                 # buffered_collecting_event
+          # *   DeterminationLabel            # buffered
+          # *   OtherLabel                    # buffered
+         
+          #     PreparationType               # Preparation#id
+          
+          # *   AccessionSource        # people_id  # Asserts a person donated the specimen.
+          # *   DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
+          # *   DeaccessionCause       # cause      # A reason the specimen is no longer (= owned (= under the responsibility of an organization) by) the identified repository_id
+          # *   DeaccessionDate        # date       # Date ownership was given up. 
+
+          # * -- Identifier
+          # *     Prefix
+          # *     CatalogNumber
       
-          # -- Otu   
-          #     TaxonCode
-      
+          #   -- Otu   
+          #       TaxonCode
+
           # -- Collecting Event 
           # -    LocalityCode
           # -    DateCollectedBeginning
@@ -154,9 +170,9 @@ namespace :tw do
           #     ModifiedBy
         
           # -- Taxon Determination
-          #     IdentifiedBy
-          #     YearIdentified
-          #     OldIdentifiedBy   # Data attribute on this
+          #     IdentifiedBy             # ? person_id
+          #     YearIdentified           # year_made
+          #     OldIdentifiedBy          # Data attribute on this
 
           # -- TypeMaterial 
           #     Type           # status
@@ -168,7 +184,6 @@ namespace :tw do
 
           # -- Notes
           #     Remarks    # Note on collection
-
 
           # --  BiocurationClass       
           #     AdultMale
@@ -201,6 +216,7 @@ namespace :tw do
                               'AdultUnsexed' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
                               'AgeUnknown' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of individuals of indtermined age.'), 
                               'OtherSpecimens' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
+                              'ZeroTotal' => Keyword.new(name: 'Zero total', definition: 'On import there were 0 total specimens recorded in the FM database.'),
                              )
         
         tmp_namespaces = {} 
@@ -236,27 +252,91 @@ namespace :tw do
       }
 
       def objects_from_co_row(row)
-        otu = @data.otus[row['TaxonCode']]
         # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identified_object
+        otu = @data.otus[row['TaxonCode']]
+
         return [] if otu.nil?
 
+        determination = {
+          otu: otu 
+          
+        }
+
+        accession_attributes = { accessioned_at: '', 
+                                 deaccession_at: row['DeaccessionData'],               
+                                 accession_provider_id: @data.people[row['AccessionSource']],       
+                                 deaccession_recipient_id: @data.people[row['AccessionSource']],    
+                                 deaccession_reason: row['DeaccessionCause'], 
+        }       
+
         objects = []
+
         %w{AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens}.each do |c|
           total = row[c].to_i
-          objects.push(CollectionObject::BiologicalCollectionObject.create(total: total, taxon_determinations_attributes: [{ otu: otu  }] )) if total > 0
-        end
-      
-        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber'])
+          if total > 0
+            o = CollectionObject::BiologicalCollectionObject.create(
+              total: total,
+              taxon_determinations_attributes: [ determination ], 
+              buffered_collecting_event: row['LocalityLabel'],
+              buffered_determinations: row['DeterminationLabel'],
+              buffered_other_labels: row['OtherLabel']
+            )
 
+            # add the biological attribute
+            o.biocuration_classifications.build(biocuration_class: @data.keywords['c'])
+          
+            o.save
+            objects.push(o) 
+          end
+        end
+
+        # Some specimen records have 0 total specimens! WATCH OUT.
+        if objects.count == 0
+          o = Specimen.create(taxon_determinations_attributes: [ determination] )
+          o.biocuration_classifications.build(biocuration_class: @data.keywords['c'])
+          o.tags << Tag.new(keyword: @data.keywords['ZeroTotal'])
+          o.save
+          objects.push(o)
+        end
+    
+        add_identifiers(objects, row)
+
+        objects
+      end
+
+      
+      def add_identifiers(objects, row)
+        puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
+        
+        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) if !row['CatalogNumber'].blank?
+        accession_number = InternalAttribute.new(value: row['AccessionNumber'], predicate: @data.keywords['AccessionCode']) if !row['AccessionNumber'].blank?
+      
         if objects.count > 1 
+          objects.each do |o|
+            o.data_attributes << accession_number.dup if accession_number
+            o.save
+          end
+
+          # Identifier on container. 
           c = Container.containerize(objects)
           puts row['PreparationType']
           c.type = CONTAINER_TYPE[row['PreparationType'].to_s.downcase]
-          c.identifiers << identifier
+          c.identifiers << identifier if identifier
           c.save! 
-        else
-          objects.first.identifiers << identifier
+          # Identifer on object
+        elsif objects.count == 1
+          objects.first.identifiers << identifier if identifier
+          objects.first.data_attributes << accession_number if accession_number 
           objects.first.save
+        else
+          raise 'No objects in container.'
+        end
+      end
+  
+      def add_determinations(objects, row)
+        if row['IdentifiedBy'] || row['YearIdentified']
+          p = Person::Unvetted
+        else
         end
       end
 
@@ -331,7 +411,12 @@ namespace :tw do
           if rank == NomenclaturalRank || !p.parent_id.blank?
             bench = Benchmark.measure {
               p.save
-              o = Otu.create(taxon_name_id: p.id, identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ] )
+
+              # Build the associated OTU
+              o = Otu.create(
+                taxon_name_id: p.id,
+                identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ]
+              )
               @data.otus.merge!(row['TaxonCode'] => o)
             }
             
@@ -382,21 +467,6 @@ namespace :tw do
           @data.people.merge!(p => row)
         end
       end
-
-      class ImportData
-        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
-        def initialize()
-          @namespaces = {}
-          @people = {}
-          @users = {}
-          @keywords = {}
-          @collecting_events = {}
-          @collection_objects = {}
-          @otus = {}
-        end
-
-      end
-
 
       desc 'reconcile colls'
       task :reconcile_colls => [:data_directory, :environment] do |t, args| 
