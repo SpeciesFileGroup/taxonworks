@@ -360,14 +360,23 @@ describe Georeference do
                                  level0:               p_a,
                                  ne_geo_item:          @area_d)
 
+      @g_a4.save! # make sure the id is set
+
+      # Create an orphan collecting_event which uses g_a4, so that first phase of 'with_geographic_area' will
+      # have two records to fins
+      o_c_e = FactoryGirl.create(:valid_collecting_event, geographic_area: @g_a4)
+      expect(o_c_e.valid?).to be_true
+
       # there are no georeferences which have collecting_events which have geographic_areas which refer to @g_a1
-      pending 'construction of appropriate Georeference objects'
-      expect(Georeference.with_geographic_area(@g_a1).to_a).to eq([])
+      expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([])
 
-      @gr1.collecting_event.georgaphic_area = @g_a1
-      @gr1.save
+      @gr1.collecting_event.geographic_area = @g_a4
+      @gr1.geographic_item = @area_a
+      @gr1.collecting_event.save!
+      @gr1.save!
 
-      expect(Georeference.with_geographic_area(@g_a1).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+      expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+      # pending 'construction of appropriate Georeference objects'
 
 
     end

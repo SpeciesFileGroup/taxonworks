@@ -198,6 +198,31 @@ SHAPE_K = RSPEC_GEO_FACTORY.polygon(LIST_K)
 SHAPE_L = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5),
                                  RSPEC_GEO_FACTORY.point(-22, -20.5))
 
+LIST_T1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1),
+                                         RSPEC_GEO_FACTORY.point(1, 1),
+                                         RSPEC_GEO_FACTORY.point(1, -1),
+                                         RSPEC_GEO_FACTORY.point(-1, -1)])
+
+LIST_T2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2),
+                                         RSPEC_GEO_FACTORY.point(2, 2),
+                                         RSPEC_GEO_FACTORY.point(2, -2),
+                                         RSPEC_GEO_FACTORY.point(-2, -2)])
+
+LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3),
+                                         RSPEC_GEO_FACTORY.point(3, 3),
+                                         RSPEC_GEO_FACTORY.point(3, -3),
+                                         RSPEC_GEO_FACTORY.point(-3, -3)])
+
+LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
+                                         RSPEC_GEO_FACTORY.point(4, 4),
+                                         RSPEC_GEO_FACTORY.point(4, -4),
+                                         RSPEC_GEO_FACTORY.point(-4, -4)])
+
+BOX_1 = RSPEC_GEO_FACTORY.polygon(LIST_T1)
+BOX_2 = RSPEC_GEO_FACTORY.polygon(LIST_T2)
+BOX_3 = RSPEC_GEO_FACTORY.polygon(LIST_T3)
+BOX_4 = RSPEC_GEO_FACTORY.polygon(LIST_T4)
+
 ALL_SHAPES = RSPEC_GEO_FACTORY.collection([SHAPE_A,
                                            SHAPE_B,
                                            SHAPE_C,
@@ -233,7 +258,11 @@ ALL_SHAPES = RSPEC_GEO_FACTORY.collection([SHAPE_A,
                                            POINT19,
                                            POINT20,
                                            POINT21,
-                                           POINT22])
+                                           POINT22,
+                                           BOX_1,
+                                           BOX_2,
+                                           BOX_3,
+                                           BOX_4])
 
 CONVEX_HULL = ALL_SHAPES.convex_hull
 
@@ -284,7 +313,12 @@ ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
                  [POINT19, 'P19'],
                  [POINT20, 'P20'],
                  [POINT21, 'P21'],
-                 [POINT22, 'P22']]
+                 [POINT22, 'P22'],
+                 [BOX_1, 'Box_1'],
+                 [BOX_2, 'Box_2'],
+                 [BOX_3, 'Box_3'],
+                 [BOX_4, 'Box_4']
+]
 
 E1_AND_E2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
 E1_OR_E2  = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
@@ -292,31 +326,6 @@ E1_AND_E4 = RSPEC_GEO_FACTORY.parse_wkt('GEOMETRYCOLLECTION EMPTY')
 E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))')
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
-
-LIST_T1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1),
-                                         RSPEC_GEO_FACTORY.point(1, 1),
-                                         RSPEC_GEO_FACTORY.point(1, -1),
-                                         RSPEC_GEO_FACTORY.point(-1, -1)])
-
-LIST_T2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2),
-                                         RSPEC_GEO_FACTORY.point(2, 2),
-                                         RSPEC_GEO_FACTORY.point(2, -2),
-                                         RSPEC_GEO_FACTORY.point(-2, -2)])
-
-LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3),
-                                         RSPEC_GEO_FACTORY.point(3, 3),
-                                         RSPEC_GEO_FACTORY.point(3, -3),
-                                         RSPEC_GEO_FACTORY.point(-3, -3)])
-
-LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, -4),
-                                         RSPEC_GEO_FACTORY.point(-4, -4)])
-
-BOX_1 = RSPEC_GEO_FACTORY.polygon(LIST_T1)
-BOX_2 = RSPEC_GEO_FACTORY.polygon(LIST_T2)
-BOX_3 = RSPEC_GEO_FACTORY.polygon(LIST_T3)
-BOX_4 = RSPEC_GEO_FACTORY.polygon(LIST_T4)
 
 def generate_test_objects
 
@@ -533,7 +542,7 @@ def generate_test_objects
     area_d:       @area_d.id
   }
 
-  my_debug = true
+  my_debug = false
 
   if my_debug
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }

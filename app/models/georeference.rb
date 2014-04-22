@@ -277,19 +277,19 @@ class Georeference < ActiveRecord::Base
       retval = false
     end
     unless chk_error_radius_inside_area
-      problem = 'collecting_event area must contain error_radius bounding box.'
+      problem = 'collecting_event area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem)
       retval = false
     end
     unless chk_error_geo_item_inside_area
-      problem = 'collecting_event area must contain error_geographic_item.'
+      problem = 'collecting_event area must contain georeference error_geographic_item.'
       errors.add(:error_geographic_item, problem)
       errors.add(:collecting_event, problem)
       retval = false
     end
     unless chk_obj_inside_area
-      problem = 'collecting_event area must contain geographic_item.'
+      problem = 'collecting_event area must contain georeference geographic_item.'
       errors.add(:geographic_item, problem)
       errors.add(:collecting_event, problem)
       retval = false
