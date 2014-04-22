@@ -10,6 +10,11 @@ describe 'Project Handling' do
       sign_in_valid_user
     }
 
+    after(:all) {
+      $project_id = 1
+      $user_id = 1
+    }
+
     context 'when a user is signed in they see a list of projects (in the hub)' do
       it 'should have a list of project links' do 
         subject.should have_link('My Project', href: select_project_path(Project.find(1)) )

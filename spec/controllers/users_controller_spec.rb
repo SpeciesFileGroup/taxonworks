@@ -23,19 +23,20 @@ describe UsersController do
   # This should return the minimal set of attributes required to create a valid
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com'} }
+  let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # UsersController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+
   describe "GET index" do
     it "assigns all users as @users" do
-      User.destroy_all
+      # User.delete_all
       user = User.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:users).should eq([user])
+      assigns(:users).should eq([User.find(1), user])
     end
   end
 
@@ -103,15 +104,15 @@ describe UsersController do
 
     describe "with valid params" do
       it "updates the requested user" do
-
-        user = User.create! valid_attributes
+       
+        user = User.create!(valid_attributes)
         # Assuming there are no other users in the database, this
         # specifies that the User created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         
-        User.any_instance.should_receive(:update).with({ "email" => "foo1@bar.com" })
-        put :update, {:id => user.to_param, :user => { "email" => "foo1@bar.com" }}, valid_session
+        User.find(user.id).should_receive(:update).with({ "email" => "fooa1@bar.com" })
+        put :update, {:id => user.to_param, :user => { "email" => "fooa1@bar.com" }}, valid_session
       end
 
       it "assigns the requested user as @user" do

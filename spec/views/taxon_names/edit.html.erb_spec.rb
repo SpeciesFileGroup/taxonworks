@@ -8,10 +8,6 @@ describe "taxon_names/edit" do
       :cached_name => "MyString",
       :cached_author_year => "MyString",
       :cached_higher_classification => "MyString",
-=begin
-      :lft => 1,
-      :rgt => 1,
-=end
       :source_id => 1,
       :year_of_publication => 1,
       :verbatim_author => "MyString",
@@ -38,8 +34,6 @@ describe "taxon_names/edit" do
       assert_select "input#taxon_name_cached_name[name=?]", "taxon_name[cached_name]"
       assert_select "input#taxon_name_cached_author_year[name=?]", "taxon_name[cached_author_year]"
       assert_select "input#taxon_name_cached_higher_classification[name=?]", "taxon_name[cached_higher_classification]"
-      assert_select "input#taxon_name_lft[name=?]", "taxon_name[lft]"
-      assert_select "input#taxon_name_rgt[name=?]", "taxon_name[rgt]"
       assert_select "input#taxon_name_source_id[name=?]", "taxon_name[source_id]"
       assert_select "input#taxon_name_year_of_publication[name=?]", "taxon_name[year_of_publication]"
       assert_select "input#taxon_name_verbatim_author[name=?]", "taxon_name[verbatim_author]"
