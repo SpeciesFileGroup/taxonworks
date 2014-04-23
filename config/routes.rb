@@ -26,6 +26,10 @@ TaxonWorks::Application.routes.draw do
   resources :collecting_events
   resources :collection_objects
   resources :controlled_vocabulary_terms
+  resources :geographic_area_types
+  resources :geographic_areas
+  resources :geographic_items
+  resources :georeferences
   resources :identifiers
   resources :namespaces
   resources :notes
