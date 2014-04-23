@@ -4,7 +4,6 @@ require_relative '../support/geo'
 describe GeographicItem do
   before(:all) {
     generate_test_objects
-    # TODO: Remove this line, it's not needed, right?:  gen_wkt_files (code is now in support/geo
   }
 
   after(:all) {
