@@ -11,18 +11,18 @@
         psql
         RubyMine))
 
-  2:  rake tw:init:build_geographic_areas place=../shapes/ shapes=false divisions=false user=person1@example.com NO_GEO_NESTING=1 NO_GEO_VALID=1
+  2:  rake tw:init:build_geographic_areas place=../gaz/ shapes=false divisions=false user=person1@example.com NO_GEO_NESTING=1 NO_GEO_VALID=1
 
   3:  rake tw:init:rebuild_geographic_areas_nesting
 
-  4.  rake tw:initialization:save_geo_data ../shapes/data/internal/dump/
+  4.  rake tw:initialization:save_geo_data ../gaz/data/internal/dump/
 
       alt:
-      a:  rake tw:export:table table_name=geographic_area_types > ../shapes/data/internal/csv/geographic_area_types.csv
+      a:  rake tw:export:table table_name=geographic_area_types > ../gaz/data/internal/csv/geographic_area_types.csv
 
-      b:  rake tw:export:table table_name=geographic_areas > ../shapes/data/internal/csv/geographic_areas.csv
+      b:  rake tw:export:table table_name=geographic_areas > ../gaz/data/internal/csv/geographic_areas.csv
 
-      c:  rake tw:export:table table_name=geographic_items > ../shapes/data/internal/csv/geographic_items.csv
+      c:  rake tw:export:table table_name=geographic_items > ../gaz/data/internal/csv/geographic_items.csv
 
   (Reloading)
   1: rake db:setup
@@ -31,14 +31,14 @@
         psql
         RubyMine))
 
-  2.  rake tw:initialization:restore_geo_data[../shapes/data/internal/dump/]
+  2.  rake tw:initialization:restore_geo_data[../gaz/data/internal/dump/]
 
       Alternately, load them individually:
-      a:  rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
+      a:  rake tw:initialization:load_geographic_area_types[../gaz/data/internal/csv/geographic_area_types.csv]
 
-      b:  rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_items.csv]
+      b:  rake tw:initialization:load_geographic_items[../gaz/data/internal/csv/geographic_items.csv]
 
-      c:  rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
+      c:  rake tw:initialization:load_geographic_areas[../gaz/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
 
   11: rake tw:init:rebuild_geographic_areas_nesting
 
@@ -51,7 +51,7 @@ namespace :tw do
 
     GAZ_DATA = '~/src/gaz/data/internal/dump/'
 
-    # rake tw:initialization:save_geo_data[../shapes/data/internal/dump/]
+    # rake tw:initialization:save_geo_data[../gaz/data/internal/dump/]
     desc 'Save geographic area information in native pg_dump compressed form.'
     task :save_geo_data, [:data_store] => [:environment] do |t, args|
       args.with_defaults(:data_store => '/tmp/' )
@@ -69,12 +69,12 @@ namespace :tw do
       end
     end
 
-    # rake tw:initialization:restore_geo_data[../shapes/data/internal/dump/]
+    # rake tw:initialization:restore_geo_data[../gaz/data/internal/dump/]
     desc 'Restore geographic area information from compressed form.'
     task :restore_geo_data, [:data_store] => [:environment] do |t, args|
       args.with_defaults(:data_store => GAZ_DATA)
       data_store = args[:data_store]
-      # TODO: Add condition for abort, i.e., dupm files do not exist in the data_store directory.
+      # TODO: Add condition for abort, i.e., dump files do not exist in the data_store directory.
     
       geographic_areas_file = "#{data_store}geographic_areas.dump"
       geographic_area_types_file = "#{data_store}geographic_area_types.dump"
@@ -94,10 +94,10 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
-    # rake tw:initialization:load_geographic_area_types[../shapes/data/internal/csv/geographic_area_types.csv]
+    # rake tw:initialization:load_geographic_area_types[../gaz/data/internal/csv/geographic_area_types.csv]
     desc 'call with "rake tw:initialization:load_geographic_area_types[/path/to/geographic_area_types.csv]"'
     task :load_geographic_area_types, [:data_file] => [:environment] do |t, args|
-      args.with_defaults(:data_file => '../shapes/data/internal/csv/geographic_area_types.csv')
+      args.with_defaults(:data_file => '../gaz/data/internal/csv/geographic_area_types.csv')
       raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0
       begin
         data = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
@@ -117,10 +117,10 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_items
-    # rake tw:initialization:load_geographic_items[../shapes/data/internal/csv/geographic_itemss.csv]
+    # rake tw:initialization:load_geographic_items[../gaz/data/internal/csv/geographic_itemss.csv]
     desc 'call with "rake tw:initialization:load_geographic_items[/path/to/geographic_items.csv]"'
     task :load_geographic_items, [:data_file] => [:environment] do |t, args|
-      args.with_defaults(:data_file => '../shapes/data/internal/csv/geographic_items.csv')
+      args.with_defaults(:data_file => '../gaz/data/internal/csv/geographic_items.csv')
       #raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
       begin
         data    = CSV.read(args[:data_file], options = {headers: true, col_sep: "\t"})
@@ -160,12 +160,12 @@ namespace :tw do
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area
-    # rake tw:initialization:load_geographic_areas[../shapes/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
+    # rake tw:initialization:load_geographic_areas[../gaz/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
     desc 'call with "rake tw:initialization:load_geographic_areas[/Users/matt/Downloads/geographic_areas.csv]  NO_GEO_NESTING=1"'
     task :load_geographic_areas, [:data_file] => [:environment] do |t, args|
       args.with_defaults(:data_file => './tmp/geographic_areas.csv')
-      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/data/internal/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
-      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../shapes/data/internal/csv/geographic_area_types.csv\' first.' if GeographicItem.all.count < 1
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../gaz/data/internal/csv/geographic_area_types.csv\' first.' if GeographicAreaType.all.count < 1
+      raise 'GeographicAreaTypes must be loaded first: run \'rake tw:initialization:load_geographic_area_types ../gaz/data/internal/csv/geographic_area_types.csv\' first.' if GeographicItem.all.count < 1
       raise 'There are existing geographic_areas, doing nothing.' if GeographicArea.all.count > 0
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}."
@@ -237,13 +237,13 @@ namespace :tw do
         filenames.push(filename)
       else
         filenames = [
-          '../shapes/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp',
-          '../shapes/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp',
-          '../shapes/data/external/shapefiles/tdwg/level1/level1.shp',
-          '../shapes/data/external/shapefiles/tdwg/level2/level2.shp',
-          '../shapes/data/external/shapefiles/tdwg/level3/level3.shp',
-          '../shapes/data/external/shapefiles/tdwg/level4/level4.shp',
-          '../shapes/data/external/shapefiles/gadm/gadm_v2_shp/gadm2.shp'
+          '../gaz/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp',
+          '../gaz/data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp',
+          '../gaz/data/external/shapefiles/tdwg/level1/level1.shp',
+          '../gaz/data/external/shapefiles/tdwg/level2/level2.shp',
+          '../gaz/data/external/shapefiles/tdwg/level3/level3.shp',
+          '../gaz/data/external/shapefiles/tdwg/level4/level4.shp',
+          '../gaz/data/external/shapefiles/gadm/gadm_v2_shp/gadm2.shp'
         ]
       end
 
