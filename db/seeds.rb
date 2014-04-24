@@ -15,6 +15,8 @@ when 'development'
   FactoryGirl.create(:valid_user)
   FactoryGirl.create(:valid_project)
   FactoryGirl.create(:project_member, project_id: 1, user_id: 1)
+  FactoryGirl.create(:level2_geographic_area)
+  FactoryGirl.create(:geographic_item_with_polygon)
   FactoryGirl.create(:iczn_subspecies)
   FactoryGirl.create(:icn_variety)
 

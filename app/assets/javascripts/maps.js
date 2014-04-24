@@ -27,7 +27,7 @@
 		var lLinePoints = [];
 
 		function leafInit() {
-			var LJSmap = L.map('Lmap').setView([document.form1.Slat.value, document.form1.Slon.value], 4);
+			var LJSmap = L.map('Lmap').setView(/*[document.forms.form1.Slat.value, document.forms.form1.Slon.value]*/ [0,0], 4);
 			L.tileLayer('http://{s}.tile.cloudmade.com/121c86d2baf84dd383f0f5d3eff472fb/997/256/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Copyright <a href="http://cloudmade.com">CloudMade</a>[some bad character]',
 				maxZoom: 18
@@ -59,8 +59,8 @@
 		}   //leafInit
 
 		function initialize() {
-			var myLatLng = new google.maps.LatLng(document.form1.Slat.value, document.form1.Slon.value);
-			// var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
+            //var myLatLng = new google.maps.LatLng(0.0, 0.0);  //document.form1.Slat.value, document.form1.Slon.value
+			 var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
 			var myOptions = {
 				zoom: 4,
 				center: myLatLng,
@@ -71,8 +71,9 @@
 			};
 			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 			//    bounds = new google.maps.LatLngBounds();
+
 			getdata();
-			//    if (data == null) return;
+			 //   if (data == null) alert();
 
 			if (typeof (gPoints) != 'undefined') {
 				var gPoint;
@@ -103,10 +104,11 @@
 					gPoly.setMap(map);
 				};
 			};
+
 			//    map.fitBounds(bounds);
 		};	//google initialize
 
-		function Report(event) {
+/*		function Report(event) {
 			x = event.clientX; y = event.clientY;
 			Xmin = -180; Xmax = 180; Ymin = -90; Xsize = document.form1.Xwidth.value; Ymax = 90; Ysize = 0.5 * Xsize; //Ymax = 83.6236
 			if ((x <= Xsize) && (x >= 12) && (y <= Ysize) && (y >= 18))    //is the click inside the map?
@@ -115,7 +117,7 @@
 				Ylat = -(Ymax - Ymin) * (((y - 18) / Ysize) - 0.5);
 				document.form1.Slat.value = Ylat; document.form1.Slon.value = Xlon; document.form1.submit();
 			}
-		};
+		}; */
 
 	function getdata() {
 		/*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
@@ -126,6 +128,7 @@
 		this leaves ambiguous the association of attributes to the objects (e.g., color, etc.)
 		New realization: there may or may not be GeometryCollections, which may contain any type, including GeometryCollection !  $#!+
 		*/
+
 		if (typeof (data) != 'undefined') {
 			if (typeof (data.type) != "undefined") {
 				if (data.type == "GeometryCollection") {
@@ -170,7 +173,7 @@
 			lLinePoints[n] = [];
 			for (var l = 0; l < thisType.coordinates.length; l++) {
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-				lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+				//lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
 				//};
 			};
 		};
@@ -183,7 +186,7 @@
 			lLinePoints[n] = [];
 				for (var l = 0; l < thisType.coordinates[k].length; l++) {
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-				lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+				//lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 				};
 			};
 		};
@@ -197,7 +200,7 @@
 				lPolyPoints[n] = [];
 				for (var l = 0; l < thisType.coordinates[k].length; l++) {
 					gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-					lPolyPoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+					//lPolyPoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 				};
 			};
 		};
@@ -211,7 +214,7 @@
 					lPolyPoints[n] = [];
 					for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
 						gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
-						lPolyPoints[n].push(new L.latLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
+						//lPolyPoints[n].push(new L.latLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
 					};
 				};
 			};
