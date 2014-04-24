@@ -34,6 +34,7 @@ class CollectingEvent < ActiveRecord::Base
   belongs_to :geographic_area, inverse_of: :collecting_events
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
+  has_many :collection_objects
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
@@ -43,6 +44,8 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
+
+  validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :start_date_year,

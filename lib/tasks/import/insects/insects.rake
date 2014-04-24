@@ -26,18 +26,45 @@ namespace :tw do
         end
       end
 
+      # Index localities by their collective column=>data pairs
+      def build_localities_index
+        localities_file = @args[:data_directory] + 'localities.txt'
+        raise 'file not found' if not File.exists?(localities_file)
+        lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
+
+        localities = {}
+        lo.each do |row|
+          localities.merge!(row['LocalityCode'] => row.to_h)
+        end
+        localities
+      end
+
       desc 'the full loop' 
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
 
         ActiveRecord::Base.transaction do 
           begin
+
+            puts "\n lines per file:"
+            Dir["#{@args[:data_directory]}/**/*.txt"].each do |f|
+              puts `wc -l #{f}`
+            end
+                    
+            LOCALITIES = build_localities_index 
+            SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat OldCollector} 
+
             @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
+
+            $project_id = @project.id
+            $user_id = @user.id
 
             @import_namespace = Namespace.create(name: 'INHS Import Identifiers', short_name: 'INHS Import')
             @accession_namespace = Namespace.create(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code')
 
             @data =  ImportData.new
+        
+            # TODO: do a file row count sanity check
 
             # handle the tables in this order
             #--- mostly done 
@@ -56,7 +83,6 @@ namespace :tw do
             #  loan_specimen.txt
             #  loans.txt
           
-            
             #  specimens.txt
             #  specimens_from_3i.txt
             #  specimens_new.txt
@@ -64,9 +90,11 @@ namespace :tw do
             
             #  types.txt
 
-            Rake::Task["tw:project_import:insects:handle_people"].execute
-            Rake::Task["tw:project_import:insects:handle_taxa"].execute
-            Rake::Task["tw:project_import:insects:handle_specimens"].execute
+          # Rake::Task["tw:project_import:insects:handle_people"].execute
+          # Rake::Task["tw:project_import:insects:handle_taxa"].execute
+          # Rake::Task["tw:project_import:insects:handle_specimens"].execute
+
+            Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -76,71 +104,313 @@ namespace :tw do
         end
       end
 
+
+      desc 'handle collecting events'
+      task :handle_collecting_events => [:data_directory, :environment] do |t, args|
+
+        path1 = @args[:data_directory] + 'localities.txt'
+        raise 'file not found' if not File.exists?(path1)
+        lo = CSV.open(path1, col_sep: "\t", :headers => true)
+
+        # LocalityCode
+        # Country
+        # State
+        # County
+        # Locality
+        # Park
+        # BodyOfWater
+        # NS
+        # Lat_deg
+        # Lat_min
+        # Lat_sec
+        # EW
+        # Long_deg
+        # Long_min
+        # Long_sec
+        # Latitude
+        # Longitude
+        # Elev_m
+        # Elev_ft
+        # Elevation
+        # PrecisionCode
+        # Comments
+        # GBIG_precission
+        # DrainageBasinLesser
+        # DrainageBasinGreater
+        # StreemSize
+        # INDrainage
+        # WisconsinGlaciated
+        # OldLocalityCode
+        #
+        # CreatedOn
+        # ModifiedOn
+        # CreatedBy
+        # ModifiedBy
+
+
+        path2 = @args[:data_directory] + 'ledgers.txt'
+        raise 'file not found' if not File.exists?(path2)
+
+        #  LocalityCode
+        #  Collector
+        #  DateCollectedBeginning
+        #  DateCollectedEnding
+        #  Collection
+        #  AccessionNumber
+        #  LedgerBook
+        #  Country
+        #  State
+        #  County
+        #  Locality
+        #  HostGenus
+        #  HostSpecies
+        #  Description
+        #  Remarks
+        #  OldLocalityCode
+        #  CreatedBy
+        #  CreatedOn
+        #  Comments
+        #  Order
+        #  Family
+        #  Genus
+        #  Species
+        #  Sex
+      
+        path3 = @args[:data_directory] + 'specimens.txt'
+        raise 'file not found' if not File.exists?(path3)
+
+        # -- Collecting Event 
+        # -    LocalityCode --- 
+        # -    DateCollectedBeginning
+        # -    DateCollectedEnding
+        # -    Collector
+        # -    CollectionMethod
+        # -    Habitat
+        # -    OldLocalityCode    # tags on CE
+        # -    OldCollector       # tags on CE
+        # --- not used 
+        #     LocalityCompare     # related to hash md5
+
+
+
+        path4 = @args[:data_directory] + 'accessions_new.txt' # self contained
+        raise 'file not found' if not File.exists?(path4)
+
+        #   AccessionNumber - field notes for collecting event /  # Not the same accession code 
+        #      missing a "file"  
+        #   Prefix
+        #   CatalogNumber
+        #   LocalityLabel
+        #   Habitat
+        #   Host
+        #   Country
+        #   State
+        #   County
+        #   Locality
+        #   Park
+        #   DateCollectedBeginning
+        #   DateCollectedEnding
+        #   Collector
+        #   CollectionMethod
+        #   ElevationM
+        #   ElevationF
+        #   NS
+        #   Lat_deg
+        #   Lat_min
+        #   Lat_sec
+        #   EW
+        #   Long_deg
+        #   Long_Ming
+        #   Long_Sec
+        #   Remarks
+        #   Precision
+        #   Datum
+        #
+        #   ModifiedBy
+        #   ModifiedOn
+
+        collecting_events = {}
+
+
+        le = CSV.open(path2, col_sep: "\t", :headers => true)
+        sp = CSV.open(path3, col_sep: "\t", :headers => true)
+        ac = CSV.open(path4, col_sep: "\t", :headers => true)
+      
+        unmatched_localities = {}
+
+        sp.each_with_index do |row, i|
+          locality_code = row['LocalityCode']
+          tmp_ce = { }   
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) if !row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            hashcollisions(tmp_ce, LOCALITIES[locality_code])
+            tmp_ce.merge!(LOCALITIES[locality_code]) 
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) if !locality_code.blank?
+          end
+
+          collecting_events.merge!(tmp_ce => nil)
+        end
+
+        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ") 
+
+        puts "\nledgers\n"
+        le.each_with_index do |row, i|
+          collecting_events.merge!(row.to_h => nil)
+          print "\r#{i}" 
+        end
+
+        puts "\naccession new records\n"
+        ac.each_with_index do |row, i|
+          collecting_events.merge!(row.to_h => nil)
+          print "\r#{i}" 
+        end
+
+        all_keys = [] 
+        puts "\ntotal collecting events to build:"
+        collecting_events.keys.each_with_index do |hsh,i|
+          all_keys.push hsh.keys
+          all_keys.flatten!.uniq!
+          print "\r#{i}" 
+        end
+
+        all_keys.sort!
+
+        byebug 
+
+        raise
+
+        fce = {}
+        collecting_events.keys.each do |ce|
+         
+         # AccessionNumber
+         # BodyOfWater
+         # Collection
+         # CollectionMethod
+         # Collector
+         # Comments
+         # Country
+         # County
+         # CreatedBy
+         # CreatedOn
+         # DateCollectedBeginning
+         # DateCollectedEnding
+         # Datum
+         # Description
+         # DrainageBasinGreater
+         # DrainageBasinLesser
+         # EW
+         # Elev_ft
+         # Elev_m
+         # Elevation
+         # Family
+         # GBIF_precission
+         # Genus
+         # Habitat
+         # Host
+         # HostGenus
+         # HostSpecies
+         # INDrainage
+         
+         # LedgerBook
+         # Locality
+         # LocalityCode
+         # LocalityLabel
+         # ModifiedBy
+         # ModifiedOn
+         # NS
+         # OldCollector
+         # OldLocalityCode
+         # Order
+         # Park
+         # PrecisionCode
+         # Remarks
+         # Sex
+         # Species
+         # State
+         # StreamSize
+         # WisconsinGlaciated
+
+          
+          ltd = rows['Lat_deg'].blank? ? nil : "#{rows['Lat_deg']}º"
+          ltm = rows['Lat_min'].blank? ? nil : "#{rows['Lat_min']}'"
+          lts = rows['Lat_sec'].blank? ? nil : "#{rows['Lat_sec']}\""
+          latitude = [ltd,ltm,lts].compact.join
+
+          lld = rows['Long_deg'].blank? ? nil : "#{rows['Long_deg']}º"
+          llm = rows['Long_min'].blank? ? nil : "#{rows['Long_min']}'"
+          lls = rows['Long_sec'].blank? ? nil : "#{rows['Long_sec']}\""
+          latitude = [lld,llm,lls].compact.join
+
+          puts "!! values for both Latitude and Lat_ provided" if !latitude.blank? && !rows['Latitude'].blank?
+          puts "!! values for both Longitude and Long_ provided" if !longitude.blank? && !rows['Longitude'].blank?
+          latitude ||= rows['Latitude']
+          longitude ||= rows['Longitude']
+
+          sdd, sdm, sdy = ce['DateCollectedBeginning'].split("/")
+          edd, edm, edy = ce['DateCollectedEnding'].split("/")
+
+          raise if !ce['Elev_ft'].blank? && ce['Elev_m'].blank?        
+          if !ce['Elev_ft'].blank?
+            elevation = ce['Elev_ft']
+            elevation_unit = 'feet'
+          elsif !ce['Elev_m'].blank?
+            elevation = ce['Elev_m']
+            elevation_unit = 'meters'
+          else
+            elevation = nil
+            elevation_unit = nil
+          end
+
+          c = CollectingEvent.new(
+            verbatim_label: ce['LocalityLabel'], 
+            verbatim_locality: ce['Locality'],
+            verbatim_collectors: ce['Collector'],                
+            verbatim_method: ce['CollectionMethod'],            
+            start_date_day: sdd,
+            start_date_month: sdm,
+            start_date_year: sdy,
+            end_date_day: edd,
+            end_date_month: edm,
+            end_date_year: edy,
+            habitat_macro: ce['Habitat'],
+            elevation: elevation,
+            verbatim_longitude: longitude,
+            verbatim_latitude: latitude,
+          )
+
+          @data.collecting_events.merge!(ce => c)
+        end
+      end 
+
+      def hashcollisions(a, b)
+        a.each do |i,j|
+          if b[i] && !j.blank? && b[i] != j 
+            puts "#{i}: [#{j}] != [#{b[i]}]"
+          end
+        end
+      end
+
+
       desc 'handle specimens'
       task :handle_specimens => [:data_directory, :environment] do |t, args|
 
-          # localities.txt
-          #      LocalityCode
-       
-          # -- lookups ?! 
-          #      Country
-          #      State
-          #      County
-         
-          #      Locality                      # verbatim_locality
-          
-         
-          #      NS
-          #      Lat_deg
-          #      Lat_min
-          #      Lat_sec
-          #      EW
-          #      Long_deg
-          #      Long_min
-          #      Long_sec
-          #      Latitude
-          #      Longitude
-                                                                                                                      #
-          #      Elev_m
-          #      Elev_ft
-          
-          #      Elevation
-        
-          # --Georeference 
-          #      GBIF_precission  (radius in meters, calculate vs. assert)
-      
-          #      PrecisionCode   (1-6 -?)  - assert it vs. assign it?
-
-          # -- Geographic_Area?! 
-          
-          #      DrainageBasinLesser
-          #      DrainageBasinGreater
-          #      StreamSize
-          #      INDrainage
-          #      WisconsinGlaciated
-          #      BodyOfWater
-         
-          #      Park
-
-          #      Comments
-        
-          #      OldLocalityCode
-          #      CreatedOn
-          #      ModifiedOn
-          #      CreatedBy
-          #      ModifiedBy
-
-          # ------- specimens.txt ------------------------------
+        # ------- specimens.txt ------------------------------
           #  
           # -- Collection Object
           # *   AccessionNumber               # catalog_number of particular namespace Legacy Namespace
-
-
           # *   LocalityLabel                 # buffered_collecting_event
-          # *   DeterminationLabel            # buffered
           # *   OtherLabel                    # buffered
-         
-          #     PreparationType               # Preparation#id
+          # -- Taxon Determination
+          # *   DeterminationLabel      # buffered
+          # *  IdentifiedBy             # internal attribute 
+          # *  YearIdentified           # internal attribute  
+          # *  OldIdentifiedBy          # internal attribute 
+
+          # *  PreparationType          # Biocuration classification
           
           # *   AccessionSource        # people_id  # Asserts a person donated the specimen.
           # *   DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
@@ -151,72 +421,26 @@ namespace :tw do
           # *     Prefix
           # *     CatalogNumber
       
-          #   -- Otu   
-          #       TaxonCode
+          # *  -- Otu   
+          # *      TaxonCode
 
-          # -- Collecting Event 
-          # -    LocalityCode
-          # -    DateCollectedBeginning
-          # -    DateCollectedEnding
-          # -    Collector
-          # -    CollectionMethod
-          # -    Habitat
-          # -    OldLocalityCode    # tags on CE
-          # -    OldCollector       # tags on CE
-                  
-          #     CreatedBy
-          #     CreatedOn
-          #     ModifiedOn
-          #     ModifiedBy
-        
-          # -- Taxon Determination
-          #     IdentifiedBy             # ? person_id
-          #     YearIdentified           # year_made
-          #     OldIdentifiedBy          # Data attribute on this
-
-          # -- TypeMaterial 
-          #     Type           # status
-          #     TypeName       # names of species <- no ID  "aus" -> annotation on Type
-          
-          # -- InternalAttribute
-          #     Checked    # tag on collection_object
-          #     SpecialCollection             # tag value on object
-
-          # -- Notes
-          #     Remarks    # Note on collection
-
-          # --  BiocurationClass       
-          #     AdultMale
-          #     AdultFemale
-          #     Immature
-          #     Pupa
-          #     Exuvium
-          #     AdultUnsexed
-          #     AgeUnknown
-          #     OtherSpecimens
-        
-          # --- not used 
-          #     LocalityCompare     # related to hash md5
-
-        path1 = @args[:data_directory] + 'localities.txt'
-        raise 'file not found' if not File.exists?(path1)
-
-        path2 = @args[:data_directory] + 'specimens.txt'
-        raise 'file not found' if not File.exists?(path2)
-
-        ce = CSV.open(path1, col_sep: "\t", :headers => true)
-        co = CSV.open(path2, col_sep: "\t", :headers => true)
+        path = @args[:data_directory] + 'specimens.txt'
+        raise 'file not found' if not File.exists?(path)
+        co = CSV.open(path, col_sep: "\t", :headers => true)
 
         @data.keywords.merge!(  
-                              'AdultMale' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult male(s).'), 
-                              'AdultFemale' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult female(s).'), 
-                              'Immature' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of immature(s).'), 
-                              'Pupa' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of pupa.'), 
-                              'Exuvium' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of exuviae.'), 
-                              'AdultUnsexed' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
-                              'AgeUnknown' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of individuals of indtermined age.'), 
-                              'OtherSpecimens' => BiocurationClass.new(name: 'Taxa:Synonyms', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
-                              'ZeroTotal' => Keyword.new(name: 'Zero total', definition: 'On import there were 0 total specimens recorded in the FM database.'),
+                              'AdultMale' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult male(s).'), 
+                              'AdultFemale' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adult female(s).'), 
+                              'Immature' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of immature(s).'), 
+                              'Pupa' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of pupa.'), 
+                              'Exuvium' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of exuviae.'), 
+                              'AdultUnsexed' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
+                              'AgeUnknown' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object is comprised of individuals of indtermined age.'), 
+                              'OtherSpecimens' => BiocurationClass.create(name: 'Taxa:Synonyms', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
+                              'ZeroTotal' => Keyword.create(name: 'Zero total', definition: 'On import there were 0 total specimens recorded in the FM database.'),
+                              'IdentifiedBy' => Predicate.create(name: 'Identified by (INHS IMPORT)', definition: 'The verbatim value in the identified by field.'),
+                              'YearIdentified' => Predicate.create(name: 'Year Identified (INHS IMPORT)', definition: 'The verbatim value in the year identified field.'),
+                              'OldIdentifiedBy' => Predicate.create(name: 'Old Identified By (INHS IMPORT)', definition: 'The verbatim value in the old identified by.'),
                              )
         
         tmp_namespaces = {} 
@@ -259,7 +483,6 @@ namespace :tw do
 
         determination = {
           otu: otu 
-          
         }
 
         accession_attributes = { accessioned_at: '', 
@@ -283,8 +506,7 @@ namespace :tw do
             )
 
             # add the biological attribute
-            o.biocuration_classifications.build(biocuration_class: @data.keywords['c'])
-          
+            o.biocuration_classifications.build(biocuration_class: @data.keywords[c])
             o.save
             objects.push(o) 
           end
@@ -293,18 +515,37 @@ namespace :tw do
         # Some specimen records have 0 total specimens! WATCH OUT.
         if objects.count == 0
           o = Specimen.create(taxon_determinations_attributes: [ determination] )
-          o.biocuration_classifications.build(biocuration_class: @data.keywords['c'])
-          o.tags << Tag.new(keyword: @data.keywords['ZeroTotal'])
-          o.save
+          o.tags.build(keyword: @data.keywords['ZeroTotal'])
+          o.save!
           objects.push(o)
         end
     
         add_identifiers(objects, row)
+        add_determinations(objects, row)
+        add_collecting_event(objects, row)
 
         objects
       end
 
-      
+
+      def add_collecting_event(objects, row)
+        tmp_ce = {}
+        # TODO: refactor
+        SPECIMENS_COLUMNS.each do |c|
+          tmp_ce.merge!(c => row[c]) if !row[c].blank?
+        end
+
+        if v = LOCALITIES[row['LocalityCode']]
+          tmp_ce.merge!(v) 
+        end
+
+        objects.each do |o|
+          o.collecting_event = @data.collecting_events(tmp_ce)
+          o.save! 
+        end
+      end 
+
+
       def add_identifiers(objects, row)
         puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
         
@@ -312,33 +553,37 @@ namespace :tw do
         accession_number = InternalAttribute.new(value: row['AccessionNumber'], predicate: @data.keywords['AccessionCode']) if !row['AccessionNumber'].blank?
       
         if objects.count > 1 
+          puts "More than one in a #{row['PreparationType']}"
+         
           objects.each do |o|
             o.data_attributes << accession_number.dup if accession_number
-            o.save
+            o.save!
           end
 
           # Identifier on container. 
           c = Container.containerize(objects)
-          puts row['PreparationType']
           c.type = CONTAINER_TYPE[row['PreparationType'].to_s.downcase]
+          c.save!
           c.identifiers << identifier if identifier
           c.save! 
           # Identifer on object
         elsif objects.count == 1
           objects.first.identifiers << identifier if identifier
           objects.first.data_attributes << accession_number if accession_number 
-          objects.first.save
+          objects.first.save!
         else
           raise 'No objects in container.'
         end
       end
-  
+      
       def add_determinations(objects, row)
-        if row['IdentifiedBy'] || row['YearIdentified']
-          p = Person::Unvetted
-        else
+        objects.each do |o|
+          %w{IdentifiedBy YearIdentified OldIdentifiedBy}.each do |c|
+            o.data_attributes.build(predicate: @data.keywords[c], value: row[c], type: 'InternalAttribute')  if !row[c].blank?
+          end
         end
       end
+
 
       desc 'handle taxa'
       task :handle_taxa => [:data_directory, :environment] do |t, args|
@@ -409,20 +654,19 @@ namespace :tw do
           p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
           if rank == NomenclaturalRank || !p.parent_id.blank?
-            bench = Benchmark.measure {
-              p.save
+            bench = Benchmark.measure { p.save }
+          
+            # Build the associated OTU
+            o = Otu.create(
+              taxon_name_id: p.id,
+              identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ]
+            )
 
-              # Build the associated OTU
-              o = Otu.create(
-                taxon_name_id: p.id,
-                identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ]
-              )
-              @data.otus.merge!(row['TaxonCode'] => o)
-            }
-            
+            @data.otus.merge!(row['TaxonCode'] => o)
+
             if p.valid?
               parent_index.merge!(row['ID'] => p) 
-              print "\r#{i}\t#{bench.to_s.strip}\t#{name}        \t\t#{rank}                           "
+              print "\r#{i}\t#{bench.to_s.strip}  #{name}        \t\t#{rank}                                     "
             else
               puts 
               puts p.name
@@ -433,7 +677,10 @@ namespace :tw do
             puts "\n\t!!? No parent for #{p.name}\n"
           end
         end
+        puts puts
       end
+
+      
 
       desc 'handle people'
       task :handle_people => [:data_directory, :environment] do |t, args|
@@ -539,133 +786,7 @@ namespace :tw do
         # f.close
       end
 
-      desc 'handle_names - rake tw:project_import:ucd:handle_master[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_names => [:data_directory, :environment] do |t, args| 
-        # Master            # Famtrib         # Genus           # Species 
-        # 0  TaxonCode      # 0  TaxonCode    # 0  TaxonCode    # 0  TaxonCode  
-        # 1  ValGenus       # 1  RefCode      # 1  RefCode      # 1  Region     
-        # 2  ValSpecies     # 2  PageRef      # 2  PageRef      # 2  Country    
-        # 3  HomCode        # 3  H_levelTax   # 3  Code         # 3  State      
-        # 4  ValAuthor      # 4  Of_for_to    # 4  CitGenus     # 4  RefCode    
-        # 5  Status       # 5  CitSpecies   # 4  PageRef    
-        # 5  CitGenus       # 6  CitGenus     # 6  CitAuthor    # 5  Figures    
-        # 6  CitSubgen      # 7  CitAuthor    # 7  TypeDesign   # 6  Sex        
-        # 7  CitSpecies     # 8  Code         # 8  Designator   # 7  CurrStat   
-        # 8  CitSubsp       # 9 Notes         # 9  PageDesign   # 8  PrimType   
-        # 9 CitAuthor                         # 10 Status       # 9  TypeSex    
-        # 10 Designator 
-        # 10 Family                                             # 11 Pages      
-        # 11 ValDate                                            # 12 Depository 
-        # 12 CitDate                                            # 13 Notes      
-        # 14 TypeNumber 
-        # 15 DeposB     
-        # 16 DeposC     
-
-        puts "names ... "
-
-        path1 = @args[:data_directory] + 'master.csv'
-        path2 = @args[:data_directory] + 'famtrib.csv'
-        path3 = @args[:data_directory] + 'genus.csv'
-        path4 = @args[:data_directory] + 'species.csv'
-
-        (1..4).each do |p|
-          raise 'file not found' if not File.exists?(eval("path#{p}"))
-        end 
-
-        m  = CSV.open(path1, col_sep: "\t")
-        ft = CSV.open(path2, col_sep: "\t")
-        g  = CSV.open(path3, col_sep: "\t")
-        s  = CSV.open(path4, col_sep: "\t")
-
-        root = TaxonName.new(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil)
-        root.save!
-
-        chalcidoidea = TaxonName.new(name: 'Chalcidoidea', parent: root, rank_class: Ranks.lookup(:iczn, 'superfamily'))
-        chalcidoidea.save!
-
-        # mi = ft.inject({}).{|hsh, row| hsh.merge!(row[0] => row[0.. 
-
-        ft.each do |row|
-
-
-        end
-
-        count_higher_taxa = 0
-
-        valid_names = { }
-
-        # valid pass
-        m.each do |row|
-
-          rank = nil
-
-          # puts row[0]
-
-          valid_genus = row[1]
-          valid_species = row[2]
-          valid_author = row[4]
-
-          if valid_genus.blank? && valid_species.blank?
-            rank = :higher
-          elsif valid_species.blank?
-            rank = :genus
-          else
-            rank = :species
-          end
-
-          higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher 
-
-          # superfamilies = length(family) = 0 and valgenus 
-
-          if rank == :higher
-            puts row[0], higher_taxon,  authors , ""
-            count_higher_taxa += 1
-          end
-          # o.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
-        end
-        puts count_higher_taxa
-      end
-
-      desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_famtrib => [:data_directory, :environment] do |t, args| 
-      end
-
-      desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_keywords => [:data_directory, :environment] do |t, args| 
-        # 0  Keywords
-        # 1  Meaning
-        # 2  Category
-
-        path = @args[:data_directory] + 'keywords.csv'
-        f = CSV.open(path, col_sep: "\t")
-        keywords = []
-        abbreviations = [] 
-        tags = []
-
-        meta_keywords = {
-          '1' => Keyword.new(name: 'Taxonomic Keyword in UCD', definition: 'The Topic categorized by Noyes as being taxonomic (1 in UCD).'),
-          '2' => Keyword.new(name: 'Biological Keyword in UCD', definition: 'The Topic categorized by Noyes as being biological (2 in UCD).'),
-          '3' => Keyword.new(name: 'Economic Keyword in UCD Keyword', definition: 'The Topic categorized by Noyes as being economic (3 in UCD).')
-        }
-        f.each do |row|
-          t = Keyword.new(name: row[1], definition: "The topic derived from the UCD keyword for #{row[1]}.") 
-          keywords.push t
-          abbreviations.push AlternateValue::Abbreviation.new(alternate_object: t, value: row[0], alternate_object_attribute: :name)
-          tags.push Tag.new(keyword: meta_keywords[row[2]], tag_object: t) 
-        end
-
-        Topic.transaction do 
-          [meta_keywords.values, keywords, abbreviations, tags].each do |objs|
-            objs.each do |o|
-              o.save!
-            end
-          end
-
-          # puts keyowrds.map(&:valid?), abbreviations.map(&:valid?), tags.map(&:valid?), meta_keywords.values
-        end 
-      end
-
-      desc 'handle refs - rake tw:project_import:ucd:handle_refs[/Users/matt/src/sf/import/ucd/csv]'
+     desc 'handle refs - rake tw:project_import:ucd:handle_refs[/Users/matt/src/sf/import/ucd/csv]'
       task :handle_refs => [:data_directory, :environment, :handle_keywords] do |t, args| 
         # - 0   RefCode   | varchar(15)  |
         # - 1   Author    | varchar(52)  |
@@ -804,21 +925,6 @@ namespace :tw do
           print "#{i}," 
           i+=1
           break if i > 200 
-        end
-      end
-
-      task :sql_dump_script do
-        puts 'SET NAMES utf8;'
-        %w{coll country dist famtrib fgnames genus h-fam hknew hostfam hosts journals keywords language master p-type refext refs relation reliable species status tran tstat wwwimaok}.each do |t|
-          puts "SELECT * FROM `#{t}` INTO OUTFILE '/tmp/ucd/#{t}.csv' 
-        FIELDS 
-          TERMINATED BY '\\t'
-          OPTIONALLY ENCLOSED BY '\"'        
-          ESCAPED BY '\\\\'
-        LINES 
-          TERMINATED BY '\\n';"
-          # ENCLOSED BY '|' # Ruby CSV is borked, to be fixed in 2.1
-          # Ruby CSV wants "" (two quotes) as an escaped quote by default) - so we need to convert with rows
         end
       end
 

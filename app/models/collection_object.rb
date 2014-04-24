@@ -26,18 +26,8 @@ class CollectionObject < ActiveRecord::Base
   validates_presence_of :type
   before_validation :check_that_both_of_category_and_total_are_not_present
 
-  before_validation :assign_type_if_not_provided
-
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
   end
 
-  def assign_type_if_not_provided
-    return true if !self.type.nil? || !self.ranged_lot_category_id.nil?
-    if total = 1
-      self.type = 'Specimen'
-    elsif total > 1
-      self.type = 'Lot'
-    end
-  end
 end

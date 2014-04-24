@@ -69,6 +69,16 @@ class Person < ActiveRecord::Base
     self.type_designator_roles.to_a.length > 0
   end
 
+  # TODO: TEST!
+  def self.parser(name_string)
+    BibTeX::Entry.new(type: :book,  author: name_string).parse_names.to_citeproc['author']
+  end
+
+  # TODO: TEST!
+  def self.parse_to_people(name_string)
+    self.parser(name_string).collect{|n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
+  end
+
   protected
 
   def set_type_if_blank
