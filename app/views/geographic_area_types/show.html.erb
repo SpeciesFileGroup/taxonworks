@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @geographic_area_type.name %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @geographic_area_type.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @geographic_area_type.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_geographic_area_type_path(@geographic_area_type) %> |
+<%= link_to 'Back', geographic_area_types_path %>

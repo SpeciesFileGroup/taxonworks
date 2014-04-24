@@ -1,0 +1,2 @@
+module GeographicItemsHelper
+end

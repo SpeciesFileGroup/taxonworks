@@ -1,0 +1,43 @@
+<h1>Listing geographic_items</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Line string</th>
+      <th>Polygon</th>
+      <th>Multi point</th>
+      <th>Multi line string</th>
+      <th>Multi polygon</th>
+      <th>Geometry collection</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @geographic_items.each do |geographic_item| %>
+      <tr>
+        <td><%= geographic_item.point %></td>
+        <td><%= geographic_item.line_string %></td>
+        <td><%= geographic_item.polygon %></td>
+        <td><%= geographic_item.multi_point %></td>
+        <td><%= geographic_item.multi_line_string %></td>
+        <td><%= geographic_item.multi_polygon %></td>
+        <td><%= geographic_item.geometry_collection %></td>
+        <td><%= geographic_item.created_by_id %></td>
+        <td><%= geographic_item.updated_by_id %></td>
+        <td><%= link_to 'Show', geographic_item %></td>
+        <td><%= link_to 'Edit', edit_geographic_item_path(geographic_item) %></td>
+        <td><%= link_to 'Destroy', geographic_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Geographic item', new_geographic_item_path %>

@@ -1,0 +1,101 @@
+<%= form_for(@geographic_area) do |f| %>
+  <% if @geographic_area.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@geographic_area.errors.count, "error") %> prohibited this geographic_area from being saved:</h2>
+
+      <ul>
+      <% @geographic_area.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :level0_id %><br>
+    <%= f.number_field :level0_id %>
+  </div>
+  <div class="field">
+    <%= f.label :level1_id %><br>
+    <%= f.number_field :level1_id %>
+  </div>
+  <div class="field">
+    <%= f.label :level2_id %><br>
+    <%= f.number_field :level2_id %>
+  </div>
+  <div class="field">
+    <%= f.label :gadm_geo_item_id %><br>
+    <%= f.number_field :gadm_geo_item_id %>
+  </div>
+  <div class="field">
+    <%= f.label :parent_id %><br>
+    <%= f.number_field :parent_id %>
+  </div>
+  <div class="field">
+    <%= f.label :geographic_area_type_id %><br>
+    <%= f.number_field :geographic_area_type_id %>
+  </div>
+  <div class="field">
+    <%= f.label :iso_3166_a2 %><br>
+    <%= f.text_field :iso_3166_a2 %>
+  </div>
+  <div class="field">
+    <%= f.label :rgt %><br>
+    <%= f.number_field :rgt %>
+  </div>
+  <div class="field">
+    <%= f.label :lft %><br>
+    <%= f.number_field :lft %>
+  </div>
+  <div class="field">
+    <%= f.label :tdwg_parent_id %><br>
+    <%= f.number_field :tdwg_parent_id %>
+  </div>
+  <div class="field">
+    <%= f.label :iso_3166_a3 %><br>
+    <%= f.text_field :iso_3166_a3 %>
+  </div>
+  <div class="field">
+    <%= f.label :tdwg_geo_item_id %><br>
+    <%= f.number_field :tdwg_geo_item_id %>
+  </div>
+  <div class="field">
+    <%= f.label :tdwgID %><br>
+    <%= f.text_field :tdwgID %>
+  </div>
+  <div class="field">
+    <%= f.label :gadmID %><br>
+    <%= f.number_field :gadmID %>
+  </div>
+  <div class="field">
+    <%= f.label :gadm_valid_from %><br>
+    <%= f.text_field :gadm_valid_from %>
+  </div>
+  <div class="field">
+    <%= f.label :gadm_valid_to %><br>
+    <%= f.text_field :gadm_valid_to %>
+  </div>
+  <div class="field">
+    <%= f.label :data_origin %><br>
+    <%= f.text_field :data_origin %>
+  </div>
+  <div class="field">
+    <%= f.label :adm0_a3 %><br>
+    <%= f.text_field :adm0_a3 %>
+  </div>
+  <div class="field">
+    <%= f.label :neID %><br>
+    <%= f.text_field :neID %>
+  </div>
+  <div class="field">
+    <%= f.label :ne_geo_item_id %><br>
+    <%= f.number_field :ne_geo_item_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

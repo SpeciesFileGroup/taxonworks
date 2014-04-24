@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Point:</strong>
+  <%= @geographic_item.point %>
+</p>
+
+<p>
+  <strong>Line string:</strong>
+  <%= @geographic_item.line_string %>
+</p>
+
+<p>
+  <strong>Polygon:</strong>
+  <%= @geographic_item.polygon %>
+</p>
+
+<p>
+  <strong>Multi point:</strong>
+  <%= @geographic_item.multi_point %>
+</p>
+
+<p>
+  <strong>Multi line string:</strong>
+  <%= @geographic_item.multi_line_string %>
+</p>
+
+<p>
+  <strong>Multi polygon:</strong>
+  <%= @geographic_item.multi_polygon %>
+</p>
+
+<p>
+  <strong>Geometry collection:</strong>
+  <%= @geographic_item.geometry_collection %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @geographic_item.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @geographic_item.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
+<%= link_to 'Back', geographic_items_path %>

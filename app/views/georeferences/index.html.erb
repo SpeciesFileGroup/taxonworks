@@ -1,0 +1,55 @@
+<h1>Listing georeferences</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Geographic item</th>
+      <th>Collecting event</th>
+      <th>Error radius</th>
+      <th>Error depth</th>
+      <th>Error geographic item</th>
+      <th>Type</th>
+      <th>Source</th>
+      <th>Position</th>
+      <th>Is public</th>
+      <th>Api request</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th>Is undefined z</th>
+      <th>Is median z</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @georeferences.each do |georeference| %>
+      <tr>
+        <td><%= georeference.geographic_item_id %></td>
+        <td><%= georeference.collecting_event_id %></td>
+        <td><%= georeference.error_radius %></td>
+        <td><%= georeference.error_depth %></td>
+        <td><%= georeference.error_geographic_item_id %></td>
+        <td><%= georeference.type %></td>
+        <td><%= georeference.source_id %></td>
+        <td><%= georeference.position %></td>
+        <td><%= georeference.is_public %></td>
+        <td><%= georeference.api_request %></td>
+        <td><%= georeference.created_by_id %></td>
+        <td><%= georeference.updated_by_id %></td>
+        <td><%= georeference.project_id %></td>
+        <td><%= georeference.is_undefined_z %></td>
+        <td><%= georeference.is_median_z %></td>
+        <td><%= link_to 'Show', georeference %></td>
+        <td><%= link_to 'Edit', edit_georeference_path(georeference) %></td>
+        <td><%= link_to 'Destroy', georeference, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Georeference', new_georeference_path %>

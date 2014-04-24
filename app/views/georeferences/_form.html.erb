@@ -1,0 +1,65 @@
+<%= form_for(@georeference) do |f| %>
+  <% if @georeference.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>
+
+      <ul>
+      <% @georeference.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :geographic_item_id %><br>
+    <%= f.number_field :geographic_item_id %>
+  </div>
+  <div class="field">
+    <%= f.label :collecting_event_id %><br>
+    <%= f.number_field :collecting_event_id %>
+  </div>
+  <div class="field">
+    <%= f.label :error_radius %><br>
+    <%= f.text_field :error_radius %>
+  </div>
+  <div class="field">
+    <%= f.label :error_depth %><br>
+    <%= f.text_field :error_depth %>
+  </div>
+  <div class="field">
+    <%= f.label :error_geographic_item_id %><br>
+    <%= f.number_field :error_geographic_item_id %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="field">
+    <%= f.label :source_id %><br>
+    <%= f.number_field :source_id %>
+  </div>
+  <div class="field">
+    <%= f.label :position %><br>
+    <%= f.number_field :position %>
+  </div>
+  <div class="field">
+    <%= f.label :is_public %><br>
+    <%= f.check_box :is_public %>
+  </div>
+  <div class="field">
+    <%= f.label :api_request %><br>
+    <%= f.text_field :api_request %>
+  </div>
+  <div class="field">
+    <%= f.label :is_undefined_z %><br>
+    <%= f.check_box :is_undefined_z %>
+  </div>
+  <div class="field">
+    <%= f.label :is_median_z %><br>
+    <%= f.check_box :is_median_z %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
