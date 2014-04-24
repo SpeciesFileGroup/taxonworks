@@ -22,6 +22,7 @@ FactoryGirl.define do
       verbatim_locality 'Champaign Co., Illinois'
       verbatim_label "USA:IL:Champaign Co.\nUniversity of Illinois\nResearch Park\nEvers Lab\n1909 S. Oak St.\nRoom 2024"
       minimum_elevation 757
+      elevation_unit 'meters'
       verbatim_latitude '40.091655'
       verbatim_longitude '-88.241413'
     end
@@ -29,7 +30,8 @@ FactoryGirl.define do
     factory :collecting_event_point_c do
       verbatim_locality 'Champaign Co., Illinois'
       verbatim_label "City of Champaign"
-      minimum_elevation 735 # ,
+      minimum_elevation 735
+      elevation_unit 'meters'
       verbatim_latitude '40.116402'
       verbatim_longitude '-88.243386'
     end
@@ -37,7 +39,8 @@ FactoryGirl.define do
     factory :collecting_event_point_u do
       verbatim_locality 'Champaign Co., Illinois'
       verbatim_label "Urbana City Building"
-      minimum_elevation 726 #,
+      minimum_elevation 726
+      elevation_unit 'meters'
       verbatim_latitude '40.110037'
       verbatim_longitude '-88.204517'
     end

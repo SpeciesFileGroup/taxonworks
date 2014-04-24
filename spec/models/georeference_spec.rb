@@ -64,6 +64,7 @@ describe Georeference do
         @c_e                      = CollectingEvent.new(geographic_area:    @g_a,
                                                         verbatim_locality:  'Test Event',
                                                         minimum_elevation:  0.1,
+                                                        elevation_unit:     'meters',
                                                         verbatim_latitude:  '0.1',
                                                         verbatim_longitude: '0.1')
 
@@ -371,7 +372,7 @@ describe Georeference do
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([])
 
       @gr1.collecting_event.geographic_area = @g_a4
-      @gr1.geographic_item = @area_a
+      @gr1.geographic_item                  = @area_a
       @gr1.collecting_event.save!
       @gr1.save!
 
