@@ -1,5 +1,19 @@
 <p id="notice"><%= notice %></p>
 
+  <%= content_for :head do %>
+      <!--<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+      //    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script> -->
+<script language="javascript">var data = <%= json_tag(@geographic_item) %>;</script>
+      <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+      <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+      <%= javascript_include_tag "maps" %>
+  <% end %>
+
+    <form id="form1">
+    <div id="map_canvas" style="width: 400px; height: 400px;">helloo boyz</div>
+  </form>
+
+<div style="display:none">
 <p>
   <strong>Point:</strong>
   <%= @geographic_item.point %>
@@ -47,3 +61,7 @@
 
 <%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
 <%= link_to 'Back', geographic_items_path %>
+</div>
+<script language="JavaScript">
+    initialize();
+</script>
