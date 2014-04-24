@@ -65,14 +65,20 @@ class Georeference < ActiveRecord::Base
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
     # geographic_item may be a polygon, or a point
     # TODOne: (04/16/14) figure out how to return an ActiveRecord::Relation here
-    # partial_poly = GeographicItem.within_radius_of('polygon', geographic_item, distance).arel.constraints
-    # partial_point = GeographicItem.within_radius_of('point', geographic_item, distance).arel.constraints
-    # partials = GeographicItem.where(partial_point.and(partial_poly))
 
-    temp = GeographicItem.within_radius_of('polygon', geographic_item, distance) +
+    # TODO: Add different types of GeographicItems as we learn about why they are stored.
+    # types of GeographicItems about which we currently know:
+    # multipolygon  => stored through the NE/TDWG/GADM object load process
+    # polygon       => stored through the GeoLocate process
+    # point         => stored through the GeoLocate process
+    temp = GeographicItem.within_radius_of('multipolygon', geographic_item, distance) +
+      GeographicItem.within_radius_of('polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('point', geographic_item, distance)
-    partials = GeographicItem.where('id in (?)', temp.map(&:id))
+      partials = GeographicItem.where('id in (?)', temp.map(&:id))
 
+    # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
+    # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
+    # and related objects.
     partial_gr = Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
     partial_gr
   end
@@ -131,21 +137,23 @@ class Georeference < ActiveRecord::Base
             delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) # 111319.490779206 meters/degree
             delta_y = error_radius / ONE_NORTH # 110574.38855796 meters/degree
             # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+=begin
             retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
                                                            FACTORY.point(p0.x + delta_x, p0.y), # east
                                                            FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                           FACTORY.point(p0.x - delta_x, p0.y) # west
+                                                           FACTORY.point(p0.x - delta_x, p0.y)  # west
                                                           ]))
             box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
             box.add(retval)
             box_geom = box.to_geometry
+=end
 
             # or
             # make the rectangle directly
             retval   = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
                                                             FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
                                                             FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                                            FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+                                                            FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
                                                            ]))
           when :polygon
             retval = geographic_item

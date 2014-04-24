@@ -170,7 +170,7 @@ class GeographicItem < ActiveRecord::Base
     select{'*'}.select_distance(column_name, geographic_item)
   end
 
-  def self.where_distance_greater_than_zero(column_name,geographic_item)
+  def self.where_distance_greater_than_zero(column_name, geographic_item)
     where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
   end
 
