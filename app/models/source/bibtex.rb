@@ -342,6 +342,7 @@ class Source::Bibtex < Source
     end
 
     # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
+    # TODO add conversion of Serial ID to journal name
 
     b.key = self.id
     b
@@ -402,6 +403,8 @@ class Source::Bibtex < Source
         last_name:  bibtex_author.last,
         suffix:     bibtex_author.suffix)
   end
+
+  #TODO create related Serials
 
 #endregion  ruby-bibtex related
 

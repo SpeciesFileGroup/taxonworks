@@ -6,20 +6,35 @@ describe CollectionObject::BiologicalCollectionObject do
   context 'associations' do
     context 'has_many' do
       specify 'biocuration_classifications' do
-        expect(biological_collection_object).to respond_to(:biocuration_classifications)
+        expect(biological_collection_object.biocuration_classifications << BiocurationClassification.new()).to be_true 
       end
 
       specify 'biocuration_classes' do
-        expect(biological_collection_object).to respond_to(:biocuration_classes)
+        expect(biological_collection_object.biocuration_classes << BiocurationClass.new()).to be_true 
       end
 
       specify 'taxon_determinations' do
-        expect(biological_collection_object).to respond_to(:taxon_determinations)
+        expect(biological_collection_object.taxon_determinations << TaxonDetermination.new()).to be_true 
       end
 
       specify 'otus' do
-        expect(biological_collection_object).to respond_to(:otus)
+        expect(biological_collection_object.otus << Otu.new()).to be_true 
       end
+    end
+  end
+
+  context 'validation' do 
+    specify 'subclass is properly assigned when total is 1' do
+      biological_collection_object.total = 1
+      biological_collection_object.save!
+      expect(biological_collection_object.type).to eq('Specimen')
+    end
+    
+    specify 'subclass is properly assigned when total is > 1' do
+      biological_collection_object.total = 5
+      biological_collection_object.save!
+      expect(biological_collection_object.type).to eq('Lot')
+
     end
   end
 
@@ -52,22 +67,6 @@ describe CollectionObject::BiologicalCollectionObject do
       expect(o.save).to be_true
       expect(o.current_determination).to eq(o.taxon_determinations.first)
     end
-  end
-
-  describe "mx, 3i,SpeciesFile features otherwise unplaced" do 
-    context "SpeciesFile" do
-      # presumed ok, missing, lost?, lost, damaged, unknown, data entered
-    end
-    context "3i" do
-      pending
-    end
-    context "mx" do
-      pending
-    end
-  end
-
-  describe "concerns" do
-    specify "biological attributes" # any property you want to define such as sex, host, Ph, unladen speed
   end
 
 end

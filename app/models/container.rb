@@ -7,7 +7,6 @@ class Container < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
 
-
   # TODO: rethinking this 
   # belongs_to :otu
 
@@ -42,6 +41,15 @@ class Container < ActiveRecord::Base
 
   def self.valid_parents
     CONTAINER_TYPE_NAMES
+  end
+
+  # TODO: 
+  def self.containerize(objects)
+    c = Container.new
+    objects.each do |o|
+      c.container_items.build(contained_object: o)
+    end
+    c
   end
 
   protected

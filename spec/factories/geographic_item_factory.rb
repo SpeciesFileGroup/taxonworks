@@ -11,12 +11,16 @@ FactoryGirl.define do
       point { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655) }
     end
 
-    factory :geographic_item_with_point_b do
+    factory :geographic_item_with_point_m do
       point { RSPEC_GEO_FACTORY.point(-88.196736, 40.090091) }
     end
 
+    factory :geographic_item_with_point_u do
+      point { RSPEC_GEO_FACTORY.point(-88.204517, 40.110037) }
+    end
+
     factory :geographic_item_with_point_c do
-      point { RSPEC_GEO_FACTORY.point(-88.196736, 40.090091) }
+      point { RSPEC_GEO_FACTORY.point(-88.243386, 40.116402) }
     end
 
     factory :geographic_item_with_line_string do

@@ -13,7 +13,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :parent, class_name: 'GeographicArea', foreign_key: :parent_id
   belongs_to :tdwg_geo_item, class_name: 'GeographicItem', foreign_key: :tdwg_geo_item_id
   belongs_to :tdwg_parent, class_name: 'GeographicArea', foreign_key: :tdwg_parent_id
-  belongs_to :collecting_events, inverse_of: :geographic_area
+  has_many :collecting_events, inverse_of: :geographic_area
 
   validates_presence_of :data_origin
   validates_presence_of :name
@@ -71,8 +71,38 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).where('level2_id IS NOT NULL')
   end
 
-  def descendents_of_geographic_area_type(geographic_area_type)
+  def descendants_of_geographic_area_type(geographic_area_type)
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_type})
   end
 
+  def descendants_of_geographic_area_types(geographic_area_types)
+    GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_types})
+  end
+
+  def default_geographic_item
+    # priority:
+    #   1)  NaturalEarth
+    #   2)  GADM
+    #   3)  TDWG
+    retval = nil
+    if !ne_geo_item.nil?
+      retval = ne_geo_item
+    else
+      if !gadm_geo_item.nil?
+        retval = gadm_geo_item
+      else
+        if !tdwg_geo_item.nil?
+          retval = tdwg_geo_item
+        else
+          retval = nil
+        end
+      end
+    end
+    retval
+  end
+
+  def geo_object
+    retval = default_geographic_item
+    retval.nil? ? nil : retval.geo_object
+  end
 end

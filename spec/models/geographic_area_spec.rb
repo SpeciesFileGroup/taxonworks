@@ -64,6 +64,9 @@ describe GeographicArea do
       specify 'ne_geo_item' do
         expect(geographic_area).to respond_to(:ne_geo_item)
       end
+      specify 'geo_object' do
+        expect(geographic_area).to respond_to(:geo_object)
+      end
 
       context 'has_many' do
         specify 'children_at_level1' do
@@ -107,7 +110,7 @@ describe GeographicArea do
           expect(@champaign.root.name).to eq('Earth')
         end
 
-        specify 'descendents' do
+        specify 'descendants' do
           expect(@champaign.root.descendants).to have(3).things
         end
       end
@@ -156,10 +159,14 @@ describe GeographicArea do
         expect(GeographicArea.countries).to eq([@champaign.parent.parent])
       end
 
-      specify 'descendents_of_geographic_area_type' do
-        expect(@champaign.root.descendents_of_geographic_area_type('County').to_a).to eq([@champaign])
-        expect(@champaign.root.descendents_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
-        expect(@champaign.root.descendents_of_geographic_area_type('Province').to_a).to eq([])
+      specify 'descendants_of_geographic_area_type' do
+        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to eq([@champaign])
+        expect(@champaign.root.descendants_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
+        expect(@champaign.root.descendants_of_geographic_area_type('Province').to_a).to eq([])
+      end
+
+      specify 'descendants_of_geographic_area_types' do
+        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign.parent, @champaign])
       end
     end
   end
@@ -179,20 +186,31 @@ describe GeographicArea do
 
     specify 'saving GADM Shape' do
       expect(@geographic_area.gadm_geo_item = @gi).to be_true
+      @geographic_area.gadmID = 44
       @geographic_area.save!
       expect(@geographic_area.save).to be_true
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
     end
 
     specify 'saving NaturalEarth Shape' do
       expect(@geographic_area.ne_geo_item = @gi).to be_true
+      @geographic_area.neID = 'MPX-044'
       expect(@geographic_area.save).to be_true
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
       @geographic_area
     end
 
     specify 'saving TDWG Shape' do
       expect(@geographic_area.tdwg_geo_item = @gi).to be_true
+      @geographic_area.tdwgID = '44---'
       expect(@geographic_area.save).to be_true
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
       @geographic_area
+    end
+
+    specify 'retrieving the geo_object' do
+      expect(@geographic_area.ne_geo_item = @gi).to be_true
+      expect(@geographic_area.default_geographic_item).to eq(@gi)
     end
   end
 

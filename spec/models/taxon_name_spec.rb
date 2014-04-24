@@ -522,6 +522,9 @@ describe TaxonName do
         s.name = 'nigrocinctus'
         expect(s.name_with_alternative_spelling).to eq('nigricinta')
       end
+      specify 'name_with_alternative_spelling and no family_group_base matches fails now' do
+        pending
+      end
     end
   end
 

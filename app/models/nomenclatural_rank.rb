@@ -55,9 +55,9 @@ class NomenclaturalRank
 
   # returns a potentially_validating code class for this taxon
   def self.nomenclatural_code_class
-    if ::ICZN.include?(self)
+    if ::RANK_CLASS_NAMES_ICZN.include?(self.to_s)
       return NomenclaturalRank::Iczn
-    elsif ::ICN.include?(self)
+    elsif ::RANK_CLASS_NAMES_ICN.include?(self.to_s)
       return NomenclaturalRank::Icn
     else
       return nil

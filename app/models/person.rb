@@ -1,6 +1,8 @@
 class Person < ActiveRecord::Base
 
   include Housekeeping::Users
+  include Shared::Identifiable
+  include Shared::Notable
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
@@ -65,6 +67,16 @@ class Person < ActiveRecord::Base
 
   def is_type_designator?
     self.type_designator_roles.to_a.length > 0
+  end
+
+  # TODO: TEST!
+  def self.parser(name_string)
+    BibTeX::Entry.new(type: :book,  author: name_string).parse_names.to_citeproc['author']
+  end
+
+  # TODO: TEST!
+  def self.parse_to_people(name_string)
+    self.parser(name_string).collect{|n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
   end
 
   protected

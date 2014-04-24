@@ -170,7 +170,7 @@ class GeographicItem < ActiveRecord::Base
     select{'*'}.select_distance(column_name, geographic_item)
   end
 
-  def self.where_distance_greater_than_zero(column_name,geographic_item)
+  def self.where_distance_greater_than_zero(column_name, geographic_item)
     where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
   end
 
@@ -206,7 +206,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def geo_object # return false if the record has not been saved, or if there are no geographic objects in the record.
-    return false if self.new_record?
+    #return false if self.new_record?
     DATA_TYPES.each do |t|
       # otherwise, return the first-found object, according to the list of DATA_TYPES
       return self.send(t) if !self.send(t).nil?

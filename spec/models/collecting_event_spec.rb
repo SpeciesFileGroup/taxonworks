@@ -70,7 +70,12 @@ describe CollectingEvent do
   context 'associations' do
     context 'belongs_to' do
       specify 'geographic_area' do
-        expect(collecting_event).to respond_to(:geographic_area)
+        expect(collecting_event.geographic_area = GeographicArea.new()).to be_true 
+      end
+    end
+    context 'has_many' do
+      specify 'collection_objects' do
+        expect(collecting_event.collection_objects << CollectionObject.new).to be_true 
       end
     end
   end

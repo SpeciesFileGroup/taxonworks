@@ -30,7 +30,6 @@ module Utilities::Dates
       end
     end
 
-
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   See http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   Returns nomenclature_date based on computation of the values of :year, :month, :day.
@@ -52,6 +51,10 @@ module Utilities::Dates
     else
       Time.utc(year, month, day)
     end
+  end
+
+  def mdy_parse_date(date_string)
+    date_string 
   end
 
 end

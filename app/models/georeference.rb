@@ -61,6 +61,57 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
+  def self.within_radius_of(geographic_item, distance)
+    #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
+    # geographic_item may be a polygon, or a point
+    # TODOne: (04/16/14) figure out how to return an ActiveRecord::Relation here
+
+    # TODO: Add different types of GeographicItems as we learn about why they are stored.
+    # types of GeographicItems about which we currently know:
+    # multipolygon  => stored through the NE/TDWG/GADM object load process
+    # polygon       => stored through the GeoLocate process
+    # point         => stored through the GeoLocate process
+    temp = GeographicItem.within_radius_of('multipolygon', geographic_item, distance) +
+      GeographicItem.within_radius_of('polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of('point', geographic_item, distance)
+      partials = GeographicItem.where('id in (?)', temp.map(&:id))
+
+    # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
+    # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
+    # and related objects.
+    partial_gr = Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
+    partial_gr
+  end
+
+  def self.with_locality_like(string)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # includes String somewhere
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
+    with_locality_as(string, true)
+  end
+
+
+  def self.with_locality(string)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # equals String somewhere
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    with_locality_as(string, false)
+  end
+
+  def self.with_geographic_area(geographic_area)
+    # returns all georeferences which have collecting_events which have geographic_areas which match
+    # geographic_areas as a GeographicArea
+    # TODO: or, (in the future) a string matching a geographic_area.name
+    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
+    partial_gr
+  end
+
   def error_box?
     # start with a copy of the point of the reference
     #retval = geographic_item.dup
@@ -73,33 +124,125 @@ class Georeference < ActiveRecord::Base
         retval = nil
       else
         retval = error_geographic_item.dup
+        #retval = error_geographic_item
       end
     else
-      # if this object is a point
-      case geographic_item.data_type?
-        when :point
-          p0      = self.geographic_item.geo_object
-          delta_x = error_radius / ONE_WEST
-          delta_y = error_radius / ONE_NORTH
-          # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-          retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                         FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                         FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                         FACTORY.point(p0.x - delta_x, p0.y)  # west
-                                                        ]))
-        when :polygon
-          retval = geographic_item
-        else
-          retval = nil
+      if geographic_item.nil?
+        retval = nil
+      else
+        # if this object is a point
+        case geographic_item.data_type?
+          when :point
+            p0      = self.geographic_item.geo_object
+            delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) # 111319.490779206 meters/degree
+            delta_y = error_radius / ONE_NORTH # 110574.38855796 meters/degree
+            # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+=begin
+            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                           FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                           FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                           FACTORY.point(p0.x - delta_x, p0.y)  # west
+                                                          ]))
+            box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
+            box.add(retval)
+            box_geom = box.to_geometry
+=end
+
+            # or
+            # make the rectangle directly
+            retval   = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                                            FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                                            FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                                            FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
+                                                           ]))
+          when :polygon
+            retval = geographic_item
+          else
+            retval = nil
+        end
+        #retval = retval.to_geometry
       end
-      box = RGeo::Cartesian::BoundingBox.new(FACTORY)
-      box.add(retval)
-      retval = box.to_geometry
     end
     retval
   end
 
   protected
+
+  def self.with_locality_as(string, like)
+    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+    # includes, or is equal to 'string' somewhere TODO: (04/15/14) figure out how to use a 'join' here
+    # Joins collecting_event.rb and matches %String% against verbatim_locality
+    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+
+    likeness   = like ? '%' : ''
+    like       = like ? 'like' : '='
+    query      = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
+    # where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+    partial_ce = CollectingEvent.where(query)
+
+    partial_gr = Georeference.where('collecting_event_id in (?)', partial_ce.pluck(:id))
+    partial_gr
+  end
+
+  def chk_obj_inside_err_geo_item
+    # case 1
+    retval = true
+    if error_geographic_item.nil? == false && geographic_item.nil? == false
+      retval = self.error_geographic_item.contains?(self.geographic_item)
+    end
+    retval
+  end
+
+  def chk_obj_inside_err_radius
+    # case 2
+    retval = true
+    if error_radius.nil? == false && geographic_item.nil? == false
+      retval = self.error_box?.contains?(self.geographic_item.geo_object)
+    end
+    retval
+  end
+
+  def chk_err_geo_item_inside_err_radius
+    # case 3
+    retval = true
+    if error_radius.nil? == false && error_geographic_item.nil? == false
+      retval = self.error_box?.contains?(error_geographic_item.geo_object)
+    end
+    retval
+  end
+
+  def chk_error_radius_inside_area
+    # case 4
+    retval = true
+    unless collecting_event.nil?
+      if error_radius.nil? == false && collecting_event.geographic_area.nil? == false
+        retval = collecting_event.geographic_area.geo_object.contains?(error_box?)
+      end
+    end
+    retval
+  end
+
+  def chk_error_geo_item_inside_area
+    # case 5
+    retval = true
+    unless collecting_event.nil?
+      if error_geographic_item.nil? == false && collecting_event.geographic_area.nil? == false
+        retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item)
+      end
+    end
+    retval
+  end
+
+  def chk_obj_inside_area
+    # case 6
+    retval = true
+    unless collecting_event.nil?
+      unless collecting_event.geographic_area.nil?
+        retval = collecting_event.geographic_area.geo_object.contains?(geographic_item.geo_object)
+      end
+    end
+    retval
+  end
 
   def proper_data_is_provided
     retval = true
@@ -127,6 +270,39 @@ class Georeference < ActiveRecord::Base
     #unless error_geographic_item.nil?
     #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
     #end
+    unless chk_obj_inside_err_geo_item
+      errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.')
+      retval = false
+    end
+    unless chk_obj_inside_err_radius
+      errors.add(:error_radius, 'error_radius must contain geographic_item.')
+      retval = false
+    end
+    unless chk_err_geo_item_inside_err_radius
+      problem = 'error_radius must contain error_geographic_item.'
+      errors.add(:error_radius, problem)
+      errors.add(:error_geographic_item, problem)
+      retval = false
+    end
+    unless chk_error_radius_inside_area
+      problem = 'collecting_event area must contain georeference error_radius bounding box.'
+      errors.add(:error_radius, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+    unless chk_error_geo_item_inside_area
+      problem = 'collecting_event area must contain georeference error_geographic_item.'
+      errors.add(:error_geographic_item, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+    unless chk_obj_inside_area
+      problem = 'collecting_event area must contain georeference geographic_item.'
+      errors.add(:geographic_item, problem)
+      errors.add(:collecting_event, problem)
+      retval = false
+    end
+
     retval
   end
 
