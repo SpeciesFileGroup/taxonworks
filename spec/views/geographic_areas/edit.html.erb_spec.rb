@@ -11,8 +11,6 @@ describe "geographic_areas/edit" do
       :parent_id => 1,
       :geographic_area_type_id => 1,
       :iso_3166_a2 => "MyString",
-      :rgt => 1,
-      :lft => 1,
       :tdwg_parent_id => 1,
       :iso_3166_a3 => "MyString",
       :tdwg_geo_item_id => 1,
@@ -23,8 +21,6 @@ describe "geographic_areas/edit" do
       :data_origin => "MyString",
       :adm0_a3 => "MyString",
       :neID => "MyString",
-      :created_by_id => 1,
-      :updated_by_id => 1,
       :ne_geo_item_id => 1
     ))
   end
@@ -42,8 +38,6 @@ describe "geographic_areas/edit" do
       assert_select "input#geographic_area_parent_id[name=?]", "geographic_area[parent_id]"
       assert_select "input#geographic_area_geographic_area_type_id[name=?]", "geographic_area[geographic_area_type_id]"
       assert_select "input#geographic_area_iso_3166_a2[name=?]", "geographic_area[iso_3166_a2]"
-      assert_select "input#geographic_area_rgt[name=?]", "geographic_area[rgt]"
-      assert_select "input#geographic_area_lft[name=?]", "geographic_area[lft]"
       assert_select "input#geographic_area_tdwg_parent_id[name=?]", "geographic_area[tdwg_parent_id]"
       assert_select "input#geographic_area_iso_3166_a3[name=?]", "geographic_area[iso_3166_a3]"
       assert_select "input#geographic_area_tdwg_geo_item_id[name=?]", "geographic_area[tdwg_geo_item_id]"
@@ -54,8 +48,6 @@ describe "geographic_areas/edit" do
       assert_select "input#geographic_area_data_origin[name=?]", "geographic_area[data_origin]"
       assert_select "input#geographic_area_adm0_a3[name=?]", "geographic_area[adm0_a3]"
       assert_select "input#geographic_area_neID[name=?]", "geographic_area[neID]"
-      assert_select "input#geographic_area_created_by_id[name=?]", "geographic_area[created_by_id]"
-      assert_select "input#geographic_area_updated_by_id[name=?]", "geographic_area[updated_by_id]"
       assert_select "input#geographic_area_ne_geo_item_id[name=?]", "geographic_area[ne_geo_item_id]"
     end
   end

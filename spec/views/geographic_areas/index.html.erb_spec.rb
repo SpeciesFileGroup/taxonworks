@@ -12,8 +12,6 @@ describe "geographic_areas/index" do
         :parent_id => 5,
         :geographic_area_type_id => 6,
         :iso_3166_a2 => "Iso 3166 A2",
-        :rgt => 7,
-        :lft => 8,
         :tdwg_parent_id => 9,
         :iso_3166_a3 => "Iso 3166 A3",
         :tdwg_geo_item_id => 10,
@@ -37,8 +35,6 @@ describe "geographic_areas/index" do
         :parent_id => 5,
         :geographic_area_type_id => 6,
         :iso_3166_a2 => "Iso 3166 A2",
-        :rgt => 7,
-        :lft => 8,
         :tdwg_parent_id => 9,
         :iso_3166_a3 => "Iso 3166 A3",
         :tdwg_geo_item_id => 10,
@@ -67,8 +63,6 @@ describe "geographic_areas/index" do
     assert_select "tr>td", :text => 5.to_s, :count => 2
     assert_select "tr>td", :text => 6.to_s, :count => 2
     assert_select "tr>td", :text => "Iso 3166 A2".to_s, :count => 2
-    assert_select "tr>td", :text => 7.to_s, :count => 2
-    assert_select "tr>td", :text => 8.to_s, :count => 2
     assert_select "tr>td", :text => 9.to_s, :count => 2
     assert_select "tr>td", :text => "Iso 3166 A3".to_s, :count => 2
     assert_select "tr>td", :text => 10.to_s, :count => 2

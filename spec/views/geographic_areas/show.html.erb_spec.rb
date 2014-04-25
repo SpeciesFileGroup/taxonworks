@@ -11,8 +11,6 @@ describe "geographic_areas/show" do
       :parent_id => 5,
       :geographic_area_type_id => 6,
       :iso_3166_a2 => "Iso 3166 A2",
-      :rgt => 7,
-      :lft => 8,
       :tdwg_parent_id => 9,
       :iso_3166_a3 => "Iso 3166 A3",
       :tdwg_geo_item_id => 10,
@@ -40,8 +38,6 @@ describe "geographic_areas/show" do
     rendered.should match(/5/)
     rendered.should match(/6/)
     rendered.should match(/Iso 3166 A2/)
-    rendered.should match(/7/)
-    rendered.should match(/8/)
     rendered.should match(/9/)
     rendered.should match(/Iso 3166 A3/)
     rendered.should match(/10/)
