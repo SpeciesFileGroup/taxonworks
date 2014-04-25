@@ -13,8 +13,6 @@ describe "georeferences/edit" do
       :position => 1,
       :is_public => false,
       :api_request => "MyString",
-      :created_by_id => 1,
-      :updated_by_id => 1,
       :project_id => 1,
       :is_undefined_z => false,
       :is_median_z => false
@@ -36,9 +34,6 @@ describe "georeferences/edit" do
       assert_select "input#georeference_position[name=?]", "georeference[position]"
       assert_select "input#georeference_is_public[name=?]", "georeference[is_public]"
       assert_select "input#georeference_api_request[name=?]", "georeference[api_request]"
-      assert_select "input#georeference_created_by_id[name=?]", "georeference[created_by_id]"
-      assert_select "input#georeference_updated_by_id[name=?]", "georeference[updated_by_id]"
-      assert_select "input#georeference_project_id[name=?]", "georeference[project_id]"
       assert_select "input#georeference_is_undefined_z[name=?]", "georeference[is_undefined_z]"
       assert_select "input#georeference_is_median_z[name=?]", "georeference[is_median_z]"
     end
