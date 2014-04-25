@@ -1,67 +1,66 @@
 <p id="notice"><%= notice %></p>
 
-  <%= content_for :head do %>
-      <!--<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
-      //    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script> -->
-<script language="javascript">var data = <%= json_tag(@geographic_item) %>;</script>
-      <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
-      <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-      <%= javascript_include_tag "maps" %>
-  <% end %>
+<%= content_for :head do %>
+    <script language="javascript">var data = <%= json_tag(@geographic_item) %>;</script>
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <%= javascript_include_tag "maps" %>
+<% end %>
 
-    <form id="form1">
-    <div id="map_canvas" style="width: 400px; height: 400px;">helloo boyz</div>
-  </form>
+<form id="form1">
+  <div id="map_canvas" style="width: 400px; height: 400px;"></div>
+</form>
 
 <div style="display:none">
-<p>
-  <strong>Point:</strong>
-  <%= @geographic_item.point %>
-</p>
+  <p>
+    <strong>Point:</strong>
+    <%= @geographic_item.point %>
+  </p>
 
-<p>
-  <strong>Line string:</strong>
-  <%= @geographic_item.line_string %>
-</p>
+  <p>
+    <strong>Line string:</strong>
+    <%= @geographic_item.line_string %>
+  </p>
 
-<p>
-  <strong>Polygon:</strong>
-  <%= @geographic_item.polygon %>
-</p>
+  <p>
+    <strong>Polygon:</strong>
+    <%= @geographic_item.polygon %>
+  </p>
 
-<p>
-  <strong>Multi point:</strong>
-  <%= @geographic_item.multi_point %>
-</p>
+  <p>
+    <strong>Multi point:</strong>
+    <%= @geographic_item.multi_point %>
+  </p>
 
-<p>
-  <strong>Multi line string:</strong>
-  <%= @geographic_item.multi_line_string %>
-</p>
+  <p>
+    <strong>Multi line string:</strong>
+    <%= @geographic_item.multi_line_string %>
+  </p>
 
-<p>
-  <strong>Multi polygon:</strong>
-  <%= @geographic_item.multi_polygon %>
-</p>
+  <p>
+    <strong>Multi polygon:</strong>
+    <%= @geographic_item.multi_polygon %>
+  </p>
 
-<p>
-  <strong>Geometry collection:</strong>
-  <%= @geographic_item.geometry_collection %>
-</p>
+  <p>
+    <strong>Geometry collection:</strong>
+    <%= @geographic_item.geometry_collection %>
+  </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @geographic_item.created_by_id %>
-</p>
+  <p>
+    <strong>Created by:</strong>
+    <%= @geographic_item.created_by_id %>
+  </p>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @geographic_item.updated_by_id %>
-</p>
+  <p>
+    <strong>Updated by:</strong>
+    <%= @geographic_item.updated_by_id %>
+  </p>
 
-<%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
-<%= link_to 'Back', geographic_items_path %>
+  <%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
+  <%= link_to 'Back', geographic_items_path %>
 </div>
+
+
 <script language="JavaScript">
-    initialize();
+    initialize(<%= center_coord_tag(@geographic_item) -%>);
 </script>
