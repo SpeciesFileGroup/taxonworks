@@ -7,8 +7,37 @@
 <% end %>
 
 <form id="form1">
-  <div id="map_canvas" style="width: 400px; height: 400px;"></div>
+  <div id="map_canvas" style="width:1024px; height: 512px;"></div>
 </form>
+
+<%= link_to('next', geographic_item_path(@geographic_item.id.to_i + 1)) -%>
+
+<div> GADM
+<%= @geographic_item.gadm_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
+                                                        ( a.gadm_geo_item ? link_to(a.name, geographic_item_path(a.gadm_geo_item)) : nil) ].compact.join(" ").html_safe} %>
+</div>
+
+<div> NE
+<%= @geographic_item.ne_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
+                                                      ( a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : nil)].compact}.join(" ").html_safe %>
+</div>
+
+<div> TDWG
+<%= @geographic_item.tdwg_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
+                                                        ( a.tdwg_geo_item ? link_to(a.name, geographic_item_path(a.tdwg_geo_item)) : nil)].compact.join(" ").html_safe} %>
+</div>
+
+
+<% if @geographic_item.gadm_geographic_areas.count > 0 -%>
+<%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
+
+<%= @geographic_item.ne_geographic_areas.first.ancestors.collect{ |a|
+  (a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : a.name)  }.join("<br/>").html_safe
+%>
+
+    <% end %>
+
+<%#= link_to geographic_item_path(@geographic_item.gadm_geographic_areas.first.parent.gadm_geo_item) %>
 
 <div style="display:none">
   <p>
