@@ -27,8 +27,6 @@ describe "geographic_items/edit" do
       assert_select "input#geographic_item_multi_line_string[name=?]", "geographic_item[multi_line_string]"
       assert_select "input#geographic_item_multi_polygon[name=?]", "geographic_item[multi_polygon]"
       assert_select "input#geographic_item_geometry_collection[name=?]", "geographic_item[geometry_collection]"
-      assert_select "input#geographic_item_created_by_id[name=?]", "geographic_item[created_by_id]"
-      assert_select "input#geographic_item_updated_by_id[name=?]", "geographic_item[updated_by_id]"
     end
   end
 end
