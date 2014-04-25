@@ -15,7 +15,7 @@
 //<script src="all_items.json"></script>
 //	<script>
 		var map;	//google map object
-		var LJSpolygon	//leafletjs map object
+		var LJSpolygon;	//leafletjs map object
 //		var infoWindow;	// unused
 //		var bounds;			// at this point
 		var gPoints = [];		//googlemaps arrays
@@ -26,8 +26,8 @@
 		var lPoints = [];
 		var lLinePoints = [];
 
-		function leafInit() {
-			var LJSmap = L.map('Lmap').setView(/*[document.forms.form1.Slat.value, document.forms.form1.Slon.value]*/ [0,0], 4);
+		function leafInit(xlong, ylat) {
+			var LJSmap = L.map('Lmap').setView(/*[document.forms.form1.Slat.value, document.forms.form1.Slon.value]*/ [ylat, xlong], 4);
 			L.tileLayer('http://{s}.tile.cloudmade.com/121c86d2baf84dd383f0f5d3eff472fb/997/256/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Copyright <a href="http://cloudmade.com">CloudMade</a>[some bad character]',
 				maxZoom: 18
@@ -58,9 +58,9 @@
 			};
 		}   //leafInit
 
-		function initialize() {
-            //var myLatLng = new google.maps.LatLng(0.0, 0.0);  //document.form1.Slat.value, document.form1.Slon.value
-			 var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
+		function initialize(xlong, ylat) {
+            var myLatLng = new google.maps.LatLng(ylat,xlong);  //was document.form1.Slat.value, document.form1.Slon.value, now removed
+            //var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
 			var myOptions = {
 				zoom: 4,
 				center: myLatLng,
@@ -108,7 +108,7 @@
 			//    map.fitBounds(bounds);
 		};	//google initialize
 
-/*		function Report(event) {
+/*		function Report(event) {        // this function was used to report the click coordinate - now revised, so below obsolete
 			x = event.clientX; y = event.clientY;
 			Xmin = -180; Xmax = 180; Ymin = -90; Xsize = document.form1.Xwidth.value; Ymax = 90; Ysize = 0.5 * Xsize; //Ymax = 83.6236
 			if ((x <= Xsize) && (x >= 12) && (y <= Ysize) && (y >= 18))    //is the click inside the map?
@@ -173,7 +173,7 @@
 			lLinePoints[n] = [];
 			for (var l = 0; l < thisType.coordinates.length; l++) {
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-				//lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+				lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
 				//};
 			};
 		};
@@ -186,7 +186,7 @@
 			lLinePoints[n] = [];
 				for (var l = 0; l < thisType.coordinates[k].length; l++) {
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-				//lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+				lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 				};
 			};
 		};
