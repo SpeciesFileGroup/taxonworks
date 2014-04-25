@@ -54,15 +54,16 @@ namespace :tw do
     # rake tw:initialization:save_geo_data[../gaz/data/internal/dump/]
     desc 'Save geographic area information in native pg_dump compressed form.'
     task :save_geo_data, [:data_store] => [:environment] do |t, args|
+      database = 'taxonworks_development'
       args.with_defaults(:data_store => '/tmp/' )
       data_store = args[:data_store]
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_area_types.dump"
-        a = pg_dump('geographic_area_types', data_store)
+        a = pg_dump(database, 'geographic_area_types', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_items.dump"
-        b = pg_dump('geographic_items', data_store)
+        b = pg_dump(database, 'geographic_items', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_areas.dump"
-        c = pg_dump('geographic_areas', data_store)
+        c = pg_dump(database, 'geographic_areas', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}."
       rescue
         raise
@@ -72,6 +73,7 @@ namespace :tw do
     # rake tw:initialization:restore_geo_data[../gaz/data/internal/dump/]
     desc 'Restore geographic area information from compressed form.'
     task :restore_geo_data, [:data_store] => [:environment] do |t, args|
+      database = 'taxonworks_development'
       args.with_defaults(:data_store => GAZ_DATA)
       data_store = args[:data_store]
       # TODO: Add condition for abort, i.e., dump files do not exist in the data_store directory.
@@ -85,11 +87,11 @@ namespace :tw do
       raise "Missing #{geographic_area_types_file}, doing nothing." if !File.exists?(geographic_area_types_file) 
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
-      a = pg_restore('geographic_area_types', data_store)
+      a = pg_restore(database, 'geographic_area_types', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
-      b = pg_restore('geographic_items', data_store)
+      b = pg_restore(database, 'geographic_items', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
-      c = pg_restore('geographic_areas', data_store)
+      c = pg_restore(database, 'geographic_areas', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}."
     end
 
@@ -351,13 +353,18 @@ namespace :tw do
   end
 end
 
-def pg_dump(table_name, data_store)
-  a = `pg_dump -Fc -t #{table_name} -a taxonworks_development > #{data_store}/#{table_name}.dump`
+def pg_dump(database_name, table_name, data_store)
+  a = `pg_dump -Fc -t #{table_name} -a #{database_name} > #{data_store}/#{table_name}.dump`
   a
 end
 
-def pg_restore(table_name, data_store)
-  a = `pg_restore -Fc -d taxonworks_development -t #{table_name} #{data_store}/#{table_name}.dump`
+def pg_restore(database_name, table_name, data_store)
+=begin
+  pg_restore -Fc -d taxonworks_development -t geographic_area_types ~/src/gaz/data/internal/dump/geographic_area_types.dump
+  pg_restore -Fc -d taxonworks_development -t geographic_items ~/src/gaz/data/internal/dump/geographic_items.dump
+  pg_restore -Fc -d taxonworks_development -t geographic_areas ~/src/gaz/data/internal/dump/geographic_areas.dump
+=end
+  a = `pg_restore -Fc -d #{database_name} -t #{table_name} #{data_store}/#{table_name}.dump`
   a
 end
 
