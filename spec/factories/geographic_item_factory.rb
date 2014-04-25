@@ -1,13 +1,10 @@
-#@ffi_factory = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
-
 require_relative '../support/geo'
 
 # TODO: Jim, use constants instead of instantiating factories again? 
 FactoryGirl.define do
 
   factory :geographic_item, traits: [:creator_and_updater] do
-
-    factory :geographic_item_with_point_a, aliases: [:valid_geographic_item] do
+    factory :valid_geographic_item, aliases: [:geographic_item_with_point_a] do
       point { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655) }
     end
 
@@ -39,5 +36,4 @@ FactoryGirl.define do
     end
 
   end
-
 end

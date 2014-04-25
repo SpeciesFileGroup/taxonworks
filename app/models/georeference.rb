@@ -30,7 +30,18 @@
 class Georeference < ActiveRecord::Base
   include Housekeeping
 
-#  https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
+  # TODO: @jmtucker why are these here?
+  POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
+  ONE_WEST           = 111319.490779206
+  ONE_NORTH          = 110574.38855796
+  TEN_WEST           = 1113194.90779206  # Not used?
+  TEN_NORTH          = 1105854.83323573  # Not used?
+
+  EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
+  RADIANS_PER_DEGREE = ::Math::PI/180.0
+  DEGREES_PER_RADIAN = 180.0/::Math::PI
+
+# https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
 # TODone: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
 # TODone: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
 
@@ -50,16 +61,15 @@ class Georeference < ActiveRecord::Base
   # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name of the column used in the table;
   # therefore, we need to tell it *which* table, and what to use to address the record we want
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
-
   belongs_to :collecting_event
   belongs_to :geographic_item
-
-  accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
   validate :proper_data_is_provided
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
+
+  accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
   def self.within_radius_of(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
@@ -83,30 +93,29 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
-  def self.with_locality_like(string)
-    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-    # includes String somewhere
-    # Joins collecting_event.rb and matches %String% against verbatim_locality
-    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+  # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # includes String somewhere
+  # Joins collecting_event.rb and matches %String% against verbatim_locality
+  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
 
-    # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
+  # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
+  def self.with_locality_like(string)
     with_locality_as(string, true)
   end
 
-
+  # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # equals String somewhere
+  # Joins collecting_event.rb and matches %String% against verbatim_locality
+  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
   def self.with_locality(string)
-    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-    # equals String somewhere
-    # Joins collecting_event.rb and matches %String% against verbatim_locality
-    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-
     with_locality_as(string, false)
   end
 
+
+  # returns all georeferences which have collecting_events which have geographic_areas which match
+  # geographic_areas as a GeographicArea
   def self.with_geographic_area(geographic_area)
-    # returns all georeferences which have collecting_events which have geographic_areas which match
-    # geographic_areas as a GeographicArea
-    # TODO: or, (in the future) a string matching a geographic_area.name
+   # TODO: or, (in the future) a string matching a geographic_area.name
     partials = CollectingEvent.where(geographic_area: geographic_area)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
@@ -305,16 +314,6 @@ class Georeference < ActiveRecord::Base
 
     retval
   end
-
-  POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662
-  ONE_WEST           = 111319.490779206
-  ONE_NORTH          = 110574.38855796
-  TEN_WEST           = 1113194.90779206
-  TEN_NORTH          = 1105854.83323573
-
-  EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius)
-  RADIANS_PER_DEGREE = ::Math::PI/180.0
-  DEGREES_PER_RADIAN = 180.0/::Math::PI
 
   # Given two latitude/longitude pairs in degrees, find the heading between them.
   # Heading is returned as an angle in degrees clockwise from north.
