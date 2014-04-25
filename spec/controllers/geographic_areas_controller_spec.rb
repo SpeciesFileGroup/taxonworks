@@ -31,7 +31,7 @@ describe GeographicAreasController do
     GeographicArea.delete_all
   }
 
-   # This should return the minimal set of attributes required to create a valid
+  # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) { 
@@ -43,42 +43,49 @@ describe GeographicAreasController do
   # GeographicAreasController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all geographic_areas as @geographic_areas" do
-      geographic_area = GeographicArea.create! valid_attributes
+  describe 'GET index' do
+    it 'assigns all geographic_areas as @geographic_areas' do
+      # geographic_area = GeographicArea.create! valid_attributes
+      geographic_area_4 = FactoryGirl.create(:level2_geographic_area)
+      geographic_area_3 = GeographicArea.find(geographic_area_4.id - 1)
+      geographic_area_2 = GeographicArea.find(geographic_area_4.id - 2)
+      geographic_area_1 = GeographicArea.find(geographic_area_4.id - 3)
       get :index, {}, valid_session
-      assigns(:geographic_areas).should eq([GeographicArea.where(name: 'Earth').first, geographic_area])
+      assigns(:geographic_areas).order('id').to_a.should eq([geographic_area_1,
+                                                             geographic_area_2,
+                                                             geographic_area_3,
+                                                             geographic_area_4])
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested geographic_area as @geographic_area" do
-      geographic_area = GeographicArea.create! valid_attributes
+  describe 'GET show' do
+    it 'assigns the requested geographic_area as @geographic_area' do
+      geographic_area = FactoryGirl.create(:level2_geographic_area)
       get :show, {:id => geographic_area.to_param}, valid_session
       assigns(:geographic_area).should eq(geographic_area)
     end
   end
 
-  describe "GET new" do
-    it "assigns a new geographic_area as @geographic_area" do
+  describe 'GET new' do
+    it 'assigns a new geographic_area as @geographic_area' do
       get :new, {}, valid_session
       assigns(:geographic_area).should be_a_new(GeographicArea)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested geographic_area as @geographic_area" do
-      geographic_area = GeographicArea.create! valid_attributes
+  describe 'GET edit' do
+    it 'assigns the requested geographic_area as @geographic_area' do
+      geographic_area = FactoryGirl.create(:level2_geographic_area)
       get :edit, {:id => geographic_area.to_param}, valid_session
       assigns(:geographic_area).should eq(geographic_area)
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new GeographicArea" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new GeographicArea' do
         expect {
-          post :create, {:geographic_area => valid_attributes}, valid_session
+          post :create, {geographic_area: valid_attributes }, valid_session 
         }.to change(GeographicArea, :count).by(1)
       end
 
@@ -98,14 +105,14 @@ describe GeographicAreasController do
       it "assigns a newly created but unsaved geographic_area as @geographic_area" do
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicArea.any_instance.stub(:save).and_return(false)
-        post :create, {:geographic_area => { "name" => "invalid value" }}, valid_session
+        post :create, {:geographic_area => {"name" => "invalid value"}}, valid_session
         assigns(:geographic_area).should be_a_new(GeographicArea)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicArea.any_instance.stub(:save).and_return(false)
-        post :create, {:geographic_area => { "name" => "invalid value" }}, valid_session
+        post :create, {:geographic_area => {"name" => "invalid value"}}, valid_session
         response.should render_template("new")
       end
     end
@@ -119,8 +126,8 @@ describe GeographicAreasController do
         # specifies that the GeographicArea created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        GeographicArea.any_instance.should_receive(:update).with({ "name" => "MyString" })
-        put :update, {:id => geographic_area.to_param, :geographic_area => { "name" => "MyString" }}, valid_session
+        GeographicArea.any_instance.should_receive(:update).with({"name" => "MyString"})
+        put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "MyString"}}, valid_session
       end
 
       it "assigns the requested geographic_area as @geographic_area" do
@@ -141,7 +148,7 @@ describe GeographicAreasController do
         geographic_area = GeographicArea.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicArea.any_instance.stub(:save).and_return(false)
-        put :update, {:id => geographic_area.to_param, :geographic_area => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "invalid value"}}, valid_session
         assigns(:geographic_area).should eq(geographic_area)
       end
 
@@ -149,7 +156,7 @@ describe GeographicAreasController do
         geographic_area = GeographicArea.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicArea.any_instance.stub(:save).and_return(false)
-        put :update, {:id => geographic_area.to_param, :geographic_area => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end
