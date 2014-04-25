@@ -36,14 +36,13 @@ FactoryGirl.define do
     level1 { parent }
   end
 
-  factory :geographic_area, traits: [:creator_and_updater], aliases: [:valid_geographic_area_stack] do
-
+  factory :geographic_area, traits: [:creator_and_updater, ], aliases: [:valid_geographic_area_stack] do
     # TODO: fix to *really* be vaclid
-    factory :valid_geographic_area do
+    factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin 'Test Data'
       name 'Test'
-      parent factory: :earth_geographic_area
       geographic_area_type factory: :valid_geographic_area_type
+      after(:build) {|o| o.level0 = o}
     end
 
     factory :with_data_origin_geographic_area do

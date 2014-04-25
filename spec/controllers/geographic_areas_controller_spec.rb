@@ -20,10 +20,20 @@ require 'spec_helper'
 
 describe GeographicAreasController do
 
+  before(:all) {
+    FactoryGirl.create(:earth_geographic_area)
+  }
+
+  after(:all) {
+    GeographicArea.delete_all
+  }
+
   # This should return the minimal set of attributes required to create a valid
   # GeographicArea. As you add validations to GeographicArea, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_geographic_area).attributes.delete_if{|k,v| ['lft', 'rgt'].include?(k)   }  }
+  let(:valid_attributes) {
+    FactoryGirl.build(:valid_geographic_area).attributes.delete_if{|k,v| ['lft', 'rgt'].include?(k)   } 
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -34,7 +44,7 @@ describe GeographicAreasController do
     it "assigns all geographic_areas as @geographic_areas" do
       geographic_area = GeographicArea.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:geographic_areas).should eq([geographic_area])
+      assigns(:geographic_areas).should eq([GeographicArea.where(name: 'Earth').first, geographic_area])
     end
   end
 

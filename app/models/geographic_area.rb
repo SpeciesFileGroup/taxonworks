@@ -19,9 +19,10 @@ class GeographicArea < ActiveRecord::Base
   validates_presence_of :name
   validates :geographic_area_type, presence: true
 
-  validates :level0, presence: true, unless: 'self.name == "Earth"'
+  validates :level0, presence: true, unless: 'self.name == "Earth"', allow_nil: true
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
+
   validates :parent, presence: true, unless: 'self.name == "Earth"'
 
   validates_uniqueness_of :name, scope: [:level0, :level1, :level2] unless ENV['NO_GEO_VALID']
