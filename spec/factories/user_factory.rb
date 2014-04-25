@@ -1,4 +1,4 @@
-require_relative '../../spec/support/initialization_constants'
+require_relative '../../spec/support/config/initialization_constants'
 
 FactoryGirl.define do
   sequence :email do |n|

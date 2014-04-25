@@ -18,17 +18,15 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe GeoreferencesController do
-
-  # This much be on :each
   before(:each) {
-    sign_in_user_and_select_project(User.find(1), 1)  
+   sign_in 
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_georeference).attributes  )
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_georeference).attributes )
   }
 
   # This should return the minimal set of values that should be in the session

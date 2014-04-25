@@ -19,6 +19,9 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe UsersController do
+  before(:each) {
+    sign_in  # !! TODO this needs to be sign_in_administrator
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # User. As you add validations to User, be sure to

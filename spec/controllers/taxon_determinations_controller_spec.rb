@@ -19,12 +19,16 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe TaxonDeterminationsController do
+  before(:each) {
+    sign_in 
+  }
 
   # This should return the minimal set of attributes required to create a valid
-  # TaxonDetermination. As you add validations to TaxonDetermination, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_taxon_determination).attributes }
-
+  # Georeference. As you add validations to Georeference be sure to
+  let(:valid_attributes) { 
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_determination).attributes )
+  }  
+ 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # TaxonDeterminationsController. Be sure to keep this updated too.

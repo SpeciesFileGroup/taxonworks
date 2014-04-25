@@ -1,4 +1,4 @@
-require_relative 'initialization_constants' 
+require_relative 'config/initialization_constants' 
 
 module ProjectsAndUsers
   def self.clean_slate 

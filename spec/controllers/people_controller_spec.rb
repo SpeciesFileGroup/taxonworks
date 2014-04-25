@@ -19,11 +19,16 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe PeopleController do
+  before(:each) {
+    sign_in 
+  }
 
   # This should return the minimal set of attributes required to create a valid
-  # Person. As you add validations to Person, be sure to
+  # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_person).attributes }
+  let(:valid_attributes) { 
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_person).attributes )
+  } 
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

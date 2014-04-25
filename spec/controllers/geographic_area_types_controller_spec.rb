@@ -19,12 +19,21 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe GeographicAreaTypesController do
+ before(:each) {
+   sign_in 
+  }
+
+ before(:all) {
+   clean_slate_geo
+ }
 
   # This should return the minimal set of attributes required to create a valid
-  # GeographicAreaType. As you add validations to GeographicAreaType, be sure to
+  # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_geographic_area_type).attributes }
-
+  let(:valid_attributes) { 
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_area_type).attributes )
+  } 
+ 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # GeographicAreaTypesController. Be sure to keep this updated too.

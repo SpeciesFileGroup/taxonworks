@@ -1,3 +1,1 @@
-
-
 TEST_USER_PASSWORD = 'Abcd123!'

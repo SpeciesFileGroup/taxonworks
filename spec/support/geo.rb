@@ -1,3 +1,12 @@
+
+
+def clean_slate_geo
+   GeographicItem.delete_all
+   GeographicAreaType.delete_all
+   GeographicArea.delete_all
+   Georeference.delete_all
+end
+
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
 # this is the factory for use *only* by rspec
