@@ -12,7 +12,7 @@ class AddIndices < ActiveRecord::Migration
     add_index :asserted_distributions, :updated_by_id
     # add_foreign_key(:asserted_distributions, :people, :updated_by_id)
 
-    add_index :biocuration_classifications, :biological_collection_object_id
+    add_index :biocuration_classifications, :biological_collection_object_id, name: :bio_c_bio_collection_object
     # I don't see a db table called BiologicalCollectionObjects but no complaints? Many more such examples. Is it a subclass?
     # add_foreign_key(:biocuration_classifications, :biological_collection_objects, :biological_collection_object_id)
 
@@ -22,23 +22,23 @@ class AddIndices < ActiveRecord::Migration
     # add_foreign_key(:biocuration_classifications, :people, :updated_by_id)
     add_index :biocuration_classifications, :project_id
     # add_foreign_key(:biocuration_classifications, :projects, :project_id)
-    add_index :biological_associations, :biological_association_subject_id
+    add_index :biological_associations, :biological_association_subject_id, name: :bio_asc_bio_asc_subject
     # add_foreign_key(:biological_associations, :biological_association_subjects, :biological_association_subject_id)
-    add_index :biological_associations, :biological_association_object_id
+    add_index :biological_associations, :biological_association_object_id, name: :bio_asc_bio_asc_object
     # add_foreign_key(:biological_associations, :biological_association_objects, :biological_collection_object_id)
     add_index :biological_associations, :created_by_id
     # add_foreign_key(:biological_associations, :people, :created_by_id)
     add_index :biological_associations, :updated_by_id
     # add_foreign_key(:biological_associations, :people, :updated_by_id)
-    add_index :biological_associations_biological_associations_graphs, :biological_associations_graph_id
+    add_index :biological_associations_biological_associations_graphs, :biological_associations_graph_id, name: :bio_asc_bio_asc_graph_bio_asc_graph
     # add_foreign_key(:biological_associations_biological_associations_graphs, :biological_associations_graphs, :biological_associations_graph_id)
-    add_index :biological_associations_biological_associations_graphs, :biological_association_id
+    add_index :biological_associations_biological_associations_graphs, :biological_association_id, name: :bio_asc_bio_asc_graph_bio_asc
     # add_foreign_key(:biological_associations_biological_associations_graphs, :biological_associations, :biological_association_id)
-    add_index :biological_associations_biological_associations_graphs, :created_by_id
+    add_index :biological_associations_biological_associations_graphs, :created_by_id, name: :bio_asc_bio_asc_graph_created_by
     # add_foreign_key(:biological_associations_biological_associations_graphs, :people, :created_by_id)
-    add_index :biological_associations_biological_associations_graphs, :updated_by_id
+    add_index :biological_associations_biological_associations_graphs, :updated_by_id, name: :bio_asc_bio_asc_graph_updated_by
     # add_foreign_key(:biological_associations_biological_associations_graphs, :people, :updated_by_id)
-    add_index :biological_associations_biological_associations_graphs, :project_id
+    add_index :biological_associations_biological_associations_graphs, :project_id, name: :bio_asc_bio_asc_graph_project
     # add_foreign_key(:biological_associations_biological_associations_graphs, :projects, :project_id)
     add_index :biological_associations_graphs, :created_by_id
     # add_foreign_key(:biological_associations_graphs, :people, :created_by_id)
@@ -48,19 +48,19 @@ class AddIndices < ActiveRecord::Migration
     # add_foreign_key(:biological_associations_graphs, :projects, :project_id)
     add_index :biological_relationship_types, :biological_property_id
     # add_foreign_key(:biological_relationship_types, :biological_properties, :biological_property_id)
-    add_index :biological_relationship_types, :biological_relationship_id
+    add_index :biological_relationship_types, :biological_relationship_id, name: :bio_rel_type_bio_rel
     # add_foreign_key(:biological_relationship_types, :biological_relationships, :biological_relationship_id)
-    add_index :biological_relationship_types, :created_by_id
+    add_index :biological_relationship_types, :created_by_id, name: :bio_rel_type_created_by
     # add_foreign_key(:biological_relationship_types, :people, :created_by_id)
-    add_index :biological_relationship_types, :updated_by_id
+    add_index :biological_relationship_types, :updated_by_id, name: :bio_rel_type_updated_by
     # add_foreign_key(:biological_relationship_types, :people, :updated_by_id)
-    add_index :biological_relationship_types, :project_id
+    add_index :biological_relationship_types, :project_id, name: :bio_rel_type_project
     # add_foreign_key(:biological_relationship_types, :projects, :project_id)
-    add_index :biological_relationships, :created_by_id
+    add_index :biological_relationships, :created_by_id, name: :bio_rel_created_by
     # add_foreign_key(:biological_relationships, :people, :created_by_id)
-    add_index :biological_relationships, :updated_by_id
+    add_index :biological_relationships, :updated_by_id, name: :bio_rel_updated_by
     # add_foreign_key(:biological_relationships, :people, :updated_by_id)
-    add_index :biological_relationships, :project_id
+    add_index :biological_relationships, :project_id, name: :bio_rel_project
     # add_foreign_key(:biological_relationships, :projects, :project_id)
     add_index :citation_topics, :created_by_id
     # add_foreign_key(:citation_topics, :people, :created_by_id)
