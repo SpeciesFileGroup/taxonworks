@@ -2,7 +2,7 @@
 
 <p>
   <strong>Parent:</strong>
-  <%= @geographic_area.parent.name unless @geographic_area.parent_id.nil? %>
+  <%= geographic_area_link(@geographic_area.parent)  %>
 </p>
 
 <p>
@@ -30,8 +30,6 @@
   <%= @geographic_area.adm0_a3 %>
 </p>
 
-
-
 <p>
   <strong>Data origin:</strong>
   <%= @geographic_area.data_origin %>
@@ -39,7 +37,7 @@
 
 <p>
   <strong>Tdwg parent:</strong>
-  <%= @geographic_area.tdwg_parent.tdwgID unless @geographic_area.tdwg_parent_id.nil? %>
+  <%= geographic_area_link( @geographic_area.tdwg_parent) -%>
 </p>
 
 <p>
@@ -107,11 +105,8 @@
   <%= @geographic_area.updated_by_id %>
 </p>
 
-<%= similarly_named_records_list(@geographic_area) -%>
-
-
-<%= link_to('Next', geographic_area_path(@geographic_area.id.to_i + 1)) -%> |
-<%= link_to('Prev', geographic_area_path(@geographic_area.id.to_i - 1)) if @geographic_area.id.to_i > 1 -%> |
+<%= similarly_named_records_list(@geographic_area) -%> <br>
+<%= forward_back_links(@geographic_area) -%> <br>
 
 <%= link_to 'Edit', edit_geographic_area_path(@geographic_area) %> |
 <%= link_to 'Back', geographic_areas_path %>

@@ -32,18 +32,21 @@ class GeographicItem < ActiveRecord::Base
   has_many :ne_geographic_areas,   class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
   has_many :georeferences
+ 
+  # TODO: Jim, test please 
+  has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
 
   validate :proper_data_is_provided
 
-  # FactoryGirl.create(:valid_geographic_item)
-  # FactoryGirl.create(:valid_geographic_item)
-  # FactoryGirl.create(:valid_geographic_item)
-  # p = GeographicItem.first.geo_object
-  #
-  # GeographicItem.where{st_intersects(point, p)}.count
-
-  # The last {} bit comes from Squeel and see bottom of https://github.com/neighborland/activerecord-postgis-adapter/blob/master/Documentation.rdoc
-
+  # TODO: Jim, test please
+  def geographic_areas
+    t = GeographicArea.arel_table
+    GeographicArea.uniq.where(
+      t[:tdwg_geo_item_id].eq(self.id).
+      or(t[:ne_geo_item_id].eq(self.id)).
+      or(t[:gadm_geo_item_id].eq(self.id))
+    )
+  end
 
 =begin
   scope :intersecting_boxes, -> (column_name, geographic_item) {
@@ -92,7 +95,6 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.intersecting(column_name, *geographic_items)
-
     where { geographic_items.flatten.collect { |geographic_item| "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" }.join(' and ') }
 
 =begin
@@ -177,32 +179,6 @@ class GeographicItem < ActiveRecord::Base
   def self.excluding(geographic_items)
     # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
-  end
-
-  def self.clean?
-    # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
-    # This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
-    # array to the caller.
-    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
-    GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
-    GeographicItem.connection.execute('delete from t20140306')
-    GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
-
-    GeographicItem.connection.execute('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
-
-    list = GeographicItem.connection.execute('select id from t20140306').to_a
-  end
-
-  def self.clean!
-    # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
-    # probably not very useful).
-    list = clean?
-    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
-    GeographicItem.connection.execute('drop table t20140306')
-    list
   end
 
   def geo_object # return false if the record has not been saved, or if there are no geographic objects in the record.
@@ -306,6 +282,33 @@ class GeographicItem < ActiveRecord::Base
   end
 
   protected
+
+  def self.clean?
+    # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
+    # This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
+    # array to the caller.
+    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
+    GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
+    GeographicItem.connection.execute('delete from t20140306')
+    GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
+
+    GeographicItem.connection.execute('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
+    GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
+
+    list = GeographicItem.connection.execute('select id from t20140306').to_a
+  end
+
+  def self.clean!
+    # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
+    # probably not very useful).
+    list = clean?
+    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
+    GeographicItem.connection.execute('drop table t20140306')
+    list
+  end
+
 
   def point_to_a(point)
     data = []

@@ -6,31 +6,27 @@
     <%= javascript_include_tag "maps" %>
 <% end %>
 
-<form id="form1">
-  <div id="map_canvas" style="width:1024px; height: 512px;"></div>
-</form>
 
-<%= link_to('Prev', geographic_item_path(@geographic_item.id.to_i - 1)) unless @geographic_item.id <= 1 -%> |
-<%= link_to('Next', geographic_item_path(@geographic_item.id.to_i + 1)) -%>
+<div>
+  <div class='left_floater right_vertical_seperator right_column_whitespace' >
+    <h2> Navigate </h2>
+    <nav>
+      <%= previous_by_id_link(@geographic_item) -%> |
+      <%= next_by_id_link(@geographic_item) -%> <br />
+      Names from geographic_areas: <%= @geographic_item.geographic_areas.collect{|a| geographic_area_link(a) }.join.html_safe -%>
+    </nav>
+  </div>
 
-<div> GADM
-<%= @geographic_item.gadm_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                        ( a.gadm_geo_item ? link_to(a.name, geographic_item_path(a.gadm_geo_item)) : nil) ].compact}.join(' ').html_safe %>
+  <div class='left_floater' >
+    <form id="form1">
+      <div id="map_canvas" style="width:768px; height: 512px;"></div>
+    </form>
+  </div>
+  <br class='clear_both'>
 </div>
-
-<div> NE
-<%= @geographic_item.ne_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                      ( a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : nil)].compact}.join(' ').html_safe %>
-</div>
-
-<div> TDWG
-<%= @geographic_item.tdwg_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                        ( a.tdwg_geo_item ? link_to(a.name, geographic_item_path(a.tdwg_geo_item)) : nil)].compact}.join(' ').html_safe %>
-</div>
-
 
 <% if @geographic_item.gadm_geographic_areas.count > 0 -%>
-<%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
+  <%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
 
 <%= @geographic_item.ne_geographic_areas.first.ancestors.collect{ |a|
   (a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : a.name)  }.join("<br/>").html_safe
@@ -40,7 +36,7 @@
 
 <%#= link_to geographic_item_path(@geographic_item.gadm_geographic_areas.first.parent.gadm_geo_item) %>
 
-<div style="display:none">
+
   <p>
     <strong>Point:</strong>
     <%= @geographic_item.point %>
@@ -48,32 +44,32 @@
 
   <p>
     <strong>Line string:</strong>
-    <%= @geographic_item.line_string %>
+    <%= scrollable_div_tag(@geographic_item.line_string) %>
   </p>
 
   <p>
     <strong>Polygon:</strong>
-    <%= @geographic_item.polygon %>
+    <%= scrollable_div_tag( @geographic_item.polygon ) %>
   </p>
 
   <p>
     <strong>Multi point:</strong>
-    <%= @geographic_item.multi_point %>
+    <%= scrollable_div_tag( @geographic_item.multi_point) %>
   </p>
 
   <p>
     <strong>Multi line string:</strong>
-    <%= @geographic_item.multi_line_string %>
+    <%= scrollable_div_tag(@geographic_item.multi_line_string) %>
   </p>
 
   <p>
     <strong>Multi polygon:</strong>
-    <%= @geographic_item.multi_polygon %>
+    <%= scrollable_div_tag( @geographic_item.multi_polygon)  %>
   </p>
 
   <p>
     <strong>Geometry collection:</strong>
-    <%= @geographic_item.geometry_collection %>
+    <%= scrollable_div_tag(@geographic_item.geometry_collection) %>
   </p>
 
   <p>
@@ -88,7 +84,6 @@
 
   <%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
   <%= link_to 'Back', geographic_items_path %>
-</div>
 
 
 <script language="JavaScript">
