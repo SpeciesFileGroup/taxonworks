@@ -10,21 +10,22 @@
   <div id="map_canvas" style="width:1024px; height: 512px;"></div>
 </form>
 
-<%= link_to('next', geographic_item_path(@geographic_item.id.to_i + 1)) -%>
+<%= link_to('Prev', geographic_item_path(@geographic_item.id.to_i - 1)) unless @geographic_item.id <= 1 -%> |
+<%= link_to('Next', geographic_item_path(@geographic_item.id.to_i + 1)) -%>
 
 <div> GADM
 <%= @geographic_item.gadm_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                        ( a.gadm_geo_item ? link_to(a.name, geographic_item_path(a.gadm_geo_item)) : nil) ].compact.join(" ").html_safe} %>
+                                                        ( a.gadm_geo_item ? link_to(a.name, geographic_item_path(a.gadm_geo_item)) : nil) ].compact}.join(' ').html_safe %>
 </div>
 
 <div> NE
 <%= @geographic_item.ne_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                      ( a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : nil)].compact}.join(" ").html_safe %>
+                                                      ( a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : nil)].compact}.join(' ').html_safe %>
 </div>
 
 <div> TDWG
 <%= @geographic_item.tdwg_geographic_areas.collect{|a| [a.name, a.geographic_area_type.name,
-                                                        ( a.tdwg_geo_item ? link_to(a.name, geographic_item_path(a.tdwg_geo_item)) : nil)].compact.join(" ").html_safe} %>
+                                                        ( a.tdwg_geo_item ? link_to(a.name, geographic_item_path(a.tdwg_geo_item)) : nil)].compact}.join(' ').html_safe %>
 </div>
 
 

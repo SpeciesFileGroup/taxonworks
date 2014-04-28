@@ -30,7 +30,8 @@
 class Georeference < ActiveRecord::Base
   include Housekeeping
 
-  # TODO: @jmtucker why are these here?
+  # TODO: @tucker why are these here?
+  # TODO: @mjy: there are here to help me remember the math. Where do you think they should go?
   POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
   ONE_WEST           = 111319.490779206
   ONE_NORTH          = 110574.38855796
@@ -114,8 +115,8 @@ class Georeference < ActiveRecord::Base
 
   # returns all georeferences which have collecting_events which have geographic_areas which match
   # geographic_areas as a GeographicArea
+  # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-   # TODO: or, (in the future) a string matching a geographic_area.name
     partials = CollectingEvent.where(geographic_area: geographic_area)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
@@ -179,7 +180,7 @@ class Georeference < ActiveRecord::Base
 
   def self.with_locality_as(string, like)
     # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-    # includes, or is equal to 'string' somewhere TODO: (04/15/14) figure out how to use a 'join' here
+    # includes, or is equal to 'string' somewhere
     # Joins collecting_event.rb and matches %String% against verbatim_locality
     # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
 
