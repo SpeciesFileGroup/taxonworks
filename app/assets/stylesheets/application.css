@@ -14,3 +14,6 @@
 
 
 form label {text-align:right; width:200px;}
+
+.scollable_div { height: 80px; overflow: auto; }
+

@@ -51,6 +51,8 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
 
+  scope :with_name_like, -> (string) { where(["name like ?", "#{string}%"] ) } 
+
   def self.ancestors_and_descendants_of(geographic_area)
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND

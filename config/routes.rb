@@ -27,7 +27,11 @@ TaxonWorks::Application.routes.draw do
   resources :collection_objects
   resources :controlled_vocabulary_terms
   resources :geographic_area_types
-  resources :geographic_areas
+  resources :geographic_areas do
+    collection do
+      post 'search'
+    end
+  end
   resources :geographic_items
   resources :georeferences
   resources :identifiers

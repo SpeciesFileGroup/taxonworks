@@ -29,7 +29,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
-  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
+  has_many :ne_geographic_areas,   class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
   has_many :georeferences
 

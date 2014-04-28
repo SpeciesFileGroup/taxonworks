@@ -4,7 +4,7 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
-    @geographic_areas = GeographicArea.all
+    @geographic_areas = GeographicArea.limit(30)
   end
 
   # GET /geographic_areas/1
@@ -59,6 +59,12 @@ class GeographicAreasController < ApplicationController
       format.html { redirect_to geographic_areas_url }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    @geographic_areas = GeographicArea.with_name_like(params[:name])
+    @search_string = params[:name]
+    render :index 
   end
 
   private

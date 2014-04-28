@@ -7,7 +7,12 @@ class ApplicationController < ActionController::Base
   include ProjectsHelper
 
   before_filter :set_project_and_user_variables
+  #  before_filter :redirect_to_root_unless_signed_in 
   after_filter :clear_project_and_user_variables
+
+  # def redirect_to_root_unless_signed_in
+  #   redirect_to signin_url, notice: "Please sign in." unless sessions_signed_in?
+  # end
 
   def set_project_and_user_variables
     $project_id = sessions_current_project_id 
