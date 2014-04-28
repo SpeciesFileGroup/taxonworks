@@ -25,6 +25,9 @@
   <br class='clear_both'>
 </div>
 
+
+
+<!-- this needs to come out -->
 <% if @geographic_item.gadm_geographic_areas.count > 0 -%>
   <%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
 
