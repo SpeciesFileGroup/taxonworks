@@ -6,14 +6,31 @@
 </p>
 
 <p>
-  <strong>Name:</strong>
-  <%= "#{@geographic_area.name}: (#{@geographic_area.iso_3166_a2})(#{@geographic_area.iso_3166_a3})"%>
+<strong>Name:</strong>
+  <%= @geographic_area.name -%>
 </p>
 
 <p>
   <strong>Geographic area type:</strong>
   <%= @geographic_area.geographic_area_type.name %>
 </p>
+
+<p>
+  <strong>Iso 3166 a2:</strong>
+  <%= @geographic_area.iso_3166_a2 %>
+</p>
+
+<p>
+  <strong>Iso 3166 a3:</strong>
+  <%= @geographic_area.iso_3166_a3 %>
+</p>
+
+<p>
+  <strong>Adm0 a3:</strong>
+  <%= @geographic_area.adm0_a3 %>
+</p>
+
+
 
 <p>
   <strong>Data origin:</strong>
@@ -51,6 +68,36 @@
 </p>
 
 <p>
+  <strong>Ne geo item:</strong>
+  <%= geographic_item_link(@geographic_area.ne_geo_item_id) %>
+</p>
+
+<p>
+  <strong>Gadm geo item:</strong>
+  <%= geographic_item_link(@geographic_area.gadm_geo_item_id) %>
+</p>
+
+<p>
+  <strong>Tdwg geo item:</strong>
+  <%= geographic_item_link(@geographic_area.tdwg_geo_item_id) %>
+</p>
+
+<p>
+  <strong>Level0:</strong>
+  <%= geographic_area_link( @geographic_area.level0 ) %>
+</p>
+
+<p>
+  <strong>Level1:</strong>
+  <%= geographic_area_link( @geographic_area.level1 ) %>
+</p>
+
+<p>
+  <strong>Level2:</strong>
+  <%= geographic_area_link( @geographic_area.level2 ) %>
+</p>
+
+<p>
   <strong>Created by:</strong>
   <%= @geographic_area.created_by_id %>
 </p>
@@ -60,50 +107,8 @@
   <%= @geographic_area.updated_by_id %>
 </p>
 
-<p>
-  <strong>Iso 3166 a2:</strong>
-  <%= @geographic_area.iso_3166_a2 %>
-</p>
+<%= similarly_named_records_list(@geographic_area) -%>
 
-<p>
-  <strong>Iso 3166 a3:</strong>
-  <%= @geographic_area.iso_3166_a3 %>
-</p>
-
-<p>
-  <strong>Adm0 a3:</strong>
-  <%= @geographic_area.adm0_a3 %>
-</p>
-
-<p>
-  <strong>Ne geo item:</strong>
-  <%= @geographic_area.ne_geo_item_id %>
-</p>
-
-<p>
-  <strong>Gadm geo item:</strong>
-  <%= @geographic_area.gadm_geo_item_id %>
-</p>
-
-<p>
-  <strong>Tdwg geo item:</strong>
-  <%= @geographic_area.tdwg_geo_item_id %>
-</p>
-
-<p>
-  <strong>Level0:</strong>
-  <%= @geographic_area.level0_id %>
-</p>
-
-<p>
-  <strong>Level1:</strong>
-  <%= @geographic_area.level1_id %>
-</p>
-
-<p>
-  <strong>Level2:</strong>
-  <%= @geographic_area.level2_id %>
-</p>
 
 <%= link_to('Next', geographic_area_path(@geographic_area.id.to_i + 1)) -%> |
 <%= link_to('Prev', geographic_area_path(@geographic_area.id.to_i - 1)) if @geographic_area.id.to_i > 1 -%> |
