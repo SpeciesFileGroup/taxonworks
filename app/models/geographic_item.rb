@@ -39,6 +39,8 @@ class GeographicItem < ActiveRecord::Base
   validate :proper_data_is_provided
 
   # TODO: Jim, test please
+  # Return an arel of all GeographicAreas linked by FK
+  # to this GeographicItem
   def geographic_areas
     t = GeographicArea.arel_table
     GeographicArea.uniq.where(
@@ -47,6 +49,37 @@ class GeographicItem < ActiveRecord::Base
       or(t[:gadm_geo_item_id].eq(self.id))
     )
   end
+
+  def parent_geographic_areas
+    self.geographic_areas.collect{|a| a.parent}
+  end
+
+  def parents_through_geographic_areas
+    result = {}
+    parent_geographic_areas.collect{|a|
+      result.merge!(a => a.geographic_items)
+    }
+    result 
+  end
+
+  def children_through_geographic_areas
+    result = {}
+    geographic_areas.collect{|a|
+      a.children.collect{|c| 
+        result.merge!(c => c.geographic_items)
+      }
+    }
+    result
+  end
+
+
+  # TODO: Test
+  # Return an Array of [latitude, longitude] for the first point of geoitem
+  def center_coords
+    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/ 
+    [$1, $2] 
+  end
+
 
 =begin
   scope :intersecting_boxes, -> (column_name, geographic_item) {
@@ -108,6 +141,7 @@ class GeographicItem < ActiveRecord::Base
 =end
   end
 
+  # TODO: Document, what is distance a measure of?
   def self.within_radius_of(column_name, geographic_item, distance)
     if check_geo_params(column_name, geographic_item)
       where {"st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}"}

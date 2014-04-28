@@ -4,8 +4,7 @@ module GeographicItemsHelper
   end
 
   def center_coord_tag(geographic_item)
-    json_tag(geographic_item) =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/  #get longitude, latitude of first point of geo...item
-    "#{$1}, #{$2}".html_safe
+    geographic_item.center_coords.join(', ') 
   end
 
   def geographic_item_link(geographic_item, link_text = nil)
@@ -13,4 +12,15 @@ module GeographicItemsHelper
     link_text ||= geographic_item.to_param
     link_to(link_text, geographic_item_path(geographic_item))
   end
+
+  # A little ugly
+  def geographic_item_parent_nav_links(geographic_item)
+    content_tag(:div, 
+                geographic_item.parents_through_geographic_areas.collect{|k,v| [ 
+                  content_tag(:ul, v.collect{ |b| 
+                    content_tag(:li, geographic_item_link(b, k.name)) }.join.html_safe)]}.flatten.join.html_safe) 
+  end
+
+
+
 end

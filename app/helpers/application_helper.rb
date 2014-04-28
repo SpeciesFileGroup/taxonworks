@@ -3,7 +3,7 @@ module ApplicationHelper
 
   def scrollable_div_tag(text)
     return nil if text.blank?
-    content_tag(:div, text, class: :scollable_div)
+    content_tag(:div, text, class: :scrollable_div)
   end
 
   def similarly_named_records_list(instance)
@@ -42,5 +42,6 @@ module ApplicationHelper
   def forward_back_links(instance)
     content_tag(:span,  (previous_by_id_link(instance) + ' | ' + next_by_id_link(instance)).html_safe )
   end
+
 
 end
