@@ -105,7 +105,11 @@
   <%= @geographic_area.updated_by_id %>
 </p>
 
-<%= similarly_named_records_list(@geographic_area) -%> <br>
+<p><%= similarly_named_records_list(@geographic_area) -%> </p>
+<p> <strong> Children: </strong>
+  <%= geographic_area_link_list(@geographic_area.children) -%>
+</p>
+
 <%= forward_back_links(@geographic_area) -%> <br>
 
 <%= link_to 'Edit', edit_geographic_area_path(@geographic_area) %> |
