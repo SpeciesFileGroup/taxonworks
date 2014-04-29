@@ -29,9 +29,9 @@
 
 <!-- this needs to come out -->
 <% if @geographic_item.gadm_geographic_areas.count > 0 -%>
-  <%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
+  <%#= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
 
-<%= @geographic_item.ne_geographic_areas.first.ancestors.collect{ |a|
+<%#= @geographic_item.ne_geographic_areas.first.ancestors.collect{ |a|
   (a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : a.name)  }.join("<br/>").html_safe
 %>
 

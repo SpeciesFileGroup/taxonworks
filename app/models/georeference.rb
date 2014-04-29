@@ -82,7 +82,7 @@ class Georeference < ActiveRecord::Base
     # multipolygon  => stored through the NE/TDWG/GADM object load process
     # polygon       => stored through the GeoLocate process
     # point         => stored through the GeoLocate process
-    temp = GeographicItem.within_radius_of('multipolygon', geographic_item, distance) +
+    temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('point', geographic_item, distance)
       partials = GeographicItem.where('id in (?)', temp.map(&:id))
