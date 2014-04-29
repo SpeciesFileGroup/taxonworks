@@ -25,6 +25,7 @@
 		var lPolyPoints = [];	//leafletjs arrays
 		var lPoints = [];
 		var lLinePoints = [];
+        var xmin = 360.0; var xmax = 0.0; var ymin = 90.0; var ymax = -90.0; var gzoom = 4;//bounds for calculating center point
 
 		function leafInit(xlong, ylat) {
 			var LJSmap = L.map('Lmap').setView(/*[document.forms.form1.Slat.value, document.forms.form1.Slon.value]*/ [ylat, xlong], 4);
@@ -59,21 +60,28 @@
 		}   //leafInit
 
 		function initialize(xlong, ylat) {
-            var myLatLng = new google.maps.LatLng(ylat,xlong);  //was document.form1.Slat.value, document.form1.Slon.value, now removed
-            //var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
-			var myOptions = {
-				zoom: 4,
-				center: myLatLng,
-				mapTypeControl: true,
-				mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
-				navigationControl: true,
-				mapTypeId: google.maps.MapTypeId.TERRAIN
-			};
-			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 			//    bounds = new google.maps.LatLngBounds();
 
-			getdata();
+			getdata(); //xmax = xmax - 180.0;  xmin = xmin - 180.0;
+            if (xlong == undefined) {xlong =  0.5*(xmax + xmin) -180.0;};
+            if (ylat == undefined) {ylat = 0.5*(ymax + ymin);};
+            if (xmax > 359.0 && xmin < 1) {gzoom = 2;}
 			 //   if (data == null) alert();
+            //xlong =  0.5*(xmax + xmin);
+            //ylat = 0.5*(ymax + ymin);
+            var myLatLng = new google.maps.LatLng(ylat, xlong);
+
+            //var myLatLng = new google.maps.LatLng(ylat,xlong);  //was document.form1.Slat.value, document.form1.Slon.value, now removed
+            //var myLatLng = new google.maps.LatLng(40.0911, -88.2382);  //shampoo banana
+            var myOptions = {
+                zoom: gzoom,
+                center: myLatLng,
+                mapTypeControl: true,
+                mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
+                navigationControl: true,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+            map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
 			if (typeof (gPoints) != 'undefined') {
 				var gPoint;
@@ -155,38 +163,42 @@
 		};
 
 		if (thisType.type == "Point") {
+            //xgtlt(thisType.coordinates[0]); ygtlt(thisType.coordinates[1]); //box check
 			gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
-			lPoints.push([thisType.coordinates[1], thisType.coordinates[0]]);   // x:=0; y:=1; (z:=2;)
+			//lPoints.push([thisType.coordinates[1], thisType.coordinates[0]]);   // x:=0; y:=1; (z:=2;)
 		};
 
 		if (thisType.type == "MultiPoint") {
 			for (var l = 0; l < thisType.coordinates.length; l++) {
-			gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-			lPoints.push([thisType.coordinates[l][1], thisType.coordinates[l][0]]);
+                //xgtlt(thisType.coordinates[l][0]); ygtlt(thisType.coordinates[l][1]); //box check
+                gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+			    //lPoints.push([thisType.coordinates[l][1], thisType.coordinates[l][0]]);
 			};
 		};
 
 		if (thisType.type == "LineString") {
-			var m = gLinePoints.length
-			var n = lLinePoints.length
+			var m = gLinePoints.length;
+			var n = lLinePoints.length;
 			gLinePoints[m] = [];
 			lLinePoints[n] = [];
 			for (var l = 0; l < thisType.coordinates.length; l++) {
+                //xgtlt(thisType.coordinates[l][0]); ygtlt(thisType.coordinates[l][1]); //box check
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-				lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+				//lLinePoints[n].push(new L.latLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
 				//};
 			};
 		};
 
 		if (thisType.type == "MultiLineString") {
 			for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
-			var m = gLinePoints.length
-			var n = lLinePoints.length
+			var m = gLinePoints.length;
+			var n = lLinePoints.length;
 			gLinePoints[m] = [];
-			lLinePoints[n] = [];
+			//lLinePoints[n] = [];
 				for (var l = 0; l < thisType.coordinates[k].length; l++) {
+                //xgtlt(thisType.coordinates[k][l][0]); ygtlt(thisType.coordinates[k][l][1]); //box check
 				gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-				lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+				//lLinePoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 				};
 			};
 		};
@@ -194,11 +206,12 @@
 		if (thisType.type == "Polygon") {
 			for (var k = 0; k < thisType.coordinates.length; k++) {
 				// k enumerates polygons, l enumerates points
-				var m = gPolyPoints.length
-				var n = lPolyPoints.length
+				var m = gPolyPoints.length;
+				var n = lPolyPoints.length;
 				gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
-				lPolyPoints[n] = [];
+				//lPolyPoints[n] = [];
 				for (var l = 0; l < thisType.coordinates[k].length; l++) {
+                    //xgtlt(thisType.coordinates[k][l][0]); ygtlt(thisType.coordinates[k][l][1]); //box check
 					gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 					//lPolyPoints[n].push(new L.latLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
 				};
@@ -206,13 +219,16 @@
 		};
 		
 		if (thisType.type == "MultiPolygon") {
-			for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons
+			for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
+
 				for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
-					var m = gPolyPoints.length
-					var n = lPolyPoints.length
+					var m = gPolyPoints.length;
+					var n = lPolyPoints.length;
 					gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
-					lPolyPoints[n] = [];
+					//lPolyPoints[n] = [];
 					for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
+                        xgtlt(thisType.coordinates[j][k][l][0]);
+                        ygtlt(thisType.coordinates[j][k][l][1]); //box check
 						gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
 						//lPolyPoints[n].push(new L.latLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
 					};
@@ -220,6 +236,7 @@
 			};
 		};
 	};        //getTypeData
+
 
 		function createPoint(coords, color) {
 			return new google.maps.Marker({
@@ -249,7 +266,17 @@
 			});
 		};
 
-		function createPointL(coords, color) {
+function xgtlt(xtest) {
+    if (xtest + 180.0 > xmax) {xmax = xtest + 180.0;};
+    if (xtest + 180.0 < xmin) {xmin = xtest + 180.0;};
+    };
+
+function ygtlt(ytest) {
+    if (ytest > ymax) {ymax = ytest;};
+    if (ytest < ymin) {ymin = ytest;};
+};
+
+function createPointL(coords, color) {
 			return new L.marker(coords, { color: color });
 			var marker = L.marker([51.5, -0.09]).addTo(map);
 		};
