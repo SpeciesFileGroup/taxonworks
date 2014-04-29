@@ -1,19 +1,33 @@
 <p id="notice"><%= notice %></p>
 
 <%= content_for :head do %>
-    <script language="javascript">var data = <%= json_tag(@geographic_item) %>;</script>
-    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
-    <%= javascript_include_tag "maps" %>
+  <script language="javascript">var data = <%= json_tag(@geographic_item) %>;</script>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<%= javascript_include_tag "maps" %>
 <% end %>
 
 
 <div>
-  <div class='left_floater right_vertical_seperator right_column_whitespace' >
+  <div class='left_floater right_vertical_seperator right_column_whitespace nav_column' >
     <h2> Navigate </h2>
+
+    <h3> Geographic Areas </h3>
     <nav>
-      <%= previous_by_id_link(@geographic_item) -%> |
-      <%= next_by_id_link(@geographic_item) -%> <br />
-      Names from geographic_areas: <%= @geographic_item.geographic_areas.collect{|a| geographic_area_link(a) }.join.html_safe -%>
+      <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
+      <p>Parents through geographic areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
+    </nav>
+
+    <h3> Geographic Items </h3>
+    <nav>
+      <p> <%= forward_back_links(@geographic_item) -%> </p>   
+      <p>Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
+      <p> Children through geographic areas: 
+      <!-- should refactor the logic out to helper/partial--> 
+      <%= @geographic_item.children_through_geographic_areas.collect{|k, v| 
+        v.collect{|i| geographic_item_link(i, k.name)}.join.html_safe 
+      }.join(', ').html_safe
+    -%>
+      </p>
     </nav>
   </div>
 
@@ -26,69 +40,55 @@
 </div>
 
 
+<p>
+<strong>Point:</strong>
+<%= @geographic_item.point %>
+</p>
 
-<!-- this needs to come out -->
-<% if @geographic_item.gadm_geographic_areas.count > 0 -%>
-  <%= @geographic_item.gadm_geographic_areas.first.parent.to_yaml if @geographic_item.gadm_geographic_areas.count > 0 %>
+<p>
+<strong>Line string:</strong>
+<%= scrollable_div_tag(@geographic_item.line_string) %>
+</p>
 
-<%= @geographic_item.ne_geographic_areas.first.ancestors.collect{ |a|
-  (a.ne_geo_item ? link_to(a.name, geographic_item_path(a.ne_geo_item)) : a.name)  }.join("<br/>").html_safe
-%>
+<p>
+<strong>Polygon:</strong>
+<%= scrollable_div_tag( @geographic_item.polygon ) %>
+</p>
 
-    <% end %>
+<p>
+<strong>Multi point:</strong>
+<%= scrollable_div_tag( @geographic_item.multi_point) %>
+</p>
 
-<%#= link_to geographic_item_path(@geographic_item.gadm_geographic_areas.first.parent.gadm_geo_item) %>
+<p>
+<strong>Multi line string:</strong>
+<%= scrollable_div_tag(@geographic_item.multi_line_string) %>
+</p>
 
+<p>
+<strong>Multi polygon:</strong>
+<%= scrollable_div_tag( @geographic_item.multi_polygon)  %>
+</p>
 
-  <p>
-    <strong>Point:</strong>
-    <%= @geographic_item.point %>
-  </p>
+<p>
+<strong>Geometry collection:</strong>
+<%= scrollable_div_tag(@geographic_item.geometry_collection) %>
+</p>
 
-  <p>
-    <strong>Line string:</strong>
-    <%= scrollable_div_tag(@geographic_item.line_string) %>
-  </p>
+<p>
+<strong>Created by:</strong>
+<%= @geographic_item.created_by_id %>
+</p>
 
-  <p>
-    <strong>Polygon:</strong>
-    <%= scrollable_div_tag( @geographic_item.polygon ) %>
-  </p>
+<p>
+<strong>Updated by:</strong>
+<%= @geographic_item.updated_by_id %>
+</p>
 
-  <p>
-    <strong>Multi point:</strong>
-    <%= scrollable_div_tag( @geographic_item.multi_point) %>
-  </p>
-
-  <p>
-    <strong>Multi line string:</strong>
-    <%= scrollable_div_tag(@geographic_item.multi_line_string) %>
-  </p>
-
-  <p>
-    <strong>Multi polygon:</strong>
-    <%= scrollable_div_tag( @geographic_item.multi_polygon)  %>
-  </p>
-
-  <p>
-    <strong>Geometry collection:</strong>
-    <%= scrollable_div_tag(@geographic_item.geometry_collection) %>
-  </p>
-
-  <p>
-    <strong>Created by:</strong>
-    <%= @geographic_item.created_by_id %>
-  </p>
-
-  <p>
-    <strong>Updated by:</strong>
-    <%= @geographic_item.updated_by_id %>
-  </p>
-
-  <%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
-  <%= link_to 'Back', geographic_items_path %>
+<%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
+<%= link_to 'Back', geographic_items_path %>
 
 
 <script language="JavaScript">
-    initialize();
+initialize(<%= center_coord_tag(@geographic_item) -%>);
 </script>

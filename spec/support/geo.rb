@@ -25,7 +25,7 @@ SELECT ST_Distance(gg1, gg2) As spheroid_dist, ST_Distance(gg1, gg2, false) As s
 FROM (SELECT
   ST_GeographyFromText('SRID=4326;POINT(-88.241413 40.091655)') As gg1,
   ST_GeographyFromText('SRID=4326;POINT(-88.203595 40.089355)') As gg2
-  ) As trial  ;
+  ) As trial  ;exit
 =end
 
 ROOM2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
