@@ -25,5 +25,19 @@ namespace :tw do
     raise "User is not a member of project." if !ProjectMember.where(project_id: $project_id, user_id: $user_id)
   end
 
+  desc 'a default method to add a data_directory_argument'
+  task  :data_directory do |t| 
+    @args ||= {}
+    @args.merge!(data_directory: (ENV['data_directory'] || "#{ENV['HOME']}/src/sf/tmp/"))
+  end
+
+  desc 'a default method to add a data_directory_argument'
+  task  :database_role do |t| 
+    @args ||= {}
+    @args.merge!(database_role: (ENV['database_role'] || 'postgres'))
+  end
+
+
+
 end
 

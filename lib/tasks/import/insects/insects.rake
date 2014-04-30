@@ -5,13 +5,6 @@ namespace :tw do
   namespace :project_import do
     namespace :insects do
 
-      desc 'a default method to argmuments'
-      task  :data_directory, [:data_directory] => :environment do |t, args| 
-
-        @args = args.with_defaults(:data_directory => "#{ENV['HOME']}/src/sf/import/inhs-insect-collection-data/TXT/")
-      end
-
-      
       # A utility class to index data.
       class ImportData
         attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
@@ -41,6 +34,8 @@ namespace :tw do
 
       desc 'the full loop' 
       task :import_insects => [:data_directory, :environment] do |t, args| 
+        @args[:data_directory] ||=  "#{ENV['HOME']}/src/sf/import/inhs-insect-collection-data/TXT/"
+
         puts @args
 
         ActiveRecord::Base.transaction do 

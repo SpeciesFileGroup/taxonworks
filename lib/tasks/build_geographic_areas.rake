@@ -43,9 +43,27 @@ namespace :tw do
       puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
     end
 
-    desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
-    task :build_geographic_areas => [:environment] do
+    def add_temporary_shape_tables
+      SHAPETABLES.each do |table_name, file_path|
+       puts `shp2pgsql -W LATIN1 #{file_path} #{table_name} > /tmp/foo.sql`
+       puts `psql #{@args[:database_role]} -d taxonworks_development -f /tmp/foo.sql` 
+       puts `rm /tmp/foo.sql` 
+      end
+    end
 
+    def remove_temporary_shape_tables
+      SHAPETABLES.keys.each do |table_name|
+        ActiveRecord::Base.connection.execute("drop table #{table_name};")
+      end
+    end
+
+    desc "Generate PostgreSQL/PostGIS records for shapefiles.\n
+          Call like tw:init:build_geographic_areas data_directory=/User/matt/src/sf/tw/gaz/ database_role=matt\n
+          The data_directory should point to the gaz/ repo.  The role is the role the taxonworks_development
+          database is built under."
+    
+    task :build_geographic_areas => [:environment, :data_directory, :database_role] do
+      
       place     = ENV['place']
       shapes    = ENV['shapes']
       builder   = ENV['user']
@@ -67,7 +85,22 @@ namespace :tw do
       #          Otherwise, only the DBF files are used to populate the GeographicArea table
       DoShape   = false
       # BaseDir: where to find the tables to be used
-      BaseDir   = '../shapes/'
+      BaseDir   = @args[:data_directory] 
+
+      base = "#{BaseDir}data/external/shapefiles/"
+
+      SHAPETABLES = {
+        gadm: "#{base}gadm/gadm_v2_shp/gadm2.shp",
+        ne:   "#{base}NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp",
+        tdwg_l1: "#{base}tdwg/level1/level1.shp",
+        tdwg_l2: "#{base}tdwg/level2/level2.shp",
+        tdwg_l3: "#{base}tdwg/level3/level3.shp",
+        tdwg_l3: "#{base}tdwg/level4/level4.shp"
+      }
+
+      SHAPETABLES.values.each do |file|
+        raise "Can't find #{file}." if !File.exists?(file)
+      end
 
       if place.nil?
         base_dir = BaseDir
@@ -86,6 +119,7 @@ namespace :tw do
       else
         builder = builder
       end
+
 
       @builder = User.where(email: builder).first
 
@@ -180,7 +214,6 @@ namespace :tw do
       @gat_list = {}
 
       if GenTable
-
         GeographicAreaType.all.each { |gat|
           @gat_list.merge!({gat.name => gat})
         }
@@ -559,7 +592,6 @@ def read_dbf(filenames)
       #end
 
       if add_record
-
         # there is no reasonable thing to do, if the name is blank, so we bail.
         next if area_name.empty?
 
@@ -1668,6 +1700,9 @@ def read_dbf(filenames)
   puts "\n\n#{Time.now.strftime "%H:%M:%S"}\n\n"
 
 end
+
+
+
 
 #noinspection RubyStringKeysInHashInspection
 def read_csv(file)
