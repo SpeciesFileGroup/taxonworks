@@ -28,6 +28,12 @@ describe GeographicArea do
         expect(geographic_area.errors.include?(:name)).to be_true
       end
 
+      specify 'length of name' do
+        geographic_area.name = '1'
+        geographic_area.valid?
+        expect(geographic_area.errors.include?(:name)).to be_false
+      end
+
       specify 'data_origin' do
         expect(geographic_area.errors.include?(:data_origin)).to be_true
       end
