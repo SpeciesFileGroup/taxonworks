@@ -41,6 +41,12 @@
 
 
 <p>
+<strong>Object:</strong>
+  <%= scrollable_div_tag(@geographic_item.geo_object) %>
+</p>
+
+<!--
+<p>
 <strong>Point:</strong>
 <%= @geographic_item.point %>
 </p>
@@ -84,6 +90,7 @@
 <strong>Updated by:</strong>
 <%= @geographic_item.updated_by_id %>
 </p>
+-->
 
 <%= link_to 'Edit', edit_geographic_item_path(@geographic_item) %> |
 <%= link_to 'Back', geographic_items_path %>
