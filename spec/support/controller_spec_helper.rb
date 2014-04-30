@@ -29,6 +29,13 @@ module ControllerSpecHelper
     $project_id ||= project_id
   end
 
+  # Sign in user 1, but do not set project
+  def sign_in_user
+    remember_token = User.secure_random_token
+    cookies.permanent[:remember_token] = remember_token
+    User.find(1).update_attribute(:remember_token, User.encrypt(remember_token)) 
+  end
+
 end
 
 

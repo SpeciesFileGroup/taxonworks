@@ -43,8 +43,6 @@ namespace :tw do
       puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
     end
 
-
-
     desc 'Generate PostgreSQL/PostGIS records for shapefiles.'
     task :build_geographic_areas => [:environment] do
 
@@ -1848,10 +1846,13 @@ def read_shape(filename, index)
         when /level4/
         else
       end
+
       if !(record.nil?)
         record.geographic_area_type          = area_type[0]
+
         record.geographic_item               = GeographicItem.new
         record.geographic_item.multi_polygon = item.geometry
+        
         record.save!
 
         case filename

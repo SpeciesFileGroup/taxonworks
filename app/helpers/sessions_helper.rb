@@ -59,6 +59,42 @@ module SessionsHelper
     session[:project_id] = nil
   end
 
+  # Authorization methods
+  def is_administrator?
+    sessions_signed_in? && @sessions_current_user.is_administrator?
+  end 
+
+  def is_project_administrator?
+    sessions_signed_in? && @sessions_current_user.is_project_administrator?
+  end 
+
+  def is_project_member?(user, project)
+    project.members.include?(user) 
+  end
+
+  def authorize_project_selection(user, project)
+    project.members.include?(user) 
+  end
+
+  def require_sign_in
+    redirect_to root_url, notice: "Please sign in." unless sessions_signed_in?
+  end
+
+  def require_project_selection
+    redirect_to root_url, notice: "Please select a project." unless sessions_current_project?
+  end
+
+  def require_sign_in_and_project_selection
+    redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_current_project?
+  end
+
+  def require_adminstrator_sign_in
+    redirect_to root_url, notice: "Please sign in as an administrator." unless is_administrator? 
+  end
+
+  def require_project_administrator_sign_in
+    redirect_to root_url, notice: "Please sign in as a project administrator." unless is_project_administrator? 
+  end
 
   # TODO: make this a non-controller method
   def session_header_links

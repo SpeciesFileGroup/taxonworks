@@ -7,7 +7,6 @@ class ApplicationController < ActionController::Base
   include ProjectsHelper
 
   before_filter :set_project_and_user_variables
-  #  before_filter :redirect_to_root_unless_signed_in 
   after_filter :clear_project_and_user_variables
 
   def set_project_and_user_variables

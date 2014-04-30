@@ -63,8 +63,12 @@ class ProjectsController < ApplicationController
 
   def select
     set_project
-    sessions_select_project(@project)
-    redirect_to @project.workbench_starting_path
+    if authorize_project_selection(sessions_current_user, @project)
+        sessions_select_project(@project)
+       redirect_to @project.workbench_starting_path
+    else
+       redirect_to root_path, notice: 'You are not a member of that project!'
+    end
   end
 
   private

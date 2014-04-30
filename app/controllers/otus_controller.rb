@@ -1,4 +1,5 @@
 class OtusController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_otu, only: [:show, :edit, :update, :destroy]
 
   # GET /otus
