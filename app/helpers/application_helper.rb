@@ -1,6 +1,5 @@
 module ApplicationHelper
 
-
   def scrollable_div_tag(text)
     return nil if text.blank?
     content_tag(:div, text, class: :scrollable_div)

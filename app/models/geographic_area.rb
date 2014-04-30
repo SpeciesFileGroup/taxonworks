@@ -16,7 +16,7 @@ class GeographicArea < ActiveRecord::Base
   has_many :collecting_events, inverse_of: :geographic_area
 
   validates_presence_of :data_origin
-  validates_presence_of :name, length: { minimum: 5 }
+  validates :name, presence: true,  length: { minimum: 1 }
   validates :geographic_area_type, presence: true
 
   validates :level0, presence: true, unless: 'self.name == "Earth"', allow_nil: true

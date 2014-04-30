@@ -72,7 +72,6 @@ class GeographicItem < ActiveRecord::Base
     result
   end
 
-
   # TODO: Test
   # Return an Array of [latitude, longitude] for the first point of geoitem
   def center_coords

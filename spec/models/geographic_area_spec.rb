@@ -28,7 +28,13 @@ describe GeographicArea do
         expect(geographic_area.errors.include?(:name)).to be_true
       end
 
-      specify 'length of name' do
+      specify 'blank names are invalid' do
+        geographic_area.name = ''
+        geographic_area.valid?
+        expect(geographic_area.errors.include?(:name)).to be_true 
+      end
+
+      specify 'names are minimum length' do
         geographic_area.name = '1'
         geographic_area.valid?
         expect(geographic_area.errors.include?(:name)).to be_false
