@@ -1,7 +1,6 @@
 # See spec/support/projects_and_users for project/user setup for testing framework
 module Features
   module AuthenticationHelpers
-
     def sign_up_with(email, password, password_confirmation)
       visit signup_path
       fill_in 'Email',            with: email
@@ -22,9 +21,5 @@ module Features
       existing_user = User.find(1)  
       sign_in_with(existing_user.email, TEST_USER_PASSWORD) 
     end
-
-
-
-
   end
 end
