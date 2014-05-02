@@ -1,4 +1,6 @@
 
+namespace :tw do
+
 =begin
 
 # (Re)Building the Geographic data
@@ -43,16 +45,13 @@
   11: rake tw:init:rebuild_geographic_areas_nesting
 
 =end
-
-namespace :tw do
-
-  # TODO: Lock initialization down to (mostly) empty databases
   namespace :initialization do
+    # TODO: Lock initialization down to (mostly) empty databases
 
-    GAZ_DATA = '~/src/gaz/data/internal/dump/'
+    GAZ_DATA = "#{ENV['HOME']}/src/gaz/data/internal/dump/"
 
-    # rake tw:initialization:save_geo_data[../gaz/data/internal/dump/]
-    desc 'Save geographic area information in native pg_dump compressed form.'
+    desc "Save geographic area information in native pg_dump compressed form.\n
+            rake tw:initialization:save_geo_data[../gaz/data/internal/dump/]"
     task :save_geo_data, [:data_store] => [:environment] do |t, args|
       database = 'taxonworks_development'
       args.with_defaults(:data_store => '/tmp/' )
@@ -70,14 +69,13 @@ namespace :tw do
       end
     end
 
-    # rake tw:initialization:restore_geo_data[../gaz/data/internal/dump/]
-    desc 'Restore geographic area information from compressed form.'
-    task :restore_geo_data, [:data_store] => [:environment] do |t, args|
+    desc "Restore geographic area information from psql compressed export.\n
+            rake tw:initialization:restore_geo_data data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
+    task :restore_geo_data => [:environment, :data_directory] do 
       database = 'taxonworks_development'
-      args.with_defaults(:data_store => GAZ_DATA)
-      data_store = args[:data_store]
-      # TODO: Add condition for abort, i.e., dump files do not exist in the data_store directory.
-    
+      data_store = @args[:data_directory]
+      data_store = GAZ_DATA if data_store == "#{ENV['HOME']}/src/"
+      
       geographic_areas_file = "#{data_store}geographic_areas.dump"
       geographic_area_types_file = "#{data_store}geographic_area_types.dump"
       geographic_items_file = "#{data_store}geographic_items.dump"
@@ -86,18 +84,16 @@ namespace :tw do
       raise "Missing #{geographic_items_file}, doing nothing." if !File.exists?(geographic_items_file) 
       raise "Missing #{geographic_area_types_file}, doing nothing." if !File.exists?(geographic_area_types_file) 
 
-      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
-      a = pg_restore(database, 'geographic_area_types', data_store)
-      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
-      b = pg_restore(database, 'geographic_items', data_store)
-      puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
-      c = pg_restore(database, 'geographic_areas', data_store)
-      puts "#{Time.now.strftime "%H:%M:%S"}."
+      t = Benchmark.measure {a = pg_restore(database, 'geographic_area_types', data_store) }
+      puts "#{t}: From #{geographic_items_file}"
+      t = Benchmark.measure { b = pg_restore(database, 'geographic_items', data_store) }
+      puts "#{t}: From #{geographic_areas_file}"
+      t = Benchmark.measure {c = pg_restore(database, 'geographic_areas', data_store) }
+      puts "#{t}: From #{geographic_areas_file}"
     end
 
-    # Assumes input is from rake tw:export:table table_name=geographic_area_types
-    # rake tw:initialization:load_geographic_area_types[../gaz/data/internal/csv/geographic_area_types.csv]
-    desc 'call with "rake tw:initialization:load_geographic_area_types[/path/to/geographic_area_types.csv]"'
+    desc "call with 'rake tw:initialization:load_geographic_area_types[/path/to/geographic_area_types.csv]' \n
+     Assumes input is from rake tw:export:table table_name=geographic_area_types \n"
     task :load_geographic_area_types, [:data_file] => [:environment] do |t, args|
       args.with_defaults(:data_file => '../gaz/data/internal/csv/geographic_area_types.csv')
       raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0

@@ -29,12 +29,15 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Citable
   include Shared::Identifiable
   include Shared::Notable
+  include Shared::DataAttributes
   include SoftValidation
 
   belongs_to :geographic_area, inverse_of: :collecting_events
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
   has_many :collection_objects
+  has_many :georeferences
+  has_many :geographic_items, through: :georeferences
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
@@ -48,39 +51,46 @@ class CollectingEvent < ActiveRecord::Base
   validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
-  validates_numericality_of :start_date_year,
-    only_integer: true, greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
-  validates_inclusion_of :start_date_month,
-    in: 1..12, 
-    allow_nil: true,
-    message: ' start date month'
-  validates_numericality_of :start_date_day,
-    allow_nil: true,
-    only_integer: true,
-    greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
-    :unless => 'start_date_year.nil? || start_date_month.nil?',
-    message: '%{value} is not a valid start_date_day for the month provided'
-  validates_numericality_of :end_date_year,
-    only_integer: true, greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
+  validates :start_date_year,
+    numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5),  message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future' },
+    length: {is: 4},
+    allow_nil: true
+
+  validates :end_date_year,
+    numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5), message: 'end date year must be an integer greater than 1500, and no more than 5 years int he future' },
+    length: {is: 4},
+    allow_nil: true
+
+   validates_inclusion_of :start_date_month,
+    in: Utilities::Dates::LEGAL_MONTHS, 
+    allow_nil: true
+
   validates_inclusion_of :end_date_month,
-    in: 1..12,
-    allow_nil: true,
-    message: ' start date month'
+    in: Utilities::Dates::LEGAL_MONTHS, 
+    allow_nil: true
+
+  validates_presence_of :start_date_month,
+    if: '!start_date_day.nil?'
+   
+  validates_presence_of :end_date_month,
+    if: '!end_date_day.nil?'
+
   validates_numericality_of :end_date_day,
     allow_nil: true,
     only_integer: true,
     greater_than: 0,
     less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
-    :unless => 'end_date_year.nil? || end_date_month.nil?',
+    unless: 'end_date_year.nil? || end_date_month.nil?',
     message: '%{value} is not a valid end_date_day for the month provided'
 
+ validates_numericality_of :start_date_day,
+    allow_nil: true,
+    only_integer: true,
+    greater_than: 0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
+    unless: 'start_date_year.nil? || start_date_month.nil?',
+    message: '%{value} is not a valid start_date_day for the month provided'
+ 
   soft_validate(:sv_minimally_check_for_a_label)
 
   def verbatim_label=(value)
@@ -97,11 +107,11 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def end_date
-    has_end_date? && Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)  
+    Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)  
   end
 
   def start_date
-    has_start_date? && Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)  
+    Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end 
 
   protected

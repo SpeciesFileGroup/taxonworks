@@ -5,15 +5,9 @@ namespace :tw do
   namespace :project_import do
     namespace :insects do
 
-      desc 'a default method to argmuments'
-      task  :data_directory, [:data_directory] => :environment do |t, args| 
-
-        @args = args.with_defaults(:data_directory => "#{ENV['HOME']}/src/sf/import/inhs-insect-collection-data/TXT/")
-      end
-
       
       # A utility class to index data.
-      class ImportData
+      class ImporedtData
         attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
           @namespaces = {}
@@ -26,33 +20,53 @@ namespace :tw do
         end
       end
 
-      # Index localities by their collective column=>data pairs
-      def build_localities_index
-        localities_file = @args[:data_directory] + 'localities.txt'
-        raise 'file not found' if not File.exists?(localities_file)
-        lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
+      CONTAINER_TYPE = {
+        '' => 'Container::Virtual', # update with propper
+        'amber' => 'Container::PillBox', # remove
+        'bulk dry' => 'Container::PillBox',
+        'envelope' => 'Container::Envelope',
+        'jar' => 'Container::Jar',
+        'jars' => 'Container::Jar', # remove
+        'pill box' => 'Container::PillBox',
+        'pin' => 'Container::Pin',
+        'slide' => 'Container::Slide',
+        'vial' => 'Container::Vial',
+        'other' => 'Container::Vial'
+      }
 
-        localities = {}
-        lo.each do |row|
-          localities.merge!(row['LocalityCode'] => row.to_h)
-        end
-        localities
-      end
+      # Attributes to use from specimens.txt
+      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat} 
+      
+      # Attributes to strip on CollectingEvent creation 
+      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy ModifiedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
-      desc 'the full loop' 
+
+      desc "Import the INHS insect collection dataset.\n
+      rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/TXT/
+      " 
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
 
         ActiveRecord::Base.transaction do 
           begin
 
-            puts "\n lines per file:"
-            Dir["#{@args[:data_directory]}/**/*.txt"].each do |f|
-              puts `wc -l #{f}`
+            Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
+     
+            # Index localities by their collective column=>data pairs
+            def build_localities_index
+              localities_file = @args[:data_directory] + 'localities.txt'
+              raise 'file not found' if not File.exists?(localities_file)
+              lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
+
+              localities = {}
+              lo.each do |row|
+                localities.merge!(row['LocalityCode'] => row.to_h)
+              end
+              localities
             end
-                    
+
+            # A lookup index for localities
             LOCALITIES = build_localities_index 
-            SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat OldCollector} 
 
             @project, @user = initiate_project_and_users('INHS Insect Collection', nil)
 
@@ -62,10 +76,8 @@ namespace :tw do
             @import_namespace = Namespace.create(name: 'INHS Import Identifiers', short_name: 'INHS Import')
             @accession_namespace = Namespace.create(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code')
 
-            @data =  ImportData.new
+            @data =  ImportedData.new
         
-            # TODO: do a file row count sanity check
-
             # handle the tables in this order
             #--- mostly done 
             #  people.txt
@@ -87,15 +99,16 @@ namespace :tw do
             #  specimens_from_3i.txt
             #  specimens_new.txt
             #  specimens_new_partially_resolved.txt
-            
+
             #  types.txt
 
-          # Rake::Task["tw:project_import:insects:handle_people"].execute
-          # Rake::Task["tw:project_import:insects:handle_taxa"].execute
-          # Rake::Task["tw:project_import:insects:handle_specimens"].execute
+            # Rake::Task["tw:project_import:insects:handle_people"].execute
+            # Rake::Task["tw:project_import:insects:handle_taxa"].execute
 
             Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
+            Rake::Task["tw:project_import:insects:handle_specimens"].execute
 
+            byebug
             puts "\n\n !! Success \n\n"
             raise
           rescue
@@ -103,7 +116,6 @@ namespace :tw do
           end
         end
       end
-
 
       desc 'handle collecting events'
       task :handle_collecting_events => [:data_directory, :environment] do |t, args|
@@ -147,7 +159,6 @@ namespace :tw do
         # CreatedBy
         # ModifiedBy
 
-
         path2 = @args[:data_directory] + 'ledgers.txt'
         raise 'file not found' if not File.exists?(path2)
 
@@ -155,9 +166,11 @@ namespace :tw do
         #  Collector
         #  DateCollectedBeginning
         #  DateCollectedEnding
+        #       
         #  Collection
         #  AccessionNumber
         #  LedgerBook
+        #
         #  Country
         #  State
         #  County
@@ -167,8 +180,10 @@ namespace :tw do
         #  Description
         #  Remarks
         #  OldLocalityCode
+        #
         #  CreatedBy
         #  CreatedOn
+        #
         #  Comments
         #  Order
         #  Family
@@ -190,8 +205,6 @@ namespace :tw do
         # -    OldCollector       # tags on CE
         # --- not used 
         #     LocalityCompare     # related to hash md5
-
-
 
         path4 = @args[:data_directory] + 'accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path4)
@@ -229,13 +242,11 @@ namespace :tw do
         #   ModifiedBy
         #   ModifiedOn
 
-        collecting_events = {}
-
-
         le = CSV.open(path2, col_sep: "\t", :headers => true)
         sp = CSV.open(path3, col_sep: "\t", :headers => true)
         ac = CSV.open(path4, col_sep: "\t", :headers => true)
-      
+
+        collecting_events = {}
         unmatched_localities = {}
 
         sp.each_with_index do |row, i|
@@ -246,26 +257,26 @@ namespace :tw do
           end
 
           if LOCALITIES[locality_code]
-            hashcollisions(tmp_ce, LOCALITIES[locality_code])
+            Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
             tmp_ce.merge!(LOCALITIES[locality_code]) 
           else
             unmatched_localities.merge!(row['LocalityCode'] => nil) if !locality_code.blank?
           end
 
-          collecting_events.merge!(tmp_ce => nil)
+          collecting_events.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
         end
 
         puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ") 
 
         puts "\nledgers\n"
         le.each_with_index do |row, i|
-          collecting_events.merge!(row.to_h => nil)
+          collecting_events.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
           print "\r#{i}" 
         end
 
         puts "\naccession new records\n"
         ac.each_with_index do |row, i|
-          collecting_events.merge!(row.to_h => nil)
+          collecting_events.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
           print "\r#{i}" 
         end
 
@@ -279,81 +290,86 @@ namespace :tw do
 
         all_keys.sort!
 
-        byebug 
+        PREDICATES = [ 
+          "Country",
+          "County",
+          "State",
+      
+          "AccessionNumber",
+          "BodyOfWater",
+          "Collection",
+          "Comments",
 
-        raise
+          "Datum",
+          "Description",
+          "DrainageBasinGreater",
+          "DrainageBasinLesser",
+          "Family",
 
-        fce = {}
-        collecting_events.keys.each do |ce|
-         
-         # AccessionNumber
-         # BodyOfWater
-         # Collection
-         # CollectionMethod
-         # Collector
-         # Comments
-         # Country
-         # County
-         # CreatedBy
-         # CreatedOn
-         # DateCollectedBeginning
-         # DateCollectedEnding
-         # Datum
-         # Description
-         # DrainageBasinGreater
-         # DrainageBasinLesser
-         # EW
-         # Elev_ft
-         # Elev_m
-         # Elevation
-         # Family
-         # GBIF_precission
-         # Genus
-         # Habitat
-         # Host
-         # HostGenus
-         # HostSpecies
-         # INDrainage
-         
-         # LedgerBook
-         # Locality
-         # LocalityCode
-         # LocalityLabel
-         # ModifiedBy
-         # ModifiedOn
-         # NS
-         # OldCollector
-         # OldLocalityCode
-         # Order
-         # Park
-         # PrecisionCode
-         # Remarks
-         # Sex
-         # Species
-         # State
-         # StreamSize
-         # WisconsinGlaciated
+          "Genus",
+          "Host",
+          "HostGenus",
+          "HostSpecies",
+          "INDrainage",
+          "LedgerBook",
+          "LocalityCode",
+          "OldLocalityCode",
+          "Order",
+          "Park",
+          "Remarks",
+          "Sex",
+          "Species",
+          "StreamSize",
+          "WisconsinGlaciated",
 
-          
-          ltd = rows['Lat_deg'].blank? ? nil : "#{rows['Lat_deg']}º"
-          ltm = rows['Lat_min'].blank? ? nil : "#{rows['Lat_min']}'"
-          lts = rows['Lat_sec'].blank? ? nil : "#{rows['Lat_sec']}\""
-          latitude = [ltd,ltm,lts].compact.join
+          "PrecisionCode",    # tag on Georeference
+          "GBIF_precission",  # tag
+        ]
 
-          lld = rows['Long_deg'].blank? ? nil : "#{rows['Long_deg']}º"
-          llm = rows['Long_min'].blank? ? nil : "#{rows['Long_min']}'"
-          lls = rows['Long_sec'].blank? ? nil : "#{rows['Long_sec']}\""
-          latitude = [lld,llm,lls].compact.join
+        PREDICATES.each do |p|
+          @data.keywords.merge!(p => Predicate.new(name: "CollectingEvents:#{p}", definition: "The verbatim value imported in for #{p}.")  )
+        end
 
-          puts "!! values for both Latitude and Lat_ provided" if !latitude.blank? && !rows['Latitude'].blank?
-          puts "!! values for both Longitude and Long_ provided" if !longitude.blank? && !rows['Longitude'].blank?
-          latitude ||= rows['Latitude']
-          longitude ||= rows['Longitude']
+        NAME_TRANSLATOR = {
+          'U.S.A.' => 'United States',
+          'U. S. A.' => 'United States',
+          'Quebec' => 'Québec',
+          'U.S.A' => 'United States',
+          'MEXICO' => 'Mexico',
+          'U. S. A. ' => 'United States',
+        }
 
-          sdd, sdm, sdy = ce['DateCollectedBeginning'].split("/")
-          edd, edm, edy = ce['DateCollectedEnding'].split("/")
+        matchless = []
+        found = 0
+       
 
-          raise if !ce['Elev_ft'].blank? && ce['Elev_m'].blank?        
+        collecting_events.keys.each_with_index do |ce,i|
+          break if i > 1000 
+          print "\r#{i}"
+
+          # Needs refactoring, Lat_deg contains a mix of decimal degrees and otherwise
+          nlt = (ce['NS'].downcase == 's' ? '-' : nil) if !ce['NS'].blank?
+          ltd = ce['Lat_deg'].blank? ? nil : "#{ce['Lat_deg']}º"
+          ltm = ce['Lat_min'].blank? ? nil : "#{ce['Lat_min']}'"
+          lts = ce['Lat_sec'].blank? ? nil : "#{ce['Lat_sec']}\""
+          latitude = [nlt, ltd,ltm,lts].compact.join
+          latitude = nil if latitude == '-'
+
+          nll = (ce['EW'].downcase == 'w' ? '-' : nil ) if !ce['EW'].blank?
+          lld = ce['Long_deg'].blank? ? nil : "#{ce['Long_deg']}º"
+          llm = ce['Long_min'].blank? ? nil : "#{ce['Long_min']}'"
+          lls = ce['Long_sec'].blank? ? nil : "#{ce['Long_sec']}\""
+          longitude = [nll,lld,llm,lls].compact.join
+          longitude = nil if longitude == '-'
+
+          ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
+          ( edm, edd, edy = ce['DateCollectedEnding'].split("/")    ) if !ce['DateCollectedEnding'].blank?
+
+          sdy = sdy.to_i if sdy 
+          edy = edy.to_i if edy
+
+          puts "\nuhoh, feet and meters" if !ce['Elev_ft'].blank? && ce['Elev_m'].blank?  
+
           if !ce['Elev_ft'].blank?
             elevation = ce['Elev_ft']
             elevation_unit = 'feet'
@@ -365,7 +381,29 @@ namespace :tw do
             elevation_unit = nil
           end
 
+          geog_search = []
+          [ ce['County'], ce['State'], ce['Country']].each do |v|
+            geog_search.push( NAME_TRANSLATOR[v] ? NAME_TRANSLATOR[v] : v) if !v.blank?
+          end
+
+          match = GeographicArea.find_by_self_and_parents(geog_search)            
+          geographic_area = nil
+
+          if match.count == 0
+            puts "\nNo match: #{geog_search}"
+            matchless.push geog_search
+          elsif match.count > 1
+            puts "\nHmm ... multiple matches #{geog_search}\n"
+            matchless.push geog_search
+          elsif match.count == 1
+            found += 1
+            geographic_area = match[0]
+          else
+            puts "\nHuh?! not zero, 1 or more than one matches"
+          end
+          
           c = CollectingEvent.new(
+            geographic_area: geographic_area,
             verbatim_label: ce['LocalityLabel'], 
             verbatim_locality: ce['Locality'],
             verbatim_collectors: ce['Collector'],                
@@ -376,24 +414,20 @@ namespace :tw do
             end_date_day: edd,
             end_date_month: edm,
             end_date_year: edy,
-            habitat_macro: ce['Habitat'],
-            elevation: elevation,
-            verbatim_longitude: longitude,
+            macro_habitat: ce['Habitat'],
+            minimum_elevation: elevation,
+            elevation_unit: elevation_unit,
             verbatim_latitude: latitude,
+            verbatim_longitude: longitude,
           )
 
-          @data.collecting_events.merge!(ce => c)
-        end
-      end 
-
-      def hashcollisions(a, b)
-        a.each do |i,j|
-          if b[i] && !j.blank? && b[i] != j 
-            puts "#{i}: [#{j}] != [#{b[i]}]"
+          PREDICATES.each do |p| 
+            c.data_attributes.build(predicate: @data.keywords[p], value: ce[p], type: 'InternalAttribute') if !ce[p].blank? 
           end
-        end
-      end
 
+          @data.collecting_events.merge!(ce => c)
+       end
+      end 
 
       desc 'handle specimens'
       task :handle_specimens => [:data_directory, :environment] do |t, args|
@@ -458,22 +492,7 @@ namespace :tw do
             @data.collection_objects.merge!(i => objects_from_co_row(row) )
           end
         end
-        byebug 
       end
-
-      CONTAINER_TYPE = {
-        '' => 'Container::Virtual', # update with propper
-        'amber' => 'Container::PillBox', # remove
-        'bulk dry' => 'Container::PillBox',
-        'envelope' => 'Container::Envelope',
-        'jar' => 'Container::Jar',
-        'jars' => 'Container::Jar', # remove
-        'pill box' => 'Container::PillBox',
-        'pin' => 'Container::Pin',
-        'slide' => 'Container::Slide',
-        'vial' => 'Container::Vial',
-        'other' => 'Container::Vial'
-      }
 
       def objects_from_co_row(row)
         # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identified_object
@@ -527,24 +546,27 @@ namespace :tw do
         objects
       end
 
-
-      def add_collecting_event(objects, row)
+      def ce_from_specimens_row(row)
         tmp_ce = {}
-        # TODO: refactor
+    
+        # pull from the row 
         SPECIMENS_COLUMNS.each do |c|
           tmp_ce.merge!(c => row[c]) if !row[c].blank?
         end
-
+     
+        # pull from the locality index 
         if v = LOCALITIES[row['LocalityCode']]
           tmp_ce.merge!(v) 
         end
+        tmp_ce
+      end
 
+      def add_collecting_event(objects, row)
+        tmp_ce = ce_from_specimens_row(row)
         objects.each do |o|
-          o.collecting_event = @data.collecting_events(tmp_ce)
-          o.save! 
+          o.update(collecting_event: @data.collecting_events(tmp_ce) )
         end
       end 
-
 
       def add_identifiers(objects, row)
         puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
@@ -583,7 +605,6 @@ namespace :tw do
           end
         end
       end
-
 
       desc 'handle taxa'
       task :handle_taxa => [:data_directory, :environment] do |t, args|
@@ -680,8 +701,6 @@ namespace :tw do
         puts puts
       end
 
-      
-
       desc 'handle people'
       task :handle_people => [:data_directory, :environment] do |t, args|
 
@@ -712,219 +731,6 @@ namespace :tw do
           )
           p.notes.build(text: row['Comments']) if !row['Comments'].blank?
           @data.people.merge!(p => row)
-        end
-      end
-
-      desc 'reconcile colls'
-      task :reconcile_colls => [:data_directory, :environment] do |t, args| 
-        path = @args[:data_directory] + 'coll.csv'
-        raise 'file not found' if not File.exists?(path)
-
-        f = CSV.open(path, col_sep: "\t")
-        f.each do |row|
-          if r = Repository.where(acronym: row[0]).first
-            # puts r.id
-          else
-            print "#{row[0]}\t#{row[1]}\n" if not  Repository.where(acronym: "#{row[0]}\<IH\>").first
-          end
-        end
-
-        f.close
-      end
-
-      desc 'reconcile language'
-      task :reconcile_languages => [:data_directory, :environment] do |t, args| 
-        path = @args[:data_directory] + 'language.csv'
-        raise 'file not found' if not File.exists?(path)
-
-        f = CSV.open(path, col_sep: "\t")
-        f.each do |row|
-          if r = Language.where(alpha_2: row[0]).first
-            # puts r.id
-          else
-            print "#{row[0]}\t#{row[1]}\n" 
-          end
-        end
-        f.close
-      end
-
-      def fix_line(line)
-        line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
-      end
-
-      def column_values(fixed_line)
-        CSV.parse(fixed_line, col_sep: "\t").first
-      end
-
-      desc 'reconcile Refs::Chalcfam (look for unique values)'
-      task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args| 
-        path = @args[:data_directory] + 'refs.csv'
-
-        raise 'file not found' if not File.exists?(path)
-
-        # f = CSV.open(path, col_sep: "\t")
-        families = {}
-
-        # This pattern handles quotes/escaping crap MySQL export
-        File.foreach(path) do |csv_line| 
-          row = column_values(fix_line(csv_line))
-
-          if row[12]
-            v = row[12].strip
-            r = nil             
-            if v  =~ /\s/
-              r = Regexp.new(/\s/)
-            else
-              r = Regexp.new(/(?=[A-Z])/)
-            end
-
-            row[12].split(r).inject(families){|hsh, v| hsh.merge!(v => nil)} 
-          end
-        end
-
-        print families.keys.sort.join(", ")
-        # f.close
-      end
-
-     desc 'handle refs - rake tw:project_import:ucd:handle_refs[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_refs => [:data_directory, :environment, :handle_keywords] do |t, args| 
-        # - 0   RefCode   | varchar(15)  |
-        # - 1   Author    | varchar(52)  |
-        # - 2   Year      | varchar(4)   |
-        # - 3   Letter    | varchar(2)   | # ?! key/value - if they want to maintain a manual system let them
-        # - 4   PubDate   | date         |
-        # - 5   Title     | varchar(188) |
-        # - 6   JourBook  | varchar(110) |
-        # - 7   Volume    | varchar(20)  |
-        # - 8   Pages     | varchar(36)  |
-        # - 9   Location  | varchar(27)  | # Attribute::Internal
-        # - 10  Source    | varchar(28)  | # Attribute::Internal
-        # - 11  Check     | varchar(11)  | # Attribute::Internal
-        # - 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
-        # - 13  KeywordA  | varchar(2)   | # Tag 
-        # - 14  KeywordB  | varchar(2)   | # Tag 
-        # - 15  KeywordC  | varchar(2)   | # Tag 
-        # - 16  LanguageA | varchar(2)   | Attribute::Internal & Language
-        # - 17  LanguageB | varchar(2)   | Attribute::Internal
-        # - 18  LanguageC | varchar(2)   | Attribute::Internal 
-        # - 19  M_Y       | varchar(1)   | # Attribute::Internal fuzziness on month/day/year - an annotation
-        # 20  PDF_file  | varchar(1)   | # [X or Y] TODO: NOT HANDLED
-
-        # 0 RefCode   
-        # - 1 Translate 
-        # - 2 Notes     
-        # - 3 Publisher 
-        # - 4 ExtAuthor 
-        # - 5 ExtTitle  
-        # - 6 ExtJournal
-        # - 7 Editor    
-
-        path1 = @args[:data_directory] + 'refs.csv'
-        path2 = @args[:data_directory] + 'refext.csv'
-        raise 'file not found' if not File.exists?(path1)
-        raise 'file not found' if not File.exists?(path2)
-
-        fext_data = {}
-
-        File.foreach(path2) do |csv_line| 
-          r = column_values(fix_line(csv_line))
-          fext_data.merge!(
-            r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
-          )
-        end
-
-        namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
-        namespace.save!
-
-        keywords = {
-          'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
-          'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
-          'Refs:Check' => Predicate.new(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
-          'Refs:LanguageA' => Predicate.new(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
-          'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
-          'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
-          'Refs:ChalcFam' => Predicate.new(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
-          'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
-          'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
-          'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
-        }
-
-        keywords.values.each do |k|
-          k.save!
-        end
-
-        i = 0 
-
-        File.foreach(path1) do |csv_line| 
-          row = column_values(fix_line(csv_line))
-
-          year, month, day = nil, nil, nil
-          if row[4] != 'NULL'
-            year, month, day = row[4].split('-', 3) 
-            month = Utilities::Dates::SHORT_MONTH_FILTER[month]
-            month = month.to_s if !month.nil?
-          end
-
-          stated_year = row[2]
-          if year.nil?
-            year = stated_year 
-            stated_year = nil
-          end
-
-          title = [row[5],  (fext_data[row[0]] && !fext_data[row[0]][:ext_title].blank? ? fext_data[row[0]][:ext_title] : nil)].compact.join(" ")
-          journal = [row[6],  (fext_data[row[0]] && !fext_data[row[0]][:ext_journal].blank? ? fext_data[row[0]][:ext_journal] : nil)].compact.join(" ")
-          author = [row[1],  (fext_data[row[0]] && !fext_data[row[0]][:ext_author].blank? ? fext_data[row[0]][:ext_author] : nil)].compact.join(" ")
-
-          b = Source::Bibtex.new(
-            author: author,
-            year: (year.blank? ? nil : year.to_i),
-            month: month, 
-            day: (day.blank? ? nil : day.to_i) ,
-            stated_year: stated_year,
-            year_suffix: row[3],           
-            title: title,                      
-            booktitle: journal,                  
-            volume: row[7],                     
-            pages: row[8],                      
-            bibtex_type: 'article',            
-            language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
-            publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
-            editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil ),
-          )
-
-          b.publisher = nil if b.publisher.blank? # lazy get rid of ""
-          b.editor = nil if b.editor.blank?
-
-          b.save!
-
-          b.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0]) 
-
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs::ChalcFam'], value: row[12])  if !row[12].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:M_Y'], value: row[19])        if !row[19].blank?
-
-          if fext_data[row[0]]
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if !fext_data[row[0]][:translate].blank?
-            b.notes.build(text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
-          end
-
-          [13,14,15].each do |i| 
-            k =  Keyword.with_alternate_value_on(:name, row[i]).first
-            if k 
-              b.tags.build(keyword: k)
-            end
-          end
-
-          !b.save
-
-          print "#{i}," 
-          i+=1
-          break if i > 200 
         end
       end
 

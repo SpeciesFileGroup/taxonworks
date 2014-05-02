@@ -10,7 +10,6 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level1, class_name: 'GeographicArea', foreign_key: :level1_id
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
   belongs_to :ne_geo_item, class_name: 'GeographicItem', foreign_key: :ne_geo_item_id
-  belongs_to :parent, class_name: 'GeographicArea', foreign_key: :parent_id
   belongs_to :tdwg_geo_item, class_name: 'GeographicItem', foreign_key: :tdwg_geo_item_id
   belongs_to :tdwg_parent, class_name: 'GeographicArea', foreign_key: :tdwg_parent_id
   has_many :collecting_events, inverse_of: :geographic_area
@@ -63,6 +62,39 @@ class GeographicArea < ActiveRecord::Base
   end
 
   # TODO: Test
+  # Matches GeographicAreas that have name and parent name.
+  scope :with_name_and_parent_name, -> (names) {
+    joins(:parent ).
+    where(name: names[0], parent: {name: names[1]})
+  }
+
+  # TODO: Test, or extend a general method
+  # Matches GeographicAreas that match name, parent name, parent name
+  # Like:
+  #   GeographicArea.with_name_and_parents(%{United\ States Illinois Champaign})
+  scope :with_name_and_parents, -> (names) {
+    joins(parent: :parent ).
+    where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2] }}  )
+  }
+
+ # Route out to a scope given the length of the
+  # search array.  Could be abstracted to 
+  # build nesting on the fly if we actually
+  # needed more than three nesting
+ def self.find_by_self_and_parents(array)
+   if array.length == 1
+     where(name: array.first)
+   elsif array.length == 2
+     with_name_and_parent_name(array)
+   elsif array.length == 3
+     with_name_and_parents(array)
+   else
+     where { 'false' }
+   end
+ end
+
+  # TODO: Test
+  # Returns a scope of all _geo_items. 
   def geographic_items
     t = GeographicItem.arel_table
     GeographicItem.uniq.where(

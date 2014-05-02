@@ -10,10 +10,14 @@ module TaxonWorks
     file = Rails.root.to_s + '/app/models/' + cv_class.underscore + '.rb'
     require file
   end
-  
+ 
+  # Internal  
   require 'soft_validation'
   require 'activerecord_utilities'
-  require 'squeel'
+
+  # External
+ # require 'squeel'
+  require 'benchmark'
 
   # TODO: Move this out of here before production
   # paperclip requires information on where ImageMagick is installed.

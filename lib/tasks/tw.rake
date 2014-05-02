@@ -25,5 +25,13 @@ namespace :tw do
     raise "User is not a member of project." if !ProjectMember.where(project_id: $project_id, user_id: $user_id)
   end
 
+  desc 'Pass a data_directory=/some/path/ arguement. Result stored in @args[:data_directory].'
+  task  :data_directory do 
+    @args ||= {}
+    data_directory = ENV['data_directory']  
+    data_directory ||= "#{ENV['HOME']}/src/"
+    @args.merge!(data_directory: data_directory)
+  end
+
 end
 
