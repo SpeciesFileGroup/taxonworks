@@ -21,7 +21,7 @@
 # @!attribute verbatim_longitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the longitude. Is used to derive mappable values, but does not get mapped itself
-# @!attribute verbatim_longitude
+# @!attribute verbatim_latitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the latitude. Is used to derive mappable values, but does not get mapped itself. 
 class CollectingEvent < ActiveRecord::Base
@@ -33,6 +33,8 @@ class CollectingEvent < ActiveRecord::Base
   include SoftValidation
 
   belongs_to :geographic_area, inverse_of: :collecting_events
+
+  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimGeoreference'
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
   has_many :collection_objects
@@ -61,6 +63,7 @@ class CollectingEvent < ActiveRecord::Base
     length: {is: 4},
     allow_nil: true
 
+   # TODO: combine validations
    validates_inclusion_of :start_date_month,
     in: Utilities::Dates::LEGAL_MONTHS, 
     allow_nil: true
@@ -114,6 +117,14 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end 
 
+  def generate_verbatim_georeference
+    if verbatim_latitude && verbatim_longitude
+      point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)  
+      byebug 
+      verbatim_georeference = Georeference::VerbatimData.create(point: point) 
+    end
+  end
+
   protected
 
   def check_verbatim_geolocation_uncertainty
@@ -132,7 +143,6 @@ class CollectingEvent < ActiveRecord::Base
     [:verbatim_label, :print_label, :document_label, :field_notes].each do |v|
       return true if !self.send(v).blank?
     end 
-
     soft_validations.add(:base, 'At least one label type, or field notes, should be provided.')
   end
 

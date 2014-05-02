@@ -1,3 +1,10 @@
+# A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
+# A georeference contains three components:
+#    1) A reference to a CollectingEvent (who, where, when, how)
+#    2) A reference to a GeographicItem (a shape)
+#    3) A method by which the shape was associated with the collecting event (via `type` subclassing).
+# If a georeference was published it's Source can be provided.  This is not equivalent to a method.
+#
 # Contains information about a location on the face of the Earth, consisting of:
 #
 # @!attribute geographic_item_id
@@ -20,10 +27,10 @@
 #    the type name of the this georeference definition
 # @!attribute source_id
 #   @return [Integer]
-#    the id of the source of this georeference definition
+#     when provided asserts that this data originated in the specified source
 # @!attribute position
 #   @return [Integer]
-#    the position of this georeference definition
+#    an arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application
 # @!attribute request
 #   @return [String]
 #    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
@@ -32,6 +39,7 @@ class Georeference < ActiveRecord::Base
 
   # TODO: @tucker why are these here?
   # TODO: @mjy: there are here to help me remember the math. Where do you think they should go?
+  # TODO: @tucker If they aren't used in the application they should go in your personal notes.
   POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
   ONE_WEST           = 111319.490779206
   ONE_NORTH          = 110574.38855796
@@ -42,25 +50,15 @@ class Georeference < ActiveRecord::Base
   RADIANS_PER_DEGREE = ::Math::PI/180.0
   DEGREES_PER_RADIAN = 180.0/::Math::PI
 
-# https://groups.google.com/forum/#!topic/rgeo-users/lMCr0mOt1F0
-# TODone: Some of the GADM polygons seem to violate shapefile spec for *some* reason (not necessarily those stated in the above group post). As a possible remedy, adding ":uses_lenient_multi_polygon_assertions => true"
-# TODone: This is also supposed to be the default factory (in fact, the *only* factory), but that does not seem to be the case. See lib/tasks/build_geographic_areas.rake
-
+  # This should probably be moved out to config/initializers/gis
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,
                                                projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
                                                uses_lenient_assertions: true,
                                                has_z_coordinate:        true)
-=begin
-  FACTORY = ::RGeo::Geos.factory(native_interface:                      :ffi,
-                                 uses_lenient_multi_polygon_assertions: true,
-                                 srid:                                  4326,
-                                 has_z_coordinate:                      true)
-=end
 
+  acts_as_list scope: [:collecting_event]
 
-  # this represents a GeographicItem, but has a name (error_geographic_item) which is *not* the name of the column used in the table;
-  # therefore, we need to tell it *which* table, and what to use to address the record we want
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
   belongs_to :collecting_event
   belongs_to :geographic_item
@@ -75,7 +73,6 @@ class Georeference < ActiveRecord::Base
   def self.within_radius_of(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
     # geographic_item may be a polygon, or a point
-    # TODOne: (04/16/14) figure out how to return an ActiveRecord::Relation here
 
     # TODO: Add different types of GeographicItems as we learn about why they are stored.
     # types of GeographicItems about which we currently know:
@@ -85,21 +82,18 @@ class Georeference < ActiveRecord::Base
     temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('point', geographic_item, distance)
-      partials = GeographicItem.where('id in (?)', temp.map(&:id))
+    partials = GeographicItem.where('id in (?)', temp.map(&:id))
 
     # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
     # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
     # and related objects.
-    partial_gr = Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
-    partial_gr
+    Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
   end
 
   # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
   # includes String somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
   # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-
-  # where {id in CollectingEvent.where{verbatim_locality like "%var%"}}
   def self.with_locality_like(string)
     with_locality_as(string, true)
   end
@@ -111,7 +105,6 @@ class Georeference < ActiveRecord::Base
   def self.with_locality(string)
     with_locality_as(string, false)
   end
-
 
   # returns all georeferences which have collecting_events which have geographic_areas which match
   # geographic_areas as a GeographicArea
@@ -178,12 +171,11 @@ class Georeference < ActiveRecord::Base
 
   protected
 
+  # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # includes, or is equal to 'string' somewhere
+  # Joins collecting_event.rb and matches %String% against verbatim_locality
+  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
   def self.with_locality_as(string, like)
-    # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-    # includes, or is equal to 'string' somewhere
-    # Joins collecting_event.rb and matches %String% against verbatim_locality
-    # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-
     likeness   = like ? '%' : ''
     like       = like ? 'like' : '='
     query      = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
@@ -318,7 +310,6 @@ class Georeference < ActiveRecord::Base
 
   # Given two latitude/longitude pairs in degrees, find the heading between them.
   # Heading is returned as an angle in degrees clockwise from north.
-
   def heading(from_lat_, from_lon_, to_lat_, to_lon_)
     from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_
     to_lat_rad_    = RADIANS_PER_DEGREE * to_lat_
