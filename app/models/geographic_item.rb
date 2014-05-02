@@ -1,13 +1,5 @@
 class GeographicItem < ActiveRecord::Base
-  # TODone: config/initializers/gis.rb
-  # Where would one put such code?
-  # RGeo::Geos.preferred_native_interface = :ffi
-  # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)
-
   include Housekeeping::Users
-  #  include ActiveRecordSpatial::SpatialColumns
-  #  include ActiveRecordSpatial::SpatialScopes
-  #  self.create_spatial_column_accessors! # except: ['point']
 
   DATA_TYPES     = [:point,
                     :line_string,
@@ -73,7 +65,6 @@ class GeographicItem < ActiveRecord::Base
     [$1, $2] 
   end
 
-
 =begin
   scope :intersecting_boxes, -> (column_name, geographic_item) {
     select("ST_Contains(geographic_items.#{column_name}, #{geographic_item.geo_object})",
@@ -122,7 +113,6 @@ class GeographicItem < ActiveRecord::Base
 
   def self.intersecting(column_name, *geographic_items)
     where { geographic_items.flatten.collect { |geographic_item| "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" }.join(' and ') }
-
 =begin
     geographic_items.each { |geographic_item|
       # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
@@ -134,7 +124,7 @@ class GeographicItem < ActiveRecord::Base
 =end
   end
 
-  # TODO: Document, what is distance a measure of?
+  # TODO: Document, what units are distance in?
   def self.within_radius_of(column_name, geographic_item, distance)
     if check_geo_params(column_name, geographic_item)
       where {"st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}"}
@@ -310,32 +300,29 @@ class GeographicItem < ActiveRecord::Base
 
   protected
 
+  # There may be cases where there are orphan shapes, since the table for this model in NOT normalized for shape?
+  #  This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
+  # array to the caller.
   def self.clean?
-    # There may be cases where there are orphan shape, since the table for this model in NOT normalized for shape.
-    # This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
-    # array to the caller.
-    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
+   GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
     GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
     GeographicItem.connection.execute('delete from t20140306')
     GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
-
     GeographicItem.connection.execute('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
     GeographicItem.connection.execute('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
     GeographicItem.connection.execute('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
     GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
-
     list = GeographicItem.connection.execute('select id from t20140306').to_a
   end
 
+  # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
+  # probably not very useful).
   def self.clean!
-    # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
-    # probably not very useful).
     list = clean?
     GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
     GeographicItem.connection.execute('drop table t20140306')
     list
   end
-
 
   def point_to_a(point)
     data = []
@@ -414,7 +401,6 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def geometry_collection_to_hash(geometry_collection)
-    # start by constructing the general case
     # TODO: this method does *not* use the object_to_hash method, expect for the recursive geometry_collection.
     data = {
       points:   [],
@@ -499,13 +485,6 @@ class GeographicItem < ActiveRecord::Base
       end
     end
     true
-  end
-
-  def gi_helper
-    user = User.find(1)
-    pt   = GEO_FACTORY.point(-88.241413, 40.091655)
-    gi   = GeographicItem.new(point: pt, creator: user, updater: user)
-    gi.save
   end
 
   def self.check_geo_params(column_name, geographic_item)

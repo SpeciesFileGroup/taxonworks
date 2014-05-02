@@ -16,7 +16,7 @@ module TaxonWorks
   require 'activerecord_utilities'
 
   # External
- # require 'squeel'
+  # require 'squeel'
   require 'benchmark'
 
   # TODO: Move this out of here before production

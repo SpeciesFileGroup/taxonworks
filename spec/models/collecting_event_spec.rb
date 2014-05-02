@@ -173,6 +173,23 @@ describe CollectingEvent do
     expect(collecting_event.md5_of_verbatim_label.blank?).to be_false
   end
 
+  context 'georeferences' do
+    context '#generate_verbatim_georeference' do
+      specify 'returns false if no verbatim values' do
+        expect(collecting_event.generate_verbatim_georeference).to be_false
+      end 
+
+      specify 'assigns a geographic item when verbatim_latitude/long are provided and !#new_record?' do
+        collecting_event.verbatim_latitude = 10
+        collecting_event.verbatim_longitude = 10
+        expect(collecting_event.save).to be_true
+        expect(collecting_event.generate_verbatim_georeference).to be_true
+        expect(collecting_event.verbatim_georeference.blank?).to be_false
+        expect(collecting_event.verbatim_georeference.id.blank?).to be_false
+      end
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'geographic_area' do

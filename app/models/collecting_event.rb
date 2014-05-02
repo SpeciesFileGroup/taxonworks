@@ -34,7 +34,7 @@ class CollectingEvent < ActiveRecord::Base
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimGeoreference'
+  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
   has_many :collection_objects
@@ -45,7 +45,7 @@ class CollectingEvent < ActiveRecord::Base
                     :check_date_range,
                     :check_elevation_range
 
-  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id]
+  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?' 
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
@@ -118,10 +118,13 @@ class CollectingEvent < ActiveRecord::Base
   end 
 
   def generate_verbatim_georeference
-    if verbatim_latitude && verbatim_longitude
+    if verbatim_latitude && verbatim_longitude && !new_record?
       point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)  
-      byebug 
-      verbatim_georeference = Georeference::VerbatimData.create(point: point) 
+      g = GeographicItem.new(point: point)
+      if g.valid?
+        g.save
+        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g))
+      end
     end
   end
 

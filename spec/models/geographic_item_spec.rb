@@ -10,10 +10,6 @@ describe GeographicItem do
     GeographicItem.destroy_all
   }
 
-  #let(:FFI_FACTORY) { ::RGeo::Geographic.FFI_FACTORY(:srid => 4326)}
-  #let(:FFI_FACTORY) { ::RGeo::Geos.factory(:srid             => 4326,
-  #                                        :has_z_coordinate => true,
-  #                                        :has_m_coordinate => false) }
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
   let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }
   let(:geographic_item_with_point_b) { FactoryGirl.build(:geographic_item_with_point_b) }
@@ -147,6 +143,9 @@ describe GeographicItem do
       expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
 
+    pending 'a point, when provided, has a legal geography'
+    # e.g. not 400,400
+
     specify 'One and only one of point, line_string, etc. is set.' do
       geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
       expect(geographic_item_with_point_a.valid?).to be_false
@@ -171,7 +170,6 @@ describe GeographicItem do
     end
 
     specify 'Two polygons may have various intersections.' do
-
       @e.reload
       e0      = @e.geo_object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
@@ -697,6 +695,5 @@ describe GeographicItem do
 
     end
   end
-
 
 end

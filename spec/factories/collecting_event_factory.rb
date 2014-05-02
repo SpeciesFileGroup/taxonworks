@@ -1,5 +1,9 @@
 FactoryGirl.define do
 
+  trait :random_verbatim_label do 
+    verbatim_label { ('a'..'z').to_a.shuffle[0,8].join }
+  end
+
   sequence :verbatim_label do |n|
     "Label #{n} for testing..."
   end
@@ -9,14 +13,14 @@ FactoryGirl.define do
   end
 
   factory :collecting_event, traits: [:housekeeping] do
-
     factory :valid_collecting_event do
-      verbatim_label # is not required for validity
       verbatim_locality
-      # verbatim_label "USA:TX:Brazos Co.\nCollege Station-#{label_maker}\nLick Creek Park\nii.15.1975 YPT"
-      # minimum_elevation 735 # ,
-      # verbatim_label { label_maker }
     end
+
+    # !! Need an after to set the verbatim values off of the generated values!!
+    factory :collecting_event_with_random_point_georeference do
+      association :verbatim_georeference, factory: :georeference_verbatim_data_with_random_point
+   end
 
     factory :collecting_event_my_office do
       verbatim_locality 'Champaign Co., Illinois'
