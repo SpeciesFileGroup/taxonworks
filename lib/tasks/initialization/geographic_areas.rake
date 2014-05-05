@@ -233,28 +233,43 @@ namespace :tw do
       end
     end
 
-    def build_and_assign(a, r)
+    def build_and_assign(a, where_clause, join_table)
       print "\r#{a.id}"
       b = Benchmark.measure {
-        p = Georeference::FACTORY.point(-88.241413, 40.091655, 757)
-        i = GeographicItem.create(point: p) #   multi_polygon: r.first['geom']
-        a.update(ne_geo_item_id: i.id) 
-       ActiveRecord::Base.connection.execute("update geographic_items set point = null, multi_polygon = '#{r.first['geom']}' where id = #{i.id};") #  iso_n3 = #{a.neID} ")  
+        i = GeographicItem.create(point: @dummy_point)
+        ActiveRecord::Base.connection.execute("update geographic_areas set ne_geo_item_id = '#{i.id}' where 'neID' = '#{a.neID}';")  
+        ActiveRecord::Base.connection.execute("update geographic_items set point = null, multi_polygon = (select ST_Force3D(geom) from #{join_table} where #{where_clause}) where id = #{i.id};") 
       }
       print "\t#{b.to_s.strip}"
-
     end
 
+    def log_missmatch(a,r,where_clause)
+      if r.count > 1
+        @too_many_found[a.data_origin].push [a.name, a.id, r.count,  where_clause].join(" : ")
+      else # has to be r.count == 0 
+        @not_found[a.data_origin].push [a.name, a.id, where_clause].join(" : ") 
+      end
+    end 
+
     def assign_ne_country(a)
-      if r = ActiveRecord::Base.connection.execute("select ST_AsText(ST_Force3D(geom)) geom from ne_countries where iso_n3 = '#{a.neID}'")  
-        build_and_assign(a,r) if r.count == 1 # if not, bad things
+      where_clause = "iso_n3 = '#{a.neID}'"
+      assign_ne(a, where_clause, 'ne_countries')
+   end
+
+    def assign_ne_state(a)  
+      where_clause = "adm1_code_ = '#{a.neID}'"
+      assign_ne(a, where_clause, 'ne_states')
+    end
+   
+    def assign_ne(a, where_clause, join_table)
+      r = ActiveRecord::Base.connection.execute("select gid from #{join_table} where #{where_clause};")  # Do a fast query to check to see if there is a 1:1 map
+      if r.count == 1 
+        build_and_assign(a, where_clause, join_table) 
+      else
+        log_missmatch(a,r,where_clause)
       end
     end
 
-
-    def assign_ne_state(a)  
-    end
-    
     def assign_gadm(a)      
     end
    
@@ -292,33 +307,41 @@ namespace :tw do
 
       # add_temporary_shape_tables
 
+      @dummy_point = Georeference::FACTORY.point(-12.345678, 12.345678, 123)
+  
+      @not_found = {} 
+      @too_many_found = {}
+      GeographicArea.pluck('data_origin').uniq.inject(@not_found) {|hsh, a| hsh.merge!(a => [])} 
+      GeographicArea.pluck('data_origin').uniq.inject(@too_many_found) {|hsh, a| hsh.merge!(a => [])} 
+
       begin
         ActiveRecord::Base.transaction do 
-        
-         a = Benchmark.measure { 
-          GeographicArea.all.each do |a|
-            assign_ne_country(a) if !a.neID.blank? && a.ne_geo_item_id.blank?
-            assign_ne_state(a)   if !a.neID.blank? && a.ne_geo_item_id.blank?
-            assign_gadm(a)       if !a.gadmID.blank? && a.ne_geo_item_id.blank?
-            assign_tdwg1(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-            assign_tdwg2(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-            assign_tdwg3(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-            assign_tdwg4(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-          end
-         }
+          a = Benchmark.measure { 
+            GeographicArea.all.each do |a|
+              assign_ne_country(a) if !a.neID.blank? && a.ne_geo_item_id.blank?
+              assign_ne_state(a)   if !a.neID.blank? && a.ne_geo_item_id.blank?
+              assign_gadm(a)       if !a.gadmID.blank? && a.ne_geo_item_id.blank?
+              assign_tdwg1(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
+              assign_tdwg2(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
+              assign_tdwg3(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
+              assign_tdwg4(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
+            end
+          }
 
-         puts "\n\n a.to_s"
-
+          puts "\n\n #{a.to_s}"
+          
           byebug
           raise
         end
       rescue
         raise
       end
+   
+       # remove_temporary_shape_tables
     end
 
 
-        # remove_temporary_shape_tables
+    
 
   #   byebug
   #         raise
@@ -351,10 +374,7 @@ namespace :tw do
   #         end
 
   #   multiples = []
-  #   skipped   = {'ne_geo_item'   => [],
-  #                'tdwg_geo_item' => [],
-  #                'gadm_geo_item' => []}
-  #   check     ={}
+  #     #   check     ={}
   #   placer    = nil
   #   finder    = {}
 
