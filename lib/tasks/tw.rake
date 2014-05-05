@@ -27,8 +27,12 @@ namespace :tw do
 
   desc 'a default method to add a data_directory_argument'
   task  :data_directory do |t| 
-    @args ||= {}
-    @args.merge!(data_directory: (ENV['data_directory'] || "#{ENV['HOME']}/src/sf/tmp/"))
+    default = "#{ENV['HOME']}/src/sf/tmp/"
+    @args ||= {} 
+    puts "no data_directory passed, using default (#{default})" if ENV['data_directory'].blank?
+    @args.merge!(data_directory: (ENV['data_directory'] || default ))
+    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory])
+    @args
   end
 
   desc 'a default method to add a data_directory_argument'

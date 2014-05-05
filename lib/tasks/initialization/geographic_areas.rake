@@ -245,6 +245,8 @@ namespace :tw do
     end
 
     def assign_ne_country(a)
+      byebug
+      foo = 1
       if r = ActiveRecord::Base.connection.execute("select geom from ne_countries where iso_n3 = #{a.neID}")  
         build_and_assing(a,r) if r.count == 1 # if not, bad things
       end
@@ -269,9 +271,10 @@ namespace :tw do
     def assign_tdwg4(a)     
     end
 
-    # rake tw:initialization:load_geographic_area_shapes
-    desc 'load shapes for geographic_areas'
-    task 'load_geographic_area_shapes' => [:environment, :data_directory, :database_role, :with_user_and_project] do
+    
+    desc "Loads shape files related to GeographicAreas by querying against temporaryily loaded source shapefiles in SFGs /gaz repo:\n
+        rake tw:initialization:load_geographic_area_shapes data_director=/path/to/gaz/ database_role=postgres user_id=1"
+    task 'load_geographic_area_shapes' => [:environment, :data_directory, :database_role, :user_id] do
 
       base = "#{@args[:data_directory]}data/external/shapefiles/"
 
@@ -282,18 +285,19 @@ namespace :tw do
         tdwg_l1: "#{base}tdwg/level1/level1.shp",
         tdwg_l2: "#{base}tdwg/level2/level2.shp",
         tdwg_l3: "#{base}tdwg/level3/level3.shp",
-        tdwg_l3: "#{base}tdwg/level4/level4.shp"
+        tdwg_l4: "#{base}tdwg/level4/level4.shp"
       }
 
       SHAPETABLES.values.each do |file|
         raise "Can't find #{file}." if !File.exists?(file)
       end
 
-      # add_temporary_shape_tables
+       add_temporary_shape_tables
 
       begin
         ActiveRecord::Base.transaction do 
           GeographicArea.all.each do |a|
+            byebug
             assign_ne_country(a) if !a.neID.blank? && a.ne_geo_item_id.blank?
             assign_ne_state(a)   if !a.neID.blank? && a.ne_geo_item_id.blank?
             assign_gadm(a)       if !a.gadmID.blank? && a.ne_geo_item_id.blank?
@@ -302,6 +306,8 @@ namespace :tw do
             assign_tdwg3(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
             assign_tdwg4(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
           end
+
+          raise
         end
       rescue
         raise
