@@ -233,14 +233,14 @@ namespace :tw do
       end
     end
 
-    def build_and_assign(a, where_clause, join_table)
-      print "\r#{a.id}"
+    def build_and_assign(a, where_clause, join_table, placer, area_clause)
+      print "\r#{a.id}    \t\t"
       b = Benchmark.measure {
         i = GeographicItem.create(point: @dummy_point)
-        ActiveRecord::Base.connection.execute("update geographic_areas set ne_geo_item_id = '#{i.id}' where 'neID' = '#{a.neID}';")  
+        ActiveRecord::Base.connection.execute("update geographic_areas set #{placer} = '#{i.id}' where #{area_clause};")  
         ActiveRecord::Base.connection.execute("update geographic_items set point = null, multi_polygon = (select ST_Force3D(geom) from #{join_table} where #{where_clause}) where id = #{i.id};") 
       }
-      print "\t#{b.to_s.strip}"
+      print "#{b.to_s.strip}   "
     end
 
     def log_missmatch(a,r,where_clause)
@@ -253,24 +253,29 @@ namespace :tw do
 
     def assign_ne_country(a)
       where_clause = "iso_n3 = '#{a.neID}'"
-      assign_ne(a, where_clause, 'ne_countries')
+      area_clause = "'neID' = '#{a.neID}'"
+      assign_check(a, where_clause, 'ne_countries', 'ne_geo_item_id', area_clause)
    end
 
     def assign_ne_state(a)  
-      where_clause = "adm1_code_ = '#{a.neID}'"
-      assign_ne(a, where_clause, 'ne_states')
+      where_clause = "'adm1_code_' = '#{a.neID}'"
+      area_clause = "'neID' = '#{a.neID}'"
+      assign_check(a, where_clause, 'ne_countries', 'ne_geo_item_id', area_clause)
     end
    
-    def assign_ne(a, where_clause, join_table)
-      r = ActiveRecord::Base.connection.execute("select gid from #{join_table} where #{where_clause};")  # Do a fast query to check to see if there is a 1:1 map
+    def assign_check(a, where_clause, join_table, placer, area_clause)
+      r = ActiveRecord::Base.connection.execute("select count(*) from #{join_table} where #{where_clause};")  # Do a fast query to check to see if there is a 1:1 map
       if r.count == 1 
-        build_and_assign(a, where_clause, join_table) 
+        build_and_assign(a, where_clause, join_table, placer, area_clause) 
       else
         log_missmatch(a,r,where_clause)
       end
     end
 
-    def assign_gadm(a)      
+    def assign_gadm(a) 
+      where_clause = "'OBJECTID' = '#{a.gadmID}'"
+      area_clause = "'gadmID' = '#{a.gadmID}'"
+      assign_check(a, where_clause, 'gadm', 'gadm_geo_item_id', area_clause)
     end
    
     def assign_tdwg1(a)     
@@ -320,16 +325,18 @@ namespace :tw do
             GeographicArea.all.each do |a|
               assign_ne_country(a) if !a.neID.blank? && a.ne_geo_item_id.blank?
               assign_ne_state(a)   if !a.neID.blank? && a.ne_geo_item_id.blank?
-              assign_gadm(a)       if !a.gadmID.blank? && a.ne_geo_item_id.blank?
-              assign_tdwg1(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-              assign_tdwg2(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-              assign_tdwg3(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
-              assign_tdwg4(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
+              assign_gadm(a)       if !a.gadmID.blank? && a.gadm_geo_item_id.blank?
+              if !a.tdwgID.blank? && a.tdwg_geo_item_id.blank?
+                assign_tdwg1(a)      
+                assign_tdwg2(a)     
+                assign_tdwg3(a)    
+                assign_tdwg4(a)   
+              end
             end
           }
 
           puts "\n\n #{a.to_s}"
-          
+
           byebug
           raise
         end
