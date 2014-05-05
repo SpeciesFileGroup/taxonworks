@@ -219,8 +219,6 @@ namespace :tw do
       end
     end
 
-
-
     def add_temporary_shape_tables
       SHAPETABLES.each do |table_name, file_path|
        puts `shp2pgsql -W LATIN1 #{file_path} #{table_name} > /tmp/foo.sql`
@@ -235,20 +233,21 @@ namespace :tw do
       end
     end
 
-
     def build_and_assign(a, r)
+      print "\r#{a.id}"
+      b = Benchmark.measure {
+        p = Georeference::FACTORY.point(-88.241413, 40.091655, 757)
+        i = GeographicItem.create(point: p) #   multi_polygon: r.first['geom']
+        a.update(ne_geo_item_id: i.id) 
+       ActiveRecord::Base.connection.execute("update geographic_items set point = null, multi_polygon = '#{r.first['geom']}' where id = #{i.id};") #  iso_n3 = #{a.neID} ")  
+      }
+      print "\t#{b.to_s.strip}"
 
-      byebug 
-      i = GeographicItem.create(multi_polygon: r.first['geom'])
-      a.update(ne_geo_item_id: i.id)
-      # ActiveRecord::Base.connection.execute("update geographic_items insert into select geom from ne_countries where iso_n3 = #{a.neID} ")  
     end
 
     def assign_ne_country(a)
-      byebug
-      foo = 1
-      if r = ActiveRecord::Base.connection.execute("select geom from ne_countries where iso_n3 = #{a.neID}")  
-        build_and_assing(a,r) if r.count == 1 # if not, bad things
+      if r = ActiveRecord::Base.connection.execute("select ST_AsText(ST_Force3D(geom)) geom from ne_countries where iso_n3 = '#{a.neID}'")  
+        build_and_assign(a,r) if r.count == 1 # if not, bad things
       end
     end
 
@@ -271,9 +270,8 @@ namespace :tw do
     def assign_tdwg4(a)     
     end
 
-    
     desc "Loads shape files related to GeographicAreas by querying against temporaryily loaded source shapefiles in SFGs /gaz repo:\n
-        rake tw:initialization:load_geographic_area_shapes data_director=/path/to/gaz/ database_role=postgres user_id=1"
+        rake tw:initialization:load_geographic_area_shapes data_directory=/Users/matt/src/sf/tw/gaz/ database_role=postgres user_id=1"
     task 'load_geographic_area_shapes' => [:environment, :data_directory, :database_role, :user_id] do
 
       base = "#{@args[:data_directory]}data/external/shapefiles/"
@@ -292,12 +290,13 @@ namespace :tw do
         raise "Can't find #{file}." if !File.exists?(file)
       end
 
-       add_temporary_shape_tables
+      # add_temporary_shape_tables
 
       begin
         ActiveRecord::Base.transaction do 
+        
+         a = Benchmark.measure { 
           GeographicArea.all.each do |a|
-            byebug
             assign_ne_country(a) if !a.neID.blank? && a.ne_geo_item_id.blank?
             assign_ne_state(a)   if !a.neID.blank? && a.ne_geo_item_id.blank?
             assign_gadm(a)       if !a.gadmID.blank? && a.ne_geo_item_id.blank?
@@ -306,7 +305,11 @@ namespace :tw do
             assign_tdwg3(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
             assign_tdwg4(a)      if !a.tdwgID.blank? && a.ne_geo_item_id.blank?
           end
+         }
 
+         puts "\n\n a.to_s"
+
+          byebug
           raise
         end
       rescue
