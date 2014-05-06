@@ -37,7 +37,12 @@ TaxonWorks::Application.routes.draw do
   resources :identifiers
   resources :namespaces
   resources :notes
-  resources :otus
+  resources :otus do
+    collection do
+      post 'search'
+      get 'list'
+   end
+  end
   resources :people
   resources :repositories
   resources :taxon_determinations

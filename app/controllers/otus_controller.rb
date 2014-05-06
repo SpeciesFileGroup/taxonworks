@@ -1,11 +1,10 @@
 class OtusController < ApplicationController
-  before_action :require_sign_in_and_project_selection
+#  before_action :require_sign_in_and_project_selection
   before_action :set_otu, only: [:show, :edit, :update, :destroy]
 
   # GET /otus
   # GET /otus.json
   def index
-    @otus = Otu.all
   end
 
   # GET /otus/1
@@ -20,6 +19,10 @@ class OtusController < ApplicationController
 
   # GET /otus/1/edit
   def edit
+  end
+
+  def list
+    @otus = Otu.all
   end
 
   # POST /otus
@@ -60,6 +63,11 @@ class OtusController < ApplicationController
       format.html { redirect_to otus_url }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    @otus = Otu.where(name: params[:name])
+    render :list
   end
 
   private

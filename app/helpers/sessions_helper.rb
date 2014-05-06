@@ -73,7 +73,7 @@ module SessionsHelper
   end
 
   def authorize_project_selection(user, project)
-    project.members.include?(user) 
+    project.project_members.include?(user)
   end
 
   def require_sign_in
