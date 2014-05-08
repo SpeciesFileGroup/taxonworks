@@ -50,6 +50,21 @@ describe GeographicArea do
     end
   end
 
+  context 'instance methods' do
+    specify "tdwg_ids" do
+      geographic_area.tdwgID = '41SCS-PI'
+      expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
+      expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
+      expect(geographic_area.tdwg_ids[:lvl3]).to eq('SCS')
+      expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
+    end
+
+    specify "tdwg_level" do
+      geographic_area.data_origin = 'TDWG2 Level 1'
+      expect(geographic_area.tdwg_level).to eq('1')
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'parent' do

@@ -1,5 +1,7 @@
 namespace :tw do
 
+  require_relative 'support/database'
+  
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
   task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]
@@ -42,6 +44,5 @@ namespace :tw do
   end
 
 
-
-end
+ end
 
