@@ -18,7 +18,7 @@ require 'spec_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe OtusController do:A
+describe OtusController do
   before(:each) {
     sign_in 
   }
@@ -145,21 +145,21 @@ describe OtusController do:A
         response.should render_template("edit")
       end
     end
-  end
 
-  describe "DELETE destroy" do
-    it "destroys the requested otu" do
-      otu = Otu.create! valid_attributes
-      expect {
+    describe "DELETE destroy" do
+      it "destroys the requested otu" do
+        otu = Otu.create! valid_attributes
+        expect {
+          delete :destroy, {:id => otu.to_param}, valid_session
+        }.to change(Otu, :count).by(-1)
+      end
+
+      it "redirects to the otus list" do
+        otu = Otu.create! valid_attributes
         delete :destroy, {:id => otu.to_param}, valid_session
-      }.to change(Otu, :count).by(-1)
+        response.should redirect_to(otus_url)
+      end
     end
 
-    it "redirects to the otus list" do
-      otu = Otu.create! valid_attributes
-      delete :destroy, {:id => otu.to_param}, valid_session
-      response.should redirect_to(otus_url)
-    end
   end
-
 end
