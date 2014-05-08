@@ -52,18 +52,18 @@ namespace :tw do
 
             Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
      
-            # Index localities by their collective column=>data pairs
-            def build_localities_index
-              localities_file = @args[:data_directory] + 'localities.txt'
-              raise 'file not found' if not File.exists?(localities_file)
-              lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
+      # Index localities by their collective column=>data pairs
+      def build_localities_index
+        localities_file = @args[:data_directory] + 'localities.txt'
+        raise 'file not found' if not File.exists?(localities_file)
+        lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
 
-              localities = {}
-              lo.each do |row|
-                localities.merge!(row['LocalityCode'] => row.to_h)
-              end
-              localities
-            end
+        localities = {}
+        lo.each do |row|
+          localities.merge!(row['LocalityCode'] => row.to_h)
+        end
+        localities
+      end
 
             # A lookup index for localities
             LOCALITIES = build_localities_index 
@@ -99,11 +99,11 @@ namespace :tw do
             #  specimens_from_3i.txt
             #  specimens_new.txt
             #  specimens_new_partially_resolved.txt
-
+            
             #  types.txt
 
-            # Rake::Task["tw:project_import:insects:handle_people"].execute
-            # Rake::Task["tw:project_import:insects:handle_taxa"].execute
+          # Rake::Task["tw:project_import:insects:handle_people"].execute
+          # Rake::Task["tw:project_import:insects:handle_taxa"].execute
 
             Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
             Rake::Task["tw:project_import:insects:handle_specimens"].execute
@@ -245,7 +245,7 @@ namespace :tw do
         le = CSV.open(path2, col_sep: "\t", :headers => true)
         sp = CSV.open(path3, col_sep: "\t", :headers => true)
         ac = CSV.open(path4, col_sep: "\t", :headers => true)
-
+      
         collecting_events = {}
         unmatched_localities = {}
 
@@ -294,7 +294,7 @@ namespace :tw do
           "Country",
           "County",
           "State",
-      
+
           "AccessionNumber",
           "BodyOfWater",
           "Collection",
@@ -305,7 +305,7 @@ namespace :tw do
           "DrainageBasinGreater",
           "DrainageBasinLesser",
           "Family",
-
+         
           "Genus",
           "Host",
           "HostGenus",
@@ -321,7 +321,7 @@ namespace :tw do
           "Species",
           "StreamSize",
           "WisconsinGlaciated",
-
+         
           "PrecisionCode",    # tag on Georeference
           "GBIF_precission",  # tag
         ]
@@ -329,7 +329,7 @@ namespace :tw do
         PREDICATES.each do |p|
           @data.keywords.merge!(p => Predicate.new(name: "CollectingEvents:#{p}", definition: "The verbatim value imported in for #{p}.")  )
         end
-
+          
         NAME_TRANSLATOR = {
           'U.S.A.' => 'United States',
           'U. S. A.' => 'United States',
@@ -341,7 +341,7 @@ namespace :tw do
 
         matchless = []
         found = 0
-       
+
 
         collecting_events.keys.each_with_index do |ce,i|
           break if i > 1000 
@@ -423,11 +423,11 @@ namespace :tw do
 
           PREDICATES.each do |p| 
             c.data_attributes.build(predicate: @data.keywords[p], value: ce[p], type: 'InternalAttribute') if !ce[p].blank? 
-          end
+        end
 
           @data.collecting_events.merge!(ce => c)
-       end
-      end 
+          end
+        end
 
       desc 'handle specimens'
       task :handle_specimens => [:data_directory, :environment] do |t, args|
@@ -553,7 +553,7 @@ namespace :tw do
         SPECIMENS_COLUMNS.each do |c|
           tmp_ce.merge!(c => row[c]) if !row[c].blank?
         end
-     
+
         # pull from the locality index 
         if v = LOCALITIES[row['LocalityCode']]
           tmp_ce.merge!(v) 
@@ -734,9 +734,9 @@ namespace :tw do
         end
       end
 
-    end
-  end
-end
+          end
+        end
+      end
 
 
 

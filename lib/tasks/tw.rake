@@ -1,5 +1,7 @@
 namespace :tw do
 
+  require_relative 'support/database'
+  
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
   task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]
@@ -25,13 +27,22 @@ namespace :tw do
     raise "User is not a member of project." if !ProjectMember.where(project_id: $project_id, user_id: $user_id)
   end
 
-  desc 'Pass a data_directory=/some/path/ arguement. Result stored in @args[:data_directory].'
-  task  :data_directory do 
-    @args ||= {}
-    data_directory = ENV['data_directory']  
-    data_directory ||= "#{ENV['HOME']}/src/"
-    @args.merge!(data_directory: data_directory)
+  desc 'a default method to add a data_directory_argument'
+  task  :data_directory do |t| 
+    default = "#{ENV['HOME']}/src/sf/tmp/"
+    @args ||= {} 
+    puts "no data_directory passed, using default (#{default})" if ENV['data_directory'].blank?
+    @args.merge!(data_directory: (ENV['data_directory'] || default ))
+    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory])
+    @args
   end
 
-end
+  desc 'a default method to add a data_directory_argument'
+  task  :database_role do |t| 
+    @args ||= {}
+    @args.merge!(database_role: (ENV['database_role'] || 'postgres'))
+  end
+
+
+ end
 

@@ -108,6 +108,7 @@ class GeographicArea < ActiveRecord::Base
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
 
+
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
   end
@@ -122,6 +123,20 @@ class GeographicArea < ActiveRecord::Base
 
   def descendants_of_geographic_area_types(geographic_area_types)
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_types})
+  end
+
+  # Returns a HASH with keys pointing to each of the four level components of the ID.  Matches values in original data.
+  def tdwg_ids
+    {lvl1: self.tdwgID.slice(0),
+     lvl2: self.tdwgID.slice(0,2),
+     lvl3: self.tdwgID.slice(2,3),
+     lvl4: self.tdwgID.slice(2,6) 
+    }
+  end
+
+  def tdwg_level
+    return nil if !self.data_origin =~ /TDWG/
+    self.data_origin[-1]
   end
 
   # priority:
@@ -146,7 +161,6 @@ class GeographicArea < ActiveRecord::Base
   # end
   # retval
   end
-
 
   def geo_object
     default_geographic_item
