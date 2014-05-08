@@ -8,24 +8,7 @@ namespace :tw do
         desc "Loads shape files related to GeographicAreas by querying against temporaryily loaded source shapefiles in SFGs /gaz repo.\n
           database_role is the postgres role that has permissions for the database used.\n
             rake tw:development:data:geo:build_geographic_items_from_temporary_shape_tables data_directory=/Users/matt/src/sf/tw/gaz/ database_role=matt user_id=1"
-        task 'build_geographic_items_from_temporary_shape_tables' => [:environment, :geo_dev_init, :data_directory, :database_role, :user_id] do
-          base = "#{@args[:data_directory]}data/external/shapefiles/"
-
-          SHAPETABLES = {
-            gadm:           "#{base}gadm/gadm_v2_shp/gadm2.shp",
-            ne_countries:   "#{base}NaturalEarth/10m_cultural/ne_10m_admin_0_countries.shp",
-            ne_states:      "#{base}NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp.shp",
-            tdwg_l1:        "#{base}tdwg/level1/level1.shp",
-            tdwg_l2:        "#{base}tdwg/level2/level2.shp",
-            tdwg_l3:        "#{base}tdwg/level3/level3.shp",
-            tdwg_l4:        "#{base}tdwg/level4/level4.shp"
-          }
-
-          SHAPETABLES.values.each do |file|
-            raise "Can't find #{file}." if !File.exists?(file)
-          end
-
-          add_temporary_shape_tables
+        task 'build_geographic_items_from_temporary_shape_tables' => [:environment, :geo_dev_init, :data_directory, :database_role, :user_id, :build_temporary_shapefile_tables] do
 
           @dummy_point = Georeference::FACTORY.point(-12.345678, 12.345678, 123)
 
@@ -52,7 +35,6 @@ namespace :tw do
           puts "\n\n #{a.to_s}"
 
           quick_validate
-          remove_temporary_shape_tables
         end
 
         
