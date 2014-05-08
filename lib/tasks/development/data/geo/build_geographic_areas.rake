@@ -20,7 +20,7 @@ namespace :tw do
         #   ("gadmID" is not null) and (("neID" is not null) OR ("tdwgID" is not null)) OR
         #   ("neID" is not null) and (("gadmID" is not null) OR ("tdwgID" is not null)) OR
         #   ("tdwgID" is not null) and (("neID" is not null) OR ("gadmID" is not null)) 
-         );
+        # );
         desc "Generate the GeographicAreas corresponding to input shape data in SFGs /gaz/ repository.  The input shape data are postgis readable shapefiles.\n 
           This call populates GeographicAreaTypes if empty, and GeographicAreas, which must be otherwise empty. The data_directory should point to the gaz/ repo.\n
             tw:development:data:geo:build_geographic_areas data_directory=/Users/matt/src/sf/tw/gaz/ user_id=1 divisions=false NO_GEO_NESTING=1 NO_GEO_VALID=1"

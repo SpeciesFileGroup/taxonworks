@@ -49,14 +49,13 @@ namespace :tw do
               assign_gadm(a)       if !a.gadmID.blank? && a.gadm_geo_item_id.blank?
             end
           }
-
           puts "\n\n #{a.to_s}"
 
           quick_validate
-          
           remove_temporary_shape_tables
         end
 
+        
         # Helper methods
 
         def add_temporary_shape_tables
