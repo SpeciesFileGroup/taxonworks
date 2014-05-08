@@ -2,6 +2,7 @@ namespace :tw do
   namespace :development do
     namespace :data do
       namespace :geo do
+          require_relative '../../../support/database'
 
         # Currently clocks at ~ 0.1 seconds / record : 149.780000  11.220000 161.000000 (6233.255875); results in 36235 records (vs. 34125 in gaz)
 

@@ -64,11 +64,11 @@ namespace :tw do
       raise "Missing #{geographic_area_types_file}, doing nothing." if !File.exists?(geographic_area_types_file) 
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
-      a = pg_restore(database, 'geographic_area_types', data_store)
+      a = Support::Database.pg_restore(database, 'geographic_area_types', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
-      b = pg_restore(database, 'geographic_items', data_store)
+      b = Support::Database.pg_restore(database, 'geographic_items', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
-      c = pg_restore(database, 'geographic_areas', data_store)
+      c = Support::Database.pg_restore(database, 'geographic_areas', data_store)
       puts "#{Time.now.strftime "%H:%M:%S"}."
     end
 
