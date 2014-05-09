@@ -11,74 +11,131 @@ namespace :tw do
           puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
         end
 
+        task :build_geographic_areas2 => [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables, :build_geographic_area_types, ] do
+          @connection = ActiveRecord::Base.connection
+          @earth = build_earth # make sure the earth record exists and is available
+          @data_index = GeoAreasIndex.new
+
+          build_areas_from_country_codes
+
+          IMPORT_TABLES.keys.each do |source_table|
+            self.send("build_areas_from_#{source_table}")        
+          end
+
+          @data_index.build_internal_nodes
+
+        
+          puts @data_index.collision_count
+          puts @data_index.index.count
+          byebug 
+          foo = 1
+        end
+
         class GeoAreasIndex
-          attr_accessor :index, :collision_count
+          attr_accessor :index, :collision_count, :duplicate_names
+       
           def initialize 
             @index = {}
             @collision_count = 0
+            @duplicate_names = []
           end
+
+          def names
+            @index.values
+          end 
 
           def add_item(attribute_hash)
             i = TempGeoArea.new(attribute_hash)
             if @index[i.index]
               @collision_count += 1 
+              @duplicate_names.push(i)
               @index[i.index].add_shape(attribute_hash) 
-              puts " !!! Existing record #{@index[i.index].source_table_gid} !!! \n\n"
+              # puts " !!! Existing record #{@index[i.index].source_table_gid} !!! \n\n"
             else
               @index.merge!(i.index => i) 
             end
           end
 
           def build_internal_nodes
-            @index.keys.each do |hsh|
-              
+            names.each do |tmp_geo_area|
+              recurse_nodes(tmp_geo_area.parent_names, tmp_geo_area) 
+            end
+          end
+
+          def recurse_nodes(parent_names, source_tmp_geo_area)
+            if parent_names.count > 1 
+              parents = parent_names.dup # Tricky! 
+              name = parents.shift
+              puts "building internal node: #{name} : #{parents} "
+              add_item(
+                name: name,
+                parent_names: parents,
+                source_table: source_tmp_geo_area.source_table,
+                source_table_gid: source_tmp_geo_area.source_table_gid,
+                is_internal_node: true
+              )
+              recurse_nodes(parents, source_tmp_geo_area)
             end
           end
 
           def save_all
           end
 
-        end
+          # Reports / debugging only! 
+          # These methods should not be used to handle/parse incoming data.
 
+          def all_name_strings
+            names.collect{|a| a.name}
+          end
+ 
+          def duplicate_name_strings
+            @duplicate_names.collect{|a| a.name}.sort.uniq
+          end
+
+          def internal_names
+            names.select{|n| n.is_internal_node}
+          end  
+        
+          def names_with_multiple_shapes
+            names.select{|n| n.shapes.count > 1 }
+          end
+
+          # These should be empty Arrays
+
+          def names_not_indexed
+            names.select{|n| !@index[n.index]}
+          end
+
+          def names_without_parent_arrays
+            names.select{|n| n.parent_names.nil? || n.parent_names.count == 0}
+          end
+        end
+        
         class TempGeoArea
-          attr_accessor :name, :lvl0, :lvl1, :lvl2, :parent_name, :source_table, :source_table_gid, :shapes
+          attr_accessor :name, :lvl0, :lvl1, :lvl2, :parent_names, :source_table, :source_table_gid, :shapes
+          attr_accessor :is_internal_node # internal nodes have no shapes
+
           def initialize(attribute_hash)
             @shapes = []
             raise if attribute_hash[:name].strip.blank?
-
             attribute_hash.each do |k, v|
               self.send("#{k}=", v)
             end
-
             add_shape(attribute_hash) 
+            true
           end
 
           def add_shape(attribute_hash)
+            return false if attribute_hash[:is_internal_node]
             raise if attribute_hash[:source_table].blank? || attribute_hash[:source_table_gid].blank?
             @shapes.push [attribute_hash[:source_table], attribute_hash[:source_table_gid]] 
           end
 
           def index 
-            {name: @name, parent_name: @parent_name, lvl0: @lvl0, lvl1: @lvl1, lvl2: @lvl2 } 
+            {name: @name, parent_names: @parent_names } # , lvl0: @lvl0, lvl1: @lvl1, lvl2: @lvl2 } 
           end
-
         end
 
-        task :build_geographic_areas2 => [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables, :build_geographic_area_types, ] do
-          @connection = ActiveRecord::Base.connection
-          @earth = build_earth # make sure the earth record exists and is available
-          @data_index = GeoAreasIndex.new
-
-          IMPORT_TABLES.keys.each do |source_table|
-            self.send("build_areas_from_#{source_table}")        
-          end
-
-          @data.build_internal_nodes
-        
-
-          puts @data_index.collision_count
-        end
-  
         def all_records(table_name)
           @connection.execute("Select #{columns_minus_geom(table_name).collect{|c| "\"#{c}\""}.join(", ")} from #{table_name}")
         end
@@ -87,26 +144,45 @@ namespace :tw do
           @connection.execute("select column_name from information_schema.columns where table_name = '#{table_name}';").collect{|a| a['column_name']}.delete_if{|b| b == 'geom' }
         end
 
+        def build_areas_from_country_codes
+          CSV.read("#{@args[:data_directory]}data/external/country_names_and_code_elements.txt", options = {headers: true, col_sep: ';'}).each do |r|
+            @data_index.add_item(
+              name: r['Country Name'],
+              parent_names: [@earth.name],
+              lvl0: r['Country Name'], 
+              source_table: 'country_names_and_code_elements',
+              is_internal_node: true 
+            )
+          end
+        end
+
         def build_areas_from_gadm
           source_table = 'gadm'
           all_records(source_table).each do |r|
             # Only select records in levels 0-2
             next if !r['name_3'].blank? || !r['name_4'].blank? |!r['name_5'].blank?
-            puts "#{r['gid']} #{gadm_name_from_row(r)} : #{gadm_parent_name_from_row(r)}"
+            puts "#\r  #{r['gid']} #{gadm_name_from_row(r)} : #{gadm_parent_names_from_row(r)}"
             @data_index.add_item(
               name: gadm_name_from_row(r),
-              parent_name: gadm_parent_name_from_row(r),
+              parent_names: gadm_parent_names_from_row(r),
               lvl0: r['name_0'], 
               lvl1: r['name_1'], 
               lvl2: r['name_2'],
               source_table: source_table,
               source_table_gid: r['gid']
             )
+          
           end 
         end
 
         def gadm_names_from_row(row)
-          [row['name_2'], row['name_1'], row['name_0']].delete_if{|a| a.blank?}
+          [ row['name_2'], row['name_1'], row['name_0'], @earth.name ].delete_if{|a| a.blank?}
+        end
+
+        def gadm_parent_names_from_row(row)
+          parents = gadm_names_from_row(row)
+          parents.shift
+          parents
         end
 
         def gadm_name_from_row(row)
@@ -114,7 +190,7 @@ namespace :tw do
         end
 
         def gadm_parent_name_from_row(row)
-          gadm_names_from_row(row)[1] ? gadm_names_from_row(row)[1] : @earth.name 
+          gadm_names_from_row(row)[1]
         end
 
         def build_areas_from_tdwg_l1
@@ -122,8 +198,8 @@ namespace :tw do
           source_table = 'tdwg_l1'
           all_records(source_table).each do |r|
             @data_index.add_item(
-              name: r['level1_nam'],
-              parent_name: @earth.name,
+              name: uncapitalize(r['level1_nam']),
+              parent_names: [@earth.name],
               source_table: source_table,
               source_table_gid: r['gid']
             )
@@ -136,7 +212,7 @@ namespace :tw do
           all_records(source_table).each do |r|
             @data_index.add_item(
               name: r['level2_nam'],
-              parent_name: r['level1_nam'],
+              parent_names: [uncapitalize(r['level1_nam']), @earth.name],
               source_table: source_table,
               source_table_gid: r['gid']
             )
@@ -149,19 +225,11 @@ namespace :tw do
           all_records(source_table).each do |r|
             @data_index.add_item(
               name: r['level3_nam'],
-              parent_name: tdwg_level_2_name(r),
+              parent_names: [tdwg_level_2_name(r), tdwg_level_1_name(r), @earth.name],
               source_table: source_table,
               source_table_gid: r['gid']
             )
           end
-        end
-
-        def tdwg_level_2_name(r)
-          @connection.execute("select level2_nam from tdwg_l2 where level1_cod =  '#{r['level1_cod']}' and level2_cod = '#{r['level2_cod']}';").first['level2_nam']
-        end
-
-        def tdwg_level_3_name(r)
-          @connection.execute("select level3_nam from tdwg_l3 where level3_cod = '#{r['level3_cod']}' AND level2_cod = '#{r['level2_cod']}';").first['level3_nam']
         end
 
         def build_areas_from_tdwg_l4
@@ -170,11 +238,28 @@ namespace :tw do
           all_records(source_table).each do |r|
             @data_index.add_item(
               name: r['level_4_na'],
-              parent_name: tdwg_level_3_name(r),
+              parent_names: [tdwg_level_3_name(r), tdwg_level_2_name(r), tdwg_level_1_name(r), @earth.name],
               source_table: source_table,
               source_table_gid: r['gid']
             )
           end
+        end
+
+        def uncapitalize(name)
+          raise if name.blank?
+          name.downcase.titleize.gsub(/\sAnd\s/, ' and ')
+        end
+
+        def tdwg_level_1_name(r)
+          uncapitalize( @connection.execute("select level1_nam from tdwg_l1 where level1_cod = '#{r['level1_cod']}';").first['level1_nam'] )
+        end
+
+        def tdwg_level_2_name(r)
+          @connection.execute("select level2_nam from tdwg_l2 where level1_cod =  '#{r['level1_cod']}' and level2_cod = '#{r['level2_cod']}';").first['level2_nam']
+        end
+
+        def tdwg_level_3_name(r)
+          @connection.execute("select level3_nam from tdwg_l3 where level3_cod = '#{r['level3_cod']}' AND level2_cod = '#{r['level2_cod']}';").first['level3_nam']
         end
 
         def build_areas_from_ne_countries
@@ -186,7 +271,7 @@ namespace :tw do
             @data_index.add_item(
               name: r['name'],
               lvl0: r['name'],
-              parent_name: @earth.name,
+              parent_names: [@earth.name],
               source_table: source_table,
               source_table_gid: r['gid']
             )
@@ -198,16 +283,16 @@ namespace :tw do
           source_table = 'ne_states'
           all_records(source_table).each do |r|
             @data_index.add_item(
-              name: r['name'] ? r['name'] : 'UNKNOWN', # !@ 3285 has no name 
+              name: r['name'] ? r['name'] : 'UNKNOWN', # !@# 3285 has no name 
               lvl0: r['admin'],
-              parent_name: r['admin'] ,
+              parent_names: [ r['admin'], @earth.name ],
               source_table: source_table,
               source_table_gid: r['gid']
             )
           end
         end
  
-
+        #  
         # What is remarkable here is that for all this code only *6* records with shapes overlapped. Why?
         # Given this it seems a drastic simplification of the code may be warranted.
         #
