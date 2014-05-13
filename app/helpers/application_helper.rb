@@ -18,7 +18,7 @@ module ApplicationHelper
     end
   end
 
-  # !! Dangerous, not scoped by project, and not bound
+  # !! Dangerous, not scoped by project, and not bound, also assumes -1 TODO: FIX
   def previous_by_id_link(instance)
     link_id = instance.id.to_i - 1
     if link_id <= 1
@@ -28,7 +28,7 @@ module ApplicationHelper
     end 
   end
 
-  # !! Dangerous, not scoped by project
+  # !! Dangerous, not scoped by project: TODO: FIX
   def next_by_id_link(instance)
     link_id = instance.id.to_i + 1
     if link_id >= instance.class.count

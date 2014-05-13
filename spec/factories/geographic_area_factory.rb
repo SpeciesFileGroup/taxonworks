@@ -8,7 +8,6 @@ FactoryGirl.define do
         FactoryGirl.build(:earth_geographic_area)
       end
     }
-    tdwg_parent { parent }
   end
 
   trait :parent_country do
@@ -19,7 +18,6 @@ FactoryGirl.define do
         FactoryGirl.build(:level0_geographic_area)
       end
     }
-    tdwg_parent { parent }
     level0 { parent }
   end
 
@@ -32,7 +30,6 @@ FactoryGirl.define do
         FactoryGirl.build(:level1_geographic_area)
       end
     }
-    tdwg_parent { parent }
     level1 { parent }
   end
 

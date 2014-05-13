@@ -15,6 +15,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   has_many :geographic_areas_geographic_items, dependent: :destroy
+  has_many :geographic_areas, through: :geographic_areas_geographic_items
 
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas,   class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
@@ -40,18 +41,6 @@ class GeographicItem < ActiveRecord::Base
   # Return the Integer number of points in the geometry
   def st_npoints
     GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText(#{self.geo_object_type})) number_points").limit(1).first['number_points'].to_i
-  end
-
-  # TODO: Test 
-  # Return an arel of all GeographicAreas linked by FK
-  # to this GeographicItem
-  def geographic_areas
-    t = GeographicArea.arel_table
-    GeographicArea.uniq.where(
-      t[:tdwg_geo_item_id].eq(self.id).
-      or(t[:ne_geo_item_id].eq(self.id)).
-      or(t[:gadm_geo_item_id].eq(self.id))
-    )
   end
 
   def parent_geographic_areas

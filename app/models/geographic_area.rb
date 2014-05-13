@@ -156,7 +156,7 @@ class GeographicArea < ActiveRecord::Base
       WHEN 'gadm' THEN 3
       ELSE 4
       END, id"
-    ).first
+    ).first.geographic_item
   end
 
   def geo_object
