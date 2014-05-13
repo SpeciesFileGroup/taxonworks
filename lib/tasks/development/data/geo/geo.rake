@@ -3,12 +3,7 @@ namespace :tw do
     namespace :data do
       namespace :geo do
 
-        # INIT tasks for RGeo, PostGIS, shape files (GADM, TDWG, and NE)
-
-        # TODO: Problems with GADM V2
-        #   28758: Not a valid geometry.
-        #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
-
+        # Pre-initialization tasks for geo-related data
         SFG          = 'SpeciesFile Group'
 
         # ISO Country Codes:
@@ -48,7 +43,7 @@ namespace :tw do
         }
 
         task :geo_dev_init do
-          Raise 'Can not be run in production' if Rails.env == 'production'
+          raise 'Can not be run in production' if Rails.env == 'production'
         end
 
         desc "Load the supporting data in SFGs /gaz repo\n
@@ -79,11 +74,6 @@ namespace :tw do
             end
           end
         end
-
-        def table_exists(table_name)
-          ActiveRecord::Base.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = '#{table_name}');").first['exists'] == 't'
-        end
-
       end
     end
   end
