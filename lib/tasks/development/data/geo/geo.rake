@@ -3,12 +3,7 @@ namespace :tw do
     namespace :data do
       namespace :geo do
 
-        # INIT tasks for RGeo, PostGIS, shape files (GADM, TDWG, and NE)
-
-        # TODO: Problems with GADM V2
-        #   28758: Not a valid geometry.
-        #   200655: Side location conflict at 33.489303588867358, 0.087361000478210826
-
+        # Pre-initialization tasks for geo-related data
         SFG          = 'SpeciesFile Group'
 
         # ISO Country Codes:
@@ -37,10 +32,48 @@ namespace :tw do
 
         EXTRA = 'Extra'
 
+        IMPORT_TABLES = {
+          gadm:           "data/external/shapefiles/gadm/gadm_v2_shp/gadm2",
+          ne_countries:   "data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries",
+          ne_states:      "data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp",
+          tdwg_l1:        "data/external/shapefiles/tdwg/level1/level1",
+          tdwg_l2:        "data/external/shapefiles/tdwg/level2/level2",
+          tdwg_l3:        "data/external/shapefiles/tdwg/level3/level3",
+          tdwg_l4:        "data/external/shapefiles/tdwg/level4/level4"
+        }
+
         task :geo_dev_init do
-          Raise 'Can not be run in production' if Rails.env == 'production'
+          raise 'Can not be run in production' if Rails.env == 'production'
         end
 
+        desc "Load the supporting data in SFGs /gaz repo\n
+         rake tw:development:data:geo:build_temporary_shapefile_tables data_directory=/Users/matt/src/sf/tw/gaz/ database_role=matt"
+        task :build_temporary_shapefile_tables => [:environment, :database_role, :data_directory, :geo_dev_init] do
+          puts "Adding temporary shape files."
+          IMPORT_TABLES.each do |table_name, file_path|
+            if !table_exists(table_name) 
+              file = "#{@args[:data_directory]}#{file_path}.shp"
+              puts `shp2pgsql -W LATIN1 #{file} #{table_name} > /tmp/foo.sql`
+              puts `psql #{@args[:database_role]} -d taxonworks_development -f /tmp/foo.sql` 
+              puts `rm /tmp/foo.sql` 
+            else
+              puts "Table #{table_name} exists, skipping."
+            end
+            # cleanup TDWG - there is one duplicate record in level 4
+            # ActiveRecord::Base.connection.execute('delete from tdwg_l4 where gid = 193;')
+          end
+        end
+
+        desc 'Remove tables added through build_temporary_shapefile_tables'
+        task :delete_temporary_shapefile_tables => [:environment, :geo_dev_init] do
+          puts "Deleting temporary shape files."
+          IMPORT_TABLES.each do |table_name, file_path|
+            if table_exists(table_name) 
+              puts "Dropping #{table_name}."
+              ActiveRecord::Base.connection.execute("drop table #{table_name};")
+            end
+          end
+        end
       end
     end
   end

@@ -26,58 +26,13 @@
 </p>
 
 <p>
-  <strong>Adm0 a3:</strong>
-  <%= @geographic_area.adm0_a3 %>
-</p>
-
-<p>
   <strong>Data origin:</strong>
   <%= @geographic_area.data_origin %>
 </p>
 
 <p>
-  <strong>Tdwg parent:</strong>
-  <%= geographic_area_link( @geographic_area.tdwg_parent) -%>
-</p>
-
-<p>
-  <strong>Tdwgid:</strong>
+  <strong>TdwgID:</strong>
   <%= @geographic_area.tdwgID %>
-</p>
-
-<p>
-  <strong>Gadmid:</strong>
-  <%= @geographic_area.gadmID %>
-</p>
-
-<p>
-  <strong>Gadm valid from:</strong>
-  <%= @geographic_area.gadm_valid_from %>
-</p>
-
-<p>
-  <strong>Gadm valid to:</strong>
-  <%= @geographic_area.gadm_valid_to %>
-</p>
-
-<p>
-  <strong>Neid:</strong>
-  <%= @geographic_area.neID %>
-</p>
-
-<p>
-  <strong>Ne geo item:</strong>
-  <%= geographic_item_link(@geographic_area.ne_geo_item_id) %>
-</p>
-
-<p>
-  <strong>Gadm geo item:</strong>
-  <%= geographic_item_link(@geographic_area.gadm_geo_item_id) %>
-</p>
-
-<p>
-  <strong>Tdwg geo item:</strong>
-  <%= geographic_item_link(@geographic_area.tdwg_geo_item_id) %>
 </p>
 
 <p>
@@ -108,6 +63,11 @@
 <p><%= similarly_named_records_list(@geographic_area) -%> </p>
 <p> <strong> Children: </strong>
   <%= geographic_area_link_list(@geographic_area.children) -%>
+</p>
+
+<p>
+<strong> Geographic items (shapes):  </strong>
+  <%= geographic_item_links( @geographic_area.geographic_items)  -%>
 </p>
 
 <%= forward_back_links(@geographic_area) -%> <br>
