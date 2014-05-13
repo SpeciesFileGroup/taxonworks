@@ -113,17 +113,6 @@ class GeographicArea < ActiveRecord::Base
    end
  end
 
-  # TODO: Test
-  # Returns a scope of all _geo_items. 
-  def geographic_items
-    t = GeographicItem.arel_table
-    GeographicItem.uniq.where(
-      t[:id].eq(self.ne_geo_item_id).
-      or(t[:id].eq(self.tdwg_geo_item_id)).
-      or(t[:id].eq(self.gadm_geo_item_id))
-    )
-  end
-
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
@@ -158,34 +147,20 @@ class GeographicArea < ActiveRecord::Base
     self.data_origin[-1]
   end
 
-  # priority:
-  #   1)  NaturalEarth
-  #   2)  GADM
-  #   3)  TDWG
   def default_geographic_item
-    geographic_items.order
-   [ne_geo_item, gadm_geo_item, tdwg_geo_item].compact.first
-  # retval = nil
-  # if !ne_geo_item.nil?
-  #   retval = ne_geo_item
-  # else
-  #   if !gadm_geo_item.nil?
-  #     retval = gadm_geo_item
-  #   else
-  #     if !tdwg_geo_item.nil?
-  #       retval = tdwg_geo_item
-  #     else
-  #       retval = nil
-  #     end
-  #   end
-  # end
-  # retval
+    # Postgis specific.
+    GeographicAreasGeographicItem.order(
+      "CASE data_origin
+      WHEN 'ne_country' THEN 1
+      WHEN 'ne_state' THEN 2
+      WHEN 'gadm' THEN 3
+      ELSE 4
+      END, id"
+    ).first
   end
 
   def geo_object
     default_geographic_item
-#   retval = default_geographic_item
-#   retval.nil? ? nil : retval.geo_object
   end
 
 end
