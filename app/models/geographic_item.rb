@@ -14,17 +14,35 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
+  has_many :geographic_areas_geographic_items, dependent: :destroy
+
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas,   class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
   has_many :georeferences
- 
-  # TODO: Jim, test please 
   has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
 
   validate :proper_data_is_provided
 
-  # TODO: Jim, test please
+  # TODO: Test
+  # A scope that includes a 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
+  def self.with_is_valid_geometry_column(geographic_item)
+    where(id: geographic_item.id).select("ST_IsValid(ST_AsTExt(#{geographic_item.geo_object_type})) is_valid").limit(1)
+  end
+
+  # TODO: Test
+  # Returns True/False based on whether stored shape is ST_IsValid 
+  def is_valid_geometry?
+    GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
+  end
+
+  # TODO: Test
+  # Return the Integer number of points in the geometry
+  def st_npoints
+    GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText(#{self.geo_object_type})) number_points").limit(1).first['number_points'].to_i
+  end
+
+  # TODO: Test 
   # Return an arel of all GeographicAreas linked by FK
   # to this GeographicItem
   def geographic_areas
@@ -197,15 +215,31 @@ class GeographicItem < ActiveRecord::Base
     # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
   end
-
-  def geo_object # return false if the record has not been saved, or if there are no geographic objects in the record.
-    #return false if self.new_record?
+  
+  # return false if the record has not been saved (?!), or if there are no geographic objects in the record.
+  # otherwise, return the first-found object, according to the list of DATA_TYPES
+  def geo_object_type
     DATA_TYPES.each do |t|
-      # otherwise, return the first-found object, according to the list of DATA_TYPES
-      return self.send(t) if !self.send(t).nil?
+      return t if !self.send(t).nil?
     end
-    false
+    nil
   end
+
+  def geo_object 
+    if r = geo_object_type
+     self.send(r)
+    else
+     false
+    end
+  end  
+
+ #  #return false if self.new_record?
+ #  DATA_TYPES.each do |t|
+ #    # otherwise, return the first-found object, according to the list of DATA_TYPES
+ #    return self.send(t) if !self.send(t).nil?
+ #  end
+ #  false
+ #end
 
   def contains?(item)
     self.geo_object.contains?(item.geo_object)

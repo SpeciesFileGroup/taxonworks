@@ -1,8 +1,29 @@
+# A GeographicArea is a gazeteer entry for some political subdivision. GeographicAreas are presently 
+# limited to level second level subdivisions (e.g. counties in the United States). 
+# * "Levels" are non-normalized values used for convenience.
+#
+# @!attribute name 
+#   @return [String]
+#     the name of the geographic area 
+# @!attribute level0_id
+#   @return [Integer]
+#     the id of the GeographicArea *country* that this geographic area belongs to, self.id if self is a country 
+# @!attribute level1_id
+#   @return [Integer]
+#     the id of the first level subdivision (starting from country) that this geographic area belongs to, self if self is a first level subdivision
+# @!attribute level2_id
+#   @return [Integer]
+#     the id of the second level subdivision (starting from country) that this geographic area belongs to, self if self is a second level subdivision
+
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
   # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
-  acts_as_nested_set unless ENV['NO_GEO_NESTING']
+  if ENV['NO_GEO_NESTING']
+    belongs_to :parent, class_name: GeographicArea, foreign_key: :parent_id
+  else
+    acts_as_nested_set 
+  end
 
   belongs_to :gadm_geo_item, class_name: 'GeographicItem', foreign_key: :gadm_geo_item_id
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
@@ -13,16 +34,18 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :tdwg_geo_item, class_name: 'GeographicItem', foreign_key: :tdwg_geo_item_id
   belongs_to :tdwg_parent, class_name: 'GeographicArea', foreign_key: :tdwg_parent_id
   has_many :collecting_events, inverse_of: :geographic_area
+  has_many :geographic_areas_geographic_items
+  has_many :geographic_items, through: :geographic_areas_geographic_items
 
   validates_presence_of :data_origin
   validates :name, presence: true, length: { minimum: 1 }
   validates :geographic_area_type, presence: true
 
-  validates :level0, presence: true, unless: 'self.name == "Earth"', allow_nil: true
+  validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
 
-  validates :parent, presence: true, unless: 'self.name == "Earth"'
+  validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']
 
   validates_uniqueness_of :name, scope: [:level0, :level1, :level2] unless ENV['NO_GEO_VALID']
 

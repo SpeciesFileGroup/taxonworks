@@ -14,7 +14,7 @@ namespace :tw do
         task :build_geographic_areas2 => [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables, :build_geographic_area_types, ] do
           @connection = ActiveRecord::Base.connection
           @earth = build_earth # make sure the earth record exists and is available
-          @data_index = GeoAreasIndex.new
+          @data_index = GeoAreasIndex.new(@earth)
 
           build_areas_from_country_codes
 
@@ -23,7 +23,7 @@ namespace :tw do
           end
 
           @data_index.build_internal_nodes
-
+          @data_index.create_areas
         
           puts @data_index.collision_count
           puts @data_index.index.count
@@ -34,28 +34,38 @@ namespace :tw do
         class GeoAreasIndex
           attr_accessor :index, :collision_count, :duplicate_names
        
-          def initialize 
+          def initialize(earth)
             @index = {}
             @collision_count = 0
             @duplicate_names = []
+           
+            i = add_item(
+              name: earth.name, 
+              parent_names: [],
+              source_table: 'SFG',
+              is_internal_node: true
+            )
+            @index[i.index].geographic_area = earth
           end
 
           def names
-            @index.values
+            @index.values.collect{|n| n.temp_area}
           end 
 
           def add_item(attribute_hash)
-            i = TempGeoArea.new(attribute_hash)
+            i = TempArea.new(attribute_hash)
             if @index[i.index]
               @collision_count += 1 
               @duplicate_names.push(i)
-              @index[i.index].add_shape(attribute_hash) 
+              @index[i.index].temp_area.add_shape(attribute_hash) 
               # puts " !!! Existing record #{@index[i.index].source_table_gid} !!! \n\n"
             else
-              @index.merge!(i.index => i) 
+              @index.merge!(i.index => RecordLink.new( temp_area: i, geographic_area: nil ) ) 
             end
+            i
           end
 
+          # Internal nodes presently do not build corresponding lvl records!  Not sure if this is an issue.
           def build_internal_nodes
             names.each do |tmp_geo_area|
               recurse_nodes(tmp_geo_area.parent_names, tmp_geo_area) 
@@ -78,7 +88,69 @@ namespace :tw do
             end
           end
 
+          def create_areas
+            build_individual_areas
+            update_parents
+            update_levels
+            save_all
+          end
+
+          def build_individual_areas
+            @index.values.each do |n|
+              n.geographic_area = GeographicArea.new(
+                name: n.temp_area.name,
+                data_origin: n.temp_area.source_table,
+                geographic_area_type_id: 1 
+              )   
+            end
+          end
+
+          def update_parents
+            @index.values.each do |n| 
+              next if n.temp_area.name == 'Earth'  # This is a bit ugh, but let's us use fewer exceptions?
+              n.geographic_area.parent = @index[n.temp_area.parent_index].geographic_area 
+            end
+          end
+
+          def update_levels
+            @index.values.each do |n| 
+              next if n.temp_area.name == 'Earth'  
+              l0, l1, l2 = n.temp_area.level0_index, n.temp_area.level1_index, n.temp_area.level2_index
+              n.geographic_area.level0 = @index[l0].geographic_area if l0 != {}
+              n.geographic_area.level1 = @index[l1].geographic_area if l1 != {}
+              n.geographic_area.level2 = @index[l2].geographic_area if l2 != {}
+            end
+          end
+
           def save_all
+            puts "Saving.."
+            save_geographic_areas
+            raise if names_not_saved.count > 0
+            save_geographic_areas_geographic_items
+            puts "...done.\n"
+          end
+
+          def save_geographic_areas_geographic_items
+            @index.values.each do |n| 
+              n.temp_area.shapes.each do |s|
+                GeographicAreasGeographicItem.create!(geographic_area: n.geographic_area, data_origin: s[0], origin_gid: s[1])
+              end
+            end
+          end
+
+          def save_geographic_areas
+            @index.values.each do |n| 
+              recursively_save(n.geographic_area)
+            end
+          end
+
+          def recursively_save(geographic_area)
+            parent = geographic_area.parent
+            if parent && parent.new_record?
+              recursively_save(parent)
+            end
+            print "\r#{geographic_area.name}                                            "
+            geographic_area.save!
           end
 
           # Reports / debugging only! 
@@ -109,9 +181,22 @@ namespace :tw do
           def names_without_parent_arrays
             names.select{|n| n.parent_names.nil? || n.parent_names.count == 0}
           end
+
+          def names_not_saved
+            @index.values.collect{|i| i.geographic_area}.select{|a| a.new_record?}
+          end
         end
-        
-        class TempGeoArea
+      
+        # Links indexed data to its model format 
+        class RecordLink
+          attr_accessor :temp_area, :geographic_area
+          def initialize(params)
+            @temp_area = params[:temp_area]
+            @geographic_area = params[:geographic_area]
+          end
+        end
+
+        class TempArea
           attr_accessor :name, :lvl0, :lvl1, :lvl2, :parent_names, :source_table, :source_table_gid, :shapes
           attr_accessor :is_internal_node # internal nodes have no shapes
 
@@ -132,7 +217,28 @@ namespace :tw do
           end
 
           def index 
-            {name: @name, parent_names: @parent_names } # , lvl0: @lvl0, lvl1: @lvl1, lvl2: @lvl2 } 
+            {name: @name, parent_names: @parent_names } 
+          end
+
+          # Don't check Earth
+          def parent_index
+            {name: @parent_names.first, parent_names: @parent_names[1..(@parent_names.length)]}
+          end
+
+          # All of our data are presently only loded with @earth.name as parent
+          def level0_index 
+            return {} if @lvl0.nil?
+            {name: @lvl0, parent_names: [@parent_names.last]}
+          end
+
+          def level1_index 
+            return {} if @lvl1.nil?
+            {name: @lvl1, parent_names: [@lvl0, @parent_names.last].delete_if{|n| n.blank?}}
+          end
+
+          def level2_index 
+            return {} if @lvl2.nil?
+            {name: @lvl2, parent_names: [@lvl1, @lvl0, @parent_names.last].delete_if{|n| n.blank?} }
           end
         end
 
@@ -147,9 +253,9 @@ namespace :tw do
         def build_areas_from_country_codes
           CSV.read("#{@args[:data_directory]}data/external/country_names_and_code_elements.txt", options = {headers: true, col_sep: ';'}).each do |r|
             @data_index.add_item(
-              name: r['Country Name'],
+              name: uncapitalize(r['Country Name']),
               parent_names: [@earth.name],
-              lvl0: r['Country Name'], 
+              lvl0: uncapitalize(r['Country Name']), 
               source_table: 'country_names_and_code_elements',
               is_internal_node: true 
             )
@@ -171,7 +277,6 @@ namespace :tw do
               source_table: source_table,
               source_table_gid: r['gid']
             )
-          
           end 
         end
 
@@ -291,7 +396,12 @@ namespace :tw do
             )
           end
         end
- 
+
+
+
+
+
+
         #  
         # What is remarkable here is that for all this code only *6* records with shapes overlapped. Why?
         # Given this it seems a drastic simplification of the code may be warranted.
