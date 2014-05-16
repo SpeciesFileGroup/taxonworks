@@ -28,6 +28,5 @@ when 'production'
 
 when 'test'
 
-  # Never ever do anything. Test with FactoryGirl or inline..... 
 
 end

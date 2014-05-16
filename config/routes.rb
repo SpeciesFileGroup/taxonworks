@@ -23,7 +23,12 @@ TaxonWorks::Application.routes.draw do
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
   resources :biocuration_classifications
-  resources :collecting_events
+  resources :collecting_events do
+    collection do
+      get 'test'
+    end
+
+  end
   resources :collection_objects
   resources :controlled_vocabulary_terms
   resources :geographic_area_types
