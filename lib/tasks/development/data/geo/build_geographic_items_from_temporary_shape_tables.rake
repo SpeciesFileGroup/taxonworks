@@ -5,7 +5,7 @@ namespace :tw do
           require_relative '../../../support/database'
 
         # Presently benchmarks at under 10 minutes.
-        desc "Loads shape files related to GeographicAreas by querying against temporaryily loaded source shapefiles in SFGs /gaz repo.\n
+        desc "Loads shape files related to GeographicAreas by querying against temporarily loaded source shapefiles in SFGs /gaz repo.\n
           database_role is the postgres role that has permissions for the database used.\n
             rake tw:development:data:geo:build_geographic_items_from_temporary_shape_tables data_directory=/Users/matt/src/sf/tw/gaz/ database_role=matt user_id=1"
         task 'build_geographic_items_from_temporary_shape_tables' => [:environment, :geo_dev_init, :data_directory, :database_role, :user_id, :build_temporary_shapefile_tables] do
