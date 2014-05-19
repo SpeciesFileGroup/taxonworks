@@ -262,7 +262,7 @@
             map: map
             });
             var infoWindow = new google.maps.InfoWindow({
-                content: '<div style="width: 100px">' + speciesList[colorIndex] + '<br />' + collectionDateList[colorIndex] + '<br />' + collectorList[colorIndex] + '<br />Lat: ' + coords[0].lat().toPrecision(6) +
+                content: '<div style="width: 100px">' + coords[1].name + '<br />' + collectionDateList[colorIndex] + '<br />' + collectorList[colorIndex] + '<br />Lat: ' + coords[0].lat().toPrecision(6) +
                         '<br />Lng: ' + coords[0].lng().toPrecision(6) + '</div>'
             })
         colorIndex++; if (colorIndex > 9) colorIndex = 0;
@@ -270,7 +270,7 @@
             //map.panTo(coordinate);
             infoWindow.open(map, marker);
         });
-    return marker;
+    return marker;  //marker includes infoWindow containing JSON-encoded name and lat/long
 
    //color param being overtaken by events; coords[1] now contains descriptor object
     };
