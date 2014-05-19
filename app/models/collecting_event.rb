@@ -128,6 +128,16 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  def self.test
+    result = []
+    colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
+    names = ["Zerothus nillus", "Firstus, specius", "Secondus duo", "thirdius trio", "Fourthus quattro", "Fithus ovwhiskius", "Sixtus sextus", "Seventhus septium", "Eighthus octo", "Ninethus novim","Tenthus dix"]
+    self.all.each_with_index do |c, i|
+      result.push(  RGeo::GeoJSON.encode(c.georeferences.first.geographic_item.geo_object).merge('descriptor'=> {'color'=> colors[i], 'name'=> names[i]}) )
+    end
+     'var data = ' + result.to_json + ';'
+  end
+
   protected
 
   def check_verbatim_geolocation_uncertainty

@@ -20,6 +20,7 @@ FactoryGirl.define do
     # !! Need an after to set the verbatim values off of the generated values!!
     factory :collecting_event_with_random_point_georeference do
       association :verbatim_georeference, factory: :georeference_verbatim_data_with_random_point
+
    end
 
     factory :collecting_event_my_office do

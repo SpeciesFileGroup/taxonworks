@@ -49,6 +49,7 @@ namespace :tw do
   # TODO: Lock initialization down to (mostly) empty databases
   namespace :initialization do
 
+
     desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
     task :restore_geo_data_from_pg_dump =>  [:environment, :data_directory] do |t|

@@ -27,8 +27,8 @@
 		var lLinePoints = [];
         var xmin = 360.0; var xmax = 0.0; var ymin = 90.0; var ymax = -90.0; var gzoom = 4;//bounds for calculating center point
 
-		function leafInit(xlong, ylat) {
-			var LJSmap = L.map('Lmap').setView(/*[document.forms.form1.Slat.value, document.forms.form1.Slon.value]*/ [ylat, xlong], 4);
+/*		function leafInit(xlong, ylat) {
+			var LJSmap = L.map('Lmap').setView([ylat, xlong], 4);
 			L.tileLayer('http://{s}.tile.cloudmade.com/121c86d2baf84dd383f0f5d3eff472fb/997/256/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Copyright <a href="http://cloudmade.com">CloudMade</a>[some bad character]',
 				maxZoom: 18
@@ -58,7 +58,7 @@
 				};
 			};
 		}   //leafInit
-
+*/
 		function initialize(xlong, ylat) {
 			//    bounds = new google.maps.LatLngBounds();
 
@@ -136,21 +136,45 @@
 		this leaves ambiguous the association of attributes to the objects (e.g., color, etc.)
 		New realization: there may or may not be GeometryCollections, which may contain any type, including GeometryCollection !  $#!+
 		*/
-
-		if (typeof (data) != 'undefined') {
-			if (typeof (data.type) != "undefined") {
-				if (data.type == "GeometryCollection") {
-					for (var i = 0; i < data.geometries.length; i++) {
-						getTypeData(data.geometries[i]);
-					};  //for i
-				}
-				else
-				{
-					getTypeData(data);
-				}   //data.type
-			};     //data != undefined
-		};     //data != undefined
-	};
+//		if (typeof (data) != 'undefined') {
+//            var dataArray = [];
+//            //if (typeof(data) != typeof(dataArray))
+//                {dataArray[0] = data; data = []; data[0] = dataArray[0];};
+//            for (var ii = 0; ii < data.length; ii++) {
+//                if (typeof(data[ii].type) != "undefined") {
+//                    if (data[ii].type == "GeometryCollection") {
+//					for (var i = 0; i < data[ii].geometries.length; i++) {
+//						getTypeData(data[ii].geometries[i]);
+//					};  //for i
+//				}
+//				else
+//				{
+//					getTypeData(data[ii]);
+//				}   //data.type
+//                }   // for ii
+//            };     //data != undefined
+//		};     //data != undefined
+        if (typeof (data) != 'undefined') {
+            var dataArray = [];
+            if (data instanceof Array)
+            {}  //if already an array, then do nothing
+            else    //convert it to an array
+            {dataArray[0] = data; data = []; data[0] = dataArray[0];};
+            for (var ii = 0; ii < data.length; ii++) {
+                if (typeof (data[ii].type) != "undefined") {
+                    if (data[ii].type == "GeometryCollection") {
+                        for (var i = 0; i < data[ii].geometries.length; i++) {
+                            getTypeData(data[ii].geometries[i]);
+                        };  //for i
+                    } //data[ii].type == "Geom...ion"
+                    else
+                    {
+                        getTypeData(data[ii]);
+                    }   //data.type
+                };     //data[ii] != undefined
+            }   // for ii
+        };     //data != undefined
+    };
 
 	function getTypeData(thisType) {		//detect and extract geometry types from higher level enumerator, recursible
 
