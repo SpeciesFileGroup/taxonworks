@@ -38,7 +38,7 @@ gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
   tag: '3.0.0.rc.2', 
-  git: 'http://github.com/collectiveidea/awesome_nested_set.git'
+  git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling
 gem 'bibtex-ruby'
