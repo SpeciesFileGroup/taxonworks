@@ -37,7 +37,7 @@ gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
-  tag: '3.0.0.rc.2', 
+  tag: 'v3.0.0.rc.2', 
   git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling
