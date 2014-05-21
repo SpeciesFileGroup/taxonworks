@@ -114,7 +114,8 @@ class GeographicItem < ActiveRecord::Base
 
   # See comments https://groups.google.com/forum/#!topic/postgis-users/0nzm2SRUZVU on why this might not work
   # For the record: the problem was caused by incorrect escaping of strings.
-  # I solved it by setting standard_conforming_strings = off in postgresql.conf 
+  # I solved it by setting standard_conforming_strings = off in postgresql.conf
+  # TODO: @mjy: Do you think this is a permanent change in PG configuration?
   def self.contains?(geo_object_a, geo_object_b)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
