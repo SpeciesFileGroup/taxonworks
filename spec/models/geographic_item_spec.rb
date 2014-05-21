@@ -162,11 +162,11 @@ describe GeographicItem do
     end
 
     specify 'That one object contains another, or not.' do
-      expect(@k.contains?(@p1)).to be_true
-      expect(@k.contains?(@p17)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_true
+      expect(@k.contains?(@p17.geo_object)).to be_false
 
-      expect(@p1.within?(@k)).to be_true
-      expect(@p17.within?(@k)).to be_false
+      expect(@p1.within?(@k.geo_object)).to be_true
+      expect(@p17.within?(@k.geo_object)).to be_false
     end
 
     specify 'Two polygons may have various intersections.' do
@@ -237,13 +237,13 @@ describe GeographicItem do
 
       expect(p17.distance(k)).to be < p10.distance(k)
 
-      expect(@k.near(@p1, 0)).to be_true
-      expect(@k.near(@p17, 2)).to be_true
-      expect(@k.near(@p10, 5)).to be_false
+      expect(@k.near(@p1.geo_object, 0)).to be_true
+      expect(@k.near(@p17.geo_object, 2)).to be_true
+      expect(@k.near(@p10.geo_object, 5)).to be_false
 
-      expect(@k.far(@p1, 0)).to be_false
-      expect(@k.far(@p17, 1)).to be_true
-      expect(@k.far(@p10, 5)).to be_true
+      expect(@k.far(@p1.geo_object, 0)).to be_false
+      expect(@k.far(@p17.geo_object, 1)).to be_true
+      expect(@k.far(@p10.geo_object, 5)).to be_true
     end
 
     specify 'Outer Limits' do
@@ -294,8 +294,8 @@ describe GeographicItem do
     end
 
     specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
-      expect(@k.contains?(@p1)).to be_true
-      expect(@e1.contains?(@p10)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_true
+      expect(@e1.contains?(@p10.geo_object)).to be_false
     end
 
 
