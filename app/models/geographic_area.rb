@@ -20,8 +20,7 @@
 # @!attribute tdwgID 
 #   @return [String]
 #     If derived from the TDWG hierarchy the tdwgID.  Should be accessed through self#tdwg_ids, not directly.
-
-
+#
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
 
@@ -38,8 +37,10 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
   
   has_many :collecting_events, inverse_of: :geographic_area
-  has_many :geographic_areas_geographic_items, dependent: :destroy
+  has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_area
   has_many :geographic_items, through: :geographic_areas_geographic_items
+
+  accepts_nested_attributes_for :geographic_areas_geographic_items
 
   validates :geographic_area_type, presence: true
   validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']

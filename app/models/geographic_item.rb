@@ -14,7 +14,7 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
-  has_many :geographic_areas_geographic_items, dependent: :destroy
+  has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
 
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
@@ -216,26 +216,30 @@ class GeographicItem < ActiveRecord::Base
     end
   end  
 
-  def contains?(item)
-    self.geo_object.contains?(item.geo_object)
+
+  # Careful, the following take geo_objects, not geographic_items
+
+  def contains?(geo_object)
+    self.geo_object.contains?(geo_object)
   end
 
-  def within?(item)
-    self.geo_object.within?(item.geo_object)
+  def within?(geo_object)
+    self.geo_object.within?(geo_object)
   end
 
   # TODO: doesn't work?
-  def distance?(item)
-    self.geo_object.distance?(item)
+  def distance?(geo_object)
+    self.geo_object.distance?(geo_object)
   end
 
-  def near(item, distance)
-    self.geo_object.buffer(distance).contains?(item.geo_object)
+  def near(geo_object, distance)
+    self.geo_object.buffer(distance).contains?(geo_object)
   end
 
-  def far(item, distance)
-    !self.near(item, distance)
+  def far(geo_object, distance)
+    !self.near(geo_object, distance)
   end
+
 
   def data_type?
     DATA_TYPES.each { |item| return item if !self.send(item).nil? }
