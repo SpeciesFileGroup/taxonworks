@@ -7,7 +7,7 @@ gem 'rails', '4.0.4'
 gem 'pg', '~> 0.17.0'
 
 # Postgis
-gem 'activerecord-postgis-adapter'
+gem 'activerecord-postgis-adapter', '~> 1.1.0'
 gem 'squeel', git: 'https://github.com/nybex/squeel.git'
 
 # rgeo support
