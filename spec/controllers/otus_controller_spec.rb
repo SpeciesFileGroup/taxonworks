@@ -37,8 +37,10 @@ describe OtusController do
 
   describe "GET index" do
     it "assigns all otus as @otus" do
-      otu = Otu.create! valid_attributes
+      byebug
+      otu = Otu.create!(valid_attributes)
       get :index, {}, valid_session
+      # The following means that @otus = Otu.all in the controller.
       assigns(:otus).should eq([otu])
     end
   end

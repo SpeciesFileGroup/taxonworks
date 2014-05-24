@@ -5,6 +5,8 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
+    # TODO: this is to make the test pass, once we get the authorization pattern running it the controller_spec will need to change
+    @otus = Otu.all
   end
 
   # GET /otus/1
