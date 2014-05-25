@@ -42,5 +42,8 @@ module ApplicationHelper
     content_tag(:span,  (previous_by_id_link(instance) + ' | ' + next_by_id_link(instance)).html_safe )
   end
 
+  def model_name_title
+    controller_path.capitalize 
+  end
 
 end

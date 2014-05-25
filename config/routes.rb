@@ -6,13 +6,14 @@ TaxonWorks::Application.routes.draw do
 
   root 'dashboard#index'
 
+  match '/signin',  to: 'sessions#new',     via: :get
+  match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
-  match '/signin',  to: 'sessions#new',     via: 'get'
-  match '/signout', to: 'sessions#destroy', via: 'delete'
-
+  
   resources :projects do 
     member do
       get 'select'
+      get 'settings_for' 
     end
   end
 

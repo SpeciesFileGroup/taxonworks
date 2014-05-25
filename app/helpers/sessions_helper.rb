@@ -73,7 +73,7 @@ module SessionsHelper
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.include?(user)
+    project.project_members.where(user: user, project: project) 
   end
 
   def require_sign_in
@@ -81,11 +81,11 @@ module SessionsHelper
   end
 
   def require_project_selection
-    redirect_to root_url, notice: "Please select a project." unless sessions_current_project?
+    redirect_to root_url, notice: "Please select a project." unless sessions_current_project
   end
 
   def require_sign_in_and_project_selection
-    redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_current_project?
+    redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_project_selected?
   end
 
   def require_adminstrator_sign_in
@@ -98,11 +98,10 @@ module SessionsHelper
 
   # TODO: make this a non-controller method
   def session_header_links
-    sessions_current_project ||= nil
     [link_to('Account', users_path(sessions_current_user)),
-    (sessions_current_project ? link_to('Project', projects_settings_path(sessions_current_project)) : nil),
+    (sessions_project_selected? ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil),
     (sessions_current_user.is_administrator? ? link_to('Account', users_path(sessions_current_user)) : nil),
-    link_to('Sign out', signout_path, method: 'delete')].compact.join(' | ').html_safe
+    link_to('Sign out', signout_path, method: :delete)].compact.join(' | ').html_safe
   end
 
 end
