@@ -50,7 +50,6 @@ class GeographicArea < ActiveRecord::Base
   
   validates_presence_of :data_origin
   validates :name, presence: true, length: { minimum: 1 }
-  validates_uniqueness_of :name, scope: [:level0, :level1, :level2] unless ENV['NO_GEO_VALID']
 
   scope :descendants_of, -> (geographic_area) {
     where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and

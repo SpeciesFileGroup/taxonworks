@@ -12,36 +12,20 @@
 
   2:  rake tw:development:data:geo:build_geographic_areas data_directory=$HOME/src/gaz/ user_id=1 database_role=taxonworks_development NO_GEO_NESTING=1 NO_GEO_VALID=1
 
-  3:  rake tw:development:data:geo:rebuild_geographic_areas_nesting # TODO: @jdt fix this
+  3:  rake tw:development:data:geo:build_geographic_items_from_temporary_shape_tables data_directory=/Users/tuckerjd/src/gaz/ database_role=taxonworks_development user_id=1
 
-  4.  rake tw:export:geo:pg_dump_geo_data[$HOME/src/gaz/data/internal/dump/]
-
-      alt:
-      a:  rake tw:export:table table_name=geographic_area_types > ../gaz/data/internal/csv/geographic_area_types.csv
-
-      b:  rake tw:export:table table_name=geographic_areas > ../gaz/data/internal/csv/geographic_areas.csv
-
-      c:  rake tw:export:table table_name=geographic_items > ../gaz/data/internal/csv/geographic_items.csv
-
-      d:  rake tw:export:table table_name=geographic_items > ../gaz/data/internal/csv/geographic_items.csv
+  4:  rake tw:development:data:geo:rebuild_geographic_areas_nesting
 
   (Reloading)
-  1: rake db:setup
+  1: rake db:drop RAILS_ENV=development && rake db:create RAILS_ENV=development && rake db:migrate RAILS_ENV=development && rake db:seed RAILS_ENV=development
       (Make sure that there are no processes connected to the development data base, including (but not limited to:
         pgAdmin
         psql
         RubyMine))
 
-  2.  rake tw:initialization:restore_geo_data[../gaz/data/internal/dump/]
+  2.  rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/tuckerjd/src/gaz/data/internal/dump/
 
-      Alternately, load them individually:
-      a:  rake tw:initialization:load_geographic_area_types[../gaz/data/internal/csv/geographic_area_types.csv]
-
-      b:  rake tw:initialization:load_geographic_items[../gaz/data/internal/csv/geographic_items.csv]
-
-      c:  rake tw:initialization:load_geographic_areas[../gaz/data/internal/csv/geographic_areas.csv] NO_GEO_NESTING=1
-
-  11: rake tw:init:rebuild_geographic_areas_nesting
+  3: rake tw:development:data:geo:rebuild_geographic_areas_nesting
 
 =end
 
