@@ -222,9 +222,9 @@ LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3),
                                          RSPEC_GEO_FACTORY.point(3, -3),
                                          RSPEC_GEO_FACTORY.point(-3, -3)])
 
-LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, -4),
+LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4,  4),
+                                         RSPEC_GEO_FACTORY.point( 4,  4),
+                                         RSPEC_GEO_FACTORY.point( 4, -4),
                                          RSPEC_GEO_FACTORY.point(-4, -4)])
 
 BOX_1 = RSPEC_GEO_FACTORY.polygon(LIST_T1)
