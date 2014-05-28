@@ -63,10 +63,13 @@ class Georeference < ActiveRecord::Base
   belongs_to :collecting_event
   belongs_to :geographic_item
 
-  validate :proper_data_is_provided
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
+
+
+  # TODO: Break this down into individual validations
+  validate :proper_data_is_provided
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
@@ -115,7 +118,7 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
-  def error_box?
+  def error_box
     # start with a copy of the point of the reference
     #retval = geographic_item.dup
 
@@ -159,7 +162,7 @@ class Georeference < ActiveRecord::Base
                                                             FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
                                                            ]))
           when :polygon
-            retval = geographic_item
+            retval = geographic_item.geo_object
           else
             retval = nil
         end
@@ -190,7 +193,7 @@ class Georeference < ActiveRecord::Base
     # case 1
     retval = true
     if error_geographic_item.nil? == false && geographic_item.nil? == false
-      retval = self.error_geographic_item.contains?(self.geographic_item)
+      retval = self.error_geographic_item.contains?(self.geographic_item.geo_object)
     end
     retval
   end
@@ -199,7 +202,7 @@ class Georeference < ActiveRecord::Base
     # case 2
     retval = true
     if error_radius.nil? == false && geographic_item.nil? == false
-      retval = self.error_box?.contains?(self.geographic_item.geo_object)
+      retval = self.error_box.contains?(self.geographic_item.geo_object)
     end
     retval
   end
@@ -208,7 +211,7 @@ class Georeference < ActiveRecord::Base
     # case 3
     retval = true
     if error_radius.nil? == false && error_geographic_item.nil? == false
-      retval = self.error_box?.contains?(error_geographic_item.geo_object)
+      retval = self.error_box.contains?(error_geographic_item.geo_object)
     end
     retval
   end
@@ -218,7 +221,7 @@ class Georeference < ActiveRecord::Base
     retval = true
     unless collecting_event.nil?
       if error_radius.nil? == false && collecting_event.geographic_area.nil? == false
-        retval = collecting_event.geographic_area.geo_object.contains?(error_box?)
+        retval = collecting_event.geographic_area.default_geographic_item.contains?(self.error_box)
       end
     end
     retval
@@ -229,7 +232,7 @@ class Georeference < ActiveRecord::Base
     retval = true
     unless collecting_event.nil?
       if error_geographic_item.nil? == false && collecting_event.geographic_area.nil? == false
-        retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item)
+        retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item.geo_object)
       end
     end
     retval
@@ -240,13 +243,14 @@ class Georeference < ActiveRecord::Base
     retval = true
     unless collecting_event.nil?
       unless collecting_event.geographic_area.nil?
-        retval = collecting_event.geographic_area.geo_object.contains?(geographic_item.geo_object)
+        retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
       end
     end
     retval
   end
 
-  def proper_data_is_provided
+  # TODO: @TuckerJD - break this down, one check per method
+   def proper_data_is_provided
     retval = true
     #case
     #when GeographicItem.find(geographic_item_id) == nil

@@ -49,9 +49,10 @@ describe Georeference do
         @area_d                   = GeographicItem.new(polygon: BOX_4)
         @g_a                      = GeographicArea.new(name:        'Box_4',
                                                        data_origin: 'Test Data',
-                                                       neID:        'TD-000',
-                                                       parent:      FactoryGirl.build(:earth_geographic_area),
-                                                       ne_geo_item: @area_d)
+                                                       parent:      FactoryGirl.build(:earth_geographic_area))
+                                                  #     ne_geo_item: @area_d)
+
+        GeographicAreasGeographicItem.create(geographic_item: @area_d, geographic_area: @g_a)
 
         # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
         @point0                   = GeographicItem.new(point: POINT0)
@@ -126,11 +127,14 @@ describe Georeference do
 
       specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
         @area_d          = GeographicItem.new(polygon: POLY_E1)
-        @g_a.ne_geo_item = @area_d
+        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @area_d)
+        #  @g_a.ne_geo_item = @area_d
         georeference     = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                           error_geographic_item: @e_g_i)
+        
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
-        georeference.save
+
+        georeference.valid?
         expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
         expect(georeference.errors.keys.include?(:geographic_item)).to be_true
         expect(georeference.errors.keys.include?(:collecting_event)).to be_true
@@ -139,7 +143,9 @@ describe Georeference do
 
       specify 'errors which result from badly formed collecting_event area values and error_radius' do
         @area_d          = GeographicItem.new(polygon: POLY_E1)
-        @g_a.ne_geo_item = @area_d
+ 
+        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @area_d)
+        # @g_a.ne_geo_item = @area_d
         georeference     = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                           error_radius:     160000)
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
@@ -161,7 +167,7 @@ describe Georeference do
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       error_geographic_item: @e_g_i)
         georeference.save
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
       end
 
       specify '.error_box with error_radius returns a key-stone' do
@@ -173,8 +179,8 @@ describe Georeference do
         expect(@c_e.geographic_area.default_geographic_item.save).to be_true
         georeference.save
         # TODO: the following expectation will not be met, under some circumstances (different math packages on different operating systems), and has been temporarily disabled
-        expect(georeference.error_box?.to_s).to match(/POLYGON \(\(-1\.3445210431568\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* 1\.54698968799752\d* 0\.0\)\)/)
-        #expect(georeference.error_box?.to_s).to start_with 'POLYGON ((-1.34452104315689'
+        expect(georeference.error_box.to_s).to match(/POLYGON \(\(-1\.3445210431568\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* 1\.54698968799752\d* 0\.0\)\)/)
+        #expect(georeference.error_box.to_s).to start_with 'POLYGON ((-1.34452104315689'
       end
 
       specify '.error_box with error_geographic_item returns a shape' do
@@ -183,7 +189,7 @@ describe Georeference do
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       error_geographic_item: @e_g_i)
         expect(georeference.save).to be_true
-        expect(georeference.error_box?.geo_object.to_s).to eq(BOX_1.to_s)
+        expect(georeference.error_box.geo_object.to_s).to eq(BOX_1.to_s)
       end
 
       specify 'error_radius, when provided, should contain geographic_item' do
@@ -194,7 +200,7 @@ describe Georeference do
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                       error_radius:     16000)
         expect(georeference.save).to be_true
-        expect(georeference.error_box?.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_true
       end
 
       specify 'error_radius, when provided, should contain error_geographic_item, when provided' do
@@ -204,10 +210,10 @@ describe Georeference do
                                                       error_radius:          160000)
         georeference.save
         expect(georeference).to be_true
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item)).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
         # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
-        expect(georeference.error_box?.contains?(georeference.error_geographic_item.geo_object)).to be_true
+        expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_true
       end
 
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
@@ -235,7 +241,6 @@ describe Georeference do
 
   context 'associations' do
     context 'belongs_to' do
-
       # Build a valid_georeference
 
       specify 'geographic_item' do
@@ -334,32 +339,36 @@ describe Georeference do
 
       @g_a1 = GeographicArea.new(name:                 'Box_1',
                                  data_origin:          'Test Data',
-                                 neID:                 'TD-001',
+       #                          neID:                 'TD-001',
                                  geographic_area_type: g_a_t,
                                  parent:               p_a,
-                                 level0:               p_a,
-                                 ne_geo_item:          @area_a)
+                                 level0:               p_a, 
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_a, data_origin: 'Test Data'} ])
+
       @g_a2 = GeographicArea.new(name:                 'Box_2',
                                  data_origin:          'Test Data',
-                                 gadmID:               2,
+                                 # gadmID:               2,
                                  geographic_area_type: g_a_t,
                                  parent:               p_a,
                                  level0:               p_a,
-                                 gadm_geo_item:        @area_b)
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_b, data_origin: 'Test Data'} ])
+      
       @g_a3 = GeographicArea.new(name:                 'Box_3',
                                  data_origin:          'Test Data',
-                                 tdwgID:               '12ABC',
+                                 # tdwgID:               '12ABC',
                                  geographic_area_type: g_a_t,
                                  parent:               p_a,
                                  level0:               p_a,
-                                 tdwg_geo_item:        @area_c)
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_c, data_origin: 'Test Data'} ]
+                                )
+
       @g_a4 = GeographicArea.new(name:                 'Box_4',
                                  data_origin:          'Test Data',
-                                 neID:                 'TD-004',
+#                                 neID:                 'TD-004',
                                  geographic_area_type: g_a_t,
                                  parent:               p_a,
                                  level0:               p_a,
-                                 ne_geo_item:          @area_d)
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_d,  data_origin: 'Test Data'} ])
 
       @g_a4.save! # make sure the id is set
 
@@ -425,7 +434,7 @@ describe Georeference do
       specify 'which is GeoLocate' do
 
         geo_locate = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
-                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
+                                                 collecting_event: FactoryGirl.build(:valid_collecting_event) )
         geo_locate.build
         geo_locate.save
 

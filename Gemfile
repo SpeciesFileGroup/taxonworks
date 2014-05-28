@@ -7,7 +7,7 @@ gem 'rails', '4.0.4'
 gem 'pg', '~> 0.17.0'
 
 # Postgis
-gem 'activerecord-postgis-adapter'
+gem 'activerecord-postgis-adapter', '~> 1.1.0'
 gem 'squeel', git: 'https://github.com/nybex/squeel.git'
 
 # rgeo support
@@ -37,8 +37,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
-  tag: '3.0.0.rc.2', 
-  git: 'http://github.com/collectiveidea/awesome_nested_set.git'
+  tag: 'v3.0.0.rc.2', 
+  git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling
 gem 'bibtex-ruby'

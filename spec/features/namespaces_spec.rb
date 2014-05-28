@@ -1,11 +1,18 @@
 require 'spec_helper'
 
 describe "Namespaces" do
-  describe "GET /namespaces" do
-    it "works! (now write some real specs)" do
-      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get namespaces_path
-      response.status.should be(200)
+  describe "GET /Namespaces" do
+    before { visit namespaces_path }
+    specify 'an index name is present' do
+      expect(page).to have_content('Namespaces')
     end
   end
 end
+
+
+
+
+
+
+
+

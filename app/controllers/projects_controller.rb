@@ -64,11 +64,15 @@ class ProjectsController < ApplicationController
   def select
     set_project
     if authorize_project_selection(sessions_current_user, @project)
-        sessions_select_project(@project)
-       redirect_to @project.workbench_starting_path
+      sessions_select_project(@project)
+      redirect_to @project.workbench_starting_path
     else
-       redirect_to root_path, notice: 'You are not a member of that project!'
+      redirect_to root_path, notice: 'You are not a member of that project!'
     end
+  end
+
+  def settings_for
+    redirect_to otus_path, notice: 'Project settings not yet implemented'
   end
 
   private
