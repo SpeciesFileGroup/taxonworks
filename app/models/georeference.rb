@@ -284,7 +284,7 @@ class Georeference < ActiveRecord::Base
   def add_error_geo_item_inside_area
     if chk_error_geo_item_inside_area
       true
-      else
+    else
       problem = 'collecting_event area must contain georeference error_geographic_item.'
       errors.add(:error_geographic_item, problem)
       errors.add(:collecting_event, problem)
@@ -295,7 +295,7 @@ class Georeference < ActiveRecord::Base
   def add_error_radius_inside_area
     if chk_error_radius_inside_area
       true
-      else
+    else
       problem = 'collecting_event area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem)
