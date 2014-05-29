@@ -143,8 +143,13 @@ describe GeographicItem do
       expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
 
-    pending 'a point, when provided, has a legal geography'
     # e.g. not 400,400
+    specify 'a point, when provided, has a legal geography' do
+      geographic_item.point = RSPEC_GEO_FACTORY.point(200.0, 200.0)
+
+      geographic_item.valid?
+      expect(geographic_item.errors.keys.include?(:point_limit)).to be_true
+    end
 
     specify 'One and only one of point, line_string, etc. is set.' do
       geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
