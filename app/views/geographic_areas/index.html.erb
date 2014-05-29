@@ -10,21 +10,12 @@
     <th>Geographic area type</th>
     <th>Iso 3166 a2</th>
     <th>Iso 3166 a3</th>
-    <th>Adm0 a3</th>
     <th>Data origin</th>
     <!--
           <th>Rgt</th>
           <th>Lft</th>
           -->
-    <th>Tdwg parent</th>
     <th>Tdwgid</th>
-    <th>Gadmid</th>
-    <th>Gadm valid from</th>
-    <th>Gadm valid to</th>
-    <th>Neid</th>
-    <th>Ne geo item</th>
-    <th>Gadm geo item</th>
-    <th>Tdwg geo item</th>
     <th>Level0</th>
     <th>Level1</th>
     <th>Level2</th>
@@ -44,21 +35,16 @@
         <td><%= geographic_area.geographic_area_type ? geographic_area.geographic_area_type.name : nil %></td>
         <td><%= geographic_area.iso_3166_a2 %></td>
         <td><%= geographic_area.iso_3166_a3 %></td>
-        <td><%= geographic_area.adm0_a3 %></td>
         <td><%= geographic_area.data_origin %></td>
         <!--
         <td><%= geographic_area.rgt %></td>
         <td><%= geographic_area.lft %></td>
         -->
-        <td><%= geographic_area_link(geographic_area.tdwg_parent) %></td>
+        <!--
+        <td><%= geographic_area_link(geographic_area.tdwgID) %></td>
+        -->
         <td><%= geographic_area.tdwgID %></td>
-        <td><%= geographic_area.gadmID %></td>
-        <td><%= geographic_area.gadm_valid_from %></td>
-        <td><%= geographic_area.gadm_valid_to %></td>
-        <td><%= geographic_area.neID %></td>
-        <td><%= geographic_item_link(geographic_area.ne_geo_item) %></td>
-        <td><%= geographic_item_link(geographic_area.gadm_geo_item) %></td>
-        <td><%= geographic_area.tdwg_geo_item_id %></td>
+        <td><%= geographic_area.geographic_items.count %></td>
         <td><%= geographic_area_link(geographic_area.level0) %></td>
         <td><%= geographic_area_link(geographic_area.level1) %></td>
         <td><%= geographic_area_link(geographic_area.level2) %></td>
