@@ -3,13 +3,7 @@
 <table>
   <thead>
     <tr>
-      <th>Point</th>
-      <th>Line string</th>
-      <th>Polygon</th>
-      <th>Multi point</th>
-      <th>Multi line string</th>
-      <th>Multi polygon</th>
-      <th>Geometry collection</th>
+      <th>GeoObject</th>
       <th>Created by</th>
       <th>Updated by</th>
       <th></th>
@@ -21,13 +15,7 @@
   <tbody>
     <% @geographic_items.each do |geographic_item| %>
       <tr>
-        <td><%= geographic_item.point %></td>
-        <td><%= scrollable_div_tag(geographic_item.line_string) %></td>
-        <td><%= scrollable_div_tag( geographic_item.polygon ) -%> </td>
-        <td><%= scrollable_div_tag(geographic_item.multi_point ) %></td>
-        <td><%= scrollable_div_tag(geographic_item.multi_line_string) %></td>
-        <td><%= scrollable_div_tag(geographic_item.multi_polygon) %></td>
-        <td><%= scrollable_div_tag(geographic_item.geometry_collection) %></td>
+        <td><%= scrollable_div_tag(geographic_item.geo_object) %></td>
         <td><%= geographic_item.created_by_id %></td>
         <td><%= geographic_item.updated_by_id %></td>
         <td><%= link_to 'Show', geographic_item %></td>

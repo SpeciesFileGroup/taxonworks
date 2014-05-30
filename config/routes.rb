@@ -38,6 +38,7 @@ TaxonWorks::Application.routes.draw do
       post 'search'
     end
   end
+  resources :geographic_areas_geographic_items
   resources :geographic_items
   resources :georeferences
   resources :identifiers

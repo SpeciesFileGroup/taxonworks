@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe "Georeferences" do
-  describe "GET /georeferences" do
+describe 'Georeferences' do
+  describe 'GET /georeferences' do
     before { visit georeferences_path }
     specify 'an index name is present' do
-      expect(page).to have_content('Georeferences')
+      expect(page).to have_content('Listing georeferences')
     end
   end
 end

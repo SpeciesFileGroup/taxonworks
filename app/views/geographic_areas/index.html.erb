@@ -11,11 +11,8 @@
     <th>Iso 3166 a2</th>
     <th>Iso 3166 a3</th>
     <th>Data origin</th>
-    <!--
-          <th>Rgt</th>
-          <th>Lft</th>
-          -->
     <th>Tdwgid</th>
+    <th>GeoItem Count</th>
     <th>Level0</th>
     <th>Level1</th>
     <th>Level2</th>
@@ -36,13 +33,6 @@
         <td><%= geographic_area.iso_3166_a2 %></td>
         <td><%= geographic_area.iso_3166_a3 %></td>
         <td><%= geographic_area.data_origin %></td>
-        <!--
-        <td><%= geographic_area.rgt %></td>
-        <td><%= geographic_area.lft %></td>
-        -->
-        <!--
-        <td><%= geographic_area_link(geographic_area.tdwgID) %></td>
-        -->
         <td><%= geographic_area.tdwgID %></td>
         <td><%= geographic_area.geographic_items.count %></td>
         <td><%= geographic_area_link(geographic_area.level0) %></td>
