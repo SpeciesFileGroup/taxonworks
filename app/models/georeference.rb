@@ -37,19 +37,6 @@
 class Georeference < ActiveRecord::Base
   include Housekeeping
 
-  # TODO: @tucker why are these here?
-  # TODO: @mjy: there are here to help me remember the math. Where do you think they should go?
-  # TODO: @tucker If they aren't used in the application they should go in your personal notes.
-  POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
-  ONE_WEST           = 111319.490779206
-  ONE_NORTH          = 110574.38855796
-  TEN_WEST           = 1113194.90779206  # Not used?
-  TEN_NORTH          = 1105854.83323573  # Not used?
-
-  EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
-  RADIANS_PER_DEGREE = ::Math::PI/180.0
-  DEGREES_PER_RADIAN = 180.0/::Math::PI
-
   # This should probably be moved out to config/initializers/gis
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,
@@ -68,8 +55,16 @@ class Georeference < ActiveRecord::Base
   validates :type, presence: true
 
 
-  # TODO: Break this down into individual validations
-  validate :proper_data_is_provided
+  # TODOone: Break this down into individual validations
+  # validate :proper_data_is_provided
+  validate :add_error_radius
+  validate :add_error_depth
+  validate :add_obj_inside_err_geo_item
+  validate :add_obj_inside_err_radius
+  validate :add_err_geo_item_inside_err_radius
+  validate :add_error_radius_inside_area
+  validate :add_error_geo_item_inside_area
+  validate :add_obj_inside_area
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
@@ -82,7 +77,7 @@ class Georeference < ActiveRecord::Base
     # multipolygon  => stored through the NE/TDWG/GADM object load process
     # polygon       => stored through the GeoLocate process
     # point         => stored through the GeoLocate process
-    temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
+    temp     = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('point', geographic_item, distance)
     partials = GeographicItem.where('id in (?)', temp.map(&:id))
@@ -113,17 +108,28 @@ class Georeference < ActiveRecord::Base
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partials   = CollectingEvent.where(geographic_area: geographic_area)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
   end
 
-  def error_box
-    # start with a copy of the point of the reference
-    #retval = geographic_item.dup
+  ONE_WEST  = 111319.490779206
+  ONE_NORTH = 110574.38855796
 
-    # returns a square which represents either the bounding box of the
-    # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater
+  # returns a square which represents either the bounding box of the
+  # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater
+  def error_box
+
+    # POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
+    # ONE_WEST           = 111319.490779206
+    # ONE_NORTH          = 110574.38855796
+    # TEN_WEST           = 1113194.90779206  # Not used?
+    # TEN_NORTH          = 1105854.83323573  # Not used?
+
+    # EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
+    # RADIANS_PER_DEGREE = ::Math::PI/180.0
+    # DEGREES_PER_RADIAN = 180.0/::Math::PI
+
     if error_radius.nil?
       # use the bounding box of the error_geo_item
       if error_geographic_item.nil?
@@ -156,11 +162,11 @@ class Georeference < ActiveRecord::Base
 
             # or
             # make the rectangle directly
-            retval   = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                                            FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                                            FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                                            FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
-                                                           ]))
+            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                                           FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                                           FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                                           FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+                                                          ]))
           when :polygon
             retval = geographic_item.geo_object
           else
@@ -249,67 +255,103 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-  # TODO: @TuckerJD - break this down, one check per method
+=begin
    def proper_data_is_provided
     retval = true
-    #case
-    #when GeographicItem.find(geographic_item_id) == nil
-    #  errors.add(:geographic_item, 'ID must be from item of class Geographic_Item.') # THis isn't necessary, we'll have an index on the db
-    #when CollectingEvent.find(collecting_event_id) == nil
-    #  errors.add(:collecting_event, 'ID must be from item of class CollectingEvent.')
-    #when GeographicItem.find(error_geographic_item_id).geo_object.geometry_type.type_name != 'Polygon'
-    #  errors.add(:geographic_item, 'ID must be from item of class Geographic_Item of type \'POLYGON\'.')
-    #when GeoreferenceHash[*arr]
-    #  Type.find(type).to_s != 'Georeference::GeoreferenceType'
-    #  errors.add(:georeference, 'type must be of class Georeference::GeoreferenceType.')
-    #else
-    #true
-    #end
-    unless error_radius.nil?
-      errors.add(:error_radius, 'error_radius must be less than 20,000 kilometers (12,400 miles).') if error_radius > 20000000 # 20,000 km
-      retval = false
-    end
-    unless error_depth.nil?
-      errors.add(:error_depth, 'error_depth must be less than 8,800 kilometers (5.5 miles).') if error_depth > 8800 # 8,800 meters
-      retval = false
-    end
-    #unless error_geographic_item.nil?
-    #  errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.') unless error_geographic_item.geo_object.contains?(geographic_item.geo_object)
-    #end
-    unless chk_obj_inside_err_geo_item
-      errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.')
-      retval = false
-    end
-    unless chk_obj_inside_err_radius
-      errors.add(:error_radius, 'error_radius must contain geographic_item.')
-      retval = false
-    end
-    unless chk_err_geo_item_inside_err_radius
-      problem = 'error_radius must contain error_geographic_item.'
-      errors.add(:error_radius, problem)
-      errors.add(:error_geographic_item, problem)
-      retval = false
-    end
-    unless chk_error_radius_inside_area
-      problem = 'collecting_event area must contain georeference error_radius bounding box.'
-      errors.add(:error_radius, problem)
-      errors.add(:collecting_event, problem)
-      retval = false
-    end
-    unless chk_error_geo_item_inside_area
-      problem = 'collecting_event area must contain georeference error_geographic_item.'
-      errors.add(:error_geographic_item, problem)
-      errors.add(:collecting_event, problem)
-      retval = false
-    end
-    unless chk_obj_inside_area
+    retval &&= add_error_radius
+    retval &&= add_error_depth
+    retval &&= add_obj_inside_err_geo_item
+    retval &&= add_obj_inside_err_radius
+    retval &&= add_err_geo_item_inside_err_radius
+    retval &&= add_error_radius_inside_area
+    retval &&= add_error_geo_item_inside_area
+    retval &&= add_obj_inside_area
+
+  end
+=end
+
+  def add_obj_inside_area
+    if chk_obj_inside_area
+      true
+    else
       problem = 'collecting_event area must contain georeference geographic_item.'
       errors.add(:geographic_item, problem)
       errors.add(:collecting_event, problem)
-      retval = false
+      false
     end
+  end
 
-    retval
+  def add_error_geo_item_inside_area
+    if chk_error_geo_item_inside_area
+      true
+    else
+      problem = 'collecting_event area must contain georeference error_geographic_item.'
+      errors.add(:error_geographic_item, problem)
+      errors.add(:collecting_event, problem)
+      false
+    end
+  end
+
+  def add_error_radius_inside_area
+    if chk_error_radius_inside_area
+      true
+    else
+      problem = 'collecting_event area must contain georeference error_radius bounding box.'
+      errors.add(:error_radius, problem)
+      errors.add(:collecting_event, problem)
+      false
+    end
+  end
+
+  def add_err_geo_item_inside_err_radius
+    if chk_err_geo_item_inside_err_radius
+      true
+    else
+      problem = 'error_radius must contain error_geographic_item.'
+      errors.add(:error_radius, problem)
+      errors.add(:error_geographic_item, problem)
+      false
+    end
+  end
+
+  def add_obj_inside_err_radius
+    if chk_obj_inside_err_radius
+      true
+    else
+      errors.add(:error_radius, 'error_radius must contain geographic_item.')
+      false
+    end
+  end
+
+  def add_obj_inside_err_geo_item
+    if chk_obj_inside_err_geo_item
+      true
+    else
+      errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.')
+      false
+    end
+  end
+
+  def add_error_depth
+    if error_depth.nil?
+      true
+    else
+      if error_depth > 8800
+        errors.add(:error_depth, 'error_depth must be less than 8.8 kilometers (5.5 miles).')
+      end # 8,800 meters
+      false
+    end
+  end
+
+  def add_error_radius
+    if error_radius.nil?
+      true
+    else
+      if error_radius > 20000000
+        errors.add(:error_radius, 'error_radius must be less than 20,000 kilometers (12,400 miles).')
+      end # 20,000 km
+      false
+    end
   end
 
   # Given two latitude/longitude pairs in degrees, find the heading between them.

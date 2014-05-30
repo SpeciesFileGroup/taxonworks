@@ -7,7 +7,7 @@
 #     the origin of this shape associations, take from SFGs /gaz data
 # @!attribute origin_gid 
 #   @return [String]
-#     the gid taken from the shape table from the source
+#     the gid (row number) taken from the shape table from the source
 # @!attribute date_valid_from
 #   @return [String]
 #     the verbatim value taken from the source data as to when this shape was first valid for the associated GeographicArea (name) 

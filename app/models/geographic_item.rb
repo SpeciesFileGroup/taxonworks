@@ -1,13 +1,13 @@
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
 
-  DATA_TYPES     = [:point,
-                    :line_string,
-                    :polygon,
-                    :multi_point,
-                    :multi_line_string,
-                    :multi_polygon,
-                    :geometry_collection]
+  DATA_TYPES = [:point,
+                :line_string,
+                :polygon,
+                :multi_point,
+                :multi_line_string,
+                :multi_polygon,
+                :geometry_collection]
 
   column_factory = Georeference::FACTORY
   DATA_TYPES.each do |t|
@@ -18,12 +18,13 @@ class GeographicItem < ActiveRecord::Base
   has_many :geographic_areas, through: :geographic_areas_geographic_items
 
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
-  has_many :ne_geographic_areas,   class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
+  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
   has_many :georeferences
   has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
 
   validate :proper_data_is_provided
+  validate :chk_point_limit
 
   # TODO: Test
   # A scope that includes a 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
@@ -44,21 +45,21 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def parent_geographic_areas
-    self.geographic_areas.collect{|a| a.parent}
+    self.geographic_areas.collect { |a| a.parent }
   end
 
   def parents_through_geographic_areas
     result = {}
-    parent_geographic_areas.collect{|a|
+    parent_geographic_areas.collect { |a|
       result.merge!(a => a.geographic_items)
     }
-    result 
+    result
   end
 
   def children_through_geographic_areas
     result = {}
-    geographic_areas.collect{|a|
-      a.children.collect{|c| 
+    geographic_areas.collect { |a|
+      a.children.collect { |c|
         result.merge!(c => c.geographic_items)
       }
     }
@@ -68,8 +69,8 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Test and refactor to use ST_StartPoint
   # Return an Array of [latitude, longitude] for the first point of geoitem
   def center_coords
-    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/ 
-    [$1, $2] 
+    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+    [$1, $2]
   end
 
 =begin
@@ -138,7 +139,7 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Document, what units are distance in?
   def self.within_radius_of(column_name, geographic_item, distance)
     if check_geo_params(column_name, geographic_item)
-      where {"st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}"}
+      where { "st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}" }
     else
       where { 'false' }
     end
@@ -170,7 +171,7 @@ class GeographicItem < ActiveRecord::Base
     if check_geo_params(column_name, geographic_item)
       f = select { '*' }.
         select_distance(column_name, geographic_item).
-        where_distance_greater_than_zero(column_name,geographic_item).
+        where_distance_greater_than_zero(column_name, geographic_item).
         order { 'distance desc' }
     else
       where { 'false' }
@@ -188,7 +189,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.select_distance_with_geo_object(column_name, geographic_item)
-    select{'*'}.select_distance(column_name, geographic_item)
+    select { '*' }.select_distance(column_name, geographic_item)
   end
 
   def self.where_distance_greater_than_zero(column_name, geographic_item)
@@ -199,7 +200,7 @@ class GeographicItem < ActiveRecord::Base
     # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
   end
-  
+
   # eturn the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
     DATA_TYPES.each do |t|
@@ -208,17 +209,17 @@ class GeographicItem < ActiveRecord::Base
     nil
   end
 
-  def geo_object 
+  def geo_object
     if r = geo_object_type
-     self.send(r)
+      self.send(r)
     else
-     false
+      false
     end
-  end  
+  end
 
 
   # Methods mapping RGeo methods
-  
+
   def contains?(geo_object)
     self.geo_object.contains?(geo_object)
   end
@@ -255,22 +256,22 @@ class GeographicItem < ActiveRecord::Base
     data = {}
     if self.geo_object
       case self.data_type?
-      when :point
-        data = point_to_hash(self.point)
-      when :line_string
-        data = line_string_to_hash(self.line_string)
-      when :polygon
-        data = polygon_to_hash(self.polygon)
-      when :multi_point
-        data = multi_point_to_hash(self.multi_point)
-      when :multi_line_string
-        data = multi_line_string_to_hash(self.multi_line_string)
-      when :multi_polygon
-        data = multi_polygon_to_hash(self.multi_polygon)
-      when :geometry_collection
-        data = self.geometry_collection_to_hash(self.geometry_collection)
-      else
-        # do nothing
+        when :point
+          data = point_to_hash(self.point)
+        when :line_string
+          data = line_string_to_hash(self.line_string)
+        when :polygon
+          data = polygon_to_hash(self.polygon)
+        when :multi_point
+          data = multi_point_to_hash(self.multi_point)
+        when :multi_line_string
+          data = multi_line_string_to_hash(self.multi_line_string)
+        when :multi_polygon
+          data = multi_polygon_to_hash(self.multi_polygon)
+        when :geometry_collection
+          data = self.geometry_collection_to_hash(self.geometry_collection)
+        else
+          # do nothing
       end
     end
 
@@ -318,7 +319,7 @@ class GeographicItem < ActiveRecord::Base
   #  This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
   # array to the caller.
   def self.clean?
-   GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
+    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
     GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
     GeographicItem.connection.execute('delete from t20140306')
     GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
@@ -486,10 +487,16 @@ class GeographicItem < ActiveRecord::Base
     data
   end
 
+  def chk_point_limit
+    unless point.nil?
+      errors.add(:point_limit, 'Longitude exceeds limits: 180.0 to -180.0.') if point.x > 180.0 || point.x < -180.0
+    end
+  end
+
   def proper_data_is_provided
     data = []
     DATA_TYPES.each do |item|
-      data.push(item) if !self.send(item).blank?
+      data.push(item) unless self.send(item).blank?
     end
 
     errors.add(:point, 'Must contain at least one of [point, line_string, etc.].') if data.count == 0
