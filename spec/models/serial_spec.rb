@@ -39,6 +39,9 @@ describe Serial do
 
     # TODO 'should check for duplicate between name & other serial tags'
     # create alternate value/types synonym, translation, abbreviation
+    # add an alternate value/synonym
+    # add an alternate value/translations
+    # add an alternate value/abbreviation
   end
   context 'should set the language based on valid languages' do
     before(:each) do
