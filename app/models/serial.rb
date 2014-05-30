@@ -91,6 +91,15 @@ class Serial < ActiveRecord::Base
       ret_val = Serial.where( "name = '#{self.name}' AND NOT (id = #{self.id})").to_a.count > 0
     end
 
+    if ret_val == false
+      # check if there is another alternate value with the same name
+      a = Serial.with_alternate_value_on(:name, self.name)
+      # select alternate value based on alternate_object class, alternate_object_attribute(column) & value
+      if a.count > 0
+        ret_val = true
+      end
+    end
+
     ret_val # return
   end
 
