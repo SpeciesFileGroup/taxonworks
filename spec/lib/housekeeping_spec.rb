@@ -115,13 +115,28 @@ describe 'Housekeeping::User' do
 
         context 'belonging to a project' do
           before(:each) {
-            @project1 = FactoryGirl.build(:valid_project)
-            @project2 = FactoryGirl.build(:valid_project)
+            @project1 = FactoryGirl.create(:valid_project)
+            @project2 = FactoryGirl.create(:valid_project)
           }
 
           after(:each) {
+            @project1.destroy
+            @project2.destroy
+          }
+
+          after(:all) {
             $project_id = 1
           }
+
+          specify 'scoped by a project' do
+            @otu1 = Otu.create(project: @project1, name: 'Fus')
+            @otu2 = Otu.create(project: @project2, name: 'Bus')
+
+            byebug
+            expect(Otu.in_project(@project1).all).to eq([@otu1])
+            expect(Otu.with_project_id(@project2.id).all).to eq([@otu2])
+
+          end
 
           specify 'instance must belong to the project before save' do
             pending
@@ -138,7 +153,6 @@ describe 'Housekeeping::User' do
       end
     end
   end
-
 
 
   # Do not extend these tests. This
@@ -175,5 +189,12 @@ module HousekeepingTestClass
     include FakeTable 
     include Housekeeping::Projects 
   end
+
+  class WithTimestamps < ActiveRecord::Base
+    include FakeTable 
+    include Housekeeping::Timestamps
+  end
+
+
 
 end

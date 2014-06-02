@@ -4,6 +4,7 @@ module Housekeeping
   included do
     include Users
     include Projects 
+    include Timestamps
   end
 
   def has_polymorphic_relationship?

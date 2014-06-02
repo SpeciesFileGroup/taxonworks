@@ -19,11 +19,21 @@ module Housekeeping::Projects
     # Also extend the project 
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
-      has_many related_instances,  class_name: related_class # inverse_of: :project,
+      has_many related_instances, class_name: related_class # inverse_of: :project,
     end
   end
 
   module ClassMethods
+
+    # Scopes
+    def in_project(project)
+      where(project: project)
+    end
+
+    def with_project_id(project_id)
+      where(project_id: project_id)
+    end
+
   end
 
   def set_project_id

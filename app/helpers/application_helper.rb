@@ -25,7 +25,7 @@ module ApplicationHelper
       return 'Previous'
     else
       link_to('Previous', instance.class.find(link_id) )
-    end 
+    end
   end
 
   # !! Dangerous, not scoped by project: TODO: FIX
@@ -35,11 +35,37 @@ module ApplicationHelper
       return 'Next'
     else
       link_to('Next', instance.class.find(link_id) )
-    end 
+    end
   end
 
   def forward_back_links(instance)
     content_tag(:span,  (previous_by_id_link(instance) + ' | ' + next_by_id_link(instance)).html_safe )
+  end
+
+  # !! Dangerous, not scoped by project, and not bound, also assumes -1 TODO: FIX
+  def previous_page(instance)
+    text = 'Previous page'
+    link_id = instance.id.to_i - 1
+    if link_id <= 1
+      return text
+    else
+      link_to(text, instance.class.find(link_id) )
+    end
+  end
+
+  # !! Dangerous, not scoped by project: TODO: FIX
+  def next_page(instance)
+    text = 'Next page'
+    link_id = instance.id.to_i + 1
+    if link_id >= instance.class.count
+      return text
+    else
+      link_to(text, instance.class.find(link_id) )
+    end
+  end
+
+  def forward_back_pages(instance)
+    content_tag(:span,  (previous_page(instance) + ' | ' + next_page(instance)).html_safe )
   end
 
   def model_name_title

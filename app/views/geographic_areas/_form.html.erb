@@ -13,14 +13,14 @@
     <% end %>
 
     <div class="field">
-      <%= f.label :parent_id %>
-      <br>
-      <%= f.number_field :parent_id %>
-    </div>
-    <div class="field">
       <%= f.label :name %>
       <br>
       <%= f.text_field :name %>
+    </div>
+    <div class="field">
+      <%= f.label :parent_id %>
+      <br>
+      <%= f.number_field :parent_id %>
     </div>
     <div class="field">
       <%= f.label :geographic_area_type_id %>
@@ -38,59 +38,9 @@
       <%= f.text_field :iso_3166_a3 %>
     </div>
     <div class="field">
-      <%= f.label :adm0_a3 %>
-      <br>
-      <%= f.text_field :adm0_a3 %>
-    </div>
-    <div class="field">
       <%= f.label :data_origin %>
       <br>
       <%= f.text_field :data_origin %>
-    </div>
-    <div class="field">
-      <%= f.label :tdwg_parent_id %>
-      <br>
-      <%= f.number_field :tdwg_parent_id %>
-    </div>
-    <div class="field">
-      <%= f.label :tdwgID %>
-      <br>
-      <%= f.text_field :tdwgID %>
-    </div>
-    <div class="field">
-      <%= f.label :gadmID %>
-      <br>
-      <%= f.number_field :gadmID %>
-    </div>
-    <div class="field">
-      <%= f.label :gadm_valid_from %>
-      <br>
-      <%= f.text_field :gadm_valid_from %>
-    </div>
-    <div class="field">
-      <%= f.label :gadm_valid_to %>
-      <br>
-      <%= f.text_field :gadm_valid_to %>
-    </div>
-    <div class="field">
-      <%= f.label :neID %>
-      <br>
-      <%= f.text_field :neID %>
-    </div>
-    <div class="field">
-      <%= f.label :ne_geo_item_id %>
-      <br>
-      <%= f.number_field :ne_geo_item_id %>
-    </div>
-    <div class="field">
-      <%= f.label :gadm_geo_item_id %>
-      <br>
-      <%= f.number_field :gadm_geo_item_id %>
-    </div>
-    <div class="field">
-      <%= f.label :tdwg_geo_item_id %>
-      <br>
-      <%= f.number_field :tdwg_geo_item_id %>
     </div>
 
     <div class="field">
@@ -108,18 +58,16 @@
       <br>
       <%= f.number_field :level2_id %>
     </div>
-    <!--
     <div class="field">
-      <%= f.label :rgt %>
+      <%= f.label :created_by_id %>
       <br>
-      <%= f.number_field :rgt %>
+      <%= f.number_field :created_by_id %>
     </div>
     <div class="field">
-      <%= f.label :lft %>
+      <%= f.label :updated_by_id %>
       <br>
-      <%= f.number_field :lft %>
+      <%= f.number_field :updated_by_id %>
     </div>
-    -->
     <div class="actions">
       <%= f.submit %>
     </div>

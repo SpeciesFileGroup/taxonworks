@@ -523,7 +523,10 @@ describe TaxonName do
         expect(s.name_with_alternative_spelling).to eq('nigricinta')
       end
       specify 'name_with_alternative_spelling and no family_group_base matches fails now' do
-        pending
+        s = FactoryGirl.build_stubbed(:relationship_family, parent: nil, name: 'Aini')
+        expect(s.name_with_alternative_spelling).to eq('Aidae')
+        s.name = 'Ayni'
+        expect(s.name_with_alternative_spelling).to eq('Ayni')
       end
     end
   end

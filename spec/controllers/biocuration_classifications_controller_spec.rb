@@ -20,7 +20,7 @@ require 'spec_helper'
 
 describe BiocurationClassificationsController do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
