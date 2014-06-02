@@ -650,6 +650,9 @@ class TaxonName < ActiveRecord::Base
         soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
       end
     end
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s) # self.rank_class =~ /Species/
+      soft_validations.add(:name, 'name must be lower case') unless self.name == self.name.downcase
+    end
   end
 
   def sv_missing_fields

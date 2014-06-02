@@ -428,6 +428,12 @@ describe TaxonName do
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_true
         end
+        specify 'species name starting with apper case' do
+          taxon_name.name = 'Aus'
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
+          taxon_name.soft_validate(:validate_name)
+          expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
+        end
       end
 
       context 'when rank ICN family' do
