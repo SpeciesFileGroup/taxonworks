@@ -1,6 +1,12 @@
-<% if sessions_signed_in? %>
-  <div>
-    <h1><%= @page_title %></h1>
-    <p>Your dashboard is not ready yet. Sorry about that.</p>
-  </div>
-<% end %>
+<h1> Dashboard </h1>
+
+<section> 
+  <h2> Projects </h2>
+  <ul> <%= projects_list(@projects) -%> </ul>
+</section>
+
+<aside> 
+  <h2> Preferences </h2>
+  <p> Stub. </p>
+</aside>
+

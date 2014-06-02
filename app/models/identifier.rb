@@ -18,7 +18,8 @@ class Identifier < ActiveRecord::Base
     catalog_number: Identifier::Local::CatalogNumber,
     trip_code: Identifier::Local::TripCode,
     import: Identifier::Local::Import,
-
+    otu_utility: Identifier::Local::OtuUtility,
+    accession_code: Identifier::Local::AccessionCode
   }
 
   validates :identified_object, presence: true

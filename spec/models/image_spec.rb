@@ -51,7 +51,7 @@ describe Image do
     expect(j.has_duplicate?).to be_true
     image_array = j.duplicate_images
     expect(image_array.count).to eq(2)
-    expect(image_array.sort).to eq([@i,k].sort)
+    expect(image_array.sort).to eq([@i, k].sort)
 
     j.soft_validate
     expect(j.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
@@ -99,7 +99,17 @@ describe Image do
     expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_true
   end
 
-  pending 'exif or jfif data should be available if it was provided in the original image'
+  specify 'exif data should be available if it was provided in the image' do
+    # return empty hash when no EXIF data present
+    # return correct EXIF data on following images:
+    #   Samsung phone - Samsung_Phone.jpg
+    #   Exif added later - post_processed.jpg
+    #   Exif with comments
+    #   Exif with edited data
+
+  end
+
+  pending 'return gps data as decimal degrees'
 
   # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do

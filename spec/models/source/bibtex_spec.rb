@@ -118,6 +118,7 @@ describe Source::Bibtex do
       expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
       expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
       pending 'test that notes gets converted properly to a bibtex note'
+      # TODO test serial gets converted properly to bibtex journal
     end
 
     specify 'valid_bibtex?' do
@@ -511,6 +512,8 @@ describe Source::Bibtex do
         end
 
       end
+
+      # TODO if the bibtex entry has a journal create the Serials
     end
 
     %w{author editor}.each do |a|

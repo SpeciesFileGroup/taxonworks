@@ -1,0 +1,31 @@
+<h1>Listing geographic_items</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>GeoObject</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @geographic_items.each do |geographic_item| %>
+      <tr>
+        <td><%= scrollable_div_tag(geographic_item.geo_object) %></td>
+        <td><%= geographic_item.created_by_id %></td>
+        <td><%= geographic_item.updated_by_id %></td>
+        <td><%= link_to 'Show', geographic_item %></td>
+        <td><%= link_to 'Edit', edit_geographic_item_path(geographic_item) %></td>
+        <td><%= link_to 'Destroy', geographic_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Geographic item', new_geographic_item_path %>

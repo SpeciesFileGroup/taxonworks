@@ -1,0 +1,104 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @taxon_name.name %>
+</p>
+
+<p>
+  <strong>Parent:</strong>
+  <%= @taxon_name.parent_id %>
+</p>
+
+<p>
+  <strong>Cached name:</strong>
+  <%= @taxon_name.cached_name %>
+</p>
+
+<p>
+  <strong>Cached author year:</strong>
+  <%= @taxon_name.cached_author_year %>
+</p>
+
+<p>
+  <strong>Cached higher classification:</strong>
+  <%= @taxon_name.cached_higher_classification %>
+</p>
+
+<p>
+  <strong>Lft:</strong>
+  <%= @taxon_name.lft %>
+</p>
+
+<p>
+  <strong>Rgt:</strong>
+  <%= @taxon_name.rgt %>
+</p>
+
+<p>
+  <strong>Source:</strong>
+  <%= @taxon_name.source_id %>
+</p>
+
+<p>
+  <strong>Year of publication:</strong>
+  <%= @taxon_name.year_of_publication %>
+</p>
+
+<p>
+  <strong>Verbatim author:</strong>
+  <%= @taxon_name.verbatim_author %>
+</p>
+
+<p>
+  <strong>Rank class:</strong>
+  <%= @taxon_name.rank_class %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @taxon_name.type %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @taxon_name.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @taxon_name.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @taxon_name.project_id %>
+</p>
+
+<p>
+  <strong>Cached original combination:</strong>
+  <%= @taxon_name.cached_original_combination %>
+</p>
+
+<p>
+  <strong>Cached secondary homonym:</strong>
+  <%= @taxon_name.cached_secondary_homonym %>
+</p>
+
+<p>
+  <strong>Cached primary homonym:</strong>
+  <%= @taxon_name.cached_primary_homonym %>
+</p>
+
+<p>
+  <strong>Cached secondary homonym alt:</strong>
+  <%= @taxon_name.cached_secondary_homonym_alt %>
+</p>
+
+<p>
+  <strong>Cached primary homonym alt:</strong>
+  <%= @taxon_name.cached_primary_homonym_alt %>
+</p>
+
+<%= link_to 'Edit', edit_taxon_name_path(@taxon_name) %> |
+<%= link_to 'Back', taxon_names_path %>

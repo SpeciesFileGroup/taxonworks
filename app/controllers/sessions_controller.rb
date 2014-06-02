@@ -2,8 +2,6 @@ class SessionsController < ApplicationController
 
   # GET /signin
   def new
-    @page_title = 'Sign in'
-    @user = User.new
   end
 
   # POST /sessions

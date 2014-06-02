@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Geographic area:</strong>
+  <%= geographic_area_link(@geographic_areas_geographic_item.geographic_area) %>
+</p>
+
+<p>
+  <strong>Geographic item:</strong>
+  <%= geographic_item_link( @geographic_areas_geographic_item.geographic_item) %>
+</p>
+
+<p>
+  <strong>Data origin:</strong>
+  <%= @geographic_areas_geographic_item.data_origin %>
+</p>
+
+<p>
+  <strong>Origin gid:</strong>
+  <%= @geographic_areas_geographic_item.origin_gid %>
+</p>
+
+<p>
+  <strong>Date valid from:</strong>
+  <%= @geographic_areas_geographic_item.date_valid_from %>
+</p>
+
+<p>
+  <strong>Date valid to:</strong>
+  <%= @geographic_areas_geographic_item.date_valid_to %>
+</p>
+
+<%= link_to 'Edit', edit_geographic_areas_geographic_item_path(@geographic_areas_geographic_item) %> |
+<%= link_to 'Back', geographic_areas_geographic_items_path %>

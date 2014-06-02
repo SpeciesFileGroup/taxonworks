@@ -23,6 +23,9 @@ FactoryGirl.define do
     factory :county_geographic_area_type do
       name 'County'
     end
-  end
 
+    factory :testbox_geographic_area_type do
+      name 'Test Box'
+    end
+  end
 end

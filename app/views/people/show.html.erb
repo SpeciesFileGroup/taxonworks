@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @person.type %>
+</p>
+
+<p>
+  <strong>Last name:</strong>
+  <%= @person.last_name %>
+</p>
+
+<p>
+  <strong>First name:</strong>
+  <%= @person.first_name %>
+</p>
+
+<p>
+  <strong>Suffix:</strong>
+  <%= @person.suffix %>
+</p>
+
+<p>
+  <strong>Prefix:</strong>
+  <%= @person.prefix %>
+</p>
+
+<!--<p>
+  <strong>Created by:</strong>
+  <%= @person.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @person.updated_by_id %>
+</p>-->
+
+<%= link_to 'Edit', edit_person_path(@person) %> |
+<%= link_to 'Back', people_path %>

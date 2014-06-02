@@ -1,0 +1,11 @@
+<%= form_tag search_geographic_areas_path do %>
+  <div class="field">
+    <%= label_tag 'with name like' %><br>
+    <%= search_field_tag :name %>
+  </div>
+  <div class="actions">
+    <%= submit_tag 'Search' %>
+  </div>
+<% end %>
+
+<%= content_tag(:div, "Previous search: '#{@search_string}'") if @search_string -%>

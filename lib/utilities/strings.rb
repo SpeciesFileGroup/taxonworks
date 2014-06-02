@@ -1,5 +1,10 @@
 module Utilities::Strings
 
+  def self.random_taxon_name
+    'Aus bus'
+
+  end
+
   # Strips space, leaves internal widespace as is
   def self.nil_strip(string) # string should have content or be empty
     if !string.nil?

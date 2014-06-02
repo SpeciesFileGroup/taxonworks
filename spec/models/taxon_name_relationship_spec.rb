@@ -14,12 +14,12 @@ describe TaxonNameRelationship do
       @kingdom = @species.ancestor_at_rank('kingdom')
     end
 
-    after(:all) do
+    after(:all) { 
       TaxonName.delete_all
       TaxonNameRelationship.delete_all
       Source.delete_all
-    end
-    
+    } 
+
     context 'requires' do
       context 'associations' do
         specify 'subject (TaxonName)' do

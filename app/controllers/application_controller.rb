@@ -3,9 +3,21 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  layout 'basic'
-
   include SessionsHelper
+  include ProjectsHelper
+
+  before_filter :set_project_and_user_variables
+  after_filter :clear_project_and_user_variables
+
+  def set_project_and_user_variables
+    $project_id = sessions_current_project_id 
+    $user_id = sessions_current_user_id 
+  end
+
+  def clear_project_and_user_variables
+    $project_id = nil 
+    $user_id = nil 
+  end
 
   attr_writer   :meta_title, :meta_data, :site_name
   attr_accessor :meta_description, :meta_keywords, :page_title

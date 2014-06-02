@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @project.name %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @project.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @project.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_project_path(@project) %> |
+<%= link_to 'Back', projects_path %>

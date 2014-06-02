@@ -1,7 +1,6 @@
 <div>
 
-  <h1><%= @page_title %></h1>
-
+  <h1>TaxonWorks</h1>
   <%= form_for :session, url: sessions_path do |f| %>
     <%= f.label :email %>
     <%= f.text_field :email %>
@@ -9,5 +8,9 @@
     <%= f.password_field :password %>
     <%= f.submit 'Sign in' %>
   <% end %>
+
+  
+  <%= link_to('forgot password?', forgot_password_path) -%>
+  <%= link_to('find out more', 'http://taxonworks.org') -%>
 
 </div>

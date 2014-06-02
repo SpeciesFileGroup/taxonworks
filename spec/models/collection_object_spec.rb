@@ -71,6 +71,11 @@ describe CollectionObject do
   describe "validation" do
     specify "once set, a verbatim label can not change"
   end
+  
+  context 'soft validation' do
+    # Move to biological collection object 
+    pending 'there is a buffered_deterimination label but no determination'
+  end
 
   context 'concerns' do
     it_behaves_like "identifiable" 

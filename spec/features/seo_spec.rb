@@ -1,3 +1,4 @@
+# AN EXAMPLE ONLY, concept in testing, not fully adopted
 require 'spec_helper'
 
 describe 'Search Engine Optimisation' do

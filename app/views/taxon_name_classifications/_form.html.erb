@@ -1,0 +1,25 @@
+<%= form_for(@taxon_name_classification) do |f| %>
+  <% if @taxon_name_classification.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@taxon_name_classification.errors.count, "error") %> prohibited this taxon_name_classification from being saved:</h2>
+
+      <ul>
+      <% @taxon_name_classification.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :taxon_name_id %><br>
+    <%= f.number_field :taxon_name_id %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

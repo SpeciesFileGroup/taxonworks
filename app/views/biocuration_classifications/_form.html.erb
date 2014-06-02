@@ -1,0 +1,29 @@
+<%= form_for(@biocuration_classification) do |f| %>
+  <% if @biocuration_classification.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@biocuration_classification.errors.count, "error") %> prohibited this biocuration_classification from being saved:</h2>
+
+      <ul>
+      <% @biocuration_classification.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :biocuration_class_id %><br>
+    <%= f.number_field :biocuration_class_id %>
+  </div>
+  <div class="field">
+    <%= f.label :biological_collection_object_id %><br>
+    <%= f.number_field :biological_collection_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :position %><br>
+    <%= f.number_field :position %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

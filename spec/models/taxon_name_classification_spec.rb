@@ -2,6 +2,12 @@ require 'spec_helper'
 
 describe TaxonNameClassification do
 
+  after(:all) {
+    TaxonNameRelationship.delete_all
+    TaxonName.delete_all
+    TaxonNameClassification.delete_all
+  }
+
   context "validation" do
 
     context "requires" do
@@ -56,10 +62,6 @@ describe TaxonNameClassification do
       @species = FactoryGirl.create(:relationship_species)
       @genus = @species.ancestor_at_rank('genus')
       @family = @species.ancestor_at_rank('family')
-    end
-    after(:all) do
-      TaxonName.delete_all
-      TaxonNameClassification.delete_all
     end
 
     specify "applicable type and year" do

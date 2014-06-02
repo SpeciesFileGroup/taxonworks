@@ -15,6 +15,11 @@ when 'development'
   FactoryGirl.create(:valid_user)
   FactoryGirl.create(:valid_project)
   FactoryGirl.create(:project_member, project_id: 1, user_id: 1)
+ 
+  # These will interfere with importing geographic_items.dmp because it creates related records 
+  # FactoryGirl.create(:level2_geographic_area)
+  # FactoryGirl.create(:geographic_item_with_polygon)
+  
   FactoryGirl.create(:iczn_subspecies)
   FactoryGirl.create(:icn_variety)
 
@@ -23,6 +28,5 @@ when 'production'
 
 when 'test'
 
-  # Never ever do anything. Test with FactoryGirl or inline..... 
 
 end

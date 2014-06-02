@@ -1,0 +1,61 @@
+<%= form_tag tasks_accessions_quick_verbatim_material_create_path do %>
+    <div id="error_explanation">
+      <h2>** error messages here **</h2>
+    </div>
+
+    <h2>Identifier</h2>
+    <div>
+    <div class="field">
+      <%= label_tag 'Namespace/Institution/Coden' %>
+      <%= select_tag 'identifier[namespace_id]', options_from_collection_for_select(@namespaces, :id, :name) %>
+      <%= check_box_tag :lock_namespace %>
+      <%= label_tag 'lock' %>
+    </div>
+
+    <div class="field" >
+      <%= label_tag :identifier %>
+      <%= text_field_tag 'identifier[identifier]' %>
+      <%= check_box_tag :lock_increment %>
+      <%= label_tag 'increment + 1' %>
+      </div>
+    </div>
+
+    <h2>Repository</h2>
+    <div class="field">
+      <%= select_tag 'repository[id]', options_from_collection_for_select(@repositories, :id, :name) %>
+      <%= check_box_tag :lock_repository %>
+      <%= label_tag 'lock' %>
+    </div>
+
+    <h2>Verbatim data</h2>
+    <div class="field">
+      <%= label_tag :collecting_event %>
+      <%= text_area_tag 'collection_object[buffered_collecting_event]' %>
+      <%= check_box_tag :lock_collecting_event %>
+      <%= label_tag 'lock' %>
+    </div>
+    <div class="field">
+      <%= label_tag :determinations %>
+      <%= text_area_tag 'collection_object[buffered_determinations]' %>
+      <%= check_box_tag :lock_buffered_determinations %>
+      <%= label_tag 'lock' %>
+    </div>
+    <div class="field">
+      <%= label_tag :other_labels %>
+      <%= text_area_tag 'collection_object[buffered_other_labels]' %>
+      <%= check_box_tag :lock_other_labels %>
+      <%= label_tag 'lock' %>
+    </div>
+    <div class="field">
+      <%= label_tag :notes %> (attached to all material)
+      <%= text_area_tag 'note[text]' %>
+      <%= check_box_tag :lock_note %>
+      <%= label_tag 'lock' %>
+    </div>
+
+    <%= render 'attribute_form' %>
+
+    <div class="actions">
+      <%= submit_tag %>
+    </div>
+<% end %>

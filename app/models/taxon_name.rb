@@ -543,11 +543,12 @@ class TaxonName < ActiveRecord::Base
     (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
   end
 
+  # TODO: Dmitry needs to be fixed
   def get_classified_as
     unless self.class == Combination || self.class == Protonym
       return nil
     end
-    c = self.source_classified_as
+    c = nil # self.source_classified_as
     if c.nil?
       nil
     else

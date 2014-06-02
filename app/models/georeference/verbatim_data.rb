@@ -40,4 +40,5 @@ class Georeference::VerbatimData < Georeference
       geographic_item
     end
   end
+
 end

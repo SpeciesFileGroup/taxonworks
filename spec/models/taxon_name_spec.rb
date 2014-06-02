@@ -14,9 +14,10 @@ describe TaxonName do
     @root = @subspecies.root
   end
 
-  after(:all) do
+  after(:all) { 
    # TestDbCleanup.cleanup_taxon_name_and_related
-  end
+    TaxonNameRelationship.delete_all
+  }
 
   context 'double checking FactoryGirl' do
     specify 'is building all related names for respective models' do

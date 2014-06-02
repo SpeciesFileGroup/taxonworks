@@ -1,47 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title><%= meta_title %></title>
-<% meta_data.each do |name, content| %>
-  <% next if content.to_s.empty? || name.to_s.empty? %>
-<meta name="<%= name.to_s %>" content="<%= content.to_s %>">
+  <head>
+    <meta charset="utf-8">
+    <title><%= meta_title %></title>
+ 
+    <% meta_data.each do |name, content| %>
+      <% next if content.to_s.empty? || name.to_s.empty? %>
+      <meta name="<%= name.to_s %>" content="<%= content.to_s %>">
+    <% end %>
+
+    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= csrf_meta_tags %>
+    <%= yield :head %>
+  </head>
+  
+  <body>
+
+  <header>
+    <%= render partial: 'sessions/summary' if sessions_signed_in? %>
+ </header>
+
+  <aside>
+    <% flash.each do |key, value| %>
+      <p class="alert alert--<%= key %>"><%= value %></p>
   <% end %>
-<%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-<%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-<%= csrf_meta_tags %>
-<%= yield :head %>
-</head>
-<body>
-<h1> * TaxonWorks *</h1>
-<header>
-  <h1><%= link_to site_name, root_path %></h1>
-  <%= render partial: 'sessions/summary' %>
-  <nav>
-    <ul>
-      <li><%= link_to 'Home', root_path %></li>
-    </ul>
-  </nav>
-  <%= yield :header %>
-</header>
+  </aside>
 
+  <%= yield %>
 
-
-<aside>
-  <% flash.each do |key, value| %>
-    <p class="alert alert--<%= key %>"><%= value %></p>
-<% end %>
-</aside>
-
-<%= yield :main %>
-
-<footer>
-  <%= yield :footer %>
-  <p>TaxonWorks is brought to you by the
-  <%= link_to 'Illinois Natural History Survey',
-    'http://www.inhs.illinois.edu' %>
-  </p>
-  </footer>
+  <%= render "footer" %>
 
   </body>
-  </html>
+</html>

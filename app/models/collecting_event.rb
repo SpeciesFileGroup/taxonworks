@@ -21,7 +21,7 @@
 # @!attribute verbatim_longitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the longitude. Is used to derive mappable values, but does not get mapped itself
-# @!attribute verbatim_longitude
+# @!attribute verbatim_latitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the latitude. Is used to derive mappable values, but does not get mapped itself. 
 class CollectingEvent < ActiveRecord::Base
@@ -29,55 +29,71 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Citable
   include Shared::Identifiable
   include Shared::Notable
+  include Shared::DataAttributes
   include SoftValidation
 
   belongs_to :geographic_area, inverse_of: :collecting_events
+
+  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
+  has_many :collection_objects
+  has_many :georeferences
+  has_many :geographic_items, through: :georeferences
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
                     :check_elevation_range
 
-  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id]
+  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?' 
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
 
+  validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
+
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
-  validates_numericality_of :start_date_year,
-    only_integer: true, greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
-  validates_inclusion_of :start_date_month,
-    in: 1..12, 
-    allow_nil: true,
-    message: ' start date month'
-  validates_numericality_of :start_date_day,
-    allow_nil: true,
-    only_integer: true,
-    greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
-    :unless => 'start_date_year.nil? || start_date_month.nil?',
-    message: '%{value} is not a valid start_date_day for the month provided'
-  validates_numericality_of :end_date_year,
-    only_integer: true, greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: 'start date year must be an integer greater than 0'
+  validates :start_date_year,
+    numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5),  message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future' },
+    length: {is: 4},
+    allow_nil: true
+
+  validates :end_date_year,
+    numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5), message: 'end date year must be an integer greater than 1500, and no more than 5 years int he future' },
+    length: {is: 4},
+    allow_nil: true
+
+   # TODO: combine validations
+   validates_inclusion_of :start_date_month,
+    in: Utilities::Dates::LEGAL_MONTHS, 
+    allow_nil: true
+
   validates_inclusion_of :end_date_month,
-    in: 1..12,
-    allow_nil: true,
-    message: ' start date month'
+    in: Utilities::Dates::LEGAL_MONTHS, 
+    allow_nil: true
+
+  validates_presence_of :start_date_month,
+    if: '!start_date_day.nil?'
+   
+  validates_presence_of :end_date_month,
+    if: '!end_date_day.nil?'
+
   validates_numericality_of :end_date_day,
     allow_nil: true,
     only_integer: true,
     greater_than: 0,
     less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
-    :unless => 'end_date_year.nil? || end_date_month.nil?',
+    unless: 'end_date_year.nil? || end_date_month.nil?',
     message: '%{value} is not a valid end_date_day for the month provided'
 
+ validates_numericality_of :start_date_day,
+    allow_nil: true,
+    only_integer: true,
+    greater_than: 0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
+    unless: 'start_date_year.nil? || start_date_month.nil?',
+    message: '%{value} is not a valid start_date_day for the month provided'
+ 
   soft_validate(:sv_minimally_check_for_a_label)
 
   def verbatim_label=(value)
@@ -94,12 +110,33 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def end_date
-    has_end_date? && Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)  
+    Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)  
   end
 
   def start_date
-    has_start_date? && Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)  
+    Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end 
+
+  def generate_verbatim_georeference
+    if verbatim_latitude && verbatim_longitude && !new_record?
+      point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)  
+      g = GeographicItem.new(point: point)
+      if g.valid?
+        g.save
+        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g))
+      end
+    end
+  end
+
+  def self.test
+    result = []
+    colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
+    names = ["Zerothus nillus", "Firstus, specius", "Secondus duo", "thirdius trio", "Fourthus quattro", "Fithus ovwhiskius", "Sixtus sextus", "Seventhus septium", "Eighthus octo", "Ninethus novim","Tenthus dix"]
+    self.all.each_with_index do |c, i|
+      result.push(  RGeo::GeoJSON.encode(c.georeferences.first.geographic_item.geo_object).merge('descriptor'=> {'color'=> colors[i], 'name'=> names[i]}) )
+    end
+     'var data = ' + result.to_json + ';'
+  end
 
   protected
 
@@ -119,7 +156,6 @@ class CollectingEvent < ActiveRecord::Base
     [:verbatim_label, :print_label, :document_label, :field_notes].each do |v|
       return true if !self.send(v).blank?
     end 
-
     soft_validations.add(:base, 'At least one label type, or field notes, should be provided.')
   end
 

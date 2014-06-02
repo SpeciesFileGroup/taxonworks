@@ -1,23 +1,73 @@
 TaxonWorks::Application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
+ 
+  # Vetted / tested
 
   root 'dashboard#index'
 
-  get 'taxon_names/demo'
+  match '/signin',  to: 'sessions#new',     via: :get
+  match '/signout', to: 'sessions#destroy', via: :delete
+  resources :sessions, only: :create
   
-  namespace :api, defaults: {format: 'json'} do
-    namespace :v1 do
-      get "taxon_names/all(.:format)"
+  resources :projects do 
+    member do
+      get 'select'
+      get 'settings_for' 
     end
   end
 
-  resources :sessions, only: :create
-  match '/signin',  to: 'sessions#new',     via: 'get'
-  match '/signout', to: 'sessions#destroy', via: 'delete'
+  match '/hub', to: 'hub#index', via: 'get'
+
+
+  # Stubbed
+  match '/forgot_password', to: 'users#forgot_password', via: 'get'
+
+  resources :biocuration_classifications
+  resources :collecting_events do
+    collection do
+      get 'test'
+    end
+
+  end
+  resources :collection_objects
+  resources :controlled_vocabulary_terms
+  resources :geographic_area_types
+  resources :geographic_areas do
+    collection do
+      post 'search'
+    end
+  end
+  resources :geographic_areas_geographic_items
+  resources :geographic_items
+  resources :georeferences
+  resources :identifiers
+  resources :namespaces
+  resources :notes
+  resources :otus do
+    collection do
+      post 'search'
+      get 'list'
+   end
+  end
+  resources :people
+  resources :repositories
+  resources :taxon_determinations
+  resources :taxon_names
+  resources :taxon_name_classifications
+  resources :taxon_name_relationships
+
+  get 'taxon_names/demo'
+  get 'taxon_names/marilyn'
+  
+  get 'tasks/accessions/quick/verbatim_material/new'
+  post 'tasks/accessions/quick/verbatim_material/create'
 
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
+
+  # API STUB
+  get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

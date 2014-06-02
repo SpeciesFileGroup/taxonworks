@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Identified object:</strong>
+  <%= @identifier.identified_object_id %>
+</p>
+
+<p>
+  <strong>Identified object type:</strong>
+  <%= @identifier.identified_object_type %>
+</p>
+
+<p>
+  <strong>Identifier:</strong>
+  <%= @identifier.identifier %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @identifier.type %>
+</p>
+
+<p>
+  <strong>Cached identifier:</strong>
+  <%= @identifier.cached_identifier %>
+</p>
+
+<p>
+  <strong>Namespace:</strong>
+  <%= @identifier.namespace_id %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @identifier.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @identifier.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_identifier_path(@identifier) %> |
+<%= link_to 'Back', identifiers_path %>

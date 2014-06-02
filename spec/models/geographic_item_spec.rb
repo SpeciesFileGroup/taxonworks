@@ -4,17 +4,12 @@ require_relative '../support/geo'
 describe GeographicItem do
   before(:all) {
     generate_test_objects
-    # TODO: Remove this line, it's not needed, right?:  gen_wkt_files (code is now in support/geo
   }
 
   after(:all) {
     GeographicItem.destroy_all
   }
 
-  #let(:FFI_FACTORY) { ::RGeo::Geographic.FFI_FACTORY(:srid => 4326)}
-  #let(:FFI_FACTORY) { ::RGeo::Geos.factory(:srid             => 4326,
-  #                                        :has_z_coordinate => true,
-  #                                        :has_m_coordinate => false) }
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
   let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }
   let(:geographic_item_with_point_b) { FactoryGirl.build(:geographic_item_with_point_b) }
@@ -148,6 +143,21 @@ describe GeographicItem do
       expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
 
+    # e.g. not 400,400
+    specify 'a point, when provided, has a legal geography' do
+      geographic_item.point = RSPEC_GEO_FACTORY.point(200.0, 200.0)
+
+      geographic_item.valid?
+      expect(geographic_item.errors.keys.include?(:point_limit)).to be_true
+    end
+
+    specify 'a point, when provided, has a legal geography' do
+      geographic_item.point = RSPEC_GEO_FACTORY.point(180.0, 85.0)
+
+      geographic_item.valid?
+      expect(geographic_item.valid?).to be_true
+    end
+
     specify 'One and only one of point, line_string, etc. is set.' do
       geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
       expect(geographic_item_with_point_a.valid?).to be_false
@@ -164,15 +174,14 @@ describe GeographicItem do
     end
 
     specify 'That one object contains another, or not.' do
-      expect(@k.contains?(@p1)).to be_true
-      expect(@k.contains?(@p17)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_true
+      expect(@k.contains?(@p17.geo_object)).to be_false
 
-      expect(@p1.within?(@k)).to be_true
-      expect(@p17.within?(@k)).to be_false
+      expect(@p1.within?(@k.geo_object)).to be_true
+      expect(@p17.within?(@k.geo_object)).to be_false
     end
 
     specify 'Two polygons may have various intersections.' do
-
       @e.reload
       e0      = @e.geo_object # a collection of polygons
       shapeE1 = e0.geometry_n(0)
@@ -240,13 +249,13 @@ describe GeographicItem do
 
       expect(p17.distance(k)).to be < p10.distance(k)
 
-      expect(@k.near(@p1, 0)).to be_true
-      expect(@k.near(@p17, 2)).to be_true
-      expect(@k.near(@p10, 5)).to be_false
+      expect(@k.near(@p1.geo_object, 0)).to be_true
+      expect(@k.near(@p17.geo_object, 2)).to be_true
+      expect(@k.near(@p10.geo_object, 5)).to be_false
 
-      expect(@k.far(@p1, 0)).to be_false
-      expect(@k.far(@p17, 1)).to be_true
-      expect(@k.far(@p10, 5)).to be_true
+      expect(@k.far(@p1.geo_object, 0)).to be_false
+      expect(@k.far(@p17.geo_object, 1)).to be_true
+      expect(@k.far(@p10.geo_object, 5)).to be_true
     end
 
     specify 'Outer Limits' do
@@ -297,8 +306,8 @@ describe GeographicItem do
     end
 
     specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
-      expect(@k.contains?(@p1)).to be_true
-      expect(@e1.contains?(@p10)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_true
+      expect(@e1.contains?(@p10.geo_object)).to be_false
     end
 
 
@@ -535,10 +544,40 @@ describe GeographicItem do
                                                                [-21.0, -11.0],
                                                                [-27.0, -13.0],
                                                                [-33.0, -11.0]
+                                                             ],
+                                                             [
+                                                               [-1.0, 1.0],
+                                                               [1.0, 1.0],
+                                                               [1.0, -1.0],
+                                                               [-1.0, -1.0],
+                                                               [-1.0, 1.0]
+                                                             ],
+                                                             [
+                                                               [-2.0, 2.0],
+                                                               [2.0, 2.0],
+                                                               [2.0, -2.0],
+                                                               [-2.0, -2.0],
+                                                               [-2.0, 2.0]
+                                                             ],
+                                                             [
+                                                               [-3.0, 3.0],
+                                                               [3.0, 3.0],
+                                                               [3.0, -3.0],
+                                                               [-3.0, -3.0],
+                                                               [-3.0, 3.0]
+                                                             ],
+                                                             [
+                                                               [-4.0, 4.0],
+                                                               [4.0, 4.0],
+                                                               [4.0, -4.0],
+                                                               [-4.0, -4.0],
+                                                               [-4.0, 4.0]
                                                              ]
                                                            ]
 
-        expect(@all_items.rendering_hash).to eq ({lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], points: [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], polygons: [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]]})
+
+
+        expect(@all_items.rendering_hash).to eq ({:points=>[[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], :lines=>[[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], :polygons=>[[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]], [[-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0], [-1.0, 1.0]], [[-2.0, 2.0], [2.0, 2.0], [2.0, -2.0], [-2.0, -2.0], [-2.0, 2.0]], [[-3.0, 3.0], [3.0, 3.0], [3.0, -3.0], [-3.0, -3.0], [-3.0, 3.0]], [[-4.0, 4.0], [4.0, 4.0], [4.0, -4.0], [-4.0, -4.0], [-4.0, 4.0]]]})
       end
     end
   end
@@ -646,7 +685,7 @@ describe GeographicItem do
       end
 
       specify '#within_radius of returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5])
+        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5, @area_a, @area_b, @area_c, @area_d])
       end
 
       specify "#intersecting list of objects (uses 'or')" do
@@ -668,6 +707,5 @@ describe GeographicItem do
 
     end
   end
-
 
 end

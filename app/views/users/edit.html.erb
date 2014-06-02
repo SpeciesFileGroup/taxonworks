@@ -1,20 +1,6 @@
-<div>
+<h1>Editing user</h1>
 
-  <h1><%= @page_title %></h1>
+<%= render 'form' %>
 
-  <%= form_for @user do |f| %>
-    <%= render 'shared/errors', thing: @user %>
-    <%= f.label :email %>
-    <%= f.text_field :email %>
-    <%= f.label :password %>
-    <%= f.password_field :password %>
-    <%= f.label :password_confirmation %>
-    <%= f.password_field :password_confirmation %>
-    <%= f.submit 'Save changes' %>
-  <% end %>
-
-  <%= form_for @user, method: :delete do |f| %>
-    <%= f.submit 'Delete your account', data: {
-      confirm: 'Are you sure you want delete your account?' } %>
-  <% end %>
-</div>
+<%= link_to 'Show', @user %> |
+<%= link_to 'Back', users_path %>

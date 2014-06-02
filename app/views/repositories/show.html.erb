@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @repository.name %>
+</p>
+
+<p>
+  <strong>Url:</strong>
+  <%= @repository.url %>
+</p>
+
+<p>
+  <strong>Acronym:</strong>
+  <%= @repository.acronym %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @repository.status %>
+</p>
+
+<p>
+  <strong>Institutional lsid:</strong>
+  <%= @repository.institutional_LSID %>
+</p>
+
+<p>
+  <strong>Is index herbarioum record:</strong>
+  <%= @repository.is_index_herbarioum_record %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @repository.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @repository.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_repository_path(@repository) %> |
+<%= link_to 'Back', repositories_path %>

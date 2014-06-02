@@ -7,32 +7,32 @@ describe 'Users' do
   describe '/users' do
 
     before do
+      # sign_in_valid_user
       @existing_user = FactoryGirl.create(:valid_user)
       visit users_path
     end
 
     it 'should list users' do
-      subject.should have_selector('h1', 'Users')
-      subject.should have_content("User #{@existing_user.id}")
+      subject.should have_selector('h1', text: 'Users')
+      subject.should have_content("#{@existing_user.email}")
     end
 
   end
 
   describe '/users/:id' do
-    before do
+    before {
       @existing_user = FactoryGirl.create(:valid_user)
       visit user_path(@existing_user)
-    end
+    } 
 
     it 'should show a user\'s profile' do
-      subject.should have_selector('h1', "User #{@existing_user.id}")
+      subject.should have_selector('h1', text: "User #{@existing_user.id}")
       subject.should have_title("User #{@existing_user.id} | TaxonWorks")
     end
 
   end
 
   describe '/users/:id/edit' do
-
     before do
       @existing_user = FactoryGirl.create(:valid_user)
       visit edit_user_path(@existing_user)
@@ -44,7 +44,7 @@ describe 'Users' do
       fill_in 'Email', with: 'edit_user_modified@example.com'
       fill_in 'Password', with: @existing_user.password
       fill_in 'Password confirmation', with: @existing_user.password_confirmation
-      click_button 'Save changes'
+      click_button 'Update User'
       subject.should have_selector('.alert--success', 'Your changes have been saved.')
     end
 

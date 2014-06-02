@@ -1,14 +1,25 @@
-#@ffi_factory = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
-
 require_relative '../support/geo'
-
 # TODO: Jim, use constants instead of instantiating factories again? 
 FactoryGirl.define do
 
-  factory :geographic_item, traits: [:creator_and_updater] do
+  minLat = -90 
+  maxLat = 90
+  minLng = -180
+  maxLng = 180 
+  rng = Random.new(Time.now.to_i)
 
-    factory :geographic_item_with_point_a, aliases: [:valid_geographic_item] do
+  # FactoryGirl.build(:geographic_item, :random_point)
+  trait :random_point do
+    point {  RSPEC_GEO_FACTORY.point( minLat + rng.rand * (maxLat - minLat),  minLng + rng.rand * (maxLng - minLng)) }
+  end 
+
+  factory :geographic_item, traits: [:creator_and_updater] do
+    factory :valid_geographic_item, aliases: [:geographic_item_with_point_a] do
       point { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655) }
+    end
+
+    factory :random_point_geographic_item do
+      random_point
     end
 
     factory :geographic_item_with_point_m do
@@ -39,5 +50,4 @@ FactoryGirl.define do
     end
 
   end
-
 end

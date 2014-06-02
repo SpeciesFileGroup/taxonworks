@@ -1,22 +1,9 @@
 require 'spec_helper'
 
-# BaseDir = '../shapes/'
-
-# TODO: RGeo Shapefile processing: Conversations about the following issues:
-# TODO:   Use of PID from the USA or GADM shape files: include it in the GeographicArea model?
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
-# TODO:   Our TDWG shape files are *not* in the form readable by RGeo::Shapefile::Reader, because they lack the attending index and attribute files.  The question becomes "Do we write a reader in Ruby, or is there a better (perhaps existing) choice?"
-# TODO:   Do we keep the TDWG/GADM shapes in a separate table? (Gazetteer?)
 
 describe GeographicArea do
   let(:geographic_area) { FactoryGirl.build(:valid_geographic_area_stack) }
-  #before :each do
-  #  @county = FactoryGirl.create(:level2_geographic_area)
-  #end
-
-  #@state = @county.parent
-  #@country = @state.parent
-  #@planet = @county.root
 
   context 'validation' do
     before(:each) {
@@ -26,6 +13,18 @@ describe GeographicArea do
     context 'required fields' do
       specify 'name' do
         expect(geographic_area.errors.include?(:name)).to be_true
+      end
+
+      specify 'blank names are invalid' do
+        geographic_area.name = ''
+        geographic_area.valid?
+        expect(geographic_area.errors.include?(:name)).to be_true 
+      end
+
+      specify 'names are minimum length' do
+        geographic_area.name = '1'
+        geographic_area.valid?
+        expect(geographic_area.errors.include?(:name)).to be_false
       end
 
       specify 'data_origin' do
@@ -38,14 +37,27 @@ describe GeographicArea do
     end
   end
 
+  context 'instance methods' do
+    specify "tdwg_ids" do
+      geographic_area.tdwgID = '41SCS-PI'
+      expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
+      expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
+      expect(geographic_area.tdwg_ids[:lvl3]).to eq('SCS')
+      expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
+    end
+
+    specify "tdwg_level" do
+      geographic_area.data_origin = 'TDWG2 Level 1'
+      expect(geographic_area.tdwg_level).to eq('1')
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'parent' do
         expect(geographic_area).to respond_to(:parent)
       end
-      specify 'tdwg_parent' do
-        expect(geographic_area).to respond_to(:tdwg_parent)
-      end
+      
       specify 'level0' do
         expect(geographic_area).to respond_to(:level0)
       end
@@ -55,15 +67,7 @@ describe GeographicArea do
       specify 'level2' do
         expect(geographic_area).to respond_to(:level2)
       end
-      specify 'gadm_geo_item' do
-        expect(geographic_area).to respond_to(:gadm_geo_item)
-      end
-      specify 'tdwg_geo_item' do
-        expect(geographic_area).to respond_to(:tdwg_geo_item)
-      end
-      specify 'ne_geo_item' do
-        expect(geographic_area).to respond_to(:ne_geo_item)
-      end
+      
       specify 'geo_object' do
         expect(geographic_area).to respond_to(:geo_object)
       end
@@ -97,9 +101,10 @@ describe GeographicArea do
         end
 
         specify 'TDWG parent string' do
-          expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
-          expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
+          pending 're-write'
+          # expect(@champaign.tdwg_parent.name).to eq('Illinois')
+          # expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
+          # expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
         end
 
         specify 'ancestors' do
@@ -110,7 +115,7 @@ describe GeographicArea do
           expect(@champaign.root.name).to eq('Earth')
         end
 
-        specify 'descendents' do
+        specify 'descendants' do
           expect(@champaign.root.descendants).to have(3).things
         end
       end
@@ -159,53 +164,37 @@ describe GeographicArea do
         expect(GeographicArea.countries).to eq([@champaign.parent.parent])
       end
 
-      specify 'descendents_of_geographic_area_type' do
-        expect(@champaign.root.descendents_of_geographic_area_type('County').to_a).to eq([@champaign])
-        expect(@champaign.root.descendents_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
-        expect(@champaign.root.descendents_of_geographic_area_type('Province').to_a).to eq([])
+      specify 'descendants_of_geographic_area_type' do
+        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to eq([@champaign])
+        expect(@champaign.root.descendants_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
+        expect(@champaign.root.descendants_of_geographic_area_type('Province').to_a).to eq([])
+      end
+
+      specify 'descendants_of_geographic_area_types' do
+        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign.parent, @champaign])
       end
     end
   end
 
+  # TODO: cleanup/extend
   context 'interaction with geographic_items' do
+    after(:all) {
+        GeographicArea.destroy_all
+    }
     before(:each) {
-      @geographic_area = FactoryGirl.build(:level2_geographic_area)
+      @geographic_area = FactoryGirl.create(:level2_geographic_area)
       listK            = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
                                                         RSPEC_GEO_FACTORY.point(-33, -23),
                                                         RSPEC_GEO_FACTORY.point(-21, -23),
                                                         RSPEC_GEO_FACTORY.point(-21, -11),
                                                         RSPEC_GEO_FACTORY.point(-27, -13)])
-      @gi              = GeographicItem.new(polygon: RSPEC_GEO_FACTORY.polygon(listK))
-      @gi.save!
+      @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(listK))
+      @geographic_area.geographic_areas_geographic_items <<  GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
+      @geographic_area.save
       @gi
     }
 
-    specify 'saving GADM Shape' do
-      expect(@geographic_area.gadm_geo_item = @gi).to be_true
-      @geographic_area.gadmID = 44
-      @geographic_area.save!
-      expect(@geographic_area.save).to be_true
-      expect(@geographic_area.default_geographic_item).to eq(@gi)
-    end
-
-    specify 'saving NaturalEarth Shape' do
-      expect(@geographic_area.ne_geo_item = @gi).to be_true
-      @geographic_area.neID = 'MPX-044'
-      expect(@geographic_area.save).to be_true
-      expect(@geographic_area.default_geographic_item).to eq(@gi)
-      @geographic_area
-    end
-
-    specify 'saving TDWG Shape' do
-      expect(@geographic_area.tdwg_geo_item = @gi).to be_true
-      @geographic_area.tdwgID = '44---'
-      expect(@geographic_area.save).to be_true
-      expect(@geographic_area.default_geographic_item).to eq(@gi)
-      @geographic_area
-    end
-
     specify 'retrieving the geo_object' do
-      expect(@geographic_area.ne_geo_item = @gi).to be_true
       expect(@geographic_area.default_geographic_item).to eq(@gi)
     end
   end
