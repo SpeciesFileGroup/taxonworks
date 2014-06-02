@@ -543,12 +543,11 @@ class TaxonName < ActiveRecord::Base
     (self.ancestors + [self]).select{|i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_class.to_s)}.collect{|i| i.name}.join(':')
   end
 
-  # TODO: Dmitry needs to be fixed
   def get_classified_as
     unless self.class == Combination || self.class == Protonym
       return nil
     end
-    c = nil # self.source_classified_as
+    c = self.source_classified_as
     if c.nil?
       nil
     else
@@ -650,7 +649,7 @@ class TaxonName < ActiveRecord::Base
         soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
       end
     end
-    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s) # self.rank_class =~ /Species/
+    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:name, 'name must be lower case') unless self.name == self.name.downcase
     end
   end
