@@ -234,10 +234,9 @@ class TaxonName < ActiveRecord::Base
     elsif self.rank_class.to_s =~ /Family/
       n_base = Protonym.family_group_base(self.name)  
       if n_base.nil?
-        # TODO: Dmitry, case this out specifically in the rspec test (hits when name is actually misspelled)
-        n = "FIX ME ERROR #{self.name}"
+        n = self.name
       else
-        n = Protonym.family_group_base(self.name) + 'idae'
+        n = n_base + 'idae'
       end
     else
       n = self.name.squish
