@@ -4,7 +4,7 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
-    @geographic_areas = GeographicArea.limit(30)
+    @geographic_areas = GeographicArea.limit(30).offset(@geo_area_offset)
   end
 
   # GET /geographic_areas/1
@@ -64,7 +64,8 @@ class GeographicAreasController < ApplicationController
   def search
     @geographic_areas = GeographicArea.with_name_like(params[:name])
     @search_string = params[:name]
-    render :index 
+    render :index
+    @geo_area_offset = index
   end
 
   private
