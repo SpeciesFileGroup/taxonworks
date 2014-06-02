@@ -3,6 +3,8 @@ ruby '2.1.1'
 
 gem 'rails', '4.0.4'
 
+gem 'psych', '2.0.3'
+
 # PostgreSQL
 gem 'pg', '~> 0.17.0'
 
