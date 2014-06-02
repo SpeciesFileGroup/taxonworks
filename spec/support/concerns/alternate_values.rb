@@ -1,6 +1,6 @@
 shared_examples 'alternate_values' do
 
-  let(:class_with_alt) { FactoryGirl.create("valid_#{described_class.name.tableize.singularize.gsub('/', '_')}".to_sym) }
+  let(:class_with_alt) { FactoryGirl.create(valid_class_factory_name(described_class).to_sym) }
 
   context 'reflections / foreign keys' do
     specify 'has many alternates' do

@@ -33,6 +33,14 @@ describe Keyword do
     expect(k.tags).to have(2).things
   end
 
+  specify 'tagged_object_class_names' do
+    expect(keyword).to respond_to(:tagged_object_class_names)
+    k = FactoryGirl.create(:valid_keyword)
+    t1 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_otu))
+    expect(k.tagged_object_class_names).to eq(%w{Otu})
+
+  end
+
 
 
 end

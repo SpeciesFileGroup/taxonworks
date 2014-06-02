@@ -10,4 +10,8 @@ class Tag < ActiveRecord::Base
   validates :keyword, presence: true
   validates_uniqueness_of :keyword_id, scope: [ :tag_object_id, :tag_object_type]
 
+  def tag_object_class
+    tag_object.class
+  end
+
 end
