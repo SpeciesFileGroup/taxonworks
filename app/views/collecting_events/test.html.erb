@@ -259,7 +259,8 @@
         if (typeof (coords[1]) != 'undefined')
         var marker = new google.maps.Marker({
             position: coords[0],
-            map: map
+            map: map,
+            icon: getMarkerImage(coords[1].color)
             });
             var infoWindow = new google.maps.InfoWindow({
                 content: '<div style="width: 100px">' + coords[1].name + '<br />' + collectionDateList[colorIndex] + '<br />' + collectorList[colorIndex] + '<br />Lat: ' + coords[0].lat().toPrecision(6) +
@@ -306,11 +307,12 @@
         if (ytest < ymin) {ymin = ytest;};
     };
 
+        /*
     function createPointL(coords, color) {
         return new L.marker(coords, { color: color });
         var marker = L.marker([51.5, -0.09]).addTo(map);
     };
-
+*/
     //		function createLineL(coords, color) {
     //			return new L.Polyline(coords, { color: color });
     //		};
@@ -318,12 +320,19 @@
     function createPolygonL(coords, color) {
         return new L.Polygon(coords, { color: color });
     };
+        var icons = new Array();		//populate the marker images
+        icons["red"] = new google.maps.MarkerImage("/Users/jrflood/src/taxonworks/app/assets/javascripts/mapIcons/mm_20_red.png",
+// This marker is 20 pixels wide by 34 pixels tall.
+                new google.maps.Size(20, 34),
+// The origin for this image is 0,0.
+                new google.maps.Point(0,0),
+// The anchor for this image is at 9,34.
+                new google.maps.Point(9, 34));
         var iconShape = {
             coord: [9, 0, 6, 1, 4, 2, 2, 4, 0, 8, 0, 12, 1, 14, 2, 16, 5, 19, 7, 23, 8, 26, 9, 30, 9, 34, 11, 34, 11, 30, 12, 26, 13, 24, 14, 21, 16, 18, 18, 16, 20, 12, 20, 8, 18, 4, 16, 2, 15, 1, 13, 0],
             type: 'poly'
         };
-        var colorList = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'gray', 'white'];
-        var speciesList = ["<i>Melanoplus aridus</i>", "<i>Melanoplus cedarense</i>", "<i>Melanoplus lanthanus</i>", "<i>Melanoplus tendoyense</i>", "<i>Melanoplus altitudinum</i>", "<i>Melanoplus boulderensis</i>", "<i>Melanoplus dodgei</i>", "<i>Melanoplus gothicus</i>", "<i>Melanoplus glymma</i>", "<i>Melanoplus truncatus</i>"]
+        //var colorList = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'gray', 'white'];
         var collectorList = ["Rich Flood", "Matt Yoder", "David Eades", "Ed Dewalt", "Sam Heads", "Jarod Michael Thomas", "Andrew Miller", "R. Loy Phillippe", "Mike Murphy", "unknown"]
         var collectionDateList = ["01-May-2012", "May 2, 2013", "April 3 2011", "04MAR2004", "Jan 5, 2009", "Feb 6 2000", "December 7, 1941", "08OCT08", "Nov. 11, 1918", "12/12/2012", "13/13/13"]
         var colorIndex = 0;
@@ -357,7 +366,21 @@
                 infoWindow.open(map, marker);
             });
         }
- 	</script>
+        function getMarkerImage(iconColor) {
+            if ((typeof(iconColor)=="undefined") || (iconColor==null)) {iconColor = "red";}
+            if (!icons[iconColor]) {
+                icons[iconColor] = new google.maps.MarkerImage("/Users/jrflood/src/taxonworks/app/assets/javascripts/mapIcons/mm_20_"+ iconColor +".png",
+// This marker is 20 pixels wide by 34 pixels tall.
+                        new google.maps.Size(20, 34),
+// The origin for this image is 0,0.
+                        new google.maps.Point(0,0),
+// The anchor for this image is at 6,20.
+                        new google.maps.Point(9, 34));
+            }
+            return icons[iconColor];
+        }		//end of getMarkerImage
+
+     </script>
 
 
 <% end %>
