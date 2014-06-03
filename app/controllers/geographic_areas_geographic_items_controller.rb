@@ -4,7 +4,7 @@ class GeographicAreasGeographicItemsController < ApplicationController
   # GET /geographic_areas_geographic_items
   # GET /geographic_areas_geographic_items.json
   def index
-    @geographic_areas_geographic_items = GeographicAreasGeographicItem.all.limit(30)
+    @geographic_areas_geographic_items = GeographicAreasGeographicItem.limit(30)
   end
 
   # GET /geographic_areas_geographic_items/1
