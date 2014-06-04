@@ -1,133 +1,141 @@
 require 'spec_helper'
 
-# Georeference::GeoLocate.new(request: {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'})
-
 describe Georeference::GeoLocate do
 
   let(:geo_locate) { FactoryGirl.build(:georeference_geo_locate)}
-  let(:request_params) {
-    {country: 'usa', locality: 'champaign', state: 'illinois', doPoly: 'true'}
-    # point = [-88.24333, 40.11639]
-  }
-  let(:set_request) {
-    geo_locate.request = request_params
-  }
+  let(:request_params) { {country: 'USA', locality: 'Champaign', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
+  let(:request) { Georeference::GeoLocate::Request.new(request_params) }
+  let(:response) { request.response }
+  let(:georeference_from_build) { Georeference::GeoLocate.build(request_params) } 
 
-  context 'methods' do
+  context 'Request' do
+    specify 'has a @response' do
+      expect(request.respond_to?(:response)).to be_true
+    end
 
-    specify '.request_hash returns the a valid hash to use as a request.' do
-      geo_locate.request = {state: 'IL', country: 'USA', locality: 'Urbana'}
-      # {"type"=>"Point", "coordinates"=>[-88.20722, 40.11056]}
-      geo_locate.make_request
-      expect(geo_locate.request_hash.to_s).to eq '{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "hwyX"=>"false", "enableH2O"=>"false", "doUncert"=>"true", "doPoly"=>"false", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}'
+    specify 'has @request_params' do
+      expect(request.request_params).to eq(Georeference::GeoLocate::REQUEST_PARAMS.merge(request_params))
+    end
+
+    specify 'has @request_param_string' do
+      expect(request.request_param_string).to be(nil)
+    end
+
+    specify '.build_param_string' do # '.make_request builds a request string' do
+      expect(request.build_param_string).to be_true
+      expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
+    end
+
+    specify '.locate' do
+      expect(request.locate).to be_true
     end
 
     specify '.locate populates @response' do
-      set_request
-      geo_locate.locate
-      expect(geo_locate.response).not_to be_nil
-
+      expect(request.locate).to be_true
+      expect(request.response).to_not be_nil
+      expect(request.response.class).to eq(Georeference::GeoLocate::Response)
     end
 
-    specify '.make_request builds a request string' do
-      set_request
-      expect(geo_locate.make_request).to be_true
-      expect(geo_locate.read_attribute(:api_request)).to eq('country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
+    specify '.succeeded?' do
+      expect(request.locate).to be_true
+      expect(request.succeeded?).to be_true
+    end
+  end
 
+  context 'Response' do
+    specify 'contains some @result (in json)' do
+      request.locate
+      expect(response.result.keys.include?('numResults')).to be_true 
+    end
+  end
+
+  context 'building a Georeference::GeoLocate' do
+    before(:each) {
+      @a = Georeference::GeoLocate.build(request_params) 
+    }
+
+    specify '#build builds a Georeference::Geolocate instance' do
+      expect(@a.class).to eq(Georeference::GeoLocate)
     end
 
-    specify '.make_geographic_item populates .geographic_item when @response contains a result' do
-      set_request
-      geo_locate.locate
-      geo_locate.make_geographic_item
+    specify '#build(request_params) passes' do
+      expect(Georeference::GeoLocate.build(request_params)).to be_true
+    end
+
+    specify 'with a collecting event #build produces a valid instance' do
+      @a.collecting_event = FactoryGirl.build(:valid_collecting_event) 
+      expect(@a.valid?).to be_true
+    end
+
+    specify 'a built, valid, instance is geometrically(?) correct' do
+      @a.collecting_event = FactoryGirl.build(:valid_collecting_event) 
+      expect(@a.save).to be_true
+      expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_true
+    end
+  end 
+
+  context 'methods' do
+      specify 'api_response=(response) populates .geographic_item' do  
+      expect(geo_locate.api_response = response).to be_true
       expect(geo_locate.geographic_item).not_to be_nil
     end
 
-    specify '.make_error_geographic_item populates .error_geographic_item when @response contains a result' do
-      set_request
-      geo_locate.locate
-      geo_locate.make_error_geographic_item
+    specify 'api_response=(response.result) populates .error_geographic_item' do 
+      expect(geo_locate.api_response = response).to be_true
       expect(geo_locate.error_geographic_item).not_to be_nil
-      expect(geo_locate.error_radius).to eq 7338
-
+      expect(geo_locate.error_radius.to_i > 5000).to be_true  # Bad test
     end
 
-    specify '.build wraps the whole process' do
-      set_request
-        geo_locate.build
-        expect(geo_locate.valid?).to be_true
-
-    end
-
-  end # end of 'methods'
-
-  context 'on new() with a valid request.' do
-
-    context 'before .save' do
-
-      specify '.build successfully completes' do
-        g = Georeference::GeoLocate.new(request: request_params)
-        expect(g.api_request).to eq 'country=usa&state=illinois&county=&locality=champaign&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json'
-        expect(g.geographic_item.id).to be_nil
-        expect(g.error_geographic_item.id).to be_nil
-        expect(g.error_radius).to eq 7338.0
-      end
-    end
-
-    context 'after .save' do
-      specify '.save successfully completes' do
-        g = Georeference::GeoLocate.new(request: request_params,
-        collecting_event: FactoryGirl.build(:valid_collecting_event))
-        g.save
-        expect(g.error_geographic_item.geo_object.contains?(g.geographic_item.geo_object)).to be_true
-      end
-    end
-
-  end
-
-  context 'on invocation of new() with an invalid request' do
-    specify 'errors are added to api_request' do
-      set_request
-      geo_locate.request['state'] = nil
-      geo_locate.build
-      expect(geo_locate.errors[:api_request]).to eq ['requested parameters returned no results.']
-
-      geo_locate.request =  {}
-      geo_locate.build
-      expect(geo_locate.errors[:base]).to eq ['no request parameters provided.']
+    specify '.request_hash' do
+      expect(georeference_from_build.request_hash.to_s).to eq('{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "hwyX"=>"false", "enableH2O"=>"false", "doUncert"=>"true", "doPoly"=>"true", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}')
     end
   end
 
-  context 'request contains doPoly = false (default)' do
-    specify '.error_geographic_item is nil.' do
+# end
 
-      geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
-      geo_locate_2.build
+# context 'on invocation of #build() with an invalid request' do
+#   specify 'errors are added to api_request' do
+#     set_request
+#     geo_locate.request['state'] = nil
+#     geo_locate.build
+#     expect(geo_locate.errors[:api_request]).to eq ['requested parameters returned no results.']
 
-      set_request
-      geo_locate.request[:doPoly] = false
-      geo_locate.build
+#     geo_locate.request =  {}
+#     geo_locate.build
+#     expect(geo_locate.errors[:base]).to eq ['no request parameters provided.']
+#   end
+# end
 
-      expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
-      expect(geo_locate.error_geographic_item).to be_nil
-    end
-  end
+# context 'request contains doPoly = false (default)' do
+#   specify '.error_geographic_item is nil.' do
 
-  context 'request contains doUncert = false (non-default)' do
-    specify 'that .error_radius is zero' do
+#     geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
+#     geo_locate_2.build
 
-      geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
-      geo_locate_2.build
+#     set_request
+#     geo_locate.request[:doPoly] = false
+#     geo_locate.build
 
-      set_request
-      geo_locate.request[:doUncert] = false
-      geo_locate.build
+#     expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
+#     expect(geo_locate.error_geographic_item).to be_nil
+#   end
+# end
 
-      # make sure they are the same point
-      expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
-      expect(geo_locate.error_radius).not_to eq geo_locate_2.error_radius
-      expect(geo_locate.error_radius).to eq 3.0
-    end
-  end
+# context 'request contains doUncert = false (non-default)' do
+#   specify 'that .error_radius is zero' do
+
+#     geo_locate_2 = Georeference::GeoLocate.new(request: request_params)
+#     geo_locate_2.build
+
+#     set_request
+#     geo_locate.request[:doUncert] = false
+#     geo_locate.build
+
+#     # make sure they are the same point
+#     expect(geo_locate.geographic_item.point).to eq geo_locate_2.geographic_item.point
+#     expect(geo_locate.error_radius).not_to eq geo_locate_2.error_radius
+#     expect(geo_locate.error_radius).to eq 3.0
+#   end
+# end
 
 end
