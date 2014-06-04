@@ -4,7 +4,7 @@ describe "Identifiers" do
   describe "GET /identifiers" do
     before { visit identifiers_path }
     specify 'an index name is present' do
-      expect(page).to have_content('Identifiers')
+      expect(page).to have_content('Listing identifiers')
     end
   end
 end
