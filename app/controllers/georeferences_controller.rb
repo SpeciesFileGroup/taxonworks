@@ -14,7 +14,8 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/new
   def new
-    @georeference = Georeference.new
+    @collecting_event = CollectingEvent.first # find(params[:collecting_event_id])
+    @georeference = Georeference.new(collecting_event: @collecting_event)
   end
 
   # GET /georeferences/1/edit

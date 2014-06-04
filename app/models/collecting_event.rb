@@ -65,15 +65,15 @@ class CollectingEvent < ActiveRecord::Base
 
    # TODO: combine validations
    validates_inclusion_of :start_date_month,
-    in: Utilities::Dates::LEGAL_MONTHS, 
-    allow_nil: true
+    in: Utilities::Dates::LEGAL_MONTHS,
+    unless: 'start_date_month.blank?'
 
   validates_inclusion_of :end_date_month,
-    in: Utilities::Dates::LEGAL_MONTHS, 
-    allow_nil: true
-
-  validates_presence_of :start_date_month,
-    if: '!start_date_day.nil?'
+    in: Utilities::Dates::LEGAL_MONTHS,
+    unless: 'end_date_month.blank?'
+  
+    validates_presence_of :start_date_month,
+    if: '!start_date_day.nil?' 
    
   validates_presence_of :end_date_month,
     if: '!end_date_day.nil?'

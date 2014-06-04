@@ -33,6 +33,12 @@ g.locate('USA', 'Champaign', 'IL')
 
 =end
 
+  # TODO: Jim- you'll have to strike this method all together, apparently initialize on an AR model is bad idea.
+  # One way to do somethign similar is to use getter/setter methods
+  # def foo=(bar)
+  #   bar.manipulate.some.way
+  #   @foo = bar
+  # end
   def initialize(params = {})
     if params != {}
       @request = params[:request]
