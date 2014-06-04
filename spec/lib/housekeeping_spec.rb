@@ -132,10 +132,8 @@ describe 'Housekeeping::User' do
             @otu1 = Otu.create(project: @project1, name: 'Fus')
             @otu2 = Otu.create(project: @project2, name: 'Bus')
 
-            byebug
-            expect(Otu.in_project(@project1).all).to eq([@otu1])
-            expect(Otu.with_project_id(@project2.id).all).to eq([@otu2])
-
+            expect(Otu.in_project(@project1).to_a).to eq([@otu1])
+            expect(Otu.with_project_id(@project2.id).to_a).to eq([@otu2])
           end
 
           specify 'instance must belong to the project before save' do
