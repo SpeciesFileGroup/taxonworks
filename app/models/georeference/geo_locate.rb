@@ -31,6 +31,28 @@ g.locate('USA', 'Champaign', 'IL')
   languageKey
   fmt => JSON or GeoJSON
 
+  alternate syntax for WebGeorefLight: (see http://www.museum.tulane.edu/geolocate/images/webgeoreflight.png)
+  src = JSON.parse(Net::HTTP.get('www.museum.tulane.edu', '/geolocate/web/webgeoreflight.aspx?points=40.091655|-88.241413|||757&gc=SpeciesFileGroup'))
+
+  request => text from '?' to end of request
+  ?points=40.091655|-88.241413|||757&gc=SpeciesFileGroup'
+
+  country => name of a country 'USA', or Germany
+  state => 'IL', or 'illinois' (required in the United States)
+  county => supply as a parameter, returned as 'Adm='
+  locality => name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
+  tab => ['locality' | 'results']
+  points=40.091622|-88.241179|Champaign|24 (Score)| 7000 (Uncertainty) [:(more points)]
+  hwyX
+  enableH2O
+  doUncert
+  doPoly
+  displacePoly
+  languageKey
+  fmt => JSON or GeoJSON
+
+
+
 =end
 
   # TODO: Jim- you'll have to strike this method all together, apparently initialize on an AR model is bad idea.
