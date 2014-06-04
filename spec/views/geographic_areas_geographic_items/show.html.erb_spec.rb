@@ -14,6 +14,7 @@ describe "geographic_areas_geographic_items/show" do
 
   it "renders attributes in <p>" do
     render
+    pending 'reconstruction of the geographic_areas_geographic_items/show view'
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     rendered.should match(/1/)
     rendered.should match(/2/)
