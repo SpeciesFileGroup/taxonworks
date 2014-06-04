@@ -28,7 +28,7 @@ describe "geographic_areas/new" do
   it "renders new geographic_area form" do
     render
 
-    pending 'reconstruction of the geographic_area/new view'
+    pending 'reconstruction of the geographic_area/new view or spec'
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     assert_select "form[action=?][method=?]", geographic_areas_path, "post" do
       assert_select "input#geographic_area_name[name=?]", "geographic_area[name]"
