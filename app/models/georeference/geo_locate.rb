@@ -52,9 +52,6 @@ class Georeference::GeoLocate < Georeference
       p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
       self.error_geographic_item         = GeographicItem.new
       self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
-    else
-      # this may not be strictly necessary...
-      self.error_geographic_item = nil
     end
   end
 
