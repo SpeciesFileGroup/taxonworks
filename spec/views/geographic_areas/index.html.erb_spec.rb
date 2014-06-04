@@ -37,7 +37,7 @@ describe 'geographic_areas/index' do
   it 'renders a list of geographic_areas' do
     render
 
-    pending 'reconstruction of the geographic_area/index view'
+    pending 'reconstruction of the geographic_area/index view or spec'
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     assert_select 'tr>td', :text => 'Name_0'.to_s, :count => 1
     assert_select 'tr>td', :text => 'Name_1'.to_s, :count => 1

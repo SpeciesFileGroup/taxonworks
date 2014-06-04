@@ -1,18 +1,18 @@
 # A Georeference derived from a call to the Tulay GeoLocate API.
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response
-  
+
   REQUEST_PARAMS = {
     country:      nil,   # name of a country 'USA', or Germany
     state:        nil,   # 'IL', or 'illinois' (required in the United States)
     county:       nil,   # upply as a parameter, returned as 'Adm=' 
     locality:     nil,   # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
-    hwyX:         'false',
-    enableH2O:    'false',
-    doUncert:     'true',
-    doPoly:       'false',
-    displacePoly: 'false',
-    languageKey:  '0',
+      hwyX:         'false',
+      enableH2O:    'false',
+      doUncert:     'true',
+      doPoly:       'false',
+      displacePoly: 'false',
+      languageKey:  '0',
     fmt:          'json'   # or geojson ?
   }
 
@@ -46,7 +46,7 @@ class Georeference::GeoLocate < Georeference
 
       # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
       # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
-     
+
       err_array = []
       # TODO: get geoJson results and handle all this automatically? 
       p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
@@ -66,7 +66,7 @@ class Georeference::GeoLocate < Georeference
     if request_params.nil?
       gl.errors.add(:base, 'invalid or no request parameters provided.')
       return gl
-    end
+  end
 
     request = Request.new(request_params)
     request.locate
@@ -74,12 +74,12 @@ class Georeference::GeoLocate < Georeference
     if request.succeeded?
       gl.api_response = request.response
       gl.api_request  = request.request_param_string 
-    else
+      else
       gl.errors.add(:api_request, 'requested parameters did not succeed to return a result')
-    end
+      end
 
     gl
-  end
+    end
 
   class Request
     URI_HOST = 'www.museum.tulane.edu'  
@@ -90,11 +90,11 @@ class Georeference::GeoLocate < Georeference
     def initialize(request_params)
       @request_params = Georeference::GeoLocate::REQUEST_PARAMS.merge(request_params) 
       @succeeded = nil
-    end
+  end
 
     def locate 
       @response = Georeference::GeoLocate::Response.new(self)
-    end
+end
 
     def build_param_string
       @request_param_string ||= @request_params.collect{ |key, value| "#{key}=#{value}" }.join('&')
