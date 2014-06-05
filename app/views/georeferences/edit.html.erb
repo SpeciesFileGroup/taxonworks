@@ -2,5 +2,5 @@
 
 <%= render 'form' %>
 
-<%= link_to 'Show', @georeference %> |
+<%= link_to 'Show', @georeference.becomes(Georeference) %> |
 <%= link_to 'Back', georeferences_path %>
