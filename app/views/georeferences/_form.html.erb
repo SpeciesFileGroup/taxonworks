@@ -1,33 +1,36 @@
 <%= form_for(@georeference.becomes(Georeference)) do |f| %>
-  <% if @georeference.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>
+    <% if @georeference.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>
 
-      <ul>
-      <% @georeference.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+          <ul>
+            <% @georeference.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
 
+    <div class='left_floater right_vertical_separator right_column_whitespace nav_column'>
+      <div class="field">
+        <%= f.label :iframe_response %>
+        <br>
+        <%= text_field_tag('georeference[iframe_response]') %>
+      </div>
 
-  <div class="field">
-    <%= f.label :iframe_response %><br>
-    <%= text_field_tag('georeference[iframe_response]') %>
-  </div>
+      <div class="field">
+        <%= f.label :collecting_event_id %>
+        <br>
+        <%= f.number_field :collecting_event_id %>
+      </div>
 
-  <div class="field">
-    <%= f.label :collecting_event_id %><br>
-    <%= f.number_field :collecting_event_id %>
-  </div>
+      <div class="field">
+        <%= f.label :type %>
+        <br>
+        <%= f.text_field :type, default: 'Georeference::GeoLocate' %>
+      </div>
 
-  <div class="field">
-    <%= f.label :type %><br>
-    <%= f.text_field :type, default: 'Georeference::GeoLocate' %>
-  </div>
- 
-  <!-- 
+      <!--
 
   <div class="field">
     <%= f.label :geographic_item_id %><br>
@@ -70,9 +73,10 @@
     <%= f.check_box :is_median_z %>
   </div>
 
-  --!>
+  -->
 
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+      <div class="actions">
+        <%= f.submit %>
+      </div>
+    </div>
 <% end %>
