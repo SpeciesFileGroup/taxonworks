@@ -68,7 +68,7 @@ namespace :tw do
 
       d = Support::Database.pg_restore(database, 'geographic_areas_geographic_items', data_store)
       ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
-      puts "#{Time.now.strftime "%H:M:%S"}."
+      puts "#{Time.now.strftime "%H:%M:%S"}."
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
