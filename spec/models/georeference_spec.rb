@@ -386,71 +386,9 @@ describe Georeference do
 
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
       # pending 'construction of appropriate Georeference objects'
-
-
     end
   end
 
-  context 'request responses' do
-    specify 'creates a geo_object' do
-      #pending 'fixup on \'c\' vs. \'georeference\''
-      c = Georeference::GeoLocate.new(request:          request_params,
-                                      collecting_event: FactoryGirl.build(:valid_collecting_event))
-      c.locate
-      c.save
-
-      expect(c.geographic_item.class).to eq(GeographicItem)
-      expect(c.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
-    end
-=begin
-      georeference.locate
-      georeference.save!
-      expect(georeference.geographic_item.class).to eq(GeographicItem)
-      expect(georeference.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
-    end
-=end
-
-    specify 'can be geometrically compared through #geographic_item.geo_object' do
-      c_locator = Georeference::GeoLocate.new(request:          request_params,
-                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
-      c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
-                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
-
-      c_locator.save
-      u_locator.save
-
-      expect(c_locator.error_geographic_item.geo_object.intersects?(u_locator.error_geographic_item.geo_object)).to be_true
-      expect(c_locator.geographic_item.geo_object.distance(u_locator.geographic_item.geo_object)).to eq 0.03657760243645799
-      expect(c_locator.geographic_item.geo_object.distance(u_locator.error_geographic_item.geo_object)).to eq 0.014470082533135583
-      expect(u_locator.geographic_item.geo_object.distance(c_locator.error_geographic_item.geo_object)).to eq 0.021583346308561287
-    end
-  end
-
-
-  context 'methods provide that' do
-    context 'the object returns a type' do
-      specify 'which is GeoLocate' do
-
-        geo_locate = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
-                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
-        geo_locate.build
-        geo_locate.save
-
-        expect(geo_locate.type).to eq 'Georeference::GeoLocate'
-      end
-
-      specify 'which is Verbatim' do
-        georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
-                                                                                          minimum_elevation:  795,
-                                                                                          verbatim_latitude:  '40.092067',
-                                                                                          verbatim_longitude: '-88.249519'))
-        #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
-        expect(georeference.type).to eq 'Georeference::VerbatimData'
-      end
-    end
-
-  end
 end
 
 

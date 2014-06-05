@@ -64,6 +64,8 @@ describe Georeference::GeoLocate do
     specify 'api_response=(response) populates .geographic_item' do  
       expect(geo_locate.api_response = response).to be_true
       expect(geo_locate.geographic_item).not_to be_nil
+      expect(geo_locate.geographic_item.class).to eq(GeographicItem)
+      expect(geo_locate.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
     end
 
     specify 'api_response=(response.result) populates .error_geographic_item' do 
