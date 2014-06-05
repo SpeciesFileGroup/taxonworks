@@ -23,17 +23,18 @@
         psql
         RubyMine))
 
-  2.  rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/tuckerjd/src/gaz/data/internal/dump/
+  2.  rake tw:development:data:geo:restore_geo_data_from_pg_dump data_directory=/Users/tuckerjd/src/gaz/data/internal/dump/
 
-  3: rake tw:development:data:geo:rebuild_geographic_areas_nesting
+  3:  rake tw:development:data:geo:rebuild_geographic_areas_nesting
 
 =end
 
 namespace :tw do
 
   # TODO: Lock initialization down to (mostly) empty databases
-  namespace :initialization do
-
+  namespace :development do
+    namespace :data do
+      namespace :geo do
 
     desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
@@ -52,14 +53,22 @@ namespace :tw do
       raise "Missing #{geographic_areas_geographic_items_file}, doing nothing." unless File.exists?(geographic_areas_geographic_items_file)
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
+
       a = Support::Database.pg_restore(database, 'geographic_area_types', data_store)
+      ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
+
       c = Support::Database.pg_restore(database, 'geographic_areas', data_store)
+      ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
+
       b = Support::Database.pg_restore(database, 'geographic_items', data_store)
+      ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_geographic_items_file}"
-      c = Support::Database.pg_restore(database, 'geographic_areas_geographic_items', data_store)
-      puts "#{Time.now.strftime "%H:%M:%S"}."
+
+      d = Support::Database.pg_restore(database, 'geographic_areas_geographic_items', data_store)
+      ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+      puts "#{Time.now.strftime "%H:M:%S"}."
     end
 
     # Assumes input is from rake tw:export:table table_name=geographic_area_types
@@ -181,6 +190,9 @@ namespace :tw do
         raise
       end
     end
-
   end
+end
+
+
+end
 end

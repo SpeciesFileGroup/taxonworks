@@ -1,4 +1,5 @@
 class GeographicAreaTypesController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_geographic_area_type, only: [:show, :edit, :update, :destroy]
 
   # GET /geographic_area_types
@@ -25,6 +26,8 @@ class GeographicAreaTypesController < ApplicationController
   # POST /geographic_area_types.json
   def create
     @geographic_area_type = GeographicAreaType.new(geographic_area_type_params)
+    @geographic_area_type.created_by_id = @sessions_current_user.id
+    @geographic_area_type.updated_by_id = @sessions_current_user.id
 
     respond_to do |format|
       if @geographic_area_type.save
@@ -62,13 +65,13 @@ class GeographicAreaTypesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_geographic_area_type
-      @geographic_area_type = GeographicAreaType.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_geographic_area_type
+    @geographic_area_type = GeographicAreaType.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def geographic_area_type_params
-      params.require(:geographic_area_type).permit(:name, :created_by_id, :updated_by_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def geographic_area_type_params
+    params.require(:geographic_area_type).permit(:name)
+  end
 end

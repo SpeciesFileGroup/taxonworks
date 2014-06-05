@@ -54,6 +54,7 @@ describe Georeference::GeoLocate do
     end
 
     # TODO: what was the 3 reason again?
+    # TODO: @mjy three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
       pending
     end
