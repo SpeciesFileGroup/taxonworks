@@ -1,0 +1,17 @@
+<%= form_for(@public_content) do |f| %>
+  <% if @public_content.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@public_content.errors.count, "error") %> prohibited this public_content from being saved:</h2>
+
+      <ul>
+      <% @public_content.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
