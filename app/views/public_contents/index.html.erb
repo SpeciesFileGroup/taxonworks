@@ -1,0 +1,25 @@
+<h1>Listing public_contents</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @public_contents.each do |public_content| %>
+      <tr>
+        <td><%= link_to 'Show', public_content %></td>
+        <td><%= link_to 'Edit', edit_public_content_path(public_content) %></td>
+        <td><%= link_to 'Destroy', public_content, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Public content', new_public_content_path %>
