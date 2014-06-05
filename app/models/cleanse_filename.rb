@@ -1,3 +1,4 @@
+# TODO: This needs to be in /lib
 class CleanseFilename
 =begin
    def initialize(invalid_character_regex)

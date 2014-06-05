@@ -20,6 +20,9 @@ TaxonWorks::Application.routes.draw do
   match '/hub', to: 'hub#index', via: 'get'
 
 
+
+
+
   # Stubbed
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
@@ -52,6 +55,7 @@ TaxonWorks::Application.routes.draw do
   end
   resources :people
   resources :repositories
+  resources :tags
   resources :taxon_determinations
   resources :taxon_names
   resources :taxon_name_classifications
