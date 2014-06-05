@@ -28,6 +28,7 @@ module SessionsHelper
 
   def sessions_sign_out
     self.sessions_current_user = nil
+    sessions_clear_selected_project
     cookies.delete(:remember_token)
   end
 

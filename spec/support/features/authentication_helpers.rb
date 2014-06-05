@@ -3,8 +3,8 @@ module Features
   module AuthenticationHelpers
     def sign_up_with(email, password, password_confirmation)
       visit signup_path
-      fill_in 'Email',            with: email
-      fill_in 'Password',         with: password
+      fill_in 'Email',                 with: email
+      fill_in 'Password',              with: password
       fill_in 'Password confirmation', with: password_confirmation
       click_button 'Create account'
     end
