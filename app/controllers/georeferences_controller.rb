@@ -71,6 +71,7 @@ class GeoreferencesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def georeference_params
       params.require(:georeference).permit(
+        :iframe_response,
         :geographic_item_id,
         :collecting_event_id,
         :error_radius,

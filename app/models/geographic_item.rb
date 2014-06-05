@@ -217,7 +217,6 @@ class GeographicItem < ActiveRecord::Base
     end
   end
 
-
   # Methods mapping RGeo methods
 
   def contains?(geo_object)
