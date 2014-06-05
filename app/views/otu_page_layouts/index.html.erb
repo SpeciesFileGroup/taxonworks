@@ -1,0 +1,25 @@
+<h1>Listing otu_page_layouts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @otu_page_layouts.each do |otu_page_layout| %>
+      <tr>
+        <td><%= link_to 'Show', otu_page_layout %></td>
+        <td><%= link_to 'Edit', edit_otu_page_layout_path(otu_page_layout) %></td>
+        <td><%= link_to 'Destroy', otu_page_layout, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Otu page layout', new_otu_page_layout_path %>

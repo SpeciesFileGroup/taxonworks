@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :otu_page_layouts
+
   resources :public_contents
 
   resources :contents
