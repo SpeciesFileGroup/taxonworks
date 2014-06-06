@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :loan_items
+
   resources :loans
 
   resources :collection_profiles
