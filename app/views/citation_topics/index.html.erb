@@ -1,0 +1,25 @@
+<h1>Listing citation_topics</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @citation_topics.each do |citation_topic| %>
+      <tr>
+        <td><%= link_to 'Show', citation_topic %></td>
+        <td><%= link_to 'Edit', edit_citation_topic_path(citation_topic) %></td>
+        <td><%= link_to 'Destroy', citation_topic, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Citation topic', new_citation_topic_path %>

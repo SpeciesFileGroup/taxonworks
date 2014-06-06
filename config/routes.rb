@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :citation_topics
+
   resources :citations
 
   resources :data_attributes
