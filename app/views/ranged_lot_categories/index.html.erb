@@ -1,0 +1,25 @@
+<h1>Listing ranged_lot_categories</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @ranged_lot_categories.each do |ranged_lot_category| %>
+      <tr>
+        <td><%= link_to 'Show', ranged_lot_category %></td>
+        <td><%= link_to 'Edit', edit_ranged_lot_category_path(ranged_lot_category) %></td>
+        <td><%= link_to 'Destroy', ranged_lot_category, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Ranged lot category', new_ranged_lot_category_path %>

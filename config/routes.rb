@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :ranged_lot_categories
+
   resources :loan_items
 
   resources :loans
