@@ -1,0 +1,25 @@
+<h1>Listing data_attributes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @data_attributes.each do |data_attribute| %>
+      <tr>
+        <td><%= link_to 'Show', data_attribute %></td>
+        <td><%= link_to 'Edit', edit_data_attribute_path(data_attribute) %></td>
+        <td><%= link_to 'Destroy', data_attribute, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Data attribute', new_data_attribute_path %>

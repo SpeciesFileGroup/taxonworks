@@ -1,0 +1,17 @@
+<%= form_for(@data_attribute) do |f| %>
+  <% if @data_attribute.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@data_attribute.errors.count, "error") %> prohibited this data_attribute from being saved:</h2>
+
+      <ul>
+      <% @data_attribute.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
