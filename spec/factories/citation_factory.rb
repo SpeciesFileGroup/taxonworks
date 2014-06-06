@@ -2,5 +2,8 @@
 
 FactoryGirl.define do
   factory :citation, traits: [:housekeeping] do
+    factory :valid_citation do
+
+    end
   end
 end
