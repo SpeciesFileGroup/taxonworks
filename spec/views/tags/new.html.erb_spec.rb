@@ -23,10 +23,10 @@ describe "tags/new" do
       assert_select "input#tag_tag_object_id[name=?]", "tag[tag_object_id]"
       assert_select "input#tag_tag_object_type[name=?]", "tag[tag_object_type]"
       assert_select "input#tag_tag_object_attribute[name=?]", "tag[tag_object_attribute]"
-      assert_select "input#tag_created_by_id[name=?]", "tag[created_by_id]"
-      assert_select "input#tag_updated_by_id[name=?]", "tag[updated_by_id]"
-      assert_select "input#tag_project_id[name=?]", "tag[project_id]"
-      assert_select "input#tag_position[name=?]", "tag[position]"
+      # assert_select "input#tag_created_by_id[name=?]", "tag[created_by_id]"
+      # assert_select "input#tag_updated_by_id[name=?]", "tag[updated_by_id]"
+      # assert_select "input#tag_project_id[name=?]", "tag[project_id]"
+      # assert_select "input#tag_position[name=?]", "tag[position]"
     end
   end
 end
