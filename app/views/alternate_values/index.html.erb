@@ -1,0 +1,25 @@
+<h1>Listing alternate_values</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @alternate_values.each do |alternate_value| %>
+      <tr>
+        <td><%= link_to 'Show', alternate_value %></td>
+        <td><%= link_to 'Edit', edit_alternate_value_path(alternate_value) %></td>
+        <td><%= link_to 'Destroy', alternate_value, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Alternate value', new_alternate_value_path %>

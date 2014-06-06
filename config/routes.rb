@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :alternate_value
+
   resources :otu_page_layout_sections
 
   resources :otu_page_layouts
