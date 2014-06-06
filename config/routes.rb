@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+  resources :tagged_section_keywords
+
   resources :citation_topics
 
   resources :citations
