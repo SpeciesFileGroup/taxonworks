@@ -1,30 +1,4 @@
 TaxonWorks::Application.routes.draw do
-  resources :ranged_lot_categories
-
-  resources :loan_items
-
-  resources :loans
-
-  resources :collection_profiles
-
-  resources :tagged_section_keywords
-
-  resources :citation_topics
-
-  resources :citations
-
-  resources :data_attributes
-
-  resources :alternate_values
-
-  resources :otu_page_layout_sections
-
-  resources :otu_page_layouts
-
-  resources :public_contents
-
-  resources :contents
-
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
  
@@ -52,7 +26,10 @@ TaxonWorks::Application.routes.draw do
   # Stubbed
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
+  resources :alternate_values
   resources :biocuration_classifications
+  resources :citation_topics
+  resources :citations
   resources :collecting_events do
     collection do
       get 'test'
@@ -60,7 +37,10 @@ TaxonWorks::Application.routes.draw do
 
   end
   resources :collection_objects
+  resources :collection_profiles
+  resources :contents
   resources :controlled_vocabulary_terms
+  resources :data_attributes
   resources :geographic_area_types
   resources :geographic_areas do
     collection do
@@ -71,8 +51,12 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_items
   resources :georeferences
   resources :identifiers
+  resources :loan_items
+  resources :loans
   resources :namespaces
   resources :notes
+  resources :otu_page_layout_sections
+  resources :otu_page_layouts
   resources :otus do
     collection do
       post 'search'
@@ -80,7 +64,10 @@ TaxonWorks::Application.routes.draw do
    end
   end
   resources :people
+  resources :public_contents
+  resources :ranged_lot_categories
   resources :repositories
+  resources :tagged_section_keywords
   resources :tags
   resources :taxon_determinations
   resources :taxon_names

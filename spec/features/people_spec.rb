@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Peoples" do
+describe "People" do
   describe "GET /people" do
     before { visit people_path }
     specify 'an index name is present' do

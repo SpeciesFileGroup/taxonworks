@@ -2,10 +2,9 @@ require 'spec_helper'
 
 describe "CollectionProfiles" do
   describe "GET /collection_profiles" do
-    it "works! (now write some real specs)" do
-      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get collection_profiles_path
-      response.status.should be(200)
+    before { visit collection_profiles_path }
+    specify 'an index name is present' do
+      expect(page).to have_content('Collection Profiles')
     end
   end
 end

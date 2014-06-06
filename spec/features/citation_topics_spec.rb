@@ -2,10 +2,9 @@ require 'spec_helper'
 
 describe "CitationTopics" do
   describe "GET /citation_topics" do
-    it "works! (now write some real specs)" do
-      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get citation_topics_path
-      response.status.should be(200)
+    before { visit citation_topics_path }
+    specify 'an index name is present' do
+      expect(page).to have_content('Citation Topics')
     end
   end
 end
