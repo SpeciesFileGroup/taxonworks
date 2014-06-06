@@ -15,7 +15,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :data_attributes
 
-  resources :alternate_value
+  resources :alternate_values
 
   resources :otu_page_layout_sections
 
