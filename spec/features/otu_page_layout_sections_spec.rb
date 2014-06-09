@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'OtuPageLayoutSections' do
+describe 'OtuPageLayoutSections', base_class: OtuPageLayoutSection do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

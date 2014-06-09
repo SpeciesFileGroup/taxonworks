@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Loans' do
+describe 'Loans', base_class: Loan do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

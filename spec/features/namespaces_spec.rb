@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Namespaces' do
+describe 'Namespaces', base_class: Namespace do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

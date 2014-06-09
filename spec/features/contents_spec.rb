@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Contents' do
+describe 'Contents', base_class: Content do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

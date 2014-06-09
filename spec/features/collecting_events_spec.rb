@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'CollectingEvents' do
+describe 'CollectingEvents', base_class: CollectingEvent do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

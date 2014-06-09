@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'GeographicItems' do
+describe 'GeographicItems', base_class: GeographicItem do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

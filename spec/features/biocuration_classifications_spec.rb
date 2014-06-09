@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'BiocurationClassifications' do
+describe 'BiocurationClassifications', base_class:  BiocurationClassification do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

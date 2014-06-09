@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Notes' do
+describe 'Notes', base_class: Note do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

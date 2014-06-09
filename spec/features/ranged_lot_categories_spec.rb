@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'RangedLotCategories' do
+describe 'RangedLotCategories', base_class: RangedLotCategory do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Tags' do
+describe 'Tags', base_class: Tag do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

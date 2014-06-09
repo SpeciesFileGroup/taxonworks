@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Project Handling' do
+describe 'Project Handling', base_class: Project do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'DataAttributes' do
+describe 'DataAttributes', base_class: DataAttribute do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

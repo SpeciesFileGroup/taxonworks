@@ -40,7 +40,7 @@ describe GeographicAreaTypesController do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all geographic_area_types as @geographic_area_types" do
+    it "assigns some geographic_area_types as @geographic_area_types" do
       geographic_area_type = GeographicAreaType.create! valid_attributes
       get :index, {}, valid_session
       assigns(:geographic_area_types).should eq([geographic_area_type])

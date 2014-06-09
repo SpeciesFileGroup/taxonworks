@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Repositories' do
+describe 'Repositories', base_class: Repository do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Citations' do
+describe 'Citations', base_class: Citation do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 

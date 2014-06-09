@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Users' do
+describe 'Users', base_class: User do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
