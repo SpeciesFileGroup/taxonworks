@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'Project Handling' do
 
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
   subject { page }
 
   # TODO: clarify this, this is describing the root path but under Projects

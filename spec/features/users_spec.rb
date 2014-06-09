@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'Users' do
 
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
   subject { page }
 
   describe '/users' do

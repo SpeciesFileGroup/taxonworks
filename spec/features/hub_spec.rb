@@ -1,18 +1,18 @@
 require 'spec_helper'
 
 describe 'Hub' do
-    subject { page }
+
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
+  subject { page }
   before {
     sign_in_valid_user
   }
 
   describe '/hub' do
-    before{
+    before {
       visit hub_path
     }
-
-
-
 
     it 'should have a hub title' do
       expect(page).to have_selector('h1', text: 'Hub')
@@ -20,8 +20,6 @@ describe 'Hub' do
     end
 
   end
-
-
 
 
 end

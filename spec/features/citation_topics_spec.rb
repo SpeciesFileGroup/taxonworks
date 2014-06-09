@@ -1,7 +1,10 @@
 require 'spec_helper'
 
-describe "CitationTopics" do
-  describe "GET /citation_topics" do
+describe 'CitationTopics' do
+
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
+  describe 'GET /citation_topics' do
     before { visit citation_topics_path }
     specify 'an index name is present' do
       expect(page).to have_content('Citation Topics')

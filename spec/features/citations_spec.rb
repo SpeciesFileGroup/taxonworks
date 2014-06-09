@@ -1,7 +1,10 @@
 require 'spec_helper'
 
-describe "Citations" do
-  describe "GET /citations" do
+describe 'Citations' do
+
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
+  describe 'GET /citations' do
     before { visit citations_path }
     specify 'an index name is present' do
       expect(page).to have_content('Citations')

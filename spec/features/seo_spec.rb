@@ -3,6 +3,8 @@ require 'spec_helper'
 
 describe 'Search Engine Optimisation' do
 
+  it_behaves_like 'a_login_required_and_project_selected_controller'
+
   subject { page }
 
   describe 'navigation links and titles' do
