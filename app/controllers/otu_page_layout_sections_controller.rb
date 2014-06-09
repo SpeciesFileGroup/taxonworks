@@ -1,4 +1,5 @@
 class OtuPageLayoutSectionsController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_otu_page_layout_section, only: [:show, :edit, :update, :destroy]
 
   # GET /otu_page_layout_sections

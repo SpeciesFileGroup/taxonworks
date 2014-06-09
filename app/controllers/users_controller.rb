@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_action :require_sign_in_and_project_selection
 
   # GET /users
   def index

@@ -1,4 +1,5 @@
 class TaxonDeterminationsController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
 
   # GET /taxon_determinations

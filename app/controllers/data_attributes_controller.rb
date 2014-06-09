@@ -1,4 +1,5 @@
 class DataAttributesController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_data_attribute, only: [:show, :edit, :update, :destroy]
 
   # GET /data_attributes

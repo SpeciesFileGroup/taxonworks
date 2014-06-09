@@ -1,4 +1,5 @@
 class AlternateValuesController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_alternate_value, only: [:show, :edit, :update, :destroy]
 
   # GET /alternate_values
@@ -62,13 +63,13 @@ class AlternateValuesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_alternate_value
-      @alternate_value = AlternateValue.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_alternate_value
+    @alternate_value = AlternateValue.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def alternate_value_params
-      params[:alternate_value]
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def alternate_value_params
+    params[:alternate_value]
+  end
 end

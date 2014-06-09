@@ -1,4 +1,5 @@
 class CollectingEventsController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy]
 
   # GET /collecting_events
@@ -64,14 +65,15 @@ class CollectingEventsController < ApplicationController
   def test
     @geo=CollectingEvent.test
   end
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_collecting_event
-      @collecting_event = CollectingEvent.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def collecting_event_params
-      params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_unit, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label, :cached_display, :created_by_id, :updated_by_id, :project_id)
-    end
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_collecting_event
+    @collecting_event = CollectingEvent.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def collecting_event_params
+    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_unit, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label, :cached_display, :created_by_id, :updated_by_id, :project_id)
+  end
 end

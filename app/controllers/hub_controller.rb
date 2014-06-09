@@ -1,5 +1,7 @@
 class HubController < ApplicationController
-  # GET /hub
+  before_action :require_sign_in_and_project_selection
+
+# GET /hub
   def index
   end
 end

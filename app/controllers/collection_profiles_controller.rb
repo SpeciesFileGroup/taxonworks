@@ -1,4 +1,5 @@
 class CollectionProfilesController < ApplicationController
+  before_action :require_sign_in_and_project_selection
   before_action :set_collection_profile, only: [:show, :edit, :update, :destroy]
 
   # GET /collection_profiles
