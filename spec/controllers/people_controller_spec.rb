@@ -20,15 +20,15 @@ require 'spec_helper'
 
 describe PeopleController do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_person).attributes )
-  } 
+  let(:valid_attributes) {
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_person).attributes)
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -90,14 +90,14 @@ describe PeopleController do
       it "assigns a newly created but unsaved person as @person" do
         # Trigger the behavior that occurs when invalid params are submitted
         Person.any_instance.stub(:save).and_return(false)
-        post :create, {:person => { last_name: nil }}, valid_session
+        post :create, {:person => {last_name: nil}}, valid_session
         assigns(:person).should be_a_new(Person)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Person.any_instance.stub(:save).and_return(false)
-        post :create, {:person => { last_name: nil }}, valid_session
+        post :create, {:person => {last_name: nil}}, valid_session
         response.should render_template("new")
       end
     end
@@ -111,8 +111,8 @@ describe PeopleController do
         # specifies that the Person created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Person.any_instance.should_receive(:update).with({ "type" => "" })
-        put :update, {:id => person.to_param, :person => { "type" => "" }}, valid_session
+        Person.any_instance.should_receive(:update).with({"type" => ""})
+        put :update, {:id => person.to_param, :person => {"type" => ""}}, valid_session
       end
 
       it "assigns the requested person as @person" do
@@ -133,7 +133,7 @@ describe PeopleController do
         person = Person.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Person.any_instance.stub(:save).and_return(false)
-        put :update, {:id => person.to_param, :person => { "type" => "invalid value" }}, valid_session
+        put :update, {:id => person.to_param, :person => {"type" => "invalid value"}}, valid_session
         assigns(:person).should eq(person.becomes(Person::Unvetted))
       end
 
@@ -141,7 +141,7 @@ describe PeopleController do
         person = Person.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Person.any_instance.stub(:save).and_return(false)
-        put :update, {:id => person.to_param, :person => { "type" => "invalid value" }}, valid_session
+        put :update, {:id => person.to_param, :person => {"type" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end

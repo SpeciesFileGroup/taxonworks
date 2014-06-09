@@ -26,7 +26,7 @@ describe DataAttributesController do
   # This should return the minimal set of attributes required to create a valid
   # DataAttribute. As you add validations to DataAttribute, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_data_attribute).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_data_attribute).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,14 +88,14 @@ describe DataAttributesController do
       it "assigns a newly created but unsaved data_attribute as @data_attribute" do
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        post :create, {:data_attribute => {  }}, valid_session
+        post :create, {:data_attribute => {}}, valid_session
         assigns(:data_attribute).should be_a_new(DataAttribute)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        post :create, {:data_attribute => {  }}, valid_session
+        post :create, {:data_attribute => {}}, valid_session
         response.should render_template("new")
       end
     end
@@ -109,8 +109,8 @@ describe DataAttributesController do
         # specifies that the DataAttribute created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        DataAttribute.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => data_attribute.to_param, :data_attribute => { "these" => "params" }}, valid_session
+        DataAttribute.any_instance.should_receive(:update).with({"these" => "params"})
+        put :update, {:id => data_attribute.to_param, :data_attribute => {"these" => "params"}}, valid_session
       end
 
       it "assigns the requested data_attribute as @data_attribute" do
@@ -131,7 +131,7 @@ describe DataAttributesController do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {  }}, valid_session
+        put :update, {:id => data_attribute.to_param, :data_attribute => {}}, valid_session
         assigns(:data_attribute).should eq(data_attribute)
       end
 
@@ -139,7 +139,7 @@ describe DataAttributesController do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {  }}, valid_session
+        put :update, {:id => data_attribute.to_param, :data_attribute => {}}, valid_session
         response.should render_template("edit")
       end
     end

@@ -19,21 +19,21 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe GeographicAreaTypesController do
- before(:each) {
-   sign_in 
+  before(:each) {
+    sign_in
   }
 
- before(:all) {
-   clean_slate_geo
- }
+  before(:all) {
+    clean_slate_geo
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_area_type).attributes )
-  } 
- 
+  let(:valid_attributes) {
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_geographic_area_type).attributes)
+  }
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # GeographicAreaTypesController. Be sure to keep this updated too.
@@ -94,14 +94,14 @@ describe GeographicAreaTypesController do
       it "assigns a newly created but unsaved geographic_area_type as @geographic_area_type" do
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicAreaType.any_instance.stub(:save).and_return(false)
-        post :create, {:geographic_area_type => { "name" => "invalid value" }}, valid_session
+        post :create, {:geographic_area_type => {"name" => "invalid value"}}, valid_session
         assigns(:geographic_area_type).should be_a_new(GeographicAreaType)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicAreaType.any_instance.stub(:save).and_return(false)
-        post :create, {:geographic_area_type => { "name" => "invalid value" }}, valid_session
+        post :create, {:geographic_area_type => {"name" => "invalid value"}}, valid_session
         response.should render_template("new")
       end
     end
@@ -115,8 +115,8 @@ describe GeographicAreaTypesController do
         # specifies that the GeographicAreaType created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        GeographicAreaType.any_instance.should_receive(:update).with({ "name" => "MyString" })
-        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => { "name" => "MyString" }}, valid_session
+        GeographicAreaType.any_instance.should_receive(:update).with({"name" => "MyString"})
+        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => {"name" => "MyString"}}, valid_session
       end
 
       it "assigns the requested geographic_area_type as @geographic_area_type" do
@@ -137,7 +137,7 @@ describe GeographicAreaTypesController do
         geographic_area_type = GeographicAreaType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicAreaType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => {"name" => "invalid value"}}, valid_session
         assigns(:geographic_area_type).should eq(geographic_area_type)
       end
 
@@ -145,7 +145,7 @@ describe GeographicAreaTypesController do
         geographic_area_type = GeographicAreaType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GeographicAreaType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_area_type.to_param, :geographic_area_type => {"name" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end
