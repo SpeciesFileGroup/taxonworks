@@ -36,7 +36,7 @@ describe GeographicItemsController do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all geographic_items as @geographic_items" do
+    it "assigns some geographic_items as @geographic_items" do
       geographic_item = GeographicItem.create! valid_attributes
       get :index, {}, valid_session
       assigns(:geographic_items).should eq([geographic_item])
