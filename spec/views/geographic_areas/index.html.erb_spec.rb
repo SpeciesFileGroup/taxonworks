@@ -6,28 +6,28 @@ describe 'geographic_areas/index' do
       stub_model(GeographicArea,
                  :name                    => 'Name_0',
                  :parent_id               => 1,
-                 :geographic_area_type_id => 2,
-                 :iso_3166_a2             => 'Iso 3166 A2',
-                 :iso_3166_a3             => 'Iso 3166 A3',
-                 :data_origin             => 'Data Origin',
-                 :tdwgID                  => '12CDE',
-                 :level0_id               => 3,
-                 :level1_id               => 4,
-                 :level2_id               => 5,
+                 :geographic_area_type_id => 1,
+                 :iso_3166_a2             => 'AA',
+                 :iso_3166_a3             => 'AAA',
+                 :data_origin             => 'Someplace',
+                 :tdwgID                  => 'Tdwg',
+                 :level0_id               => 1,
+                 :level1_id               => 1,
+                 :level2_id               => 1,
                  :created_by_id           => 12,
                  :updated_by_id           => 13
       ),
       stub_model(GeographicArea,
                  :name                    => 'Name_1',
                  :parent_id               => 1,
-                 :geographic_area_type_id => 2,
-                 :iso_3166_a2             => 'Iso 3166 A2',
-                 :iso_3166_a3             => 'Iso 3166 A3',
-                 :data_origin             => 'Data Origin',
-                 :tdwgID                  => '12CDE',
-                 :level0_id               => 3,
-                 :level1_id               => 4,
-                 :level2_id               => 5,
+                 :geographic_area_type_id => 1,
+                 :iso_3166_a2             => 'AA',
+                 :iso_3166_a3             => 'AAA',
+                 :data_origin             => 'Someplace',
+                 :tdwgID                  => 'Tdwg',
+                 :level0_id               => 1,
+                 :level1_id               => 1,
+                 :level2_id               => 1,
                  :created_by_id           => 12,
                  :updated_by_id           => 13
       )
@@ -37,10 +37,10 @@ describe 'geographic_areas/index' do
   it 'renders a list of geographic_areas' do
     render
 
-    pending 'reconstruction of the geographic_area/index view or spec'
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     assert_select 'tr>td', :text => 'Name_0'.to_s, :count => 1
     assert_select 'tr>td', :text => 'Name_1'.to_s, :count => 1
+    pending 'reconstruction of the geographic_area/index view or spec'
     assert_select 'tr>td', :text => 1.to_s, :count => 2
     assert_select 'tr>td', :text => 2.to_s, :count => 2
     assert_select 'tr>td', :text => 'Iso 3166 A2'.to_s, :count => 2

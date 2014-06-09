@@ -1,33 +1,29 @@
 require 'spec_helper'
 
-describe "geographic_areas/show" do
+describe 'geographic_areas/show' do
   before(:each) do
-    @geographic_area = assign(:geographic_area, stub_model(GeographicArea,
-      :name => "Name",
-      :level0_id => 1,
-      :level1_id => 2,
-      :level2_id => 3,
-      :gadm_geo_item_id => 4,
-      :parent_id => 5,
-      :geographic_area_type_id => 6,
-      :iso_3166_a2 => "Iso 3166 A2",
-      :tdwg_parent_id => 9,
-      :iso_3166_a3 => "Iso 3166 A3",
-      :tdwg_geo_item_id => 10,
-      :tdwgID => "Tdwg",
-      :gadmID => 11,
-      :gadm_valid_from => "Gadm Valid From",
-      :gadm_valid_to => "Gadm Valid To",
-      :data_origin => "Data Origin",
-      :adm0_a3 => "Adm0 A3",
-      :neID => "Ne",
-      :created_by_id => 12,
-      :updated_by_id => 13,
-      :ne_geo_item_id => 14
-    ))
+    @geographic_area      = assign(:geographic_area,
+                                   stub_model(GeographicArea,
+                                              :name                    => 'Name',
+                                              :parent_id               => 1,
+                                              :geographic_area_type_id => 1,
+                                              :iso_3166_a2             => 'AA',
+                                              :iso_3166_a3             => 'AAA',
+                                              :data_origin             => 'Someplace',
+                                              :tdwgID                  => 'Tdwg',
+                                              :level0_id               => 1,
+                                              :level1_id               => 1,
+                                              :level2_id               => 1,
+                                              :created_by_id           => 12,
+                                              :updated_by_id           => 13
+                                   ).as_new_record)
+    @geographic_area_type = assign(:geographic_area_type,
+                                   stub_model(GeographicAreaType,
+                                              :id => 1,
+                                              :name => 'AreaType'))
   end
 
-  it "renders attributes in <p>" do
+  it 'renders attributes in <p>' do
     pending 'reconstruction of the geographic_area/show view or spec'
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers

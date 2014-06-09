@@ -7,32 +7,17 @@ describe 'geographic_areas/edit' do
                                          :name                    => 'Name',
                                          :parent_id               => 1,
                                          :geographic_area_type_id => 1,
-                                         :iso_3166_a2             => 'MyString',
-                                         :iso_3166_a3             => 'MyString',
-                                         :data_origin             => 'MyString',
-                                         :tdwgID                  => 'MyString',
+                                         :iso_3166_a2             => 'AA',
+                                         :iso_3166_a3             => 'AAA',
+                                         :data_origin             => 'Someplace',
+                                         :tdwgID                  => 'Tdwg',
                                          :level0_id               => 1,
                                          :level1_id               => 1,
                                          :level2_id               => 1,
-                                         :created_by_id           => 1,
-                                         :updated_by_id           => 1
+                                         :created_by_id           => 12,
+                                         :updated_by_id           => 13
                               ))
   end
-=begin
-                 :name                 => 'Name',
-                 :parent               => 'ParentName',
-                 :geographic_area_type => 'Area',
-                 :iso_3166_a2          => 'Iso 3166 A2',
-                 :iso_3166_a3          => 'Iso 3166 A3',
-                 :data_origin          => 'Data Origin',
-                 :tdwgID               => 'Tdwg',
-                 :level0               => 'Name_1',
-                 :level1               => 'Name_2',
-                 :level2               => 'Name_3',
-                 :created_by_id        => 12,
-                 :updated_by_id        => 13
-
-=end
 
   it 'renders the edit geographic_area form' do
     render

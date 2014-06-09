@@ -1,6 +1,6 @@
 =begin
 
-# (Re)Building the Geographic data
+  (Re)Building the Geographic data
 
   In Rails.root directory (/taxonworks):
 
