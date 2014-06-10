@@ -7,8 +7,8 @@ FactoryGirl.define do
     pages "MyString"
 
     factory :valid_citation_topic do
-      topic {FactoryGirl.build(:valid_topic)}
-      citation {FactoryGirl.build(:valid_citation)}
+      association :topic, factory: :valid_topic
+      association :citation, factory: :valid_citation  
     end
   end
 end

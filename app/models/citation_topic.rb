@@ -10,7 +10,6 @@ class CitationTopic < ActiveRecord::Base
 
   nil_trim_attributes(:pages)
 
-
   protected
 
  end

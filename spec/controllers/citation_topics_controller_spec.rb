@@ -88,14 +88,14 @@ describe CitationTopicsController do
       it "assigns a newly created but unsaved citation_topic as @citation_topic" do
         # Trigger the behavior that occurs when invalid params are submitted
         CitationTopic.any_instance.stub(:save).and_return(false)
-        post :create, {:citation_topic => {  }}, valid_session
+        post :create, {:citation_topic => {bar: 'Foo'  }}, valid_session
         assigns(:citation_topic).should be_a_new(CitationTopic)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CitationTopic.any_instance.stub(:save).and_return(false)
-        post :create, {:citation_topic => {  }}, valid_session
+        post :create, {:citation_topic => {bar: 'Foo'  }}, valid_session
         response.should render_template("new")
       end
     end
@@ -109,8 +109,9 @@ describe CitationTopicsController do
         # specifies that the CitationTopic created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CitationTopic.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => citation_topic.to_param, :citation_topic => { "these" => "params" }}, valid_session
+        t = Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast.')
+        CitationTopic.any_instance.should_receive(:update).with({ 'topic_id' => t.id.to_s})
+        put :update, {:id => citation_topic.to_param, :citation_topic => { topic_id: t.id }}, valid_session
       end
 
       it "assigns the requested citation_topic as @citation_topic" do
@@ -131,7 +132,7 @@ describe CitationTopicsController do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CitationTopic.any_instance.stub(:save).and_return(false)
-        put :update, {:id => citation_topic.to_param, :citation_topic => {  }}, valid_session
+        put :update, {:id => citation_topic.to_param, :citation_topic => { foo: 'bar'  }}, valid_session
         assigns(:citation_topic).should eq(citation_topic)
       end
 
@@ -139,7 +140,7 @@ describe CitationTopicsController do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CitationTopic.any_instance.stub(:save).and_return(false)
-        put :update, {:id => citation_topic.to_param, :citation_topic => {  }}, valid_session
+        put :update, {:id => citation_topic.to_param, :citation_topic => { foo: 'bar'  }}, valid_session
         response.should render_template("edit")
       end
     end

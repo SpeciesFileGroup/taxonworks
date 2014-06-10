@@ -70,6 +70,6 @@ class CitationTopicsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def citation_topic_params
-      params[:citation_topic]
+      params.require(:citation_topic).permit(:citation_id, :topic_id)
     end
 end
