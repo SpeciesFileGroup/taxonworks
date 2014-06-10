@@ -88,14 +88,14 @@ describe CitationsController do
       it "assigns a newly created but unsaved citation as @citation" do
         # Trigger the behavior that occurs when invalid params are submitted
         Citation.any_instance.stub(:save).and_return(false)
-        post :create, {:citation => {  }}, valid_session
+        post :create, {:citation => { bar: 'foo'  }}, valid_session
         assigns(:citation).should be_a_new(Citation)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Citation.any_instance.stub(:save).and_return(false)
-        post :create, {:citation => {  }}, valid_session
+        post :create, {:citation => { bar: 'foo'  }}, valid_session
         response.should render_template("new")
       end
     end
@@ -109,8 +109,9 @@ describe CitationsController do
         # specifies that the Citation created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Citation.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => citation.to_param, :citation => { "these" => "params" }}, valid_session
+        o = Otu.create(name: 'bar')
+        Citation.any_instance.should_receive(:update).with({ 'citation_object_type' => 'Otu', 'citation_object_id' => o.id.to_s })
+        put :update, {:id => citation.to_param, :citation => { citation_object_type: 'Otu', citation_object_id:  o.id  }}, valid_session
       end
 
       it "assigns the requested citation as @citation" do
@@ -131,7 +132,7 @@ describe CitationsController do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Citation.any_instance.stub(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => {  }}, valid_session
+        put :update, {:id => citation.to_param, :citation => { bar: 'Foo' }}, valid_session
         assigns(:citation).should eq(citation)
       end
 
@@ -139,7 +140,7 @@ describe CitationsController do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Citation.any_instance.stub(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => {  }}, valid_session
+        put :update, {:id => citation.to_param, :citation => { bar: 'Foo'  }}, valid_session
         response.should render_template("edit")
       end
     end

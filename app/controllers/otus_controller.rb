@@ -80,6 +80,6 @@ class OtusController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def otu_params
-      params.require(:otu).permit(:name, :created_by_id, :updated_by_id, :project_id)
+      params.require(:otu).permit(:name)
     end
 end
