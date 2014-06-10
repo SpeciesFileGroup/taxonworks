@@ -1,5 +1,10 @@
 require 'spec_helper'
 
+
+#
+# TODO: These need to be refactored to properly identified desired functionality.
+#       Leave alone for now (mjy).
+#
 describe 'Users', base_class: User do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -9,8 +14,8 @@ describe 'Users', base_class: User do
   describe '/users' do
 
     before do
-      # sign_in_valid_user
-      @existing_user = FactoryGirl.create(:valid_user)
+       sign_in_valid_user
+      @existing_user = User.find(1) # FactoryGirl.create(:valid_user)
       visit users_path
     end
 
@@ -23,7 +28,8 @@ describe 'Users', base_class: User do
 
   describe '/users/:id' do
     before {
-      @existing_user = FactoryGirl.create(:valid_user)
+      sign_in_valid_user 
+      @existing_user = User.find(1)
       visit user_path(@existing_user)
     } 
 
@@ -31,7 +37,6 @@ describe 'Users', base_class: User do
       subject.should have_selector('h1', text: "User #{@existing_user.id}")
       subject.should have_title("User #{@existing_user.id} | TaxonWorks")
     end
-
   end
 
   describe '/users/:id/edit' do
@@ -41,8 +46,9 @@ describe 'Users', base_class: User do
     end
 
     it 'should let user edit their account information' do
-      subject.should have_selector('h1', "Edit user #{@existing_user.id}")
-      subject.should have_title("Edit user #{@existing_user.id} | TaxonWorks")
+      txt = "Edit user #{@existing_user.id}"
+      subject.should have_selector('h1', txt)
+      subject.should have_title("#{txt} | TaxonWorks")
       fill_in 'Email', with: 'edit_user_modified@example.com'
       fill_in 'Password', with: @existing_user.password
       fill_in 'Password confirmation', with: @existing_user.password_confirmation
