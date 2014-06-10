@@ -29,7 +29,7 @@ class AlternateValuesController < ApplicationController
 
     respond_to do |format|
       if @alternate_value.save
-        format.html { redirect_to @alternate_value, notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.becomes(AlternateValue), notice: 'Alternate value was successfully created.' }
         format.json { render action: 'show', status: :created, location: @alternate_value }
       else
         format.html { render action: 'new' }
@@ -43,7 +43,7 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to @alternate_value, notice: 'Alternate value was successfully updated.' }
+        format.html { redirect_to @alternate_value.becomes(AlternateValue), notice: 'Alternate value was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -70,6 +70,6 @@ class AlternateValuesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params[:alternate_value]
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_object_type, :alternate_object_id, :alternate_object_attribute) 
   end
 end

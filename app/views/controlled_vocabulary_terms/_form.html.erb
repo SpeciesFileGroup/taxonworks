@@ -15,14 +15,17 @@
     <%= f.label :type %><br>
     <%= f.select :type, options_for_select(ControlledVocabularyTerm.descendants.map(&:name).sort, 'Keyword') %>
   </div>
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
   <div class="field">
     <%= f.label :definition %><br>
     <%= f.text_area :definition %>
   </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
