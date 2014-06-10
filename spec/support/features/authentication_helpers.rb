@@ -25,6 +25,11 @@ module Features
     def select_a_project
       visit select_project_path(1) 
     end
+
+    def sign_in_valid_user_and_select_project
+      sign_in_valid_user
+      select_a_project
+    end
   end
 
 end
