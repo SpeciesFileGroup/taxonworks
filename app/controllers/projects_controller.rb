@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  # before_action :require_sign_in_and_project_selection
+  before_action :require_sign_in
   before_action :set_project, only: [:show, :edit, :update, :destroy, :select]
 
   # GET /projects
