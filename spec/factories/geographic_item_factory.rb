@@ -2,8 +2,8 @@ require_relative '../support/geo'
 # TODO: Jim, use constants instead of instantiating factories again? 
 FactoryGirl.define do
 
-  minLat = -90 
-  maxLat = 90
+  minLat = -85
+  maxLat = 85
   minLng = -180
   maxLng = 180 
   rng = Random.new(Time.now.to_i)

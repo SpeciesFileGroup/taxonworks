@@ -17,7 +17,11 @@ FactoryGirl.define do
     supervisor_phone "MyString"
     date_closed "2014-02-26"
     created_by_id 1
-    modified_by_id 1
+    updated_by_id 1
     project_id 1
+
+    factory :second_loan, aliases: [:valid_loan] do
+
+    end
   end
 end

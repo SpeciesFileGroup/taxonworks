@@ -18,5 +18,9 @@ FactoryGirl.define do
     created_by_id 1
     updated_by_id 1
     project_id 1
+
+    factory :second_collection_profile, aliases: [:valid_collection_profile] do
+
+    end
   end
 end
