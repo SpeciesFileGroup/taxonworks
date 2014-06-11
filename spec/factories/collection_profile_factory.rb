@@ -4,7 +4,7 @@ FactoryGirl.define do
   factory :collection_profile do
     container nil
     otu nil
-    type 'dry'
+    # type 'dry | wet | slide'
     conservation_status 3
     processing_state 3
     container_condition 3
@@ -19,8 +19,14 @@ FactoryGirl.define do
     updated_by_id 1
     project_id 1
 
-    factory :second_collection_profile, aliases: [:valid_collection_profile] do
-
+    factory :dry_collection_profile, aliases: [:valid_collection_profile] do
+      collection_type 'dry'
+    end
+    factory :wet_collection_profile do
+      collection_type 'wet'
+    end
+    factory :slide_collection_profile do
+      collection_type 'slide'
     end
   end
 end

@@ -26,7 +26,7 @@ describe ContentsController do
   # This should return the minimal set of attributes required to create a valid
   # Content. As you add validations to Content, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_content).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_content).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,29 +88,29 @@ describe ContentsController do
       it "assigns a newly created but unsaved content as @content" do
         # Trigger the behavior that occurs when invalid params are submitted
         Content.any_instance.stub(:save).and_return(false)
-        post :create, {:content => {  }}, valid_session
+        post :create, {:content => {:invalid => 'parms'}}, valid_session
         assigns(:content).should be_a_new(Content)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Content.any_instance.stub(:save).and_return(false)
-        post :create, {:content => {  }}, valid_session
+        post :create, {:content => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested content" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested content' do
         content = Content.create! valid_attributes
         # Assuming there are no other contents in the database, this
         # specifies that the Content created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Content.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => content.to_param, :content => { "these" => "params" }}, valid_session
+        Content.any_instance.should_receive(:update).with({'text' => 'params'})
+        put :update, {:id => content.to_param, :content => {:text => 'params'}}, valid_session
       end
 
       it "assigns the requested content as @content" do
@@ -131,7 +131,7 @@ describe ContentsController do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Content.any_instance.stub(:save).and_return(false)
-        put :update, {:id => content.to_param, :content => {  }}, valid_session
+        put :update, {:id => content.to_param, :content => {:invalid => 'parms'}}, valid_session
         assigns(:content).should eq(content)
       end
 
@@ -139,7 +139,7 @@ describe ContentsController do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Content.any_instance.stub(:save).and_return(false)
-        put :update, {:id => content.to_param, :content => {  }}, valid_session
+        put :update, {:id => content.to_param, :content => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end
