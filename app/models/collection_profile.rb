@@ -1,3 +1,8 @@
+
+
+# @!attribute collection_type 
+#   @return String
+#   TODO: Resolve use/meaning of this, was intended for "wet", "dry" etc. 
 class CollectionProfile < ActiveRecord::Base
 
   include Housekeeping
@@ -7,13 +12,11 @@ class CollectionProfile < ActiveRecord::Base
   belongs_to :otu
 
   scope :with_project_id, -> (project) {where(project_id: project)}
-  scope :with_type_string, -> (type_string) {where(type: type_string)}
+  scope :with_collection_type_string, -> (type_string) {where(collection_type: type_string)}
   scope :with_container_id, -> (container) {where(container_id: container).order('created_at DESC') }
   scope :with_otu_id, -> (otu) {where(otu_id: otu).order('created_at DESC') }
   scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
 #  scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles GROUP BY collection_profiles.container_id, collection_profiles.otu_id HAVING created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
-
-
 
   validates_presence_of :conservation_status, message: 'Conservation status is not selected'
   validates_presence_of :processing_state, message: 'Processing state is not selected'
@@ -23,7 +26,8 @@ class CollectionProfile < ActiveRecord::Base
   validates_presence_of :arrangement_level, message: 'Arrangement level is not selected'
   validates_presence_of :data_quality, message: 'Data quality is not selected'
   validates_presence_of :computerization_level, message: 'Computerization_level is not selected'
-  validates_presence_of :type, message: 'Type is not selected'
+
+  validates_presence_of :collection_type, message: 'Type is not selected'
 
   before_validation :validate_type,
                     :validate_number,
@@ -221,13 +225,13 @@ class CollectionProfile < ActiveRecord::Base
   private
 
   def validate_type
-    unless (self.type.blank? || COLLECTION_PROFILE_TYPES.include?(self.type.to_s))
-      errors.add(:type, 'Invalid profile type')
+    unless (self.collection_type.blank? || COLLECTION_PROFILE_TYPES.include?(self.collection_type.to_s))
+      errors.add(:collection_type, 'Invalid profile type')
     end
   end
 
   def validate_number
-    t = self.type.to_s
+    t = self.collection_type.to_s
     if self.number_of_collection_objects.nil? && self.number_of_containers.nil?
       errors.add(:number_of_collection_objects, 'At least one number of specimens or number of containers should be specified')
       errors.add(:number_of_containers, 'At least one number of specimens or number of containers should be specified')
@@ -241,28 +245,28 @@ class CollectionProfile < ActiveRecord::Base
   def validate_indices
     unless self.type.blank?
       unless self.conservation_status.blank?
-        errors.add(:conservation_status, 'Invalid entry') if CollectionProfile.favret_conservation_status_indices(self.type)[self.conservation_status].nil?
+        errors.add(:conservation_status, 'Invalid entry') if CollectionProfile.favret_conservation_status_indices(self.collection_type)[self.conservation_status].nil?
       end
       unless self.processing_state.blank?
-        errors.add(:processing_state, 'Invalid entry') if CollectionProfile.favret_processing_state_indices(self.type)[self.processing_state].nil?
+        errors.add(:processing_state, 'Invalid entry') if CollectionProfile.favret_processing_state_indices(self.collection_type)[self.processing_state].nil?
       end
       unless self.container_condition.blank?
-        errors.add(:container_condition, 'Invalid entry') if CollectionProfile.favret_container_condition_indices(self.type)[self.container_condition].nil?
+        errors.add(:container_condition, 'Invalid entry') if CollectionProfile.favret_container_condition_indices(self.collection_type)[self.container_condition].nil?
       end
       unless self.condition_of_labels.blank?
-        errors.add(:condition_of_labels, 'Invalid entry') if CollectionProfile.favret_condition_of_labels_indices(self.type)[self.condition_of_labels].nil?
+        errors.add(:condition_of_labels, 'Invalid entry') if CollectionProfile.favret_condition_of_labels_indices(self.collection_type)[self.condition_of_labels].nil?
       end
       unless self.identification_level.blank?
-        errors.add(:identification_level, 'Invalid entry') if CollectionProfile.favret_identification_level_indices(self.type)[self.identification_level].nil?
+        errors.add(:identification_level, 'Invalid entry') if CollectionProfile.favret_identification_level_indices(self.collection_type)[self.identification_level].nil?
       end
       unless self.arrangement_level.blank?
-        errors.add(:arrangement_level, 'Invalid entry') if CollectionProfile.favret_arrangement_level_indices(self.type)[self.arrangement_level].nil?
+        errors.add(:arrangement_level, 'Invalid entry') if CollectionProfile.favret_arrangement_level_indices(self.collection_type)[self.arrangement_level].nil?
       end
       unless self.data_quality.blank?
-        errors.add(:data_quality, 'Invalid entry') if CollectionProfile.favret_data_quality_indices(self.type)[self.data_quality].nil?
+        errors.add(:data_quality, 'Invalid entry') if CollectionProfile.favret_data_quality_indices(self.collection_type)[self.data_quality].nil?
       end
       unless self.computerization_level.blank?
-        errors.add(:computerization_level, 'Invalid entry') if CollectionProfile.favret_computerization_level_indices(self.type)[self.computerization_level].nil?
+        errors.add(:computerization_level, 'Invalid entry') if CollectionProfile.favret_computerization_level_indices(self.collection_type)[self.computerization_level].nil?
       end
     end
   end
