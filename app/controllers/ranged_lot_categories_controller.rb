@@ -70,6 +70,6 @@ class RangedLotCategoriesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def ranged_lot_category_params
-      params[:ranged_lot_category]
+      params.require(:ranged_lot_category).permit(:name, :minimum_value, :maximum_value)
     end
 end

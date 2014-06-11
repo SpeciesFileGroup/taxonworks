@@ -109,8 +109,8 @@ describe LoanItemsController do
         # specifies that the LoanItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        LoanItem.any_instance.should_receive(:update).with({'supervisor_email' => 'it@there.id'})
-        put :update, {:id => loan_item.to_param, :loan_item => {:supervisor_email => 'it@there.id'}}, valid_session
+        LoanItem.any_instance.should_receive(:update).with({'collection_object_status' => 'confused'})
+        put :update, {:id => loan_item.to_param, :loan_item => {collection_object_status: 'confused'}}, valid_session
       end
 
       it "assigns the requested loan_item as @loan_item" do

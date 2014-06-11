@@ -26,7 +26,7 @@ describe OtuPageLayoutsController do
   # This should return the minimal set of attributes required to create a valid
   # OtuPageLayout. As you add validations to OtuPageLayout, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_otu_page_layout).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_otu_page_layout).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,29 +88,29 @@ describe OtuPageLayoutsController do
       it "assigns a newly created but unsaved otu_page_layout as @otu_page_layout" do
         # Trigger the behavior that occurs when invalid params are submitted
         OtuPageLayout.any_instance.stub(:save).and_return(false)
-        post :create, {:otu_page_layout => {  }}, valid_session
+        post :create, {:otu_page_layout => {:invalid => 'parms'}}, valid_session
         assigns(:otu_page_layout).should be_a_new(OtuPageLayout)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         OtuPageLayout.any_instance.stub(:save).and_return(false)
-        post :create, {:otu_page_layout => {  }}, valid_session
+        post :create, {:otu_page_layout => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested otu_page_layout" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested otu_page_layout' do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Assuming there are no other otu_page_layouts in the database, this
         # specifies that the OtuPageLayout created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        OtuPageLayout.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => { "these" => "params" }}, valid_session
+        OtuPageLayout.any_instance.should_receive(:update).with({'name' => 'sunshine'})
+        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {name: 'sunshine'}}, valid_session
       end
 
       it "assigns the requested otu_page_layout as @otu_page_layout" do
@@ -131,7 +131,7 @@ describe OtuPageLayoutsController do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         OtuPageLayout.any_instance.stub(:save).and_return(false)
-        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {  }}, valid_session
+        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {:invalid => 'parms'}}, valid_session
         assigns(:otu_page_layout).should eq(otu_page_layout)
       end
 
@@ -139,7 +139,7 @@ describe OtuPageLayoutsController do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         OtuPageLayout.any_instance.stub(:save).and_return(false)
-        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {  }}, valid_session
+        put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end

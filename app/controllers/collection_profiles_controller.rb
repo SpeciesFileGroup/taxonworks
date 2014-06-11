@@ -63,13 +63,17 @@ class CollectionProfilesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_collection_profile
-      @collection_profile = CollectionProfile.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_collection_profile
+    @collection_profile = CollectionProfile.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def collection_profile_params
-      params[:collection_profile]
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def collection_profile_params
+    params.require(:collection_profile).permit(:container_id, :otu_id, :conservation_status, :processing_state,
+                                               :container_condition, :condition_of_labels, :identification_level,
+                                               :arrangement_level, :data_quality, :computerization_level,
+                                               :number_of_collection_objects, :number_of_containers, :collection_type
+    )
+  end
 end

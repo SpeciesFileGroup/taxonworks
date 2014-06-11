@@ -4,7 +4,7 @@ FactoryGirl.define do
   factory :collection_profile do
     container nil
     otu nil
-    # type 'dry | wet | slide'
+    # collection_type 'dry | wet | slide'
     conservation_status 3
     processing_state 3
     container_condition 3

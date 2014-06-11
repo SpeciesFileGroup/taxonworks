@@ -70,6 +70,6 @@ class PublicContentsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def public_content_params
-      params[:public_content]
+      params.require(:public_content).permit(:otu_id, :topic_id, :content_id, :text)
     end
 end
