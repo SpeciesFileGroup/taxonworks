@@ -109,9 +109,8 @@ describe TaggedSectionKeywordsController do
         # specifies that the TaggedSectionKeyword created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        opls = FactoryGirl.create(:valid_otu_page_layout_section)
-        TaggedSectionKeyword.any_instance.should_receive(:update).with({'otu_page_layout_section_id' => opls.id.to_s})
-        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {keyword_id: opls.id}}, valid_session
+        TaggedSectionKeyword.any_instance.should_receive(:update).with({'position' => '6'})
+        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {position: 6}}, valid_session
       end
 
       it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
