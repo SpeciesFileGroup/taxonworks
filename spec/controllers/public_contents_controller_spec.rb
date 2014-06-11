@@ -26,7 +26,11 @@ describe PublicContentsController do
   # This should return the minimal set of attributes required to create a valid
   # PublicContent. As you add validations to PublicContent, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_public_content).attributes }
+  let(:valid_attributes) { 
+    t = FactoryGirl.create(:valid_topic)   
+    c = FactoryGirl.create(:valid_content, topic: t)
+    FactoryGirl.build(:valid_public_content, topic: t, content: c).attributes 
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -109,8 +113,8 @@ describe PublicContentsController do
         # specifies that the PublicContent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        PublicContent.any_instance.should_receive(:update).with({"these" => "params"})
-        put :update, {:id => public_content.to_param, :public_content => {"these" => "params"}}, valid_session
+        PublicContent.any_instance.should_receive(:update).with({"text" => "New text"})
+        put :update, {:id => public_content.to_param, :public_content => { text: 'New text'}}, valid_session
       end
 
       it "assigns the requested public_content as @public_content" do
@@ -131,7 +135,7 @@ describe PublicContentsController do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {}}, valid_session
+        put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
         assigns(:public_content).should eq(public_content)
       end
 
@@ -139,7 +143,7 @@ describe PublicContentsController do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {}}, valid_session
+        put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
         response.should render_template("edit")
       end
     end
