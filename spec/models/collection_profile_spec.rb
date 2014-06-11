@@ -56,13 +56,19 @@ describe CollectionProfile do
 
   context 'validate' do
     specify 'valid profile' do
-      p = FactoryGirl.create(:collection_profile)
+      p = FactoryGirl.create(:valid_collection_profile)
       expect(p.valid?).to be_true
     end
     specify 'missing fields' do
-      p = FactoryGirl.build_stubbed(:collection_profile, conservation_status: 5, processing_state: 5,
-                                    container_condition: 5, condition_of_labels: 5, identification_level: 5,
-                                    arrangement_level: 5, data_quality: 5, computerization_level: 5,
+      p = FactoryGirl.build_stubbed(:collection_profile,
+                                    conservation_status: 5,
+                                    processing_state: 5,
+                                    container_condition: 5,
+                                    condition_of_labels: 5,
+                                    identification_level: 5,
+                                    arrangement_level: 5,
+                                    data_quality: 5,
+                                    computerization_level: 5,
                                     number_of_collection_objects: nil)
       expect(p.valid?).to be_false
       expect(p.errors.include?(:conservation_status)).to be_true
