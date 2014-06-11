@@ -26,7 +26,7 @@ describe RangedLotCategoriesController do
   # This should return the minimal set of attributes required to create a valid
   # RangedLotCategory. As you add validations to RangedLotCategory, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_ranged_lot_category).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_ranged_lot_category).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,29 +88,29 @@ describe RangedLotCategoriesController do
       it "assigns a newly created but unsaved ranged_lot_category as @ranged_lot_category" do
         # Trigger the behavior that occurs when invalid params are submitted
         RangedLotCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:ranged_lot_category => {  }}, valid_session
+        post :create, {:ranged_lot_category => {:invalid => 'parms'}}, valid_session
         assigns(:ranged_lot_category).should be_a_new(RangedLotCategory)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         RangedLotCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:ranged_lot_category => {  }}, valid_session
+        post :create, {:ranged_lot_category => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested ranged_lot_category" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested ranged_lot_category' do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         # Assuming there are no other ranged_lot_categories in the database, this
         # specifies that the RangedLotCategory created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        RangedLotCategory.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => { "these" => "params" }}, valid_session
+        RangedLotCategory.any_instance.should_receive(:update).with({'name' => 'params'})
+        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:name => "params"}}, valid_session
       end
 
       it "assigns the requested ranged_lot_category as @ranged_lot_category" do
@@ -131,7 +131,7 @@ describe RangedLotCategoriesController do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RangedLotCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {  }}, valid_session
+        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:invalid => 'parms'}}, valid_session
         assigns(:ranged_lot_category).should eq(ranged_lot_category)
       end
 
@@ -139,7 +139,7 @@ describe RangedLotCategoriesController do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RangedLotCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {  }}, valid_session
+        put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end

@@ -26,7 +26,7 @@ describe TaggedSectionKeywordsController do
   # This should return the minimal set of attributes required to create a valid
   # TaggedSectionKeyword. As you add validations to TaggedSectionKeyword, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_tagged_section_keyword).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_tagged_section_keyword).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,29 +88,30 @@ describe TaggedSectionKeywordsController do
       it "assigns a newly created but unsaved tagged_section_keyword as @tagged_section_keyword" do
         # Trigger the behavior that occurs when invalid params are submitted
         TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
-        post :create, {:tagged_section_keyword => {  }}, valid_session
+        post :create, {:tagged_section_keyword => {:invalid => 'parms'}}, valid_session
         assigns(:tagged_section_keyword).should be_a_new(TaggedSectionKeyword)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
-        post :create, {:tagged_section_keyword => {  }}, valid_session
+        post :create, {:tagged_section_keyword => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested tagged_section_keyword" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested tagged_section_keyword' do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Assuming there are no other tagged_section_keywords in the database, this
         # specifies that the TaggedSectionKeyword created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        TaggedSectionKeyword.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => { "these" => "params" }}, valid_session
+        opls = FactoryGirl.create(:valid_otu_page_layout_section)
+        TaggedSectionKeyword.any_instance.should_receive(:update).with({'otu_page_layout_section_id' => opls.id.to_s})
+        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {keyword_id: opls.id}}, valid_session
       end
 
       it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
@@ -131,7 +132,7 @@ describe TaggedSectionKeywordsController do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
-        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {  }}, valid_session
+        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {:invalid => 'parms'}}, valid_session
         assigns(:tagged_section_keyword).should eq(tagged_section_keyword)
       end
 
@@ -139,7 +140,7 @@ describe TaggedSectionKeywordsController do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
-        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {  }}, valid_session
+        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end

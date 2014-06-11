@@ -80,7 +80,7 @@ describe DataAttributesController do
 
       it "redirects to the created data_attribute" do
         post :create, {:data_attribute => valid_attributes}, valid_session
-        response.should redirect_to(DataAttribute.last)
+        response.should redirect_to(DataAttribute.last.becomes(DataAttribute))
       end
     end
 
@@ -88,14 +88,14 @@ describe DataAttributesController do
       it "assigns a newly created but unsaved data_attribute as @data_attribute" do
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        post :create, {:data_attribute => {}}, valid_session
+        post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
         assigns(:data_attribute).should be_a_new(DataAttribute)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        post :create, {:data_attribute => {}}, valid_session
+        post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
         response.should render_template("new")
       end
     end
@@ -109,8 +109,8 @@ describe DataAttributesController do
         # specifies that the DataAttribute created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        DataAttribute.any_instance.should_receive(:update).with({"these" => "params"})
-        put :update, {:id => data_attribute.to_param, :data_attribute => {"these" => "params"}}, valid_session
+        DataAttribute.any_instance.should_receive(:update).with({'value'  => 'black'})
+        put :update, {:id => data_attribute.to_param, :data_attribute => {:value  => 'black'}}, valid_session
       end
 
       it "assigns the requested data_attribute as @data_attribute" do
@@ -122,7 +122,7 @@ describe DataAttributesController do
       it "redirects to the data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
         put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
-        response.should redirect_to(data_attribute)
+        response.should redirect_to(data_attribute.becomes(DataAttribute))
       end
     end
 
@@ -131,7 +131,7 @@ describe DataAttributesController do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {}}, valid_session
+        put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
         assigns(:data_attribute).should eq(data_attribute)
       end
 
@@ -139,7 +139,7 @@ describe DataAttributesController do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         DataAttribute.any_instance.stub(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {}}, valid_session
+        put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end

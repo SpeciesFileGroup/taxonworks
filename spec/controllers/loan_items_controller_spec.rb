@@ -26,7 +26,7 @@ describe LoanItemsController do
   # This should return the minimal set of attributes required to create a valid
   # LoanItem. As you add validations to LoanItem, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_loan_item).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_loan_item).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,29 +88,29 @@ describe LoanItemsController do
       it "assigns a newly created but unsaved loan_item as @loan_item" do
         # Trigger the behavior that occurs when invalid params are submitted
         LoanItem.any_instance.stub(:save).and_return(false)
-        post :create, {:loan_item => {  }}, valid_session
+        post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
         assigns(:loan_item).should be_a_new(LoanItem)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         LoanItem.any_instance.stub(:save).and_return(false)
-        post :create, {:loan_item => {  }}, valid_session
+        post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested loan_item" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested loan_item' do
         loan_item = LoanItem.create! valid_attributes
         # Assuming there are no other loan_items in the database, this
         # specifies that the LoanItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        LoanItem.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => loan_item.to_param, :loan_item => { "these" => "params" }}, valid_session
+        LoanItem.any_instance.should_receive(:update).with({'collection_object_status' => 'confused'})
+        put :update, {:id => loan_item.to_param, :loan_item => {collection_object_status: 'confused'}}, valid_session
       end
 
       it "assigns the requested loan_item as @loan_item" do
@@ -131,7 +131,7 @@ describe LoanItemsController do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         LoanItem.any_instance.stub(:save).and_return(false)
-        put :update, {:id => loan_item.to_param, :loan_item => {  }}, valid_session
+        put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
         assigns(:loan_item).should eq(loan_item)
       end
 
@@ -139,7 +139,7 @@ describe LoanItemsController do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         LoanItem.any_instance.stub(:save).and_return(false)
-        put :update, {:id => loan_item.to_param, :loan_item => {  }}, valid_session
+        put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end

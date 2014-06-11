@@ -70,6 +70,6 @@ class TaggedSectionKeywordsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def tagged_section_keyword_params
-      params[:tagged_section_keyword]
+      params.require(:tagged_section_keyword).permit(:otu_page_layout_section_id, :keyword_id, :position)
     end
 end

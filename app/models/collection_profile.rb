@@ -243,7 +243,7 @@ class CollectionProfile < ActiveRecord::Base
   end
 
   def validate_indices
-    unless self.type.blank?
+    unless self.collection_type.blank?
       unless self.conservation_status.blank?
         errors.add(:conservation_status, 'Invalid entry') if CollectionProfile.favret_conservation_status_indices(self.collection_type)[self.conservation_status].nil?
       end

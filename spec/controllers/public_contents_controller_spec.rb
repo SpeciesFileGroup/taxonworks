@@ -88,14 +88,14 @@ describe PublicContentsController do
       it "assigns a newly created but unsaved public_content as @public_content" do
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        post :create, {:public_content => {  }}, valid_session
+        post :create, {:public_content => {:invalid => 'parms'}}, valid_session
         assigns(:public_content).should be_a_new(PublicContent)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        post :create, {:public_content => {  }}, valid_session
+        post :create, {:public_content => {:invalid => 'parms'}}, valid_session
         response.should render_template("new")
       end
     end
@@ -109,8 +109,8 @@ describe PublicContentsController do
         # specifies that the PublicContent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        PublicContent.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => public_content.to_param, :public_content => { "these" => "params" }}, valid_session
+        PublicContent.any_instance.should_receive(:update).with({"these" => "params"})
+        put :update, {:id => public_content.to_param, :public_content => {"these" => "params"}}, valid_session
       end
 
       it "assigns the requested public_content as @public_content" do
@@ -131,7 +131,7 @@ describe PublicContentsController do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {  }}, valid_session
+        put :update, {:id => public_content.to_param, :public_content => {}}, valid_session
         assigns(:public_content).should eq(public_content)
       end
 
@@ -139,7 +139,7 @@ describe PublicContentsController do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PublicContent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {  }}, valid_session
+        put :update, {:id => public_content.to_param, :public_content => {}}, valid_session
         response.should render_template("edit")
       end
     end

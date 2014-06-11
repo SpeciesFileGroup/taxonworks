@@ -70,6 +70,8 @@ class LoanItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def loan_item_params
-      params[:loan_item]
+      params.require(:loan_item).permit(:loan_id, :collection_object_id, :collection_object_status, :date_returned,
+                                        :position, :container_id
+      )
     end
 end

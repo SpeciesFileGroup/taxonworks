@@ -14,7 +14,7 @@ describe 'Users', base_class: User do
   describe '/users' do
 
     before do
-       sign_in_valid_user
+      sign_in_valid_user
       @existing_user = User.find(1) # FactoryGirl.create(:valid_user)
       visit users_path
     end
@@ -28,10 +28,10 @@ describe 'Users', base_class: User do
 
   describe '/users/:id' do
     before {
-      sign_in_valid_user 
+      sign_in_valid_user
       @existing_user = User.find(1)
       visit user_path(@existing_user)
-    } 
+    }
 
     it 'should show a user\'s profile' do
       subject.should have_selector('h1', text: "User #{@existing_user.id}")

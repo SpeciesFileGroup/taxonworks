@@ -26,7 +26,7 @@ describe CollectionProfilesController do
   # This should return the minimal set of attributes required to create a valid
   # CollectionProfile. As you add validations to CollectionProfile, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_collection_profile).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_collection_profile).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -84,33 +84,34 @@ describe CollectionProfilesController do
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved collection_profile as @collection_profile" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved collection_profile as @collection_profile' do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionProfile.any_instance.stub(:save).and_return(false)
-        post :create, {:collection_profile => {  }}, valid_session
+        post :create, {:collection_profile => {:invalid => 'parms'}}, valid_session
         assigns(:collection_profile).should be_a_new(CollectionProfile)
       end
 
-      it "re-renders the 'new' template" do
+      it 're-renders the \'new\' template' do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionProfile.any_instance.stub(:save).and_return(false)
-        post :create, {:collection_profile => {  }}, valid_session
-        response.should render_template("new")
+        post :create, {:collection_profile => {:invalid => 'parms'}}, valid_session
+        response.should render_template('new')
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested collection_profile" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested collection_profile' do
         collection_profile = CollectionProfile.create! valid_attributes
         # Assuming there are no other collection_profiles in the database, this
         # specifies that the CollectionProfile created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CollectionProfile.any_instance.should_receive(:update).with({ "these" => "params" })
-        put :update, {:id => collection_profile.to_param, :collection_profile => { "these" => "params" }}, valid_session
+        otu                = FactoryGirl.create(:valid_otu)
+        CollectionProfile.any_instance.should_receive(:update).with({'otu_id' => otu.id.to_s})
+        put :update, {:id => collection_profile.to_param, :collection_profile => {otu_id: otu.id}}, valid_session
       end
 
       it "assigns the requested collection_profile as @collection_profile" do
@@ -131,7 +132,7 @@ describe CollectionProfilesController do
         collection_profile = CollectionProfile.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionProfile.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collection_profile.to_param, :collection_profile => {  }}, valid_session
+        put :update, {:id => collection_profile.to_param, :collection_profile => {:invalid => 'parms'}}, valid_session
         assigns(:collection_profile).should eq(collection_profile)
       end
 
@@ -139,7 +140,7 @@ describe CollectionProfilesController do
         collection_profile = CollectionProfile.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionProfile.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collection_profile.to_param, :collection_profile => {  }}, valid_session
+        put :update, {:id => collection_profile.to_param, :collection_profile => {:invalid => 'parms'}}, valid_session
         response.should render_template("edit")
       end
     end
