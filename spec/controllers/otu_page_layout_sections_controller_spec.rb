@@ -80,7 +80,7 @@ describe OtuPageLayoutSectionsController do
 
       it "redirects to the created otu_page_layout_section" do
         post :create, {:otu_page_layout_section => valid_attributes}, valid_session
-        response.should redirect_to(OtuPageLayoutSection.last)
+        response.should redirect_to(OtuPageLayoutSection.last.becomes(OtuPageLayoutSection))
       end
     end
 
@@ -102,6 +102,7 @@ describe OtuPageLayoutSectionsController do
   end
 
   describe "PUT update" do
+
     describe "with valid params" do
       it "updates the requested otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
@@ -109,7 +110,7 @@ describe OtuPageLayoutSectionsController do
         # specifies that the OtuPageLayoutSection created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        t = FactoryGirl.create(:valid_topic)
+        t = FactoryGirl.create(:random_controlled_vocabulary_term, type: 'Topic')
         OtuPageLayoutSection.any_instance.should_receive(:update).with({"topic_id" => t.id.to_s})
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:topic_id => t.id.to_s}}, valid_session
       end
@@ -123,7 +124,7 @@ describe OtuPageLayoutSectionsController do
       it "redirects to the otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => valid_attributes}, valid_session
-        response.should redirect_to(otu_page_layout_section)
+        response.should redirect_to(otu_page_layout_section.becomes(OtuPageLayoutSection))
       end
     end
 

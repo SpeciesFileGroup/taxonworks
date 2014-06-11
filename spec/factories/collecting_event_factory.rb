@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   trait :random_verbatim_label do 
-    verbatim_label { ('a'..'z').to_a.shuffle[0,8].join }
+    verbatim_label { Utilities::Strings.random_string(8)}
   end
 
   sequence :verbatim_label do |n|

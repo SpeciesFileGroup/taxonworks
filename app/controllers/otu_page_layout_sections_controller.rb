@@ -29,7 +29,7 @@ class OtuPageLayoutSectionsController < ApplicationController
 
     respond_to do |format|
       if @otu_page_layout_section.save
-        format.html { redirect_to @otu_page_layout_section, notice: 'Otu page layout section was successfully created.' }
+        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully created.' }
         format.json { render :show, status: :created, location: @otu_page_layout_section }
       else
         format.html { render :new }
@@ -43,7 +43,7 @@ class OtuPageLayoutSectionsController < ApplicationController
   def update
     respond_to do |format|
       if @otu_page_layout_section.update(otu_page_layout_section_params)
-        format.html { redirect_to @otu_page_layout_section, notice: 'Otu page layout section was successfully updated.' }
+        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully updated.' }
         format.json { render :show, status: :ok, location: @otu_page_layout_section }
       else
         format.html { render :edit }

@@ -1,8 +1,13 @@
 module Utilities::Strings
 
+  def self.random_string(string_length)
+    return nil if string_length.to_i == 0
+    ('a'..'z').to_a.shuffle[0, string_length].join
+  end
+
+  # ! NICE!
   def self.random_taxon_name
     'Aus bus'
-
   end
 
   # Strips space, leaves internal widespace as is
