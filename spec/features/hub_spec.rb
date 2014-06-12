@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe 'Hub' do
 
-  # it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_controller' do 
+    let(:index_path) { hub_path }
+  end 
 
   subject { page }
   before {
@@ -20,6 +22,4 @@ describe 'Hub' do
     end
 
   end
-
-
 end
