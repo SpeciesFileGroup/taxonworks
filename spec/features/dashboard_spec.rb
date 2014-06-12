@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe 'Dashboard' do
 
+  it_behaves_like 'a_login_required_controller' do
+     let(:index_path) { dashboard_path }
+  end
+
   subject { page }
 
   context 'when user is not signed in' do

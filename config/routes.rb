@@ -6,8 +6,9 @@ TaxonWorks::Application.routes.draw do
 
   root 'dashboard#index'
 
-  match '/signin',  to: 'sessions#new',     via: :get
-  match '/signout', to: 'sessions#destroy', via: :delete
+  match '/dashboard', to: 'dashboard#index', via: :get
+  match '/signin',  to: 'sessions#new',      via: :get
+  match '/signout', to: 'sessions#destroy',  via: :delete
   resources :sessions, only: :create
   
   resources :projects do 
@@ -18,9 +19,6 @@ TaxonWorks::Application.routes.draw do
   end
 
   match '/hub', to: 'hub#index', via: 'get'
-
-
-
 
 
   # Stubbed

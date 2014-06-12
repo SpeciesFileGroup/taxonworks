@@ -1,7 +1,3 @@
-# TODO: write some pre/post dump methods
-#
-
-
 require 'fileutils'
 require 'benchmark'
 
@@ -99,8 +95,6 @@ namespace :tw do
       # Attributes to strip on CollectingEvent creation 
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy ModifiedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
-
-
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/TXT/
       " 
@@ -150,8 +144,10 @@ namespace :tw do
 
             Rake::Task["tw:project_import:insects:handle_people"].execute
             Rake::Task["tw:project_import:insects:handle_taxa"].execute
-            Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
-            Rake::Task["tw:project_import:insects:handle_specimens"].execute
+           # Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
+           # Rake::Task["tw:project_import:insects:handle_specimens"].execute
+
+            @data.save_all
 
             # Rake::Task["tw:project_import:insects:handle_users"].execute
 
@@ -564,7 +560,7 @@ namespace :tw do
           otu: otu 
         }
 
-        accession_attributes = { accessioned_at: '', 
+        accession_attributes = { accessioned_at: '', # revisits 
                                  deaccession_at: row['DeaccessionData'],               
                                  accession_provider_id: @data.people[row['AccessionSource']],       
                                  deaccession_recipient_id: @data.people[row['AccessionSource']],    
@@ -668,6 +664,22 @@ namespace :tw do
 
       desc 'handle taxa'
       task :handle_taxa => [:data_directory, :environment] do |t, args|
+
+        unless TaxonNames.count > 0 && Otus.count > 0
+          if File.exists?(@args[:data_directory] + '/pg_dumps/otus.dump') &&  File.exists?(@args[:data_directory] + '/pg_dumps/taxon_names.dump')
+
+            # reolad the files
+
+            return true
+
+            # rebuild the indecies?!
+          end
+        end
+
+
+
+
+
         #   ID             Not Included (parent use only)
 
         #   Name           TaxonName#name  
@@ -734,6 +746,7 @@ namespace :tw do
           p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
           if rank == NomenclaturalRank || !p.parent_id.blank?
+
             bench = Benchmark.measure { p.save }
 
             # Build the associated OTU
@@ -758,12 +771,30 @@ namespace :tw do
             puts "\n\t!!? No parent for #{p.name}\n"
           end
         end
-        puts puts
+        puts
+        puts
       end
+
+      def stub_from_postgres_dump(table)
+        if table.constantize.count == 0  
+          if File.exists?(@args[:data_directory] + "/pg_dumps/#{table}.dump")
+            Support::Database.pg_restore
+          else 
+            false 
+          end
+        else
+          false 
+        end
+      end
+
+
+      def stub_to_postgres_dump(table)
+
+      end
+
 
       desc 'handle people'
       task :handle_people => [:data_directory, :environment] do |t, args|
-
         #- 0 PeopleID          Import Identifier
         #  1 SupervisorID      Loan#supervisor_person_id  ?
 
@@ -780,7 +811,6 @@ namespace :tw do
 
         path = @args[:data_directory] + 'people.txt'
         raise 'file not found' if not File.exists?(path)
-
         f = CSV.open(path, col_sep: "\t", :headers => true)
 
         f.each do |row|
@@ -793,9 +823,11 @@ namespace :tw do
           @data.people.merge!(p => row)
         end
       end
-
     end
   end
+
+
+
 end
 
 
