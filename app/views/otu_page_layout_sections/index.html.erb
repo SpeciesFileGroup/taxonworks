@@ -1,8 +1,16 @@
-<h1>Otu Page Layout Sections</h1>
+<h1>Listing otu_page_layout_sections</h1>
 
 <table>
   <thead>
     <tr>
+      <th>Otu page layout</th>
+      <th>Type</th>
+      <th>Position</th>
+      <th>Topic</th>
+      <th>Dynamic content class</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -12,6 +20,14 @@
   <tbody>
     <% @otu_page_layout_sections.each do |otu_page_layout_section| %>
       <tr>
+        <td><%= otu_page_layout_section.otu_page_layout_id %></td>
+        <td><%= otu_page_layout_section.type %></td>
+        <td><%= otu_page_layout_section.position %></td>
+        <td><%= otu_page_layout_section.topic_id %></td>
+        <td><%= otu_page_layout_section.dynamic_content_class %></td>
+        <td><%= otu_page_layout_section.created_by_id %></td>
+        <td><%= otu_page_layout_section.updated_by_id %></td>
+        <td><%= otu_page_layout_section.project_id %></td>
         <td><%= link_to 'Show', otu_page_layout_section %></td>
         <td><%= link_to 'Edit', edit_otu_page_layout_section_path(otu_page_layout_section) %></td>
         <td><%= link_to 'Destroy', otu_page_layout_section, method: :delete, data: { confirm: 'Are you sure?' } %></td>

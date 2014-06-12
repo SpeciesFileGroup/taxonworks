@@ -1,4 +1,44 @@
 <p id="notice"><%= notice %></p>
 
+<p>
+  <strong>Otu page layout:</strong>
+  <%= @otu_page_layout_section.otu_page_layout_id %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @otu_page_layout_section.type %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @otu_page_layout_section.position %>
+</p>
+
+<p>
+  <strong>Topic:</strong>
+  <%= @otu_page_layout_section.topic_id %>
+</p>
+
+<p>
+  <strong>Dynamic content class:</strong>
+  <%= @otu_page_layout_section.dynamic_content_class %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @otu_page_layout_section.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @otu_page_layout_section.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @otu_page_layout_section.project_id %>
+</p>
+
 <%= link_to 'Edit', edit_otu_page_layout_section_path(@otu_page_layout_section) %> |
 <%= link_to 'Back', otu_page_layout_sections_path %>

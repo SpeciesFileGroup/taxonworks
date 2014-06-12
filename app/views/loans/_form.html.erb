@@ -1,17 +1,92 @@
 <%= form_for(@loan) do |f| %>
-  <% if @loan.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@loan.errors.count, "error") %> prohibited this loan from being saved:</h2>
+    <% if @loan.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@loan.errors.count, "error") %> prohibited this loan from being saved:</h2>
 
-      <ul>
-      <% @loan.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @loan.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :date_requested %>
+      <br>
+      <%= f.date_select :date_requested %>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :request_method %>
+      <br>
+      <%= f.text_field :request_method %>
+    </div>
+    <div class="field">
+      <%= f.label :date_sent %>
+      <br>
+      <%= f.date_select :date_sent %>
+    </div>
+    <div class="field">
+      <%= f.label :date_received %>
+      <br>
+      <%= f.date_select :date_received %>
+    </div>
+    <div class="field">
+      <%= f.label :date_return_expected %>
+      <br>
+      <%= f.date_select :date_return_expected %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_person_id %>
+      <br>
+      <%= f.number_field :recipient_person_id %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_address %>
+      <br>
+      <%= f.text_field :recipient_address %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_email %>
+      <br>
+      <%= f.text_field :recipient_email %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_phone %>
+      <br>
+      <%= f.text_field :recipient_phone %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_country %>
+      <br>
+      <%= f.number_field :recipient_country %>
+    </div>
+    <div class="field">
+      <%= f.label :supervisor_person_id %>
+      <br>
+      <%= f.text_field :supervisor_person_id %>
+    </div>
+    <div class="field">
+      <%= f.label :supervisor_email %>
+      <br>
+      <%= f.text_field :supervisor_email %>
+    </div>
+    <div class="field">
+      <%= f.label :supervisor_phone %>
+      <br>
+      <%= f.text_field :supervisor_phone %>
+    </div>
+    <div class="field">
+      <%= f.label :date_closed %>
+      <br>
+      <%= f.date_select :date_closed %>
+    </div>
+    <div class="field">
+      <%= f.label :recipient_honorarium %>
+      <br>
+      <%= f.text_field :recipient_honorarium %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>
