@@ -1,4 +1,44 @@
 <p id="notice"><%= notice %></p>
 
+<p>
+  <strong>Value:</strong>
+  <%= @alternate_value.value %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @alternate_value.type %>
+</p>
+
+<p>
+  <strong>Language:</strong>
+  <%= @alternate_value.language_id %>
+</p>
+
+<p>
+  <strong>Alternate object type:</strong>
+  <%= @alternate_value.alternate_object_type %>
+</p>
+
+<p>
+  <strong>Alternate object:</strong>
+  <%= @alternate_value.alternate_object_id %>
+</p>
+
+<p>
+  <strong>Alternate object attribute:</strong>
+  <%= @alternate_value.alternate_object_attribute %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @alternate_value.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @alternate_value.updated_by_id %>
+</p>
+
 <%= link_to 'Edit', edit_alternate_value_path(@alternate_value) %> |
 <%= link_to 'Back', alternate_values_path %>
