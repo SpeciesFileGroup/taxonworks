@@ -11,6 +11,18 @@
     </div>
   <% end %>
 
+  <div class="field">
+    <%= f.label :citation_object_id %><br>
+    <%= f.text_field :citation_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :citation_object_type %><br>
+    <%= f.text_field :citation_object_type %>
+  </div>
+  <div class="field">
+    <%= f.label :source_id %><br>
+    <%= f.number_field :source_id %>
+  </div>
   <div class="actions">
     <%= f.submit %>
   </div>
