@@ -1,29 +1,33 @@
 <%= form_for(@citation_topic) do |f| %>
-  <% if @citation_topic.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@citation_topic.errors.count, "error") %> prohibited this citation_topic from being saved:</h2>
+    <% if @citation_topic.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@citation_topic.errors.count, "error") %> prohibited this citation_topic from being
+            saved:</h2>
 
-      <ul>
-      <% @citation_topic.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @citation_topic.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :topic_id %>
+      <br>
+      <%= f.number_field :topic_id %>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :topic_id %><br>
-    <%= f.number_field :topic_id %>
-  </div>
-  <div class="field">
-    <%= f.label :citation_id %><br>
-    <%= f.number_field :citation_id %>
-  </div>
-  <div class="field">
-    <%= f.label :pages %><br>
-    <%= f.text_field :pages %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :citation_id %>
+      <br>
+      <%= f.number_field :citation_id %>
+    </div>
+    <div class="field">
+      <%= f.label :pages %>
+      <br>
+      <%= f.text_field :pages %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

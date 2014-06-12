@@ -1,69 +1,83 @@
 <%= form_for(@collection_profile) do |f| %>
-  <% if @collection_profile.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@collection_profile.errors.count, "error") %> prohibited this collection_profile from being saved:</h2>
+    <% if @collection_profile.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@collection_profile.errors.count, "error") %> prohibited this collection_profile from being
+            saved:</h2>
 
-      <ul>
-      <% @collection_profile.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @collection_profile.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :container_id %>
+      <br>
+      <%= f.number_field :container_id %>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :container_id %><br>
-    <%= f.number_field :container_id %>
-  </div>
-  <div class="field">
-    <%= f.label :otu_id %><br>
-    <%= f.number_field :otu_id %>
-  </div>
-  <div class="field">
-    <%= f.label :conservation_status %><br>
-    <%= f.number_field :conservation_status %>
-  </div>
-  <div class="field">
-    <%= f.label :processing_state %><br>
-    <%= f.number_field :processing_state %>
-  </div>
-  <div class="field">
-    <%= f.label :container_condition %><br>
-    <%= f.number_field :container_condition %>
-  </div>
-  <div class="field">
-    <%= f.label :condition_of_labels %><br>
-    <%= f.number_field :condition_of_labels %>
-  </div>
-  <div class="field">
-    <%= f.label :identification_level %><br>
-    <%= f.number_field :identification_level %>
-  </div>
-  <div class="field">
-    <%= f.label :arrangement_level %><br>
-    <%= f.number_field :arrangement_level %>
-  </div>
-  <div class="field">
-    <%= f.label :data_quality %><br>
-    <%= f.number_field :data_quality %>
-  </div>
-  <div class="field">
-    <%= f.label :computerization_level %><br>
-    <%= f.number_field :computerization_level %>
-  </div>
-  <div class="field">
-    <%= f.label :number_of_collection_objects %><br>
-    <%= f.number_field :number_of_collection_objects %>
-  </div>
-  <div class="field">
-    <%= f.label :number_of_containers %><br>
-    <%= f.number_field :number_of_containers %>
-  </div>
-  <div class="field">
-    <%= f.label :collection_type %><br>
-    <%= f.text_field :collection_type %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :otu_id %>
+      <br>
+      <%= f.number_field :otu_id %>
+    </div>
+    <div class="field">
+      <%= f.label :conservation_status %>
+      <br>
+      <%= f.number_field :conservation_status %>
+    </div>
+    <div class="field">
+      <%= f.label :processing_state %>
+      <br>
+      <%= f.number_field :processing_state %>
+    </div>
+    <div class="field">
+      <%= f.label :container_condition %>
+      <br>
+      <%= f.number_field :container_condition %>
+    </div>
+    <div class="field">
+      <%= f.label :condition_of_labels %>
+      <br>
+      <%= f.number_field :condition_of_labels %>
+    </div>
+    <div class="field">
+      <%= f.label :identification_level %>
+      <br>
+      <%= f.number_field :identification_level %>
+    </div>
+    <div class="field">
+      <%= f.label :arrangement_level %>
+      <br>
+      <%= f.number_field :arrangement_level %>
+    </div>
+    <div class="field">
+      <%= f.label :data_quality %>
+      <br>
+      <%= f.number_field :data_quality %>
+    </div>
+    <div class="field">
+      <%= f.label :computerization_level %>
+      <br>
+      <%= f.number_field :computerization_level %>
+    </div>
+    <div class="field">
+      <%= f.label :number_of_collection_objects %>
+      <br>
+      <%= f.number_field :number_of_collection_objects %>
+    </div>
+    <div class="field">
+      <%= f.label :number_of_containers %>
+      <br>
+      <%= f.number_field :number_of_containers %>
+    </div>
+    <div class="field">
+      <%= f.label :collection_type %>
+      <br>
+      <%= f.text_field :collection_type %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>
