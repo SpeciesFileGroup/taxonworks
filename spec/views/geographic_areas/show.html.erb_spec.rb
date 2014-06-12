@@ -6,7 +6,7 @@ describe 'geographic_areas/show' do
                                    stub_model(GeographicArea,
                                               :name                    => 'Name',
                                               :parent_id               => 1,
-                                              :geographic_area_type => stub_model(GeographicAreaType, name: 'foo'),
+                                              :geographic_area_type => stub_model(GeographicAreaType, name: 'AreaTypeName'),
                                               :iso_3166_a2             => 'AA',
                                               :iso_3166_a3             => 'AAA',
                                               :data_origin             => 'Someplace',
@@ -24,12 +24,11 @@ describe 'geographic_areas/show' do
   end
 
   it 'renders attributes in <p>' do
-    # pending 'reconstruction of the geographic_area/show view or spec'
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     rendered.should match(/Name/)
     rendered.should match(/1/)
-    rendered.should match(/AreaType/)
+    rendered.should match(/AreaTypeName/)
     rendered.should match(/AA/)
     rendered.should match(/AAA/)
     rendered.should match(/Someplace/)
