@@ -1,4 +1,39 @@
 <p id="notice"><%= notice %></p>
 
+<p>
+  <strong>Otu:</strong>
+  <%= @public_content.otu_id %>
+</p>
+
+<p>
+  <strong>Topic:</strong>
+  <%= @public_content.topic_id %>
+</p>
+
+<p>
+  <strong>Text:</strong>
+  <%= @public_content.text %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @public_content.project_id %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @public_content.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @public_content.updated_by_id %>
+</p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @public_content.content_id %>
+</p>
+
 <%= link_to 'Edit', edit_public_content_path(@public_content) %> |
 <%= link_to 'Back', public_contents_path %>

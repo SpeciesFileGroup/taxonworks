@@ -1,17 +1,38 @@
 <%= form_for(@public_content) do |f| %>
-  <% if @public_content.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@public_content.errors.count, "error") %> prohibited this public_content from being saved:</h2>
+    <% if @public_content.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@public_content.errors.count, "error") %> prohibited this public_content from being
+            saved:</h2>
 
-      <ul>
-      <% @public_content.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @public_content.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :otu_id %>
+      <br>
+      <%= f.number_field :otu_id %>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :topic_id %>
+      <br>
+      <%= f.number_field :topic_id %>
+    </div>
+    <div class="field">
+      <%= f.label :text %>
+      <br>
+      <%= f.text_area :text %>
+    </div>
+    <div class="field">
+      <%= f.label :content_id %>
+      <br>
+      <%= f.number_field :content_id %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>
