@@ -1,17 +1,33 @@
 <%= form_for(@tagged_section_keyword) do |f| %>
-  <% if @tagged_section_keyword.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@tagged_section_keyword.errors.count, "error") %> prohibited this tagged_section_keyword from being saved:</h2>
+    <% if @tagged_section_keyword.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@tagged_section_keyword.errors.count, "error") %> prohibited this tagged_section_keyword
+            from being saved:</h2>
 
-      <ul>
-      <% @tagged_section_keyword.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @tagged_section_keyword.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :otu_page_layout_section_id %>
+      <br>
+      <%= f.number_field :otu_page_layout_section_id %>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :position %>
+      <br>
+      <%= f.number_field :position %>
+    </div>
+    <div class="field">
+      <%= f.label :keyword_id %>
+      <br>
+      <%= f.number_field :keyword_id %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>
