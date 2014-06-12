@@ -20,9 +20,9 @@ describe "ranged_lot_categories/edit" do
       assert_select "input#ranged_lot_category_name[name=?]", "ranged_lot_category[name]"
       assert_select "input#ranged_lot_category_minimum_value[name=?]", "ranged_lot_category[minimum_value]"
       assert_select "input#ranged_lot_category_maximum_value[name=?]", "ranged_lot_category[maximum_value]"
-      assert_select "input#ranged_lot_category_created_by_id[name=?]", "ranged_lot_category[created_by_id]"
-      assert_select "input#ranged_lot_category_updated_by_id[name=?]", "ranged_lot_category[updated_by_id]"
-      assert_select "input#ranged_lot_category_project_id[name=?]", "ranged_lot_category[project_id]"
+      # assert_select "input#ranged_lot_category_created_by_id[name=?]", "ranged_lot_category[created_by_id]"
+      # assert_select "input#ranged_lot_category_updated_by_id[name=?]", "ranged_lot_category[updated_by_id]"
+      # assert_select "input#ranged_lot_category_project_id[name=?]", "ranged_lot_category[project_id]"
     end
   end
 end

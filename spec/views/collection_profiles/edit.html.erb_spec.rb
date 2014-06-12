@@ -39,9 +39,9 @@ describe "collection_profiles/edit" do
       assert_select "input#collection_profile_computerization_level[name=?]", "collection_profile[computerization_level]"
       assert_select "input#collection_profile_number_of_collection_objects[name=?]", "collection_profile[number_of_collection_objects]"
       assert_select "input#collection_profile_number_of_containers[name=?]", "collection_profile[number_of_containers]"
-      assert_select "input#collection_profile_created_by_id[name=?]", "collection_profile[created_by_id]"
-      assert_select "input#collection_profile_updated_by_id[name=?]", "collection_profile[updated_by_id]"
-      assert_select "input#collection_profile_project_id[name=?]", "collection_profile[project_id]"
+      # assert_select "input#collection_profile_created_by_id[name=?]", "collection_profile[created_by_id]"
+      # assert_select "input#collection_profile_updated_by_id[name=?]", "collection_profile[updated_by_id]"
+      # assert_select "input#collection_profile_project_id[name=?]", "collection_profile[project_id]"
       assert_select "input#collection_profile_collection_type[name=?]", "collection_profile[collection_type]"
     end
   end

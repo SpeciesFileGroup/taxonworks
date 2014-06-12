@@ -20,9 +20,9 @@ describe "citation_topics/edit" do
       assert_select "input#citation_topic_topic_id[name=?]", "citation_topic[topic_id]"
       assert_select "input#citation_topic_citation_id[name=?]", "citation_topic[citation_id]"
       assert_select "input#citation_topic_pages[name=?]", "citation_topic[pages]"
-      assert_select "input#citation_topic_created_by_id[name=?]", "citation_topic[created_by_id]"
-      assert_select "input#citation_topic_updated_by_id[name=?]", "citation_topic[updated_by_id]"
-      assert_select "input#citation_topic_project_id[name=?]", "citation_topic[project_id]"
+      # assert_select "input#citation_topic_created_by_id[name=?]", "citation_topic[created_by_id]"
+      # assert_select "input#citation_topic_updated_by_id[name=?]", "citation_topic[updated_by_id]"
+      # assert_select "input#citation_topic_project_id[name=?]", "citation_topic[project_id]"
     end
   end
 end

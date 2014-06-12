@@ -23,9 +23,9 @@ describe "contents/edit" do
       assert_select "input#content_otu_id[name=?]", "content[otu_id]"
       assert_select "input#content_topic_id[name=?]", "content[topic_id]"
       assert_select "input#content_type[name=?]", "content[type]"
-      assert_select "input#content_created_by_id[name=?]", "content[created_by_id]"
-      assert_select "input#content_updated_by_id[name=?]", "content[updated_by_id]"
-      assert_select "input#content_project_id[name=?]", "content[project_id]"
+      # assert_select "input#content_created_by_id[name=?]", "content[created_by_id]"
+      # assert_select "input#content_updated_by_id[name=?]", "content[updated_by_id]"
+      # assert_select "input#content_project_id[name=?]", "content[project_id]"
       assert_select "input#content_revision_id[name=?]", "content[revision_id]"
     end
   end

@@ -23,9 +23,9 @@ describe "loan_items/new" do
       assert_select "input#loan_item_collection_object_id[name=?]", "loan_item[collection_object_id]"
       assert_select "input#loan_item_collection_object_status[name=?]", "loan_item[collection_object_status]"
       assert_select "input#loan_item_position[name=?]", "loan_item[position]"
-      assert_select "input#loan_item_created_by_id[name=?]", "loan_item[created_by_id]"
-      assert_select "input#loan_item_updated_by_id[name=?]", "loan_item[updated_by_id]"
-      assert_select "input#loan_item_project_id[name=?]", "loan_item[project_id]"
+      # assert_select "input#loan_item_created_by_id[name=?]", "loan_item[created_by_id]"
+      # assert_select "input#loan_item_updated_by_id[name=?]", "loan_item[updated_by_id]"
+      # assert_select "input#loan_item_project_id[name=?]", "loan_item[project_id]"
       assert_select "input#loan_item_container_id[name=?]", "loan_item[container_id]"
     end
   end

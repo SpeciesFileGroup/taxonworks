@@ -25,8 +25,8 @@ describe "alternate_values/new" do
       assert_select "input#alternate_value_alternate_object_type[name=?]", "alternate_value[alternate_object_type]"
       assert_select "input#alternate_value_alternate_object_id[name=?]", "alternate_value[alternate_object_id]"
       assert_select "input#alternate_value_alternate_object_attribute[name=?]", "alternate_value[alternate_object_attribute]"
-      assert_select "input#alternate_value_created_by_id[name=?]", "alternate_value[created_by_id]"
-      assert_select "input#alternate_value_updated_by_id[name=?]", "alternate_value[updated_by_id]"
+      # assert_select "input#alternate_value_created_by_id[name=?]", "alternate_value[created_by_id]"
+      # assert_select "input#alternate_value_updated_by_id[name=?]", "alternate_value[updated_by_id]"
     end
   end
 end

@@ -33,9 +33,9 @@ describe "loans/new" do
       assert_select "input#loan_supervisor_person_id[name=?]", "loan[supervisor_person_id]"
       assert_select "input#loan_supervisor_email[name=?]", "loan[supervisor_email]"
       assert_select "input#loan_supervisor_phone[name=?]", "loan[supervisor_phone]"
-      assert_select "input#loan_created_by_id[name=?]", "loan[created_by_id]"
-      assert_select "input#loan_updated_by_id[name=?]", "loan[updated_by_id]"
-      assert_select "input#loan_project_id[name=?]", "loan[project_id]"
+      # assert_select "input#loan_created_by_id[name=?]", "loan[created_by_id]"
+      # assert_select "input#loan_updated_by_id[name=?]", "loan[updated_by_id]"
+      # assert_select "input#loan_project_id[name=?]", "loan[project_id]"
       assert_select "input#loan_recipient_honorarium[name=?]", "loan[recipient_honorarium]"
     end
   end

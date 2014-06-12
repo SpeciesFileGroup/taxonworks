@@ -26,9 +26,9 @@ describe "data_attributes/edit" do
       assert_select "input#data_attribute_controlled_vocabulary_term_id[name=?]", "data_attribute[controlled_vocabulary_term_id]"
       assert_select "input#data_attribute_import_predicate[name=?]", "data_attribute[import_predicate]"
       assert_select "textarea#data_attribute_value[name=?]", "data_attribute[value]"
-      assert_select "input#data_attribute_created_by_id[name=?]", "data_attribute[created_by_id]"
-      assert_select "input#data_attribute_updated_by_id[name=?]", "data_attribute[updated_by_id]"
-      assert_select "input#data_attribute_project_id[name=?]", "data_attribute[project_id]"
+      # assert_select "input#data_attribute_created_by_id[name=?]", "data_attribute[created_by_id]"
+      # assert_select "input#data_attribute_updated_by_id[name=?]", "data_attribute[updated_by_id]"
+      # assert_select "input#data_attribute_project_id[name=?]", "data_attribute[project_id]"
     end
   end
 end
