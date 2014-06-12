@@ -1,8 +1,14 @@
-<h1>Citations</h1>
+<h1>Listing citations</h1>
 
 <table>
   <thead>
     <tr>
+      <th>Citation object</th>
+      <th>Citation object type</th>
+      <th>Source</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -12,6 +18,12 @@
   <tbody>
     <% @citations.each do |citation| %>
       <tr>
+        <td><%= citation.citation_object_id %></td>
+        <td><%= citation.citation_object_type %></td>
+        <td><%= citation.source_id %></td>
+        <td><%= citation.created_by_id %></td>
+        <td><%= citation.updated_by_id %></td>
+        <td><%= citation.project_id %></td>
         <td><%= link_to 'Show', citation %></td>
         <td><%= link_to 'Edit', edit_citation_path(citation) %></td>
         <td><%= link_to 'Destroy', citation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
