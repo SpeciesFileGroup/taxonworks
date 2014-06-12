@@ -6,7 +6,7 @@ describe 'geographic_areas/show' do
                                    stub_model(GeographicArea,
                                               :name                    => 'Name',
                                               :parent_id               => 1,
-                                              :geographic_area_type_id => 1,
+                                              :geographic_area_type => stub_model(GeographicAreaType, name: 'foo'),
                                               :iso_3166_a2             => 'AA',
                                               :iso_3166_a3             => 'AAA',
                                               :data_origin             => 'Someplace',
@@ -16,11 +16,11 @@ describe 'geographic_areas/show' do
                                               :level2_id               => 0,
                                               :created_by_id           => 12,
                                               :updated_by_id           => 13
-                                   ).as_new_record)
-    @geographic_area_type = assign(:geographic_area_type,
-                                   stub_model(GeographicAreaType,
-                                              :id => 1,
-                                              :name => 'AreaType')).as_new_record
+                                   ))
+  # @geographic_area_type = assign(:geographic_area_type,
+  #                                stub_model(GeographicAreaType,
+  #                                           :id => 1,
+  #                                           :name => 'AreaType')).as_new_record
   end
 
   it 'renders attributes in <p>' do
