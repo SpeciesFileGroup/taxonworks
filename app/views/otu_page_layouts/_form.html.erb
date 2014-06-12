@@ -1,17 +1,23 @@
 <%= form_for(@otu_page_layout) do |f| %>
-  <% if @otu_page_layout.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@otu_page_layout.errors.count, "error") %> prohibited this otu_page_layout from being saved:</h2>
+    <% if @otu_page_layout.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@otu_page_layout.errors.count, "error") %> prohibited this otu_page_layout from being
+            saved:</h2>
 
-      <ul>
-      <% @otu_page_layout.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @otu_page_layout.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_field :name %>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

@@ -1,8 +1,12 @@
-<h1>Otu Page Layouts</h1>
+<h1>Listing otu_page_layouts</h1>
 
 <table>
   <thead>
     <tr>
+      <th>Name</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -12,6 +16,10 @@
   <tbody>
     <% @otu_page_layouts.each do |otu_page_layout| %>
       <tr>
+        <td><%= otu_page_layout.name %></td>
+        <td><%= otu_page_layout.created_by_id %></td>
+        <td><%= otu_page_layout.updated_by_id %></td>
+        <td><%= otu_page_layout.project_id %></td>
         <td><%= link_to 'Show', otu_page_layout %></td>
         <td><%= link_to 'Edit', edit_otu_page_layout_path(otu_page_layout) %></td>
         <td><%= link_to 'Destroy', otu_page_layout, method: :delete, data: { confirm: 'Are you sure?' } %></td>

@@ -1,4 +1,24 @@
 <p id="notice"><%= notice %></p>
 
+<p>
+  <strong>Name:</strong>
+  <%= @otu_page_layout.name %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @otu_page_layout.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @otu_page_layout.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @otu_page_layout.project_id %>
+</p>
+
 <%= link_to 'Edit', edit_otu_page_layout_path(@otu_page_layout) %> |
 <%= link_to 'Back', otu_page_layouts_path %>
