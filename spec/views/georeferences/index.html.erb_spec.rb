@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-describe "georeferences/index" do
+describe 'georeferences/index' do
   before(:each) do
     assign(:georeferences, [
       stub_model(Georeference,
         :geographic_item_id => 1,
         :collecting_event_id => 2,
-        :error_radius => "9.99",
-        :error_depth => "9.99",
+        :error_radius => '9.99',
+        :error_depth => '9.99',
         :error_geographic_item_id => 3,
-        :type => "Type",
+        :type => 'Type',
         :source_id => 4,
         :position => 5,
         :is_public => false,
-        :api_request => "Api Request",
+        :api_request => 'Api Request',
         :created_by_id => 6,
         :updated_by_id => 7,
         :project_id => 8,
@@ -23,14 +23,14 @@ describe "georeferences/index" do
       stub_model(Georeference,
         :geographic_item_id => 1,
         :collecting_event_id => 2,
-        :error_radius => "9.99",
-        :error_depth => "9.99",
+        :error_radius => '9.99',
+        :error_depth => '9.99',
         :error_geographic_item_id => 3,
-        :type => "Type",
+        :type => 'Type',
         :source_id => 4,
         :position => 5,
         :is_public => false,
-        :api_request => "Api Request",
+        :api_request => 'Api Request',
         :created_by_id => 6,
         :updated_by_id => 7,
         :project_id => 8,
