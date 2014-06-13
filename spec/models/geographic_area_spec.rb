@@ -18,7 +18,7 @@ describe GeographicArea do
       specify 'blank names are invalid' do
         geographic_area.name = ''
         geographic_area.valid?
-        expect(geographic_area.errors.include?(:name)).to be_true 
+        expect(geographic_area.errors.include?(:name)).to be_true
       end
 
       specify 'names are minimum length' do
@@ -57,7 +57,7 @@ describe GeographicArea do
       specify 'parent' do
         expect(geographic_area).to respond_to(:parent)
       end
-      
+
       specify 'level0' do
         expect(geographic_area).to respond_to(:level0)
       end
@@ -67,7 +67,7 @@ describe GeographicArea do
       specify 'level2' do
         expect(geographic_area).to respond_to(:level2)
       end
-      
+
       specify 'geo_object' do
         expect(geographic_area).to respond_to(:geo_object)
       end
@@ -100,12 +100,12 @@ describe GeographicArea do
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
         end
 
-        specify 'TDWG parent string' do
-          pending 're-write'
-          # expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          # expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
-          # expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
-        end
+        # specify 'TDWG string parser' do
+        #   expect(@champaign.parent.tdwg_ids).to eq({:lvl1 => "7",
+        #                                             :lvl2 => "74",
+        #                                             :lvl3 => "ILL",
+        #                                             :lvl4 => "ILL-00"})
+        # end
 
         specify 'ancestors' do
           expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
@@ -179,7 +179,7 @@ describe GeographicArea do
   # TODO: cleanup/extend
   context 'interaction with geographic_items' do
     after(:all) {
-        GeographicArea.destroy_all
+      GeographicArea.destroy_all
     }
     before(:each) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
@@ -189,7 +189,7 @@ describe GeographicArea do
                                                         RSPEC_GEO_FACTORY.point(-21, -11),
                                                         RSPEC_GEO_FACTORY.point(-27, -13)])
       @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(listK))
-      @geographic_area.geographic_areas_geographic_items <<  GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
+      @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
       @geographic_area.save
       @gi
     }
