@@ -1,12 +1,16 @@
 require 'fileutils'
 require 'benchmark'
 
+
+# When first starting development, use a blank database with:
+#    rake db:drop && rake db:create && rake db:migrate
+#
+# Only data upto the handle_taxa can be loaded from the database or restored from 
+# a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
 # TODO:
-#
-#
 #
 #
 
@@ -29,8 +33,8 @@ namespace :tw do
           @otus = {}
         end
 
-        def export_to_pg(data_directory, import) 
-          import.save!
+        def export_to_pg(data_directory) 
+          puts "\nExporting snapshot of datababase to all.dump."
           Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
         end
       end
@@ -102,18 +106,11 @@ namespace :tw do
       # Attributes to strip on CollectingEvent creation 
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy ModifiedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
-      def restore_from_pg_dump
-        raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
-        puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
-        ActiveRecord::Base.connection.execute('delete from schema_migrations')
-        Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
-      end
-
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/  \n
       alternately, add: \n
-        no_dump_load=true  (don't dump the data)\n
-        no_transaction=true (don't wrap import in a transaction)\n"
+        restore_from_dump=true   (attempt to load the data from the dump) \n
+        no_transaction=true      (don't wrap import in a transaction, this will also force a dump of the data)\n"
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
@@ -123,7 +120,7 @@ namespace :tw do
         @dump_directory = dump_directory(@args[:data_directory]) 
         @data =  ImportedData.new
 
-        restore_from_pg_dump if ENV['no_dump_load'].nil? && File.exists?(@dump_directory + 'all.dump')
+        restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
 
         begin
           if ENV['no_transaction']
@@ -132,12 +129,17 @@ namespace :tw do
           else
             ActiveRecord::Base.transaction do 
               main_build_loop 
-              @data.export_to_pg(@dump_directory, @import) unless ENV['no_transaction']
+              raise
             end
           end
         rescue
           raise
         end
+      end
+
+      def checkpoint_save(import)
+        @import.save
+        @data.export_to_pg(@dump_directory) 
       end
 
       # handle the tables in this order
@@ -162,19 +164,24 @@ namespace :tw do
       #  types.txt
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
+        @import.metadata ||= {} 
         handle_projects_and_users(@data, @import)    
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
         handle_controlled_vocabulary(@data, @import)
+        handle_taxa(@data, @import)
 
-        Rake::Task["tw:project_import:insects:handle_people"].execute
-        Rake::Task["tw:project_import:insects:handle_taxa"].execute
-        # Rake::Task["tw:project_import:insects:handle_collecting_events"].execute
-        # Rake::Task["tw:project_import:insects:handle_specimens"].execute
-        # Rake::Task["tw:project_import:insects:handle_users"].execute
+        checkpoint_save(@import) if ENV['no_transaction']
 
+        # !! The following can not be loaded from the database they are always created anew. 
+        handle_people(@data, @import)
+        handle_collecting_events(@data, @import)
+        handle_specimens(@data, @import)
+
+        # handle_users(@data, @import)
+
+        @import.save!
         puts "\n\n !! Success \n\n"
-        raise
       end
 
       def handle_projects_and_users(data, import)
@@ -183,7 +190,7 @@ namespace :tw do
         project_name = 'INHS Insect Collection'
         user, project = nil, nil
         if import.metadata['project_and_users']
-          print "from pg dump.\n"
+          print "from database.\n"
           project = Project.where(name: project_name).first
           user = User.where(email: email).first
         else
@@ -205,7 +212,7 @@ namespace :tw do
         if import.metadata['namespaces']
           @import_namespace = Namespace.where(name: 'INHS Import Identifiers', short_name: 'INHS Import').first
           @accession_namespace = Namespace.where(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code').first
-          print "from pg dump.\n"
+          print "from database.\n"
         else
           print "as newly parsed.\n"
           @import_namespace = Namespace.create(name: 'INHS Import Identifiers', short_name: 'INHS Import')
@@ -220,7 +227,7 @@ namespace :tw do
       def handle_controlled_vocabulary(data, import)
         print "Handling CV "
         if import.metadata['controlled_vocabulary']
-          print "from pg dump.\n"
+          print "from database.\n"
           ControlledVocabularyTerm.all.each do |cv|
             data.keywords.merge!(cv.name => cv)
           end
@@ -231,13 +238,13 @@ namespace :tw do
             data.keywords.merge!(p => Predicate.create(name: "CollectingEvents:#{p}", definition: "The verbatim value imported in for #{p}.")  )
           end
 
-          # from handle_taxa
+          # from handle taxa
           data.keywords.merge!(  
                                'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'), 
                                'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.') 
                               )
 
-          # from handle_specimens
+          # from handle specimens
           data.keywords.merge!(  
                                'AdultMale' => BiocurationClass.create(name: 'AdultMale', definition: 'The collection object is comprised of adult male(s).'), 
                                'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'), 
@@ -276,61 +283,80 @@ namespace :tw do
       #
       # -- is on the OTU
       #   TaxonCode      New Namespace Identifier 
-      desc 'handle taxa'
-      task :handle_taxa => [:data_directory, :environment] do |t, args|
-        path = @args[:data_directory] + 'TXT/taxa_hierarchical.txt'
-        raise 'file not found' if not File.exists?(path)
-
-        parent_index = {}
-        f = CSV.open(path, col_sep: "\t", :headers => true)
-
-        f.each_with_index do |row, i|
-          break if i > 10
-          name = row['Name']
-          author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
-          author ||= nil
-          rank = Ranks.lookup((row['Name'] == 'Plantae' ? :icn : :iczn), row['Rank'])
-          rank ||= NomenclaturalRank
-
-          p = Protonym.new(
-            name: name,
-            verbatim_author: author,
-            year_of_publication: row['Year'],
-            rank_class: rank,
-            creator: find_or_create_user(row['CreatedBy'], @data),
-            updater: find_or_create_user(row['ModifiedBy'], @data),
-            parent: parent_index[row['Parent']]
-          )
-
-          p.created_at = time_from_field(row['CreatedOn'])
-          p.updated_at = time_from_field(row['ModifiedOn'])
-          p.data_attributes.build(type: 'InternalAttribute', predicate: @data.keywords['Taxa:Synonyms'], value: row['Synonyms']) if !row['Synonyms'].blank?
-          p.data_attributes.build(type: 'InternalAttribute', predicate: @data.keywords['Taxa:References'], value: row['References']) if !row['References'].blank?
-          p.notes.build(text: row['Remarks']) if !row['Remarks'].blank?
-          p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
-
-          if rank == NomenclaturalRank || !p.parent_id.blank?
-            bench = Benchmark.measure {
-              p.save
-              build_otu(row, p, @data) 
-            }
-
-            if p.valid?
-              parent_index.merge!(row['ID'] => p) 
-              print "\r#{i}\t#{bench.to_s.strip}  #{name}        \t\t#{rank}                                     "
-            else
-              puts 
-              puts p.name
-              puts p.errors.messages
-              puts
-            end
-          else
-            puts "\n\t!!? No parent for #{p.name}\n"
+      def handle_taxa(data, import)
+        print "Handling taxa "
+        if import.metadata['taxa']
+          print "from database.  Indexing OTUs by TaxonCode..."
+          Otu.includes(:identifiers).each do |o|
+            # There is only one identifier added at this point, so we are safe here. If this changes specify here.
+            data.otus.merge!(o.identifiers.first.identifier => o)
           end
+          print "done.\n" 
+        else
+          print "as newly parsed.\n"
+          puts
+
+          path = @args[:data_directory] + 'TXT/taxa_hierarchical.txt'
+          raise 'file not found' if not File.exists?(path)
+
+          parent_index = {}
+          f = CSV.open(path, col_sep: "\t", :headers => true)
+
+          f.each_with_index do |row, i|
+            break if i > 10
+            name = row['Name']
+            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
+            author ||= nil
+            rank = Ranks.lookup((row['Name'] == 'Plantae' ? :icn : :iczn), row['Rank'])
+            rank ||= NomenclaturalRank
+
+            p = Protonym.new(
+              name: name,
+              verbatim_author: author,
+              year_of_publication: row['Year'],
+              rank_class: rank,
+              creator: find_or_create_user(row['CreatedBy'], data),
+              updater: find_or_create_user(row['ModifiedBy'], data),
+              parent: parent_index[row['Parent']]
+            )
+
+            p.created_at = time_from_field(row['CreatedOn'])
+            p.updated_at = time_from_field(row['ModifiedOn'])
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms']) if !row['Synonyms'].blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) if !row['References'].blank?
+            p.notes.build(text: row['Remarks']) if !row['Remarks'].blank?
+            p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
+
+            if rank == NomenclaturalRank || !p.parent_id.blank?
+              bench = Benchmark.measure {
+                p.save
+                build_otu(row, p, data) 
+              }
+
+              if p.valid?
+                parent_index.merge!(row['ID'] => p) 
+                print "\r#{i}\t#{bench.to_s.strip}  #{name}        \t\t#{rank}                                     "
+              else
+                puts "\n#{p.name}"
+                puts p.errors.messages
+                puts
+              end
+
+            else
+              puts "\n  No parent for #{p.name}.\n"
+            end
+          end
+
+          import.metadata['taxa'] = true
         end
       end
 
       def build_otu(row, taxon_name, data)
+        return true 
+        if row['TaxonCode'].blank?
+          puts "  Skipping OTU creation for #{taxon_name.name}."
+          return
+        end
         o =  Otu.create(
           taxon_name_id: taxon_name.id,
           identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ]
@@ -355,12 +381,10 @@ namespace :tw do
 
       # - 9 Comments          Note.new 
       #
-      # This minimal data is not pg_dumped but always rebuilt.
-      #
       # # TODO: User conversion, other handling.
+      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
       #
-      desc 'handle people'
-      task :handle_people => [:data_directory, :environment] do |t, args|
+      def handle_people(data, import)
         path = @args[:data_directory] + 'TXT/people.txt'
         raise 'file not found' if not File.exists?(path)
         f = CSV.open(path, col_sep: "\t", :headers => true)
@@ -376,24 +400,23 @@ namespace :tw do
           )
           p.notes.build(text: row['Comments']) if !row['Comments'].blank?
           p.save!
-          @data.people.merge!(p => row)
+          data.people.merge!(p => row)
         end
       end
 
-      desc 'handle collecting events'
-      task :handle_collecting_events => [:data_directory, :environment] do |t, args|
+
+      def handle_collecting_events(data, import)
         matchless_for_geographic_area = []
         found = 0
 
         collecting_events_index = {}
         unmatched_localities = {}
 
-        puts "\nindexing collecting events" 
+        puts "Indexing collecting events." 
         index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
         index_collecting_events_from_ledgers(collecting_events_index)
         index_collecting_events_from_accessions_new(collecting_events_index)
-
-        puts "\ntotal collecting events to build: #{collecting_events_index.keys.length}." 
+        puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}." 
 
         # Debugging code, turn this on if you want to inspect all the columns that 
         # are used to index a unique collecting event.
@@ -434,11 +457,11 @@ namespace :tw do
 
           ce.select{|k,v| !v.nil?}.each do |a,b|
             if PREDICATES.include?(a)
-              c.data_attributes.build(predicate: @data.keywords[a], value: b, type: 'InternalAttribute')
+              c.data_attributes.build(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
             end
           end
 
-          @data.collecting_events.merge!(ce => c)
+          data.collecting_events.merge!(ce => c)
         end
       end
 
@@ -571,7 +594,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         le = CSV.open(path, col_sep: "\t", :headers => true)
 
-        puts "\nledgers\n"
+        puts "\n  from ledgers\n"
         le.each_with_index do |row, i|
           collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
           print "\r#{i}" 
@@ -590,7 +613,7 @@ namespace :tw do
       # --- not used 
       #     LocalityCompare     # related to hash md5
       def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
-        print "\nfrom specimens"
+        puts "  from specimens"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -719,8 +742,7 @@ namespace :tw do
 
       # *  -- Otu   
       # *      TaxonCode
-      desc 'handle specimens'
-      task :handle_specimens => [:data_directory, :environment] do |t, args|
+      def handle_specimens(data, import)
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
         co = CSV.open(path, col_sep: "\t", :headers => true)
@@ -732,21 +754,21 @@ namespace :tw do
 
         tmp_namespaces.keys.delete_if{|k,v| k.nil? || k.to_s == ""} 
         tmp_namespaces.keys.each do |k|
-          @data.namespaces.merge!(k => Namespace.create(short_name: k) ) 
+          data.namespaces.merge!(k => Namespace.create(short_name: k) ) 
         end
 
         co.rewind
         co.each_with_index do |row, i|
-          if @data.otus[row['TaxonCode']] 
+          if data.otus[row['TaxonCode']] 
 
-            @data.collection_objects.merge!(i => objects_from_co_row(row) )
+            data.collection_objects.merge!(i => objects_from_co_row(row) )
           end
         end
       end
 
       def objects_from_co_row(row)
         # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identified_object
-        otu = @data.otus[row['TaxonCode']]
+        otu = data.otus[row['TaxonCode']]
 
         return [] if otu.nil?
 
@@ -756,8 +778,8 @@ namespace :tw do
 
         accession_attributes = { accessioned_at: '', # revisits 
                                  deaccession_at: row['DeaccessionData'],               
-                                 accession_provider_id: @data.people[row['AccessionSource']],       
-                                 deaccession_recipient_id: @data.people[row['AccessionSource']],    
+                                 accession_provider_id: data.people[row['AccessionSource']],       
+                                 deaccession_recipient_id: data.people[row['AccessionSource']],    
                                  deaccession_reason: row['DeaccessionCause'], 
         }       
 
@@ -775,7 +797,7 @@ namespace :tw do
             )
 
             # add the biological attribute
-            o.biocuration_classifications.build(biocuration_class: @data.keywords[c])
+            o.biocuration_classifications.build(biocuration_class: data.keywords[c])
             o.save
             objects.push(o) 
           end
@@ -784,7 +806,7 @@ namespace :tw do
         # Some specimen records have 0 total specimens! WATCH OUT.
         if objects.count == 0
           o = Specimen.create(taxon_determinations_attributes: [ determination] )
-          o.tags.build(keyword: @data.keywords['ZeroTotal'])
+          o.tags.build(keyword: data.keywords['ZeroTotal'])
           o.save!
           objects.push(o)
         end
@@ -814,7 +836,7 @@ namespace :tw do
       def add_collecting_event(objects, row)
         tmp_ce = ce_from_specimens_row(row)
         objects.each do |o|
-          o.update(collecting_event: @data.collecting_events(tmp_ce) )
+          o.update(collecting_event: data.collecting_events(tmp_ce) )
         end
       end 
 
@@ -859,6 +881,15 @@ namespace :tw do
       def dump_directory(base)
         base + 'pg_dumps/'
       end
+
+      def restore_from_pg_dump
+        raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
+        puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
+        ActiveRecord::Base.connection.execute('delete from schema_migrations')
+        Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
+      end
+
+
 
     end
   end
