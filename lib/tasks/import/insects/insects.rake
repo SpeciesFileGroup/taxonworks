@@ -114,7 +114,6 @@ namespace :tw do
       task :import_insects => [:data_directory, :environment] do |t, args| 
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
-
         LOCALITIES = build_localities_index(@args[:data_directory])        
 
         @dump_directory = dump_directory(@args[:data_directory]) 
@@ -351,10 +350,9 @@ namespace :tw do
       end
 
       def build_otu(row, taxon_name, data)
-        return true 
         if row['TaxonCode'].blank?
-          puts "  Skipping OTU creation for #{taxon_name.name}."
-          return
+          puts "  Skipping OTU creation for #{taxon_name.name}, there is no TaxonCode."
+          return true
         end
         o =  Otu.create(
           taxon_name_id: taxon_name.id,
