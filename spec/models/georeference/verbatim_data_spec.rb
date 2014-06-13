@@ -8,7 +8,6 @@ describe Georeference::VerbatimData do
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
       expect(georeference.is_median_z).to be_false
       expect(georeference.is_undefined_z).to be_true
       expect(georeference.save).to be_true
@@ -18,10 +17,9 @@ describe Georeference::VerbatimData do
     specify 'with *only* minimum elevation' do
       #pending "with only minimum elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
-                                                                                        minimum_elevation: 759,
+                                                                                        minimum_elevation:  759,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
       expect(georeference.is_median_z).to be_false
       expect(georeference.is_undefined_z).to be_false
       expect(georeference.save).to be_true
@@ -29,13 +27,12 @@ describe Georeference::VerbatimData do
     end
 
     specify 'with minimum and maximim elevation' do
-      #pending "with minimum elevation and maximim elevation"
+      #pending "with minimum elevation and maximum elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
-                                                                                        minimum_elevation: 759,
-                                                                                        maximum_elevation: 859,
+                                                                                        minimum_elevation:  759,
+                                                                                        maximum_elevation:  859,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
       expect(georeference.is_median_z).to be_true
       expect(georeference.is_undefined_z).to be_false
       expect(georeference.save).to be_true
