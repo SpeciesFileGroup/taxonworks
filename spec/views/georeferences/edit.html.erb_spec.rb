@@ -1,22 +1,23 @@
 require 'spec_helper'
 
-describe "georeferences/edit" do
+describe 'georeferences/edit' do
   before(:each) do
-    @georeference = assign(:georeference, stub_model(Georeference,
-      :geographic_item_id => 1,
-      :collecting_event_id => 1,
-      :error_radius => "9.99",
-      :error_depth => "9.99",
-      :error_geographic_item_id => 1,
-      :type => "",
-      :source_id => 1,
-      :position => 1,
-      :is_public => false,
-      :api_request => "MyString",
-      :project_id => 1,
-      :is_undefined_z => false,
-      :is_median_z => false
-    ))
+    @georeference = assign(:georeference,
+                           stub_model(Georeference,
+                                      :geographic_item_id       => 1,
+                                      :collecting_event_id      => 1,
+                                      :error_radius             => '9.99',
+                                      :error_depth              => '9.99',
+                                      :error_geographic_item_id => 1,
+                                      :type                     => '',
+                                      :source_id                => 1,
+                                      :position                 => 1,
+                                      :is_public                => false,
+                                      :api_request              => 'MyString',
+                                      :project_id               => 1,
+                                      :is_undefined_z           => false,
+                                      :is_median_z              => false
+                           ))
   end
 
   it "renders the edit georeference form" do

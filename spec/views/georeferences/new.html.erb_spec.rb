@@ -3,21 +3,21 @@ require 'spec_helper'
 describe "georeferences/new" do
   before(:each) do
     assign(:georeference, stub_model(Georeference,
-      :geographic_item_id => 1,
-      :collecting_event_id => 1,
-      :error_radius => "9.99",
-      :error_depth => "9.99",
-      :error_geographic_item_id => 1,
-      :type => "",
-      :source_id => 1,
-      :position => 1,
-      :is_public => false,
-      :api_request => "MyString",
-      :created_by_id => 1,
-      :updated_by_id => 1,
-      :project_id => 1,
-      :is_undefined_z => false,
-      :is_median_z => false
+                                     :geographic_item_id       => 1,
+                                     :collecting_event_id      => 1,
+                                     :error_radius             => "9.99",
+                                     :error_depth              => "9.99",
+                                     :error_geographic_item_id => 1,
+                                     :type                     => "",
+                                     :source_id                => 1,
+                                     :position                 => 1,
+                                     :is_public                => false,
+                                     :api_request              => "MyString",
+                                     :created_by_id            => 1,
+                                     :updated_by_id            => 1,
+                                     :project_id               => 1,
+                                     :is_undefined_z           => false,
+                                     :is_median_z              => false
     ).as_new_record)
   end
 
