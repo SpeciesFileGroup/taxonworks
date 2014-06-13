@@ -11,8 +11,8 @@ FactoryGirl.define do
     # date_valid_origin "MyString"
 
     factory :valid_geographic_areas_geographic_item do
-      geographic_area {FactoryGirl.create(:level2_geographic_area)}
-      geographic_item {FactoryGirl.create(:geographic_item_with_polygon)}
+      association :geographic_area, factory: :valid_geographic_area
+      association :geographic_item, factory: :valid_geographic_item
     end
   end
 end
