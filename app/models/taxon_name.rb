@@ -401,7 +401,7 @@ class TaxonName < ActiveRecord::Base
       cached_name = nil
     else
       relationships = self.original_combination_relationships
-      relationships.sort!{|r| r.type_class.order_index}
+      relationships = relationships.sort_by{|r| r.type_class.order_index}
       genus = ''
       subgenus = ''
       superspecies = ''
@@ -445,7 +445,7 @@ class TaxonName < ActiveRecord::Base
       cached_name = nil
     else
       relationships = self.combination_relationships
-      relationships.sort!{|r| r.type_class.order_index}
+      relationships = relationships.sort_by{|r| r.type_class.order_index}
       genus = ''
       subgenus = ''
       superspecies = ''

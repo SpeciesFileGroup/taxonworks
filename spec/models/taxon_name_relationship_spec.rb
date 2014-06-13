@@ -165,6 +165,16 @@ describe TaxonNameRelationship do
             r2.valid?
             expect(r2.errors.include?(:object_taxon_name_id)).to be_true
           end
+          specify 'has only one original genus' do
+            g = FactoryGirl.create(:relationship_genus, parent: @family)
+            s = FactoryGirl.create(:relationship_species, parent: g)
+            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+            expect(r1.valid?).to be_true
+            expect(r1.errors.include?(:object_taxon_name_id)).to be_false
+            r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+            r2.valid?
+            expect(r2.errors.include?(:object_taxon_name_id)).to be_true
+          end
         end
       end
     end
@@ -348,7 +358,7 @@ describe TaxonNameRelationship do
           expect(@r1.soft_validations.messages_on(:source_id).size).to eq(1)
         end
 
-        specify 'errors on family synony before 1961' do
+        specify 'errors on family synonym before 1961' do
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
           r.soft_validate('specific_relationship')
           expect(r.soft_validations.messages_on(:type).size).to eq(1)
