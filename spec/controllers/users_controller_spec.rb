@@ -46,6 +46,7 @@ describe UsersController do
       User.destroy_all
 
       user = User.create! valid_attributes
+      byebug
       get :index, {}, valid_session
       assigns(:users).should eq([user])
     end

@@ -1,5 +1,9 @@
 class UsersController < ApplicationController
-  before_action :require_sign_in_and_project_selection
+
+  before_action :require_administrator_sign_in, only: [:index, :destroy]
+  before_action :require_superuser_sign_in, only: [:new, :create]
+
+  before_action :validate_user_id_belongs_to_user_or_require_a_superuser, only: [:show, :edit, :update] 
 
   # GET /users
   def index
@@ -53,7 +57,7 @@ class UsersController < ApplicationController
   # DELETE /users/:id
   def destroy
     User.find(params[:id]).destroy
-    flash[:success] = "Your account has been deleted."
+    flash[:success] = "Account has been deleted."
     redirect_to root_url
   end
 

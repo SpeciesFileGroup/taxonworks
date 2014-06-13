@@ -303,7 +303,6 @@ namespace :tw do
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
           f.each_with_index do |row, i|
-            break if i > 10
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
             author ||= nil
@@ -461,6 +460,7 @@ namespace :tw do
             end
           end
 
+          c.save!
           data.collecting_events.merge!(ce => c)
         end
       end
@@ -760,7 +760,6 @@ namespace :tw do
         co.rewind
         co.each_with_index do |row, i|
           if data.otus[row['TaxonCode']] 
-
             data.collection_objects.merge!(i => objects_from_co_row(row) )
           end
         end
@@ -799,6 +798,9 @@ namespace :tw do
             # add the biological attribute
             o.biocuration_classifications.build(biocuration_class: data.keywords[c])
             o.save
+            if not o.valid?
+              puts o.errors.messages
+            end
             objects.push(o) 
           end
         end

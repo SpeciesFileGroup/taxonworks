@@ -6,17 +6,18 @@ class User < ActiveRecord::Base
   #       validation for uniqueness will fail ... why?
   # SEE: http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # SEE: http://unicode-utils.rubyforge.org/
+  
   before_save { self.email = email.to_s.downcase }
   before_validation { self.email = email.to_s.downcase }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence:   true,
-                    format:     { with: VALID_EMAIL_REGEX },
-                    uniqueness: { case_sensitive: true }
+                    format:     { with: VALID_EMAIL_REGEX }
 
   has_secure_password
  
-  # See http://vikinghammer.com/2013/02/20/rails-has-secure-password-reminder/
-  validates :password, length: { minimum: 8, :if => :validate_password? }, :confirmation => { :if => :validate_password? }
+  validates :password, 
+    length: { minimum: 8, :if => :validate_password? }, 
+    :confirmation => { :if => :validate_password? }
 
   has_many :project_members
   has_many :projects, through: :project_members
@@ -27,6 +28,18 @@ class User < ActiveRecord::Base
 
   def User.encrypt(token)
     Digest::SHA1.hexdigest(token.to_s)
+  end
+
+  def is_superuser?
+    is_administrator || is_project_administrator
+  end
+
+  def is_administrator?
+    is_administrator
+  end
+
+  def is_project_administrator?
+    is_project_administrator
   end
 
   private

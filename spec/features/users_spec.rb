@@ -1,13 +1,12 @@
 require 'spec_helper'
 
-
 #
 # TODO: These need to be refactored to properly identified desired functionality.
 #       Leave alone for now (mjy).
 #
 describe 'Users', base_class: User do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_controller'
 
   subject { page }
 
