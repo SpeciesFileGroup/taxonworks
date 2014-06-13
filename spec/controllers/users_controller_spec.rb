@@ -19,21 +19,17 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe UsersController do
-  before(:each) {
-    sign_in  # !! TODO this needs to be sign_in_administrator
-  }
 
   # This should return the minimal set of attributes required to create a valid
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
 
-  # TODO: Should be using the user_factory?
   let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
-  # let(:valid_attributes) {strip_housekeeping_attributes( FactoryGirl.build(:valid_user).attributes )}
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # UsersController. Be sure to keep this updated too.
+  # TODO: revisit this to explore how passing valid_session in get works.
   let(:valid_session) { {} }
 
   after(:all) {
@@ -42,13 +38,15 @@ describe UsersController do
   }
 
   describe "GET index" do
-    it "assigns all users as @users" do
-      User.destroy_all
+    before { 
+      User.destroy_all   
+      sign_in_administrator 
+    } 
 
-      user = User.create! valid_attributes
-      byebug
+    it "assigns all users as @users" do
+      user = User.create!(valid_attributes)
       get :index, {}, valid_session
-      assigns(:users).should eq([user])
+      assigns(:users).should eq(User.all)
     end
   end
 
@@ -61,6 +59,9 @@ describe UsersController do
   end
 
   describe "GET new" do
+
+    before { sign_in_administrator } 
+
     it "assigns a new user as @user" do
       get :new, {}, valid_session
       assigns(:user).should be_a_new(User)
@@ -68,6 +69,7 @@ describe UsersController do
   end
 
   describe "GET edit" do
+    before { sign_in_user } 
     it "assigns the requested user as @user" do
       user = User.create! valid_attributes
       get :edit, {:id => user.to_param}, valid_session
@@ -76,6 +78,7 @@ describe UsersController do
   end
 
   describe "POST create" do
+    before { sign_in_administrator } 
     describe "with valid params" do
       it "creates a new User" do
         expect {
@@ -89,6 +92,7 @@ describe UsersController do
         assigns(:user).should be_persisted
       end
 
+      # TODO: maybe not
       it "redirects to the created user" do
         post :create, {:user => valid_attributes}, valid_session
         response.should redirect_to(root_path)
@@ -160,6 +164,8 @@ describe UsersController do
   end
 
   describe "DELETE destroy" do
+    before { sign_in_administrator } 
+
     it "destroys the requested user" do
       user = User.create! valid_attributes
       expect {

@@ -69,6 +69,10 @@ module SessionsHelper
     sessions_signed_in? && @sessions_current_user.is_project_administrator?
   end 
 
+  def is_superuser?
+    sessions_signed_in? && @sessions_current_user.is_superuser?
+  end 
+
   def is_project_member?(user, project)
     project.members.include?(user) 
   end
@@ -89,12 +93,16 @@ module SessionsHelper
     redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_project_selected?
   end
 
-  def require_adminstrator_sign_in
+  def require_administrator_sign_in
     redirect_to root_url, notice: "Please sign in as an administrator." unless is_administrator? 
   end
 
   def require_project_administrator_sign_in
     redirect_to root_url, notice: "Please sign in as a project administrator." unless is_project_administrator? 
+  end
+
+  def require_superuser_sign_in
+    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless is_superuser?
   end
 
   # TODO: make this a non-controller method

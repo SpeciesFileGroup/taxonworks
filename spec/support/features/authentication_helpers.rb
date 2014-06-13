@@ -21,7 +21,7 @@ module Features
       existing_user = User.find(1)  
       sign_in_with(existing_user.email, TEST_USER_PASSWORD) 
     end
-
+  
     def select_a_project
       visit select_project_path(1) 
     end
