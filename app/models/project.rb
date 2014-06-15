@@ -5,7 +5,7 @@ class Project < ActiveRecord::Base
 
   DEFAULT_WORKBENCH_STARTING_PATH = '/hub'
   DEFAULT_WORKBENCH_SETTINGS = {
-    workbench_starting_path: DEFAULT_WORKBENCH_STARTING_PATH
+    'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
   }
 
   has_many :project_members
@@ -16,7 +16,7 @@ class Project < ActiveRecord::Base
   validates_presence_of :name
 
   def clear_workbench_settings
-    self.update(workbench_settings: DEFAULT_WORKBENCH_SETTINGS)
+    self.update('workbench_settings' => DEFAULT_WORKBENCH_SETTINGS)
   end
 
   protected
