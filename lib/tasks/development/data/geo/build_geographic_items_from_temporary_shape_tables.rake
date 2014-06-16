@@ -15,7 +15,7 @@ namespace :tw do
         end
 
         def create_geographic_item_records
-          puts "Creating GeographicItems"
+          puts 'Creating GeographicItems'
           @dummy_point = Georeference::FACTORY.point(-12.345678, 12.345678, 123)
           GeographicAreasGeographicItem.order('data_origin').find_each do |a|
             create_geographic_item_and_update_related(a) if a.geographic_item_id.blank?
