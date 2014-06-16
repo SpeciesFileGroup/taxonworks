@@ -41,7 +41,11 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Test
   # Return the Integer number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText('#{self.geo_object}')) number_points").limit(1).first['number_points'].to_i
+    GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary_string}) number_points").limit(1).first['number_points'].to_i
+  end
+
+  def st_as_binary_string
+    "ST_AsBinary(#{self.geo_object_type})"
   end
 
   def parent_geographic_areas
@@ -68,6 +72,7 @@ class GeographicItem < ActiveRecord::Base
 
   # TODO: Test and refactor to use ST_StartPoint
   # Return an Array of [latitude, longitude] for the first point of geoitem
+  # TODO: Find ST method and 
   def center_coords
     to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
     [$1, $2]
