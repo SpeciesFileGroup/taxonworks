@@ -27,9 +27,9 @@ class GeographicItem < ActiveRecord::Base
   validate :chk_point_limit
 
   # TODO: Test
-  # A scope that includes a 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
+  # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
-    where(id: geographic_item.id).select("ST_IsValid(ST_AsTExt(#{geographic_item.geo_object_type})) is_valid").limit(1)
+    where(id: geographic_item.id).select("ST_IsValid(ST_AsText('#{geographic_item.geo_object}')) is_valid").limit(1)
   end
 
   # TODO: Test
@@ -41,7 +41,7 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Test
   # Return the Integer number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText(#{self.geo_object_type})) number_points").limit(1).first['number_points'].to_i
+    GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText('#{self.geo_object}')) number_points").limit(1).first['number_points'].to_i
   end
 
   def parent_geographic_areas
