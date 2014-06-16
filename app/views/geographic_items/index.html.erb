@@ -3,7 +3,9 @@
 <table>
   <thead>
     <tr>
+      <th>Id</th>
       <th>GeoObject</th>
+      <th>Points</th>
       <th>Created by</th>
       <th>Updated by</th>
       <th></th>
@@ -15,6 +17,8 @@
   <tbody>
     <% @geographic_items.each do |geographic_item| %>
       <tr>
+        <td><%= geographic_item.id %> </td>
+        <td><%= geographic_item.st_npoints %> </td>
         <td><%= scrollable_div_tag(geographic_item.geo_object) %></td>
         <td><%= geographic_item.created_by_id %></td>
         <td><%= geographic_item.updated_by_id %></td>

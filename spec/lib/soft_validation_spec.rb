@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'soft_validation'
 
 # See bottom of this file for the Softy class stub.
 

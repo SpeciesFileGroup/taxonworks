@@ -27,9 +27,9 @@ class GeographicItem < ActiveRecord::Base
   validate :chk_point_limit
 
   # TODO: Test
-  # A scope that includes a 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
+  # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
-    where(id: geographic_item.id).select("ST_IsValid(ST_AsTExt(#{geographic_item.geo_object_type})) is_valid").limit(1)
+    where(id: geographic_item.id).select("ST_IsValid(ST_AsText('#{geographic_item.geo_object}')) is_valid").limit(1)
   end
 
   # TODO: Test
@@ -41,7 +41,11 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Test
   # Return the Integer number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: self.id).select("ST_NPoints(ST_AsText(#{self.geo_object_type})) number_points").limit(1).first['number_points'].to_i
+    GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary_string}) number_points").limit(1).first['number_points'].to_i
+  end
+
+  def st_as_binary_string
+    "ST_AsBinary(#{self.geo_object_type})"
   end
 
   def parent_geographic_areas
@@ -68,6 +72,7 @@ class GeographicItem < ActiveRecord::Base
 
   # TODO: Test and refactor to use ST_StartPoint
   # Return an Array of [latitude, longitude] for the first point of geoitem
+  # TODO: Find ST method and 
   def center_coords
     to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
     [$1, $2]

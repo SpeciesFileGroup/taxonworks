@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.1'
 
-gem 'rails', '4.0.4'
+gem 'rails', '4.1.1'
 
 gem 'psych', '2.0.3'
 
@@ -9,8 +9,9 @@ gem 'psych', '2.0.3'
 gem 'pg', '~> 0.17.0'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 1.1.0'
-gem 'squeel', git: 'https://github.com/nybex/squeel.git'
+gem 'activerecord-postgis-adapter', '~> 2.1.0'
+# Has been removed for some time?
+gem 'squeel', git: 'https://github.com/gtimti/squeel.git'  # nybex and kiela forks were also used
 
 # rgeo support
 gem 'ffi-geos'
@@ -39,7 +40,7 @@ gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
-  tag: 'v3.0.0.rc.2', 
+  tag: 'v3.0.0.rc.5', 
   git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling

@@ -4,7 +4,6 @@ describe CollectingEvent do
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
-
     specify 'if verbatim_geolocation_uncertainty is provided, then so to are verbatim_longitude and verbatim_latitude' do
       collecting_event.verbatim_geolocation_uncertainty = 'based on my astrolab'
       expect(collecting_event.valid?).to be_false
@@ -188,7 +187,22 @@ describe CollectingEvent do
         expect(collecting_event.verbatim_georeference.id.blank?).to be_false
       end
     end
+
+    # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky, we will likely need to write some sql generators to do this efficiently.  To start
+    # you could just pick one column, and we can abstract out the problem later.
+    context 'when the CE has a georeference' do
+      context 'and that georeference has a geographic_item but NO no error_geographic_item' do
+        pending 'find other CEs that have georeferences whose GI or EGI is within some radius of the source GI'
+        pending 'find other CES that have georeferences whose GI or EGI intersects the source GI'
+      end
+
+      context 'and that georeference has both geographic item and error_geographic_item' do
+        pending 'find other CEs that have georeferences whose GIs or EGIs are within some radius of the EGI'
+        pending 'find other CEs that have georeferences whose GIs or EGIs are are contained in the EGI'
+      end
+    end
   end
+
 
   context 'associations' do
     context 'belongs_to' do

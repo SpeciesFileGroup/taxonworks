@@ -12,8 +12,7 @@ module TaxonWorks
     require file
   end
  
-  # Internal  
-  require 'soft_validation'
+  # Internal TODO: Necessary in 4.1?
   require 'activerecord_utilities'
 
   # External
