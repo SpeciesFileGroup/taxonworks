@@ -4,10 +4,10 @@ describe 'geographic_areas/show' do
   before(:each) do
     @geographic_area = assign(:geographic_area,
                               stub_model(GeographicArea,
-                                         :name                 => 'Name',
+                                         :name                 => 'Area 51',
                                          :parent_id            => 1,
                                          :geographic_area_type => stub_model(GeographicAreaType,
-                                                                             name: 'AreaTypeName'),
+                                                                             name: 'Black Ops Zone'),
                                          :iso_3166_a2          => 'AA',
                                          :iso_3166_a3          => 'AAA',
                                          :data_origin          => 'Someplace',
@@ -27,9 +27,9 @@ describe 'geographic_areas/show' do
   it 'renders attributes in <p>' do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
+    rendered.should match(/Area 51/)
     rendered.should match(/1/)
-    rendered.should match(/AreaTypeName/)
+    rendered.should match(/Black Ops Zone/)
     rendered.should match(/AA/)
     rendered.should match(/AAA/)
     rendered.should match(/Someplace/)
