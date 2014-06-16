@@ -50,13 +50,14 @@ describe CollectionObject::BiologicalCollectionObject do
       expect(biological_collection_object).to respond_to(:reorder_determinations_by)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
       expect(o.save).to be_true
-      expect(o.current_determination).to eq o.taxon_determinations.first
 
       o.taxon_determinations.first.update(year_made: 1920)
       o.taxon_determinations.last.update(year_made:  1980)
 
       expect(o.reorder_determinations_by()).to be_true
-      expect(o.taxon_determinations.map(&:year_made)).to eq([2014, 1920, 1980])
+      o.reload
+      expect(o.taxon_determinations.map(&:year_made)).to eq([1920, 2014, 1980])
+      expect(o.current_determination.year_made).to eq(2014)
     end
   end
 
@@ -65,7 +66,7 @@ describe CollectionObject::BiologicalCollectionObject do
       expect(biological_collection_object).to respond_to(:current_determination)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
       expect(o.save).to be_true
-      expect(o.current_determination).to eq(o.taxon_determinations.first)
+      expect(o.current_determination.otu.name).to eq('two')
     end
   end
 
