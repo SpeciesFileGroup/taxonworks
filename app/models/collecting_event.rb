@@ -128,6 +128,7 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  # Rich-  add a comment indicating why it's here if you want this to persist for a temporary period of time).
   def self.test
     result = []
     colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
