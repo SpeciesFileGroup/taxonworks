@@ -4,7 +4,7 @@ module Utilities::Measurements
 
   # Returns true if values when converted are equal 
   def self.feet_equals_meters(feet, meters) 
-    return true if meteres.to_f / feet.to_f == 3.048
+    return true if meters.to_f / feet.to_f == 3.048
     false
   end
 
