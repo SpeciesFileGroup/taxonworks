@@ -1,3 +1,6 @@
+# OTU is defined by name or by taxon_name_id.
+# The name should be unique in scope of taxon_name_id.
+
 class Otu < ActiveRecord::Base
   include Housekeeping
   include Shared::Identifiable
@@ -25,7 +28,7 @@ class Otu < ActiveRecord::Base
     if !self.name.blank?
       self.name
     elsif !self.taxon_name_id.nil?
-      self.taxon_name.cached_name + ' ' + self.taxon_name.cached_author_year
+      self.taxon_name.cached_name_and_author_year
     else
       nil
     end

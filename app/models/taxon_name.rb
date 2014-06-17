@@ -1,3 +1,119 @@
+# Covers both Protonyms and subsequent Combination.
+
+# @!attribute cached_name:
+#   @return [String]
+#   Genus-species combination for the taxon. The string is in html format including <em></em> tags.
+#
+# @!attribute cached_author_year:
+#   @return [String]
+#   Returns author and year string with parentheses where necessarily.
+#
+# @!attribute cached_higher_classification:
+#   @return [String]
+#   Returns concatenated list of higher rank taxa.
+#
+# @!attribute cached_higher_classification:
+#   @return [String]
+#   Returns concatenated list of higher rank taxa.
+#
+# @!attribute cached_original_combination:
+#   @return [String]
+#   Returns original combination.
+#
+# @!attribute cached_classified_as:
+#   @return [String]
+#   Returns if the name was classified in different group (e.g. a genus placed in wrong family).
+#
+# @!attribute cached_primary_homonym
+#   @return [String]
+#   Original genus and species name. Used to find and validate primary homonyms.
+#
+# @!attribute cached_secondary_homonym
+#   @return [String]
+#   Current genus and species name. Used to find and validate secondary homonyms.
+#
+# @!attribute cached_primary_homonym_alt
+#   @return [String]
+#   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
+#
+# @!attribute cached_secondary_homonym_alt
+#   @return [String]
+#   Current genus and species name in alternative spelling. Used to find and validate secondary homonyms.
+#
+# @!attributes masculine_name, feminine_name, neuter_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
+#   The gender of the genus also designated as a taxon_name_classification.
+#
+
+# @!all_taxon_name_relationships
+#   @return array of relationships
+#   Returns all relationships where this taxon is an object or subject.
+#
+# @!related_taxon_names
+#   @return array of taxon_names
+#   Returns all taxon_names which has relationsships to this taxon as an object or subject.
+#
+# @!rank_string
+#   @return [String]
+#   Returns rank as a string.
+#
+# @!rank_class
+#   @return [Class]
+#   Returns rank as class.
+#
+# @!nomenclature_date
+#   @return [Date]
+#   Returns effective date of publication. Used to determine nomenclatural priorities.
+#
+# @!gender_class
+#   @return [Class]
+#   Returns gender of a genus as class.
+#
+# @!gender_name
+#   @return [String]
+#   Returns gender of a genus as string.
+#
+# @!part_of_speech_class
+#   @return [Class]
+#   Returns part of speech of a species as class.
+#
+# @!part_of_speech_name
+#   @return [String]
+#   Returns part of speech of a species as string.
+#
+# @!cached_name_and_author_year
+#   @return [String]
+#   Combination of cached_name and cached_author_year.
+#
+# @!ancestor_at_rank(rank)
+#   @return taxon_name
+#   To find an ancestor at certain rank.
+#
+# @!unavailable_or_invalid?
+#   @return [Bool]
+#   True or False.
+#
+# @!unavailable?
+#   @return [Bool]
+#   True or False.
+#
+# @!get_valid_taxon_name
+#   @return taxon_name
+#   Returns a valid taxon_name for an invalid name or self for valid name.
+#
+# @!name_with_alternative_spelling
+#   @return [String]
+#   Alternative spelling of the name according to rules of homonymy.
+#
+# @!name_in_gender(gender)
+#   @return [arraty of String]
+#   returns names of all genera where the species was placed.
+#
+# @!all_generic_placements #array of genera where the species was placed
+
+
 class TaxonName < ActiveRecord::Base
 
   include Housekeeping
