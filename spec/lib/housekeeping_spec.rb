@@ -2,6 +2,11 @@ require 'spec_helper'
 
 describe 'Housekeeping::User' do
 
+  before(:all) {
+    $project_id = 1
+    $user_id = 1
+  }
+
   context 'Users' do
 
     let(:instance) {
@@ -25,7 +30,7 @@ describe 'Housekeeping::User' do
 
       context 'presence of the id itself' do
         before(:each) { $user_id = nil } 
-        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
+        after(:each)  { $user_id = 1   } # see spec/support/project_and_user.rb 
 
         specify 'created_by_id is required' do
           @i.valid?
@@ -40,7 +45,7 @@ describe 'Housekeeping::User' do
 
       context 'presence in database' do
         before(:each) { $user_id = 49999 } # better not be one, but fragile
-        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
+        after(:each)  { $user_id = 1 }      # see spec/support/project_and_user.rb 
 
         specify 'creator must exist' do
           @i.valid? 

@@ -1,8 +1,5 @@
 require 'spec_helper'
-#
-# TODO: These need to be refactored to properly identified desired functionality.
-#       Leave alone for now (mjy).
-#
+
 describe 'Users' do
 
   subject { page }
@@ -65,7 +62,6 @@ describe 'Users' do
 
         it 'should redirect to dashboard and provide a notice'
       end
-
     end
   end
 
