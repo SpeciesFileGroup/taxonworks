@@ -26,7 +26,6 @@ class GeographicItem < ActiveRecord::Base
   validate :proper_data_is_provided
   validate :chk_point_limit
 
-  # TODO: Test
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
     # where(id: geographic_item.id).select("ST_IsValid(ST_AsText('#{geographic_item.geo_object}')) is_valid").limit(1)
@@ -34,13 +33,11 @@ class GeographicItem < ActiveRecord::Base
     where(id: geographic_item.id).select("ST_IsValid(#{geographic_item.st_as_binary}) is_valid")
   end
 
-  # TODO: Test
-  # Returns True/False based on whether stored shape is ST_IsValid 
+  # Returns True/False based on whether stored shape is ST_IsValid
   def is_valid_geometry?
     GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
   end
 
-  # TODO: Test
   # Return the Integer number of points in the geometry
   def st_npoints
     GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
@@ -49,6 +46,10 @@ class GeographicItem < ActiveRecord::Base
   def st_as_binary
     "ST_AsBinary(#{self.geo_object_type})"
     # "#{self.geo_object_type}"
+  end
+
+  def self.as_binary_string
+
   end
 
   def parent_geographic_areas
@@ -209,7 +210,7 @@ class GeographicItem < ActiveRecord::Base
     where.not(id: geographic_items)
   end
 
-  # eturn the first-found object, according to the list of DATA_TYPES, or nil
+  # return the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
     DATA_TYPES.each do |t|
       return t if !self.send(t).nil?
@@ -321,30 +322,6 @@ class GeographicItem < ActiveRecord::Base
   end
 
   protected
-
-  # There may be cases where there are orphan shapes, since the table for this model in NOT normalized for shape?
-  #  This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
-  # array to the caller.
-  def self.clean?
-    GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
-    GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
-    GeographicItem.connection.execute('delete from t20140306')
-    GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select ne_geo_item_id from geographic_areas where ne_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select tdwg_geo_item_id from geographic_areas where tdwg_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select gadm_geo_item_id from geographic_areas where gadm_geo_item_id is not null)')
-    GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from georeferences where geographic_item_id is not null)')
-    list = GeographicItem.connection.execute('select id from t20140306').to_a
-  end
-
-  # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
-  # probably not very useful).
-  def self.clean!
-    list = clean?
-    GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
-    GeographicItem.connection.execute('drop table t20140306')
-    list
-  end
 
   def point_to_a(point)
     data = []
