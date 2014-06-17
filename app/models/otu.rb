@@ -15,6 +15,8 @@ class Otu < ActiveRecord::Base
   has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic
 
+  validates_uniqueness_of :name, scope: :taxon_name_id
+
   before_validation :check_required_fields
 
   soft_validate(:sv_taxon_name, set: :taxon_name)

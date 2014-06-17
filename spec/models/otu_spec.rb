@@ -61,7 +61,19 @@ describe Otu do
         expect(otu.otu_name).to eq('Foo')
       end
     end
+    context 'new otu with the same taxon_name' do
+      specify 'otu names should be unique' do
+        otu1 = FactoryGirl.create(:valid_otu, name: 'aaa')
+        expect(otu1.valid?).to be_true
+        otu2 = FactoryGirl.build_stubbed(:valid_otu, name: 'aaa')
+        expect(otu2.valid?).to be_false
+        otu2.taxon_name_id = 1
+        expect(otu2.valid?).to be_true
+      end
+    end
   end
+
+
 
   context 'concerns' do
     # it_behaves_like 'citable' # => maybe  
