@@ -11,6 +11,7 @@ class TaxonName < ActiveRecord::Base
 
   belongs_to :source
   has_many :taxon_name_classifications
+  has_many :otus
 
   #relationships as a subject
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
@@ -471,16 +472,6 @@ class TaxonName < ActiveRecord::Base
         end
       end
 
-#      parent_rank = self.parent.rank_class.to_s
-#      if parent_rank =~ /Genus/
-#        if genus.blank?
-#          genus += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
-#        else
-#          subgenus += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
-#        end
-#      elsif parent_rank =~ /Species/
-#        species += '<em>' + self.parent.name_with_misspelling(nil) + '</em> '
-#      end
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_name = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
       cached_name.blank? ? nil : cached_name

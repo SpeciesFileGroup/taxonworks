@@ -3,6 +3,13 @@ require 'spec_helper'
 describe Otu do
 
   let(:otu) { Otu.new }
+  before(:all) do
+    TaxonName.delete_all
+  end
+
+  after(:all) do
+    TaxonNameRelationship.delete_all
+  end
 
   # foreign key relationships
   context 'reflections / foreign keys' do
@@ -29,12 +36,30 @@ describe Otu do
   end
 
   context 'validation' do
-    specify 'it should require a name or taxon_name_id'
+    specify 'otu without name and without taxon_name_id is invalid' do
+      expect(otu.valid?).to be_false
+    end
+    specify 'otu should require a name or taxon_name_id' do
+      otu.soft_validate(:taxon_name)
+      expect(otu.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
+    end
   end
 
   context 'when I create a new OTU' do
     context 'and it only has taxon_name_id populated' do
-      specify 'its cached_name should be the taxon name cached_name'
+      specify 'its otu_name should be the taxon name cached_name' do
+        expect(otu.otu_name).to eq(nil)
+
+        t = FactoryGirl.create(:relationship_species)
+        t.reload
+        expect(t.valid?).to be_true
+
+        otu.taxon_name = t
+        expect(otu.otu_name).to eq('<em>Erythroneura vitis</em> McAtee, 1900')
+
+        otu.name = 'Foo'
+        expect(otu.otu_name).to eq('Foo')
+      end
     end
   end
 
