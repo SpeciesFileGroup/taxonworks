@@ -9,7 +9,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   before_validation :reassign_type_if_total_provided
 
   def current_determination
-    taxon_determinations.first
+    taxon_determinations.sort_by{|i| i.position}.last
   end
 
   def reorder_determinations_by(attribute = :date)
@@ -21,8 +21,18 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     end
 
     determinations.each_with_index do |td, i|
-      td.update(position:  i)
+      td.update(position:  i+1)
     end
+    begin
+      TaxonDetermination.transaction do
+        determinations.each do |td|
+          td.save
+        end
+      end
+    rescue
+      return false
+    end
+    return true
   end
 
   protected

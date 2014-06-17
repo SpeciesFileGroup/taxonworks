@@ -400,8 +400,8 @@ class TaxonName < ActiveRecord::Base
     unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_class.to_s) && self.class == Protonym
       cached_name = nil
     else
-      relationships = self.original_combination_relationships.to_a
-      relationships.sort!{|r| r.type_class.order_index}
+      relationships = self.original_combination_relationships
+      relationships = relationships.sort_by{|r| r.type_class.order_index}
       genus = ''
       subgenus = ''
       superspecies = ''
@@ -444,8 +444,8 @@ class TaxonName < ActiveRecord::Base
     unless self.class == Combination
       cached_name = nil
     else
-      relationships = self.combination_relationships.to_a
-      relationships.sort!{|r| r.type_class.order_index}
+      relationships = self.combination_relationships
+      relationships = relationships.sort_by{|r| r.type_class.order_index}
       genus = ''
       subgenus = ''
       superspecies = ''

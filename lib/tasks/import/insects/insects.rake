@@ -5,6 +5,7 @@ require 'benchmark'
 # When first starting development, use a blank database with:
 #    rake db:drop && rake db:create && rake db:migrate
 #
+#    rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/ no_transaction=true
 # Only data upto the handle_taxa can be loaded from the database or restored from 
 # a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
@@ -695,7 +696,7 @@ namespace :tw do
         ft =  ce['Elev_ft']
         m = ce['Elev_m'] 
 
-        if !ft.blank? && !m.blank? && not(Utilities::Measurements.feet_equals_meters(ft, m))
+        if !ft.blank? && !m.blank? && !Utilities::Measurements.feet_equals_meters(ft, m)
           puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."
         end
 

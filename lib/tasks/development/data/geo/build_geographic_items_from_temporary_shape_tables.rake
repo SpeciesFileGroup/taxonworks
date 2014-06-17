@@ -2,14 +2,14 @@ namespace :tw do
   namespace :development do
     namespace :data do
       namespace :geo do
-          require_relative '../../../support/database'
+        require_relative '../../../support/database'
 
         # Presently benchmarks at under 10 minutes.
         desc "Loads shape files related to GeographicAreas by querying against temporarily loaded source shapefiles in SFGs /gaz repo.\n
           database_role is the postgres role that has permissions for the database used.\n
             rake tw:development:data:geo:build_geographic_items_from_temporary_shape_tables data_directory=/Users/matt/src/sf/tw/gaz/ database_role=matt user_id=1"
         task 'build_geographic_items_from_temporary_shape_tables' => [:environment, :geo_dev_init, :data_directory, :database_role, :user_id, :build_temporary_shapefile_tables] do
-          create_geographic_item_records 
+          create_geographic_item_records
           remove_invalid_data
           quick_validate
         end
@@ -26,13 +26,13 @@ namespace :tw do
         def create_geographic_item_and_update_related(a)
           return if !a.geographic_item_id.blank? # allows the task to be stopped and started, be careful with this assumption!
 
-          i = GeographicItem.create(point: @dummy_point)
-          sql1 = "UPDATE geographic_areas_geographic_items SET geographic_item_id = '#{i.id}' where id = #{a.id};" 
+          i    = GeographicItem.create(point: @dummy_point)
+          sql1 = "UPDATE geographic_areas_geographic_items SET geographic_item_id = '#{i.id}' where id = #{a.id};"
           sql2 = "UPDATE geographic_items SET point = null, multi_polygon = ( select ST_Force3D(geom) from #{a.data_origin} where gid = '#{a.origin_gid}') WHERE id = #{i.id};"
-          ActiveRecord::Base.connection.execute(sql1)  
+          ActiveRecord::Base.connection.execute(sql1)
 
           b = Benchmark.measure {
-            ActiveRecord::Base.connection.execute(sql2) 
+            ActiveRecord::Base.connection.execute(sql2)
           }
 
           print "\r#{a.id} : #{a.data_origin}            : #{b.to_s.strip}                      "
@@ -42,10 +42,16 @@ namespace :tw do
         # !! This assumes all imported data are to GeographicItem#multi_polygon.  At present this is true.
         def remove_invalid_data
           invalid_records = 0
+          ir = []
           print "\nRemoving invalid data:"
-          ActiveRecord::Base.connection.execute("select id from geographic_items where ST_IsValid(ST_AsTExt(multi_polygon)) = 'f'").each do |i|
+          test_b = Benchmark.measure {ir = ActiveRecord::Base.connection.execute('select id from geographic_items where ST_IsValid(ST_AsBinary(multi_polygon)) = \'f\'')}
+          print " #{test_b}"
+          # test_t = Benchmark.measure {ir = ActiveRecord::Base.connection.execute('select id from geographic_items where ST_IsValid(ST_AsText(multi_polygon)) = \'f\'')}
+          # print " <=> #{test_t}: "
+
+          ir.each do |i|
             invalid_records += 1
-            print " #{i['id']}" 
+            print " #{i['id']}"
             GeographicItem.destroy(i['id'])
           end
           print "(#{invalid_records}).\n"
@@ -57,12 +63,12 @@ namespace :tw do
           puts "\nDoing some validation"
           expected_diff = '010700000000000000' # ?
           IMPORT_TABLES.keys.each do |t|
-            GeographicAreasGeographicItem.where(data_origin: t.to_s).limit(5).each do |i|
+            GeographicAreasGeographicItem.where(data_origin: t.to_s).limit(9).each do |i|
               if i.geographic_item.is_valid_geometry?
-                a = "SELECT St_AsText(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"
-                b = "SELECT St_AsText(multi_polygon) FROM geographic_items WHERE id  = #{i.geographic_item_id}"
+                a    = "SELECT St_AsBinary(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"
+                b    = "SELECT St_AsBinary(multi_polygon) FROM geographic_items WHERE id  = #{i.geographic_item_id}"
                 sql1 = "SELECT St_SymDifference((#{a}), (#{b}));"
-                r = ActiveRecord::Base.connection.execute(sql1).first['st_symdifference'].to_s
+                r    = ActiveRecord::Base.connection.execute(sql1).first['St_SymDifference'].to_s
                 if r == expected_diff
                   puts "#{i.data_origin} data matching"
                 else
