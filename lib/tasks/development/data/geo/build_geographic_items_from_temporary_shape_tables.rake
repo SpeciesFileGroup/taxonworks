@@ -81,6 +81,36 @@ namespace :tw do
           end
         end
 
+        desc "Removes GeographicItems for which there is no corresponding GeographicArea.\n
+          database_role is the postgres role that has permissions for the database used.\n
+            rake tw:development:data:geo:clean_orphan_geographic_items_from_table database_role=taxonworks_development user_id=1"
+        task 'clean_orphan_geographic_items_from_table' => [:environment, :geo_dev_init, :database_role, :user_id] do
+          clean?
+          clean!
+        end
+
+        # There may be cases where there are orphan shapes, since the table for this model in NOT normalized for shape.
+        #  This method is provided to find all of the orphans, and store their ids in the table 't20140306', and return an
+        # array to the caller.
+        def clean?
+          GeographicItem.connection.execute('DROP TABLE IF EXISTS t20140306')
+          GeographicItem.connection.execute('CREATE TABLE t20140306(id integer)')
+          GeographicItem.connection.execute('delete from t20140306')
+          # collect all the GeoItem ids
+          GeographicItem.connection.execute('insert into t20140306 select id from geographic_items')
+          # remove the GeoItem ids which are represented in the joining table
+          GeographicItem.connection.execute('delete from t20140306 where id in (select geographic_item_id from geographic_areas_geographic_items)')
+          GeographicItem.connection.execute('select id from t20140306').to_a
+        end
+
+        # given the list of orphan shapes (in 't20140306'), delete them, drop the table, and return the list (which is
+        # probably not very useful).
+        def clean!
+          list = clean?
+          GeographicItem.connection.execute('delete from geographic_items where id in (select id from t20140306)')
+          GeographicItem.connection.execute('drop table t20140306')
+          list
+        end
       end
     end
   end
