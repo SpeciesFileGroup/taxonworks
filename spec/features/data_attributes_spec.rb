@@ -9,7 +9,7 @@ describe 'DataAttributes' do
 
   describe 'GET /data_attributes' do
     before { 
-      sign_in_valid_user_and_select_project 
+      sign_in_user_and_select_project 
       visit data_attributes_path }
     specify 'an index name is present' do
       expect(page).to have_content('Data Attributes')

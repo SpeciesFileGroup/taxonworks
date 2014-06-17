@@ -11,7 +11,7 @@ describe 'Hub' do
 
   describe '/hub' do
     before {
-      sign_in_valid_user_and_select_project
+      sign_in_user_and_select_project
       visit hub_path
     }
 

@@ -9,7 +9,7 @@ describe 'RangedLotCategories' do
 
   describe 'GET /ranged_lot_categories' do
     before {
-    sign_in_valid_user_and_select_project 
+    sign_in_user_and_select_project 
       visit ranged_lot_categories_path }
     specify 'an index name is present' do
       expect(page).to have_content('Ranged Lot Categories')

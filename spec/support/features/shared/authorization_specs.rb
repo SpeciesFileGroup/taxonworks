@@ -16,7 +16,7 @@ shared_examples 'a_login_required_and_project_selected_controller' do
 
     describe "submitting a request with sign_in but no project redirects to dashboard" do
       before(:each) {
-        sign_in_valid_user
+        sign_in_user
         visit index_path 
       }
       specify { expect(page).to have_content 'Dashboard' }
@@ -24,8 +24,7 @@ shared_examples 'a_login_required_and_project_selected_controller' do
 
     describe "submitting a request with sign_in and project selected renders " do
       before(:each) {
-        sign_in_valid_user
-        select_a_project
+        sign_in_user_and_select_project
         visit index_path 
       }
       specify { 

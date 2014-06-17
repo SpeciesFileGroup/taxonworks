@@ -2,11 +2,6 @@ require 'spec_helper'
 
 describe 'Project Handling' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { projects_path }
-    let(:page_index_name) { 'Dashboard' }
-  end
-
   subject { page }
 
   # TODO: clarify this, this is describing the root path but under Projects
@@ -15,7 +10,7 @@ describe 'Project Handling' do
     before(:each) {
       $user_id = nil 
       $project_id = nil
-      sign_in_valid_user
+      sign_in_user
     }
 
     after(:all) {
@@ -25,7 +20,7 @@ describe 'Project Handling' do
 
     context 'when a user is signed in they see a list of projects (in the hub)' do
       it 'should have a list of project links' do 
-        subject.should have_link('My Project', href: select_project_path(Project.find(1)) )
+        subject.should have_link('My Project', href: select_project_path(@project) )
         subject.should have_css("a", text: 'My Project' )
       end
     end
@@ -36,7 +31,7 @@ describe 'Project Handling' do
       }
 
       it 'should select that project' do
-        subject.should have_link('My Project', href: select_project_path(Project.find(1)) )
+        subject.should have_link('My Project', href: select_project_path(@project) )
         subject.should have_css("mark a", text: 'My Project' )
       end
 
@@ -51,7 +46,7 @@ describe 'Project Handling' do
       }
 
       it 'should unselect the project when logged back in' do
-        sign_in_valid_user
+        sign_in_user
         visit root_path
         subject.should have_no_css("mark a", text: 'My Project' )
         subject.should have_css("a", text: 'My Project' )
@@ -63,7 +58,7 @@ describe 'Project Handling' do
   describe 'GET /projects' do
     context 'without admin login' do 
       before { 
-        sign_in_valid_user
+        sign_in_user
         visit projects_path 
       }
       it 'should redirect to hub and present a notice'
@@ -81,7 +76,7 @@ describe 'Project Handling' do
   describe 'GET /projects/1' do
     context 'logged in member is a member and project admin' do 
       before { 
-        sign_in_valid_user
+        sign_in_user
         visit projects_path 
       }
       it 'should show the project'
@@ -100,7 +95,7 @@ describe 'Project Handling' do
   describe 'GET /projects/1/edit' do
     context 'logged in member is a member and project admin' do 
       before { 
-        sign_in_valid_user
+        sign_in_user
         visit projects_path 
       }
       it 'should render the edit form'
@@ -122,12 +117,24 @@ describe 'Project Handling' do
       it 'should redirect to hub and present a notice'
     end
 
+    describe '  # POST /projects' do
+      context 'logged in users is not a superuser' do 
+        before { 
+          sign_in_user
+          visit projects_path 
+        }
+        it 'should redirect to hub and present a notice'
+      end
+
+      context 'logged in user is a superuser' do
+        before {
+          sign_in_administrator
+          visit projects_path 
+        }
+        it 'should create the project and redirect to projects/index with a notice'
+      end
+    end
 
   end
-
-
-
-
-
 end
 

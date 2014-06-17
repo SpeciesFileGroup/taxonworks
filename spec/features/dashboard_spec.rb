@@ -28,7 +28,7 @@ describe 'Dashboard' do
 
   context 'when user is signed in' do
     before do
-      sign_in_valid_user
+      sign_in_user
     end
 
     it 'should show user\'s dashboard' do

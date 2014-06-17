@@ -9,7 +9,7 @@ describe 'TaggedSectionKeywords' do
 
   describe 'GET /tagged_section_keywords' do
     before { 
-     sign_in_valid_user_and_select_project 
+     sign_in_user_and_select_project 
       visit tagged_section_keywords_path }
     specify 'an index name is present' do
       expect(page).to have_content('Tagged Section Keywords')

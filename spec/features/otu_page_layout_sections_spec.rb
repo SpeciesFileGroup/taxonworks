@@ -9,7 +9,7 @@ describe 'OtuPageLayoutSections' do
 
   describe 'GET /otu_page_layout_sections' do
     before {
-      sign_in_valid_user_and_select_project 
+      sign_in_user_and_select_project 
       visit otu_page_layout_sections_path }
     specify 'an index name is present' do
       expect(page).to have_content('Otu Page Layout Sections')

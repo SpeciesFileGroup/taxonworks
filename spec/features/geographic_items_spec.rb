@@ -9,7 +9,7 @@ describe 'GeographicItems' do
  
   describe 'GET /geographic_items' do
     before { 
-      sign_in_valid_user_and_select_project 
+      sign_in_user_and_select_project 
       visit geographic_items_path }
     specify 'an index name is present' do
       expect(page).to have_content('Geographic Items')

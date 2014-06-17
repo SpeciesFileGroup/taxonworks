@@ -9,7 +9,7 @@ describe 'Notes' do
 
   describe 'GET /Notes' do
     before { 
-      sign_in_valid_user_and_select_project 
+      sign_in_user_and_select_project 
       visit notes_path }
     specify 'an index name is present' do
       expect(page).to have_content('Notes')
