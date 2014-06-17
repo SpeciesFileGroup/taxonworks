@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'PublicContents', base_class: PublicContent do
-
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+describe 'PublicContents' do
+  
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { public_contents_path }
+    let(:page_index_name) { 'Public Contents' }
+  end
 
   describe 'GET /public_contents' do
     before {

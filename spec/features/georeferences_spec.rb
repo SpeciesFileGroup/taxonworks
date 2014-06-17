@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'Georeferences', base_class: Georeference do
+describe 'Georeferences' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { georeferences_path }
+    let(:page_index_name) { 'Georeferences' }
+  end 
 
   describe 'GET /georeferences' do
     before {

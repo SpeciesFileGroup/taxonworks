@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'LoanItems', base_class: LoanItem do
+describe 'LoanItems' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { loan_items_path }
+    let(:page_index_name) { 'Loan Items' }
+  end 
 
   describe 'GET /loan_items' do
     before {

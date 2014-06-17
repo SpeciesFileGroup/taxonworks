@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'TaxonNameRelationships', base_class: TaxonNameRelationship do
+describe 'TaxonNameRelationships' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { taxon_name_relationships_path }
+    let(:page_index_name) { 'Taxon Name Relationships' }
+  end 
 
   describe 'GET /taxon_name_relationships' do
     before { 

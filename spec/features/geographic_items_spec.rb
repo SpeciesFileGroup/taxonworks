@@ -1,9 +1,12 @@
 require 'spec_helper'
 
-describe 'GeographicItems', base_class: GeographicItem do
+describe 'GeographicItems' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
-
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { geographic_items_path }
+    let(:page_index_name) { 'Geographic Items' }
+  end  
+ 
   describe 'GET /geographic_items' do
     before { 
       sign_in_valid_user_and_select_project 

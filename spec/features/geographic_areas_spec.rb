@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'GeographicAreas', base_class: GeographicArea do
+describe 'GeographicAreas' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { geographic_areas_path }
+    let(:page_index_name) { 'Geographic Areas' }
+  end  
 
   describe 'GET /geographic_areas' do
     before {

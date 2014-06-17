@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'Tags', base_class: Tag do
+describe 'Tags' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { tags_path }
+    let(:page_index_name) { 'Tags' }
+  end
 
   describe 'GET /tags' do
     before { 

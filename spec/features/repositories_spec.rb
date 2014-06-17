@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'Repositories', base_class: Repository do
+describe 'Repositories' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { repositories_path }
+    let(:page_index_name) { 'Repositories' }
+  end
 
   describe 'GET /repositories' do
     before { 

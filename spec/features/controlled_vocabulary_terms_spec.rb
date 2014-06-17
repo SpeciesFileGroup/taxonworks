@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'ControlledVocabularyTerms', base_class: ControlledVocabularyTerm do
+describe 'ControlledVocabularyTerms' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { controlled_vocabulary_terms_path }
+    let(:page_index_name) { 'Controlled Vocabulary Terms' }
+  end
 
   describe 'GET /controlled_vocabulary_terms' do
     before { 

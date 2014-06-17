@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'OtuPageLayoutSections', base_class: OtuPageLayoutSection do
+describe 'OtuPageLayoutSections' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { otu_page_layout_sections_path }
+    let(:page_index_name) { 'Otu Page Layout Sections' }
+  end
 
   describe 'GET /otu_page_layout_sections' do
     before {

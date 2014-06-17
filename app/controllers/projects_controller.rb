@@ -1,5 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :require_sign_in
+  before_action :require_administrator_sign_in, only: [:new, :create, :index, :destroy]
+  before_action :require_superuser_sign_in, only: [:show, :edit, :update]
   before_action :set_project, only: [:show, :edit, :update, :destroy, :select]
 
   # GET /projects
@@ -84,6 +86,6 @@ class ProjectsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def project_params
-    params.require(:project).permit(:name, :created_by_id, :updated_by_id)
+    params.require(:project).permit(:name)
   end
 end

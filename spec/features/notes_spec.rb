@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'Notes', base_class: Note do
-
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+describe 'Notes' do
+  
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { notes_path }
+    let(:page_index_name) { 'Notes' }
+  end 
 
   describe 'GET /Notes' do
     before { 

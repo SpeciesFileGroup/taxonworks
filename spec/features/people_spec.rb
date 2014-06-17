@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'People', base_class: Person do
+describe 'People' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { people_path }
+    let(:page_index_name) { 'People' }
+  end
 
   describe 'GET /people' do
     before { 
