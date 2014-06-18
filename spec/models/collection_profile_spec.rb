@@ -63,6 +63,7 @@ describe CollectionProfile do
     end
     specify 'missing fields' do
       p = FactoryGirl.build_stubbed(:collection_profile,
+                                    collection_type: 'dry',
                                     conservation_status: 5,
                                     processing_state: 5,
                                     container_condition: 5,

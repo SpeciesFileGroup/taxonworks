@@ -21,7 +21,6 @@ class Otu < ActiveRecord::Base
   scope :with_taxon_name_id, -> (taxon_name_id) {where(taxon_name_id: taxon_name_id)}
   scope :with_name, -> (name) {where(name: name)}
   scope :not_self, -> (id) {where('otus.id <> ?', id )}
-  scope :with_project, -> (project_id) {where(project_id: project_id)}
 
 
   #  validates_uniqueness_of :name, scope: :taxon_name_id
@@ -59,7 +58,7 @@ class Otu < ActiveRecord::Base
   end
 
   def sv_duplicate_otu
-    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self.id).with_project(self.project_id).empty?
+    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self.id).with_project_id(self.project_id).empty?
       soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
       soft_validations.add(:name, 'Duplicate Taxon and Name combination')
     end
