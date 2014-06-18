@@ -1,8 +1,11 @@
 require 'spec_helper'
 
-describe 'CollectionProfiles', base_class: CollectionProfile do
+describe 'CollectionProfiles' do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+    let(:index_path) { collection_profiles_path }
+    let(:page_index_name) { 'Collection Profiles' }
+  end
 
   describe 'GET /collection_profiles' do
     before { 

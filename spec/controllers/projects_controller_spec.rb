@@ -20,7 +20,7 @@ require 'spec_helper'
 
 describe ProjectsController do
   before(:each) {
-    sign_in # TODO: !! this needs to be sign_in_administrator !!
+    sign_in_administrator # TODO: !! this needs to be sign_in_administrator !!
   }
 
   # This should return the minimal set of attributes required to create a valid

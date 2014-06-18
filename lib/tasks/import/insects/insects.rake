@@ -321,9 +321,9 @@ namespace :tw do
 
             p.created_at = time_from_field(row['CreatedOn'])
             p.updated_at = time_from_field(row['ModifiedOn'])
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms']) if !row['Synonyms'].blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     if !row['Synonyms'].blank?
             p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) if !row['References'].blank?
-            p.notes.build(text: row['Remarks']) if !row['Remarks'].blank?
+            p.notes.build(text: row['Remarks'])                                                                                       if !row['Remarks'].blank?
             p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
             if rank == NomenclaturalRank || !p.parent_id.blank?
@@ -334,13 +334,12 @@ namespace :tw do
 
               if p.valid?
                 parent_index.merge!(row['ID'] => p) 
-                print "\r#{i}\t#{bench.to_s.strip}  #{name}        \t\t#{rank}                                     "
+                print "\r#{i}\t#{bench.to_s.strip}  #{name}                           " #  \t\t#{rank}  
               else
                 puts "\n#{p.name}"
                 puts p.errors.messages
                 puts
               end
-
             else
               puts "\n  No parent for #{p.name}.\n"
             end
@@ -352,7 +351,7 @@ namespace :tw do
 
       def build_otu(row, taxon_name, data)
         if row['TaxonCode'].blank?
-          puts "  Skipping OTU creation for #{taxon_name.name}, there is no TaxonCode."
+          # puts "  Skipping OTU creation for #{taxon_name.name}, there is no TaxonCode."
           return true
         end
         o =  Otu.create(
@@ -363,7 +362,6 @@ namespace :tw do
         data.otus.merge!(row['TaxonCode'] => o)
         o
       end
-
 
       #- 0 PeopleID          Import Identifier
       #  1 SupervisorID      Loan#supervisor_person_id  ?
