@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe CollectingEvent do
+  before(:all) {
+    # generate_geo_test_objects
+  }
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do

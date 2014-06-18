@@ -260,7 +260,7 @@ describe Georeference do
 
   context 'scopes' do
 
-    before(:all) { generate_test_objects }
+    before(:all) { generate_geo_test_objects }
 
     before(:each) {
       # build some geo-references for testing using existing factories and geometries, something roughly like this

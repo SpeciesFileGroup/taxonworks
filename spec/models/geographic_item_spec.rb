@@ -3,7 +3,7 @@ require_relative '../support/geo'
 
 describe GeographicItem do
   before(:all) {
-    generate_test_objects
+    generate_geo_test_objects
   }
 
   after(:all) {
