@@ -43,6 +43,14 @@ describe Otu do
       otu.soft_validate(:taxon_name)
       expect(otu.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
     end
+    specify 'duplicate OTU' do
+      o1 = FactoryGirl.create(:valid_otu)
+      o2 = FactoryGirl.build_stubbed(:valid_otu)
+      o1.soft_validate(:duplicate_otu)
+      expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_true
+      o2.soft_validate(:duplicate_otu)
+      expect(o2.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
+    end
   end
 
   context 'when I create a new OTU' do

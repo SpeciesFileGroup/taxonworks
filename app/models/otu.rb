@@ -18,11 +18,18 @@ class Otu < ActiveRecord::Base
   has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic
 
+  scope :with_taxon_name_id, -> (taxon_name_id) {where(taxon_name_id: taxon_name_id)}
+  scope :with_name, -> (name) {where(name: name)}
+  scope :not_self, -> (id) {where('otus.id <> ?', id )}
+  scope :with_project, -> (project_id) {where(project_id: project_id)}
+
+
   #  validates_uniqueness_of :name, scope: :taxon_name_id
 
   before_validation :check_required_fields
 
   soft_validate(:sv_taxon_name, set: :taxon_name)
+  soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   def otu_name
     if !self.name.blank?
@@ -51,6 +58,12 @@ class Otu < ActiveRecord::Base
     soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
   end
 
+  def sv_duplicate_otu
+    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self.id).with_project(self.project_id).empty?
+      soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
+      soft_validations.add(:name, 'Duplicate Taxon and Name combination')
+    end
+  end
   #endregion
 
 end
