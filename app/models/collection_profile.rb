@@ -11,23 +11,20 @@ class CollectionProfile < ActiveRecord::Base
   belongs_to :container
   belongs_to :otu
 
-  scope :with_project_id, -> (project) {where(project_id: project)}
+  # This is a shared scope 
+  # scope :with_project_id, -> (project) {where(project_id: project)}
+
   scope :with_collection_type_string, -> (type_string) {where(collection_type: type_string)}
-  scope :with_container_id, -> (container) {where(container_id: container).order('created_at DESC') }
-  scope :with_otu_id, -> (otu) {where(otu_id: otu).order('created_at DESC') }
+  scope :with_container_id, -> (container) {where(container_id: container) }                     #  better to not add order here .order('created_at DESC') }
+  scope :with_otu_id, -> (otu) {where(otu_id: otu)  }                                           # .order('created_at DESC') }
+
+  # Use shared scopes lib/housekeeping/timestamps for this
   scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
-  #  scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles GROUP BY collection_profiles.container_id, collection_profiles.otu_id HAVING created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
 
-  validates_presence_of :conservation_status, message: 'Conservation status is not selected'
-  validates_presence_of :processing_state, message: 'Processing state is not selected'
-  validates_presence_of :container_condition, message: 'Container condition is not selected'
-  validates_presence_of :condition_of_labels, message: 'Condition of labels is not selected'
-  validates_presence_of :identification_level, message: 'Identification level is not selected'
-  validates_presence_of :arrangement_level, message: 'Arrangement level is not selected'
-  validates_presence_of :data_quality, message: 'Data quality is not selected'
-  validates_presence_of :computerization_level, message: 'Computerization_level is not selected'
-
-  validates_presence_of :collection_type, message: 'Type is not selected'
+  validates :conservation_status, :processing_state, :container_condition, 
+    :condition_of_labels, :identification_level, :arrangement_level,
+    :data_quality, :computerization_level, :collection_type,
+    presence: true
 
   before_validation :validate_type,
     :validate_number,
@@ -36,6 +33,7 @@ class CollectionProfile < ActiveRecord::Base
 
   #region Profile indices
 
+  # TODO: I think this whole profile should be a YAML file that's read in as one big hash
   def collection_profile_indices
     i = [self.conservation_status,
          self.processing_state,
@@ -52,6 +50,19 @@ class CollectionProfile < ActiveRecord::Base
     i = self.collection_profile_indices
     i.empty? ? nil : i.sum / i.size.to_f
   end
+
+  # TODO: likely move these things to YAML data
+  #FAVRET_CONSERVATION_STATUS_INDECES = {
+  #  'dry' =>        {1 => 'pest infestation or specimens unusable due to damage',
+  #                   2 => 'specimens damaged, pins broken or bent',
+  #                   3 => 'specimens intact and stable'}
+  #  'slide' =>        {1 => 'slide or cover is broken or mountant crystallized',
+  #                     2 => 'improper mounting medium, not ringed, slide or cover is cracked',
+  #                     3 => 'slide ringed or mounted in Canada balsam'}
+  #  'wet' =>  {1 => 'specimens damaged or desiccated (not completely covered by fluid)',
+  #             2 => 'fluid level low or dark',
+  #             3 =>'fluid topped off and clear'}
+  #}
 
   def self.favret_conservation_status_indices(t)
     case t
@@ -240,6 +251,7 @@ class CollectionProfile < ActiveRecord::Base
     end
   end
 
+  # TODO: These could use standard validations (in: []), and should be individuated.
   def validate_indices
     unless self.collection_type.blank?
       unless self.conservation_status.blank?
@@ -269,6 +281,7 @@ class CollectionProfile < ActiveRecord::Base
     end
   end
 
+  # TODO: created_at and updated at should be validated in housekeeping
   def validate_date
     unless self.created_at == self.updated_at
       errors.add(:updated_at, 'Collection profile should not be updated. Updated version should be saved as a new record')
