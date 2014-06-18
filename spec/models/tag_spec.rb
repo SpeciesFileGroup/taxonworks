@@ -46,6 +46,22 @@ describe Tag do
       expect(dupe_tag.errors.include?(:keyword_id)).to be_true
     end
 
+   specify 'keywords scope can be limited with Keyword#can_tag' do
+     a = FactoryGirl.create(:valid_biocuration_group)
+     b = FactoryGirl.create(:valid_specimen)
+     t = Tag.new(tag_object: b, keyword: a)
+     expect(t.valid?).to be_false
+     expect(t.errors.include?(:keyword)).to be_true 
+   end
+
+    specify 'tag_object class can be limited with TagObject#taggable_with' do
+      a = FactoryGirl.create(:valid_keyword)
+      b = FactoryGirl.create(:valid_biocuration_class)
+      t = Tag.new(tag_object: b, keyword: a)
+      expect(t.valid?).to be_false
+      expect(t.errors.include?(:tag_object)).to be_true 
+    end
+
     context 'STI based tag behaviour' do
       before(:each) {
         tag.keyword = FactoryGirl.create(:valid_keyword) 

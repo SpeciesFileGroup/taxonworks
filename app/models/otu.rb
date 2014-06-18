@@ -3,13 +3,13 @@
 
 class Otu < ActiveRecord::Base
   include Housekeeping
+  include SoftValidation
   include Shared::Identifiable
   include Shared::Citable        # TODO: have to think hard about this vs. using Nico's framework
   include Shared::Notable
   include Shared::DataAttributes
   include Shared::Taggable
   include Shared::AlternateValues
-  include SoftValidation
 
   belongs_to :taxon_name
 
@@ -18,7 +18,7 @@ class Otu < ActiveRecord::Base
   has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic
 
-  validates_uniqueness_of :name, scope: :taxon_name_id
+  #  validates_uniqueness_of :name, scope: :taxon_name_id
 
   before_validation :check_required_fields
 

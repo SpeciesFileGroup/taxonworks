@@ -253,9 +253,9 @@ class Source::Bibtex < Source
 # 
   # TODO add linkage to serials ==> belongs_to serial
   # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
-  has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
+  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
-  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
+  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
@@ -377,20 +377,24 @@ class Source::Bibtex < Source
 
     bibtex = to_bibtex
     bibtex.parse_names
+
     bibtex.names.each do |a|
       p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
 
       # TODO: These are required in present FactoryGirl tests, but not in production,
       # factor out when FactoryGirl + Housekeeping issues are resolved.
-      p.creator = self.creator
-      p.updater = self.updater
+      # p.creator = self.creator
+      # p.updater = self.updater
 
       if bibtex.author
         self.authors << p if bibtex.author.include?(a)
       end
+
+
       if bibtex.editor
         self.editors << p if bibtex.editor.include?(a)
       end
+
     end
     return true
   end

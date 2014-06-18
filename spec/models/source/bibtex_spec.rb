@@ -434,14 +434,17 @@ describe Source::Bibtex do
           end
 
           specify "#{a}s returns correctly ordered arrays" do
+
             method       = "#{a}s"
             method_roles = "#{a}_roles"
             @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
             @source_bibtex.save
+            
             expect(@source_bibtex.send(method.to_sym).size).to eq(0)
             expect(@source_bibtex.create_related_people).to be_true
             @source_bibtex.reload
-
+            @source_bibtex.authors.reload
+            @source_bibtex.editors.reload
             expect(@source_bibtex.send(method.to_sym).to_a).to have(3).things
 
             a_id       = @source_bibtex.send(method.to_sym).first.id

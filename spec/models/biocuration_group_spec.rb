@@ -17,11 +17,8 @@ describe BiocurationGroup do
 
     specify 'biocuration_classes' do
       expect(biocuration_group).to respond_to(:biocuration_classes)
-      t1 =Tag.create(keyword: @biocuration_group, tag_object: @bc1)
+      t1 = Tag.create(keyword: @biocuration_group, tag_object: @bc1)
       t2 = Tag.create(keyword: @biocuration_group, tag_object: @bc2)
- 
-      # Something to not match 
-      t3 = Tag.create(keyword: FactoryGirl.create(:valid_keyword), tag_object: @bc1) 
 
       expect(@biocuration_group.biocuration_classes).to have(2).things
       expect(@biocuration_group.biocuration_classes.to_a.map(&:class)).to eq([BiocurationClass, BiocurationClass])

@@ -10,4 +10,4 @@ class Keyword < ControlledVocabularyTerm
     Tag.where(keyword: self).pluck(:tag_object_type)
   end
 
-  end
+end
