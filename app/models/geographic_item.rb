@@ -133,7 +133,10 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.intersecting(column_name, *geographic_items)
-    where { geographic_items.flatten.collect { |geographic_item| "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" }.join(' and ') }
+    q = geographic_items.flatten.collect { |geographic_item|
+      "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')"
+    }.join(' and ')
+    where (q)
 =begin
     geographic_items.each { |geographic_item|
       # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
@@ -148,42 +151,45 @@ class GeographicItem < ActiveRecord::Base
   # TODO: Document, what units are distance in?
   def self.within_radius_of(column_name, geographic_item, distance)
     if check_geo_params(column_name, geographic_item)
-      where { "st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}" }
+      where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
     else
-      where { 'false' }
+      where ('false')
     end
   end
 
   def self.disjoint_from(column_name, *geographic_items)
-    where { geographic_items.flatten.collect { |geographic_item| "st_disjoint(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" }.join(' and ') }
+    q = geographic_items.flatten.collect { |geographic_item|
+      "st_disjoint(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))"
+    }.join(' and ')
+    where (q)
   end
 
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
+  # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
   def self.containing(column_name, *geographic_items)
-    where { geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ') }
+    q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
+    where(q)
   end
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
-      f = select { '*' }.
-        select_distance(column_name, geographic_item).
-        where_distance_greater_than_zero(column_name, geographic_item).
-        order { 'distance' }
+      q = select_distance_with_geo_object(column_name, geographic_item).where_distance_greater_than_zero(column_name, geographic_item).order('distance')
+      q
     else
-      where { 'false' }
+      where ('false')
     end
 
   end
 
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
-      f = select { '*' }.
-        select_distance(column_name, geographic_item).
+      q = select_distance_with_geo_object(column_name, geographic_item).
         where_distance_greater_than_zero(column_name, geographic_item).
-        order { 'distance desc' }
+        order('distance desc')
+      q
     else
-      where { 'false' }
+      where ('false')
     end
   end
 
@@ -194,15 +200,18 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.select_distance(column_name, geographic_item)
-    select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
+    # select { "ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance" }
+    select(" ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
   end
 
   def self.select_distance_with_geo_object(column_name, geographic_item)
-    select { '*' }.select_distance(column_name, geographic_item)
+    # q = select_distance(column_name, geographic_item)
+    # select { '*' }.select_distance(column_name, geographic_item)
+    select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
   end
 
   def self.where_distance_greater_than_zero(column_name, geographic_item)
-    where { "#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0" }
+    where ("#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
   end
 
   def self.excluding(geographic_items)

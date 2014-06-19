@@ -670,6 +670,7 @@ describe GeographicItem do
 
       #TODOone: Is this test right?  What about @k, @d?
       #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
+      # SELECT  "geographic_items".* FROM "geographic_items"  WHERE (st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0))'))) LIMIT 4
       specify "#disjoint_from list of objects (uses 'and')." do
         expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to eq([@b1, @b2, @b, @g1])
       end
