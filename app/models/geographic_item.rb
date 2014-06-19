@@ -20,11 +20,25 @@ class GeographicItem < ActiveRecord::Base
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
+
   has_many :georeferences
+
+  # more explicity because we can also go through Geographic Area
   has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
 
   validate :proper_data_is_provided
   validate :chk_point_limit
+
+
+  # Georeference.within_radius(x).excluding_self.with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
+
+  # within_radius_of('polygon', @geographic_item, 100)
+  # excluding_self
+  # with_collecting_event
+  # include_collecting_event
+
+  scope :with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
+  scope :include_collecting_event, -> {includes(:collecting_events_through_georeferences)}
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)

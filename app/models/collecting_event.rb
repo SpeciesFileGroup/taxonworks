@@ -24,6 +24,25 @@
 # @!attribute verbatim_latitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the latitude. Is used to derive mappable values, but does not get mapped itself. 
+# @!attribute verbatim_geolocation_uncertainty
+#   @return [String]
+#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
+# @!attribute verbatim_elevation
+#   @return [String]
+#   A string, typically sliced from verbatim_label, that represents all elevation data (min/max/precision) as recorded there.
+# @!attribute minimum_elevation
+#   @return [String]
+#   A float, in meters.
+# @!attribute maximum_elevation
+#   @return [String]
+#   A float, in meters.
+# @!attribute elevation_precision
+#   @return [String]
+#   A float, in meters.
+
+#
+#
+#
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
