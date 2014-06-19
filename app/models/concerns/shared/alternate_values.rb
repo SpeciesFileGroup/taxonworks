@@ -13,7 +13,7 @@ module Shared::AlternateValues
     # Use
     #   Otu.with_alternate_value_on(:name, 'foo')
     def with_alternate_value_on(a, b)
-      joins{alternate_values.outer}.where{(alternate_values.alternate_object_attribute == "#{a}") & (alternate_values.value == "#{b}")} # } # .references(:alternate_values) # 'alternate_values' => {'alternate_object_attribute' => attribute, 'value' => value})
+      joins(:alternate_values).where(alternate_values: {alternate_object_attribute: a, value: b})  
     end
   end
 
