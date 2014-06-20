@@ -375,41 +375,41 @@ def generate_geo_test_objects
   @p21 = FactoryGirl.build(:geographic_item, :point => POINT21.as_binary) # 21
   @p22 = FactoryGirl.build(:geographic_item, :point => POINT22.as_binary) # 22
 
-  @a  = FactoryGirl.build(:geographic_item, :line_string         => SHAPE_A.as_binary) # 23
-  @b1 = FactoryGirl.build(:geographic_item, :polygon            => SHAPE_B_OUTER.as_binary) # 24
-  @b2 = FactoryGirl.build(:geographic_item, :polygon            => SHAPE_B_INNER.as_binary) # 25
-  @b  = FactoryGirl.build(:geographic_item, :polygon             => SHAPE_B.as_binary) # 26
-  @c1 = FactoryGirl.build(:geographic_item, :line_string        => SHAPE_C1) # 27
-  @c2 = FactoryGirl.build(:geographic_item, :line_string        => SHAPE_C2) # 28
-  @c3 = FactoryGirl.build(:geographic_item, :line_string        => SHAPE_C3) # 29
-  @c  = FactoryGirl.build(:geographic_item, :multi_line_string   => SHAPE_C.as_binary) # 30
-  @d  = FactoryGirl.build(:geographic_item, :line_string         => SHAPE_D.as_binary) # 31
-  @e1 = FactoryGirl.build(:geographic_item, :polygon            => POLY_E1.as_binary) # 32
-  @e2 = FactoryGirl.build(:geographic_item, :polygon            => POLY_E2.as_binary) # 33
-  @e3 = FactoryGirl.build(:geographic_item, :polygon            => POLY_E3.as_binary) # 34
-  @e4 = FactoryGirl.build(:geographic_item, :polygon            => POLY_E4.as_binary) # 35
-  @e5 = FactoryGirl.build(:geographic_item, :polygon            => POLY_E5.as_binary) # 36
+  @a  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_A.as_binary) # 23
+  @b1 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B_OUTER.as_binary) # 24
+  @b2 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B_INNER.as_binary) # 25
+  @b  = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B.as_binary) # 26
+  @c1 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C1) # 27
+  @c2 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C2) # 28
+  @c3 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C3) # 29
+  @c  = FactoryGirl.build(:geographic_item, :multi_line_string => SHAPE_C.as_binary) # 30
+  @d  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_D.as_binary) # 31
+  @e1 = FactoryGirl.build(:geographic_item, :polygon => POLY_E1.as_binary) # 32
+  @e2 = FactoryGirl.build(:geographic_item, :polygon => POLY_E2.as_binary) # 33
+  @e3 = FactoryGirl.build(:geographic_item, :polygon => POLY_E3.as_binary) # 34
+  @e4 = FactoryGirl.build(:geographic_item, :polygon => POLY_E4.as_binary) # 35
+  @e5 = FactoryGirl.build(:geographic_item, :polygon => POLY_E5.as_binary) # 36
   @e  = FactoryGirl.build(:geographic_item, :geometry_collection => SHAPE_E.as_binary) # 37
-  @f1 = FactoryGirl.build(:geographic_item, :line_string        => SHAPE_F1.as_binary) # 38
-  @f2 = FactoryGirl.build(:geographic_item, :line_string        => SHAPE_F2.as_binary) # 39
-  @f  = FactoryGirl.build(:geographic_item, :multi_line_string   => SHAPE_F.as_binary) # 40
-  @g1 = FactoryGirl.build(:geographic_item, :polygon            => SHAPE_G1.as_binary) # 41
-  @g2 = FactoryGirl.build(:geographic_item, :polygon            => SHAPE_G2.as_binary) # 42
-  @g3 = FactoryGirl.build(:geographic_item, :polygon            => SHAPE_G3.as_binary) # 43
-  @g  = FactoryGirl.build(:geographic_item, :multi_polygon       => SHAPE_G.as_binary) # 44
-  @h  = FactoryGirl.build(:geographic_item, :multi_point         => SHAPE_H.as_binary) # 45
-  @i  = FactoryGirl.build(:geographic_item, :line_string         => SHAPE_I) # 46
+  @f1 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_F1.as_binary) # 38
+  @f2 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_F2.as_binary) # 39
+  @f  = FactoryGirl.build(:geographic_item, :multi_line_string => SHAPE_F.as_binary) # 40
+  @g1 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G1.as_binary) # 41
+  @g2 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G2.as_binary) # 42
+  @g3 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G3.as_binary) # 43
+  @g  = FactoryGirl.build(:geographic_item, :multi_polygon => SHAPE_G.as_binary) # 44
+  @h  = FactoryGirl.build(:geographic_item, :multi_point => SHAPE_H.as_binary) # 45
+  @i  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_I) # 46
   @j  = FactoryGirl.build(:geographic_item, :geometry_collection => SHAPE_J) # 47
-  @k  = FactoryGirl.build(:geographic_item, :polygon             => SHAPE_K.as_binary) # 48
-  @l  = FactoryGirl.build(:geographic_item, :line_string         => SHAPE_L.as_binary) # 49
+  @k  = FactoryGirl.build(:geographic_item, :polygon => SHAPE_K.as_binary) # 48
+  @l  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_L.as_binary) # 49
 
-  @r2020 = FactoryGirl.build(:geographic_item, :point       => ROOM2020.as_binary) # 50
-  @r2022 = FactoryGirl.build(:geographic_item, :point       => ROOM2022.as_binary) # 51
-  @r2024 = FactoryGirl.build(:geographic_item, :point       => ROOM2024.as_binary) # 52
+  @r2020 = FactoryGirl.build(:geographic_item, :point => ROOM2020.as_binary) # 50
+  @r2022 = FactoryGirl.build(:geographic_item, :point => ROOM2022.as_binary) # 51
+  @r2024 = FactoryGirl.build(:geographic_item, :point => ROOM2024.as_binary) # 52
   @rooms = FactoryGirl.build(:geographic_item, :multi_point => ROOMS20NN.as_binary) # 53
 
   @all_items    = FactoryGirl.build(:geographic_item, :geometry_collection => ALL_SHAPES.as_binary) # 54
-  @outer_limits = FactoryGirl.build(:geographic_item, :line_string      => CONVEX_HULL.exterior_ring.as_binary) # 55
+  @outer_limits = FactoryGirl.build(:geographic_item, :line_string => CONVEX_HULL.exterior_ring.as_binary) # 55
 
   @area_a = FactoryGirl.build(:geographic_item, polygon: BOX_1)
   @area_b = FactoryGirl.build(:geographic_item, polygon: BOX_2)
@@ -509,6 +509,98 @@ def generate_geo_test_objects
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
   end
+end
+
+def generate_ce_test_objects
+
+  generate_geo_test_objects if @p0.nil?
+
+  @ce_p0 = FactoryGirl.create(:collecting_event)
+  @gr00  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p0,
+                              :error_geographic_item => @area_d,
+                              :geographic_item       => @p0)
+  @gr10  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p0,
+                              :geographic_item  => @p10)
+
+  @ce_p1 = FactoryGirl.create(:collecting_event)
+  @gr01  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p1,
+                              :error_geographic_item => @k,
+                              :geographic_item       => @p1)
+  @gr11  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p1,
+                              :geographic_item  => @p11)
+
+  @ce_p2 = FactoryGirl.create(:collecting_event)
+  @gr02  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p2,
+                              :error_geographic_item => @k,
+                              :geographic_item       => @p2)
+  @gr12  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p2,
+                              :geographic_item  => @p12)
+
+  @ce_p3 = FactoryGirl.create(:collecting_event)
+  @gr03  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p3,
+                              :error_geographic_item => @k,
+                              :geographic_item       => @p3)
+  @gr13  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p3,
+                              :error_geographic_item => @e2,
+                              :geographic_item       => @p13)
+
+  @ce_p4 = FactoryGirl.create(:collecting_event)
+  @gr04  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p4,
+                              :geographic_item  => @p4)
+  @gr14  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p4,
+                              :geographic_item  => @p14)
+
+  @ce_p5 = FactoryGirl.create(:collecting_event)
+  @gr05  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p5,
+                              :geographic_item  => @p5)
+  @gr15  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p5,
+                              :geographic_item  => @p15)
+
+  @ce_p6 = FactoryGirl.create(:collecting_event)
+  @gr06  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p6,
+                              :geographic_item  => @p6)
+  @gr16  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p6,
+                              :geographic_item  => @p16)
+
+  @ce_p7 = FactoryGirl.create(:collecting_event)
+  @gr07  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p7,
+                              :geographic_item  => @p7)
+  @gr17  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p7,
+                              :geographic_item  => @p17)
+
+  @ce_p8 = FactoryGirl.create(:collecting_event)
+  @gr08  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p8,
+                              :geographic_item  => @p8)
+  @gr18  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p8,
+                              :geographic_item  => @p18)
+
+  @ce_p9 = FactoryGirl.create(:collecting_event)
+  @gr09  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p9,
+                              :geographic_item  => @p9)
+  @gr19  = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event => @ce_p9,
+                              :geographic_item  => @p19)
+
+
 end
 
 

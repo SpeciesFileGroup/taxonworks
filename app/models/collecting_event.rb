@@ -67,8 +67,6 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
 
-  validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
-
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :start_date_year,
     numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5),  message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future' },

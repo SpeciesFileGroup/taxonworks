@@ -14,11 +14,11 @@ TaxonWorks is Ruby on Rails application that facilitates biodiversity informatic
 Installation
 ------------
 
-TaxonWorks is a Rails 4 application using Ruby 2.0 and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
+TaxonWorks is a Rails 4 (4.1.1) application using Ruby 2.0 (2.1.1) and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
 
-Minimally, the following steps are required.  If you have postgres installed skip to 3. 
+Minimally, the following steps are required.  If you have postgres/postgis installed skip to 3. 
 
-1. Install Postgres and postgis and image magick.
+1. Install Postgres, postgis, and image magick.
   
    ``` 
    brew install postgres
@@ -42,7 +42,7 @@ Minimally, the following steps are required.  If you have postgres installed ski
 
 4. Copy the config/database.yml.example file to config/database.yml.  
 
-5. Given not modifications to database.yml you can proceed by creating a postgres role (user).
+5. Given no modifications to database.yml, you can proceed by creating a postgres role (user).
 
    ```
    psql -d postgres
@@ -50,7 +50,7 @@ Minimally, the following steps are required.  If you have postgres installed ski
    \q
    ```
 
-6. Install the gems dependencies. Ensure you are using the Ruby version you indend to develop under (check with 'ruby -v'). Install the pg gem with some flags first, then the rest of the gems.
+6. Install the gems dependencies. Ensure you are using the Ruby version you intend to develop under (check with 'ruby -v'). Install the pg gem with some flags first, then the rest of the gems.
 
   ```
   env ARCHFLAGS="-arch x86_64" gem install pg -- --with-pg-config=/usr/local/bin/pg_config
@@ -76,7 +76,7 @@ If the tests run, then the installation has been a success.  You'll likely want 
 Other resources
 ---------------
 
-TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help, it also includes a basic roadmap. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
+TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help. It also includes a basic roadmap. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
 
 License
 -------

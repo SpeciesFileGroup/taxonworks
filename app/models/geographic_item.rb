@@ -96,7 +96,13 @@ class GeographicItem < ActiveRecord::Base
 
   # TODO: Test and refactor to use ST_StartPoint
   # Return an Array of [latitude, longitude] for the first point of GeoItem
-  # TODO: Find ST method and
+  def st_start_point
+    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+    [$1, $2]
+  end
+
+  # TODO: Find ST_Centroid(g1) method and
+  # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def center_coords
     to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
     [$1, $2]
