@@ -620,7 +620,14 @@ describe GeographicItem do
       # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
       specify '.with_collecting_event' do
         # pending 'construction of method'
-        expect(GeographicItem.geo_with_collecting_event.count).to eq(20)  #
+        expect(GeographicItem.geo_with_collecting_event.count).to eq(20) #
+        expect(GeographicItem.geo_with_collecting_event.order('id').to_a).to eq([@p0, @p10, @p1, @p11,
+                                                                                 @p2, @p12, @p3, @p13,
+                                                                                 @p4, @p14, @p5, @p15,
+                                                                                 @p6, @p16, @p7, @p17,
+                                                                                 @p8, @p18, @p9, @p19]) #
+        expect(GeographicItem.err_with_collecting_event.count).to eq(5) #
+        expect(GeographicItem.err_with_collecting_event.to_a).to eq([@area_d, @k, @k, @e2, @k]) #
       end
 
       specify '.include_collecting_event' do

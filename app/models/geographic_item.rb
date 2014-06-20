@@ -40,7 +40,8 @@ class GeographicItem < ActiveRecord::Base
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
   scope :geo_with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-  scope :err_with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
+  scope :err_with_collecting_event, -> {joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"')}
+  scope :all_with_collecting_event, -> {joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"')}
   scope :include_collecting_event, -> {includes(:collecting_events_through_georeferences)}
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
