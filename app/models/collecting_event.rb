@@ -69,7 +69,7 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
 
-  validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
+  # validates_inclusion_of :elevation_unit, in: ['meters', 'feet'], if: '!self.minimum_elevation.blank?'
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :start_date_year,

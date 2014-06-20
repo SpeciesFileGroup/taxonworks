@@ -191,17 +191,33 @@ describe CollectingEvent do
       end
     end
 
-    # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky, we will likely need to write some sql generators to do this efficiently.  To start
+    # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky,
+    # we will likely need to write some sql generators to do this efficiently.  To start
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a georeference' do
+      before(:all) {
+        generate_ce_test_objects
+      }
       context 'and that georeference has a geographic_item but NO no error_geographic_item' do
-        pending 'find other CEs that have georeferences whose GI or EGI is within some radius of the source GI'
-        pending 'find other CES that have georeferences whose GI or EGI intersects the source GI'
+
+        specify 'find other CEs that have georeferences whose GI or EGI is within some radius of the source GI' do
+          expect(@ce_p0.georeferences.count).to eq(2)
+          expect(@ce_p0.georeferences.first.geographic_item)
+        end
+
+        specify 'find other CES that have georeferences whose GI or EGI intersects the source GI' do
+          pending
+        end
       end
 
       context 'and that georeference has both geographic item and error_geographic_item' do
-        pending 'find other CEs that have georeferences whose GIs or EGIs are within some radius of the EGI'
-        pending 'find other CEs that have georeferences whose GIs or EGIs are are contained in the EGI'
+
+        specify 'find other CEs that have georeferences whose GIs or EGIs are within some radius of the EGI' do
+          pending
+        end
+        specify 'find other CEs that have georeferences whose GIs or EGIs are are contained in the EGI' do
+          pending
+        end
       end
     end
   end
