@@ -198,6 +198,9 @@ describe CollectingEvent do
       before(:all) {
         generate_ce_test_objects
       }
+      after(:all){
+        clean_slate_geo
+      }
       context 'and that georeference has a geographic_item but NO no error_geographic_item' do
 
         specify 'find other CEs that have georeferences whose GI or EGI is within some radius of the source GI' do
