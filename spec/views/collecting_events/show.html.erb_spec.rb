@@ -17,7 +17,6 @@ describe "collecting_events/show" do
       :geographic_area_id => 2,
       :minimum_elevation => "9.99",
       :maximum_elevation => "9.99",
-      :elevation_unit => "Elevation Unit",
       :elevation_precision => "Elevation Precision",
       :start_date_day => "Start Date Day",
       :start_date_month => "Start Date Month",
