@@ -61,7 +61,6 @@ describe Georeference do
         @c_e      = CollectingEvent.new(geographic_area:    @g_a,
                                         verbatim_locality:  'Test Event',
                                         minimum_elevation:  0.1,
-                                        elevation_unit:     'meters',
                                         verbatim_latitude:  '0.1',
                                         verbatim_longitude: '0.1')
 
