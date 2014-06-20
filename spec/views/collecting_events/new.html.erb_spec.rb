@@ -17,7 +17,6 @@ describe "collecting_events/new" do
       :geographic_area_id => 1,
       :minimum_elevation => "9.99",
       :maximum_elevation => "9.99",
-      :elevation_unit => "MyString",
       :elevation_precision => "MyString",
       :start_date_day => "MyString",
       :start_date_month => "MyString",
@@ -55,7 +54,6 @@ describe "collecting_events/new" do
       assert_select "input#collecting_event_geographic_area_id[name=?]", "collecting_event[geographic_area_id]"
       assert_select "input#collecting_event_minimum_elevation[name=?]", "collecting_event[minimum_elevation]"
       assert_select "input#collecting_event_maximum_elevation[name=?]", "collecting_event[maximum_elevation]"
-      assert_select "input#collecting_event_elevation_unit[name=?]", "collecting_event[elevation_unit]"
       assert_select "input#collecting_event_elevation_precision[name=?]", "collecting_event[elevation_precision]"
       assert_select "input#collecting_event_start_date_day[name=?]", "collecting_event[start_date_day]"
       assert_select "input#collecting_event_start_date_month[name=?]", "collecting_event[start_date_month]"
