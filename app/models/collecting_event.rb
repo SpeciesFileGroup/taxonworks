@@ -39,8 +39,6 @@
 # @!attribute elevation_precision
 #   @return [String]
 #   A float, in meters.
-
-#
 #
 #
 class CollectingEvent < ActiveRecord::Base
