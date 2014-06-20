@@ -24,18 +24,24 @@ class GeographicItem < ActiveRecord::Base
   has_many :georeferences
 
   # more explicity because we can also go through Geographic Area
-  has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
+  has_many :collecting_events_through_georeferences, through: :georeferences,  source: :collecting_event
 
   validate :proper_data_is_provided
   validate :chk_point_limit
 
-
-  # Georeference.within_radius(x).excluding_self.with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
+  # GeographicItem.within_radius(x).excluding_self.with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
 
   # within_radius_of('polygon', @geographic_item, 100)
   # excluding_self
   # with_collecting_event
   # include_collecting_event
+
+
+  # if I make some objects then
+
+  #  GeographicItem.with_collecting_event
+  #
+  #  returns only those objects with a collecting event
 
   scope :with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
   scope :include_collecting_event, -> {includes(:collecting_events_through_georeferences)}
