@@ -2,7 +2,15 @@ def clean_slate_geo
   GeographicItem.delete_all
   GeographicAreaType.delete_all
   GeographicArea.delete_all
+  GeographicAreasGeographicItem.delete_all
   Georeference.delete_all
+end
+
+def clean_slate_ce
+  [@gr00, @gr01, @gr02, @gr03, @gr04, @gr05, @gr06, @gr07, @gr08, @gr09,
+   @gr10, @gr11, @gr12, @gr13, @gr14, @gr15, @gr16, @gr17, @gr18, @gr19,
+   @ce_p0, @ce_p1, @ce_p2, @ce_p3, @ce_p4, @ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9
+  ].map(&delete)
 end
 
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
@@ -519,19 +527,19 @@ def generate_ce_test_objects
   @gr00  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event      => @ce_p0,
                               :error_geographic_item => @area_d,
-                              :geographic_item       => @p0)
+                              :geographic_item       => @p0) #  1
   @gr10  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event => @ce_p0,
-                              :geographic_item  => @p10)
+                              :geographic_item  => @p10) #  2
 
   @ce_p1 = FactoryGirl.create(:collecting_event)
   @gr01  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event      => @ce_p1,
                               :error_geographic_item => @k,
-                              :geographic_item       => @p1)
+                              :geographic_item       => @p1) #  3
   @gr11  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event => @ce_p1,
-                              :geographic_item  => @p11)
+                              :geographic_item  => @p11) #  4
 
   @ce_p2 = FactoryGirl.create(:collecting_event)
   @gr02  = FactoryGirl.create(:georeference_verbatim_data,

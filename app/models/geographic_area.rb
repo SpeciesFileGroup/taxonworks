@@ -84,7 +84,7 @@ class GeographicArea < ActiveRecord::Base
   # TODO: Test
   # A scope. Matches GeographicAreas that have name and parent name.
   scope :with_name_and_parent_name, -> (names) {
-    joins(:parent ).
+    joins(:parent).
     where(name: names[0], parent: {name: names[1]})
   }
 
@@ -93,8 +93,8 @@ class GeographicArea < ActiveRecord::Base
   # Like:
   #   GeographicArea.with_name_and_parents(%{United\ States Illinois Champaign})
   scope :with_name_and_parents, -> (names) {
-    joins(parent: :parent ).
-    where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2] }}  )
+    joins(parent: :parent).
+    where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2]}})
   }
 
  # Route out to a scope given the length of the

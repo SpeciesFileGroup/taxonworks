@@ -3,11 +3,14 @@ require_relative '../support/geo'
 
 describe GeographicItem do
   before(:all) {
-    generate_geo_test_objects
+    generate_ce_test_objects # includes generate_geo_test_objects
   }
 
   after(:all) {
+    Georeference.destroy_all
     GeographicItem.destroy_all
+    CollectingEvent.destroy_all
+    # clean_slate_ce
   }
 
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
@@ -608,13 +611,23 @@ describe GeographicItem do
       expect(GeographicItem).to respond_to(:intersecting)
     end
 
-
     specify '.containing_sql' do
       expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
       expect(GeographicItem.containing_sql('polygon', @p2)).not_to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
     end
 
     context 'scopes (GeographicItems can be found by searching with) ' do
+      # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
+      specify '.with_collecting_event' do
+        # pending 'construction of method'
+        expect(GeographicItem.geo_with_collecting_event.count).to eq(20)  #
+      end
+
+      specify '.include_collecting_event' do
+        pending 'construction of method'
+        expect(@ce_p0.georeferences.first.include_collecting_event.to_a).to eq([])
+      end
+
       specify '.containing - returns objects which contain another objects.' do
 
         expect(GeographicItem.containing('not_a_column_name', @p1).to_a).to eq([])
@@ -646,6 +659,10 @@ describe GeographicItem do
         expect(GeographicItem.excluding([@p2]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
         # @r2022 would  have been in the list, except for the exclude
         expect(GeographicItem.excluding([@r2022]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2020, @p10])
+      end
+
+      specify '#excluding_self to drop self from any list of objects' do
+        pending 'construction of scenario'
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do

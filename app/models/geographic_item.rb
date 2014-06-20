@@ -24,20 +24,23 @@ class GeographicItem < ActiveRecord::Base
   has_many :georeferences
 
   # more explicity because we can also go through Geographic Area
-  has_many :collecting_events_through_georeferences, through: :georeference, class_name: 'CollectingEvent'
+  has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
 
   validate :proper_data_is_provided
   validate :chk_point_limit
 
 
-  # Georeference.within_radius(x).excluding_self.with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
+  # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
 
   # within_radius_of('polygon', @geographic_item, 100)
-  # excluding_self
+  # excluding(some_gi)
   # with_collecting_event
   # include_collecting_event
 
-  scope :with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
+  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
+  scope :geo_with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
+  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
+  scope :err_with_collecting_event, -> {joins(:collecting_events_through_georeferences)}
   scope :include_collecting_event, -> {includes(:collecting_events_through_georeferences)}
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
@@ -237,6 +240,11 @@ class GeographicItem < ActiveRecord::Base
   def self.excluding(geographic_items)
     # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
+  end
+
+  def excluding_self
+    # GeograohicItem.excluding(self)
+    where.not(id: self.id)
   end
 
   # return the first-found object, according to the list of DATA_TYPES, or nil
