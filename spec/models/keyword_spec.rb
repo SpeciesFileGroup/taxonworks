@@ -29,8 +29,8 @@ describe Keyword do
     k = FactoryGirl.create(:valid_keyword)
     t1 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_otu))
     t2 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_specimen))
-    expect(k.tagged_objects).to have(2).things
-    expect(k.tags).to have(2).things
+    expect(k.tagged_objects.count).to eq(2)
+    expect(k.tags.count).to eq(2)
   end
 
   specify 'tagged_object_class_names' do

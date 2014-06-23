@@ -132,17 +132,17 @@ describe 'SoftValidations' do
 
   specify 'add(:attribute, "message")' do
     expect(soft_validations.add(:base, 'no cheezburgahz!')).to be_truthy
-    expect(soft_validations.soft_validations).to have(1).things
+    expect(soft_validations.soft_validations.count).to eq(1)
   end
 
   specify 'add(:attribute, "message", fix: :method)' do
     expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah')).to be_truthy
-    expect(soft_validations.soft_validations).to have(1).things
+    expect(soft_validations.soft_validations.count).to eq(1)
   end
 
   specify 'add(:attribute, "message", fix: :method, fix_trigger: :automatic)' do
     expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', fix_trigger: :automatic)).to be_truthy
-    expect(soft_validations.soft_validations).to have(1).things
+    expect(soft_validations.soft_validations.count).to eq(1)
   end
 
   specify 'add with success/fail message without fix returns false' do

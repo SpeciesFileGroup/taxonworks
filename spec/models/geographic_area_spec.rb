@@ -116,7 +116,7 @@ describe GeographicArea do
         end
 
         specify 'descendants' do
-          expect(@champaign.root.descendants).to have(3).things
+          expect(@champaign.root.descendants.count).to eq(3)
         end
       end
     end
@@ -137,15 +137,15 @@ describe GeographicArea do
 
     context 'scopes/AREL' do
       specify 'children_at_level1' do
-        expect(@champaign.children_at_level1).to have(0).things
-        expect(@champaign.root.children_at_level1).to have(1).things
-        expect(@champaign.parent.parent.children_at_level1).to have(1).things
+        expect(@champaign.children_at_level1.count).to eq(0)
+        expect(@champaign.root.children_at_level1.count).to eq(1)
+        expect(@champaign.parent.parent.children_at_level1.count).to eq(1)
       end
 
       specify 'children_at_level2' do
-        expect(@champaign.children_at_level2).to have(0).things
-        expect(@champaign.root.children_at_level2).to have(1).things
-        expect(@champaign.parent.children_at_level2).to have(1).things
+        expect(@champaign.children_at_level2.count).to eq(0)
+        expect(@champaign.root.children_at_level2.count).to eq(1)
+        expect(@champaign.parent.children_at_level2.count).to eq(1)
       end
 
       specify 'descendants_of' do

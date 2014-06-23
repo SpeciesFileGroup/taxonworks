@@ -712,38 +712,38 @@ describe Protonym do
     }
 
     specify 'named' do
-      expect(Protonym.named('vitis')).to have(1).things
+      expect(Protonym.named('vitis').count).to eq(1)
     end
 
     specify 'with_name_in_array' do
-      expect(Protonym.with_name_in_array(['vitis'])).to have(1).things
-      expect(Protonym.with_name_in_array(['vitis', 'Erythroneura' ])).to have(3).things # genus 2x
+      expect(Protonym.with_name_in_array(['vitis']).count).to eq(1)
+      expect(Protonym.with_name_in_array(['vitis', 'Erythroneura' ]).count).to eq(3) # genus 2x
     end
 
     specify 'with_rank_class' do
-      expect(Protonym.with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus')).to have(1).things
+      expect(Protonym.with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').count).to eq(1)
     end  
 
     specify 'with_base_of_rank_class' do
-      expect(Protonym.with_base_of_rank_class('NomenclaturalRank::Iczn')).to have(11).things
-      expect(Protonym.with_base_of_rank_class('FamilyGroup')).to have(0).things
+      expect(Protonym.with_base_of_rank_class('NomenclaturalRank::Iczn').count).to eq(11)
+      expect(Protonym.with_base_of_rank_class('FamilyGroup').count).to eq(0)
     end
 
     specify 'with_rank_class_including' do
-      expect(Protonym.with_rank_class_including('Iczn')).to have(11).things
-      expect(Protonym.with_rank_class_including('GenusGroup')).to have(2).things
-      expect(Protonym.with_rank_class_including('FamilyGroup')).to have(4).things # When we rename Higher this will work
+      expect(Protonym.with_rank_class_including('Iczn').count).to eq(11)
+      expect(Protonym.with_rank_class_including('GenusGroup').count).to eq(2)
+      expect(Protonym.with_rank_class_including('FamilyGroup').count).to eq(4) # When we rename Higher this will work
     end
 
     specify 'descendants_of' do
-      expect(Protonym.descendants_of(Protonym.named('vitis').first)).to have(0).things 
-      expect( Protonym.descendants_of(Protonym.named('Erythroneura').with_rank_class_including('GenusGroup::Genus').first) ).to have(2).things 
+      expect(Protonym.descendants_of(Protonym.named('vitis').first).count).to eq(0)
+      expect( Protonym.descendants_of(Protonym.named('Erythroneura').with_rank_class_including('GenusGroup::Genus').first).count).to eq(2)
     end
 
     specify 'ancestors_of' do
-      expect(Protonym.ancestors_of(Protonym.named('vitis').first)).to have(11).things 
-      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first) ).to have(5).things 
-      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first).named('Arthropoda')).to have(1).things 
+      expect(Protonym.ancestors_of(Protonym.named('vitis').first).count).to eq(11)
+      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first).count).to eq(5)
+      expect(Protonym.ancestors_of(Protonym.named('Cicadellidae').first).named('Arthropoda').count).to eq(1)
     end
 
     context 'relationships' do
@@ -759,67 +759,67 @@ describe Protonym do
 
       # Has *a* relationship
       specify 'with_taxon_name_relationships_as_subject' do
-        expect(@g.all_taxon_name_relationships).to have(1).things
-        expect(Protonym.named('Erythroneura').with_taxon_name_relationships_as_subject).to have(1).things
+        expect(@g.all_taxon_name_relationships.count).to eq(1)
+        expect(Protonym.named('Erythroneura').with_taxon_name_relationships_as_subject.count).to eq(1)
       end
       specify 'with_taxon_name_relationships_as_object' do
-        expect(Protonym.named('vitis').with_taxon_name_relationships_as_object).to have(1).things
-        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object).to have(0).things
+        expect(Protonym.named('vitis').with_taxon_name_relationships_as_object.count).to eq(1)
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships_as_object.count).to eq(0)
       end
       specify 'with_taxon_name_relationships' do 
-        expect(Protonym.with_taxon_name_relationships).to have(2).things
-        expect(Protonym.named('vitis').with_taxon_name_relationships).to have(1).things
-        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships).to have(1).things
-        expect(Protonym.named('Erythroneurini').with_taxon_name_relationships).to have(0).things
+        expect(Protonym.with_taxon_name_relationships.count).to eq(2)
+        expect(Protonym.named('vitis').with_taxon_name_relationships.count).to eq(1)
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').with_taxon_name_relationships.count).to eq(1)
+        expect(Protonym.named('Erythroneurini').with_taxon_name_relationships.count).to eq(0)
       end
 
       # Specific relationship exists
       specify 'as_subject_with_taxon_name_relationship' do
-        expect(Protonym.as_subject_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(1).things
-        expect(Protonym.as_subject_with_taxon_name_relationship('blorf')).to have(0).things
+        expect(Protonym.as_subject_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus').count).to eq(1)
+        expect(Protonym.as_subject_with_taxon_name_relationship('blorf').count).to eq(0)
       end
       specify 'as_subject_with_taxon_name_relationship_base' do
-        expect(Protonym.as_subject_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination')).to have(1).things
-        expect(Protonym.as_subject_with_taxon_name_relationship_base('blorf')).to have(0).things
+        expect(Protonym.as_subject_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination').count).to eq(1)
+        expect(Protonym.as_subject_with_taxon_name_relationship_base('blorf').count).to eq(0)
       end
       specify 'as_subject_with_taxon_name_relationship_containing' do
-        expect(Protonym.as_subject_with_taxon_name_relationship_containing('OriginalCombination')).to have(1).things
-        expect(Protonym.as_subject_with_taxon_name_relationship_containing('blorf')).to have(0).things
+        expect(Protonym.as_subject_with_taxon_name_relationship_containing('OriginalCombination').count).to eq(1)
+        expect(Protonym.as_subject_with_taxon_name_relationship_containing('blorf').count).to eq(0)
       end
       specify 'as_object_with_taxon_name_relationship' do
-        expect(Protonym.as_object_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(1).things
-        expect(Protonym.as_object_with_taxon_name_relationship('blorf')).to have(0).things
+        expect(Protonym.as_object_with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus').count).to eq(1)
+        expect(Protonym.as_object_with_taxon_name_relationship('blorf').count).to eq(0)
       end
       specify 'as_object_with_taxon_name_relationship_base' do
-        expect(Protonym.as_object_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination')).to have(1).things
-        expect(Protonym.as_object_with_taxon_name_relationship_base('blorf')).to have(0).things
+        expect(Protonym.as_object_with_taxon_name_relationship_base('TaxonNameRelationship::OriginalCombination').count).to eq(1)
+        expect(Protonym.as_object_with_taxon_name_relationship_base('blorf').count).to eq(0)
       end
       specify 'as_object_with_taxon_name_relationship_containing' do
-        expect(Protonym.as_object_with_taxon_name_relationship_containing('OriginalCombination')).to have(1).things
-        expect(Protonym.as_object_with_taxon_name_relationship_containing('blorf')).to have(0).things
+        expect(Protonym.as_object_with_taxon_name_relationship_containing('OriginalCombination').count).to eq(1)
+        expect(Protonym.as_object_with_taxon_name_relationship_containing('blorf').count).to eq(0)
       end
       specify 'with_taxon_name_relationship' do
-        expect(Protonym.with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus')).to have(2).things
+        expect(Protonym.with_taxon_name_relationship('TaxonNameRelationship::OriginalCombination::OriginalGenus').count).to eq(2)
       end
 
       # Any relationship doesn't exists
       specify 'without_subject_taxon_name_relationships' do
-        expect(Protonym.named('vitis').without_subject_taxon_name_relationships).to have(1).things
-        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_subject_taxon_name_relationships).to have(0).things
+        expect(Protonym.named('vitis').without_subject_taxon_name_relationships.count).to eq(1)
+        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_subject_taxon_name_relationships.count).to eq(0)
       end
       specify 'without_object_taxon_name_relationships' do
-        expect(Protonym.named('vitis').without_object_taxon_name_relationships).to have(0).things
-        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_object_taxon_name_relationships).to have(1).things
+        expect(Protonym.named('vitis').without_object_taxon_name_relationships.count).to eq(0)
+        expect( Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_object_taxon_name_relationships.count).to eq(1)
       end
       specify 'without_taxon_name_relationships' do 
-        expect(Protonym.without_taxon_name_relationships).to have(Protonym.all.size - 2).things
-        expect(Protonym.without_taxon_name_relationships.named('vitis')).to have(0).things
-        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships).to have(0).things
-        expect(Protonym.named('Erythroneurini').without_taxon_name_relationships).to have(1).things
+        expect(Protonym.without_taxon_name_relationships.count).to eq(Protonym.all.size - 2)
+        expect(Protonym.without_taxon_name_relationships.named('vitis').count).to eq(0)
+        expect(Protonym.named('Erythroneura').with_rank_class('NomenclaturalRank::Iczn::GenusGroup::Genus').without_taxon_name_relationships.count).to eq(0)
+        expect(Protonym.named('Erythroneurini').without_taxon_name_relationships.count).to eq(1)
       end
 
       specify 'as_subject_without_taxon_name_relationship_base' do
-        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship')).to have(Protonym.all.size - 1).things
+        expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship').count).to eq(Protonym.all.size - 1)
       end
 
     end
@@ -835,25 +835,25 @@ describe Protonym do
       end
 
       specify 'with_taxon_name_classifications' do
-        expect(Protonym.with_taxon_name_classifications).to have(2).things
+        expect(Protonym.with_taxon_name_classifications.count).to eq(2)
       end
       specify 'without_taxon_name_classifications' do
-        expect(Protonym.without_taxon_name_classifications).to have(Protonym.all.size - 2).things
+        expect(Protonym.without_taxon_name_classifications.count).to eq(Protonym.all.size - 2)
       end
 
       specify 'without_taxon_name_classification' do
-        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available')).to have(Protonym.count - 1).things
-        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available::Valid')).to have(Protonym.count - 1).things
+        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available').count).to eq(Protonym.count - 1)
+        expect(Protonym.without_taxon_name_classification('TaxonNameClassification::Iczn::Available::Valid').count).to eq(Protonym.count - 1)
       end
  
       specify 'with_taxon_name_classification_base' do
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn') ).to have(2).things
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available') ).to have(2).things
-        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available::Valid') ).to have(1).things
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn').count).to eq(2)
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available').count).to eq(2)
+        expect(Protonym.with_taxon_name_classification_base('TaxonNameClassification::Iczn::Available::Valid').count).to eq(1)
       end
       specify 'with_taxon_name_classification_containing' do
-        expect(Protonym.with_taxon_name_classification_containing('Iczn') ).to have(2).things
-        expect(Protonym.with_taxon_name_classification_containing('Valid') ).to have(1).things
+        expect(Protonym.with_taxon_name_classification_containing('Iczn').count).to eq(2)
+        expect(Protonym.with_taxon_name_classification_containing('Valid').count).to eq(1)
       end
     end
   end

@@ -31,7 +31,7 @@ shared_examples 'notable' do
     notes = {notes_attributes: [{text: "a"}, {text: "b"}]}
     class_with_note.attributes = notes
     expect(class_with_note.save).to be_truthy
-    expect(class_with_note.notes).to have(2).things
+    expect(class_with_note.notes.count).to eq(2)
   end
 
   specify 'adding a object note works' do

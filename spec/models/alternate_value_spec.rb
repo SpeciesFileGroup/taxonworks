@@ -74,7 +74,7 @@ describe AlternateValue do
       o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_object: o, value: 'foo') 
       o.save!
 
-      expect(Otu.with_alternate_value_on(:name, 'foo')).to have(1).things
+      expect(Otu.with_alternate_value_on(:name, 'foo').count).to eq(1)
       expect(Otu.with_alternate_value_on(:name, 'foo').first.name).to eq('my concept') # see the otu_factory
     end
   end
@@ -84,7 +84,7 @@ describe AlternateValue do
       o = FactoryGirl.build(:valid_otu)
       o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_object: o, value: 'foo') 
       expect(o.save).to be_truthy
-      expect(o.alternate_values).to have(1).things
+      expect(o.alternate_values.count).to eq(1)
     end
 
     specify 'original_value' do

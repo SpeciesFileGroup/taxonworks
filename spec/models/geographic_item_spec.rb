@@ -664,7 +664,7 @@ describe GeographicItem do
         # one thing outside k
         expect(GeographicItem.containing('polygon', @p4).to_a).to eq([])
         # one thing inside two things (overlapping)
-        expect(GeographicItem.containing('polygon', @p12).to_a).to have(2).things
+        expect(GeographicItem.containing('polygon', @p12).to_a.count).to eq(2)
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
         # three things inside and one thing outside k

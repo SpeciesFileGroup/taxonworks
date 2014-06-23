@@ -134,7 +134,7 @@ describe Source::Bibtex do
       note =  "This is a note.\n With multiple lines."
       @valid_gem_bibtex_book.note = note 
       s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
-      expect(s.notes).to have(1).things
+      expect(s.notes.to_a.count).to eq(1)
       expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
       expect(s.save).to be_truthy
       expect(s.notes.first.id.nil?).to be_falsey
@@ -144,7 +144,7 @@ describe Source::Bibtex do
       identifier = '1-84356-028-3' # TODO: update when validation on isbn happens
       @valid_gem_bibtex_book.isbn = identifier
       s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
-      expect(s.identifiers).to have(1).things
+      expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -157,7 +157,7 @@ describe Source::Bibtex do
           identifier                  = "#{n}" # TODO: update when validation on issn happens
           @valid_gem_bibtex_book.issn = identifier
           s                           = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
-          expect(s.identifiers).to have(1).things
+          expect(s.identifiers.to_a.count).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
           expect(s.identifiers.first.id.nil?).to be_falsey
@@ -174,7 +174,7 @@ describe Source::Bibtex do
       identifier = '10.2345/S1384107697000225' # TODO: update when validation on doi happens
       @valid_gem_bibtex_book.doi = identifier
       s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
-      expect(s.identifiers).to have(1).things
+      expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -407,7 +407,7 @@ describe Source::Bibtex do
               @source_bibtex.reload
               expect(@source_bibtex.send(method.to_sym).size).to eq(1)
               #@source_bibtex.reload
-              expect(@source_bibtex.send(method.to_sym).to_a).to have(1).things
+              expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(1)
               expect((@source_bibtex.send(method.to_sym)).first.last_name).to eq('Smith')
               expect((@source_bibtex.send(method.to_sym)).first.first_name).to eq('Bill')
             end
@@ -420,7 +420,7 @@ describe Source::Bibtex do
               expect(@source_bibtex.create_related_people).to be_truthy
               @source_bibtex.reload
 
-              expect(@source_bibtex.send(method.to_sym).to_a).to have(3).things
+              expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(3)
               expect(@source_bibtex.send(method.to_sym).first.last_name).to eq('Thomas')
               expect(@source_bibtex.send(method.to_sym).first.first_name).to eq('D.')
               author1_id = @source_bibtex.send(method.to_sym).first.id
@@ -445,7 +445,7 @@ describe Source::Bibtex do
             @source_bibtex.reload
             @source_bibtex.authors.reload
             @source_bibtex.editors.reload
-            expect(@source_bibtex.send(method.to_sym).to_a).to have(3).things
+            expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(3)
 
             a_id       = @source_bibtex.send(method.to_sym).first.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[0]
@@ -479,7 +479,7 @@ describe Source::Bibtex do
           expect(@source_bibtex.create_related_people).to be_truthy
           @source_bibtex.reload
 
-          expect(@source_bibtex.authors.to_a).to have(3).things
+          expect(@source_bibtex.authors.to_a.count).to eq(3)
           expect(@source_bibtex.authors.first.last_name).to eq('Thomas')
           expect(@source_bibtex.authors.first.first_name).to eq('D.')
           author1_id = @source_bibtex.authors.first.id
@@ -490,7 +490,7 @@ describe Source::Bibtex do
           expect(@source_bibtex.authors.last.last_name).to eq('Hunt')
           expect(@source_bibtex.authors.last.first_name).to eq('Andy')
 
-          expect(@source_bibtex.editors.to_a).to have(1).things
+          expect(@source_bibtex.editors.to_a.count).to eq(1)
           expect(@source_bibtex.editors.first.last_name).to eq('Smith')
           expect(@source_bibtex.editors.first.first_name).to eq('Bill')
         end
@@ -575,7 +575,7 @@ describe Source::Bibtex do
       FactoryGirl.create(:valid_thesis)                         # 'Bugs by Beth': june 1982
       FactoryGirl.create(:valid_misc)                           # 'misc source': july 4 2010
       @sources = Source::Bibtex.all
-      expect(@sources).to have(4).things
+      expect(@sources.count).to eq(4)
 
       expect(@sources[0].title).to eq('article 1 just title')
       expect(@sources[1].title).to eq('valid book with just a title')
@@ -583,7 +583,7 @@ describe Source::Bibtex do
       expect(@sources[3].title).to eq('misc source')
       
       @source2 = @sources.order_by_nomenclature_date 
-      expect(@source2).to have(4).things
+      expect(@source2.count).to eq(4)
       expect(@source2.map(&:title)).to eq(['Bugs by Beth', 'article 1 just title', 'misc source', 'valid book with just a title'])
     end
   end

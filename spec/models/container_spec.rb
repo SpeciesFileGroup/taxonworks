@@ -32,7 +32,7 @@ describe Container do
    specify 'add items to an unsaved container' do
      container.collection_objects << (FactoryGirl.create(:valid_specimen))
      expect(container.save).to be_truthy
-     expect(container.container_items).to have(1).things   
+     expect(container.container_items.count).to eq(1)
    end
 
   end

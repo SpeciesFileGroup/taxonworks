@@ -158,7 +158,7 @@ describe CollectingEvent do
       c1 = FactoryGirl.create(:valid_collecting_event, verbatim_label: label)
       c2 = FactoryGirl.build(:valid_collecting_event, verbatim_label: label)
       expect(c2.valid?).to be_falsey
-      expect(c2.errors_on(:md5_of_verbatim_label)).to have(1).things
+      expect(c2.errors_on(:md5_of_verbatim_label).count).to eq(1)
     end
  end
 
