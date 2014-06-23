@@ -1,7 +1,8 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :collection_profile do
+
+  trait :collection_profile_indices do
     container nil
     otu nil
     # collection_type 'dry | wet | slide'
@@ -15,9 +16,9 @@ FactoryGirl.define do
     computerization_level 3
     number_of_collection_objects 1
     number_of_containers nil
-    created_by_id 1
-    updated_by_id 1
-    project_id 1
+  end
+
+  factory :collection_profile, traits: [:housekeeping, :collection_profile_indices] do
 
     factory :dry_collection_profile, aliases: [:valid_collection_profile] do
       collection_type 'dry'

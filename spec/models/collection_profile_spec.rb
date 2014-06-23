@@ -58,12 +58,11 @@ describe CollectionProfile do
 
   context 'validate' do
     specify 'valid profile' do
-      p = FactoryGirl.create(:valid_collection_profile)
-      expect(p.valid?).to be_true
+      p = FactoryGirl.create(:dry_collection_profile)
+      expect(p.valid?).to be_truthy
     end
     specify 'missing fields' do
-      p = FactoryGirl.build_stubbed(:collection_profile,
-                                    collection_type: 'dry',
+      p = FactoryGirl.build_stubbed(:dry_collection_profile,
                                     conservation_status: 5,
                                     processing_state: 5,
                                     container_condition: 5,
@@ -71,58 +70,54 @@ describe CollectionProfile do
                                     identification_level: 5,
                                     arrangement_level: 5,
                                     data_quality: 5,
-                                    computerization_level: 5,
-                                    number_of_collection_objects: nil)
-      expect(p.valid?).to be_false
-      expect(p.errors.include?(:conservation_status)).to be_true
-      expect(p.errors.include?(:processing_state)).to be_true
-      expect(p.errors.include?(:container_condition)).to be_true
-      expect(p.errors.include?(:condition_of_labels)).to be_true
-      expect(p.errors.include?(:identification_level)).to be_true
-      expect(p.errors.include?(:arrangement_level)).to be_true
-      expect(p.errors.include?(:data_quality)).to be_true
-      expect(p.errors.include?(:computerization_level)).to be_true
-      expect(p.errors.include?(:number_of_collection_objects)).to be_true
-      expect(p.errors.include?(:number_of_containers)).to be_true
+                                    computerization_level: 5)
+      expect(p.valid?).to be_falsey
+      expect(p.errors.include?(:conservation_status)).to be_truthy
+      expect(p.errors.include?(:processing_state)).to be_truthy
+      expect(p.errors.include?(:container_condition)).to be_truthy
+      expect(p.errors.include?(:condition_of_labels)).to be_truthy
+      expect(p.errors.include?(:identification_level)).to be_truthy
+      expect(p.errors.include?(:arrangement_level)).to be_truthy
+      expect(p.errors.include?(:data_quality)).to be_truthy
+      expect(p.errors.include?(:computerization_level)).to be_truthy
     end
     specify 'invalid updated_at' do
-      p = FactoryGirl.build_stubbed(:collection_profile)
+      p = FactoryGirl.create(:dry_collection_profile)
       p.updated_at = Time.now + 5.days
-      expect(p.valid?).to be_false
+      expect(p.valid?).to be_falsey
     end
   end
 
   context 'indices' do
     specify 'count' do
-      expect(CollectionProfile.favret_conservation_status_indices('dry').size).to eq(3)
-      expect(CollectionProfile.favret_conservation_status_indices('wet').size).to eq(3)
-      expect(CollectionProfile.favret_conservation_status_indices('slide').size).to eq(3)
-      expect(CollectionProfile.favret_processing_state_indices('dry').size).to eq(3)
-      expect(CollectionProfile.favret_processing_state_indices('wet').size).to eq(3)
-      expect(CollectionProfile.favret_processing_state_indices('slide').size).to eq(2)
-      expect(CollectionProfile.favret_container_condition_indices('dry').size).to eq(4)
-      expect(CollectionProfile.favret_container_condition_indices('wet').size).to eq(4)
-      expect(CollectionProfile.favret_container_condition_indices('slide').size).to eq(4)
-      expect(CollectionProfile.favret_condition_of_labels_indices('dry').size).to eq(3)
-      expect(CollectionProfile.favret_condition_of_labels_indices('wet').size).to eq(3)
-      expect(CollectionProfile.favret_condition_of_labels_indices('slide').size).to eq(3)
-      expect(CollectionProfile.favret_identification_level_indices('dry').size).to eq(4)
-      expect(CollectionProfile.favret_identification_level_indices('wet').size).to eq(4)
-      expect(CollectionProfile.favret_identification_level_indices('slide').size).to eq(4)
-      expect(CollectionProfile.favret_arrangement_level_indices('dry').size).to eq(4)
-      expect(CollectionProfile.favret_arrangement_level_indices('wet').size).to eq(4)
-      expect(CollectionProfile.favret_arrangement_level_indices('slide').size).to eq(4)
-      expect(CollectionProfile.favret_data_quality_indices('dry').size).to eq(4)
-      expect(CollectionProfile.favret_data_quality_indices('wet').size).to eq(4)
-      expect(CollectionProfile.favret_data_quality_indices('slide').size).to eq(4)
-      expect(CollectionProfile.favret_computerization_level_indices('dry').size).to eq(3)
-      expect(CollectionProfile.favret_computerization_level_indices('wet').size).to eq(3)
-      expect(CollectionProfile.favret_computerization_level_indices('slide').size).to eq(3)
-      expect(CollectionProfile.favret_computerization_level_indices('aaa').size).to eq(0)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:conservation_status].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:conservation_status].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:processing_state].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:processing_state].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:processing_state].size).to eq(2)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:container_condition].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:container_condition].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:container_condition].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:condition_of_labels].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:condition_of_labels].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:condition_of_labels].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:identification_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:identification_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:identification_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:arrangement_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:arrangement_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:arrangement_level].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:data_quality].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:data_quality].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:data_quality].size).to eq(4)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:computerization_level].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:computerization_level].size).to eq(3)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:computerization_level].size).to eq(3)
     end
     specify 'index value' do
-      expect(CollectionProfile.favret_conservation_status_indices('dry')[1].class).to eq(String)
-      expect(CollectionProfile.favret_conservation_status_indices('wet')[5]).to eq(nil)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1].class).to eq(String)
+      expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][5]).to eq(nil)
     end
   end
 end
