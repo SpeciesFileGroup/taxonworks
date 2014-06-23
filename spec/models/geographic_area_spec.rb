@@ -12,27 +12,27 @@ describe GeographicArea do
 
     context 'required fields' do
       specify 'name' do
-        expect(geographic_area.errors.include?(:name)).to be_true
+        expect(geographic_area.errors.include?(:name)).to be_truthy
       end
 
       specify 'blank names are invalid' do
         geographic_area.name = ''
         geographic_area.valid?
-        expect(geographic_area.errors.include?(:name)).to be_true
+        expect(geographic_area.errors.include?(:name)).to be_truthy
       end
 
       specify 'names are minimum length' do
         geographic_area.name = '1'
         geographic_area.valid?
-        expect(geographic_area.errors.include?(:name)).to be_false
+        expect(geographic_area.errors.include?(:name)).to be_falsey
       end
 
       specify 'data_origin' do
-        expect(geographic_area.errors.include?(:data_origin)).to be_true
+        expect(geographic_area.errors.include?(:data_origin)).to be_truthy
       end
 
       specify 'geographic_area_type' do
-        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true
+        expect(geographic_area.errors.include?(:geographic_area_type)).to be_truthy
       end
     end
   end
@@ -89,8 +89,8 @@ describe GeographicArea do
         }
 
         specify 'lft,rgt' do
-          expect(@champaign.lft > 0).to be_true
-          expect(@champaign.rgt > 0).to be_true
+          expect(@champaign.lft > 0).to be_truthy
+          expect(@champaign.rgt > 0).to be_truthy
         end
 
         specify 'parent string' do

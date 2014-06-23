@@ -8,7 +8,7 @@ describe Keyword do
 
     specify "can be used for tags" do
       t = Tag.new(keyword: @k, tag_object: FactoryGirl.build(:valid_otu))
-      expect(t.save).to be_true
+      expect(t.save).to be_truthy
     end
 
     specify "can not be used for other things" do
@@ -19,7 +19,7 @@ describe Keyword do
   context 'associations' do
     context 'has_many' do
       specify 'tags' do
-        expect(keyword.tags << FactoryGirl.build(:valid_tag)).to be_true
+        expect(keyword.tags << FactoryGirl.build(:valid_tag)).to be_truthy
       end
     end
   end

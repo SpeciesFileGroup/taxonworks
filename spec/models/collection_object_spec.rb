@@ -7,14 +7,14 @@ describe CollectionObject do
   context 'validation' do
     specify 'require type' do
       collection_object.valid?
-      expect(collection_object.errors.include?(:type)).to be_true
+      expect(collection_object.errors.include?(:type)).to be_truthy
     end
 
     specify 'both total and ranged_lot_category_id can not be present' do
       collection_object.total = 10
       collection_object.ranged_lot_category_id = 10
-      expect(collection_object.valid?).to be_false
-      expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_true
+      expect(collection_object.valid?).to be_falsey
+      expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
     end 
   end
 

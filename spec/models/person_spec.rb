@@ -26,11 +26,11 @@ describe Person do
 
     specify 'validly_published type is either vetted or unvetted' do
       #expect(person.type).to eq('Person::Vetted' or 'Person::Unvetted')
-      #expect(['Person::Vetted', 'Person::Unvetted'].include?(person.type)).to be_true
-      expect(person.errors.include?(:type)).to be_false
+      #expect(['Person::Vetted', 'Person::Unvetted'].include?(person.type)).to be_truthy
+      expect(person.errors.include?(:type)).to be_falsey
       person.type='funny'
       person.valid?
-      expect(person.errors.include?(:type)).to be_true #should have an error
+      expect(person.errors.include?(:type)).to be_truthy #should have an error
     end
   end
 
@@ -93,19 +93,19 @@ describe Person do
 
       context 'usage' do
         specify 'initials and last name only' do
-          expect(@person1.valid?).to be_true
+          expect(@person1.valid?).to be_truthy
         end
 
         specify 'camel cased last name and initials' do
-          expect(@person2.valid?).to be_true
+          expect(@person2.valid?).to be_truthy
         end
 
         specify 'cased last initials and last name only' do
-          expect(@person3.valid?).to be_true
+          expect(@person3.valid?).to be_truthy
         end
 
         specify 'last name, dashed first name' do
-          expect(@person4.valid?).to be_true
+          expect(@person4.valid?).to be_truthy
         end
 
         context 'rendering' do
@@ -124,68 +124,68 @@ describe Person do
       }
 
       specify '@vp is valid person' do
-        expect(@vp.valid?).to be_true
+        expect(@vp.valid?).to be_truthy
       end
 
       specify 'is_author?' do
         expect(@vp).to respond_to(:is_author?)
-        expect(@vp.is_author?).to be_false
+        expect(@vp.is_author?).to be_falsey
         source_bibtex.authors << @vp
         source_bibtex.save!
         @vp.reload
-        expect(@vp.is_author?).to be_true
+        expect(@vp.is_author?).to be_truthy
       end
       specify 'is_editor?' do
         expect(@vp).to respond_to(:is_editor?)
-        expect(@vp.is_editor?).to be_false
+        expect(@vp.is_editor?).to be_falsey
         source_bibtex.editors << @vp
         source_bibtex.save!
         @vp.reload
-        expect(@vp.is_editor?).to be_true
+        expect(@vp.is_editor?).to be_truthy
       end
       specify 'is_source?' do
         expect(@vp).to respond_to(:is_source?)
-        expect(@vp.is_source?).to be_false
+        expect(@vp.is_source?).to be_falsey
         human_source.people << @vp
         human_source.save!
         @vp.reload
-        expect(@vp.is_source?).to be_true
+        expect(@vp.is_source?).to be_truthy
       end
       specify 'is_collector?' do
         expect(@vp).to respond_to(:is_collector?)
-        expect(@vp.is_collector?).to be_false
+        expect(@vp.is_collector?).to be_falsey
         coll_event = FactoryGirl.create(:valid_collecting_event) 
         coll_event.collectors << @vp
         coll_event.save!
         @vp.reload
-        expect(@vp.is_collector?).to be_true
+        expect(@vp.is_collector?).to be_truthy
       end
       specify 'is_determiner?' do
         expect(@vp).to respond_to(:is_determiner?)
-        expect(@vp.is_determiner?).to be_false
+        expect(@vp.is_determiner?).to be_falsey
         taxon_determination = FactoryGirl.create(:valid_taxon_determination)
         taxon_determination.determiner = @vp
         taxon_determination.save!
         @vp.reload # vp is getting set to 1, not @vp.id with this format
-        expect(@vp.is_determiner?).to be_true
+        expect(@vp.is_determiner?).to be_truthy
       end
       specify 'is_taxon_name_author?' do
         expect(@vp).to respond_to(:is_taxon_name_author?)
-        expect(@vp.is_taxon_name_author?).to be_false
+        expect(@vp.is_taxon_name_author?).to be_falsey
         taxon_name = FactoryGirl.create(:valid_protonym)
         taxon_name.taxon_name_authors << @vp
         taxon_name.save!
         @vp.reload
-        expect(@vp.is_taxon_name_author?).to be_true
+        expect(@vp.is_taxon_name_author?).to be_truthy
       end
       specify 'is_type_designator?' do
         expect(@vp).to respond_to(:is_type_designator?)
-        expect(@vp.is_type_designator?).to be_false
+        expect(@vp.is_type_designator?).to be_falsey
         type_material = FactoryGirl.create(:valid_type_material)
         type_material.type_designators << @vp
         type_material.save!
         @vp.reload
-        expect(@vp.is_type_designator?).to be_true
+        expect(@vp.is_type_designator?).to be_truthy
       end
     end
   end

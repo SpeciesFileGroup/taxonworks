@@ -15,12 +15,12 @@ describe GeographicAreaType do
       geographic_area_type.valid?
     }
     specify 'name' do
-      expect(geographic_area_type.errors.include?(:name)).to be_true
+      expect(geographic_area_type.errors.include?(:name)).to be_truthy
     end
   
     specify 'only a name is required' do
       geographic_area_type.name = 'Country'
-      expect(geographic_area_type.save).to be_true
+      expect(geographic_area_type.save).to be_truthy
     end 
   end
 end

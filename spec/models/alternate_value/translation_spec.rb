@@ -10,7 +10,7 @@ describe AlternateValue::Translation do
         translation.valid?
       }
       specify 'language' do
-        expect(translation.errors.include?(:language)).to be_true
+        expect(translation.errors.include?(:language)).to be_truthy
       end
     end
   end

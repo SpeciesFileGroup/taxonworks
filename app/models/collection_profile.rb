@@ -1,6 +1,6 @@
 # @!attribute collection_type 
 #   @return String
-#   TODO: Resolve use/meaning of this, was intended for "wet", "dry" etc. 
+#  "wet", "dry", or "slide"
 
 class CollectionProfile < ActiveRecord::Base
 
@@ -15,7 +15,7 @@ class CollectionProfile < ActiveRecord::Base
   scope :with_otu_id, -> (otu) {where(otu_id: otu)  }                                           # .order('created_at DESC') }
 
   # Use shared scopes lib/housekeeping/timestamps for this
-  scope :all_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
+  scope :created_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
 
   validates :conservation_status,
             :processing_state,

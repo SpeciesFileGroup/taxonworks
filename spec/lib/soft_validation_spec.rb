@@ -14,12 +14,12 @@ describe 'SoftValidation' do
       before(:each) {Softy.soft_validation_methods = {all: []} }
 
       specify 'basic use: soft_validate(:method)' do
-        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_true
+        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
         expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
       end
 
       specify 'assigment to a named set of validations: soft_validate(:method, set: :set_name)' do
-        expect(Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)).to be_true
+        expect(Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)).to be_truthy
         expect(Softy.soft_validation_methods[:all]).to eq([:needs_moar_cheez?])
         expect(Softy.soft_validation_methods[:cheezy]).to eq([:needs_moar_cheez?])
       end
@@ -32,10 +32,10 @@ describe 'SoftValidation' do
       }
 
       specify 'methods assigned to one class are not available to another' do
-        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_true
+        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
         expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
         expect(OtherSofty.soft_validation_methods[:all]).to eq([])
-        expect(OtherSofty.soft_validate(:foo)).to be_true
+        expect(OtherSofty.soft_validate(:foo)).to be_truthy
         expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
         expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
       end
@@ -73,13 +73,13 @@ describe 'SoftValidation' do
     let(:softy) {Softy.new}
 
     specify 'softy.soft_valid?' do
-      expect(softy.soft_valid?).to be_false
+      expect(softy.soft_valid?).to be_falsey
     end
 
     specify 'softy.soft_validated?' do
-      expect(softy.soft_validated?).to be_false
+      expect(softy.soft_validated?).to be_falsey
       softy.soft_validate
-      expect(softy.soft_validated?).to be_true
+      expect(softy.soft_validated?).to be_truthy
     end
 
     context 'after soft_validate' do
@@ -90,7 +90,7 @@ describe 'SoftValidation' do
 
       specify 'softy.soft_validate' do
         expect(@softy.soft_validations.class).to eq(SoftValidation::SoftValidations)
-        expect(@softy.soft_validations.fixes_run?).to be_false
+        expect(@softy.soft_validations.fixes_run?).to be_falsey
       end
 
       specify 'softy.fix_soft_validations(:some_bad_value)' do
@@ -99,7 +99,7 @@ describe 'SoftValidation' do
 
       specify 'softy.fix_soft_validations' do
         expect(@softy.soft_validations.on(:mohr).size).to eq(1)
-        expect(@softy.fix_soft_validations).to be_true      
+        expect(@softy.fix_soft_validations).to be_truthy
         expect(@softy.soft_validations.fixes_run?).to eq(:automatic) # be_true 
         expect(@softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no fix available"])
 
@@ -111,7 +111,7 @@ describe 'SoftValidation' do
 
       specify 'softy.fix_soft_validations(:requested)' do
         expect(@softy.soft_validations.on(:mohr).size).to eq(1)
-        expect(@softy.fix_soft_validations(:requested)).to be_true      
+        expect(@softy.fix_soft_validations(:requested)).to be_truthy
         expect(@softy.soft_validations.fixes_run?).to eq(:requested) 
         expect(@softy.soft_validations.fix_messages).to eq(mohr: ["fix not run, no fix available"], base: ['fix available, but not triggered'])
       end
@@ -131,31 +131,31 @@ describe 'SoftValidations' do
   end
 
   specify 'add(:attribute, "message")' do
-    expect(soft_validations.add(:base, 'no cheezburgahz!')).to be_true
+    expect(soft_validations.add(:base, 'no cheezburgahz!')).to be_truthy
     expect(soft_validations.soft_validations).to have(1).things
   end
 
   specify 'add(:attribute, "message", fix: :method)' do
-    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah')).to be_true
+    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah')).to be_truthy
     expect(soft_validations.soft_validations).to have(1).things
   end
 
   specify 'add(:attribute, "message", fix: :method, fix_trigger: :automatic)' do
-    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', fix_trigger: :automatic)).to be_true
+    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', fix_trigger: :automatic)).to be_truthy
     expect(soft_validations.soft_validations).to have(1).things
   end
 
   specify 'add with success/fail message without fix returns false' do
-    expect(soft_validations.add(:base,'no cheezburgahz!', success_message: 'cook_a_burgah')).to be_false
+    expect(soft_validations.add(:base,'no cheezburgahz!', success_message: 'cook_a_burgah')).to be_falsey
   end
 
   specify 'add(:attribute, "message", fix: :method, success_message: "win",  failure_message: "fail")' do
-    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', success_message: 'haz cheezburger', failure_message: 'no cheezburger')).to be_true
+    expect(soft_validations.add(:base, 'no cheezburgahz!', fix: 'cook_a_burgah', success_message: 'haz cheezburger', failure_message: 'no cheezburger')).to be_truthy
   end
 
   specify 'complete?' do
     soft_validations.validated = true 
-    expect(soft_validations.complete?).to be_true
+    expect(soft_validations.complete?).to be_truthy
   end
 
   specify 'on' do
@@ -198,7 +198,7 @@ describe 'SoftValidation' do
     specify 'fixed' do
       expect(soft_validation).to respond_to(:fixed) 
       soft_validation.fixed = :fixed
-      expect(soft_validation.fixed?).to be_true 
+      expect(soft_validation.fixed?).to be_truthy
     end
   end
 

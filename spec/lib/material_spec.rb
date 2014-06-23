@@ -142,7 +142,7 @@ describe Material::QuickVerbatimResponse do
     expect(Specimen.count).to eq(0)
     expect(Identifier.count).to eq(0)
     expect(Note.count).to eq(0)
-    expect(@response.save).to be_true
+    expect(@response.save).to be_truthy
     expect(Specimen.count).to eq(1)
     expect(Identifier.count).to eq(1)
     expect(Note.count).to eq(1)

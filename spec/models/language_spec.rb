@@ -9,11 +9,11 @@ describe Language do
      language.valid?
     } 
     specify 'require english_name' do
-      expect(language.errors.include?(:english_name)).to be_true
+      expect(language.errors.include?(:english_name)).to be_truthy
     end
 
     specify 'require alpha_3_bibliographic' do
-      expect(language.errors.include?(:alpha_3_bibliographic)).to be_true
+      expect(language.errors.include?(:alpha_3_bibliographic)).to be_truthy
     end
   end
 

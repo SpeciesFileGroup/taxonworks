@@ -10,7 +10,7 @@ describe User do
   context 'associations' do
     context 'has_many' do
       specify 'projects' do
-        expect(user.projects << Project.new()).to be_true
+        expect(user.projects << Project.new()).to be_truthy
       end
     end
   end
@@ -18,7 +18,7 @@ describe User do
   context 'authorization' do
     context 'when just a user' do
       specify '#is_administrator? is false' do
-        expect(user.is_administrator?).to be_falsey  
+        expect(user.is_administrator?).to be_falsey
       end
 
       specify '#is_project_administrator? is false' do

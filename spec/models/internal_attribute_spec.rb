@@ -9,7 +9,7 @@ describe InternalAttribute do
     }
     context 'requires' do
       specify 'predicate' do
-        expect(attribute.errors.include?(:predicate)).to be_true
+        expect(attribute.errors.include?(:predicate)).to be_truthy
       end
     end
   end

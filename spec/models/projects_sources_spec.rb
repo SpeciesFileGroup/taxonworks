@@ -10,10 +10,10 @@ describe ProjectsSources do
     }
     context 'requires' do
       specify 'project' do
-        expect(project_source.errors.include?(:project)).to be_true
+        expect(project_source.errors.include?(:project)).to be_truthy
       end
       specify 'project' do
-        expect(project_source.errors.include?(:source)).to be_true
+        expect(project_source.errors.include?(:source)).to be_truthy
       end
     end
   end

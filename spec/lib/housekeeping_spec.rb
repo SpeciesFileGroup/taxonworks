@@ -34,12 +34,12 @@ describe 'Housekeeping::User' do
 
         specify 'created_by_id is required' do
           @i.valid?
-          expect(@i.errors.include?(:creator)).to be_true
+          expect(@i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updated_by_id is required' do
           @i.valid?
-          expect(@i.errors.include?(:updater)).to be_true
+          expect(@i.errors.include?(:updater)).to be_truthy
         end
       end
 
@@ -49,12 +49,12 @@ describe 'Housekeeping::User' do
 
         specify 'creator must exist' do
           @i.valid? 
-          expect(@i.errors.include?(:creator)).to be_true  
+          expect(@i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updater must exist' do
           @i.valid? 
-          expect(@i.errors.include?(:updater)).to be_true  
+          expect(@i.errors.include?(:updater)).to be_truthy
         end
       end
     end
@@ -106,15 +106,15 @@ describe 'Housekeeping::User' do
         specify 'project is set from $project_id ' do
           $project_id = nil # TODO: make a with_no_project method 
           @i.valid?
-          expect(@i.project_id.nil?).to be_true 
-          expect(@i.errors.include?(:project)).to be_true
+          expect(@i.project_id.nil?).to be_truthy
+          expect(@i.errors.include?(:project)).to be_truthy
           $project_id = 1 # return the global to its state
         end
 
         specify 'project must exist' do
           $project_id = 342432
           @i.valid?  # even when set, it's not necessarily valid
-          expect(@i.errors.include?(:project)).to be_true  # there is no project with id 1 in the present paradigm
+          expect(@i.errors.include?(:project)).to be_truthy  # there is no project with id 1 in the present paradigm
           $project_id = 1
         end
 
@@ -144,9 +144,9 @@ describe 'Housekeeping::User' do
           specify 'instance must belong to the project before save' do
             skip 
             # $project_id = @project1.id
-            # expect(@i.valid?).to be_true
+            # expect(@i.valid?).to be_truthy
             # expect(@i.project_id).to eq(@project1.id)
-            # expect(@i.save).to be_true
+            # expect(@i.save).to be_truthy
 
             # @i.project_id = @project2.id 
             # expect{@i.save}.to raise_error

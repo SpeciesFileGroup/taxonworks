@@ -31,7 +31,7 @@ describe Container do
 
    specify 'add items to an unsaved container' do
      container.collection_objects << (FactoryGirl.create(:valid_specimen))
-     expect(container.save).to be_true
+     expect(container.save).to be_truthy
      expect(container.container_items).to have(1).things   
    end
 
@@ -46,22 +46,22 @@ describe Container do
   context 'validation' do
     specify 'type' do
       container.type = 'aaa'
-      expect(container.valid?).to be_false
+      expect(container.valid?).to be_falsey
       container.type = 'Container::Drawer'
-      expect(container.valid?).to be_true
+      expect(container.valid?).to be_truthy
     end
   end
 
   context 'soft validation' do
     specify 'inapropriate parent container' do
       container.type = 'Container::Drawer'
-      expect(container.save).to be_true
+      expect(container.save).to be_truthy
       container1 = FactoryGirl.build_stubbed(:container, type: 'Container::Cabinet', parent: container)
       container2 = FactoryGirl.build_stubbed(:container, type: 'Container::Pin', parent: container)
       container1.soft_validate(:parent_type)
       container2.soft_validate(:parent_type)
       expect(container1.soft_validations.messages_on(:type).count).to eq(1)
-      expect(container2.soft_validations.messages_on(:type).empty?).to be_true
+      expect(container2.soft_validations.messages_on(:type).empty?).to be_truthy
     end
   end
 

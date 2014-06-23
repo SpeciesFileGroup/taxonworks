@@ -10,7 +10,7 @@ describe 'Latin' do
 
     context "they are not validly_published gender variations" do
       specify "if their lengths differ by more than 1" do
-        expect(Latin.same_root_name?(name1, name3)).to be_false
+        expect(Latin.same_root_name?(name1, name3)).to be_falsey
       end
     end
 
@@ -23,7 +23,7 @@ describe 'Latin' do
         expect(Latin.root(name2)).to eq('A')
         expect(Latin.root('absurda')).to eq('absurd')
         expect(Latin.root('absurdum')).to eq('absurd')
-        expect(Latin.root(name1) == Latin.root(name2)).to be_true
+        expect(Latin.root(name1) == Latin.root(name2)).to be_truthy
       end
     end
 

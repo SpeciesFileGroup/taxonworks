@@ -7,7 +7,7 @@ describe NomenclaturalRank do
         rank_class = Ranks.lookup(:iczn, 'family')
         rank_class2 = Ranks.lookup(:iczn, 'genus')
         expect(RANKS.index(rank_class).class).to eq(Fixnum)
-        expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_true
+        expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_truthy
     end
   end
 
@@ -77,7 +77,7 @@ describe NomenclaturalRank do
       NomenclaturalRank.descendants.each do |rank|
         all = rank.descendants
         candidates = all.reject { |r| r.parent_rank.nil? or all.include?(r.parent_rank) }
-        expect(candidates.size < 2).to be_true
+        expect(candidates.size < 2).to be_truthy
       end
     end 
   end    

@@ -10,13 +10,13 @@ describe PublicContent do
 
     context 'requires' do
       specify 'otu' do
-        expect(public_content.errors.include?(:otu)).to be_true
+        expect(public_content.errors.include?(:otu)).to be_truthy
       end
       specify 'topic' do
-        expect(public_content.errors.include?(:topic)).to be_true
+        expect(public_content.errors.include?(:topic)).to be_truthy
       end
       specify 'text' do
-        expect(public_content.errors.include?(:text)).to be_true
+        expect(public_content.errors.include?(:text)).to be_truthy
       end
     end
   end

@@ -12,7 +12,7 @@ describe BiocurationGroup do
     }
 
     specify 'tags (through Keywords)' do
-      expect(biocuration_group.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))).to be_true
+      expect(biocuration_group.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))).to be_truthy
     end
 
     specify 'biocuration_classes' do
