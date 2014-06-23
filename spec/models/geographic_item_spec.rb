@@ -626,8 +626,9 @@ describe GeographicItem do
                                                                                  @p8, @p9, @p10, @p11,
                                                                                  @p12, @p13, @p14, @p15,
                                                                                  @p16, @p17, @p18, @p19]) #
-        expect(GeographicItem.err_with_collecting_event.count).to eq(5) #
-        expect(GeographicItem.err_with_collecting_event.to_a).to eq([@area_d, @k, @k, @e2, @k]) #
+        result = GeographicItem.err_with_collecting_event.to_a
+        expect(result.count).to eq(5) #
+        expect(result).to include(@area_d, @e2, @k) #
       end
 
       specify '.include_collecting_event' do
