@@ -63,7 +63,7 @@ describe AlternateValue do
     end
 
     specify 'can not add alternate values to NON_ANNOTATABLE_COLUMNS' do
-      pending
+      skip
     end
 
   end

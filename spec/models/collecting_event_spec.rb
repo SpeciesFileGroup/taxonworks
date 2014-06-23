@@ -141,7 +141,7 @@ describe CollectingEvent do
       collecting_event.end_date_month = 1
       collecting_event.end_date_year = 1
 
-      expect(collecting_event.valid?).to_not be_true 
+      expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors_on(:base).include?(message)).to be_truthy
     end 
 
@@ -149,7 +149,7 @@ describe CollectingEvent do
       message = 'Maximum elevation is lower than minimum elevation.'
       collecting_event.minimum_elevation = 2
       collecting_event.maximum_elevation = 1
-      expect(collecting_event.valid?).to_not be_true 
+      expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors_on(:maximum_elevation).include?(message)).to be_truthy
     end
 

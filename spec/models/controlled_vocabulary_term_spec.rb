@@ -33,7 +33,7 @@ describe ControlledVocabularyTerm do
     specify 'name is unique within projects per type'  do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term)
       b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.')
-      expect(b.valid?).to_not be_true
+      expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
     end

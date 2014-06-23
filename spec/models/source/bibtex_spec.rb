@@ -620,15 +620,15 @@ describe Source::Bibtex do
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
         # the roles should be automatically set? (Yes)
-        pending
+        skip
       end
 
       specify 'after create/saved author/editor fields are cached versions of (="verbatim_" of TW) of authors/editors' do
-        pending
+        skip
       end
 
       specify 'if authors/editors are updated' do
-        pending
+        skip
       end
 
       context 'on validation' do
@@ -677,12 +677,12 @@ describe Source::Bibtex do
     context 'create_with_roles(BibTeX::Entry instance)' do
 
       specify 'creates author/editor roles with Person::Unvetted by default' do
-        pending
+        skip
       end
 
       context 'parameters' do
         specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
-          pending
+          skip
         end
       end
     end
