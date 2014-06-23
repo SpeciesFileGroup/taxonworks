@@ -42,21 +42,15 @@ class GeographicItem < ActiveRecord::Base
 
   # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
 
+  scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
+
   # within_radius_of('polygon', @geographic_item, 100)
   # excluding(some_gi)
   # with_collecting_event
   # include_collecting_event
 
-  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-  scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
-  
-  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-#  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
-  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) } 
-
   # TODO: is this just an 'or' of the two above 'joins', or os there a better way?
   # scope :all_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
-  scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
 
   def self.all_with_collecting_event
     g = GeographicItem.geo_with_collecting_event.distinct
@@ -64,6 +58,13 @@ class GeographicItem < ActiveRecord::Base
     r = g + e
     GeographicItem.where('id in (?)', r.map(&:id).uniq)
   end
+
+  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
+  scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
+  
+  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
+#  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
+  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) } 
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)

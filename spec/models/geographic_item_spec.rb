@@ -25,7 +25,7 @@ describe GeographicItem do
   context 'database functions' do
 
     specify 'ST_Geometry_Same' do
-      pending
+      skip
       #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
       #                           geographic_item_with_line_string.geo_object)).to be_true
       #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
@@ -33,12 +33,12 @@ describe GeographicItem do
     end
 
     specify 'ST_Area' do
-      pending
+      skip
       #expect(GeographicItem.area(geographic_item_with_polygon.geo_object)).to eq 0.123
     end
 
     specify 'ST_Azimuth' do
-      pending
+      skip
       #expect(GeographicItem.azimuth(geographic_item_with_point_a.geo_object,
       #                              geographic_item_with_point_b.geo_object)).to eq 44.5
       #expect(GeographicItem.azimuth(geographic_item_with_point_b.geo_object,
@@ -48,12 +48,12 @@ describe GeographicItem do
     end
 
     specify 'ST_Centroid' do
-      pending
+      skip
       #expect(GeographicItem.centroid(geographic_item_with_polygon.polygon)).to eq geographic_item_with_point_c
     end
 
     specify 'ST_Contains' do
-      pending
+      skip
       #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
       #                               geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.contains(geographic_item_with_point_c.geo_object,
@@ -67,7 +67,7 @@ describe GeographicItem do
     end
 
     specify 'ST_ContainsProperly ' do
-      pending
+      skip
       #expect(GeographicItem.contains_properly(geographic_item_with_polygon.geo_object,
       #                                        geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.contains_properly(geographic_item_with_point_c.geo_object,
@@ -75,7 +75,7 @@ describe GeographicItem do
     end
 
     specify 'ST_Covers' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -83,7 +83,7 @@ describe GeographicItem do
     end
 
     specify 'ST_CoveredBy' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -91,7 +91,7 @@ describe GeographicItem do
     end
 
     specify 'ST_Crosses' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -99,7 +99,7 @@ describe GeographicItem do
     end
 
     specify 'ST_LineCrossingDirection' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -107,7 +107,7 @@ describe GeographicItem do
     end
 
     specify 'ST_Disjoint' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -115,7 +115,7 @@ describe GeographicItem do
     end
 
     specify 'ST_Distance' do
-      pending
+      skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_true
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
@@ -630,13 +630,13 @@ describe GeographicItem do
 
       specify '.err_with_collecting_event' do
         result = GeographicItem.err_with_collecting_event.order('id').to_a
-        expect(result.count).to eq(5) #
+        expect(result.count).to eq(5) # @k listed three times
         expect(result).to eq([@e2, @k, @k, @k, @area_d]) #
       end
 
       specify '.all_with_collecting_event' do
         result = GeographicItem.all_with_collecting_event.order('id').to_a
-        expect(result.count).to eq(25) #
+        expect(result.count).to eq(23) # @k only listed once
         expect(result).to include(@p0, @p1, @p2, @p3,
                                   @p4, @p5, @p6, @p7,
                                   @p8, @p9, @p10, @p11,
@@ -686,7 +686,9 @@ describe GeographicItem do
       end
 
       specify '#excluding_self to drop self from any list of objects' do
-        skip 'construction of scenario'
+        # skip 'construction of scenario'
+        expect(@k.near(@p17.geo_object, 2)).to be(true)
+        expect(@p5.near(@p7.geo_object, 4)).to be(true)
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
