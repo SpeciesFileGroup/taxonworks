@@ -83,10 +83,10 @@ describe Serial do
   it 'should list the Serial Chronology'
 
   it 'should list all preceding serials' do
-    pending 'not implemented yet'
+    skip 'not implemented yet'
   end
 
   it 'should list all succeeding serials' do
-    pending 'not implemented yet'
+    skip 'not implemented yet'
   end
 end

@@ -105,7 +105,7 @@ describe TypeMaterial do
       expect(t.type_source).not_to eq(t.protonym.source)
     end
 
-    pending 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
+    skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
   context 'soft validation' do

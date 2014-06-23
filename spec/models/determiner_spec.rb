@@ -14,7 +14,7 @@ describe Determiner do
       end
 
       specify 'determined_biological_collection_objects' do
-        pending
+        skip
       end
     end
   end

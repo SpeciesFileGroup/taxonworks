@@ -6,9 +6,9 @@ describe Source::Human do
 
   context 'associations' do
 
-    pending 'does authority work correctly?'  # all author last names.
+    skip 'does authority work correctly?'  # all author last names.
     context 'has_many' do
-      pending 'with multiple authors - is the ordering correct'
+      skip 'with multiple authors - is the ordering correct'
 
     end
 
@@ -39,7 +39,7 @@ describe Source::Human do
   specify 'a source_human should have a person'
   specify 'a source_source role should have a source'
 
-   pending 'are the cached values set correctly'
+   skip 'are the cached values set correctly'
 
 
 

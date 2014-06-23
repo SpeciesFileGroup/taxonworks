@@ -693,7 +693,7 @@ describe Protonym do
       end
     end
     context 'fossils' do
-      pending 'validate that the extant species does not have extinct parent'
+      skip 'validate that the extant species does not have extinct parent'
     end
   end
 

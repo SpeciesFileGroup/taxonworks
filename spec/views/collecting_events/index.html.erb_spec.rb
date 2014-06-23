@@ -87,7 +87,7 @@ describe "collecting_events/index" do
     #assert_select "tr>td", :text => "9.99".to_s, :count => 2
     # TODO: Matt To correct test error on above 2 lines, I commented one out and changed the count to 4 on the other. These correspond to min/max values that are the same.
     assert_select "tr>td", :text => "Elevation Precision".to_s, :count => 2
-    pending 'reconstruction of the collecting_events/index view or spec'
+    skip 'reconstruction of the collecting_events/index view or spec'
     assert_select "tr>td", :text => "Start Date Day".to_s, :count => 2
     assert_select "tr>td", :text => "Start Date Month".to_s, :count => 2
     assert_select "tr>td", :text => "Start Date Year".to_s, :count => 2

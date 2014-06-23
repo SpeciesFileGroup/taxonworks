@@ -21,7 +21,7 @@ describe "otus/index" do
   it "renders a list of otus" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    pending 'reconstruction of the otus/index view or spec'
+    skip 'reconstruction of the otus/index view or spec'
     assert_select "tr>td", :text => "Name".to_s, :count => 2
     assert_select "tr>td", :text => 1.to_s, :count => 2
     assert_select "tr>td", :text => 2.to_s, :count => 2

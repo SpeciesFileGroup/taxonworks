@@ -59,7 +59,7 @@ describe AlternateValue do
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do
-      pending 
+      skip 
     end
 
     specify 'can not add alternate values to NON_ANNOTATABLE_COLUMNS' do

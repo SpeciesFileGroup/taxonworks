@@ -31,7 +31,7 @@ describe Georeference do
     end
     specify "#error_geographic_item is not required" do
       # <- what did we conclude if no error is provided, just nil? -> will cause issues if so for calculations
-      #pending 'setting error distance to 3 meters if not provided'
+      #skip 'setting error distance to 3 meters if not provided'
       expect(georeference.errors.keys.include?(:error_geographic_item)).not_to be_true
     end
     specify 'error_radius is not required' do
@@ -71,7 +71,7 @@ describe Georeference do
 
       specify '#error_radius is < some Earth-based limit' do
         # 12,400 miles, 20,000 km
-        #pending 'setting error radius to some reasonable distance'
+        #skip 'setting error radius to some reasonable distance'
         georeference.valid?
         expect(georeference.save).to be_false # many other reasons
         expect(georeference.errors.keys.include?(:error_radius)).to be_true
@@ -84,7 +84,7 @@ describe Georeference do
 
       specify '#error_depth is < some Earth-based limit' do
         # 8,800 meters
-        #pending 'setting error depth to some reasonable distance'
+        #skip 'setting error depth to some reasonable distance'
         expect(georeference.save).to be_false # many other reasons
         expect(georeference.errors.keys.include?(:error_depth)).to be_true
 
@@ -158,7 +158,7 @@ describe Georeference do
         # case 1
         #   GeoRef    A (POINT0)
         #   GeoItem   B (BOX_B)
-        #pending 'validation of the accceptability of the error geo_object, if provided'
+        #skip 'validation of the accceptability of the error geo_object, if provided'
         #
         # building up a georeference:
         #
@@ -192,7 +192,7 @@ describe Georeference do
 
       specify 'error_radius, when provided, should contain geographic_item' do
         # case 2c
-        # pending 'implementation of geo_object for geographic_area'
+        # skip 'implementation of geo_object for geographic_area'
         # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
         # must ALWAYS be 'contained' within the radius
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
@@ -216,7 +216,7 @@ describe Georeference do
 
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
         # TODO: Don't know what 'or larger than georeference ?!' is supposed to mean
-        #pending 'determination of what \'something like this\' means in the context of collecting_event'
+        #skip 'determination of what \'something like this\' means in the context of collecting_event'
         #   Need a GeographicArea somewhere on earth called
         # need a collecting event using box_1
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e)
@@ -285,7 +285,7 @@ describe Georeference do
     }
 
     specify '.within_radius_of(geographic_item, distance)' do
-      #pending 'determination of what is intended'
+      #skip 'determination of what is intended'
       # Return all Georeferences within some distance of a geographic_item
       # You're just going to use existing scopes in geographic item here, something like:
       # .where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
@@ -295,7 +295,7 @@ describe Georeference do
       # TODOne: (04/15/14) these have to be turned into ActiveRecord::Relationship
       expect(Georeference.within_radius_of(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
       # but specifically *not* @gr1
-      #pending 'construction of appropriate Georeference method'
+      #skip 'construction of appropriate Georeference method'
 
     end
 
@@ -309,7 +309,7 @@ describe Georeference do
       expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr_point])
       expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1.becomes(Georeference::VerbatimData), @gr_poly])
       expect(Georeference.with_locality_like('Saskatoon').to_a).to eq([])
-      # pending 'construction of appropriate Georeference objects'
+      # skip 'construction of appropriate Georeference objects'
 
     end
 
@@ -322,7 +322,7 @@ describe Georeference do
       expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
       expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
       # expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
-      # pending 'construction of appropriate Georeference objects'
+      # skip 'construction of appropriate Georeference objects'
 
     end
 
@@ -384,7 +384,7 @@ describe Georeference do
       @gr1.save!
 
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
-      # pending 'construction of appropriate Georeference objects'
+      # skip 'construction of appropriate Georeference objects'
     end
   end
 

@@ -40,7 +40,7 @@ describe 'geographic_areas/index' do
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     assert_select 'tr>td', :text => 'Earth'.to_s, :count => 1
     assert_select 'tr>td', :text => 'Name_1'.to_s, :count => 1
-    # pending 'reconstruction of the geographic_area/index view or spec'
+    # skip 'reconstruction of the geographic_area/index view or spec'
     # assert_select 'tr>td', :text => 'Planet', :count => 2
     # assert_select 'tr>td', :text => 2.to_s, :count => 2
     assert_select 'tr>td', :text => 'AA'.to_s, :count => 2

@@ -208,18 +208,16 @@ describe CollectingEvent do
           expect(@ce_p0.georeferences.first.geographic_item)
         end
 
-        specify 'find other CES that have georeferences whose GI or EGI intersects the source GI' do
-          pending
-        end
+        skip 'find other CES that have georeferences whose GI or EGI intersects the source GI' 
       end
 
       context 'and that georeference has both geographic item and error_geographic_item' do
 
         specify 'find other CEs that have georeferences whose GIs or EGIs are within some radius of the EGI' do
-          pending
+          skip 
         end
         specify 'find other CEs that have georeferences whose GIs or EGIs are are contained in the EGI' do
-          pending
+          skip 
         end
       end
     end
