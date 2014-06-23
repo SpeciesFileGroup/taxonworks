@@ -63,7 +63,7 @@ describe GeographicItem do
     end
 
     specify 'self.find_contains ' do
-      pending 'building a City of Champaign shape, and a point inside it'
+      skip 'building a City of Champaign shape, and a point inside it'
     end
 
     specify 'ST_ContainsProperly ' do
@@ -646,7 +646,7 @@ describe GeographicItem do
       end
 
       specify '.include_collecting_event' do
-        # pending 'construction of method'
+        # skip 'construction of method'
         result = GeographicItem.include_collecting_event.order('id').to_a
         expect(result.count).to eq(60)
         expect(result).to eq(@all_gi)
@@ -686,7 +686,7 @@ describe GeographicItem do
       end
 
       specify '#excluding_self to drop self from any list of objects' do
-        pending 'construction of scenario'
+        skip 'construction of scenario'
       end
 
       specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do

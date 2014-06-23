@@ -23,7 +23,7 @@ describe RangedLotCategory do
       end
 
       specify 'name is unique within project' do
-        pending
+        skip 
       end
 
       specify 'when provided, maximum value must be > 0' do

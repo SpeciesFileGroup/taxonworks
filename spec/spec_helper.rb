@@ -1,7 +1,7 @@
 require 'coveralls'
 Coveralls.wear!
 
-# Checks for pending migrations before tests are run.
+# Checks for skip migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 
@@ -33,6 +33,8 @@ RSpec.configure do |config|
   #config.expect_with :rspec do |c|
   #  c.syntax = :expect
   #end
+
+  config.infer_spec_type_from_file_location!
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"

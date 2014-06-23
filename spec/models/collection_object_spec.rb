@@ -74,7 +74,7 @@ describe CollectionObject do
   
   context 'soft validation' do
     # Move to biological collection object 
-    pending 'there is a buffered_deterimination label but no determination'
+    skip 'there is a buffered_deterimination label but no determination'
   end
 
   context 'concerns' do

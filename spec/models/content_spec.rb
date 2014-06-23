@@ -22,7 +22,7 @@ describe Content do
     end
 
     context 'topic_id is of class Topic only' do
-      pending
+      skip 
     end
   end
 

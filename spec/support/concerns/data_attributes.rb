@@ -31,7 +31,7 @@ shared_examples 'data_attributes' do
 
   context 'adding lots of attributes' do
     specify 'add_import_attributes(hash) should add multiple pairs of ImportAttributes' do
-      pending
+      skip 
     end 
   end
 end

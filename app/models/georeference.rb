@@ -54,7 +54,6 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
-
   # TODOone: Break this down into individual validations
   # validate :proper_data_is_provided
   validate :add_error_radius

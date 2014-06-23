@@ -10,7 +10,7 @@ describe 'Housekeeping::User' do
   context 'Users' do
 
     let(:instance) {
-      stub_model HousekeepingTestClass::WithUser, id: 10
+      stub_model(HousekeepingTestClass::WithUser, id: 10)
     }
 
     context 'associations' do
@@ -142,7 +142,7 @@ describe 'Housekeeping::User' do
           end
 
           specify 'instance must belong to the project before save' do
-            pending
+            skip 
             # $project_id = @project1.id
             # expect(@i.valid?).to be_true
             # expect(@i.project_id).to eq(@project1.id)

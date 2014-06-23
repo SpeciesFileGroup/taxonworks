@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CitationTopic do
   let(:citation_topic) { CitationTopic.new }
 
-  pending "add some examples to (or delete) #{__FILE__}"
+  skip "add some examples to (or delete) #{__FILE__}"
 
   context 'Beth' do
     context 'validation' do

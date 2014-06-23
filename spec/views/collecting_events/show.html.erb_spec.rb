@@ -53,7 +53,7 @@ describe "collecting_events/show" do
     rendered.should match(/9.99/)
     rendered.should match(/9.99/)
     rendered.should match(/Elevation Precision/)
-    pending 'reconstruction of the collecting_events/show view or spec'
+    skip 'reconstruction of the collecting_events/show view or spec'
     rendered.should match(/Start Date Day/)
     rendered.should match(/Start Date Month/)
     rendered.should match(/Start Date Year/)

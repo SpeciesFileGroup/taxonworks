@@ -35,8 +35,8 @@ describe Person do
   end
 
   context 'class methods' do
-    pending '.parser(name_string)'
-    pending '.parse_to_people(name_srting)'
+    skip '.parser(name_string)'
+    skip '.parse_to_people(name_srting)'
   end
 
   context 'associations' do
@@ -191,7 +191,7 @@ describe Person do
   end
 
   context 'cascading updates of sources' do
-    pending "If person is updated then udpate their Bibtex::Author/Editor fields"
+    skip "If person is updated then udpate their Bibtex::Author/Editor fields"
   end
 
 end

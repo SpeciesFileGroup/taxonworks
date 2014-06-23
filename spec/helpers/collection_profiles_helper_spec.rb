@@ -11,5 +11,5 @@ require 'spec_helper'
 #   end
 # end
 describe CollectionProfilesHelper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  skip "add some examples to (or delete) #{__FILE__}"
 end

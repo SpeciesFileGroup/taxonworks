@@ -109,7 +109,7 @@ describe Image do
 
   end
 
-  pending 'return gps data as decimal degrees'
+  skip 'return gps data as decimal degrees'
 
   # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do

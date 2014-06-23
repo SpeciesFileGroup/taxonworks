@@ -106,7 +106,7 @@ describe Source::Bibtex do
       end
     end
 
-    pending 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
+    skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
   end
 
   context 'Ruby BibTeX related instance methods' do
@@ -117,7 +117,7 @@ describe Source::Bibtex do
     specify 'to_bibtex' do
       expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
       expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
-      pending 'test that notes gets converted properly to a bibtex note'
+      skip 'test that notes gets converted properly to a bibtex note'
       # TODO test serial gets converted properly to bibtex journal
     end
 
@@ -633,10 +633,10 @@ describe Source::Bibtex do
 
       context 'on validation' do
         # Force the user to interact through authors first, then back save to author 
-        pending 'invalidate if authors exist and author has changed, and no longer matches'
+        skip 'invalidate if authors exist and author has changed, and no longer matches'
 
         # ditto for editors
-        pending 'invalidate if editors exist and editor has changed, and no longer matches'
+        skip 'invalidate if editors exist and editor has changed, and no longer matches'
       end
 
       
@@ -693,7 +693,7 @@ describe Source::Bibtex do
       context 'and I import it to TW' do
         context 'when I update a record in zotero' do
           specify 'then TW should be aware and notify me of discrepancies' do
-            pending 'not implemented yet'
+            skip 'not implemented yet'
           end
         end
       end
@@ -701,7 +701,7 @@ describe Source::Bibtex do
 
     context 'Hackathon requirements' do
       # TODO: code lib/bibtex
-      pending 'Should be able to round trip data a whole file '
+      skip 'Should be able to round trip data a whole file '
       #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
     end
   end
@@ -735,7 +735,7 @@ describe Source::Bibtex do
       expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_true
     end
 
-    pending 'test sv_has_notes? runs correctly when there is no src_bibtex.note but does have src_bibtex.notes'
+    skip 'test sv_has_notes? runs correctly when there is no src_bibtex.note but does have src_bibtex.notes'
   end
 
 
