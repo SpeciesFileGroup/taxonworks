@@ -1,49 +1,38 @@
-<%= form_for(@tag) do |f| %>
-  <% if @tag.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@tag.errors.count, "error") %> prohibited this tag from being saved:</h2>
+<div class="two_columns">
+  <div class="left_column">
+    <header> Available Biocuration Groups </header>
+    <% @biocuration_groups.each do |bg| -%>
+      <%= content_tag(:mark, bg.name) -%>
+      <%= render(partial: 'add_biocuration_class_form', locals: {new_tag: Tag.new(keyword: bg, tag_object_type: 'ControlledVocabularyTerm'), tag_objects: @biocuration_classes_without_groups }) if @biocuration_classes_without_groups.count > 0 -%>
 
       <ul>
-      <% @tag.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
+        <% bg.biocuration_classes.each do |bc| %>
+          <li> <%=  bc.name %> <%= link_to('Remove', tag_path(Tag.where(tag_object_type: 'ControlledVocabularyTerm', tag_object_id: bc.id, keyword_id: bg.id).first), method: 'delete') -%> </li>
       <% end %>
       </ul>
-    </div>
+
   <% end %>
 
-  <div class="field">
-    <%= f.label :keyword_id %><br>
-    <%= f.number_field :keyword_id %>
+  <div>
+    <header> New Biocuration Group </header>
+    <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_group, hide_type: true}) -%>
   </div>
-  <div class="field">
-    <%= f.label :tag_object_id %><br>
-    <%= f.number_field :tag_object_id %>
+
   </div>
-  <div class="field">
-    <%= f.label :tag_object_type %><br>
-    <%= f.text_field :tag_object_type %>
+
+
+  <div class="right_column">
+    <div>
+      <header> Available Classifications </header>
+      <div> <strong> All classficiations: </strong> <%= @biocuration_classes.collect{|a| a.name}.join(', ') -%> </div>
+      <div> <strong> Not yet added to any group: </strong> <%= @biocuration_classes_without_groups.collect{|a| a.name}.join(', ') -%> </div>
+    </div>
+
+
+    <div>
+      <header> New Biocuration Class </header>
+      <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_class, hide_type: true}) -%>
+    </div>
   </div>
-  <div class="field">
-    <%= f.label :tag_object_attribute %><br>
-    <%= f.text_field :tag_object_attribute %>
-  </div>
-  <div class="field">
-    <%= f.label :created_by_id %><br>
-    <%= f.number_field :created_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :updated_by_id %><br>
-    <%= f.number_field :updated_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
-    <%= f.number_field :project_id %>
-  </div>
-  <div class="field">
-    <%= f.label :position %><br>
-    <%= f.number_field :position %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
-<% end %>
+  <br style='clear:both;'>
+</div>

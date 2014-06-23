@@ -72,4 +72,14 @@ module ApplicationHelper
     controller_path.capitalize 
   end
 
+  def hidden_css_property_if(tru)
+    tru ? 'hidden'.html_safe : nil
+  end
+
+  def collapsed_css_property_if(tru)
+    tru ? 'collapsed'.html_safe : nil
+  end
+
+
+
 end

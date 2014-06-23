@@ -65,40 +65,64 @@ describe TagsController do
   end
 
   describe "POST create" do
-    describe "with valid params" do
-      it "creates a new Tag" do
-        expect {
+    context 'originating from new_tag_path()' do
+      before {
+        request.env["HTTP_REFERER"] = new_tag_path
+      }
+
+      describe "with valid params" do
+        it "creates a new Tag" do
+          expect {
+            post :create, {:tag => valid_attributes}, valid_session
+          }.to change(Tag, :count).by(1)
+        end
+
+        it "assigns a newly created tag as @tag" do
           post :create, {:tag => valid_attributes}, valid_session
-        }.to change(Tag, :count).by(1)
+          assigns(:tag).should be_a(Tag)
+          assigns(:tag).should be_persisted
+        end
+
+        it "redirects to the created tag" do
+          post :create, {:tag => valid_attributes}, valid_session
+          response.should redirect_to(Tag.last)
+        end
       end
 
-      it "assigns a newly created tag as @tag" do
-        post :create, {:tag => valid_attributes}, valid_session
-        assigns(:tag).should be_a(Tag)
-        assigns(:tag).should be_persisted
-      end
+      describe "with invalid params" do
+        it "assigns a newly created but unsaved tag as @tag" do
+          # Trigger the behavior that occurs when invalid params are submitted
+          Tag.any_instance.stub(:save).and_return(false)
+          post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
+          assigns(:tag).should be_a_new(Tag)
+        end
 
-      it "redirects to the created tag" do
-        post :create, {:tag => valid_attributes}, valid_session
-        response.should redirect_to(Tag.last)
+        it "re-renders the 'new' template" do
+          # Trigger the behavior that occurs when invalid params are submitted
+          Tag.any_instance.stub(:save).and_return(false)
+          post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
+          response.should render_template("new")
+        end
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved tag as @tag" do
-        # Trigger the behavior that occurs when invalid params are submitted
-        Tag.any_instance.stub(:save).and_return(false)
-        post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
-        assigns(:tag).should be_a_new(Tag)
+    context 'NOT originating from new_tag_path()' do
+      before {
+        @referer = hub_path
+        request.env["HTTP_REFERER"] = @referer # just picking a non-new path
+      }
+
+      it 'redirects to :back on successfull create' do
+        post :create, {:tag => valid_attributes}, valid_session
+        response.should redirect_to(@referer)
       end
 
-      it "re-renders the 'new' template" do
-        # Trigger the behavior that occurs when invalid params are submitted
-        Tag.any_instance.stub(:save).and_return(false)
-        post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+      it 'redirects to :back on unsuccessfull create' do
+        post :create, {:tag => { "keyword_id" => "invalid value" } }, valid_session
+        response.should redirect_to(@referer)
       end
     end
+
   end
 
   describe "PUT update" do
@@ -146,18 +170,35 @@ describe TagsController do
   end
 
   describe "DELETE destroy" do
-    it "destroys the requested tag" do
-      tag = Tag.create! valid_attributes
-      expect {
-        delete :destroy, {:id => tag.to_param}, valid_session
-      }.to change(Tag, :count).by(-1)
+    context 'originating from tag_path()' do
+      before {
+        @tag = Tag.create! valid_attributes
+        request.env["HTTP_REFERER"] = tag_path(@tag)
+      }
+
+      it "destroys the requested tag" do
+        expect {
+          delete :destroy, {:id => @tag.to_param}, valid_session
+        }.to change(Tag, :count).by(-1)
+      end
+
+      it "redirects to the tags list if arriving from tag_path" do
+        delete :destroy, {:id => @tag.to_param}, valid_session
+        response.should redirect_to(tags_url)
+      end
     end
 
-    it "redirects to the tags list" do
-      tag = Tag.create! valid_attributes
-      delete :destroy, {:id => tag.to_param}, valid_session
-      response.should redirect_to(tags_url)
+    context 'originating from somewhere else' do
+      it "redirects to :back tags list if not arriving from tag_path" do
+        p = hub_path
+        request.env["HTTP_REFERER"] = p
+        tag = Tag.create! valid_attributes
+        delete :destroy, {:id => tag.to_param}, valid_session
+        response.should redirect_to(p)
+      end
     end
+
+
   end
 
 end

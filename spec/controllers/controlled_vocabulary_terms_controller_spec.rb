@@ -68,6 +68,10 @@ describe ControlledVocabularyTermsController do
 
   describe "POST create" do
     describe "with valid params" do
+      before { 
+        request.env["HTTP_REFERER"] = new_controlled_vocabulary_term_path
+      }
+
       it "creates a new ControlledVocabularyTerm" do
         expect {
           post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
@@ -87,6 +91,9 @@ describe ControlledVocabularyTermsController do
     end
 
     describe "with invalid params" do
+      before { 
+        request.env["HTTP_REFERER"] = new_controlled_vocabulary_term_path
+      }
       it "assigns a newly created but unsaved controlled_vocabulary_term as @controlled_vocabulary_term" do
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
@@ -150,6 +157,7 @@ describe ControlledVocabularyTermsController do
   describe "DELETE destroy" do
     it "destroys the requested controlled_vocabulary_term" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
+      request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
       expect {
         delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
       }.to change(ControlledVocabularyTerm, :count).by(-1)
@@ -157,6 +165,7 @@ describe ControlledVocabularyTermsController do
 
     it "redirects to the controlled_vocabulary_terms list" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
+      request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
       delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
       response.should redirect_to(controlled_vocabulary_terms_url)
     end

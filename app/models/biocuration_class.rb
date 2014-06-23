@@ -1,5 +1,4 @@
 class BiocurationClass < ControlledVocabularyTerm
-
   include Shared::Taggable
 
   has_many :biocuration_classifications

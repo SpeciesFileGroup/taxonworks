@@ -13,7 +13,7 @@
 
   <div class="field">
     <%= f.label :type %><br>
-    <%= f.select :type, options_for_select(ControlledVocabularyTerm.descendants.map(&:name).sort, 'Keyword') %>
+    <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, @controlled_vocabulary_term.type) %>
   </div>
 
   <div class="field">

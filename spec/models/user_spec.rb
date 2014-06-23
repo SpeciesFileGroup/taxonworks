@@ -17,31 +17,32 @@ describe User do
 
   context 'authorization' do
     context 'when just a user' do
-      describe 'is_administrator?' do
-        its(:is_administrator?) {should_not be_true}
+      specify '#is_administrator? is false' do
+        expect(user.is_administrator?).to be_falsey  
       end
 
-      describe 'is_project_administrator?' do
-        its(:is_project_administrator?) {should_not be_true}
+      specify '#is_project_administrator? is false' do
+        expect(user.is_project_administrator?).to be_falsey
       end
 
-      describe 'is_super_user' do
-        its(:is_superuser?) {should_not be_true}
+      specify '#is_super_user?' do
+        expect(user.is_superuser?).to be_falsey
       end
     end
 
     context 'when administator' do
       before { user.is_administrator = true  }
-      describe 'is superuser' do
-        its(:is_superuser?) {should be_true}
+      specify '#is superuser?' do
+        expect(user.is_superuser?).to be true
       end
     end
 
     context 'when project_administrator' do
       before { user.is_project_administrator = true  }
-      describe 'is superuser' do
-        its(:is_superuser?) {should be_true}
+      specify '#is_superuser?' do
+        expect(user.is_superuser?).to be true
       end
+
     end
   end
 
@@ -93,15 +94,11 @@ describe User do
       before { user.update(password_confirmation: 'Abcd123!') }
       it {should_not be_valid}
     end
-
-
-
-
   end
 
   describe 'remember token' do
     before { user.save }
-    its(:remember_token) { should_not be_blank }
+    it(:remember_token) { should_not be_blank }
   end
 
 end

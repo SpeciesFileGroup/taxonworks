@@ -77,6 +77,9 @@ TaxonWorks::Application.routes.draw do
   
   get 'tasks/accessions/quick/verbatim_material/new'
   post 'tasks/accessions/quick/verbatim_material/create'
+ 
+  get 'tasks/controlled_vocabularies/biocuration/build_collection'
+  match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
 
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'

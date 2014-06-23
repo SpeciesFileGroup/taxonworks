@@ -24,3 +24,6 @@ br.clear_both{ clear: both; }
 .right_column_whitespace {padding-right: 1em; margin-right: 1em;}
 .left_column_whitespace {padding-left: 1em; margin-left: 1em;}
 .nav_column {width: 200px; }
+
+.hidden {visibility:hidden;}
+.collapsed {visibility: collapse;}

@@ -10,7 +10,7 @@ describe 'Housekeeping::User' do
   context 'Users' do
 
     let(:instance) {
-      stub_model HousekeepingTestClass::WithUser, id: 10
+      stub_model(HousekeepingTestClass::WithUser, id: 10)
     }
 
     context 'associations' do

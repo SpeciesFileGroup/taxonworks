@@ -34,6 +34,8 @@ RSpec.configure do |config|
   #  c.syntax = :expect
   #end
 
+  config.infer_spec_type_from_file_location!
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
 

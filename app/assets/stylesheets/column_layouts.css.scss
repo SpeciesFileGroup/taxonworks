@@ -1,0 +1,24 @@
+
+// Used so @mjy can mock up some quick and dirty views for futher refinement
+
+div.two_columns {
+  // this is just a hack
+  header {
+    font-weight: bold;
+    border-bottom: 1px solid black;
+    width: 90%;
+  }
+
+  .left_column {
+    float: left;
+    width: 50%;
+    padding: 1em;
+  }
+
+  .right_column {
+    border-left: 1px solid black;
+    padding: 1em;
+    margin-left: 50%;
+  }
+}
+
