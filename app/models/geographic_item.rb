@@ -22,13 +22,23 @@ class GeographicItem < ActiveRecord::Base
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
 
   has_many :georeferences
+  has_many :georeferences_through_error_geographic_item, class_name: 'Georeference', foreign_key: :error_geographic_item_id
 
   # more explicity because we can also go through Geographic Area
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
 
+  has_many :collecting_events_through_georeference_error_geographic_item, through: :georeferences_through_error_geographic_item, source: :collecting_event
+
+
   validate :proper_data_is_provided
   validate :chk_point_limit
-
+ 
+  # http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
+  # def self.all2
+  #   a  = joins('INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id"')
+  #   b  = joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id"')
+  #   Georeference.where(a.or(b)) 
+  # end
 
   # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
 
@@ -39,17 +49,20 @@ class GeographicItem < ActiveRecord::Base
 
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
+  
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
+#  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
+  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) } 
+
   # TODO: is this just an 'or' of the two above 'joins', or os there a better way?
   # scope :all_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
 
   def self.all_with_collecting_event
-    g = GeographicItem.geo_with_collecting_event
-    e = GeographicItem.err_with_collecting_event
+    g = GeographicItem.geo_with_collecting_event.distinct
+    e = GeographicItem.err_with_collecting_event.distinct
     r = g + e
-    GeographicItem.where('id in (?)', r.map(&:id))
+    GeographicItem.where('id in (?)', r.map(&:id).uniq)
   end
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
