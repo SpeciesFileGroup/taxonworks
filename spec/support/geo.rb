@@ -511,7 +511,7 @@ def generate_geo_test_objects
     area_d:       @area_d.id
   }
 
-  my_debug = true
+  my_debug = false
 
   if my_debug
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
