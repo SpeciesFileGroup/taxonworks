@@ -9,7 +9,9 @@ class AlternateValue < ActiveRecord::Base
   validates_presence_of :type, :value, :alternate_object_attribute 
   validates :alternate_object, presence: true
 
-  before_validation :ensure_object_has_attribute, :ensure_alternate_value_is_not_identical
+  before_validation :ensure_object_has_attribute,
+                    :ensure_alternate_value_is_not_identical,
+                    :validate_alternate_value_type
 
   def original_value
     (self.alternate_object_attribute && self.alternate_object && self.alternate_object.respond_to?(
@@ -17,7 +19,27 @@ class AlternateValue < ActiveRecord::Base
         self.alternate_object.send(self.alternate_object_attribute.to_sym)  : nil
   end
 
+  def type_name
+    r = self.type.to_s
+    ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r : nil
+  end
+
+  def type_class=(value)
+    write_attribute(:type, value.to_s)
+  end
+
+  def type_class
+    r = read_attribute(:type).to_s
+    r = ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
+    r
+  end
+
   protected
+
+  def validate_alternate_value_type
+    errors.add(:type, "Is not valid type") if !self.type.nil? and !ALTERNATE_VALUE_CLASS_NAMES.include?(self.type.to_s)
+  end
+
 
   def ensure_object_has_attribute
     errors.add(:alternate_object_attribute, 'no attribute (column) with that name') if

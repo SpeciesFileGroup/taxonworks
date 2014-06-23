@@ -1,5 +1,4 @@
 # OTU is defined by name or by taxon_name_id.
-# The name should be unique in scope of taxon_name_id.
 
 class Otu < ActiveRecord::Base
   include Housekeeping

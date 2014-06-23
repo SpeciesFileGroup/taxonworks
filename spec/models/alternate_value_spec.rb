@@ -38,7 +38,7 @@ describe AlternateValue do
     end
 
     specify 'alternate_object_attribute is legal column of alternate_object' do
-      alternate_value.alternate_object = FactoryGirl.build(:valid_protonym)
+      alternate_value.alternate_object = FactoryGirl.build_stubbed(:valid_protonym)
       alternate_value.alternate_object_attribute = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_object_attribute)).to be_truthy
@@ -48,7 +48,7 @@ describe AlternateValue do
     end
 
     specify 'value is not identical to existing value' do
-      alternate_value.alternate_object = FactoryGirl.build(:valid_otu, name: 'foo')
+      alternate_value.alternate_object = FactoryGirl.build_stubbed(:valid_otu, name: 'foo')
       alternate_value.alternate_object_attribute = 'name'
       alternate_value.value = 'foo'
       alternate_value.valid?
@@ -56,6 +56,14 @@ describe AlternateValue do
       alternate_value.value = 'bar'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:value)).to be_falsey
+    end
+
+    specify 'valid type' do
+      av = FactoryGirl.build_stubbed(:valid_alternate_value)
+      expect(av.valid?).to be_truthy
+      av.type = 'Foo'
+      expect(av.valid?).to be_falsey
+      expect(av.errors.include?(:type)).to be_truthy
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do
