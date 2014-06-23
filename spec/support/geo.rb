@@ -424,26 +424,28 @@ def generate_geo_test_objects
   @area_c = FactoryGirl.build(:geographic_item, polygon: BOX_3)
   @area_d = FactoryGirl.build(:geographic_item, polygon: BOX_4)
 
-  [@p0, @p1, @p2, @p3, @p4,
-   @p5, @p6, @p7, @p8, @p9,
-   @p10, @p11, @p12, @p13, @p14,
-   @p15, @p16, @p17, @p18, @p19,
-   @p20, @p21, @p22,
-   @a,
-   @b1, @b2, @b,
-   @c1, @c2, @c3, @c,
-   @d,
-   @e1, @e2, @e3, @e4, @e5, @e,
-   @f1, @f2, @f,
-   @g1, @g2, @g3, @g,
-   @h,
-   @i,
-   @j,
-   @k,
-   @l,
-   @r2020, @r2022, @r2024, @rooms,
-   @all_items, @outer_limits,
-   @area_a, @area_b, @area_c, @area_d].map(&:save!)
+  @all_gi = [@p0, @p1, @p2, @p3, @p4,
+             @p5, @p6, @p7, @p8, @p9,
+             @p10, @p11, @p12, @p13, @p14,
+             @p15, @p16, @p17, @p18, @p19,
+             @p20, @p21, @p22,
+             @a,
+             @b1, @b2, @b,
+             @c1, @c2, @c3, @c,
+             @d,
+             @e1, @e2, @e3, @e4, @e5, @e,
+             @f1, @f2, @f,
+             @g1, @g2, @g3, @g,
+             @h,
+             @i,
+             @j,
+             @k,
+             @l,
+             @r2020, @r2022, @r2024, @rooms,
+             @all_items, @outer_limits,
+             @area_a, @area_b, @area_c, @area_d]
+
+  @all_gi.map(&:save!)
 
   @debug_names = {
     p0:           @p0.id,
