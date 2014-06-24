@@ -26,7 +26,6 @@ FactoryGirl.define do
       factory :project_administrator do
         is_project_administrator true
       end
-
     end
   end
 
