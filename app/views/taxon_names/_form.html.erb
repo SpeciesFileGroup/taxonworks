@@ -15,27 +15,16 @@
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
-  <div class="field">
-    <%= f.label :parent_id %><br>
-    <%= f.number_field :parent_id %> select tag
-  </div>
-  <div class="field">
-    <%= f.label :cached_name %><br>
-    <%= f.text_field :cached_name %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_author_year %><br>
-    <%= f.text_field :cached_author_year %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_higher_classification %><br>
-    <%= f.text_field :cached_higher_classification %>
+
+  <div class="field" data-no-turbolink >
+    <%= f.label :parent %><br>
+    <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
+                                                                     :object => 'taxon_name', 
+                                                                     :method => 'parent_id', 
+                                                                     :tag_id => "parent_id_for_new_name", 
+                                                                     :display => parent_taxon_name_for_select(@taxon_name)  } %>
   </div>
 
-  <div class="field">
-    <%= f.label :source_id %><br>
-    <%= f.number_field :source_id %>
-  </div>
   <div class="field">
     <%= f.label :year_of_publication %><br>
     <%= f.number_field :year_of_publication %>
@@ -44,35 +33,20 @@
     <%= f.label :verbatim_author %><br>
     <%= f.text_field :verbatim_author %>
   </div>
+  
   <div class="field">
-    <%= f.label :rank_class %><br>
-    <%= f.text_field :rank_class %>
+    <%= f.label :rank %><br>
+    <%= taxon_name_rank_select_tag(@taxon_name) %>
   </div>
+
   <div class="field">
-    <%= f.label :type %><br>
-    <%= f.text_field :type %>
+    <%= f.label :source_id %><br>
+    <%= f.number_field :source_id %>
   </div>
-  <div class="field">
-    <%= f.label :cached_original_combination %><br>
-    <%= f.text_field :cached_original_combination %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_secondary_homonym %><br>
-    <%= f.text_field :cached_secondary_homonym %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_primary_homonym %><br>
-    <%= f.text_field :cached_primary_homonym %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_secondary_homonym_alt %><br>
-    <%= f.text_field :cached_secondary_homonym_alt %>
-  </div>
-  <div class="field">
-    <%= f.label :cached_primary_homonym_alt %><br>
-    <%= f.text_field :cached_primary_homonym_alt %>
-  </div>
-  <div class="actions">
+
+  <%= f.hidden_field :type %>
+
+ <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>

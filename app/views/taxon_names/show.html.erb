@@ -100,5 +100,17 @@
   <%= @taxon_name.cached_primary_homonym_alt %>
 </p>
 
+<p>
+
+<% @taxon_name.soft_validate -%> 
+<ul>
+<% @taxon_name.soft_validations.soft_validations.each do |a| -%>
+  
+  <%= content_tag :li, a.message.html_safe -%>
+<% end %>
+</ul>
+</p>
+
+
 <%= link_to 'Edit', edit_taxon_name_path(@taxon_name) %> |
 <%= link_to 'Back', taxon_names_path %>

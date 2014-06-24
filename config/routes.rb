@@ -68,7 +68,12 @@ TaxonWorks::Application.routes.draw do
   resources :tagged_section_keywords
   resources :tags
   resources :taxon_determinations
-  resources :taxon_names
+  resources :taxon_names do
+    collection do
+      get 'auto_complete_for_taxon_names'
+    end
+  end
+
   resources :taxon_name_classifications
   resources :taxon_name_relationships
 

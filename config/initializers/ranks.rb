@@ -1,30 +1,30 @@
 # Be sure to restart your server when you modify this file.
 
- # ICN Rank Classes ordered in an Array
- ICN = Ranks.ordered_ranks_for(NomenclaturalRank::Icn)
+# ICN Rank Classes ordered in an Array
+ICN = Ranks.ordered_ranks_for(NomenclaturalRank::Icn)
  
- # ICZN Rank Classes ordered in an Array
- ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
+# ICZN Rank Classes ordered in an Array
+ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
 
- # All assignable Rank Classes
- RANKS = [NomenclaturalRank] + ICN + ICZN
+# All assignable Rank Classes
+RANKS = [NomenclaturalRank] + ICN + ICZN
 
- # ICNZ Ranks, as Strings
- RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
+# ICNZ Ranks, as Strings
+RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
 
- # ICN Ranks, as Strings
- RANK_CLASS_NAMES_ICN = ICN.collect{|r| r.to_s}
+# ICN Ranks, as Strings
+RANK_CLASS_NAMES_ICN = ICN.collect{|r| r.to_s}
 
- # All Ranks, as Strings
- RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
+# All Ranks, as Strings
+RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
 
- # ICN Rank Classes in a Hash with keys being the "human" name
- # For example, to return the class for a plant family:
- #   ::ICN_LOOKUP['family']
- ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
- 
- # ICZN Rank Classes in a Hash with keys being the "human" name
- ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
+# ICN Rank Classes in a Hash with keys being the "human" name
+# For example, to return the class for a plant family:
+#   ::ICN_LOOKUP['family']
+ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
+
+# ICZN Rank Classes in a Hash with keys being the "human" name
+ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
 
 # All assignable ranks for family groups, for ICZN
 FAMILY_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|i| i.to_s}

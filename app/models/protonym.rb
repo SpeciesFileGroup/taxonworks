@@ -191,6 +191,7 @@ class Protonym < TaxonName
   end
 
   def incertae_sedis
+    # TODO: check this
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
