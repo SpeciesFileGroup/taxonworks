@@ -9,10 +9,9 @@ Bundler.require(:default, Rails.env)
 module TaxonWorks
   class Application < Rails::Application
     # Via https://github.com/matthuhiggins/foreigner/pull/95
-#  config.before_initialize do
-#    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
-#  end
-
+    #  config.before_initialize do
+    #    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
+    #  end
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -20,7 +19,6 @@ module TaxonWorks
 
     # Pre-load all libraries in /lib
     config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
-
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
