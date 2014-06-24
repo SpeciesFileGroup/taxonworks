@@ -1,4 +1,6 @@
 class PublicContentsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :require_sign_in_and_project_selection
   before_action :set_public_content, only: [:show, :edit, :update, :destroy]
 

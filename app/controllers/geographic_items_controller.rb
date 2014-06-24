@@ -1,4 +1,6 @@
 class GeographicItemsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :require_sign_in_and_project_selection
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 

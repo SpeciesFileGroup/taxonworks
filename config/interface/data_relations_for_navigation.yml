@@ -1,0 +1,29 @@
+ # This is used in the quick bar for navigation, it is meant to map closely related data classes together for quick access.  At most 3-4 classes should be used for each category.
+---
+otus: 
+  - taxon_names
+taxon_names: 
+  - otus
+  - taxon_name_relationships
+collection_objects:
+  - collecting_events 
+  - repositories
+  - loans
+tags:
+  - controlled_vocabulary_terms
+repositories:
+  - collection_objects
+sources:
+  - serials
+  - people
+geographic_areas:
+  - collecting_events
+collecting_events:
+  - georeferences
+controlled_vocabulary_terms:
+  - tags
+  - data_attributes
+people:
+  - sources 
+  - collecting_events
+  

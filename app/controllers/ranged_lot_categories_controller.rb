@@ -1,4 +1,6 @@
 class RangedLotCategoriesController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :require_sign_in_and_project_selection
   before_action :set_ranged_lot_category, only: [:show, :edit, :update, :destroy]
 

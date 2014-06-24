@@ -19,10 +19,25 @@ class ApplicationController < ActionController::Base
     $user_id = nil 
   end
 
+  # In use
+  attr_writer :is_data_controller 
+
+  # Potentially used
   attr_writer   :meta_title, :meta_data, :site_name
   attr_accessor :meta_description, :meta_keywords, :page_title
 
+  # In use 
+  helper_method :is_data_controller?
+
+  # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
+
+  # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
+  def is_data_controller?
+    @is_data_controller
+  end
+
+
 
   def meta_title
     @meta_title ||= [@meta_title.presence || @page_title.presence, site_name].

@@ -35,7 +35,9 @@
         .bind( "autocompletefocus", function( event, ui ) {
           var selected = ui.item;
         })
-        /* When you select an item you need add all the values which we are told to
+        /* Comments as per mx, need to be updated slightly. 
+         *
+         * When you select an item you need add all the values which we are told to
          * -- add those values in the 'response_values' to the current form.
          *  This lets you add things like
          *  otu[id] as a response value.
