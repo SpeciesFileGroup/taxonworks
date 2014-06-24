@@ -26,4 +26,9 @@ controlled_vocabulary_terms:
 people:
   - sources 
   - collecting_events
-  
+geographic_items:
+  - geographic_areas
+  - georeferences
+  - collecting_events
+loans:
+  - collection_profiles  
