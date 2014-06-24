@@ -1,4 +1,6 @@
 class CollectingEventsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :require_sign_in_and_project_selection
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy]
 

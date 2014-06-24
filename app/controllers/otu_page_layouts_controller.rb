@@ -1,4 +1,6 @@
 class OtuPageLayoutsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :require_sign_in_and_project_selection
   before_action :set_otu_page_layout, only: [:show, :edit, :update, :destroy]
 
