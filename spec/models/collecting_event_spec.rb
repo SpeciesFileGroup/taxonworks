@@ -204,20 +204,30 @@ describe CollectingEvent do
       context 'and that georeference has a geographic_item but NO no error_geographic_item' do
 
         specify 'find other CEs that have georeferences whose GI or EGI is within some radius of the source GI' do
-          expect(@ce_p0.georeferences.count).to eq(2)
-          expect(@ce_p0.georeferences.first.geographic_item)
+          expect(@ce_p7.georeferences.count).to eq(2) # there are two georeferences associated with this
+          # ce, gr_00 and gr_10.
+          p7 = @ce_p7.georeferences.first.geographic_item # easier ref later
+          expect(GeographicItem.within_radius_of('point', p7, 2000000).excluding(p7).count).to eq(8)
+          expect(GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7).count).to eq(25)
+
+          partial = GeographicItem.all_with_collecting_event.within_radius_of('any', p7, 2000000).excluding(p7)
+          expect(GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7).all_with_collecting_event.count).to eq(25)
+
         end
 
-        skip 'find other CES that have georeferences whose GI or EGI intersects the source GI' 
+        specify 'find other CES that have georeferences whose GI or EGI intersects the source GI' do
+          skip 'intersecting objects'
+        end
       end
 
       context 'and that georeference has both geographic item and error_geographic_item' do
 
         specify 'find other CEs that have georeferences whose GIs or EGIs are within some radius of the EGI' do
-          skip 
+          skip 'within radius of'
         end
+
         specify 'find other CEs that have georeferences whose GIs or EGIs are are contained in the EGI' do
-          skip 
+          skip 'contained in error_gi'
         end
       end
     end
