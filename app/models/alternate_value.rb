@@ -11,7 +11,8 @@ class AlternateValue < ActiveRecord::Base
 
   before_validation :ensure_object_has_attribute,
                     :ensure_alternate_value_is_not_identical,
-                    :validate_alternate_value_type
+                    :validate_alternate_value_type,
+                    :not_empty_original_value
 
   def original_value
     (self.alternate_object_attribute && self.alternate_object && self.alternate_object.respond_to?(
@@ -34,6 +35,10 @@ class AlternateValue < ActiveRecord::Base
     r
   end
 
+  def self.class_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
   protected
 
   def validate_alternate_value_type
@@ -42,14 +47,18 @@ class AlternateValue < ActiveRecord::Base
 
 
   def ensure_object_has_attribute
-    errors.add(:alternate_object_attribute, 'no attribute (column) with that name') if
+    errors.add(:alternate_object_attribute, 'No attribute (column) with that name') if
         self.alternate_object &&
             !self.alternate_object.attributes.include?(self.alternate_object_attribute.to_s)
   end 
 
   def ensure_alternate_value_is_not_identical
-    errors.add(:value, 'value is not alternate, is identical to existing value') if
+    errors.add(:value, 'Value is not alternate, is identical to existing value') if
         (self.value == self.original_value)
+  end
+
+  def not_empty_original_value
+    errors.add(:value, 'No alternate value is allowed to empty field') if self.original_value.blank?
   end
 
 end

@@ -806,7 +806,9 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_parent_is_valid_name
-    if self.parent.unavailable_or_invalid?
+    parent = self.parent
+    if parent.nil?
+    elsif parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid
       soft_validations.add(:parent_id, 'Parent should be a valid taxon',
                            fix: :sv_fix_parent_is_valid_name,

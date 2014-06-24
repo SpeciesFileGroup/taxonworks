@@ -10,5 +10,4 @@ class NomenclaturalRank::Iczn::FamilyGroup < NomenclaturalRank::Iczn
         NomenclaturalRank::Iczn::FamilyGroup)
   end
 
-  ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 end

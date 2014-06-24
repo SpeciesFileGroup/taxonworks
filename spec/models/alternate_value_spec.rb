@@ -67,7 +67,12 @@ describe AlternateValue do
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do
-      skip 
+      otu = FactoryGirl.build_stubbed(:valid_otu, name: '')
+      alternate_value.alternate_object = otu
+      alternate_value.alternate_object_attribute = 'name'
+      alternate_value.value = 'foo'
+      alternate_value.valid?
+      expect(alternate_value.errors.include?(:value)).to be_truthy
     end
 
     specify 'can not add alternate values to NON_ANNOTATABLE_COLUMNS' do

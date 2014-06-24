@@ -103,13 +103,17 @@ class Protonym < TaxonName
                     :validate_source_type,
                     :new_parent_taxon_name
 
+  def family_group_endigns
+    %w{ini ina inae idae oidae odd ad oidea}
+  end
+
   def list_of_coordinated_names
     if self.incorrect_original_spelling.nil?
       search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
       if !!search_rank
         if search_rank =~ /Family/
           z = Protonym.family_group_base(self.name)
-          search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+          search_name = z.nil? ? nil : family_group_endigns.collect{|i| z+i}
           #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
         else
           search_name = self.name
@@ -469,9 +473,9 @@ class Protonym < TaxonName
       sisters = self.parent.descendants.with_rank_class(rank)
       if rank =~ /Family/
         z = Protonym.family_group_base(self.name)
-        search_name = z.nil? ? nil : NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i}
+        search_name = z.nil? ? nil : family_group_endigns.collect{|i| z+i}
         a = sisters.collect{|i| Protonym.family_group_base(i.name) }
-        sister_names = a.collect{|z| NomenclaturalRank::Iczn::FamilyGroup::ENDINGS.collect{|i| z+i} }.flatten
+        sister_names = a.collect{|z| family_group_endigns.collect{|i| z+i} }.flatten
       else
         search_name = [self.name]
         sister_names = sisters.collect{|i| i.name }
