@@ -31,6 +31,21 @@ describe AssertedDistribution do
       ad.soft_validate(:missing_source)
       expect(ad.soft_validations.messages_on(:source_id).empty?).to be_truthy
     end
+    specify 'is_absent - False' do
+      ga = FactoryGirl.create(:level2_geographic_area)
+      ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: TRUE, source: nil)
+      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga, source: nil)
+      ad2.soft_validate(:conflicting_geographic_area)
+      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+    end
+    specify 'is_absent - True' do
+      ga = FactoryGirl.create(:level2_geographic_area)
+      ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga, source: nil)
+      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: TRUE, source: nil)
+      ad2.soft_validate(:conflicting_geographic_area)
+      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+    end
+
   end
 
 end
