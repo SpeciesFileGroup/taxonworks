@@ -7,19 +7,34 @@
 #
 # @!attribute name 
 #   @return [String]
-#     the name of the geographic area 
+#     The name of the geographic area
 # @!attribute level0_id
 #   @return [Integer]
-#     the id of the GeographicArea *country* that this geographic area belongs to, self.id if self is a country
+#     The id of the GeographicArea *country* that this geographic area belongs to, self.id if self is a country
 # @!attribute level1_id
 #   @return [Integer]
-#     the id of the first level subdivision (starting from country) that this geographic area belongs to, self if self is a first level subdivision
+#     The id of the first level subdivision (starting from country) that this geographic area belongs to, self if self is a first level subdivision
 # @!attribute level2_id
 #   @return [Integer]
-#     the id of the second level subdivision (starting from country) that this geographic area belongs to, self if self is a second level subdivision
-# @!attribute tdwgID 
+#     The id of the second level subdivision (starting from country) that this geographic area belongs to, self if self is a second level subdivision
+# @!attribute parent_id
+#   @return [Integer]
+#     The id of the parent of this geographic area, will never be self, may be null (for Earth). Generally, sovereign countries have 'Earth' as parent.
+# @!attribute geographic_area_type_id
+#   @return [Integer]
+#     The id of the type of this geographic area, index of geographic_area_types
+# @!attribute iso_3166_a2
+#   @return [String]
+#     Two alpha-character identification of country.
+# @!attribute iso_3166_a3
+#   @return [String]
+#     Three alpha-character identification of country.
+# @!attribute tdwgID
 #   @return [String]
 #     If derived from the TDWG hierarchy the tdwgID.  Should be accessed through self#tdwg_ids, not directly.
+# @!attribute data_origin
+#   @return [String]
+#     Text describing the source of the data used for creation (TDWG, GADM, NaturalEarth, etc.).
 #
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users

@@ -9,31 +9,45 @@
 #
 # @!attribute geographic_item_id
 #   @return [Integer]
-#    the id of a GeographicItem that represents the (non-error) representation of this georeference definition
+#     The id of a GeographicItem that represents the (non-error) representation of this georeference definition.
+#     Generally, it will represent a point.
 # @!attribute collecting_event_id
 #   @return [Integer]
-#    the id of a CollectingEvent that represents the event of this georeference definition
+#     The id of a CollectingEvent that represents the event of this georeference definition.
 # @!attribute error_radius
 #   @return [Integer]
-#    the distance in meters of the radius of the area of horizontal uncertainty of the accuracy of the location of this georeference definition
+#     The distance in meters of the radius of the area of horizontal uncertainty of the accuracy of the location of
+#     this georeference definition.
 # @!attribute error_depth
 #   @return [Integer]
-#    the distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of this georeference definition
+#     The distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of
+#     this georeference definition.
 # @!attribute error_geographic_item_id
 #   @return [Integer]
-#    the id of a GeographicItem that represents the (error) representation of this georeference definition
+#     The id of a GeographicItem that represents the (error) representation of this georeference definition.
+#     Generally, it will represent a polygon.
 # @!attribute type
 #   @return [String]
-#    the type name of the this georeference definition
+#     The type name of the this georeference definition.
 # @!attribute source_id
 #   @return [Integer]
-#     when provided asserts that this data originated in the specified source
+#     When provided, asserts that this data originated in the specified source.
 # @!attribute position
 #   @return [Integer]
-#    an arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application
-# @!attribute request
+#     An arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application
+# @!attribute is_public
+#   @return [Boolean]
+#     True if this georeference can be shared, otherwise false.
+# @!attribute api_request
 #   @return [String]
-#    the text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
+#     The text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
+# @!attribute is_undefined_z
+#   @return [Boolean]
+#     True if this georeference cannot be located vertically, otherwise false.
+# @!attribute is_median_z
+#   @return [Boolean]
+#     True if this georeference represents an average vertical distance, otherwise false.
+#
 class Georeference < ActiveRecord::Base
   include Housekeeping
 

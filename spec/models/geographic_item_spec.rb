@@ -76,7 +76,7 @@ describe GeographicItem do
 
     specify 'ST_Covers' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -84,7 +84,7 @@ describe GeographicItem do
 
     specify 'ST_CoveredBy' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -92,7 +92,7 @@ describe GeographicItem do
 
     specify 'ST_Crosses' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -100,7 +100,7 @@ describe GeographicItem do
 
     specify 'ST_LineCrossingDirection' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -108,7 +108,7 @@ describe GeographicItem do
 
     specify 'ST_Disjoint' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -116,7 +116,7 @@ describe GeographicItem do
 
     specify 'ST_Distance' do
       skip
-      #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
+      #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
@@ -583,42 +583,63 @@ describe GeographicItem do
         expect(@all_items.rendering_hash).to eq ({:points => [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -3.0], [-10.0, -6.0]], :lines => [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], :polygons => [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]], [[-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0], [-1.0, 1.0]], [[-2.0, 2.0], [2.0, 2.0], [2.0, -2.0], [-2.0, -2.0], [-2.0, 2.0]], [[-3.0, 3.0], [3.0, 3.0], [3.0, -3.0], [-3.0, -3.0], [-3.0, 3.0]], [[-4.0, 4.0], [4.0, 4.0], [4.0, -4.0], [-4.0, -4.0], [-4.0, 4.0]]]})
       end
     end
+
+    specify '#st_npoints returns the number of included points for a valid GeoItem' do
+      expect(@p0.st_npoints).to eq(1)
+      expect(@a.st_npoints).to eq(4)
+      expect(@b.st_npoints).to eq(13)
+      expect(@h.st_npoints).to eq(5)
+      expect(@f.st_npoints).to eq(4)
+      expect(@g.st_npoints).to eq(12)
+      expect(@all_items.st_npoints).to eq(157)
+      expect(@outer_limits.st_npoints).to eq(7)
+    end
+
+    specify '#is_valid_geometry? returns \'true\' for a valid GeoObject' do
+      expect(@p0.is_valid_geometry?).to be_truthy
+      expect(@a.is_valid_geometry?).to be_truthy
+      expect(@b.is_valid_geometry?).to be_truthy
+      expect(@h.is_valid_geometry?).to be_truthy
+      expect(@f.is_valid_geometry?).to be_truthy
+      expect(@g.is_valid_geometry?).to be_truthy
+      expect(@all_items.is_valid_geometry?).to be_truthy
+    end
   end
 
   context 'class methods' do
 
-    specify 'class method to see if one object contains another.' do
+    specify '::contains? to see if one object contains another.' do
       expect(GeographicItem).to respond_to(:contains?)
     end
 
-    specify '.ordered_by_shortest_distance_from to specify ordering of found objects.' do
+    specify '::ordered_by_shortest_distance_from to specify ordering of found objects.' do
       expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
     end
 
-    specify '.ordered_by_longest_distance_from' do
+    specify '::ordered_by_longest_distance_from' do
       expect(GeographicItem).to respond_to(:ordered_by_longest_distance_from)
     end
 
-    specify '.disjoint_from to find all objects which are disjoint from an \'and\' list of objects.' do
+    specify '::disjoint_from to find all objects which are disjoint from an \'and\' list of objects.' do
       expect(GeographicItem).to respond_to(:disjoint_from)
     end
 
-    specify '.within_radius_of to find all objects which are within a specific distance of an object.' do
+    specify '::within_radius_of to find all objects which are within a specific distance of an object.' do
       expect(GeographicItem).to respond_to(:within_radius_of)
     end
 
-    specify '.intersecting method to intersecting an \'or\' list of objects.' do
+    specify '::intersecting method to intersecting an \'or\' list of objects.' do
       expect(GeographicItem).to respond_to(:intersecting)
     end
 
-    specify '.containing_sql' do
+    specify '::containing_sql' do
       expect(GeographicItem.containing_sql('polygon', @p1)).to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
       expect(GeographicItem.containing_sql('polygon', @p2)).not_to eq('ST_Contains(polygon::geometry, GeomFromEWKT(\'srid=4326;POINT (-29.0 -16.0 0.0)\'))')
     end
 
     context 'scopes (GeographicItems can be found by searching with) ' do
       # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
-      specify '.geo_with_collecting_event' do
+      specify '::geo_with_collecting_event' do
         result = GeographicItem.geo_with_collecting_event.order('id').to_a
         expect(result.count).to eq(20) #
         expect(result).to eq([@p0, @p1, @p2, @p3,
@@ -628,13 +649,13 @@ describe GeographicItem do
                               @p16, @p17, @p18, @p19]) #
       end
 
-      specify '.err_with_collecting_event' do
+      specify '::err_with_collecting_event' do
         result = GeographicItem.err_with_collecting_event.order('id').to_a
         expect(result.count).to eq(5) # @k listed three times
         expect(result).to eq([@e2, @k, @k, @k, @area_d]) #
       end
 
-      specify '.all_with_collecting_event' do
+      specify '::all_with_collecting_event' do
         result = GeographicItem.all_with_collecting_event.order('id').to_a
         expect(result.count).to eq(23) # @k only listed once
         expect(result).to include(@p0, @p1, @p2, @p3,
@@ -645,14 +666,14 @@ describe GeographicItem do
                                   @area_d, @e2, @k) #
       end
 
-      specify '.include_collecting_event' do
+      specify '::include_collecting_event' do
         # skip 'construction of method'
         result = GeographicItem.include_collecting_event.order('id').to_a
         expect(result.count).to eq(60)
         expect(result).to eq(@all_gi)
       end
 
-      specify '.containing - returns objects which contain another objects.' do
+      specify '::containing - returns objects which contain another objects.' do
 
         expect(GeographicItem.containing('not_a_column_name', @p1).to_a).to eq([])
         expect(GeographicItem.containing('point', 'Some devious SQL string').to_a).to eq([])
@@ -676,7 +697,7 @@ describe GeographicItem do
         expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b1, @b])
       end
 
-      specify '#excluding([]) drop selves from any list of objects' do
+      specify '::excluding([]) drop selves from any list of objects' do
         # @p2 would have been in the list, except for the exclude
         expect(GeographicItem.excluding([@p2]).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, @p17])
         # @p2 would *not* have been in the list anyway
@@ -685,13 +706,12 @@ describe GeographicItem do
         expect(GeographicItem.excluding([@r2022]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2020, @p10])
       end
 
-      specify '#excluding_self to drop self from any list of objects' do
-        # skip 'construction of scenario'
-        expect(@k.near(@p17.geo_object, 2)).to be(true)
-        expect(@p5.near(@p7.geo_object, 4)).to be(true)
-      end
+      # specify '::excluding_self to drop self from any list of objects' do
+      #   skip 'construction of scenario'
+        # expect(GeographicItem.ordered_by_shortest_distance_from('point', @p7).limit(5)).to_a).to eq([@p2, @p1, @p4])
+      # end
 
-      specify '#ordered_by_shortest_distance_from orders objects by distance from passed object' do
+      specify '::ordered_by_shortest_distance_from orders objects by distance from passed object' do
         expect(GeographicItem.ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
         expect(GeographicItem.ordered_by_shortest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
         expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
@@ -701,7 +721,7 @@ describe GeographicItem do
         expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
       end
 
-      specify '#ordered_by_longest_distance_from orders objects by distance from passed object' do
+      specify '::ordered_by_longest_distance_from orders objects by distance from passed object' do
         expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
         expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@c3, @c1, @c2])
         expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(4).to_a).to eq([@g1, @g2, @g3, @b2])
@@ -714,20 +734,20 @@ describe GeographicItem do
       #TODOone: Is this test right?  What about @k, @d?
       #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
       # SELECT  "geographic_items".* FROM "geographic_items"  WHERE (st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0))'))) LIMIT 4
-      specify "#disjoint_from list of objects (uses 'and')." do
+      specify "::disjoint_from list of objects (uses 'and')." do
         expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to eq([@b1, @b2, @b, @g1])
       end
 
-      specify '#within_radius of returns objects within a specific distance of an object.' do
+      specify '::within_radius of returns objects within a specific distance of an object.' do
         expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5, @area_a, @area_b, @area_c, @area_d])
       end
 
-      specify "#intersecting list of objects (uses 'or')" do
+      specify "::intersecting list of objects (uses 'or')" do
         expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
         expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
       end
 
-      specify '#select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
+      specify '::select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
         result = GeographicItem.select_distance_with_geo_object('point', @r2020).limit(3).order('distance').where_distance_greater_than_zero('point', @r2020).to_a
         # get back these three points
         expect(result).to eq([@r2022, @r2024, @p14])
@@ -739,7 +759,7 @@ describe GeographicItem do
         expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
       end
 
-      specify '#with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
+      specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
         expect(GeographicItem.with_is_valid_geometry_column(@p0)).to be_truthy
         expect(GeographicItem.with_is_valid_geometry_column(@a)).to be_truthy
         expect(GeographicItem.with_is_valid_geometry_column(@b)).to be_truthy
@@ -749,28 +769,6 @@ describe GeographicItem do
         expect(GeographicItem.with_is_valid_geometry_column(@all_items)).to be_truthy
       end
 
-      specify '.st_npoints returns the number of included points for a valid GeoItem' do
-        expect(@p0.st_npoints).to eq(1)
-        expect(@a.st_npoints).to eq(4)
-        expect(@b.st_npoints).to eq(13)
-        expect(@h.st_npoints).to eq(5)
-        expect(@f.st_npoints).to eq(4)
-        expect(@g.st_npoints).to eq(12)
-        expect(@all_items.st_npoints).to eq(157)
-        expect(@outer_limits.st_npoints).to eq(7)
-      end
-
-      specify '.is_valid_geometry returns \'true\' for a valid GeoObject' do
-        expect(@p0.is_valid_geometry?).to be_truthy
-        expect(@a.is_valid_geometry?).to be_truthy
-        expect(@b.is_valid_geometry?).to be_truthy
-        expect(@h.is_valid_geometry?).to be_truthy
-        expect(@f.is_valid_geometry?).to be_truthy
-        expect(@g.is_valid_geometry?).to be_truthy
-        expect(@all_items.is_valid_geometry?).to be_truthy
-      end
-
     end
   end
-
 end

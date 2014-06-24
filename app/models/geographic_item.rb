@@ -1,3 +1,13 @@
+# A GeographicItem is one and only one of [point, line_string, polygon, multi_point, multi_line_string,
+# multi_polygon, geometry_collection] which describes a position, path, or area on the globe, generally associated
+# with a geographic_area (through a geographic_area_geographic_item entry), and sometimes only with a georeference.
+#
+# # @!attribute geo_object
+#   @return [geographic RGeo object]
+#     While no an attribute, per se, this instance method returns whatever sort of RGeo object it contains.  The actual
+#     related column names we support are enumerated in the above description.
+#     (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
+#
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
 
@@ -26,9 +36,7 @@ class GeographicItem < ActiveRecord::Base
 
   # more explicity because we can also go through Geographic Area
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
-
   has_many :collecting_events_through_georeference_error_geographic_item, through: :georeferences_through_error_geographic_item, source: :collecting_event
-
 
   validate :proper_data_is_provided
   validate :chk_point_limit
@@ -86,10 +94,6 @@ class GeographicItem < ActiveRecord::Base
   def st_as_binary
     "ST_AsBinary(#{self.geo_object_type})"
     # "#{self.geo_object_type}"
-  end
-
-  def self.as_binary_string
-
   end
 
   def parent_geographic_areas
@@ -265,10 +269,10 @@ class GeographicItem < ActiveRecord::Base
     where.not(id: geographic_items)
   end
 
-  def excluding_self
-    # GeograohicItem.excluding(self)
-    where.not(id: self.id)
-  end
+  # def excluding_self
+  #   # GeograohicItem.excluding(self)
+  #   where.not(id: self.id)
+  # end
 
   # return the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
