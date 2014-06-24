@@ -40,7 +40,7 @@ class GeographicItem < ActiveRecord::Base
 
   validate :proper_data_is_provided
   validate :chk_point_limit
- 
+
   # http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
   # def self.all2
   #   a  = joins('INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id"')
@@ -69,10 +69,10 @@ class GeographicItem < ActiveRecord::Base
 
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
-  
+
   # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-#  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
-  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) } 
+  #  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
+  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
@@ -199,11 +199,20 @@ class GeographicItem < ActiveRecord::Base
   end
 
   # TODO: Document, what units are distance in?
+  # todo: distance is measured in meters
   def self.within_radius_of(column_name, geographic_item, distance)
-    if check_geo_params(column_name, geographic_item)
-      where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
+    if column_name.downcase == 'any'
+      partial = []
+      DATA_TYPES.each { |column|
+        partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
+      }
+      GeographicItem.where('id in (?)', partial.flatten.map(&:id))
     else
-      where ('false')
+      if check_geo_params(column_name, geographic_item)
+        where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
+      else
+        where ('false')
+      end
     end
   end
 
