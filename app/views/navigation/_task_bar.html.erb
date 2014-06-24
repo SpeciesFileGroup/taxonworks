@@ -1,0 +1,13 @@
+<navigation>
+  <ul class="task_bar">
+    <%= content_tag(:li, link_to('hub', hub_path)) -%>
+    <% named_route = controller.request.path.gsub('/', '')  -%>
+    <% if !TASK_RELATIONS_FOR_NAVIGATION[named_route].nil? %>  
+      <% TASK_RELATIONS_FOR_NAVIGATION[named_route].each do |l| -%>
+      <%= content_tag(:li, link_to(l.humanize.downcase, send("#{l}_path"))) -%>
+    <% end %>
+    <% end %>
+  </ul>
+</navigation>
+
+

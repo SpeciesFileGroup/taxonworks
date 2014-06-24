@@ -21,7 +21,9 @@
     <%= render partial: 'sessions/summary' if sessions_signed_in? %>
   </header>
 
-  <%= quick_bar  -%> 
+  <%# TODO: refine calling of header navigation -%>
+  <%= quick_bar -%> 
+  <%= task_bar -%> 
 
   <aside>
     <% flash.each do |key, value| %>

@@ -20,23 +20,29 @@ class ApplicationController < ActionController::Base
   end
 
   # In use
-  attr_writer :is_data_controller 
+  attr_writer :is_data_controller, :is_task_controller 
 
   # Potentially used
   attr_writer   :meta_title, :meta_data, :site_name
   attr_accessor :meta_description, :meta_keywords, :page_title
 
   # In use 
-  helper_method :is_data_controller?
+  helper_method :is_data_controller?, :is_task_controller?
 
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
+  # Data controllers can not be task controllers.
   def is_data_controller?
     @is_data_controller
   end
 
+  # Returns true if the controller is a task controller. See controllers/concerns/task_controller_configuration/ concern.
+  # Task controllers can not be data controllers.
+  def is_task_controller?
+    @is_task_controller
+  end
 
 
   def meta_title

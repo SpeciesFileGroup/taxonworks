@@ -1,5 +1,5 @@
 class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationController
-
+  include TaskControllerConfiguration
 
   def new
     @repositories = Repository.order(:name).all
