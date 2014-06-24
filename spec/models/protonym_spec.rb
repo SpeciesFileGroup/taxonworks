@@ -30,7 +30,9 @@ describe Protonym do
                                                  type: 'TaxonNameRelationship::Typification::Family')
     end
 
+    # TODO: Is this really has_many?
     context 'has_many' do
+
       specify 'original_combination_relationships' do 
         expect(@protonym).to respond_to(:original_combination_relationships)
         expect(@genus).to respond_to(:type_species)
