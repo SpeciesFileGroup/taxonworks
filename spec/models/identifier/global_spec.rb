@@ -14,7 +14,7 @@ describe Identifier::Global do
   specify 'namespace_id is nil' do
     guid_identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
     guid_identifier.valid?
-    expect(guid_identifier.errors.include?(:namespace_id)).to be_true
+    expect(guid_identifier.errors.include?(:namespace_id)).to be_truthy
   end
 
 end

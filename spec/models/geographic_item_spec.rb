@@ -27,9 +27,9 @@ describe GeographicItem do
     specify 'ST_Geometry_Same' do
       skip
       #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
-      #                           geographic_item_with_line_string.geo_object)).to be_true
+      #                           geographic_item_with_line_string.geo_object)).to be_truthy
       #expect(GeographicItem.same(geographic_item_with_line_string.geo_object,
-      #                           geographic_item_with_polygon.geo_object)).to be_false
+      #                           geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_Area' do
@@ -55,11 +55,11 @@ describe GeographicItem do
     specify 'ST_Contains' do
       skip
       #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
-      #                               geographic_item_with_point_c.geo_object)).to be_true
+      #                               geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.contains(geographic_item_with_point_c.geo_object,
-      #                               geographic_item_with_polygon.geo_object)).to be_false
+      #                               geographic_item_with_polygon.geo_object)).to be_falsey
       #expect(GeographicItem.contains(geographic_item_with_polygon.geo_object,
-      #                               geographic_item_with_polygon.geo_object)).to be_true
+      #                               geographic_item_with_polygon.geo_object)).to be_truthy
     end
 
     specify 'self.find_contains ' do
@@ -69,57 +69,57 @@ describe GeographicItem do
     specify 'ST_ContainsProperly ' do
       skip
       #expect(GeographicItem.contains_properly(geographic_item_with_polygon.geo_object,
-      #                                        geographic_item_with_point_c.geo_object)).to be_true
+      #                                        geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.contains_properly(geographic_item_with_point_c.geo_object,
-      #                                        geographic_item_with_polygon.geo_object)).to be_false
+      #                                        geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_Covers' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_CoveredBy' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_Crosses' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_LineCrossingDirection' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_Disjoint' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
     specify 'ST_Distance' do
       skip
       #expect(GeographicItem.covers(raphic_item_with_polygon.geo_object,
-      #                             geographic_item_with_point_c.geo_object)).to be_true
+      #                             geographic_item_with_point_c.geo_object)).to be_truthy
       #expect(GeographicItem.covers(geographic_item_with_point_c.geo_object,
-      #                             geographic_item_with_polygon.geo_object)).to be_false
+      #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
   end
@@ -136,11 +136,11 @@ describe GeographicItem do
 
     specify 'invalid data for point is invalid' do
       geographic_item.point = 'Some string'
-      expect(geographic_item.valid?).to be_false
+      expect(geographic_item.valid?).to be_falsey
     end
 
     specify 'a valid point is valid' do
-      expect(geographic_item_with_point_a.valid?).to be_true
+      expect(geographic_item_with_point_a.valid?).to be_truthy
     end
 
     specify 'A good point that didn\'t change.' do
@@ -152,19 +152,19 @@ describe GeographicItem do
       geographic_item.point = RSPEC_GEO_FACTORY.point(200.0, 200.0)
 
       geographic_item.valid?
-      expect(geographic_item.errors.keys.include?(:point_limit)).to be_true
+      expect(geographic_item.errors.keys.include?(:point_limit)).to be_truthy
     end
 
     specify 'a point, when provided, has a legal geography' do
       geographic_item.point = RSPEC_GEO_FACTORY.point(180.0, 85.0)
 
       geographic_item.valid?
-      expect(geographic_item.valid?).to be_true
+      expect(geographic_item.valid?).to be_truthy
     end
 
     specify 'One and only one of point, line_string, etc. is set.' do
       geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
-      expect(geographic_item_with_point_a.valid?).to be_false
+      expect(geographic_item_with_point_a.valid?).to be_falsey
     end
   end
 
@@ -178,11 +178,11 @@ describe GeographicItem do
     end
 
     specify 'That one object contains another, or not.' do
-      expect(@k.contains?(@p1.geo_object)).to be_true
-      expect(@k.contains?(@p17.geo_object)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_truthy
+      expect(@k.contains?(@p17.geo_object)).to be_falsey
 
-      expect(@p1.within?(@k.geo_object)).to be_true
-      expect(@p17.within?(@k.geo_object)).to be_false
+      expect(@p1.within?(@k.geo_object)).to be_truthy
+      expect(@p17.within?(@k.geo_object)).to be_falsey
     end
 
     specify 'Two polygons may have various intersections.' do
@@ -194,11 +194,11 @@ describe GeographicItem do
       shapeE4 = e0.geometry_n(3)
       shapeE5 = e0.geometry_n(4)
 
-      expect(shapeE1.intersects?(shapeE2)).to be_true
-      expect(shapeE1.intersects?(shapeE3)).to be_false
+      expect(shapeE1.intersects?(shapeE2)).to be_truthy
+      expect(shapeE1.intersects?(shapeE3)).to be_falsey
 
-      expect(shapeE1.overlaps?(shapeE2)).to be_true
-      expect(shapeE1.overlaps?(shapeE3)).to be_false
+      expect(shapeE1.overlaps?(shapeE2)).to be_truthy
+      expect(shapeE1.overlaps?(shapeE3)).to be_falsey
 
       expect(shapeE1.intersection(shapeE2)).to eq(E1_AND_E2)
       expect(shapeE1.intersection(shapeE4)).to eq(E1_AND_E4)
@@ -215,13 +215,13 @@ describe GeographicItem do
       shapeE4 = e0.geometry_n(3)
       shapeE5 = e0.geometry_n(4)
 
-      expect(shapeE1.touches?(shapeE5)).to be_false
-      expect(shapeE2.touches?(shapeE3)).to be_true
-      expect(shapeE2.touches?(shapeE5)).to be_false
+      expect(shapeE1.touches?(shapeE5)).to be_falsey
+      expect(shapeE2.touches?(shapeE3)).to be_truthy
+      expect(shapeE2.touches?(shapeE5)).to be_falsey
 
-      expect(shapeE1.disjoint?(shapeE5)).to be_true
-      expect(shapeE2.disjoint?(shapeE5)).to be_true
-      expect(shapeE2.disjoint?(shapeE4)).to be_false
+      expect(shapeE1.disjoint?(shapeE5)).to be_truthy
+      expect(shapeE2.disjoint?(shapeE5)).to be_truthy
+      expect(shapeE2.disjoint?(shapeE4)).to be_falsey
     end
 
     specify 'Two different object types have various intersections.' do
@@ -238,10 +238,10 @@ describe GeographicItem do
 
       # f1crosses2 = RSPEC_FACTORY.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
-      expect(l.intersects?(k)).to be_true
-      expect(l.intersects?(e)).to be_false
+      expect(l.intersects?(k)).to be_truthy
+      expect(l.intersects?(e)).to be_falsey
 
-      expect(f1.intersection(f2)).to be_true
+      expect(f1.intersection(f2)).to be_truthy
     end
 
     specify 'Objects can be related by distance' do
@@ -253,13 +253,13 @@ describe GeographicItem do
 
       expect(p17.distance(k)).to be < p10.distance(k)
 
-      expect(@k.near(@p1.geo_object, 0)).to be_true
-      expect(@k.near(@p17.geo_object, 2)).to be_true
-      expect(@k.near(@p10.geo_object, 5)).to be_false
+      expect(@k.near(@p1.geo_object, 0)).to be_truthy
+      expect(@k.near(@p17.geo_object, 2)).to be_truthy
+      expect(@k.near(@p10.geo_object, 5)).to be_falsey
 
-      expect(@k.far(@p1.geo_object, 0)).to be_false
-      expect(@k.far(@p17.geo_object, 1)).to be_true
-      expect(@k.far(@p10.geo_object, 5)).to be_true
+      expect(@k.far(@p1.geo_object, 0)).to be_falsey
+      expect(@k.far(@p17.geo_object, 1)).to be_truthy
+      expect(@k.far(@p10.geo_object, 5)).to be_truthy
     end
 
     specify 'Outer Limits' do
@@ -271,7 +271,7 @@ describe GeographicItem do
   context 'That GeographicItems provide certain methods.' do
     specify 'self.geo_object returns stored data' do
       geographic_item.point = ROOM2024
-      expect(geographic_item.save).to be_true
+      expect(geographic_item.save).to be_truthy
       # also 'respond_to'
       # after the save, the default factory type of geographic_item is
       # #<RGeo::Geographic::Factory> and the
@@ -310,8 +310,8 @@ describe GeographicItem do
     end
 
     specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
-      expect(@k.contains?(@p1.geo_object)).to be_true
-      expect(@e1.contains?(@p10.geo_object)).to be_false
+      expect(@k.contains?(@p1.geo_object)).to be_truthy
+      expect(@e1.contains?(@p10.geo_object)).to be_falsey
     end
 
 
@@ -664,7 +664,7 @@ describe GeographicItem do
         # one thing outside k
         expect(GeographicItem.containing('polygon', @p4).to_a).to eq([])
         # one thing inside two things (overlapping)
-        expect(GeographicItem.containing('polygon', @p12).to_a).to have(2).things
+        expect(GeographicItem.containing('polygon', @p12).to_a.count).to eq(2)
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
         # three things inside and one thing outside k
@@ -740,13 +740,13 @@ describe GeographicItem do
       end
 
       specify '#with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-        expect(GeographicItem.with_is_valid_geometry_column(@p0)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@a)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@b)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@h)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@f)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@g)).to be_true
-        expect(GeographicItem.with_is_valid_geometry_column(@all_items)).to be_true
+        expect(GeographicItem.with_is_valid_geometry_column(@p0)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@a)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@b)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@h)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@f)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@g)).to be_truthy
+        expect(GeographicItem.with_is_valid_geometry_column(@all_items)).to be_truthy
       end
 
       specify '.st_npoints returns the number of included points for a valid GeoItem' do
@@ -761,13 +761,13 @@ describe GeographicItem do
       end
 
       specify '.is_valid_geometry returns \'true\' for a valid GeoObject' do
-        expect(@p0.is_valid_geometry?).to be_true
-        expect(@a.is_valid_geometry?).to be_true
-        expect(@b.is_valid_geometry?).to be_true
-        expect(@h.is_valid_geometry?).to be_true
-        expect(@f.is_valid_geometry?).to be_true
-        expect(@g.is_valid_geometry?).to be_true
-        expect(@all_items.is_valid_geometry?).to be_true
+        expect(@p0.is_valid_geometry?).to be_truthy
+        expect(@a.is_valid_geometry?).to be_truthy
+        expect(@b.is_valid_geometry?).to be_truthy
+        expect(@h.is_valid_geometry?).to be_truthy
+        expect(@f.is_valid_geometry?).to be_truthy
+        expect(@g.is_valid_geometry?).to be_truthy
+        expect(@all_items.is_valid_geometry?).to be_truthy
       end
 
     end

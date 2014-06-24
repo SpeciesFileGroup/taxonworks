@@ -23,7 +23,7 @@ describe "api/v1/taxon_names/all.rabl" do
   it 'renders as many taxon names objects in an array as supplied' do
     assign(:names, [object, object.parent, object.parent.parent])
     render
-    expect(JSON.parse(rendered)).to have(3).items
+    expect(JSON.parse(rendered).count).to eq(3)
   end
 
   it 'renders the array items as valid_json' do

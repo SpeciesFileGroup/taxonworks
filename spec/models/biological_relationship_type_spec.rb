@@ -10,15 +10,15 @@ describe BiologicalRelationshipType do
       end
 
       specify "type" do
-        expect(biological_relationship_type.errors.include?(:type)).to be_true
+        expect(biological_relationship_type.errors.include?(:type)).to be_truthy
       end
 
       specify "biological_property" do
-        expect(biological_relationship_type.errors.include?(:biological_property)).to be_true
+        expect(biological_relationship_type.errors.include?(:biological_property)).to be_truthy
       end
  
      specify "biological_relationship" do
-        expect(biological_relationship_type.errors.include?(:biological_relationship)).to be_true
+        expect(biological_relationship_type.errors.include?(:biological_relationship)).to be_truthy
       end
     end
   end

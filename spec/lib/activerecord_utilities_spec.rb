@@ -5,7 +5,7 @@ describe 'ActiverecordUtilities' do
 
   context 'class methods' do
     specify 'nil_trim_attributes correctly assigns' do
-      expect(TestStringManipulations.nil_trim_attributes(:col1, :col3)).to be_true
+      expect(TestStringManipulations.nil_trim_attributes(:col1, :col3)).to be_truthy
       expect(TestStringManipulations.attributes_to_trim).to match_array [:col1, :col3]
     end
     specify 'nil_trim_attributes raises when invalid attribute passed' do
@@ -20,9 +20,9 @@ describe 'ActiverecordUtilities' do
     }
 
     specify 'trim_attributes' do
-      expect(teststr.col1 = ' whitespace ').to be_true
-      expect(teststr.col2 = ' unchanged ').to be_true
-      expect(teststr.col3 = ' mucho   whitespace in    the Middle    ').to be_true
+      expect(teststr.col1 = ' whitespace ').to be_truthy
+      expect(teststr.col2 = ' unchanged ').to be_truthy
+      expect(teststr.col3 = ' mucho   whitespace in    the Middle    ').to be_truthy
       teststr.valid?
       expect(teststr.col1).to eq('whitespace')
       expect(teststr.col2).to eq(' unchanged ')

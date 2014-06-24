@@ -12,11 +12,11 @@ describe GeographicAreasGeographicItem do
 
     context 'required fields' do
       specify 'geographic_item is required' do
-        expect(geographic_areas_geographic_item.errors.include?(:geographic_item)).to be_true
+        expect(geographic_areas_geographic_item.errors.include?(:geographic_item)).to be_truthy
       end
 
       specify 'geographic_area is required' do
-        expect(geographic_areas_geographic_item.errors.include?(:geographic_area)).to be_true
+        expect(geographic_areas_geographic_item.errors.include?(:geographic_area)).to be_truthy
       end
     end
 

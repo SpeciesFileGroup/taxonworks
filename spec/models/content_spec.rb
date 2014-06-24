@@ -11,13 +11,13 @@ describe Content do
 
     context 'requires' do
       specify 'otu' do
-        expect(content.errors.include?(:otu)).to be_true
+        expect(content.errors.include?(:otu)).to be_truthy
       end
       specify 'topic' do
-        expect(content.errors.include?(:topic)).to be_true
+        expect(content.errors.include?(:topic)).to be_truthy
       end
       specify 'text' do
-        expect(content.errors.include?(:text)).to be_true
+        expect(content.errors.include?(:text)).to be_truthy
       end
     end
 
@@ -40,25 +40,25 @@ describe Content do
     }
 
     specify 'when you #publish there is PublicContent' do
-      expect(@content.publish).to be_true
-      expect(PublicContent.all).to have(1).things
+      expect(@content.publish).to be_truthy
+      expect(PublicContent.all.count).to eq(1)
     end
 
     specify 'a new version is not published for identically versioned content' do
-      expect(@content.publish).to be_true
-      expect(PublicContent.all).to have(1).things
+      expect(@content.publish).to be_truthy
+      expect(PublicContent.all.count).to eq(1)
       existing_public_version = @content.public_content.version
-      expect(@content.version == existing_public_version ).to be_true
-      expect(@content.publish).to be_true
-      expect(PublicContent.all).to have(1).things
-      expect(@content.public_content.version == existing_public_version).to be_true
+      expect(@content.version == existing_public_version ).to be_truthy
+      expect(@content.publish).to be_truthy
+      expect(PublicContent.all.count).to eq(1)
+      expect(@content.public_content.version == existing_public_version).to be_truthy
     end
 
     specify 'when you #unpublish there is no PublicContent' do
-      expect(@content.publish).to be_true
-      expect(PublicContent.all).to have(1).things
-      expect(@content.unpublish).to be_true
-      expect(PublicContent.all).to have(0).things
+      expect(@content.publish).to be_truthy
+      expect(PublicContent.all.count).to eq(1)
+      expect(@content.unpublish).to be_truthy
+      expect(PublicContent.all.count).to eq(0)
     end
   end
 
@@ -76,17 +76,17 @@ describe Content do
       }
 
       specify 'versions' do
-        expect(@c.versions).to have(1).things 
+        expect(@c.versions.count).to eq(1)
       end
 
       specify 'another version' do
         @c.text = 'new text'
-        expect(@c.save).to be_true
-        expect(@c.versions).to have(2).things
+        expect(@c.save).to be_truthy
+        expect(@c.versions.count).to eq(2)
       end
 
       specify 'live?'  do
-        expect(@c.live?).to be_true
+        expect(@c.live?).to be_truthy
       end
     end
   end

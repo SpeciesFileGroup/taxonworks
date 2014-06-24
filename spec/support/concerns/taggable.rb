@@ -8,7 +8,7 @@ shared_examples 'taggable' do
       expect(class_with_tags.tags.to_a).to eq([]) # there are no tags yet.
 
       expect(class_with_tags.tags << FactoryGirl.build(:valid_tag)).to be_truthy
-      expect(class_with_tags.tags).to have(1).things
+      expect(class_with_tags.tags.count).to eq(1)
       expect(class_with_tags.save).to be_truthy
     end
   end

@@ -9,23 +9,23 @@ describe DataAttribute do
     }
     context 'requires' do
       specify 'attribute_subject' do
-        expect(attribute.errors.include?(:attribute_subject)).to be_true
+        expect(attribute.errors.include?(:attribute_subject)).to be_truthy
       end
 
       specify 'value' do
-        expect(attribute.errors.include?(:value)).to be_true
+        expect(attribute.errors.include?(:value)).to be_truthy
       end
 
       specify 'type' do
-        expect(attribute.errors.include?(:type)).to be_true
+        expect(attribute.errors.include?(:type)).to be_truthy
       end
     end
 
     specify 'key/value is unique' do
       a = FactoryGirl.create(:valid_data_attribute)
       p = ImportAttribute.new(attribute_subject: a.attribute_subject, import_predicate: 'hair color', value: 'black')
-      expect(p.valid?).to be_false
-      expect(p.errors.include?(:value)).to be_true
+      expect(p.valid?).to be_falsey
+      expect(p.errors.include?(:value)).to be_truthy
     end
   end
 end

@@ -28,18 +28,18 @@ describe 'Material' do
 
     specify 'returns a single collection object when collection_objects[:object1][:total] is set' do
       @one_object_stub[:collection_objects][:object1][:total] = 1
-      expect(Material.create_quick_verbatim(@one_object_stub).collection_objects).to have(1).things
+      expect(Material.create_quick_verbatim(@one_object_stub).collection_objects.count).to eq(1)
     end
 
     specify 'returns an array of objects when multiple object totals are set' do
-      expect(Material.create_quick_verbatim(@two_objects_stub).collection_objects).to have(2).things
+      expect(Material.create_quick_verbatim(@two_objects_stub).collection_objects.count).to eq(2)
     end
 
     specify 'uses the buffered_ values when provided' do
       event = 'ABCD'
       opts = @one_object_stub.merge(collection_object: {buffered_collecting_event: event}) 
       @one_object_stub[:collection_objects][:object1][:total] = 1
-      expect(Material.create_quick_verbatim(opts).collection_objects).to have(1).things
+      expect(Material.create_quick_verbatim(opts).collection_objects.count).to eq(1)
       expect(Material.create_quick_verbatim(opts).collection_objects.first.buffered_collecting_event).to eq(event)
     end
 
@@ -58,7 +58,7 @@ describe 'Material' do
         note: {text: text}
       )
       response = Material.create_quick_verbatim(opts)
-      expect(response.collection_objects.first.notes).to have(1).things
+      expect(response.collection_objects.first.notes.to_a.count).to eq(1)
       expect(response.collection_objects.first.notes.first.text).to eq(text)
     end
 
@@ -71,7 +71,7 @@ describe 'Material' do
         note: {text: text}
       )
       r = Material.create_quick_verbatim(opts)
-      expect(Material.create_quick_verbatim(opts).collection_objects).to have(2).things
+      expect(Material.create_quick_verbatim(opts).collection_objects.count).to eq(2)
       expect(r.collection_objects.first.notes.first.text).to eq(r.collection_objects.last.notes.first.text)
     end
 
@@ -90,8 +90,8 @@ describe 'Material' do
       @two_objects_stub[:collection_objects][:object2][:biocuration_classes] = [@attribute1.id, @attribute4.id]
 
       r = Material.create_quick_verbatim(@two_objects_stub)
-      expect(r.collection_objects.first.biocuration_classes).to have(4).things
-      expect(r.collection_objects.last.biocuration_classes).to have(2).things
+      expect(r.collection_objects.first.biocuration_classes.to_a.count).to eq(4)
+      expect(r.collection_objects.last.biocuration_classes.to_a.count).to eq(2)
     end
 
     specify 'records are saved' do
@@ -142,7 +142,7 @@ describe Material::QuickVerbatimResponse do
     expect(Specimen.count).to eq(0)
     expect(Identifier.count).to eq(0)
     expect(Note.count).to eq(0)
-    expect(@response.save).to be_true
+    expect(@response.save).to be_truthy
     expect(Specimen.count).to eq(1)
     expect(Identifier.count).to eq(1)
     expect(Note.count).to eq(1)

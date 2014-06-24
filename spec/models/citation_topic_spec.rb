@@ -13,11 +13,11 @@ describe CitationTopic do
 
       context 'required fields' do
         specify 'citation_id' do
-          expect(citation_topic.errors.include?(:citation_id)).to be_true
+          expect(citation_topic.errors.include?(:citation_id)).to be_truthy
         end
 
         specify 'topic_id' do
-          expect(citation_topic.errors.include?(:topic_id)).to be_true
+          expect(citation_topic.errors.include?(:topic_id)).to be_truthy
         end
       end
 

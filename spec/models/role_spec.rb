@@ -10,16 +10,16 @@ describe Role do
 
     context 'required fields' do
       specify 'person_id' do
-        expect(role.errors.include?(:person_id)).to be_true
+        expect(role.errors.include?(:person_id)).to be_truthy
       end
       specify 'type' do
-        expect(role.errors.include?(:type)).to be_true
+        expect(role.errors.include?(:type)).to be_truthy
       end
       specify 'role_object_id' do
-        expect(role.errors.include?(:role_object_id)).to be_true
+        expect(role.errors.include?(:role_object_id)).to be_truthy
       end
       specify 'role_object_type' do
-        expect(role.errors.include?(:role_object_type)).to be_true
+        expect(role.errors.include?(:role_object_type)).to be_truthy
       end
     end
 
@@ -31,11 +31,11 @@ describe Role do
       specify 'one person can not have two identical roles' do
         role_object = FactoryGirl.create(:valid_source_bibtex)
         role1 = Role.new(person: @person, role_object:  role_object, type: 'SourceAuthor')
-        expect(role1.valid?).to be_true
+        expect(role1.valid?).to be_truthy
         role1.save
         role2 = Role.new(person: @person, role_object:  role_object, type: 'SourceAuthor')
-        expect(role2.valid?).to be_false
-        expect(role2.errors.include?(:person_id)).to be_true
+        expect(role2.valid?).to be_falsey
+        expect(role2.errors.include?(:person_id)).to be_truthy
       end
     end
 

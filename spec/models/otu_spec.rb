@@ -37,7 +37,7 @@ describe Otu do
 
   context 'validation' do
     specify 'otu without name and without taxon_name_id is invalid' do
-      expect(otu.valid?).to be_false
+      expect(otu.valid?).to be_falsey
     end
     specify 'otu should require a name or taxon_name_id' do
       otu.soft_validate(:taxon_name)
@@ -47,7 +47,7 @@ describe Otu do
       o1 = FactoryGirl.create(:valid_otu)
       o2 = FactoryGirl.build_stubbed(:valid_otu)
       o1.soft_validate(:duplicate_otu)
-      expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_true
+      expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_truthy
       o2.soft_validate(:duplicate_otu)
       expect(o2.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
     end
@@ -60,7 +60,7 @@ describe Otu do
 
         t = FactoryGirl.create(:relationship_species)
         t.reload
-        expect(t.valid?).to be_true
+        expect(t.valid?).to be_truthy
 
         otu.taxon_name = t
         expect(otu.otu_name).to eq('<em>Erythroneura vitis</em> McAtee, 1900')

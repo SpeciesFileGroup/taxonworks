@@ -24,7 +24,7 @@ describe TaxonDetermination do
 
   specify "if no _made value provided set the deterimination to Time.now" do
     a = FactoryGirl.build(:valid_taxon_determination)
-    expect(a.save).to be_true
+    expect(a.save).to be_truthy
     expect(a.year_made).to eq(Time.now.year)
     expect(a.month_made).to eq(Time.now.month)
     expect(a.day_made).to eq(Time.now.day)

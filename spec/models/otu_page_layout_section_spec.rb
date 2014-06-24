@@ -9,14 +9,14 @@ describe OtuPageLayoutSection do
     specify 'type is a legal type' do
       otu_page_layout_section.type = 'foo'
       otu_page_layout_section.valid?
-      expect(otu_page_layout_section.errors.include?(:type)).to be_true
+      expect(otu_page_layout_section.errors.include?(:type)).to be_truthy
     end
 
     OtuPageLayoutSection.descendants.each do |d|
       specify "#{d.name} is a legal type" do
         otu_page_layout_section.type = d.name 
         otu_page_layout_section.valid?
-        expect(otu_page_layout_section.errors.include?(:type)).to be_false
+        expect(otu_page_layout_section.errors.include?(:type)).to be_falsey
       end
     end
   end

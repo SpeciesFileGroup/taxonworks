@@ -23,11 +23,11 @@ describe ProjectMember do
     end
 
     specify 'user' do
-      expect(project_member.errors.include?(:project)).to be_true
+      expect(project_member.errors.include?(:project)).to be_truthy
     end
 
     specify 'project' do
-      expect(project_member.errors.include?(:user)).to be_true
+      expect(project_member.errors.include?(:user)).to be_truthy
     end
 
   end

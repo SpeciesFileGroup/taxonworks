@@ -16,10 +16,10 @@ describe TaxonNameClassification do
         @taxon_name_classification.valid?
       end
       specify "taxon_name" do
-        expect(@taxon_name_classification.errors.include?(:taxon_name)).to be_true
+        expect(@taxon_name_classification.errors.include?(:taxon_name)).to be_truthy
       end
       specify "type" do
-        expect(@taxon_name_classification.errors.include?(:type)).to be_true
+        expect(@taxon_name_classification.errors.include?(:type)).to be_truthy
       end
       specify 'disjoint_taxon_name_relationships' do
         TAXON_NAME_CLASSES.each do |r|
@@ -45,12 +45,12 @@ describe TaxonNameClassification do
       specify "invalid type" do
         c = FactoryGirl.build(:taxon_name_classification, type: 'aaa')
         c.valid?
-        expect(c.errors.include?(:type)).to be_true
+        expect(c.errors.include?(:type)).to be_truthy
       end
       specify "invalid type" do
         c = FactoryGirl.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         c.valid?
-        expect(c.errors.include?(:type)).to be_false
+        expect(c.errors.include?(:type)).to be_falsey
       end
     end
   end
@@ -67,7 +67,7 @@ describe TaxonNameClassification do
     specify "applicable type and year" do
      c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
      c.soft_validate(:proper_classification)
-     expect(c.soft_validations.messages_on(:type).empty?).to be_true
+     expect(c.soft_validations.messages_on(:type).empty?).to be_truthy
    end
     specify "unapplicable type" do
       c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')

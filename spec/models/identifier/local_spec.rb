@@ -9,7 +9,7 @@ describe Identifier::Local do
     }
     context 'requires' do
       specify 'namespace' do
-        expect(local_identifier.errors.include?(:namespace)).to be_true
+        expect(local_identifier.errors.include?(:namespace)).to be_truthy
       end
     end
   end

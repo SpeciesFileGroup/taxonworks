@@ -12,7 +12,7 @@ describe BiocurationGroup do
     }
 
     specify 'tags (through Keywords)' do
-      expect(biocuration_group.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))).to be_true
+      expect(biocuration_group.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))).to be_truthy
     end
 
     specify 'biocuration_classes' do
@@ -20,7 +20,7 @@ describe BiocurationGroup do
       t1 = Tag.create(keyword: @biocuration_group, tag_object: @bc1)
       t2 = Tag.create(keyword: @biocuration_group, tag_object: @bc2)
 
-      expect(@biocuration_group.biocuration_classes).to have(2).things
+      expect(@biocuration_group.biocuration_classes.count).to eq(2)
       expect(@biocuration_group.biocuration_classes.to_a.map(&:class)).to eq([BiocurationClass, BiocurationClass])
     end
   end

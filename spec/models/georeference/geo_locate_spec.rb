@@ -15,7 +15,7 @@ describe Georeference::GeoLocate do
 
     specify 'with a collecting event, is valid' do
       @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
-      expect(@a.valid?).to be_true
+      expect(@a.valid?).to be_truthy
     end
 
   end
@@ -30,28 +30,28 @@ describe Georeference::GeoLocate do
     end
 
     specify '#build(request_params) passes' do
-      expect(Georeference::GeoLocate.build(request_params)).to be_true
+      expect(Georeference::GeoLocate.build(request_params)).to be_truthy
     end
 
     specify 'with a collecting event #build produces a valid instance' do
       @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
-      expect(@a.valid?).to be_true
+      expect(@a.valid?).to be_truthy
     end
 
     specify 'a built, valid, instance is geometrically(?) correct' do
       @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
-      expect(@a.save).to be_true
-      expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_true
+      expect(@a.save).to be_truthy
+      expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_truthy
     end
 
     specify 'with invalid parameters returns a Georeference::GeoLocate instance with errors on :base' do
       @a =  Georeference::GeoLocate.build(country: '')
-      expect(@a.errors.include?(:api_request)).to be_true
+      expect(@a.errors.include?(:api_request)).to be_truthy
     end
 
     specify '#with doPoly false instance should have no error polygon' do
       @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
-      expect(@a.error_geographic_item.nil?).to be_true
+      expect(@a.error_geographic_item.nil?).to be_truthy
     end
 
     # TODO: what was the 3 reason again?
@@ -64,16 +64,16 @@ describe Georeference::GeoLocate do
 
   context 'instance methods' do
     specify 'api_response=(response) populates .geographic_item' do
-      expect(geo_locate.api_response = response).to be_true
+      expect(geo_locate.api_response = response).to be_truthy
       expect(geo_locate.geographic_item).not_to be_nil
       expect(geo_locate.geographic_item.class).to eq(GeographicItem)
       expect(geo_locate.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
     end
 
     specify 'api_response=(response.result) populates .error_geographic_item' do
-      expect(geo_locate.api_response = response).to be_true
+      expect(geo_locate.api_response = response).to be_truthy
       expect(geo_locate.error_geographic_item).not_to be_nil
-      expect(geo_locate.error_radius.to_i > 5000).to be_true # Bad test
+      expect(geo_locate.error_radius.to_i > 5000).to be_truthy # Bad test
     end
 
     specify '.request_hash' do
@@ -84,7 +84,7 @@ describe Georeference::GeoLocate do
 
   context 'Request' do
     specify 'has a @response' do
-      expect(request.respond_to?(:response)).to be_true
+      expect(request.respond_to?(:response)).to be_truthy
     end
 
     specify 'has @request_params' do
@@ -96,23 +96,23 @@ describe Georeference::GeoLocate do
     end
 
     specify '.build_param_string' do # '.make_request builds a request string' do
-      expect(request.build_param_string).to be_true
+      expect(request.build_param_string).to be_truthy
       expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
     end
 
     specify '.locate' do
-      expect(request.locate).to be_true
+      expect(request.locate).to be_truthy
     end
 
     specify '.locate populates @response' do
-      expect(request.locate).to be_true
+      expect(request.locate).to be_truthy
       expect(request.response).to_not be_nil
       expect(request.response.class).to eq(Georeference::GeoLocate::Response)
     end
 
     specify '.succeeded?' do
-      expect(request.locate).to be_true
-      expect(request.succeeded?).to be_true
+      expect(request.locate).to be_truthy
+      expect(request.succeeded?).to be_truthy
     end
   end
 
@@ -120,7 +120,7 @@ describe Georeference::GeoLocate do
   context 'Response' do
     specify 'contains some @result (in json)' do
       request.locate
-      expect(response.result.keys.include?('numResults')).to be_true
+      expect(response.result.keys.include?('numResults')).to be_truthy
     end
   end
 

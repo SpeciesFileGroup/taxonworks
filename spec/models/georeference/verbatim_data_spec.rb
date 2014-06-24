@@ -8,9 +8,9 @@ describe Georeference::VerbatimData do
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      expect(georeference.is_median_z).to be_false
-      expect(georeference.is_undefined_z).to be_true
-      expect(georeference.save).to be_true
+      expect(georeference.is_median_z).to be_falsey
+      expect(georeference.is_undefined_z).to be_truthy
+      expect(georeference.save).to be_truthy
       expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 0.0)')
     end
 
@@ -20,9 +20,9 @@ describe Georeference::VerbatimData do
                                                                                         minimum_elevation:  759,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      expect(georeference.is_median_z).to be_false
-      expect(georeference.is_undefined_z).to be_false
-      expect(georeference.save).to be_true
+      expect(georeference.is_median_z).to be_falsey
+      expect(georeference.is_undefined_z).to be_falsey
+      expect(georeference.save).to be_truthy
       expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 759.0)')
     end
 
@@ -33,9 +33,9 @@ describe Georeference::VerbatimData do
                                                                                         maximum_elevation:  859,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
-      expect(georeference.is_median_z).to be_true
-      expect(georeference.is_undefined_z).to be_false
-      expect(georeference.save).to be_true
+      expect(georeference.is_median_z).to be_truthy
+      expect(georeference.is_undefined_z).to be_falsey
+      expect(georeference.save).to be_truthy
       expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 809.0)')
     end
 

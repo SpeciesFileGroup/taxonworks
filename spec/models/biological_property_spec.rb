@@ -10,11 +10,11 @@ describe BiologicalProperty do
       end
 
       specify "name" do
-        expect(biological_property.errors.include?(:name)).to be_true
+        expect(biological_property.errors.include?(:name)).to be_truthy
       end
 
       specify "definition" do
-        expect(biological_property.errors.include?(:definition)).to be_true
+        expect(biological_property.errors.include?(:definition)).to be_truthy
       end
     end
   end

@@ -6,24 +6,24 @@ describe 'Ranks' do
   context 'constants' do
     context 'are build without error from config/initializers/ranks.rb' do
       specify '::RANKS' do
-        expect(RANKS).to be_true
+        expect(RANKS).to be_truthy
       end
 
       specify '::ICN' do
-        expect(ICN).to be_true
+        expect(ICN).to be_truthy
       end
 
       specify '::ICN_LOOKUP' do
-        expect(ICN_LOOKUP).to be_true
+        expect(ICN_LOOKUP).to be_truthy
         expect(ICN_LOOKUP.class).to eq(Hash)
       end
 
       specify '::ICZN' do
-        expect(ICZN).to be_true
+        expect(ICZN).to be_truthy
       end
 
       specify '::ICZN_LOOKUP' do
-        expect(ICZN).to be_true
+        expect(ICZN).to be_truthy
         expect(ICZN_LOOKUP.class).to eq(Hash)
       end
     end
@@ -49,7 +49,7 @@ describe 'Ranks' do
       end
 
       specify "rank.lookup return false" do
-        expect(Ranks.lookup(:iczn, 'false')).to be_false
+        expect(Ranks.lookup(:iczn, 'false')).to be_falsey
       end
 
       specify "rank.lookup return proper class for ICZN rank" do
