@@ -14,7 +14,7 @@ describe GeographicAreaType do
     before(:each) {
       geographic_area_type.valid?
     }
-    specify 'name' do
+    specify '#name' do
       expect(geographic_area_type.errors.include?(:name)).to be_truthy
     end
   

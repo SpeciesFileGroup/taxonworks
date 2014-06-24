@@ -38,7 +38,7 @@ describe GeographicArea do
   end
 
   context 'instance methods' do
-    specify "tdwg_ids" do
+    specify "#tdwg_ids" do
       geographic_area.tdwgID = '41SCS-PI'
       expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
       expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
@@ -46,7 +46,7 @@ describe GeographicArea do
       expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
     end
 
-    specify "tdwg_level" do
+    specify "#tdwg_level" do
       geographic_area.data_origin = 'TDWG2 Level 1'
       expect(geographic_area.tdwg_level).to eq('1')
     end
@@ -88,7 +88,7 @@ describe GeographicArea do
           @champaign = FactoryGirl.create(:level2_geographic_area)
         }
 
-        specify 'lft,rgt' do
+        specify 'lft, rgt' do
           expect(@champaign.lft > 0).to be_truthy
           expect(@champaign.rgt > 0).to be_truthy
         end
@@ -99,13 +99,6 @@ describe GeographicArea do
           expect(@champaign.parent.parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
         end
-
-        # specify 'TDWG string parser' do
-        #   expect(@champaign.parent.tdwg_ids).to eq({:lvl1 => "7",
-        #                                             :lvl2 => "74",
-        #                                             :lvl3 => "ILL",
-        #                                             :lvl4 => "ILL-00"})
-        # end
 
         specify 'ancestors' do
           expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
