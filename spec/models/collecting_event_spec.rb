@@ -211,6 +211,7 @@ describe CollectingEvent do
           expect(GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7).count).to eq(25)
 
           partial = GeographicItem.all_with_collecting_event.within_radius_of('any', p7, 2000000).excluding(p7)
+          expect(partial.count).to eq(7)
           expect(GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7).all_with_collecting_event.count).to eq(25)
 
         end
