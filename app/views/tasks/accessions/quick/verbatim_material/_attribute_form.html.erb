@@ -1,1 +1,20 @@
-<p>[text from _partial]</p>
+<% @biocuration_groups.each_with_index do |bg, i| -%>
+
+  <div> 
+
+    <div class='left_floater'> 
+      <%= number_field_tag("collection_objects[object#{i}][total]") -%>
+    </div> 
+
+    <fieldset class='right_floater'>
+      <%= content_tag(:legend, bg.name) -%>
+      <% bg.biocuration_classes.each do |bc| %>
+        <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object#{i}][biocuration_classes][#{bc.id}]" ) -%>
+      <% end %>
+    </fieldset> 
+
+    <br style="clear:both;" />
+  <div>
+
+<% end %>
+

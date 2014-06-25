@@ -7,7 +7,7 @@ class RepositoriesController < ApplicationController
   # GET /repositories
   # GET /repositories.json
   def index
-    @repositories = Repository.all
+    @repositories = Repository.limit(20)
   end
 
   # GET /repositories/1

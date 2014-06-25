@@ -1,4 +1,4 @@
-<% %w[data tasks].each do |l| %>
+<% %w[tasks data].each do |l| %>
   <%= content_tag(:h2, l) -%>
   <%= render(partial: "hub/navigation_lists/#{l}") -%>
   <br />

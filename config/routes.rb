@@ -81,7 +81,7 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_name_relationships
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get' 
-  post 'tasks/accessions/quick/verbatim_material/create' # , via: 'post'
+  post 'tasks/accessions/quick/verbatim_material/create' 
 
   match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
   match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
