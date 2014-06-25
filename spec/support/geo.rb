@@ -8,7 +8,7 @@ end
 
 def clean_slate_ce
   [@gr00, @gr01, @gr02, @gr03, @gr04, @gr05, @gr06, @gr07, @gr08, @gr09,
-   @gr10, @gr11, @gr12, @gr13, @gr14, @gr15, @gr16, @gr17, @gr18, @gr19,
+   @gr10, @gr11, @gr121, @gr121, @gr13, @gr14, @gr15, @gr16, @gr17, @gr18, @gr19,
    @ce_p0, @ce_p1, @ce_p2, @ce_p3, @ce_p4, @ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9
   ].map(&delete)
 end
@@ -513,7 +513,7 @@ def generate_geo_test_objects
     area_d:       @area_d.id
   }
 
-  my_debug = false
+  my_debug = true
 
   if my_debug
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
@@ -548,9 +548,14 @@ def generate_ce_test_objects
                               :collecting_event      => @ce_p2,
                               :error_geographic_item => @k,
                               :geographic_item       => @p2)
-  @gr12  = FactoryGirl.create(:georeference_verbatim_data,
-                              :collecting_event => @ce_p2,
-                              :geographic_item  => @p12)
+  @gr121 = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p2,
+                              :error_geographic_item => @e1,
+                              :geographic_item       => @p12)
+  @gr122 = FactoryGirl.create(:georeference_verbatim_data,
+                              :collecting_event      => @ce_p2,
+                              :error_geographic_item => @e2,
+                              :geographic_item       => @p12)
 
   @ce_p3 = FactoryGirl.create(:collecting_event)
   @gr03  = FactoryGirl.create(:georeference_verbatim_data,

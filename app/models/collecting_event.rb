@@ -57,6 +57,7 @@ class CollectingEvent < ActiveRecord::Base
   has_many :collection_objects
   has_many :georeferences
   has_many :geographic_items, through: :georeferences
+  has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
