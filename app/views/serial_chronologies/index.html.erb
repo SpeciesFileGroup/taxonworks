@@ -1,0 +1,33 @@
+<h1>Listing serial_chronologies</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Preceding serial</th>
+      <th>Succeeding serial</th>
+      <th>Created by</th>
+      <th>Modified by</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @serial_chronologies.each do |serial_chronology| %>
+      <tr>
+        <td><%= serial_chronology.preceding_serial_id %></td>
+        <td><%= serial_chronology.succeeding_serial_id %></td>
+        <td><%= serial_chronology.created_by_id %></td>
+        <td><%= serial_chronology.modified_by_id %></td>
+        <td><%= link_to 'Show', serial_chronology %></td>
+        <td><%= link_to 'Edit', edit_serial_chronology_path(serial_chronology) %></td>
+        <td><%= link_to 'Destroy', serial_chronology, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Serial chronology', new_serial_chronology_path %>

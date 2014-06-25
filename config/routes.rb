@@ -65,6 +65,9 @@ TaxonWorks::Application.routes.draw do
   resources :public_contents
   resources :ranged_lot_categories
   resources :repositories
+  resources :serial_chronologies
+  resources :serials
+  resources :sources
   resources :tagged_section_keywords
   resources :tags
   resources :taxon_determinations

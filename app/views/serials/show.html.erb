@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @serial.name %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @serial.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @serial.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @serial.project_id %>
+</p>
+
+<p>
+  <strong>Publisher:</strong>
+  <%= @serial.publisher %>
+</p>
+
+<p>
+  <strong>Place published:</strong>
+  <%= @serial.place_published %>
+</p>
+
+<p>
+  <strong>Primary language:</strong>
+  <%= @serial.primary_language_id %>
+</p>
+
+<p>
+  <strong>First year of issue:</strong>
+  <%= @serial.first_year_of_issue %>
+</p>
+
+<p>
+  <strong>Last year of issue:</strong>
+  <%= @serial.last_year_of_issue %>
+</p>
+
+<%= link_to 'Edit', edit_serial_path(@serial) %> |
+<%= link_to 'Back', serials_path %>
