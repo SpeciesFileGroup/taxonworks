@@ -23,7 +23,7 @@ describe SerialChronologiesController do
   # This should return the minimal set of attributes required to create a valid
   # SerialChronology. As you add validations to SerialChronology, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "preceding_serial_id" => "1" } }
+  let(:valid_attributes) {  FactoryGirl.build(:valid_serial_chronology).attributes }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

@@ -34,7 +34,7 @@ FactoryGirl.define do
   end
 
   factory :geographic_area, traits: [:creator_and_updater,], aliases: [:valid_geographic_area_stack] do
-    # TODO: fix to *really* be vaclid
+    # TODO: fix to *really* be valid
     factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin 'Test Data'
       name 'Test'
