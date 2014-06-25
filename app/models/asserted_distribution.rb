@@ -7,35 +7,29 @@ class AssertedDistribution < ActiveRecord::Base
   belongs_to :otu
   belongs_to :geographic_area
   belongs_to :source
-  #belongs_to :project
 
   validates_presence_of :otu_id, message: 'Taxon is not specified'
   validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
+  validates_presence_of :source
 
   scope :with_otu_id, -> (otu_id) {where(otu_id: otu_id)}
   scope :with_geographic_area_id, -> (geographic_area_id) {where(geographic_area_id: geographic_area_id)}
   scope :with_geographic_area_array, -> (geographic_area_array) {where('geographic_area_id IN (?)', geographic_area_array ) }
   scope :with_is_absent, -> {where('is_absent = true')}
   scope :without_is_absent, -> {where('is_absent = false OR is_absent is Null')}
+
+  # TODO: this should be a housekeeping scope
   scope :not_self, -> (id) {where('asserted_distribution.id <> ?', id )}
 
-  before_validation :check_required_fields
-
-  soft_validate(:sv_missing_source, set: :missing_source)
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
-
 
   #region Soft validation
 
-  def sv_missing_source
-    soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
-  end
-
   def sv_conflicting_geographic_area
+    ga = self.geographic_area
     unless ga.nil?
-      ga = self.geographic_area
-      if self.is_absent = TRUE
-        presence = AssertedDistribution.without_is_absent.with_geographic_area_id(self.geographic_area_id)
+      if self.is_absent == true
+        presence = AssertedDistribution.without_is_absent.with_geographic_area_id(self.geographic_area_id) # this returns an array, not a single GA so test below is not right
         soft_validations.add(:otu_id, "Taxon is reported as present in #{presence.geographic_area.name}") unless presence.empty?
       else
         areas = [ga.level0_id, ga.level1_id, ga.level2_id].compact
