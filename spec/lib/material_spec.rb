@@ -114,6 +114,37 @@ describe Material::QuickVerbatimResponse do
     @response = Material::QuickVerbatimResponse.new()
   }
 
+
+  context 'data entry locks' do
+    specify '#lock_namespace' do
+      expect(@response).to respond_to(:lock_namespace)
+    end
+
+    specify '#lock_repository' do
+      expect(@response).to respond_to(:lock_repository)
+    end
+
+    specify '#lock_increment' do
+      expect(@response).to respond_to(:lock_increment)
+    end
+
+    specify '#lock_namespace' do
+      expect(@response).to respond_to(:lock_collecting_event)
+    end
+
+    specify '#lock_determinations' do
+      expect(@response).to respond_to(:lock_buffered_determinations)
+    end
+
+    specify '#lock_other_labels' do
+      expect(@response).to respond_to(:lock_other_labels)
+    end
+
+    specify '#lock_note' do
+      expect(@response).to respond_to(:lock_note)
+    end
+  end
+  
   specify '#collection_objects' do
     expect(@response.collection_objects).to eq([]) 
   end
@@ -134,7 +165,7 @@ describe Material::QuickVerbatimResponse do
     expect(@response.note.class).to eq(Note) 
   end
 
-  specify 'save' do
+  specify '#save' do
     a = FactoryGirl.build(:valid_specimen)
     i = FactoryGirl.build(:valid_identifier_local_catalog_number, identified_object: nil)
     n = Note.new(text: "fasdfasdf")
@@ -153,7 +184,6 @@ describe Material::QuickVerbatimResponse do
 
     success, errors = @response.save
 
-    byebug
     expect(success).to be(true) 
    
     expect(Specimen.count).to eq(1)
