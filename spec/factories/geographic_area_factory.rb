@@ -22,7 +22,6 @@ FactoryGirl.define do
   end
 
   trait :parent_state do
-    parent_country
     parent {
       if o = GeographicArea.where(name: 'Illinois').first
         o
@@ -49,7 +48,11 @@ FactoryGirl.define do
         name 'Champaign'
         parent_state
         association :geographic_area_type, factory: :county_geographic_area_type
-        after(:build) { |o| o.level2 = o }
+        after(:build) { |o| 
+          o.level2 = o
+          o.level1 = o.parent
+          o.level0 = FactoryGirl.build(:level0_geographic_area) 
+        }
       end
 
       factory :level1_geographic_area do
@@ -57,7 +60,10 @@ FactoryGirl.define do
         tdwgID '74ILL-00'
         parent_country
         association :geographic_area_type, factory: :state_geographic_area_type
-        after(:build) { |o| o.level1 = o }
+        after(:build) { |o| 
+          o.level1 = o 
+          o.level0 = o.parent
+        }
       end
 
       factory :level0_geographic_area do
