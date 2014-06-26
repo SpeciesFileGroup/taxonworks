@@ -21,7 +21,7 @@ class CollectionObject < ActiveRecord::Base
 
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects
-  belongs_to :collecting_event
+  belongs_to :collecting_event, inverse_of: :collection_objects
 
   validates_presence_of :type
   before_validation :check_that_both_of_category_and_total_are_not_present

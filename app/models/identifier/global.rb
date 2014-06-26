@@ -1,5 +1,9 @@
+#
+# The identifier that is globaly unique.
+#
 class Identifier::Global < Identifier 
   validates :namespace_id, absence: true
-  # TODO test this
-  validates_uniqueness_of :type, scope: [:identified_object_id, :identified_object_type]
+
+  # only one identifier of a global type can be created  
+  validates_uniqueness_of :type, scope: [:identifier]
 end

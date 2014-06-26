@@ -7,15 +7,20 @@ describe 'Material' do
     before(:each) {
       @one_object_stub = {'collection_objects' => {}}
       @one_object_stub['collection_objects']['object1'] = {'total' => nil}
+      @one_object_stub['identifier'] = {}
 
       @two_objects_stub = {'collection_objects' => {}} 
       @two_objects_stub['collection_objects']['object1'] = {'total' => nil}
       @two_objects_stub['collection_objects']['object2'] = {'total' => nil}
-    
+   
+      @two_objects_stub['identifier'] = {}
+
       @attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
       @attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
       @attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
       @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
+
+      @namespace = FactoryGirl.create(:valid_namespace)
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -86,9 +91,9 @@ describe 'Material' do
     specify 'attributes are assigned' do
       @two_objects_stub['collection_objects']['object1']['total'] = 1
       @two_objects_stub['collection_objects']['object1']['biocuration_classes'] = { @attribute1.to_param => '1',
-                                                                                 @attribute2.to_param => '1',
-                                                                                 @attribute3.to_param => '1',
-                                                                                 @attribute4.to_param => '1'}
+                                                                                   @attribute2.to_param => '1',
+                                                                                   @attribute3.to_param => '1',
+                                                                                   @attribute4.to_param => '1'}
       @two_objects_stub['collection_objects']['object2']['total'] = 5
       @two_objects_stub['collection_objects']['object2']['biocuration_classes'] = {@attribute1.to_param => '1',
                                                                                   @attribute4.to_param => '1' }
@@ -100,12 +105,27 @@ describe 'Material' do
     
     end
 
-    specify 'records are saved' do
-      @two_objects_stub['collection_objects']['object1']['total'] = 1
-      @two_objects_stub['collection_objects']['object2']['total'] = 5
-      @two_objects_stub['collection_objects']['object2']['biocuration_classes'] = { @attribute1.to_param => '1',
-                                                                                 @attribute4.to_param => 1}
+    specify 'identifier is assigned to a single object if a single object is created' do
+      @one_object_stub['collection_objects']['object1']['total'] = 1
+      @one_object_stub['identifier']['namespace_id'] = @namespace.id
+      @one_object_stub['identifier']['identifier'] = '1234'
+
+      r = Material.create_quick_verbatim(@one_object_stub)
+
+      expect(r.collection_objects.first.identifiers.size).to eq(1) # ! .count, it hasn't been saved
     end
+
+    specify 'identifier is assigned to a container if multiple objects are created' do
+      @two_objects_stub['collection_objects']['object1']['total'] = 1
+      @two_objects_stub['collection_objects']['object2']['total'] = 2
+
+      @two_objects_stub['identifier']['namespace_id'] = @namespace.id
+      @two_objects_stub['identifier']['identifier'] = '1234'
+
+      r = Material.create_quick_verbatim(@two_objects_stub)
+      expect(r.collection_objects.first.container.identifiers.size).to eq(1) # ! .count
+    end
+
   end
 end
 
@@ -114,34 +134,86 @@ describe Material::QuickVerbatimResponse do
     @response = Material::QuickVerbatimResponse.new()
   }
 
-
   context 'data entry locks' do
-    specify '#lock_namespace' do
-      expect(@response).to respond_to(:lock_namespace)
+    specify '#params' do
+      expect(@response).to respond_to(:params)
     end
 
-    specify '#lock_repository' do
-      expect(@response).to respond_to(:lock_repository)
+    specify '#locked?' do
+      expect(@response.locked?('note')).to be(false)
+    end
+  end
+
+  context '#duplicate_with_locks' do
+    before {
+      @response.params['lock_note'] = true
+      @response.params['lock_increment'] = true
+
+      @response.note = Note.new(text: 'Locked me.')
+      @response.identifier = Identifier::Local::CatalogNumber.new(identifier: '123', namespace: @namespace)
+      @response.repository = Repository.new(name: 'The vault.')
+
+      @new = @response.duplicate_with_locks
+    }
+
+    specify 'persists lock_ attributes' do
+      expect(@new.locked?('note')).to be(true)
+      expect(@new.locked?('increment')).to be(true)
+      expect(@new.locked?('repository')).to be(false)
     end
 
-    specify '#lock_increment' do
-      expect(@response).to respond_to(:lock_increment)
+    context 'persists related objects -' do
+      specify 'note' do
+        expect(@new.note.text).to eq('Locked me.')  
+      end
+
+      specify 'identifier' do
+        expect(@new.identifier.namespace).to eq(@namespace)  
+      end
     end
 
-    specify '#lock_namespace' do
-      expect(@response).to respond_to(:lock_collecting_event)
+    specify 'clears other attributes' do
+      expect(@new.repository.name).to be(nil)
     end
 
-    specify '#lock_determinations' do
-      expect(@response).to respond_to(:lock_buffered_determinations)
+    specify 'increments identifier' do
+      expect(@new.identifier.identifier).to eq('124')
+    end
+  end 
+
+
+  context 'identifier increments' do
+    specify '#next_identifier' do
+      expect(@response).to respond_to(:next_identifier)
     end
 
-    specify '#lock_other_labels' do
-      expect(@response).to respond_to(:lock_other_labels)
+    specify '#next_identifier is nill unless #lock_increment' do
+      expect(@response.next_identifier).to eq(nil)
     end
 
-    specify '#lock_note' do
-      expect(@response).to respond_to(:lock_note)
+    context 'when #lock_increment true' do
+      before {
+        @response.params['lock_increment'] = true
+      }
+      specify '#next_identifier is +1 when #lock_increment' do
+        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
+        expect(@response.next_identifier).to eq('2')
+      end
+
+      specify '#next_identifier is +1 when #lock_increment and pre-fixed alphanumeric' do
+        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'A1')
+        expect(@response.next_identifier).to eq('A2')
+      end
+
+      specify '#next_identifier is +1 when #lock_increment and post-fixed alphanumeric' do
+        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1A')
+        expect(@response.next_identifier).to eq('2A')
+      end
+
+      specify '#next_identifier is +1 when #lock_increment and pre and post-fixed alphanumeric' do
+        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'AB1A')
+        expect(@response.next_identifier).to eq('AB2A')
+      end
     end
   end
   
@@ -154,7 +226,7 @@ describe Material::QuickVerbatimResponse do
   # end
 
   specify '#identifier' do
-    expect(@response.identifier.class).to eq(Identifier) 
+    expect(@response.identifier.class).to eq(Identifier::Local::CatalogNumber) 
   end
 
   specify '#repository' do

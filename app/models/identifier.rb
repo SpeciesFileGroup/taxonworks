@@ -1,3 +1,5 @@
+# The information that can be use to differentiate concepts.
+#
 class Identifier < ActiveRecord::Base
   include Housekeeping
 
@@ -19,7 +21,8 @@ class Identifier < ActiveRecord::Base
     trip_code: Identifier::Local::TripCode,
     import: Identifier::Local::Import,
     otu_utility: Identifier::Local::OtuUtility,
-    accession_code: Identifier::Local::AccessionCode
+    accession_code: Identifier::Local::AccessionCode,
+    unknown: Identifier::Unknown
   }
 
   validates :identified_object, presence: true

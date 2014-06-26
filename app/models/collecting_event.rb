@@ -54,7 +54,7 @@ class CollectingEvent < ActiveRecord::Base
   has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
-  has_many :collection_objects
+  has_many :collection_objects, inverse_of: :collecting_event
   has_many :georeferences
   has_many :geographic_items, through: :georeferences
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
