@@ -153,7 +153,7 @@ describe Material::QuickVerbatimResponse do
 
     success, errors = @response.save
 
-    byebug
+    # byebug
     expect(success).to be(true) 
    
     expect(Specimen.count).to eq(1)
