@@ -4,49 +4,49 @@
     <div>
     <div class="field">
       <%= label_tag 'Namespace/Institution/Coden' %>
-      <%= select_tag 'identifier[namespace_id]', options_from_collection_for_select(@namespaces, :id, :name) %>
-      <%= check_box_tag :lock_namespace %>
+      <%= select :identifier, :namespace_id, options_from_collection_for_select(@namespaces, :id, :name) %>
+      <%= check_box :locks, :namespace %>
       <%= label_tag 'lock' %>
     </div>
 
     <div class="field" >
       <%= label_tag :identifier %>
-      <%= text_field_tag 'identifier[identifier]' %>
-      <%= check_box_tag :lock_increment %>
+      <%= text_field :identifier, :identifier %>
+      <%= check_box :locks, :increment %>
       <%= label_tag 'increment + 1' %>
       </div>
     </div>
 
     <h2>Repository</h2>
     <div class="field">
-      <%= select_tag 'repository[id]', options_from_collection_for_select(@repositories, :id, :name) %>
-      <%= check_box_tag :lock_repository %>
+      <%= select :repository, :id, options_from_collection_for_select(@repositories, :id, :name) %>
+      <%= check_box :locks, :repository %>
       <%= label_tag 'lock' %>
     </div>
 
     <h2>Verbatim data</h2>
     <div class="field">
       <%= label_tag :collecting_event %>
-      <%= text_area_tag 'collection_object[buffered_collecting_event]' %>
-      <%= check_box_tag :lock_collecting_event %>
+      <%= text_area :collection_object, :buffered_collecting_event %>
+      <%= check_box :locks, :collecting_event %>
       <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :determinations %>
-      <%= text_area_tag 'collection_object[buffered_determinations]' %>
-      <%= check_box_tag :lock_buffered_determinations %>
+      <%= text_area :collection_object, :buffered_determinations  %>
+      <%= check_box :locks, :determinations %>
       <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :other_labels %>
-      <%= text_area_tag 'collection_object[buffered_other_labels]' %>
-      <%= check_box_tag :lock_other_labels %>
+      <%= text_area :collection_object, :buffered_other_labels  %>
+      <%= check_box :locks, :other_labels %>
       <%= label_tag 'lock' %>
     </div>
     <div class="field">
       <%= label_tag :notes %> (attached to all material)
       <%= text_area_tag 'note[text]' %>
-      <%= check_box_tag :lock_note %>
+      <%= check_box :locks, :note %>
       <%= label_tag 'lock' %>
     </div>
 

@@ -21,6 +21,7 @@ describe 'Material' do
       @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
 
       @namespace = FactoryGirl.create(:valid_namespace)
+      
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -36,7 +37,14 @@ describe 'Material' do
       expect(Material.create_quick_verbatim(@one_object_stub).collection_objects.count).to eq(1)
     end
 
-    specify 'returns an array of objects when multiple object totals are set' do
+    specify 'returns no collection objects when totals are not set' do
+      expect(Material.create_quick_verbatim(@two_objects_stub).collection_objects.count).to eq(0)
+    end
+
+    specify 'returns an array of objects when totals are set' do
+      @two_objects_stub['collection_objects']['object1']['total'] = 2
+      @two_objects_stub['collection_objects']['object2']['total'] = 3
+
       expect(Material.create_quick_verbatim(@two_objects_stub).collection_objects.count).to eq(2)
     end
 
@@ -83,7 +91,7 @@ describe 'Material' do
     specify 'material can be assigned to a repository' do
       repository = FactoryGirl.create(:valid_repository)
       @one_object_stub['collection_objects']['object1']['total'] = 1
-      opts = @one_object_stub.merge('collection_object' => {'repository_id' => repository.id}) 
+      opts = @one_object_stub.merge('repository' => {'id' => repository.id}) 
       r = Material.create_quick_verbatim(opts)
       expect(r.collection_objects.first.repository).to eq(repository)
     end
@@ -97,12 +105,10 @@ describe 'Material' do
       @two_objects_stub['collection_objects']['object2']['total'] = 5
       @two_objects_stub['collection_objects']['object2']['biocuration_classes'] = {@attribute1.to_param => '1',
                                                                                   @attribute4.to_param => '1' }
-
       r = Material.create_quick_verbatim(@two_objects_stub)
 
       expect(r.collection_objects.first.biocuration_classes.to_a.count).to eq(4)
       expect(r.collection_objects.last.biocuration_classes.to_a.count).to eq(2)
-    
     end
 
     specify 'identifier is assigned to a single object if a single object is created' do
@@ -134,9 +140,17 @@ describe Material::QuickVerbatimResponse do
     @response = Material::QuickVerbatimResponse.new()
   }
 
+  specify '#collection_object' do
+    expect(@response.collection_object.class).to eq(Material::QuickVerbatimObject)
+  end
+
+  specify  '#locks_object' do
+    expect(@response.locks_object.class).to eq(Material::QuickVerbatimLocks)
+  end
+
   context 'data entry locks' do
-    specify '#params' do
-      expect(@response).to respond_to(:params)
+    specify '#form_params' do
+      expect(@response).to respond_to(:form_params)
     end
 
     specify '#locked?' do
@@ -144,14 +158,36 @@ describe Material::QuickVerbatimResponse do
     end
   end
 
+  specify '#next_identifier' do
+    expect(@response).to respond_to(:next_identifier)
+  end
+
+  specify '#next_identifier is nill unless #lock_increment' do
+    expect(@response.next_identifier).to eq(nil)
+  end
+
   context '#duplicate_with_locks' do
     before {
-      @response.params['lock_note'] = true
-      @response.params['lock_increment'] = true
+      @namespace = FactoryGirl.create(:valid_namespace)
+      @repository = FactoryGirl.create(:valid_repository, name: 'The vault.')
 
-      @response.note = Note.new(text: 'Locked me.')
-      @response.identifier = Identifier::Local::CatalogNumber.new(identifier: '123', namespace: @namespace)
-      @response.repository = Repository.new(name: 'The vault.')
+      form_params = {
+        'note' => {'text' => 'Locked me.'},
+        'identifier' => {'namespace_id' => @namespace.id, 'identifier' => '123'},
+        'repository' => {'id' => @repository.id}, 
+        'locks' => {
+          'namespace' => '0',
+          'increment' => '1',
+          'repository' => '0',
+          'collecting_event' => '0',
+          'determinations' => '0',
+          'other_labels' => '0',
+          'note' => '1'          
+        }
+      }
+
+      @response.form_params = form_params
+      @response.build_models
 
       @new = @response.duplicate_with_locks
     }
@@ -159,7 +195,11 @@ describe Material::QuickVerbatimResponse do
     specify 'persists lock_ attributes' do
       expect(@new.locked?('note')).to be(true)
       expect(@new.locked?('increment')).to be(true)
+      expect(@new.locked?('namespace')).to be(false)
       expect(@new.locked?('repository')).to be(false)
+      expect(@new.locked?('collecting_event')).to be(false)
+      expect(@new.locked?('determinations')).to be(false)
+      expect(@new.locked?('other_labels')).to be(false)
     end
 
     context 'persists related objects -' do
@@ -181,19 +221,10 @@ describe Material::QuickVerbatimResponse do
     end
   end 
 
-
   context 'identifier increments' do
-    specify '#next_identifier' do
-      expect(@response).to respond_to(:next_identifier)
-    end
-
-    specify '#next_identifier is nill unless #lock_increment' do
-      expect(@response.next_identifier).to eq(nil)
-    end
-
     context 'when #lock_increment true' do
       before {
-        @response.params['lock_increment'] = true
+        @response.quick_verbatim_locks.increment = '1' # coming off form_params()
       }
       specify '#next_identifier is +1 when #lock_increment' do
         @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
