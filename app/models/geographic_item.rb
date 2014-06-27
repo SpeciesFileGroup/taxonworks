@@ -64,6 +64,7 @@ class GeographicItem < ActiveRecord::Base
     g = GeographicItem.geo_with_collecting_event.distinct
     e = GeographicItem.err_with_collecting_event.distinct
     r = g + e
+    # todo: change 'id in (?)' to some other sql construct
     GeographicItem.where('id in (?)', r.map(&:id).uniq)
   end
 
@@ -183,10 +184,19 @@ class GeographicItem < ActiveRecord::Base
   end
 
   def self.intersecting(column_name, *geographic_items)
-    q = geographic_items.flatten.collect { |geographic_item|
-      "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')"
-    }.join(' and ')
-    where (q)
+    if column_name.downcase == 'any'
+      partial = []
+      DATA_TYPES.each { |column|
+        partial.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
+      }
+      # todo: change 'id in (?)' to some other sql construct
+      GeographicItem.where('id in (?)', partial.flatten.map(&:id))
+    else
+      q = geographic_items.flatten.collect { |geographic_item|
+        "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')"
+      }.join(' or ')
+      where (q)
+    end
 =begin
     geographic_items.each { |geographic_item|
       # where("st_contains(geographic_items.#{column_name}, ST_GeomFromText('#{geographic_item.to_s}'))")
@@ -206,6 +216,7 @@ class GeographicItem < ActiveRecord::Base
       DATA_TYPES.each { |column|
         partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
       }
+      # todo: change 'id in (?)' to some other sql construct
       GeographicItem.where('id in (?)', partial.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
@@ -227,8 +238,19 @@ class GeographicItem < ActiveRecord::Base
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
   def self.containing(column_name, *geographic_items)
-    q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
-    where(q)
+    if column_name.downcase == 'any'
+      partial = []
+      DATA_TYPES.each { |column|
+        unless column == :geometry_collection
+          partial.push(GeographicItem.containing("#{column}", geographic_items).to_a)
+        end
+      }
+      # todo: change 'id in (?)' to some other sql construct
+      GeographicItem.where('id in (?)', partial.flatten.map(&:id))
+    else
+      q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
+      where(q)
+    end
   end
 
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)

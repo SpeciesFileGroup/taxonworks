@@ -64,7 +64,7 @@ POINT17 = RSPEC_GEO_FACTORY.point(-19.6, -13)
 POINT18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2)
 POINT19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9)
 POINT20 = RSPEC_GEO_FACTORY.point(-8, -4)
-POINT21 = RSPEC_GEO_FACTORY.point(-4, -3)
+POINT21 = RSPEC_GEO_FACTORY.point(-4, -8)
 POINT22 = RSPEC_GEO_FACTORY.point(-10, -6)
 
 SHAPE_A = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
@@ -513,9 +513,10 @@ def generate_geo_test_objects
     area_d:       @area_d.id
   }
 
-  my_debug = true
+  my_debug = false
 
   if my_debug
+    puts
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
   end
@@ -528,7 +529,7 @@ def generate_ce_test_objects
   @ce_p0 = FactoryGirl.create(:collecting_event)
   @gr00  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event      => @ce_p0,
-                              :error_geographic_item => @area_d,
+                              :error_geographic_item => @area_c,
                               :geographic_item       => @p0) #  1
   @gr10  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event => @ce_p0,
@@ -604,17 +605,23 @@ def generate_ce_test_objects
                               :collecting_event => @ce_p8,
                               :geographic_item  => @p8)
   @gr18  = FactoryGirl.create(:georeference_verbatim_data,
-                              :collecting_event => @ce_p8,
-                              :geographic_item  => @p18)
+                              :collecting_event      => @ce_p8,
+                              :error_geographic_item => @b2,
+                              :geographic_item       => @p18)
 
   @ce_p9 = FactoryGirl.create(:collecting_event)
   @gr09  = FactoryGirl.create(:georeference_verbatim_data,
                               :collecting_event => @ce_p9,
                               :geographic_item  => @p9)
   @gr19  = FactoryGirl.create(:georeference_verbatim_data,
-                              :collecting_event => @ce_p9,
-                              :geographic_item  => @p19)
+                              :collecting_event      => @ce_p9,
+                              :error_geographic_item => @b,
+                              :geographic_item       => @p19)
 
+  @ce_area_d = FactoryGirl.create(:collecting_event)
+  @gr_area_d = FactoryGirl.create(:georeference_verbatim_data,
+                                  :collecting_event => @ce_area_d,
+                                  :geographic_item  => @area_d)
 
 end
 

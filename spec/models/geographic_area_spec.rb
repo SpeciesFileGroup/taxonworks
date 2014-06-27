@@ -154,7 +154,7 @@ describe GeographicArea do
       end
 
       specify 'countries' do
-        expect(GeographicArea.countries).to eq([@champaign.parent.parent])
+        expect(GeographicArea.countries).to include(@champaign.parent.parent)
       end
 
       specify 'descendants_of_geographic_area_type' do
