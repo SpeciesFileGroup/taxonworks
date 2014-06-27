@@ -45,7 +45,7 @@
     </div>
     <div class="field">
       <%= label_tag :notes %> (attached to all material)
-      <%= text_area_tag 'note[text]' %>
+      <%= text_area :notes, :text %>
       <%= check_box :locks, :note %>
       <%= label_tag 'lock' %>
     </div>
