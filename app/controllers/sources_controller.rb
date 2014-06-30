@@ -28,7 +28,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       if @source.save
-        format.html { redirect_to @source, notice: 'Source was successfully created.' }
+        format.html { redirect_to @source.becomes(Source), notice: 'Source was successfully created.' }
         format.json { render action: 'show', status: :created, location: @source }
       else
         format.html { render action: 'new' }
@@ -42,7 +42,7 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        format.html { redirect_to @source, notice: 'Source was successfully updated.' }
+        format.html { redirect_to @source.becomes(Source), notice: 'Source was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

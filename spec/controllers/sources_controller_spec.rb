@@ -77,7 +77,7 @@ describe SourcesController do
 
       it "redirects to the created source" do
         post :create, {:source => valid_attributes}, valid_session
-        response.should redirect_to(Source.last)
+        response.should redirect_to(Source.last.becomes(Source))
       end
     end
 
@@ -119,7 +119,7 @@ describe SourcesController do
       it "redirects to the source" do
         source = Source.create! valid_attributes
         put :update, {:id => source.to_param, :source => valid_attributes}, valid_session
-        response.should redirect_to(source)
+        response.should redirect_to(source.becomes(Source))
       end
     end
 

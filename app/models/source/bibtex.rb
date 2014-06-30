@@ -326,6 +326,7 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 #endregion
 
+ # TODO: This should be moved out to notable likely, and inherited at Source
  accepts_nested_attributes_for :notes
 
  #region ruby-bibtex related
@@ -451,12 +452,13 @@ class Source::Bibtex < Source
 
   def note=(value)
     write_attribute(:note, value)
-    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record?
+    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record? && !self.note.blank?
   end 
 
   def isbn=(value)
     write_attribute(:isbn, value)
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
+    # See note= comments
     self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
   def isbn
@@ -537,17 +539,16 @@ class Source::Bibtex < Source
   protected
 
    def set_cached_values
+     bx_entry = self.to_bibtex
+     if bx_entry.key.blank? then
+       bx_entry.key = 'tmpID'
+     end
+     key = bx_entry.key
+     #bx_entry.key = 'tmpID'
+     bx_bibliography = BibTeX::Bibliography.new()
+     bx_bibliography.add(bx_entry)
 
-    bx_entry = self.to_bibtex
-    if bx_entry.key.blank? then
-      bx_entry.key = 'tmpID'
-    end
-    key = bx_entry.key
-    #bx_entry.key = 'tmpID'
-    bx_bibliography = BibTeX::Bibliography.new()
-    bx_bibliography.add(bx_entry)
-
-    cp = CiteProc::Processor.new(style: 'apa', format: 'text')
+     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
      cp.import bx_bibliography.to_citeproc
 
 =begin

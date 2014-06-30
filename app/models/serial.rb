@@ -117,7 +117,6 @@ class Serial < ActiveRecord::Base
 
   protected
 
-
   def sv_duplicate?
     if self.duplicate?
       soft_validations.add(:name, 'There is another serial with this name in the database.')
@@ -127,6 +126,5 @@ class Serial < ActiveRecord::Base
 
   def match_alternate_value?
     #Select value from AlternateValue WHERE alternate_object_type = 'Serial' AND alternate_object_attribute = 'name'
-
   end
 end
