@@ -300,10 +300,10 @@ class GeographicItem < ActiveRecord::Base
     where.not(id: geographic_items)
   end
 
-  # def excluding_self
-  #   # GeograohicItem.excluding(self)
-  #   where.not(id: self.id)
-  # end
+  def excluding_self
+    # GeograohicItem.excluding(self)
+    where.not(id: self.id)
+  end
 
   # return the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type

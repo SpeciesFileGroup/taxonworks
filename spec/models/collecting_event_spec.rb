@@ -199,6 +199,9 @@ describe CollectingEvent do
         generate_ce_test_objects
       }
       after(:all) {
+        Georeference.destroy_all
+        GeographicItem.destroy_all
+        CollectingEvent.destroy_all
         clean_slate_geo
       }
       context 'and that GR has a GI but no EGI' do
@@ -296,7 +299,7 @@ describe CollectingEvent do
           expect(partial).not_to include(@ce_p0)
         end
 
-        specify 'find other CEs that have GRs whose GIs or EGIs are are contained in the EGI' do
+        specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
           # skip 'contained in error_gi'
           # find all the GIs and EGIs associated with CEs
           polys   = GeographicItem.all_with_collecting_event.to_a

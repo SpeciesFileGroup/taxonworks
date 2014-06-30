@@ -10,7 +10,7 @@ def clean_slate_ce
   [@gr00, @gr01, @gr02, @gr03, @gr04, @gr05, @gr06, @gr07, @gr08, @gr09,
    @gr10, @gr11, @gr121, @gr121, @gr13, @gr14, @gr15, @gr16, @gr17, @gr18, @gr19,
    @ce_p0, @ce_p1, @ce_p2, @ce_p3, @ce_p4, @ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9
-  ].map(&delete)
+  ].map(&destroy)
 end
 
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
@@ -520,106 +520,130 @@ def generate_geo_test_objects
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
   end
+  @debug_names
 end
 
 def generate_ce_test_objects
 
-  generate_geo_test_objects if @p0.nil?
+  @debug_names = generate_geo_test_objects if @p0.nil?
 
-  @ce_p0 = FactoryGirl.create(:collecting_event)
+  @ce_p0 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p0')
   @gr00  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr00',
                               :collecting_event      => @ce_p0,
                               :error_geographic_item => @area_c,
                               :geographic_item       => @p0) #  1
   @gr10  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr10',
                               :collecting_event => @ce_p0,
                               :geographic_item  => @p10) #  2
 
-  @ce_p1 = FactoryGirl.create(:collecting_event)
+  @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1')
   @gr01  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr01',
                               :collecting_event      => @ce_p1,
                               :error_geographic_item => @k,
                               :geographic_item       => @p1) #  3
   @gr11  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr11',
+                              :error_geographic_item => @e1,
                               :collecting_event => @ce_p1,
                               :geographic_item  => @p11) #  4
 
-  @ce_p2 = FactoryGirl.create(:collecting_event)
+  @ce_p2 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p2')
   @gr02  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr02',
                               :collecting_event      => @ce_p2,
                               :error_geographic_item => @k,
                               :geographic_item       => @p2)
   @gr121 = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr121',
                               :collecting_event      => @ce_p2,
                               :error_geographic_item => @e1,
                               :geographic_item       => @p12)
   @gr122 = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr122',
                               :collecting_event      => @ce_p2,
                               :error_geographic_item => @e2,
                               :geographic_item       => @p12)
 
-  @ce_p3 = FactoryGirl.create(:collecting_event)
+  @ce_p3 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p3')
   @gr03  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr03',
                               :collecting_event      => @ce_p3,
                               :error_geographic_item => @k,
                               :geographic_item       => @p3)
   @gr13  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr13',
                               :collecting_event      => @ce_p3,
                               :error_geographic_item => @e2,
                               :geographic_item       => @p13)
 
-  @ce_p4 = FactoryGirl.create(:collecting_event)
+  @ce_p4 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p4')
   @gr04  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr04',
                               :collecting_event => @ce_p4,
                               :geographic_item  => @p4)
   @gr14  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr14',
                               :collecting_event => @ce_p4,
                               :geographic_item  => @p14)
 
-  @ce_p5 = FactoryGirl.create(:collecting_event)
+  @ce_p5 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p5')
   @gr05  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr05',
                               :collecting_event => @ce_p5,
                               :geographic_item  => @p5)
   @gr15  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr15',
                               :collecting_event => @ce_p5,
                               :geographic_item  => @p15)
 
-  @ce_p6 = FactoryGirl.create(:collecting_event)
+  @ce_p6 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p6')
   @gr06  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr06',
                               :collecting_event => @ce_p6,
                               :geographic_item  => @p6)
   @gr16  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr16',
                               :collecting_event => @ce_p6,
                               :geographic_item  => @p16)
 
-  @ce_p7 = FactoryGirl.create(:collecting_event)
+  @ce_p7 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p7')
   @gr07  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr07',
                               :collecting_event => @ce_p7,
                               :geographic_item  => @p7)
   @gr17  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr17',
                               :collecting_event => @ce_p7,
                               :geographic_item  => @p17)
 
-  @ce_p8 = FactoryGirl.create(:collecting_event)
+  @ce_p8 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p8')
   @gr08  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr08',
                               :collecting_event => @ce_p8,
                               :geographic_item  => @p8)
   @gr18  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr18',
                               :collecting_event      => @ce_p8,
                               :error_geographic_item => @b2,
                               :geographic_item       => @p18)
 
-  @ce_p9 = FactoryGirl.create(:collecting_event)
+  @ce_p9 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p9')
   @gr09  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request      => 'gr09',
                               :collecting_event => @ce_p9,
                               :geographic_item  => @p9)
   @gr19  = FactoryGirl.create(:georeference_verbatim_data,
+                              :api_request           => 'gr19',
                               :collecting_event      => @ce_p9,
                               :error_geographic_item => @b,
                               :geographic_item       => @p19)
 
-  @ce_area_d = FactoryGirl.create(:collecting_event)
+  @ce_area_d = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_area_d')
   @gr_area_d = FactoryGirl.create(:georeference_verbatim_data,
+                                  :api_request      => 'gr_area_d',
                                   :collecting_event => @ce_area_d,
                                   :geographic_item  => @area_d)
 
