@@ -37,6 +37,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   end
 
   protected
+
   def reassign_type_if_total_provided
     return true if !self.ranged_lot_category_id.nil? || self.total.nil?
     if self.total == 1

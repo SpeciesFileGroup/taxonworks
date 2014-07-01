@@ -24,7 +24,7 @@ class TaxonDetermination < ActiveRecord::Base
   include Shared::Citable
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, inverse_of: :taxon_determinations
+  belongs_to :biological_collection_object, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :taxon_determinations
 
   has_one :determiner_role, class_name: 'Determiner', as: :role_object
   has_one :determiner, through: :determiner_role, source: :person
