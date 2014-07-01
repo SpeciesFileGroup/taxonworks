@@ -147,12 +147,15 @@ class CollectingEvent < ActiveRecord::Base
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
-    # unless georeferences.nil?
-    #   unless geographic_items.nil? and error_geographic_items.nil?
-    gi = geographic_items.first
+    gi      = geographic_items.first
     partial = GeographicItem.within_radius_of('any', gi, distance)
-    # end
-    # end
+
+    ce = []
+    partial.each { |o|
+      ce.push(o.collecting_events_through_georeferences.to_a)
+      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+    partial = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
 
     partial.excluding(self)
   end
@@ -160,7 +163,7 @@ class CollectingEvent < ActiveRecord::Base
   def find_others_intersecting_with
     # find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
     partial = GeographicItem.all_with_collecting_event.intersecting('any', self.geographic_items.first).uniq
-    gr = []
+    gr      = []
     partial.each { |o|
       gr.push(o.collecting_events_through_georeferences.to_a)
       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
@@ -171,14 +174,24 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def find_others_contained_in_error
-    partial = GeographicItem.all_with_collecting_event.containing('any', self.error_geographic_items.first).uniq
-    gr = []
+    # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
+    # find all the GIs and EGIs associated with CEs
+    partial = GeographicItem.all_with_collecting_event.to_a
+
+    me = self.error_geographic_items.first.geo_object
+    gi = []
+    # collect all the GIs which are within the EGI
     partial.each { |o|
-      gr.push(o.collecting_events_through_georeferences.to_a)
-      gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+      gi.push(o) if o.geo_object.within?(me)
+    }
+    # collect all the CEs which refer to these GIs
+    ce = []
+    gi.each { |o|
+      ce.push(o.collecting_events_through_georeferences.to_a)
+      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
     # todo: change 'id in (?)' to some other sql construct
-    partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
+    partial = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
     partial.excluding(self)
   end
 

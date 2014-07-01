@@ -206,122 +206,42 @@ describe CollectingEvent do
       }
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          expect(@ce_p7.georeferences.count).to eq(2) # there are two georeferences associated with this
-          # ce, which are gr_00 and gr_10.
-          # we will pick ce_p7 for this set of tests, and isolate the GI for...
-          p7      = @ce_p7.georeferences.first.geographic_item # ...easier ref later.
-          # find *all* the GIs within 2000 clicks of p7.
-          partial = GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7)
-          expect(partial.count).to eq(25)
-
-          # find only the GIs within 2000 clicks of p7 which are associated with a CE.
-          partial = GeographicItem.all_with_collecting_event.within_radius_of('any', p7, 2000000).excluding(p7)
-          expect(partial.count).to eq(8)
-          # are they the *correct* objects?
-          expect(partial).to include(@p0, @p5, @p6, @p8, @p9, @area_c, @e2, @area_d)
-          expect(partial).not_to include(@p10, @p7)
-          # find the georeferences for the items above
-          gr = []
-          partial.each { |o|
-            gr.push(o.collecting_events_through_georeferences.to_a)
-            gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-          }
-          partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
+          partial = @ce_p7.find_others_within_radius_of(2000000)
           expect(partial.count).to eq(8)
           expect(partial).to include(@ce_p0, @ce_p2, @ce_p3,
                                      @ce_p5, @ce_p6, @ce_p8, @ce_p9)
           expect(partial).not_to include(@ce_p1, @ce_p4, @ce_p7)
-          # partial = GeographicItem.all_with_collecting_event.georeferences.within_radius_of('any', p7, 2000000).excluding(p7)
-          # expect(GeographicItem.within_radius_of('any', p7, 2000000).excluding(p7).all_with_collecting_event.count).to eq(25)
-          gr = []
         end
 
         specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          # skip 'intersecting objects'
-          # find all the GIs and EGIs associated with CEs
-
-          # ce_gis represents all GIs associated with CEs
-          ce_gis  = GeographicItem.geo_with_collecting_event.uniq.to_a
-
-          # see how many of them are contained in the EGIs
-          partial = GeographicItem.all_with_collecting_event.intersecting('any', ce_gis).uniq
-
-          expect(partial.count).to eq(27)
-          expect(partial).to include(@p0, @p1, @p2, @p3, @p4,
-                                     @p5, @p6, @p7, @p8, @p9,
-                                     @p10, @p11, @p12, @p13, @p14,
-                                     @p15, @p16, @p17, @p18, @p19,
-                                     @b, @b2, @e1, @e2, @k,
-                                     @area_c, @area_d)
-          expect(partial).not_to include(@b1)
-          # find the CEs for the items above
-          gr = []
-          partial.each { |o|
-            gr.push(o.collecting_events_through_georeferences.to_a)
-            gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
-          expect(partial.count).to eq(11)
-          expect(partial).to include(@ce_p0, @ce_p1, @ce_p2, @ce_p3, @ce_p4,
-                                     @ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9,
-                                     @ce_area_d)
+          partial = @ce_p2.find_others_intersecting_with
+          # @ce_p2.first will find @k and @p2
+          # @k will find @p1, @p2, @p3, filter out @p2, and return @p1 and @p3
+          expect(partial.count).to eq(2)
+          expect(partial).to include(@ce_p1, @ce_p3)
+          expect(partial).not_to include(@ce_p7) # even though @p17 is close to @k
         end
       end
 
       context 'and that GR has both GI and EGI' do
         specify 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI' do
-          expect(@ce_p2.georeferences.count).to eq(3) # there are three georeferences associated with this
-          # ce, which are gr_02, @gr_121, and gr_122.
-          # we will pick ce_p2 for this set of tests, and isolate the GI for...
-          k       = @ce_p2.georeferences.first.error_geographic_item # ...easier ref later.
-          # find *all* the GIs within 1000 clicks of k.
-          partial = GeographicItem.within_radius_of('any', k, 1000000).excluding(k)
-          expect(partial.count).to eq(11)
-
-          # find only the GIs within 1000 clicks of k which are associated with a CE.
-          partial = GeographicItem.all_with_collecting_event.within_radius_of('any', k, 1000000).excluding(k)
-          expect(partial.count).to eq(5)
-          # are they the *correct* objects?
-          expect(partial).to include(@p1, @p2, @p3, @p4, @p17)
-          expect(partial).not_to include(@l, @f, @p10)
-          # find the collecting events for the items above
-          gr = []
-          partial.each { |o|
-            gr.push(o.collecting_events_through_georeferences.to_a)
-            gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
-          expect(partial.count).to eq(5)
-          expect(partial).to include(@ce_p1, @ce_p2, @ce_p3,
+          partial = @ce_p2.find_others_within_radius_of(1000000)
+          expect(partial.count).to eq(4)
+          expect(partial).to include(@ce_p1, @ce_p3,
                                      @ce_p4, @ce_p7)
+          # @ce_p1 is included because of @p1,
+          # @ce_p3 is included because of @p3,
+          # @ce_p4 is included because of @p4,
+          # @ce_p7 is included because of @p17 (near @k)
           expect(partial).not_to include(@ce_p0)
         end
 
         specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
           # skip 'contained in error_gi'
-          # find all the GIs and EGIs associated with CEs
-          polys   = GeographicItem.all_with_collecting_event.to_a
-
-          # see how many of them are contained in the EGIs
-          partial = GeographicItem.err_with_collecting_event.containing('polygon', polys).uniq
-
-          expect(partial.count).to eq(6)
-          expect(partial).to include(@b, @b2, @e1, @e2, @k, @area_c)
-          expect(partial).not_to include(@b1)
-          # find the collecting events for the items above
-          gr = []
-          partial.each { |o|
-            # gr.push(o.collecting_events_through_georeferences.to_a)
-            gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
-          expect(partial.count).to eq(6)
-          expect(partial).to include(@ce_p0, @ce_p1, @ce_p2,
-                                     @ce_p3, @ce_p8, @ce_p9)
-          expect(partial).not_to include(@ce_p7)
+          partial = @ce_p1.find_others_contained_in_error
+          expect(partial.count).to eq(1)
+          expect(partial.first).to eq(@ce_p2)
+          expect(partial).not_to include(@ce_p1)
         end
       end
     end
