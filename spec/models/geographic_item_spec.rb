@@ -635,7 +635,7 @@ describe GeographicItem do
 
       specify '::err_with_collecting_event' do
         partial = GeographicItem.err_with_collecting_event.order('id').to_a
-        expect(partial.count).to eq(9) # @e2 listed twice, @k listed three times
+        expect(partial.count).to eq(10) # @e1, @e2 listed twice, @k listed three times
         expect(partial).to include(@b2, @b, @e1, @e2, @k, @area_c) #
         expect(partial).not_to include(@e4, @b1)
       end
