@@ -279,11 +279,11 @@ describe CollectingEvent do
      @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
     }
 
-    specify 'nearest_by_levenstein(compared_string = nil, column = "verbatim_locality", limit = 10)' do
-      expect(@c1.nearest_by_levenstein(@c1.verbatim_locality).first).to eq(@c2)  
-      expect(@c2.nearest_by_levenstein(@c2.verbatim_locality).first).to eq(@c1)  
-      expect(@c3.nearest_by_levenstein(@c3.verbatim_locality).first).to eq(@c4)  
-      expect(@c4.nearest_by_levenstein(@c4.verbatim_locality).first).to eq(@c3)  
+    specify 'nearest_by_levenshtein(compared_string = nil, column = "verbatim_locality", limit = 10)' do
+      expect(@c1.nearest_by_levenshtein(@c1.verbatim_locality).first).to eq(@c2)
+      expect(@c2.nearest_by_levenshtein(@c2.verbatim_locality).first).to eq(@c1)
+      expect(@c3.nearest_by_levenshtein(@c3.verbatim_locality).first).to eq(@c4)
+      expect(@c4.nearest_by_levenshtein(@c4.verbatim_locality).first).to eq(@c3)
     end
 
   end

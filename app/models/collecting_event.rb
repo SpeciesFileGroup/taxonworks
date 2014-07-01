@@ -217,7 +217,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
 
-  def nearest_by_levenstein(compared_string = nil, column = 'verbatim_locality', limit = 10)
+  def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
 
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string] )
