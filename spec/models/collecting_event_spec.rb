@@ -269,6 +269,25 @@ describe CollectingEvent do
     end
   end
 
+  context 'fuzzy matching' do 
+
+    before {
+     @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+     @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+
+     @c3 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
+     @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
+    }
+
+    specify 'nearest_by_levenstein(compared_string = nil, column = "verbatim_locality", limit = 10)' do
+      expect(@c1.nearest_by_levenstein(@c1.verbatim_locality).first).to eq(@c2)  
+      expect(@c2.nearest_by_levenstein(@c2.verbatim_locality).first).to eq(@c1)  
+      expect(@c3.nearest_by_levenstein(@c3.verbatim_locality).first).to eq(@c4)  
+      expect(@c4.nearest_by_levenstein(@c4.verbatim_locality).first).to eq(@c3)  
+    end
+
+  end
+
   context 'concerns' do
     it_behaves_like 'citable'
     it_behaves_like 'notable'

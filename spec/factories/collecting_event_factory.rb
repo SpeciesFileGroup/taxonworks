@@ -15,12 +15,14 @@ FactoryGirl.define do
   factory :collecting_event, traits: [:housekeeping] do
     factory :valid_collecting_event do
       verbatim_locality
+
+      factory :random_collecting_event, traits: [:random_verbatim_label]
+
     end
 
     # !! Need an after to set the verbatim values off of the generated values!!
     factory :collecting_event_with_random_point_georeference do
       association :verbatim_georeference, factory: :georeference_verbatim_data_with_random_point
-
    end
 
     factory :collecting_event_my_office do
@@ -46,5 +48,6 @@ FactoryGirl.define do
       verbatim_latitude '40.110037'
       verbatim_longitude '-88.204517'
     end
+
   end
 end
