@@ -203,6 +203,17 @@ class CollectingEvent < ActiveRecord::Base
     'var data = ' + result.to_json + ';'
   end
 
+
+  def nearest_by_levenstein(compared_string = nil, column = 'verbatim_locality', limit = 10)
+    return CollectingEvent.none if compared_string.nil?
+
+    order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string] )
+
+    CollectingEvent.where("id <> ?", self.to_param ).
+      order(order_str).
+      limit(limit)
+  end
+
   protected
 
   def check_verbatim_geolocation_uncertainty

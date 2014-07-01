@@ -28,8 +28,7 @@ module Material
 
     container = Container::Virtual.new if objects.keys.count > 1 
     container.identifiers << identifier if container && identifier
-  
-
+    
     note = Note.new(opts['note']) if opts['note'] && !opts['note']['text'].blank? 
     repository = Repository.find(opts['repository']['id']) if opts['repository'] && !opts['repository']['id'].blank?
 
