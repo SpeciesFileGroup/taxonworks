@@ -662,8 +662,8 @@ describe GeographicItem do
         expect(partial).not_to include(@e4, @b1)
       end
 
-      specify '::all_with_collecting_event' do
-        partial = GeographicItem.all_with_collecting_event.order('id').to_a
+      specify '::with_collecting_event_through_georeferences' do
+        partial = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
         expect(partial.count).to eq(27) # @k only listed once
         expect(partial).to include(@p0, @p1, @p2, @p3,
                                    @p4, @p5, @p6, @p7,
