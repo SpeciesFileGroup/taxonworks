@@ -41,32 +41,26 @@ class GeographicItem < ActiveRecord::Base
   validate :proper_data_is_provided
   validate :chk_point_limit
 
-  # http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
-  # def self.all2
-  #   a  = joins('INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id"')
-  #   b  = joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id"')
-  #   Georeference.where(a.or(b)) 
-  # end
-
   # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
 
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
 
-  # within_radius_of('polygon', @geographic_item, 100)
-  # excluding(some_gi)
-  # with_collecting_event
-  # include_collecting_event
-
   # A scope that limits the result to those GeographicItems that have a collecting event
   # through either the geographic_item or the error_geographic_item
+  # A raw SQL join approach for comparison
+  #
+  # GeographicItem.joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+  #   joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+  #   where("(g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)").uniq
+
+  # This uses an Arel table approach, this is ultimately more decomposable if we need. Of use:
+  #  https://github.com/rails/arel
+  #  http://stackoverflow.com/questions/4500629/use-arel-for-a-nested-set-join-query-and-convert-to-activerecordrelation
+  #  http://rdoc.info/github/rails/arel/Arel/SelectManager
+  #  http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
+  #
   def self.with_collecting_event_through_georeferences
-    # A raw SQL join approach for comparison
-    # GeographicItem.joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
-    #   joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
-    #   where("(g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)").uniq
-   
-    # An Arel table approach, this is ultimately more decomposable if we need.
-    geographic_items = GeographicItem.arel_table
+       geographic_items = GeographicItem.arel_table
     georeferences = Georeference.arel_table
     g1 = georeferences.alias('a')
     g2 = georeferences.alias('b')
@@ -74,25 +68,18 @@ class GeographicItem < ActiveRecord::Base
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
       join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
      
-    # This turnes the Arel back into scope, so we can chain it 
-    GeographicItem.joins(
+    GeographicItem.joins(                           # turn the Arel back into scope
       c.join_sources                                # translate the Arel join to a join hash(?)
     ).where(
-      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil) )  # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil))   # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
-  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
-
-  # SELECT * FROM "geographic_items" INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"
-  #  scope :err_with_collecting_event, -> { joins('INNER JOIN "georeferences" ON "georeferences"."error_geographic_item_id" = "geographic_items"."id" INNER JOIN "collecting_events" ON "collecting_events"."id" = "georeferences"."collecting_event_id"') }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
-    # where(id: geographic_item.id).select("ST_IsValid(ST_AsText('#{geographic_item.geo_object}')) is_valid").limit(1)
-    # where(id: geographic_item.id).select("ST_IsValid(ST_AsEWKT('#{geographic_item.geo_object}')) is_valid").limit(1)
     where(id: geographic_item.id).select("ST_IsValid(#{geographic_item.st_as_binary}) is_valid")
   end
 
@@ -196,6 +183,7 @@ class GeographicItem < ActiveRecord::Base
     where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
   end
 
+  # Returns a scope
   def self.intersecting(column_name, *geographic_items)
     if column_name.downcase == 'any'
       partial = []

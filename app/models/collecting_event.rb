@@ -175,17 +175,17 @@ class CollectingEvent < ActiveRecord::Base
 
   def find_others_intersecting_with
     # find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
-    partial = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
-    gr      = [] # all collecting events for a geographic_item
-
-    partial.each { |o|
-      gr.push(o.collecting_events_through_georeferences.to_a)
-      gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    }
-  
-   # todo: change 'id in (?)' to some other sql construct
-    partial = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
-    partial.excluding(self)
+     partial = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
+     gr      = [] # all collecting events for a geographic_item
+     
+     partial.each { |o|
+       gr.push(o.collecting_events_through_georeferences.to_a)
+       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+     }
+     
+   ## todo: change 'id in (?)' to some other sql construct
+     partial = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
+     partial.excluding(self)
   end
 
   def find_others_contained_in_error
