@@ -71,7 +71,37 @@ describe CollectionObject do
   describe "validation" do
     specify "once set, a verbatim label can not change" # DDA: not a good idea, students may have questions, after which the label could be updated
   end
-  
+
+  context 'soft validation' do
+    context 'accession fields are missing' do
+      specify 'accessioned_at is missing' do
+        o = Specimen.new(accession_provider_id: 1)
+        o.soft_validate(:missing_accession_fields)
+        expect(o.soft_validations.messages_on(:accessioned_at).count).to eq(1)
+      end
+      specify 'accession_recipient_id is missing' do
+        o = Specimen.new(accessioned_at: '2014-06-02')
+        o.soft_validate(:missing_accession_fields)
+        expect(o.soft_validations.messages_on(:accession_provider_id).count).to eq(1)
+      end
+    end
+    context 'deaccession fields are missing' do
+      specify 'deaccessioned_at and deaccession_reason are missing' do
+        o = Specimen.new(deaccession_recipient_id: 1)
+        o.soft_validate(:missing_deaccession_fields)
+        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
+        expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
+      end
+      specify 'deaccessioned_at and deaccession_reason are missing' do
+        o = Specimen.new(deaccession_reason: 'gift')
+        o.soft_validate(:missing_deaccession_fields)
+        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
+        expect(o.soft_validations.messages_on(:deaccession_recipient_id).count).to eq(1)
+      end
+    end
+  end
+
+
   context 'concerns' do
     it_behaves_like "identifiable" 
     it_behaves_like "containable"

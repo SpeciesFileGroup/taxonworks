@@ -71,7 +71,7 @@ describe CollectionObject::BiologicalCollectionObject do
   end
 
   context 'soft validation' do
-    specify 'there is no determination' do
+    specify 'determination is missing' do
       o = Specimen.new
       expect(o.save).to be_truthy
       o.soft_validate(:missing_determination)
@@ -81,7 +81,15 @@ describe CollectionObject::BiologicalCollectionObject do
       o.soft_validate(:missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(0)
     end
-
+    specify 'collecting_event and preparation_type are missing' do
+      o = Specimen.new
+      o.soft_validate(:missing_collecting_event)
+      expect(o.soft_validations.messages_on(:collecting_event_id).count).to eq(1)
+      o.soft_validate(:missing_preparation_type)
+      expect(o.soft_validations.messages_on(:preparation_type_id).count).to eq(1)
+      o.soft_validate(:missing_repository)
+      expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
+    end
   end
 
 end
