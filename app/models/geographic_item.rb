@@ -123,14 +123,41 @@ class GeographicItem < ActiveRecord::Base
   # Return an Array of [latitude, longitude] for the first point of GeoItem
   def st_start_point
     to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-    [$1, $2]
+    [$2.to_f, $1.to_f]
+
+    o = geo_object
+    case geo_object_type
+      when :point
+        retval = [o.y, o.x]
+      when :line_string
+        retval = [o.point_n(0).y, o.point_n(0).x]
+      when :polygon
+        retval = [o.exterior_ring.point_n(0).y, o.exterior_ring.point_n(0).x]
+      when :multi_point
+        retval = [o[0].y, o[0].x]
+      when :multi_line_string
+        retval = [o[0].point_n(0).y, o[0].point_n(0).x]
+      when :multi_polygon
+        retval = [o[0].exterior_ring.point_n(0).y, o[0].exterior_ring.point_n(0).x]
+      # when :geometry_collection
+      else
+        retval = [0.0, 0.0] # maybe nil instead?
+    end
+retval
+  end
+
+  # Return an Array of [latitude, longitude] for the centroid of GeoItem
+  def center_coords
+    # to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+    # [$2.to_f, $1.to_f]
+    st_centroid
   end
 
   # TODO: Find ST_Centroid(g1) method and
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
-  def center_coords
-    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-    [$1, $2]
+  def st_centroid
+    # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
+    GeographicItem.where(id: self.id).select("st_astext(st_centroid(st_geomfromewkb(#{self.st_as_binary})")
   end
 
 =begin

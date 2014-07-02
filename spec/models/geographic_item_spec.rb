@@ -586,6 +586,28 @@ describe GeographicItem do
       expect(@g.is_valid_geometry?).to be_truthy
       expect(@all_items.is_valid_geometry?).to be_truthy
     end
+
+    specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
+      # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
+      expect(@area_d.st_centroid).to eq([1.0, 0.0])
+    end
+
+    specify '#st_start_point returns a lat/lng of the first point of the GeoObject' do
+      # center point
+      expect(@p0.st_start_point).to eq([0.0, 0.0])
+      # multi_point
+      expect(@h.st_start_point).to eq([-14.0, 3.0])
+      # upper left quadrant - line_string
+      expect(@a.st_start_point).to eq([21.0, -32.0])
+      # upper right quadrant - multi_line_string
+      expect(@c.st_start_point).to eq([21.0, 23.0])
+      # lower left quadrant - polygon
+      expect(@k.st_start_point).to eq([-11.0, -33.0])
+      # lower right quadrant
+      expect(@i.st_start_point).to eq([-14.0, 27.0])
+      # multi_polygon
+      expect(@g.st_start_point).to eq([2.3, 28.0])
+    end
   end
 
   context 'class methods' do
