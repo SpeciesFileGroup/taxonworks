@@ -270,7 +270,6 @@ describe CollectingEvent do
   end
 
   context 'fuzzy matching' do 
-
     before {
      @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
      @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')

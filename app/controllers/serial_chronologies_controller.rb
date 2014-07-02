@@ -69,6 +69,6 @@ class SerialChronologiesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def serial_chronology_params
-      params.require(:serial_chronology).permit(:preceding_serial_id, :succeeding_serial_id, :created_by_id, :modified_by_id)
+      params.require(:serial_chronology).permit(:preceding_serial_id, :succeeding_serial_id)
     end
 end
