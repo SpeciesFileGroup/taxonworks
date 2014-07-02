@@ -10,6 +10,7 @@
 #   @return [String]
 #   An incoming, typically verbatim, block of data, as typically found on label that is unrelated to determinations or collecting events.  All buffered_ attributes are written but not intended to be deleted or otherwise updated.  Buffered_ attributes are typically only used in rapid data capture, primarily in historical situations.
 class CollectionObject < ActiveRecord::Base
+  #TODO: DDA: may be buffered_accession_number should be added
 
   include Housekeeping
   include Shared::Identifiable
@@ -18,6 +19,7 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Notable
   include Shared::DataAttributes
   include Shared::Taggable
+  include SoftValidation
 
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects
@@ -28,6 +30,10 @@ class CollectionObject < ActiveRecord::Base
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
+  end
+
+  def missing_determination
+    # see biological_collection_object
   end
 
 end

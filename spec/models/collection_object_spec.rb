@@ -69,14 +69,9 @@ describe CollectionObject do
   end
 
   describe "validation" do
-    specify "once set, a verbatim label can not change"
+    specify "once set, a verbatim label can not change" # DDA: not a good idea, students may have questions, after which the label could be updated
   end
   
-  context 'soft validation' do
-    # Move to biological collection object 
-    skip 'there is a buffered_deterimination label but no determination'
-  end
-
   context 'concerns' do
     it_behaves_like "identifiable" 
     it_behaves_like "containable"

@@ -8,6 +8,8 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
 
   before_validation :reassign_type_if_total_provided
 
+  soft_validate(:sv_missing_determination, set: :missing_determination)
+
   def current_determination
     taxon_determinations.sort_by{|i| i.position}.last
   end
@@ -36,8 +38,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     return true
   end
 
-  protected
-
   def reassign_type_if_total_provided
     return true if !self.ranged_lot_category_id.nil? || self.total.nil?
     if self.total == 1
@@ -46,5 +46,14 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
       self.type = 'Lot'
     end
   end
+
+
+  #region Soft Validation
+
+  def sv_missing_determination
+    soft_validations.add(:base, 'Determination is missing') if current_determination.nil?
+  end
+
+  #endregion
 
 end

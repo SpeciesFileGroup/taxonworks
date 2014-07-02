@@ -38,15 +38,15 @@ describe CollectionObject::BiologicalCollectionObject do
     end
   end
 
-  describe "use" do
-    specify "create and also create otus, and determinations (nested_attributes_for :otus)" do
+  context 'use' do
+    specify 'create and also create otus, and determinations (nested_attributes_for :otus)' do
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
       expect(o.save).to be_truthy
       expect(o.otus.count).to eq(2)
       expect(o.taxon_determinations.count).to eq(2)
     end
 
-    specify "#reorder_determinations_by(:year)" do
+    specify '#reorder_determinations_by(:year)' do
       expect(biological_collection_object).to respond_to(:reorder_determinations_by)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
       expect(o.save).to be_truthy
@@ -61,13 +61,27 @@ describe CollectionObject::BiologicalCollectionObject do
     end
   end
 
-  describe "instance methods" do
-    specify "#current_determination" do
+  context 'instance methods' do
+    specify '#current_determination' do
       expect(biological_collection_object).to respond_to(:current_determination)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
       expect(o.save).to be_truthy
       expect(o.current_determination.otu.name).to eq('two')
     end
+  end
+
+  context 'soft validation' do
+    specify 'there is no determination' do
+      o = Specimen.new
+      expect(o.save).to be_truthy
+      o.soft_validate(:missing_determination)
+      expect(o.soft_validations.messages_on(:base).count).to eq(1)
+      o.update(otus_attributes: [{name: 'name'}])
+      expect(o.save).to be_truthy
+      o.soft_validate(:missing_determination)
+      expect(o.soft_validations.messages_on(:base).count).to eq(0)
+    end
+
   end
 
 end
