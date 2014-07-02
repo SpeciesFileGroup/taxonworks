@@ -51,13 +51,13 @@ class CollectingEvent < ActiveRecord::Base
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
+  has_many :collection_objects, inverse_of: :collecting_event
   has_many :collector_roles, class_name: 'Collector', as: :role_object
   has_many :collectors, through: :collector_roles, source: :person
-  has_many :collection_objects, inverse_of: :collecting_event
-  has_many :georeferences
-  has_many :geographic_items, through: :georeferences
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
+  has_many :geographic_items, through: :georeferences   # See also all_geographic_items, the union
+  has_many :georeferences
+  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
@@ -70,12 +70,18 @@ class CollectingEvent < ActiveRecord::Base
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :start_date_year,
-            numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5), message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future'},
+            numericality: {only_integer: true,
+                           greater_than: 1000,
+                           less_than: (Time.now.year + 5),
+                           message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future'},
             length:       {is: 4},
             allow_nil:    true
 
   validates :end_date_year,
-            numericality: {only_integer: true, greater_than: 1000, less_than: (Time.now.year + 5), message: 'end date year must be an integer greater than 1500, and no more than 5 years int he future'},
+            numericality: {only_integer: true,
+                           greater_than: 1000,
+                           less_than: (Time.now.year + 5),
+                           message: 'end date year must be an integer greater than 1500, and no more than 5 years int he future'},
             length:       {is: 4},
             allow_nil:    true
 
@@ -144,6 +150,13 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  def all_geographic_items
+    GeographicItem.select('g1.* FROM geographic_items gi').
+      join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
+      join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
+      where(["(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)", id, id]) 
+  end
+
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
@@ -162,21 +175,23 @@ class CollectingEvent < ActiveRecord::Base
 
   def find_others_intersecting_with
     # find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
-    partial = GeographicItem.all_with_collecting_event.intersecting('any', self.geographic_items.first).uniq
-    gr      = []
-    partial.each { |o|
-      gr.push(o.collecting_events_through_georeferences.to_a)
-      gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    }
-    # todo: change 'id in (?)' to some other sql construct
-    partial = CollectingEvent.where('id in (?)', gr.flatten.map(&:id).uniq)
-    partial.excluding(self)
+     partial = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
+     gr      = [] # all collecting events for a geographic_item
+     
+     partial.each { |o|
+       gr.push(o.collecting_events_through_georeferences.to_a)
+       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+     }
+     
+   ## todo: change 'id in (?)' to some other sql construct
+     partial = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
+     partial.excluding(self)
   end
 
   def find_others_contained_in_error
     # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
     # find all the GIs and EGIs associated with CEs
-    partial = GeographicItem.all_with_collecting_event.to_a
+    partial = GeographicItem.with_collecting_event_through_georeferences.to_a
 
     me = self.error_geographic_items.first.geo_object
     gi = []
@@ -190,8 +205,9 @@ class CollectingEvent < ActiveRecord::Base
       ce.push(o.collecting_events_through_georeferences.to_a)
       ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
-    # todo: change 'id in (?)' to some other sql construct
-    partial = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+    
+    # TODO: Directly mapp this 
+    partial = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
     partial.excluding(self)
   end
 

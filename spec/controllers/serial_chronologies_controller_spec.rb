@@ -64,8 +64,9 @@ describe SerialChronologiesController do
   describe "POST create" do
     describe "with valid params" do
       it "creates a new SerialChronology" do
+        s = FactoryGirl.create(:valid_source_bibtex)
         expect {
-          post :create, {:serial_chronology => valid_attributes}, valid_session
+          post :create, {:serial_chronology => valid_attributes.merge(source: s)}, valid_session
         }.to change(SerialChronology, :count).by(1)
       end
 

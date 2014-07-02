@@ -586,6 +586,28 @@ describe GeographicItem do
       expect(@g.is_valid_geometry?).to be_truthy
       expect(@all_items.is_valid_geometry?).to be_truthy
     end
+
+    specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
+      # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
+      expect(@area_d.st_centroid).to eq([1.0, 0.0])
+    end
+
+    specify '#st_start_point returns a lat/lng of the first point of the GeoObject' do
+      # center point
+      expect(@p0.st_start_point).to eq([0.0, 0.0])
+      # multi_point
+      expect(@h.st_start_point).to eq([-14.0, 3.0])
+      # upper left quadrant - line_string
+      expect(@a.st_start_point).to eq([21.0, -32.0])
+      # upper right quadrant - multi_line_string
+      expect(@c.st_start_point).to eq([21.0, 23.0])
+      # lower left quadrant - polygon
+      expect(@k.st_start_point).to eq([-11.0, -33.0])
+      # lower right quadrant
+      expect(@i.st_start_point).to eq([-14.0, 27.0])
+      # multi_polygon
+      expect(@g.st_start_point).to eq([2.3, 28.0])
+    end
   end
 
   context 'class methods' do
@@ -640,8 +662,8 @@ describe GeographicItem do
         expect(partial).not_to include(@e4, @b1)
       end
 
-      specify '::all_with_collecting_event' do
-        partial = GeographicItem.all_with_collecting_event.order('id').to_a
+      specify '::with_collecting_event_through_georeferences' do
+        partial = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
         expect(partial.count).to eq(27) # @k only listed once
         expect(partial).to include(@p0, @p1, @p2, @p3,
                                    @p4, @p5, @p6, @p7,
