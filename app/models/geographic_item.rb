@@ -45,6 +45,9 @@ class GeographicItem < ActiveRecord::Base
 
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
 
+  scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
+  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
+
   # A scope that limits the result to those GeographicItems that have a collecting event
   # through either the geographic_item or the error_geographic_item
   # A raw SQL join approach for comparison
@@ -61,22 +64,19 @@ class GeographicItem < ActiveRecord::Base
   #
   def self.with_collecting_event_through_georeferences
     geographic_items = GeographicItem.arel_table
-    georeferences    = Georeference.arel_table
-    g1               = georeferences.alias('a')
-    g2               = georeferences.alias('b')
+    georeferences = Georeference.arel_table
+    g1 = georeferences.alias('a')
+    g2 = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
       join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
-
-    GeographicItem.joins(# turn the Arel back into scope
-      c.join_sources # translate the Arel join to a join hash(?)
+     
+    GeographicItem.joins(                           # turn the Arel back into scope
+      c.join_sources                                # translate the Arel join to a join hash(?)
     ).where(
-      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil))   # returns a Arel::Nodes::Grouping
     ).distinct
   end
-
-  scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
-  scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
   # A scope that includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
   def self.with_is_valid_geometry_column(geographic_item)
@@ -218,19 +218,37 @@ class GeographicItem < ActiveRecord::Base
   end
 
   # Returns a scope
-  def self.intersecting(column_name, *geographic_items)
-    if column_name.downcase == 'any'
-      partial = []
-      DATA_TYPES.each { |column|
-        partial.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
-      }
-      # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
-    else
-      q = geographic_items.flatten.collect { |geographic_item|
-        "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')"
-      }.join(' or ')
-      where (q)
+  #
+  #
+  # GeographicItem. 
+  #
+  # TODO(?): as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
+  # let's wrap all scopes in class << self ... end, striking self. 
+  class << self
+
+    def intersecting(column_name, *geographic_items)
+      if column_name.downcase == 'any'
+        partial = []
+        DATA_TYPES.each { |column|
+          partial.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
+        }
+
+        # todo: change 'id in (?)' to some other sql construct
+
+        GeographicItem.where(id: partial.flatten.map(&:id))
+
+      else
+        q = geographic_items.flatten.collect { |geographic_item|
+          "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
+        }.join(' or ')
+
+        where(q)
+      end
+    end
+
+    def st_intersects(column_name = :multi_polygon, geometry)
+      geographic_item = GeographicItem.arel_table
+      Arel::Nodes::NamedFunction.new("ST_Intersects", geographic_item[column_name], geometry)
     end
 
 =begin
@@ -253,7 +271,7 @@ class GeographicItem < ActiveRecord::Base
         partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id:  partial.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
         where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
@@ -282,7 +300,7 @@ class GeographicItem < ActiveRecord::Base
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id:  partial.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)
