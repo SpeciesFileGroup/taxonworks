@@ -890,8 +890,20 @@ class TaxonName < ActiveRecord::Base
     true  # see validation in Protonym.rb
   end
 
+  def sv_missing_classifications
+    true  # see validation in Protonym.rb
+  end
+
   def sv_source_older_then_description
     true  # see validation in Protonym.rb and Combination.rb
+  end
+
+  def sv_species_gender_agreement
+    true  # see validation in Protonym.rb
+  end
+
+  def sv_primary_types
+    true  # see validation in Protonym.rb
   end
 
   def sv_validate_coordinated_names
