@@ -146,17 +146,12 @@ class GeographicItem < ActiveRecord::Base
 
   # Return an Array of [latitude, longitude] for the first point of GeoItem
   def start_point
-    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-    [$2.to_f, $1.to_f]
-
     o = st_start_point
     [o.y, o.x]
   end
 
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def center_coords
-    # to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-    # [$2.to_f, $1.to_f]
     st_centroid
   end
 
@@ -164,7 +159,9 @@ class GeographicItem < ActiveRecord::Base
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select("st_astext(st_centroid(st_geomfromewkb(#{self.st_as_binary})")
+    # GeographicItem.where(id: self.id).select("ST_AsText(ST_Centroid(ST_GeomFromWKT('#{self.geo_object}')")
+    # GeographicItem.where(id: self.id).select("ST_AsText(ST_Centroid(ST_GeomFromWKT('#{self.st_as_binary}')")
+    select("ST_AsText(ST_Centroid(ST_GeomFromWKT('#{self.geo_object}')")
   end
 
 =begin
@@ -220,12 +217,12 @@ class GeographicItem < ActiveRecord::Base
   # Returns a scope
   def self.intersecting(column_name, *geographic_items)
     if column_name.downcase == 'any'
-      partial = []
+      part = []
       DATA_TYPES.each { |column|
-        partial.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
+        part.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id: part.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item|
         "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')"
@@ -248,12 +245,12 @@ class GeographicItem < ActiveRecord::Base
   # todo: distance is measured in meters
   def self.within_radius_of(column_name, geographic_item, distance)
     if column_name.downcase == 'any'
-      partial = []
+      part = []
       DATA_TYPES.each { |column|
-        partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
+        part.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id: part.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
         where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
@@ -282,7 +279,7 @@ class GeographicItem < ActiveRecord::Base
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id: part.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)
