@@ -32,8 +32,8 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      sessions_sign_in @user
-      flash[:success] = 'Thanks for signing up and welcome to TaxonWorks!'
+      flash[:success] = "User #{@user.name} successfully created."
+      # TODO: Email the user their information.
       redirect_to root_path
     else
       @page_title = 'Create account'
@@ -63,10 +63,16 @@ class UsersController < ApplicationController
   private
 
     def user_params
-      params.require(:user).permit(:name,
-                                   :email,
-                                   :password,
-                                   :password_confirmation)
+      # TODO: revist authorization of specific field settings
+      basic = [:name,
+      :email,
+      :password,
+      :password_confirmation]
+
+      basic.push [:is_project_administrator] if @sessions_current_user.is_superuser?
+      basic.push [:is_administrator] if @sessions_current_user.is_administrator
+
+      params.require(:user).permit(basic)
     end
 
     def set_user

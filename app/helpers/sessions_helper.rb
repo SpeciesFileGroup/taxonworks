@@ -66,7 +66,7 @@ module SessionsHelper
   end 
 
   def is_project_administrator?
-    sessions_signed_in? && @sessions_current_user.is_project_administrator?
+    sessions_signed_in? && sessions_project_selected? && @sessions_current_project.project_members.where(is_administrator: true).includes?(@sessions_current_user) 
   end 
 
   def is_superuser?
@@ -74,7 +74,7 @@ module SessionsHelper
   end 
 
   def is_project_member?(user, project)
-    project.members.include?(user) 
+    project.project_members.include?(user) 
   end
 
   def authorize_project_selection(user, project)
@@ -109,7 +109,7 @@ module SessionsHelper
   def session_header_links
     [link_to('Account', users_path(sessions_current_user)),
     (sessions_project_selected? ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil),
-    (sessions_current_user.is_administrator? ? link_to('Account', users_path(sessions_current_user)) : nil),
+    (sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil),
     link_to('Sign out', signout_path, method: :delete)].compact.join(' | ').html_safe
   end
 

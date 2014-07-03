@@ -1,4 +1,7 @@
 class SerialChronologiesController < ApplicationController
+  include DataControllerConfiguration
+
+  before_action :require_sign_in
   before_action :set_serial_chronology, only: [:show, :edit, :update, :destroy]
 
   # GET /serial_chronologies

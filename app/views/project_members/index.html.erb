@@ -1,0 +1,33 @@
+<h1>Listing project_members</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Project</th>
+      <th>User</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Is project administrator</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @project_members.each do |project_member| %>
+      <tr>
+        <td><%= project_member.project_id %></td>
+        <td><%= project_member.user_id %></td>
+        <td><%= project_member.created_by_id %></td>
+        <td><%= project_member.updated_by_id %></td>
+        <td><%= project_member.is_project_administrator %></td>
+        <td><%= link_to 'Show', project_member %></td>
+        <td><%= link_to 'Edit', edit_project_member_path(project_member) %></td>
+        <td><%= link_to 'Destroy', project_member, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Project member', new_project_member_path %>
