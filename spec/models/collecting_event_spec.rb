@@ -284,6 +284,69 @@ describe CollectingEvent do
       expect(@c3.nearest_by_levenshtein(@c3.verbatim_locality).first).to eq(@c4)
       expect(@c4.nearest_by_levenshtein(@c4.verbatim_locality).first).to eq(@c3)
     end
+  end
+
+  context 'geopolitical labels' do
+    before {
+      # create some bogus countries, states, provinces, counties, and a parish
+      #
+      # The idea: 
+      #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
+      #    - we can arrive at a geographic_area from a collecting event in 2 ways
+      #       1) @collecting_event.geographic_area is set, this is easy
+      #       2) @collecting_event.georeferences.first is set.  
+      #           In the case of 2) we must use the georeference to find the minimum containing geographic_area of type "state" for example
+      #   - it is possible (but hopefully unlikely) that multiple geographic areas of type "state" might be return,
+      #
+      # We want to derive labels in two stages
+      #     1) a hash stage finds all possible values, where keys are a string, and values are an array, e.g.
+      #         'Canada' => [@geographic_area1, @geographic_area2]
+      #     2) a name stage use the hash from 1) to pick the "best" label (see priorities in tests)  
+      #  
+    }
+
+    context 'countries' do
+      context 'it should return the name of the country with #countries_hash' do
+        context 'when one possible name is present' do
+          skip 'derived from geographic_area_chain'
+          skip 'derived from geographic_area_chain'
+          skip 'derived from georeference -> geographic_areas chain' 
+        end
+
+        context 'when more than one possible name is present' do
+          skip 'derived from geographic_area_chain'
+          skip 'derived from georeference -> geographic_areas chain' 
+        end
+      end
+
+      context '#country_name' do
+        context 'derivation priority' do
+          skip 'it should return nil when no georeference or CollectingEvent#geographic_area_id is present'
+          skip 'it should return the value derived from the georeference "chain" if both present'
+          skip 'it should return the value derived from the geographic_area chain if georeference chain is not present'
+        end
+
+        context 'result priority' do 
+          skip 'it should return #countries_hash.keys.first when only one key is present'
+          skip 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present'
+          skip 'it should return the first #countries_hash.key when an equal number of .values is present'
+        end
+     end
+    end
+
+    context 'states/provinces' do
+      # target types should be drawn from GeographicAreaType#STATE_OR_PROVINCE_TYPES, for now = ['state', 'province']
+
+      context '#state_or_province_name' do
+      end
+    end
+
+    context 'counties etc.' do
+      # target types should be drawn from GeographicAreaType#COUNTY_OR_EQUIVALENT, for now = ["county", "parish"]
+      context '#county_or_equivalent_name' do 
+      end
+    end
+
 
   end
 
