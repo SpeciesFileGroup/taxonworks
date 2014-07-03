@@ -60,18 +60,18 @@ class GeographicItem < ActiveRecord::Base
   #  http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
   #
   def self.with_collecting_event_through_georeferences
-       geographic_items = GeographicItem.arel_table
-    georeferences = Georeference.arel_table
-    g1 = georeferences.alias('a')
-    g2 = georeferences.alias('b')
+    geographic_items = GeographicItem.arel_table
+    georeferences    = Georeference.arel_table
+    g1               = georeferences.alias('a')
+    g2               = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
       join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
-     
-    GeographicItem.joins(                           # turn the Arel back into scope
-      c.join_sources                                # translate the Arel join to a join hash(?)
+
+    GeographicItem.joins(# turn the Arel back into scope
+      c.join_sources # translate the Arel join to a join hash(?)
     ).where(
-      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil))   # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
@@ -119,31 +119,38 @@ class GeographicItem < ActiveRecord::Base
     result
   end
 
-  # TODO: Test and refactor to use ST_StartPoint
-  # Return an Array of [latitude, longitude] for the first point of GeoItem
   def st_start_point
-    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-    [$2.to_f, $1.to_f]
-
+    # return the first POINT of self as an RGeo::Feature::Point
     o = geo_object
     case geo_object_type
       when :point
-        retval = [o.y, o.x]
+        retval = o
       when :line_string
-        retval = [o.point_n(0).y, o.point_n(0).x]
+        retval = o.point_n(0)
       when :polygon
-        retval = [o.exterior_ring.point_n(0).y, o.exterior_ring.point_n(0).x]
+        retval = o.exterior_ring.point_n(0)
       when :multi_point
-        retval = [o[0].y, o[0].x]
+        retval = o[0]
       when :multi_line_string
-        retval = [o[0].point_n(0).y, o[0].point_n(0).x]
+        retval = o[0].point_n(0)
       when :multi_polygon
-        retval = [o[0].exterior_ring.point_n(0).y, o[0].exterior_ring.point_n(0).x]
-      # when :geometry_collection
+        retval = o[0].exterior_ring.point_n(0)
+      when :geometry_collection
+        to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+        retval = Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
       else
-        retval = [0.0, 0.0] # maybe nil instead?
+        retval = nil
     end
-retval
+    retval
+  end
+
+  # Return an Array of [latitude, longitude] for the first point of GeoItem
+  def start_point
+    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+    [$2.to_f, $1.to_f]
+
+    o = st_start_point
+    [o.y, o.x]
   end
 
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
@@ -246,7 +253,7 @@ retval
         partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id:  partial.flatten.map(&:id))
+      GeographicItem.where(id: partial.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
         where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
@@ -268,14 +275,14 @@ retval
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
   def self.containing(column_name, *geographic_items)
     if column_name.downcase == 'any'
-      partial = []
+      part = []
       DATA_TYPES.each { |column|
         unless column == :geometry_collection
-          partial.push(GeographicItem.containing("#{column}", geographic_items).to_a)
+          part.push(GeographicItem.containing("#{column}", geographic_items).to_a)
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id:  partial.flatten.map(&:id))
+      GeographicItem.where(id: partial.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)
