@@ -57,6 +57,7 @@ class GeographicItem < ActiveRecord::Base
   #   where("(g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)").uniq
 
   # This uses an Arel table approach, this is ultimately more decomposable if we need. Of use:
+  #  http://danshultz.github.io/talks/mastering_activerecord_arel  <- best
   #  https://github.com/rails/arel
   #  http://stackoverflow.com/questions/4500629/use-arel-for-a-nested-set-join-query-and-convert-to-activerecordrelation
   #  http://rdoc.info/github/rails/arel/Arel/SelectManager
@@ -244,6 +245,7 @@ class GeographicItem < ActiveRecord::Base
 
         where(q)
       end
+
     end
 
     def st_intersects(column_name = :multi_polygon, geometry)
