@@ -94,10 +94,6 @@ class GeographicItem < ActiveRecord::Base
     GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
   end
 
-  def st_as_binary
-    "ST_AsBinary(#{self.geo_object_type})"
-  end
-
   def parent_geographic_areas
     self.geographic_areas.collect { |a| a.parent }
   end
@@ -161,12 +157,21 @@ class GeographicItem < ActiveRecord::Base
     st_centroid
   end
 
+  def st_as_binary
+    "ST_AsBinary(#{self.geo_object_type})"
+  end
+
   # TODO: Find ST_Centroid(g1) method and
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select("st_astext(st_centroid(st_geomfromewkb(#{self.st_as_binary})")
+    GeographicItem.where(id: self.id).select( "id, st_astext(st_centroid( #{to_geometry_sql}  )) centroid" ).first
   end
+
+  def to_geometry_sql
+    "ST_GeomFromEWKB( #{self.geo_object_type} )"
+  end
+
 
 =begin
   scope :intersecting_boxes, -> (column_name, geographic_item) {
@@ -240,13 +245,14 @@ class GeographicItem < ActiveRecord::Base
 
       else
         q = geographic_items.flatten.collect { |geographic_item|
-          "ST_Intersects(#{column_name}, 'srid=4326;#{geographic_item.geo_object}')" # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
+          "ST_Intersects(#{column_name}, '#{geographic_item.geo_object}'    )" # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
         }.join(' or ')
 
         where(q)
       end
 
-    end
+    end # end class << self
+
 
     def st_intersects(column_name = :multi_polygon, geometry)
       geographic_item = GeographicItem.arel_table
@@ -264,23 +270,50 @@ class GeographicItem < ActiveRecord::Base
 =end
   end
 
-  # TODO: Document, what units are distance in?
-  # todo: distance is measured in meters
-  def self.within_radius_of(column_name, geographic_item, distance)
+
+  # Trying with Arel
+  # setup an Arel table
+  #  append conditions with each loop to the table
+  #  project the result
+  #  geographic_items = GeographicItem.arel_table
+  #  conditions = []
+  #  st_distances = []
+
+  #  g1 = geographic_items.alias
+  # g1[:id].eq(geographic_item.id).project(column)
+
+  #  DATA_TYPES.each do |column|
+  #    
+  #  g2 = geographic_items.where(geographic_items[:id].eq(geographic_item.id))
+  #  g3 = g2[column]
+
+  #    a = Arel::Nodes::NamedFunction.new("st_distance", [ geographic_items[column.to_sym], g2 ] ) 
+  #    byebug
+  #    conditions.push(where(a.lt(distance)))
+  #  end 
+
+
+  # distance is measured in meters
+  def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       partial = []
+       
       DATA_TYPES.each { |column|
-        partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance).to_a)
+        partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
       }
-      # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id:  partial.flatten.map(&:id))
+
+      GeographicItem.where(id: partial.flatten.map(&:id) )
     else
       if check_geo_params(column_name, geographic_item)
-        where ("st_distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) < #{distance}")
+        where("st_distance(#{column_name}, #{ select_geography_sql(geographic_item) }) < #{distance}")
       else
-        where ('false')
+        where("false")
       end
     end
+  end
+
+  def self.select_geography_sql(geographic_item)
+    "(SELECT #{geographic_item.geo_object_type} from geographic_items where id = #{geographic_item.to_param})"
   end
 
   def self.disjoint_from(column_name, *geographic_items)

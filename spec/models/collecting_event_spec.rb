@@ -293,7 +293,7 @@ describe CollectingEvent do
       # The idea: 
       #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
       #    - we can arrive at a geographic_area from a collecting event in 2 ways
-      #       1) @collecting_event.geographic_area is set, this is easy
+      #       1) @collecting_event.geographic_area is set, this is easy, we can use it specifically if it's the right type, or climb up to a specific levelN category to check if not
       #       2) @collecting_event.georeferences.first is set.  
       #           In the case of 2) we must use the georeference to find the minimum containing geographic_area of type "state" for example
       #   - it is possible (but hopefully unlikely) that multiple geographic areas of type "state" might be return,
