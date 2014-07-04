@@ -4,7 +4,6 @@ function initialize_js(root) {
     return $($root).is(expr) ? $(expr, $root).add($root) : $(expr, $root);
   };
 
-  alert("foo"); 
   find('*[data-mx-autocomplete-url]').mx_autocompleter();
 
 /*
