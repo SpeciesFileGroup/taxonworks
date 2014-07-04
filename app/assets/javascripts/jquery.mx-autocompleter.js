@@ -35,9 +35,7 @@
         .bind( "autocompletefocus", function( event, ui ) {
           var selected = ui.item;
         })
-        /* Comments as per mx, need to be updated slightly. 
-         *
-         * When you select an item you need add all the values which we are told to
+        /* When you select an item you need add all the values which we are told to
          * -- add those values in the 'response_values' to the current form.
          *  This lets you add things like
          *  otu[id] as a response value.
@@ -48,7 +46,7 @@
          */
         .bind( "autocompleteselect", function( event, ui ) {
           var selected = ui.item;
-          var response_values = selected.response_values;
+          var response_values = selected.response_values; // Not being set for -- None -- option
 
           if (response_values) {
             $.each(response_values, function(key, value) {
@@ -65,7 +63,7 @@
       /* Update the response method to add a --NONE-- label when the response is present
        * but empty
        */
-      $this.data( "autocomplete" )._response = function(a){
+      $this.data( "uiAutocomplete" ).__response = function(a){
         if(!this.options.disabled && a) {
           a=this._normalize(a);
           if (a.length === 0) {
@@ -86,7 +84,7 @@
        * to have a bit of HTML in the autocomplete dropdown, just add the label_html
        * as an attribute.
        */
-      $this.data( "autocomplete" )._renderItem = function( ul, item ) {
+      $this.data( "uiAutocomplete" )._renderItem = function( ul, item ) {
         return $( "<li></li>" )
           .data( "item.autocomplete", item )
           .append(
@@ -98,3 +96,4 @@
     });
   };
 })(jQuery);
+

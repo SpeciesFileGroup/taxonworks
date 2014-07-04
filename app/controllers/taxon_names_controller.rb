@@ -27,6 +27,7 @@ class TaxonNamesController < ApplicationController
   # POST /taxon_names
   # POST /taxon_names.json
   def create
+    byebug
     @taxon_name = TaxonName.new(taxon_name_params)
 
     respond_to do |format|
@@ -96,20 +97,15 @@ class TaxonNamesController < ApplicationController
     render :json => data 
   end
 
-
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name
     @taxon_name = TaxonName.find(params[:id])
   end
 
-
-
-
-
   # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_params
-    params.require(:taxon_name).permit(:name, :parent_id, :cached_name, :cached_author_year, :cached_higher_classification, :lft, :rgt, :source_id, :year_of_publication, :verbatim_author, :rank_class, :type, :created_by_id, :updated_by_id, :project_id, :cached_original_combination, :cached_secondary_homonym, :cached_primary_homonym, :cached_secondary_homonym_alt, :cached_primary_homonym_alt)
+    params.require(:taxon_name).permit(:name, :parent_id, :cached_author_year,  :source_id, :year_of_publication, :verbatim_author, :rank_class, :type, )
   end
 
 end

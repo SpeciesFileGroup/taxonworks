@@ -18,7 +18,6 @@
         opts.data = {};
         $form = $element;
         opts.type = $element.data('ajaxifyMethod') || 'GET';
-       opts.cache = false;
       }
       else
       {

@@ -5,9 +5,11 @@ function initialize_js(root) {
   };
 
   find('*[data-mx-autocomplete-url]').mx_autocompleter();
+  find("*[data-observe-field]").mx_field_observer();
+  find("*[data-autoquery]").mx_autoquery();
 
 /*
-  find("*[data-autoquery]").mx_autoquery();
+
 
 
 
@@ -16,7 +18,6 @@ function initialize_js(root) {
    find("*[data-insert-content]").mx_insert_content();
    find("*[data-sortable]").mx_sortable();
    find("*[data-tooltip]").mx_tooltip();
-   find("*[data-observe-field]").mx_field_observer();
    find("*[data-observe-select]").mx_select_observer();
    find("*[data-basic-modal]").basicModal();
    find("*[data-inplace-editor]").mx_inplace_editor();
