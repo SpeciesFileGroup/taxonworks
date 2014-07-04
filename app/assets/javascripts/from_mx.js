@@ -3,11 +3,15 @@ function initialize_js(root) {
   var find = function(expr){
     return $($root).is(expr) ? $(expr, $root).add($root) : $(expr, $root);
   };
- 
-  find('*[data-mx-autocomplete-url]').mx_autocompleter();
-}
 
-/* 
+  alert("foo"); 
+  find('*[data-mx-autocomplete-url]').mx_autocompleter();
+
+/*
+  find("*[data-autoquery]").mx_autoquery();
+
+
+
    find("input[data-color-picker]").mx_color_picker();
    find("a[data-ajaxify], input[data-ajaxify]").ajaxify();
    find("*[data-insert-content]").mx_insert_content();
@@ -20,9 +24,11 @@ function initialize_js(root) {
    find("*[data-sticky-header]").mx_sticky_header();
    find("*[data-sortable-table]").mx_sortable_table();
    find("*[data-save-warning]").mx_save_warning();
-   find("*[data-autoquery]").mx_autoquery();
    find("*[data-figure-marker]").mx_figure_marker();
 */
+
+}
+
 
 $(document).ready(function() {
   initialize_js($("body"));
