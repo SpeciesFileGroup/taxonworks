@@ -27,7 +27,6 @@ class TaxonNamesController < ApplicationController
   # POST /taxon_names
   # POST /taxon_names.json
   def create
-    byebug
     @taxon_name = TaxonName.new(taxon_name_params)
 
     respond_to do |format|
