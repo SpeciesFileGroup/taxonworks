@@ -26,6 +26,7 @@
       var $form = $this.parents("form");
 
       var url = $this.data('mxAutocompleteUrl');
+      var default_response_values = {}; default_response_values[$this.data('mx-method')] = '';
 
       $this.autocomplete({
         source: url,
@@ -67,7 +68,8 @@
         if(!this.options.disabled && a) {
           a=this._normalize(a);
           if (a.length === 0) {
-            a.push({id: '', value: '', label: '-- None --'});
+            a.push({id: '', value: '', label: '-- None --', label_html: '-- None --',
+            	response_values: default_response_values});
           }
           this._suggest(a);
           this._trigger("open");
