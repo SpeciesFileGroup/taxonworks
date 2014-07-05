@@ -1,4 +1,38 @@
 class Protonym < TaxonName
+
+  before_validation :set_cached_names
+
+  def set_cached_names
+    super
+    set_cached_higher_classification
+    set_primary_homonym
+    set_primary_homonym_alt
+    if self.rank_class.to_s =~ /Species/
+      set_secondary_homonym
+      set_secondary_homonym_alt
+    end
+  end
+
+  def set_cached_higher_classification
+    self.cached_higher_classification = get_higher_classification
+  end
+
+  def set_primary_homonym
+    self.cached_primary_homonym = get_genus_species(:original, :self)
+  end
+
+  def set_primary_homonym_alt
+    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
+  end
+
+  def set_secondary_homonym
+    self.cached_secondary_homonym = get_genus_species(:curent, :self)
+  end
+
+  def set_secondary_homonym_alt
+    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
+  end
+
   alias_method :original_combination_source, :source
 
   has_one :type_taxon_name_relationship, -> {
