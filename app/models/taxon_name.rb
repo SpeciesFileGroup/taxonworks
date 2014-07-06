@@ -46,7 +46,6 @@
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
 #
-
 # @!all_taxon_name_relationships
 #   @return array of relationships
 #   Returns all relationships where this taxon is an object or subject.
@@ -125,6 +124,16 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set scope: [:project_id]  
 
+  before_validation :set_type_if_empty,
+    :check_format_of_name,
+    :validate_rank_class_class,
+    :validate_parent_rank_is_higher,
+    :validate_parent_is_set,
+    :check_new_rank_class,
+    :check_new_parent_class,
+    :validate_source_type,
+    :set_cached_names
+
   belongs_to :source
   has_many :taxon_name_classifications
   has_many :otus
@@ -185,16 +194,6 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :type, message: 'Type is not specified'
   validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
   validates_presence_of :name, message: 'Name is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class)}
-
-  before_validation :set_type_if_empty,
-    :check_format_of_name,
-    :validate_rank_class_class,
-    :validate_parent_rank_is_higher,
-    :validate_parent_is_set,
-    :check_new_rank_class,
-    :check_new_parent_class,
-    :validate_source_type,
-    :set_cached_names
 
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
@@ -307,7 +306,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def name_with_alternative_spelling
-    if self.type.to_s != 'Protonym' || self.rank_class.nil? || self.rank_class.to_s =~ /::Icn::/
+    if self.class != Protonym || self.rank_class.nil? || self.rank_class.to_s =~ /::Icn::/
       return nil
     elsif self.rank_class.to_s =~ /Species/
       n = self.name.squish # remove extra spaces and line brakes
@@ -375,7 +374,8 @@ class TaxonName < ActiveRecord::Base
     n.blank? ? self.name : n
   end
 
-  def all_generic_placements #array of genera where the species was placed
+  # An array of genera where the species was placed
+  def all_generic_placements 
     valid_name = self.get_valid_taxon_name
     return nil unless valid_name.rank_class.to_s !=~ /Species/
     descendants_and_self = valid_name.descendants + [self]
@@ -391,7 +391,6 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_names
     # if updated, update also sv_cached_names
-    set_cached_misspelling
     set_cached_full_name
     set_cached_author_year
     set_cached_classified_as
@@ -399,26 +398,12 @@ class TaxonName < ActiveRecord::Base
     set_cached_original_combination
   end
 
-  def set_cached_misspelling
-    if self.class.to_s == 'Protonym'
-      self.cached_misspelling = get_cached_misspelling
-    end
-  end
-
   def set_cached_full_name
-    if self.class.to_s == 'Combination'
-      self.cached_name = get_combination
-    elsif self.class.to_s == 'Protonym'
-      self.cached_name = get_full_name
-    end
+    true # override in subclasses
   end
 
   def set_cached_original_combination
-    if self.class.to_s == 'Combination'
-      self.cached_original_combination = get_combination
-    elsif self.class.to_s == 'Protonym'
-      self.cached_original_combination = get_original_combination
-    end
+    true # overwridden in subclasses 
   end
 
   def set_cached_author_year
@@ -701,18 +686,15 @@ class TaxonName < ActiveRecord::Base
   #region Soft validation
 
   def sv_validate_name
-    if self.name =~ /^[a-zA-Z]*$/
+    correct_name_format = false
+
+    # TODO: name these Regexp somewhere
+    if (self.name =~ /^[a-zA-Z]*$/) ||
+     (self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+     (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*-[a-zA-Z]*$/) ||
+     (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
+     (self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
       correct_name_format = true
-    elsif self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/
-      correct_name_format = true
-    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*-[a-zA-Z]*$/
-      correct_name_format = true
-    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/
-      correct_name_format = true
-    elsif self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/
-      correct_name_format = true
-    else
-      correct_name_format = false
     end
 
     unless correct_name_format
@@ -726,9 +708,12 @@ class TaxonName < ActiveRecord::Base
         soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
       end
     end
+ 
+    # TODO: break this one out   
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:name, 'name must be lower case') unless self.name == self.name.downcase
     end
+  
   end
 
   def sv_missing_fields
@@ -776,21 +761,20 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_parent_is_valid_name
-    parent = self.parent
-    if parent.nil?
-    elsif parent.unavailable_or_invalid?
+    return if parent.nil?
+    if parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid
       soft_validations.add(:parent_id, 'Parent should be a valid taxon',
                            fix: :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
-    else
+    else # TODO: This seems like a different validation, split with above?
       classifications = self.taxon_name_classifications
       classification_names = classifications.map{|i| i.type_name}
       compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
           compare.each do |i|
-            # taxon is unavailable or invalid, but have valid children
+            # taxon is unavailable or invalid, but has valid children
             soft_validations.add(:base, "Taxon has a status ('#{i.safe_constantize.class_name}') conflicting with presence of subordinate taxa")
           end
         end
@@ -818,27 +802,30 @@ class TaxonName < ActiveRecord::Base
   def sv_cached_names
     # if updated, update also set_cached_names
     cached = true
-    if self.cached_author_year != get_author_and_year
-      cached = false
-    elsif self.class.to_s == 'Protonym'
-      if self.cached_misspelling != get_cached_misspelling
+    cached = false if self.cached_author_year != get_author_and_year
+   
+    if self.class == Protonym && cached # don't run the tests if it's already false
+      if self.cached_name                  != get_full_name ||
+         self.cached_misspelling           != get_cached_misspelling ||
+         self.cached_original_combination  != get_original_combination ||
+         self.cached_higher_classification != get_higher_classification ||
+         self.cached_primary_homonym       != get_genus_species(:original, :self) ||
+         self.cached_primary_homonym_alt   != get_genus_species(:original, :alternative) ||
+         self.rank_class.to_s =~ /Species/ &&  ( self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative) )
         cached = false
-      elsif self.cached_name != get_full_name || self.cached_original_combination != get_original_combination || self.cached_higher_classification != get_higher_classification || self.cached_primary_homonym != get_genus_species(:original, :self) || self.cached_primary_homonym_alt != get_genus_species(:original, :alternative)
-        cached = false
-      elsif self.rank_class.to_s =~ /Species/
-        if self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative)
-          cached = false
-        end
       end
-    elsif self.class.to_s == 'Combination'
+    end
+    
+    if self.class == Combination && cached
       if self.cached_name != get_combination || self.cached_original_combination != get_combination
         cached = false
       end
     end
-    unless cached
-      soft_validations.add(:base, 'Cached values should be updated',
-                           fix: :sv_fix_cached_names, success_message: 'Cached values were updated')
-    end
+
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+    ) if !cached
   end
 
   def sv_fix_cached_names

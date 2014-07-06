@@ -2,37 +2,6 @@ class Protonym < TaxonName
 
   before_validation :set_cached_names
 
-  def set_cached_names
-    super
-    set_cached_higher_classification
-    set_primary_homonym
-    set_primary_homonym_alt
-    if self.rank_class.to_s =~ /Species/
-      set_secondary_homonym
-      set_secondary_homonym_alt
-    end
-  end
-
-  def set_cached_higher_classification
-    self.cached_higher_classification = get_higher_classification
-  end
-
-  def set_primary_homonym
-    self.cached_primary_homonym = get_genus_species(:original, :self)
-  end
-
-  def set_primary_homonym_alt
-    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
-  end
-
-  def set_secondary_homonym
-    self.cached_secondary_homonym = get_genus_species(:curent, :self)
-  end
-
-  def set_secondary_homonym_alt
-    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
-  end
-
   alias_method :original_combination_source, :source
 
   has_one :type_taxon_name_relationship, -> {
@@ -358,7 +327,6 @@ class Protonym < TaxonName
     nil
   end
 
-
   def sv_validate_coordinated_names
       list_of_coordinated_names.each do |t|
         foo = matching_primary_types(t, self)
@@ -407,7 +375,7 @@ class Protonym < TaxonName
         self.verbatim_author = t.verbatim_author
         fixed = true
       end
-      if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication
+      if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication # TODO: this type of if statements should be broken out to named methods, way too much here
         self.year_of_publication = t.year_of_publication
         fixed = true
       end
@@ -658,6 +626,53 @@ class Protonym < TaxonName
       end
     end
   end
+
+  def set_cached_names
+    super
+    set_cached_higher_classification
+    set_primary_homonym
+    set_primary_homonym_alt
+
+    if self.rank_class.to_s =~ /Species/
+      set_secondary_homonym
+      set_secondary_homonym_alt
+    end
+     set_cached_misspelling
+  end
+
+  def set_cached_misspelling
+    self.cached_misspelling = get_cached_misspelling
+  end
+
+  def set_cached_full_name
+    self.cached_name = get_full_name
+  end
+
+  def set_cached_higher_classification
+    self.cached_higher_classification = get_higher_classification
+  end
+
+  def set_primary_homonym
+    self.cached_primary_homonym = get_genus_species(:original, :self)
+  end
+
+  def set_primary_homonym_alt
+    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
+  end
+
+  def set_secondary_homonym
+    self.cached_secondary_homonym = get_genus_species(:curent, :self)
+  end
+
+  def set_secondary_homonym_alt
+    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
+  end
+
+  def set_cached_original_combination
+    self.cached_original_combination = get_original_combination
+  end
+
+
 
 #  def sv_fix_add_relationship(method, object_id)
 #    begin

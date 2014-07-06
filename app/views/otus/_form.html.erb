@@ -15,6 +15,16 @@
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
+  <div class="field">
+    <%= f.label :taxon_name %><br>
+    <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
+                                                                     :object => 'taxon_name', 
+                                                                     :method => 'taxon_name_id_id', 
+                                                                     :tag_id => "taxon_name_id_for_new_otu", 
+                                                                     :display => display_taxon_name(@taxon_name)  } %>
+  </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>

@@ -10,11 +10,12 @@ module TaxonNamesHelper
   end
 
   def self.display_taxon_name(taxon_name)
-    taxon_name.name 
+    return nil if taxon_name.nil?
+    taxon_name.cached_name
   end
 
   def display_taxon_name(taxon_name)
-    TaxonNamesHelper.display_taxon_Name(taxon_name)
+    TaxonNamesHelper.display_taxon_name(taxon_name)
   end
 
   # TODO: Scope to code
