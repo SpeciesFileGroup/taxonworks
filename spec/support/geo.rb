@@ -281,6 +281,8 @@ ALL_SHAPES = RSPEC_GEO_FACTORY.collection([SHAPE_A,
 
 CONVEX_HULL = ALL_SHAPES.convex_hull
 
+POINT_M1_P0 = RSPEC_GEO_FACTORY.point(33, 28) # upper left corner of M1
+
 ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
                  [SHAPE_A, 'A'],
                  [SHAPE_B, 'B'],
@@ -545,10 +547,10 @@ def generate_ce_test_objects
                               :error_geographic_item => @k,
                               :geographic_item       => @p1) #  3
   @gr11  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request      => 'gr11',
+                              :api_request           => 'gr11',
                               :error_geographic_item => @e1,
-                              :collecting_event => @ce_p1,
-                              :geographic_item  => @p11) #  4
+                              :collecting_event      => @ce_p1,
+                              :geographic_item       => @p11) #  4
 
   @ce_p2 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p2')
   @gr02  = FactoryGirl.create(:georeference_verbatim_data,
@@ -745,38 +747,98 @@ end
 def generate_political_areas
   #
   # 4 by 4 matrix of squares:
-  #
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A1A1 | B1A1 | C1A1 | D1A1 | | E1A1 | E1A1 | E1A1 | E1A1 | |   A1 |   A1 |   A1 |   A1 | |   A1 |   A1 |   A1 |   A1 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A2A2 | B2A2 | C2A2 | D2A2 | | E1A2 | E1A2 | E1A2 | E1A2 | |   A2 |   A2 |   A2 |   A2 | |   A2 |   A2 |   A2 |   A2 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A3A3 | B3A3 | C3A3 | D3A3 | |   A3 |   A3 |   A3 |   A3 | | F1A3 | F1A3 |   A3 |   A3 | |   A3 |   A3 | G1A3 | G1A3 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A4A4 | B4A4 | C4A4 | D4A4 | |   A4 |   A4 |   A4 |   A4 | | F1A4 | F1A4 |   A4 |   A4 | |   A4 |   A4 | G1A4 | G1A4 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  #
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A1A1 | B1A1 | C1A1 | D1A1 | | H1A1 | H1A1 |   A1 |   A1 | |   A1 |   A1 |   A1 |   A1 | |   A1 |   A1 |   A1 |   A1 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A2A2 | B2A2 | C2A2 | D2A2 | | H1A2 | H1A2 |   A2 |   A2 | |   A2 |   A2 |   A2 |   A2 | |   A2 |   A2 |   A2 |   A2 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A3A3 | B3A3 | C3A3 | D3A3 | |   A3 |   A3 |   A3 |   A3 | | F1A3 | F1A3 |   A3 |   A3 | |   A3 |   A3 | G1A3 | G1A3 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A4A4 | B4A4 | C4A4 | D4A4 | |   A4 |   A4 |   A4 |   A4 | | F1A4 | F1A4 |   A4 |   A4 | |   A4 |   A4 | G1A4 | G1A4 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  #
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A1A1 | B1A1 | C1A1 | D1A1 | |   A1 |   A1 | I1A1 | I1A1 | |   A1 |   A1 |   A1 |   A1 | |   A1 |   A1 |   A1 |   A1 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A2A2 | B2A2 | C2A2 | D2A2 | |   A2 |   A2 | I1A2 | I1A2 | |   A2 |   A2 |   A2 |   A2 | |   A2 |   A2 |   A2 |   A2 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A3A3 | B3A3 | C3A3 | D3A3 | |   A3 |   A3 |   A3 |   A3 | | F1A3 | F1A3 |   A3 |   A3 | |   A3 |   A3 | G1A3 | G1A3 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  # | A4A4 | B4A4 | C4A4 | D4A4 | |   A4 |   A4 |   A4 |   A4 | | F1A4 | F1A4 |   A4 |   A4 | |   A4 |   A4 | G1A4 | G1A4 |
-  # |------|------|------|------| |------|------|------|------| |------|------|------|------| |------|------|------|------|
-  #
+=begin
 
+Q1, R1, and S1 are level 0 spaces, i.e., 'Country'
+M3 through P4, T1 and U1 are level 1 spaces, i.e., 'State (Province)'
+M1 through P2 are level 3 spaces, i.e., 'County (Parish)'
+
+M1-upper_left is at (33, 28)
+  
+|------|------|------|------| |------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      | |      |      |      |      |
+|  M1  |  N1  |  O1  |  P1  | | Q1T1 | Q1T1 | Q1U1 | Q1U1 | | T1M1 | T1N1 | U1O1 | U1P1 |
+|      |      |      |      | |      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      | |      |      |      |      |
+|  M2  |  N2  |  O2  |  P2  | | Q1T1 | Q1T1 | Q1U1 | Q1U1 | | T1M2 | T1N2 | U1O2 | U1P2 |
+|      |      |      |      | |      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M3  |  N3  |  O3  |  P3  | | R1M3 | R1N3 | S1O3 | S1P3 |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M4  |  N4  |  O4  |  P4  | | R1M4 | R1N4 | S1O4 | S1P4 |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+
+=end
+
+  $user_id    = 1 if $user_id.nil?
+  $project_id = 1 if $project_id.nil?
+
+  shape_m1 = make_box(POINT_M1_P0, 0, 0, 1, 1)
+  shape_n1 = make_box(POINT_M1_P0, 1, 0, 1, 1)
+  shape_o1 = make_box(POINT_M1_P0, 2, 0, 1, 1)
+  shape_p1 = make_box(POINT_M1_P0, 3, 0, 1, 1)
+
+  shape_m2 = make_box(POINT_M1_P0, 0, 1, 1, 1)
+  shape_n2 = make_box(POINT_M1_P0, 1, 1, 1, 1)
+  shape_o2 = make_box(POINT_M1_P0, 2, 1, 1, 1)
+  shape_p2 = make_box(POINT_M1_P0, 3, 1, 1, 1)
+
+  shape_m3 = make_box(POINT_M1_P0, 0, 2, 1, 1)
+  shape_n3 = make_box(POINT_M1_P0, 1, 2, 1, 1)
+  shape_o3 = make_box(POINT_M1_P0, 2, 2, 1, 1)
+  shape_p3 = make_box(POINT_M1_P0, 3, 2, 1, 1)
+
+  shape_m4 = make_box(POINT_M1_P0, 0, 3, 1, 1)
+  shape_n4 = make_box(POINT_M1_P0, 1, 3, 1, 1)
+  shape_o4 = make_box(POINT_M1_P0, 2, 3, 1, 1)
+  shape_p4 = make_box(POINT_M1_P0, 3, 3, 1, 1)
+
+  shape_q1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
+  shape_t1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_u1 = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
+
+  shape_r1 = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_s1 = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
+
+  @m1 = GeographicItem.new(:polygon => shape_m1)
+  @n1 = GeographicItem.new(:polygon => shape_n1)
+  @o1 = GeographicItem.new(:polygon => shape_o1)
+  @p1 = GeographicItem.new(:polygon => shape_p1)
+
+  @m2 = GeographicItem.new(:polygon => shape_m2)
+  @n2 = GeographicItem.new(:polygon => shape_n2)
+  @o2 = GeographicItem.new(:polygon => shape_o2)
+  @p2 = GeographicItem.new(:polygon => shape_p2)
+
+  @m3 = GeographicItem.new(:polygon => shape_m3)
+  @n3 = GeographicItem.new(:polygon => shape_n3)
+  @o3 = GeographicItem.new(:polygon => shape_o3)
+  @p3 = GeographicItem.new(:polygon => shape_p3)
+
+  @m4 = GeographicItem.new(:polygon => shape_m4)
+  @n4 = GeographicItem.new(:polygon => shape_n4)
+  @o4 = GeographicItem.new(:polygon => shape_o4)
+  @p4 = GeographicItem.new(:polygon => shape_p4)
+
+  @q1 = GeographicItem.new(:polygon => shape_q1)
+  @t1 = GeographicItem.new(:polygon => shape_t1)
+  @u1 = GeographicItem.new(:polygon => shape_u1)
+
+  @s1 = GeographicItem.new(:polygon => shape_r1)
+  @m1 = GeographicItem.new(:polygon => shape_s1)
+end
+
+def make_box(base, offset_x, offset_y, size_x, size_y)
+  box = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
+                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
+                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
+                                       RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
+  RSPEC_GEO_FACTORY.polygon(box)
 end
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.
