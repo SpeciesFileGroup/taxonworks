@@ -32,7 +32,6 @@ describe Protonym do
 
     # TODO: Is this really has_many?
     context 'has_many' do
-
       specify 'original_combination_relationships' do 
         expect(@protonym).to respond_to(:original_combination_relationships)
         expect(@genus).to respond_to(:type_species)
@@ -242,7 +241,7 @@ describe Protonym do
       @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')
     end
 
-    context 'validat project_id' do
+    context 'validate project_id' do
       specify 'project_id = 1' do
         expect(@subspecies.project_id).to eq(1)
       end

@@ -16,7 +16,7 @@
     <%= f.text_field :name %>
   </div>
 
-  <div class="field" data-no-turbolink >
+  <div class="field">
     <%= f.label :parent %><br>
     <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
                                                                      :object => 'taxon_name', 

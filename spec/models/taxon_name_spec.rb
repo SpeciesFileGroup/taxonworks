@@ -273,7 +273,7 @@ describe TaxonName do
     end
 
     context 'name' do
-      context 'validate cashed values' do
+      context 'validate cached values' do
         specify 'ICZN subspecies' do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')

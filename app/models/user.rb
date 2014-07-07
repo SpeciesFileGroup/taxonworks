@@ -31,16 +31,17 @@ class User < ActiveRecord::Base
     Digest::SHA1.hexdigest(token.to_s)
   end
 
-  def is_superuser?
-    is_administrator || is_project_administrator
+  def is_superuser?(project = nil)
+    is_administrator || is_project_administrator?(project)
   end
 
   def is_administrator?
     is_administrator
   end
 
-  def is_project_administrator?
-    is_project_administrator
+  def is_project_administrator?(project)
+    return false if project.nil?
+    project.project_members.where(user_id: id).first.is_project_administrator
   end
 
   private

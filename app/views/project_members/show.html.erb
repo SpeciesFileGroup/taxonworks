@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @project_member.project_id %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @project_member.user_id %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @project_member.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @project_member.updated_by_id %>
+</p>
+
+<p>
+  <strong>Is project administrator:</strong>
+  <%= @project_member.is_project_administrator %>
+</p>
+
+<%= link_to 'Edit', edit_project_member_path(@project_member) %> |
+<%= link_to 'Back', project_members_path %>

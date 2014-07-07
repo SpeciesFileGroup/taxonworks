@@ -18,7 +18,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :project_members
+
   match '/hub', to: 'hub#index', via: 'get'
+  match '/administration', to: 'administration#index', via: 'get'
 
 
   # Stubbed

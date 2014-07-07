@@ -25,7 +25,14 @@
     <%= f.label :password_confirmation %><br>
     <%= f.password_field :password_confirmation %>
   </div>
- 
+
+  <% if sessions_current_user.is_administrator? -%>
+    <div class="field">
+      <%= f.label :is_administrator %><br>
+      <%= f.check_box :is_administrator %>
+    </div>
+  <% end %>
+
 
   <div class="actions">
     <%= f.submit %>

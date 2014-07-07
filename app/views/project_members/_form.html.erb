@@ -1,0 +1,29 @@
+<%= form_for(@project_member) do |f| %>
+  <% if @project_member.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@project_member.errors.count, "error") %> prohibited this project_member from being saved:</h2>
+
+      <ul>
+      <% @project_member.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.select :project_id, options_from_collection_for_select(Project.all, :id, :name) %>
+  </div>
+  <div class="field">
+    <%= f.label :user_id %><br>
+    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :email) %>
+  </div>
+  <div class="field">
+    <%= f.label :is_project_administrator %><br>
+    <%= f.check_box :is_project_administrator %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,4 +1,7 @@
 class SourcesController < ApplicationController
+  include DataControllerConfiguration
+
+  before_action :require_sign_in 
   before_action :set_source, only: [:show, :edit, :update, :destroy]
 
   # GET /sources
