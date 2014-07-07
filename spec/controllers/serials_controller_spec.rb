@@ -19,6 +19,10 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe SerialsController do
+  before(:each) {
+    sign_in
+  }
+
 
   # This should return the minimal set of attributes required to create a valid
   # Serial. As you add validations to Serial, be sure to

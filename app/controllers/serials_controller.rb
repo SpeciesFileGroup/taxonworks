@@ -2,6 +2,7 @@ class SerialsController < ApplicationController
   include DataControllerConfiguration
 
   before_action :require_sign_in
+
   before_action :set_serial, only: [:show, :edit, :update, :destroy]
 
   # GET /serials
@@ -72,6 +73,6 @@ class SerialsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def serial_params
-      params.require(:serial).permit(:name, :created_by_id, :updated_by_id, :project_id, :publisher, :place_published, :primary_language_id, :first_year_of_issue, :last_year_of_issue)
+      params.require(:serial).permit(:name, :publisher, :place_published, :primary_language_id, :first_year_of_issue, :last_year_of_issue)
     end
 end

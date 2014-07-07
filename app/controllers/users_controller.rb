@@ -1,4 +1,7 @@
 class UsersController < ApplicationController
+
+  before_action :require_sign_in
+
   before_action :set_user, only: [:show, :edit, :update, :destroy]
   before_action :require_administrator_sign_in, only: [:index, :destroy]
   before_action :require_superuser_sign_in, only: [:new, :create]
@@ -32,7 +35,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      flash[:success] = "User #{@user.name} successfully created."
+      flash[:success] = "User #{@user.email} successfully created."
       # TODO: Email the user their information.
       redirect_to root_path
     else

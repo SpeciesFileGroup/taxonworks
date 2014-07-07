@@ -19,6 +19,9 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe SerialChronologiesController do
+  before(:each) {
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # SerialChronology. As you add validations to SerialChronology, be sure to
@@ -87,7 +90,8 @@ describe SerialChronologiesController do
         # Trigger the behavior that occurs when invalid params are submitted
         SerialChronology.any_instance.stub(:save).and_return(false)
         post :create, {:serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        assigns(:serial_chronology).should be_a_new(SerialChronology)
+        # assigns(:serial_chronology).should be_a_new(SerialChronology)
+        expect(assigns(:serial_chronology)).to be_a_new(SerialChronology) 
       end
 
       it "re-renders the 'new' template" do
