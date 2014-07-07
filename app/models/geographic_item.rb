@@ -65,17 +65,17 @@ class GeographicItem < ActiveRecord::Base
   #
   def self.with_collecting_event_through_georeferences
     geographic_items = GeographicItem.arel_table
-    georeferences = Georeference.arel_table
-    g1 = georeferences.alias('a')
-    g2 = georeferences.alias('b')
+    georeferences    = Georeference.arel_table
+    g1               = georeferences.alias('a')
+    g2               = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
       join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
-     
-    GeographicItem.joins(                           # turn the Arel back into scope
-      c.join_sources                                # translate the Arel join to a join hash(?)
+
+    GeographicItem.joins(# turn the Arel back into scope
+      c.join_sources # translate the Arel join to a join hash(?)
     ).where(
-      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil))   # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
@@ -165,7 +165,7 @@ class GeographicItem < ActiveRecord::Base
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select( "id, st_astext(st_centroid( #{to_geometry_sql}  )) centroid" ).first
+    GeographicItem.where(id: self.id).select("id, st_astext(st_centroid( #{to_geometry_sql}  )) centroid").first
   end
 
   def to_geometry_sql
@@ -251,7 +251,9 @@ class GeographicItem < ActiveRecord::Base
         where(q)
       end
 
-    end # end class << self
+    end
+
+    # end class << self
 
 
     def st_intersects(column_name = :multi_polygon, geometry)
@@ -297,12 +299,12 @@ class GeographicItem < ActiveRecord::Base
   def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       partial = []
-       
+
       DATA_TYPES.each { |column|
         partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
       }
 
-      GeographicItem.where(id: partial.flatten.map(&:id) )
+      GeographicItem.where(id: partial.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
         where("st_distance(#{column_name}, #{ select_geography_sql(geographic_item) }) < #{distance}")
@@ -335,7 +337,7 @@ class GeographicItem < ActiveRecord::Base
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id:  partial.flatten.map(&:id))
+      GeographicItem.where(id: partial.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)

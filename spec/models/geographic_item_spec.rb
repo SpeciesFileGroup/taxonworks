@@ -589,7 +589,7 @@ describe GeographicItem do
 
     specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
       # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
-      expect(@area_d.st_centroid['centroid'].to_s).to eq('POINT (0.0 0.0 0.0)')
+      expect(@area_d.st_centroid['centroid'].to_s).to eq('POINT(-0 -0)')
     end
 
     specify '#start_point returns a lat/lng of the first point of the GeoObject' do
