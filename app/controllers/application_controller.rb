@@ -44,7 +44,6 @@ class ApplicationController < ActionController::Base
     @is_task_controller
   end
 
-
   def meta_title
     @meta_title ||= [@meta_title.presence || @page_title.presence, site_name].
                     compact.join(' | ')
