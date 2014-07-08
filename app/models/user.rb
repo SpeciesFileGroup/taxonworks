@@ -36,10 +36,10 @@ class User < ActiveRecord::Base
   end
 
   def is_administrator?
-    is_administrator
+    is_administrator.blank? ? false : true
   end
 
-  def is_project_administrator?(project)
+  def is_project_administrator?(project = nil)
     return false if project.nil?
     project.project_members.where(user_id: id).first.is_project_administrator
   end

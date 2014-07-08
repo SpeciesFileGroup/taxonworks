@@ -57,19 +57,17 @@ Minimally, the following steps are required.  If you have postgres/postgis insta
   bundle update
   ```
 
-7. Setup the databases.
+7. Setup the databases.  
  
   ``` 
   rake db:setup
   ```
 
-8. Test your setup.
+8. Test your setup. If the tests run, then the installation has been a success.  
 
   ```
   rspec
   ```
-
-If the tests run, then the installation has been a success.  You'll likely want to go back and further secure your postgres installation and roles at this point.
 
 9. Seed some dummy data. This includes a user (email 'person1@example.com', with password in /spec/support/config/initialization_constants.rb), project and a few other bits.
 
@@ -81,7 +79,7 @@ If the tests run, then the installation has been a success.  You'll likely want 
 
   ```
   rails s
-  ````
+  ```
 
 11. Check out the application by navigating in your browser to http://127.0.0.1:3000/.
 

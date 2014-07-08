@@ -9,7 +9,7 @@ describe "repositories/index" do
         :acronym => "Acronym",
         :status => "Status",
         :institutional_LSID => "Institutional Lsid",
-        :is_index_herbarioum_record => false,
+        :is_index_herbariorum => false,
         :created_by_id => 1,
         :updated_by_id => 2
       ),
@@ -19,7 +19,7 @@ describe "repositories/index" do
         :acronym => "Acronym",
         :status => "Status",
         :institutional_LSID => "Institutional Lsid",
-        :is_index_herbarioum_record => false,
+        :is_index_herbariorum => false,
         :created_by_id => 1,
         :updated_by_id => 2
       )

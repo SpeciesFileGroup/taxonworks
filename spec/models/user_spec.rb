@@ -18,15 +18,15 @@ describe User do
   context 'authorization' do
     context 'when just a user' do
       specify '#is_administrator? is false' do
-        expect(user.is_administrator?).to be_falsey
+        expect(user.is_administrator?).to be(false)
       end
 
       specify '#is_project_administrator? is false' do
-        expect(user.is_project_administrator?).to be_falsey
+        expect(user.is_project_administrator?).to be(false)
       end
 
       specify '#is_super_user?' do
-        expect(user.is_superuser?).to be_falsey
+        expect(user.is_superuser?).to be(false)
       end
     end
 
@@ -37,10 +37,12 @@ describe User do
       end
     end
 
-    context 'when project_administrator' do
-      before { user.is_project_administrator = true  }
-      specify '#is_superuser?' do
-        expect(user.is_superuser?).to be true
+    context 'when ia project administrator' do
+      before {
+        ProjectMember.create(project_id: $project_id, user: user, is_project_administrator: true)
+      }
+      specify '#is_superuser(project)?' do
+        expect(user.is_superuser?(Project.find($project_id))).to be true
       end
 
     end
