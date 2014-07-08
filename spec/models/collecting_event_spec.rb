@@ -29,7 +29,7 @@ describe CollectingEvent do
       # You can also pass a string, casting is automatic
       collecting_event.start_date_year = 1942
       collecting_event.valid?
-      expect(collecting_event.errors_on(:start_date_year)).to eq([])
+      expect(collecting_event.errors[:start_date_year].size).to eq(0)
     end
 
     specify 'start_date_year is invalid as 3 digit integer' do
@@ -54,7 +54,7 @@ describe CollectingEvent do
       # You can also pass a string, casting is automatic
       collecting_event.end_date_year = 1942
       collecting_event.valid?
-      expect(collecting_event.errors_on(:end_date_year)).to eq([])
+      expect(collecting_event.errors[:end_date_year]).to eq([])
     end
 
     specify 'end_date_year is invalid as 3 digit integer' do
@@ -142,7 +142,7 @@ describe CollectingEvent do
       collecting_event.end_date_year  = 1
 
       expect(collecting_event.valid?).to be_falsey
-      expect(collecting_event.errors_on(:base).include?(message)).to be_truthy
+      expect(collecting_event.errors[:base].include?(message)).to be_truthy
     end
 
     specify 'maximum elevation is greater than minimum elevation when both provided' do
@@ -150,7 +150,7 @@ describe CollectingEvent do
       collecting_event.minimum_elevation = 2
       collecting_event.maximum_elevation = 1
       expect(collecting_event.valid?).to be_falsey
-      expect(collecting_event.errors_on(:maximum_elevation).include?(message)).to be_truthy
+      expect(collecting_event.errors[:maximum_elevation].include?(message)).to be_truthy
     end
 
     specify 'md5_of_verbatim_collecting_event is unique within project' do
@@ -158,7 +158,7 @@ describe CollectingEvent do
       c1    = FactoryGirl.create(:valid_collecting_event, verbatim_label: label)
       c2    = FactoryGirl.build(:valid_collecting_event, verbatim_label: label)
       expect(c2.valid?).to be_falsey
-      expect(c2.errors_on(:md5_of_verbatim_label).count).to eq(1)
+      expect(c2.errors[:md5_of_verbatim_label].count).to eq(1)
     end
   end
 
@@ -346,8 +346,6 @@ describe CollectingEvent do
       context '#county_or_equivalent_name' do 
       end
     end
-
-
   end
 
   context 'concerns' do

@@ -199,6 +199,9 @@ namespace :tw do
           $user_id = user.id # set for project line below
 
           project = Project.create(name: project_name) 
+
+          ProjectMember.create(user: user, project: project, is_project_administrator: true)
+
           import.metadata['project_and_users'] = true
         end
 

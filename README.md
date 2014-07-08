@@ -9,12 +9,12 @@ TaxonWorks
 Overview
 --------
 
-TaxonWorks is Ruby on Rails application that facilitates biodiversity informatics research.  More information is available at [taxonworks.org][13].  The codebase is in active development.  At present only models are available (i.e. all interactions are through a command-line interface).
+TaxonWorks is Ruby on Rails application that facilitates biodiversity informatics research.  More information is available at [taxonworks.org][13].  The codebase is in active development.  At present models, some import-related code, and a scaffolded interface are available.
 
 Installation
 ------------
 
-TaxonWorks is a Rails 4 (4.1.1) application using Ruby 2.0 (2.1.1) and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
+TaxonWorks is a Rails 4.1.n application using Ruby 2.1.n and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
 
 Minimally, the following steps are required.  If you have postgres/postgis installed skip to 3. 
 
@@ -60,9 +60,7 @@ Minimally, the following steps are required.  If you have postgres/postgis insta
 7. Setup the databases.
  
   ``` 
-  rake db:create
-  rake db:migrate RAILS_ENV=test
-  rake db:migrate RAILS_ENV=development
+  rake db:setup
   ```
 
 8. Test your setup.
@@ -72,6 +70,21 @@ Minimally, the following steps are required.  If you have postgres/postgis insta
   ```
 
 If the tests run, then the installation has been a success.  You'll likely want to go back and further secure your postgres installation and roles at this point.
+
+9. Seed some dummy data. This includes a user (email 'person1@example.com', with password in /spec/support/config/initialization_constants.rb), project and a few other bits.
+
+  ```
+  rake db:seed
+  ```
+
+10. Start the local server.
+
+  ```
+  rails s
+  ````
+
+11. Check out the application by navigating in your browser to http://127.0.0.1:3000/.
+
 
 Other resources
 ---------------
