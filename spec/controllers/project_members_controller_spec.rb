@@ -19,17 +19,15 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe ProjectMembersController, :type => :controller do
-
+  before {
+    sign_in_administrator 
+    @unplaced_user = FactoryGirl.create(:valid_user)
+  }
   # This should return the minimal set of attributes required to create a valid
   # ProjectMember. As you add validations to ProjectMember, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
-
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
+  let(:valid_attributes) { {user_id: @unplaced_user.id, project_id: 1, created_by_id: 1, updated_by_id: 1} }
+  let(:invalid_attributes) { {user_id: @unplaced_user.id, project_id: nil,  created_by_id: 1, updated_by_id: 1} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -37,10 +35,11 @@ RSpec.describe ProjectMembersController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
+    
     it "assigns all project_members as @project_members" do
       project_member = ProjectMember.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:project_members)).to eq([project_member])
+      expect(assigns(:project_members)).to eq([ProjectMember.first, project_member])
     end
   end
 
