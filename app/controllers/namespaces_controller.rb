@@ -1,7 +1,9 @@
 class NamespacesController < ApplicationController
 
+  before_action :require_administrator_sign_in
+
+
   # TODO: scope this to administrators?
-  before_action :require_sign_in_and_project_selection
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
   # GET /namespaces

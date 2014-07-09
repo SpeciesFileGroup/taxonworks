@@ -462,8 +462,7 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
   def isbn
-    # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:isbn).first.identifier
+    identifier_string_of_type(:isbn) 
   end
 
   def doi=(value)
@@ -472,8 +471,7 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
   end
   def doi
-    # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:doi).first.identifier
+    identifier_string_of_type(:doi)
   end
 
   def issn=(value)
@@ -482,8 +480,14 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
   end
   def issn
+    identifier_string_of_type(:issn) 
+  end
+
+  # TODO: Turn this into a has_one relationship
+  def identifier_string_of_type(type)
     # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:issn).first.identifier
+    identifiers = self.identifiers.of_type(type)
+    identifiers.size == 0 ? nil : identifiers.first.identifier
   end
 
 #TODO if language is set => set language_id

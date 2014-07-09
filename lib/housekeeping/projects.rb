@@ -33,7 +33,6 @@ module Housekeeping::Projects
     def with_project_id(project_id)
       where(project_id: project_id)
     end
-
   end
 
   def set_project_id

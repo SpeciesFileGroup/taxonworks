@@ -1,7 +1,6 @@
 class ControlledVocabularyTermsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy]
 
   # GET /controlled_vocabulary_terms

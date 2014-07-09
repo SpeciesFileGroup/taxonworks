@@ -43,8 +43,8 @@ describe "sources/index" do
         :year => 5,
         :isbn => "Isbn",
         :issn => "Issn",
-        :verbatim_contents => "MyText",
-        :verbatim_keywords => "MyText",
+        :verbatim_contents => "MyText1",
+        :verbatim_keywords => "MyText2",
         :language_id => 6,
         :translator => "Translator",
         :year_suffix => "Year Suffix",
@@ -90,8 +90,8 @@ describe "sources/index" do
         :year => 5,
         :isbn => "Isbn",
         :issn => "Issn",
-        :verbatim_contents => "MyText",
-        :verbatim_keywords => "MyText",
+        :verbatim_contents => "MyText1",
+        :verbatim_keywords => "MyText2",
         :language_id => 6,
         :translator => "Translator",
         :year_suffix => "Year Suffix",
@@ -142,8 +142,8 @@ describe "sources/index" do
     assert_select "tr>td", :text => 5.to_s, :count => 2
     assert_select "tr>td", :text => "Isbn".to_s, :count => 2
     assert_select "tr>td", :text => "Issn".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText".to_s, :count => 2
+    assert_select "tr>td", :text => "MyText1".to_s, :count => 2
+    assert_select "tr>td", :text => "MyText2".to_s, :count => 2
     assert_select "tr>td", :text => 6.to_s, :count => 2
     assert_select "tr>td", :text => "Translator".to_s, :count => 2
     assert_select "tr>td", :text => "Year Suffix".to_s, :count => 2

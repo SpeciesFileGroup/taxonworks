@@ -1,14 +1,12 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_otu, only: [:show, :edit, :update, :destroy]
 
   # GET /otus
   # GET /otus.json
   def index
-    # TODO: this is to make the test pass, once we get the authorization pattern running it the controller_spec will need to change
-    @otus = Otu.all
+    @recent_otus = Otu.recent_from_project_id($project_id).limit(5)
   end
 
   # GET /otus/1

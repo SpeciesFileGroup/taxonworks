@@ -72,7 +72,6 @@ shared_examples 'an_administrator_login_required_controller' do
       end
 
       specify 'no administration link is present' do
-
         expect(page).to_not have_link('Administration')
       end
 

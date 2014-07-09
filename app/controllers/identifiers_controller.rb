@@ -1,7 +1,6 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_identifier, only: [:show, :edit, :update, :destroy]
 
   # GET /identifiers

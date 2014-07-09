@@ -9,7 +9,7 @@ describe 'Project Members' do
 #   let(:page_index_name) { 'Project Members' }
 # end 
 
-  describe 'GET /Notes' do
+  describe 'GET /Project Members' do
     before { 
       sign_in_administrator
       visit project_members_path }

@@ -39,7 +39,7 @@ describe OtusController do
       otu = Otu.create!(valid_attributes)
       get :index, {}, valid_session
       # The following means that @otus = Otu.all in the controller.
-      assigns(:otus).should eq([otu])
+      assigns(:recent_otus).should eq([otu])
     end
   end
 
