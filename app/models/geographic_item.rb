@@ -165,7 +165,7 @@ class GeographicItem < ActiveRecord::Base
   # Return an Array of [latitude, longitude] for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select("id, st_astext(st_centroid( #{to_geometry_sql}  )) centroid").first
+    GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) centroid").first['centroid']
   end
 
   def to_geometry_sql
