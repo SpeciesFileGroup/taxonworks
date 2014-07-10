@@ -749,34 +749,44 @@ def generate_political_areas
   # 4 by 4 matrix of squares:
 =begin
 
-Q1, R1, and S1 are level 0 spaces, i.e., 'Country'
-M3 through P4, T1 and U1 are level 1 spaces, i.e., 'State (Province)'
+Q, R, and S are level 0 spaces, i.e., 'Country'
+M3 through P4, T and U are level 1 spaces, i.e., 'State (Province)'
 M1 through P2 are level 3 spaces, i.e., 'County (Parish)'
 
 M1-upper_left is at (33, 28)
   
-|------|------|------|------| |------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      | |      |      |      |      |
-|  M1  |  N1  |  O1  |  P1  | | Q1T1 | Q1T1 | Q1U1 | Q1U1 | | T1M1 | T1N1 | U1O1 | U1P1 |
-|      |      |      |      | |      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      | |      |      |      |      |
-|  M2  |  N2  |  O2  |  P2  | | Q1T1 | Q1T1 | Q1U1 | Q1U1 | | T1M2 | T1N2 | U1O2 | U1P2 |
-|      |      |      |      | |      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------| |------|------|------|------|
+|------|------|------|------| |------|------|------|------|
 |      |      |      |      | |      |      |      |      |
-|  M3  |  N3  |  O3  |  P3  | | R1M3 | R1N3 | S1O3 | S1P3 |
+|  M1  |  N1  |  O1  |  P1  | | QTM1 | QTN1 | QUO1 | QUP1 |
 |      |      |      |      | |      |      |      |      |
 |------|------|------|------| |------|------|------|------|
 |      |      |      |      | |      |      |      |      |
-|  M4  |  N4  |  O4  |  P4  | | R1M4 | R1N4 | S1O4 | S1P4 |
+|  M2  |  N2  |  O2  |  P2  | | QTM2 | QTN2 | QUO2 | QUP2 |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M3  |  N3  |  O3  |  P3  | | RM3  | RN3  | SO3  | SP3  |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M4  |  N4  |  O4  |  P4  | | RM4  | RN4  | SO4  | SP4  |
 |      |      |      |      | |      |      |      |      |
 |------|------|------|------| |------|------|------|------|
 
 =end
 
-  $user_id    = 1 if $user_id.nil?
-  $project_id = 1 if $project_id.nil?
+  u = User.first
+  if u.nil?
+    u = FactoryGirl.create(:valid_user, id: 1)
+  end
+
+  p = Project.first
+  if p.nil?
+    p = FactoryGirl.create(:valid_project, id: 1)
+  end
+
+  $user_id    = u.id
+  $project_id = p.id
 
   shape_m1 = make_box(POINT_M1_P0, 0, 0, 1, 1)
   shape_n1 = make_box(POINT_M1_P0, 1, 0, 1, 1)
@@ -798,39 +808,182 @@ M1-upper_left is at (33, 28)
   shape_o4 = make_box(POINT_M1_P0, 2, 3, 1, 1)
   shape_p4 = make_box(POINT_M1_P0, 3, 3, 1, 1)
 
-  shape_q1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
-  shape_t1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_u1 = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_q = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
+  shape_t = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_u = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
 
-  shape_r1 = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_s1 = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_r  = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_s  = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
 
-  @m1 = GeographicItem.new(:polygon => shape_m1)
-  @n1 = GeographicItem.new(:polygon => shape_n1)
-  @o1 = GeographicItem.new(:polygon => shape_o1)
-  @p1 = GeographicItem.new(:polygon => shape_p1)
+  # first, the basic 16 shapes
+  @item_m1 = FactoryGirl.create(:geographic_item, :polygon => shape_m1)
+  @item_n1 = FactoryGirl.create(:geographic_item, :polygon => shape_n1)
+  @item_o1 = FactoryGirl.create(:geographic_item, :polygon => shape_o1)
+  @item_p1 = FactoryGirl.create(:geographic_item, :polygon => shape_p1)
 
-  @m2 = GeographicItem.new(:polygon => shape_m2)
-  @n2 = GeographicItem.new(:polygon => shape_n2)
-  @o2 = GeographicItem.new(:polygon => shape_o2)
-  @p2 = GeographicItem.new(:polygon => shape_p2)
+  @item_m2 = FactoryGirl.create(:geographic_item, :polygon => shape_m2)
+  @item_n2 = FactoryGirl.create(:geographic_item, :polygon => shape_n2)
+  @item_o2 = FactoryGirl.create(:geographic_item, :polygon => shape_o2)
+  @item_p2 = FactoryGirl.create(:geographic_item, :polygon => shape_p2)
 
-  @m3 = GeographicItem.new(:polygon => shape_m3)
-  @n3 = GeographicItem.new(:polygon => shape_n3)
-  @o3 = GeographicItem.new(:polygon => shape_o3)
-  @p3 = GeographicItem.new(:polygon => shape_p3)
+  @item_m3 = FactoryGirl.create(:geographic_item, :polygon => shape_m3)
+  @item_n3 = FactoryGirl.create(:geographic_item, :polygon => shape_n3)
+  @item_o3 = FactoryGirl.create(:geographic_item, :polygon => shape_o3)
+  @item_p3 = FactoryGirl.create(:geographic_item, :polygon => shape_p3)
 
-  @m4 = GeographicItem.new(:polygon => shape_m4)
-  @n4 = GeographicItem.new(:polygon => shape_n4)
-  @o4 = GeographicItem.new(:polygon => shape_o4)
-  @p4 = GeographicItem.new(:polygon => shape_p4)
+  @item_m4 = FactoryGirl.create(:geographic_item, :polygon => shape_m4)
+  @item_n4 = FactoryGirl.create(:geographic_item, :polygon => shape_n4)
+  @item_o4 = FactoryGirl.create(:geographic_item, :polygon => shape_o4)
+  @item_p4 = FactoryGirl.create(:geographic_item, :polygon => shape_p4)
 
-  @q1 = GeographicItem.new(:polygon => shape_q1)
-  @t1 = GeographicItem.new(:polygon => shape_t1)
-  @u1 = GeographicItem.new(:polygon => shape_u1)
+  # next, the big shape, and two sub-shapes
+  @item_q  = FactoryGirl.create(:geographic_item, :polygon => shape_q)
+  @item_t  = FactoryGirl.create(:geographic_item, :polygon => shape_t)
+  @item_u  = FactoryGirl.create(:geographic_item, :polygon => shape_u)
 
-  @s1 = GeographicItem.new(:polygon => shape_r1)
-  @m1 = GeographicItem.new(:polygon => shape_s1)
+  # then the medium shapes
+  @item_r  = FactoryGirl.create(:geographic_item, :polygon => shape_r)
+  @item_s  = FactoryGirl.create(:geographic_item, :polygon => shape_s)
+
+  # now, for the areas, top-down
+  @object  = FactoryGirl.create(:valid_geographic_area_stack)
+
+  # first, level 0 areas
+  @earth   = GeographicArea.where(:name => 'Earth').first
+  @area_q  = FactoryGirl.build(:level0_geographic_area,
+                               :name        => 'Q',
+                               :iso_3166_a3 => 'QQQ',
+                               :iso_3166_a2 => 'QQ')
+  @area_q.geographic_items << @item_q
+  @area_q.save
+  @area_r  = FactoryGirl.build(:level0_geographic_area,
+                               :name        => 'R',
+                               :iso_3166_a3 => 'RRR',
+                               :iso_3166_a2 => 'RR')
+  @area_r.geographic_items << @item_r
+  @area_r.save
+  @area_s  = FactoryGirl.build(:level0_geographic_area,
+                               :name        => 'S',
+                               :iso_3166_a3 => 'SSS',
+                               :iso_3166_a2 => 'SS')
+  @area_s.geographic_items << @item_s
+  @area_s.save
+
+  # next, level 1 areas
+  @area_t  = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'T',
+                               :tdwgID => nil,
+                               :parent => @area_q)
+  @area_t.geographic_items << @item_t
+  @area_t.save
+  @area_u  = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'U',
+                               :tdwgID => nil,
+                               :parent => @area_q)
+  @area_u.geographic_items << @item_u
+  @area_u.save
+
+  @area_m3 = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'M3',
+                               :tdwgID => nil,
+                               :parent => @area_r)
+  @area_m3.geographic_items << @item_m3
+  @area_m3.save
+  @area_n3 = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'N3',
+                               :tdwgID => nil,
+                               :parent => @area_r)
+  @area_n3.geographic_items << @item_n3
+  @area_n3.save
+  @area_m4 = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'M4',
+                               :tdwgID => nil,
+                               :parent => @area_r)
+  @area_m4.geographic_items << @item_m4
+  @area_m4.save
+  @area_n4 = FactoryGirl.build(:level1_geographic_area,
+                               :name   => 'N4',
+                               :tdwgID => nil,
+                               :parent => @area_r)
+  @area_n4.geographic_items << @item_n4
+  @area_n4.save
+
+  @area_o3        = FactoryGirl.build(:level1_geographic_area,
+                                      :name   => 'O3',
+                                      :tdwgID => nil,
+                                      :parent => @area_s)
+  @area_o3.geographic_items << @item_o3
+  @area_o3.save
+  @area_p3        = FactoryGirl.build(:level1_geographic_area,
+                                      :name   => 'P3',
+                                      :tdwgID => nil,
+                                      :parent => @area_s)
+  @area_p3.geographic_items << @item_p3
+  @area_p3.save
+  @area_o4        = FactoryGirl.build(:level1_geographic_area,
+                                      :name   => 'O4',
+                                      :tdwgID => nil,
+                                      :parent => @area_s)
+  @area_o4.geographic_items << @item_o4
+  @area_o4.save
+  @area_p4        = FactoryGirl.build(:level1_geographic_area,
+                                      :name   => 'P4',
+                                      :tdwgID => nil,
+                                      :parent => @area_s)
+  @area_p4.geographic_items << @item_p4
+  @area_p4.save
+
+  # last, for level2
+  @area_m1        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'M1',
+                                      :parent => @area_t)
+  @area_m1.level0 = @area_t
+  @area_m1.geographic_items << @item_m1
+  @area_m1.save
+  @area_n1        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'N1',
+                                      :parent => @area_t)
+  @area_n1.level0 = @area_t
+  @area_n1.geographic_items << @item_n1
+  @area_n1.save
+  @area_m2        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'M2',
+                                      :parent => @area_t)
+  @area_m2.level0 = @area_t
+  @area_m2.geographic_items << @item_m2
+  @area_m2.save
+  @area_n2        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'N2',
+                                      :parent => @area_t)
+  @area_n2.level0 = @area_t
+  @area_n2.geographic_items << @item_n2
+  @area_n2.save
+
+  @area_o1        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'O1',
+                                      :parent => @area_u)
+  @area_o1.level0 = @area_u
+  @area_o1.geographic_items << @item_o1
+  @area_o1.save
+  @area_p1        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'P1',
+                                      :parent => @area_u)
+  @area_p1.level0 = @area_u
+  @area_p1.geographic_items << @item_p1
+  @area_p1.save
+  @area_o2        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'O2',
+                                      :parent => @area_u)
+  @area_o2.level0 = @area_u
+  @area_o2.geographic_items << @item_o2
+  @area_o2.save
+  @area_p2        = FactoryGirl.build(:level2_geographic_area,
+                                      :name   => 'P2',
+                                      :parent => @area_u)
+  @area_p2.level0 = @area_u
+  @area_p2.geographic_items << @item_p2
+  @area_p2.save
+
 end
 
 def make_box(base, offset_x, offset_y, size_x, size_y)

@@ -3,7 +3,7 @@ require 'spec_helper'
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
 
 describe GeographicArea do
-  let(:geographic_area) { FactoryGirl.build(:valid_geographic_area_stack) }
+  let(:geographic_area) { FactoryGirl.build(:geographic_area_stack) }
 
   context 'validation' do
     before(:each) {

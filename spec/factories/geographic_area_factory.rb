@@ -32,7 +32,7 @@ FactoryGirl.define do
     level1 { parent }
   end
 
-  factory :geographic_area, traits: [:creator_and_updater,], aliases: [:valid_geographic_area_stack] do
+  factory :geographic_area, traits: [:creator_and_updater,], aliases: [:geographic_area_stack] do
     # TODO: fix to *really* be valid
     factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin 'Test Data'
@@ -44,7 +44,7 @@ FactoryGirl.define do
     factory :with_data_origin_geographic_area do
       data_origin 'Test Data'
 
-      factory :level2_geographic_area do
+      factory :level2_geographic_area, aliases: [:valid_geographic_area_stack] do
         name 'Champaign'
         parent_state
         association :geographic_area_type, factory: :county_geographic_area_type
