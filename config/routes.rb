@@ -62,6 +62,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post 'search'
       get 'list'
+      get 'auto_complete_for_otus'
    end
   end
   resources :people

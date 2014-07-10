@@ -17,9 +17,7 @@
   
   <body>
 
-  <header>
-    <%= render partial: 'sessions/summary' if sessions_signed_in? %>
-  </header>
+  <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
 
   <%# TODO: refine calling of header navigation -%>
   <%= quick_bar -%> 

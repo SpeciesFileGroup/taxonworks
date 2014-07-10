@@ -1,2 +1,18 @@
 module OtusHelper
+  def otu_tag(otu)
+    otu.name
+  end
+
+  def self.otu_tag(otu)
+    return nil if otu.nil?
+    otu.name
+  end
+
+  def otu_tag(otu)
+    OtusHelper.otu_tag(otu)
+  end
+
+  def otus_search_form
+    render('/otus/quick_search_form')
+  end
 end

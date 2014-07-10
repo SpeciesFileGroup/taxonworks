@@ -1,5 +1,5 @@
 <navigation>
-  <ul class="task_bar">
+  <ul class="task_bar horizontal_navbar">
     <%= content_tag(:li, link_to('hub', hub_path)) -%>
     <% named_route = controller.request.path.gsub('/', '')  -%>
     <% if !TASK_RELATIONS_FOR_NAVIGATION[named_route].nil? %>  

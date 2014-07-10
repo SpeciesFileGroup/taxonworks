@@ -6,7 +6,7 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    @recent_otus = Otu.recent_from_project_id($project_id).limit(5)
+    @recent_objects = Otu.recent_from_project_id($project_id).limit(5)
   end
 
   # GET /otus/1
@@ -68,9 +68,27 @@ class OtusController < ApplicationController
   end
 
   def search
-    @otus = Otu.where(name: params[:name])
-    render :list
+    redirect_to otu_path(params[:otu][:id])
   end
+
+ def auto_complete_for_otus
+    @otus = Otu.where('name LIKE ?', "#{params[:term]}%") # find_for_auto_complete(conditions, table_name)
+
+    data = @otus.collect do |t|
+      {id: t.id,
+       label: OtusHelper.otu_tag(t), 
+       response_values: {
+         params[:method] => t.id  
+       },
+       label_html: OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data 
+  end
+
+
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

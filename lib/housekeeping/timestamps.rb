@@ -3,6 +3,7 @@ module Housekeeping::Timestamps
   extend ActiveSupport::Concern
 
   included do
+
   end
 
   module ClassMethods

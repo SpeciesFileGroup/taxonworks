@@ -64,26 +64,11 @@ class TaxonNamesController < ApplicationController
   end
 
   def auto_complete_for_taxon_names
-  #  table_name = "tn"  # alias for the TaxonName joins needed
-  #  value = params[:term]
-  #  if params[:use_proj] == 'false'
-  #    proj_sql = ""
-  #  else
-  #    proj_sql = "AND (" + @proj.sql_for_taxon_names(table_name) + ")" 
-  #  end
-     
-  #  # possible conditions are [all, genus, species, family]
-  #  if params[:name_group] == 'all'
-  #    conditions = ["(#{table_name}.name LIKE ? or #{table_name}.id = ? or #{table_name}.author LIKE ? or #{table_name}.year = ?) #{proj_sql}", "#{value.downcase}%", "#{value.downcase}%", "#{value}%", "#{value.downcase}" ]
-  #  else
-  #    conditions = ["(#{table_name}.name LIKE ?  or #{table_name}.author LIKE ? or #{table_name}.year = ?) AND #{table_name}.iczn_group = ? #{proj_sql}", "#{value.downcase}%",  "#{value.downcase}%", "#{value.downcase}", params[:name_group]]
-  #  end
-
     @taxon_names = TaxonName.where('name LIKE ?', "#{params[:term]}%") # find_for_auto_complete(conditions, table_name)
 
     data = @taxon_names.collect do |t|
       {id: t.id,
-       label: TaxonNamesHelper.display_taxon_name(t), # .display_name(:type => :selected),
+       label: TaxonNamesHelper.display_taxon_name(t), 
        response_values: {
          # 'taxon_name[id]' => t.id, <- pretty sure this will bork things.
          params[:method] => t.id  

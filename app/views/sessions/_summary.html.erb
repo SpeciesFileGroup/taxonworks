@@ -1,10 +1,12 @@
-<h1> <%= link_to 'TaxonWorks', root_path -%> </h1>
-<div>
+<header>
+  <div>
+    <div class='left_floater'> 
+      <%= taxonworks_link -%>
+    </div>
 
-  <%= project_link(sessions_current_project) -%> 
-  <p>Signed in as <mark><%= sessions_current_user.email %></mark></p>
-  <nav>
-    Settings: 
-    <%= session_header_links -%>
-  </nav>
-</div>
+    <ul class='horizontal_navbar right_floater'> 
+      <%=  session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+    </ul>
+    <br class='clear_both'>  
+  </div>
+</header>

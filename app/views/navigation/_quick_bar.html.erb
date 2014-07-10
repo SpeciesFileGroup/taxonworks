@@ -1,5 +1,5 @@
 <navigation>
-  <ul class="quick_bar">
+  <ul class="quick_bar horizontal_navbar">
     <%= content_tag(:li, link_to('hub', hub_path)) -%>
     <% if  !DATA_RELATIONS_FOR_NAVIGATION[controller_name].nil? %>  
       <% DATA_RELATIONS_FOR_NAVIGATION[controller_name].each do |l| -%>

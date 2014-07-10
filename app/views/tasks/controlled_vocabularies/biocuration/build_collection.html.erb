@@ -1,36 +1,33 @@
-<div class="two_columns">
-  <div class="left_column">
-    <header> Available Biocuration Groups </header>
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Available Biocuration Groups </h2>
+    <%= content_tag(:em, 'None.') if @biocuration_groups.size == 0 -%>
     <% @biocuration_groups.each do |bg| -%>
       <%= content_tag(:mark, bg.name) -%>
-      <%= render(partial: 'add_biocuration_class_form', locals: {new_tag: Tag.new(keyword: bg, tag_object_type: 'ControlledVocabularyTerm'), tag_objects: @biocuration_classes_without_groups }) if @biocuration_classes_without_groups.count > 0 -%>
+    <%= render(partial: 'add_biocuration_class_form', locals: {new_tag: Tag.new(keyword: bg, tag_object_type: 'ControlledVocabularyTerm'), tag_objects: @biocuration_classes_without_groups }) if @biocuration_classes_without_groups.count > 0 -%>
 
-      <ul>
-        <% bg.biocuration_classes.each do |bc| %>
-          <li> <%=  bc.name %> <%= link_to('Remove', tag_path(Tag.where(tag_object_type: 'ControlledVocabularyTerm', tag_object_id: bc.id, keyword_id: bg.id).first), method: 'delete') -%> </li>
+    <ul>
+      <% bg.biocuration_classes.each do |bc| %>
+        <li> <%=  bc.name %> <%= link_to('Remove', tag_path(Tag.where(tag_object_type: 'ControlledVocabularyTerm', tag_object_id: bc.id, keyword_id: bg.id).first), method: 'delete') -%> </li>
       <% end %>
-      </ul>
-
+    </ul>
   <% end %>
 
-  <div>
-    <header> New Biocuration Group </header>
-    <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_group, hide_type: true}) -%>
-  </div>
-
-  </div>
-
-
-  <div class="right_column">
     <div>
-      <header> Available Classifications </header>
-      <div> <strong> All classficiations: </strong> <%= @biocuration_classes.collect{|a| a.name}.join(', ') -%> </div>
+      <h2> New Biocuration Group </h2>
+      <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_group, hide_type: true}) -%>
+    </div>
+  </div>
+
+  <div class="item item2">
+    <div>
+      <h2> Available Classifications </h2>
+      <div> <strong> All classifications: </strong> <%= @biocuration_classes.collect{|a| a.name}.join(', ') -%> <%= content_tag(:em, 'None.') if @biocuration_classes.size == 0 -%>  </div>
       <div> <strong> Not yet added to any group: </strong> <%= @biocuration_classes_without_groups.collect{|a| a.name}.join(', ') -%> </div>
     </div>
 
-
     <div>
-      <header> New Biocuration Class </header>
+      <h2> New Biocuration Class </h2>
       <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_class, hide_type: true}) -%>
     </div>
   </div>

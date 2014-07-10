@@ -10,7 +10,7 @@
  *
  *= require_self
  *= require_tree .
- *= require jquery-ui
+ *= require jquery-ui/autocomplete
  */
 
 
@@ -20,6 +20,7 @@ form label {text-align:right; width:200px;}
 .scrollable_div { height: 80px; overflow: auto;  }
 br.clear_both{ clear: both; }
 .left_floater {float: left;}
+.right_floater {float: right;}
 .right_vertical_separator { border-right: 1px solid }
 .left_vertical_separator { border-left: 1px solid }
 .right_column_whitespace {padding-right: 1em; margin-right: 1em;}
@@ -28,3 +29,4 @@ br.clear_both{ clear: both; }
 
 .hidden {visibility:hidden;}
 .collapsed {visibility: collapse;}
+

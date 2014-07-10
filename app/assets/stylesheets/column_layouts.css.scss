@@ -1,24 +1,32 @@
+/* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
+.flexbox {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  -webkit-flex-flow: row wrap;
 
-// Used so @mjy can mock up some quick and dirty views for futher refinement
+  display: flex;
+  flex-direction: column; 
+  flex-flow: row wrap; 
+  justify-content: center;
+}
 
-div.two_columns {
-  // this is just a hack
-  header {
-    font-weight: bold;
-    border-bottom: 1px solid black;
-    width: 90%;
-  }
+.flexbox > * {
+  padding: 10px;
+  flex: 1 100%;
+}
 
-  .left_column {
-    float: left;
-    width: 50%;
-    padding: 1em;
-  }
+@media all and (min-width: 600px) {
+  .item { flex: 1 auto; }
+}
 
-  .right_column {
-    border-left: 1px solid black;
-    padding: 1em;
-    margin-left: 50%;
-  }
+@media all and (min-width: 800px) {
+  .item1 { 
+    order: 1 0px;
+  } 
+  .item2 { order: 2; }
+  .item3 { order: 3; }
+  .item4 { order: 4; }
 }
 

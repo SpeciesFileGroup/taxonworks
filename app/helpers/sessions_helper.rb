@@ -107,10 +107,25 @@ module SessionsHelper
 
   # TODO: make this a non-controller method
   def session_header_links
-    [link_to('Account', users_path(sessions_current_user)),
-    (sessions_project_selected? ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil),
-    (sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil),
-    link_to('Sign out', signout_path, method: :delete)].compact.join(' | ').html_safe
+    [
+      content_tag(:span, ('Signed in as ' + content_tag(:mark, sessions_current_user.email)).html_safe),
+      link_to('Account', users_path(sessions_current_user)),
+      project_settings_link, 
+      administration_link,
+      link_to('Sign out', signout_path, method: :delete)
+    ]
+  end
+
+  def project_settings_link
+    sessions_project_selected? ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil
+  end
+
+  def administration_link
+    sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil
+  end
+
+  def taxonworks_link
+    content_tag(:h1,  link_to('TaxonWorks', root_path))
   end
 
 end

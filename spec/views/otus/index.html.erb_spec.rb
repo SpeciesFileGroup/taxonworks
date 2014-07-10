@@ -2,18 +2,23 @@ require 'spec_helper'
 
 describe "otus/index" do
   before(:each) do
-    assign(:otus, [
+    @data_model = Otu
+    assign(:recent_objects, [
       stub_model(Otu,
         :name => "Name",
         :created_by_id => 1,
         :updated_by_id => 2,
-        :project_id => 3
+        :project_id => 3,
+        :created_at => Time.now,
+        :updated_at => Time.now,
       ),
       stub_model(Otu,
         :name => "Name",
         :created_by_id => 1,
         :updated_by_id => 2,
-        :project_id => 3
+        :project_id => 3,
+        :created_at => Time.now,
+        :updated_at => Time.now
       )
     ])
   end

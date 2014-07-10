@@ -64,12 +64,16 @@ module ApplicationHelper
     end
   end
 
+  # !! Get rid of this too TODO: FIX
   def forward_back_pages(instance)
     content_tag(:span,  (previous_page(instance) + ' | ' + next_page(instance)).html_safe )
   end
 
+
+
+
   def model_name_title
-    controller_path.capitalize 
+    controller_name.humanize.titleize
   end
 
   def hidden_css_property_if(tru)
