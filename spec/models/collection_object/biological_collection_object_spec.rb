@@ -34,7 +34,6 @@ describe CollectionObject::BiologicalCollectionObject do
       biological_collection_object.total = 5
       biological_collection_object.save!
       expect(biological_collection_object.type).to eq('Lot')
-
     end
   end
 

@@ -28,9 +28,9 @@ class CollectionObject < ActiveRecord::Base
 
   validates_presence_of :type
   before_validation :default_to_biological_collection_object_if_type_not_provided
+  before_validation :check_that_either_total_or_ranged_lot_category_id_is_present, unless: 'type == "Specimen" || type == "Lot"'
+  before_validation :check_that_both_of_category_and_total_are_not_present, unless: 'type == "Specimen" || type == "Lot"'
   before_validation :reassign_type_if_total_or_ranged_lot_category_id_provided
-  before_validation :check_that_either_total_or_ranged_lot_category_id_is_present
-  before_validation :check_that_both_of_category_and_total_are_not_present
 
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)

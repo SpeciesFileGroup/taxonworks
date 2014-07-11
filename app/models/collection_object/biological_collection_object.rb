@@ -39,9 +39,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     return true
   end
 
-
-
-
   #region Soft Validation
 
   def sv_missing_determination
