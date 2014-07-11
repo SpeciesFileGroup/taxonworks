@@ -24,16 +24,17 @@ class CollectionObject < ActiveRecord::Base
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :repository, inverse_of: :collection_objects
   belongs_to :collecting_event, inverse_of: :collection_objects
+  belongs_to :ranged_lot_category, inverse_of: :ranged_lots
 
   validates_presence_of :type
+  before_validation :default_to_biological_collection_object_if_type_not_provided
+  before_validation :reassign_type_if_total_or_ranged_lot_category_id_provided
+  before_validation :check_that_either_total_or_ranged_lot_category_id_is_present
   before_validation :check_that_both_of_category_and_total_are_not_present
+
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
-
-  def check_that_both_of_category_and_total_are_not_present
-    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
-  end
 
   #region Soft Validation
 
@@ -74,5 +75,32 @@ class CollectionObject < ActiveRecord::Base
   end
 
   #endregion
+
+  protected
+
+  def default_to_biological_collection_object_if_type_not_provided
+    self.type ||= 'CollectionObject::BiologicalCollectionObject'
+  end
+
+  def check_that_both_of_category_and_total_are_not_present
+    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
+  end
+
+  def check_that_either_total_or_ranged_lot_category_id_is_present
+    errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
+  end
+
+  def reassign_type_if_total_or_ranged_lot_category_id_provided
+    return true if ['Specimen', 'Lot', 'RangedLot'].include?(self.type) # handle validation in subclasses
+    return true if self.total.nil? && ranged_lot_category_id.blank?
+    if self.total == 1
+      self.type = 'Specimen'
+    elsif self.total.to_i > 1
+      self.type = 'Lot'
+    elsif total.nil? && !ranged_lot_category_id.blank?
+      self.type = 'RangedLot'
+    end
+    true
+  end
 
 end

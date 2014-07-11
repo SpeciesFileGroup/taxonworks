@@ -5,9 +5,27 @@ describe CollectionObject do
   let(:collection_object) {FactoryGirl.build(:collection_object) }
 
   context 'validation' do
-    specify 'require type' do
+    specify 'type is set to a biological_collection_object when not provided' do
       collection_object.valid?
-      expect(collection_object.errors.include?(:type)).to be_truthy
+      expect(collection_object.type).to eq('CollectionObject::BiologicalCollectionObject') 
+    end
+
+    specify 'type is set to Specimen when type not provided but total is one' do
+      collection_object.total = 1
+      collection_object.valid?
+      expect(collection_object.type).to eq('Specimen') 
+    end
+
+    specify 'type is set to Lot when type not provided but total is > 1' do
+      collection_object.total = 5
+      collection_object.valid?
+      expect(collection_object.type).to eq('Lot') 
+    end
+
+    specify 'type is set to RangedLot when type not provided but ranged_lot_id is' do
+      collection_object.ranged_lot_category = FactoryGirl.create(:valid_ranged_lot_category) 
+      collection_object.valid?
+      expect(collection_object.type).to eq('RangedLot') 
     end
 
     specify 'both total and ranged_lot_category_id can not be present' do
@@ -16,6 +34,12 @@ describe CollectionObject do
       expect(collection_object.valid?).to be_falsey
       expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
     end 
+
+    specify 'one of total or ranged_lot_category_id must be present' do
+      collection_object.valid?
+      expect(collection_object.errors.include?(:base)).to be_truthy
+    end 
+
   end
 
   context 'associations' do

@@ -6,8 +6,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
  
   accepts_nested_attributes_for :biocuration_classes, :biocuration_classifications, :taxon_determinations, :otus
 
-  before_validation :reassign_type_if_total_provided
-
   soft_validate(:sv_missing_determination, set: :missing_determination)
   soft_validate(:sv_missing_collecting_event, set: :missing_collecting_event)
   soft_validate(:sv_missing_preparation_type, set: :missing_preparation_type)
@@ -41,14 +39,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     return true
   end
 
-  def reassign_type_if_total_provided
-    return true if !self.ranged_lot_category_id.nil? || self.total.nil?
-    if self.total == 1
-      self.type = 'Specimen'
-    elsif self.total > 1
-      self.type = 'Lot'
-    end
-  end
+
 
 
   #region Soft Validation
