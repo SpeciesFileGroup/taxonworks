@@ -57,7 +57,7 @@ describe CollectionObject do
       end
 
       specify 'ranged_lot_category' do
-        expect(collection_object.ranged_lot_category = FactoryGirl.create(:ranged_lot_category)).to be_truthy
+        expect(collection_object.ranged_lot_category = FactoryGirl.create(:valid_ranged_lot_category)).to be_truthy
       end
 
     end
