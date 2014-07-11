@@ -4,13 +4,7 @@ def clean_slate_geo
   GeographicArea.delete_all
   GeographicAreasGeographicItem.delete_all
   Georeference.delete_all
-end
-
-def clean_slate_ce
-  [@gr00, @gr01, @gr02, @gr03, @gr04, @gr05, @gr06, @gr07, @gr08, @gr09,
-   @gr10, @gr11, @gr121, @gr121, @gr13, @gr14, @gr15, @gr16, @gr17, @gr18, @gr19,
-   @ce_p0, @ce_p1, @ce_p2, @ce_p3, @ce_p4, @ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9
-  ].map(&destroy)
+  CollectingEvent.delete_all
 end
 
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
@@ -1064,6 +1058,11 @@ M1-upper_left is at (33, 28)
                               :error_geographic_item => @item_p2,
                               :geographic_item       => GeographicItem.new(:point => @item_p2.st_centroid))
 
+  # ActiveRecord::RecordInvalid: Validation failed:
+  # Error geographic item collecting_event area must contain georeference error_geographic_item.,
+  # Collecting event collecting_event area must contain georeference error_geographic_item.,
+  # Collecting event collecting_event area must contain georeference geographic_item.,
+  # Geographic item collecting_event area must contain georeference geographic_item.
   @ce_m3 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_m3',
                               :geographic_area => @area_r)

@@ -43,14 +43,14 @@ class GeographicArea < ActiveRecord::Base
   if ENV['NO_GEO_NESTING']
     belongs_to :parent, class_name: GeographicArea, foreign_key: :parent_id
   else
-    acts_as_nested_set 
+    acts_as_nested_set
   end
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
   belongs_to :level1, class_name: 'GeographicArea', foreign_key: :level1_id
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
-  
+
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_area
   has_many :geographic_items, through: :geographic_areas_geographic_items
@@ -62,9 +62,9 @@ class GeographicArea < ActiveRecord::Base
   validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
-  
+
   validates_presence_of :data_origin
-  validates :name, presence: true, length: { minimum: 1 }
+  validates :name, presence: true, length: {minimum: 1}
 
   scope :descendants_of, -> (geographic_area) {
     where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
@@ -84,23 +84,23 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
 
-  scope :with_name_like, -> (string) { where(["name like ?", "#{string}%"] ) } 
+  scope :with_name_like, -> (string) { where(["name like ?", "#{string}%"]) }
 
   # A scope.
   def self.ancestors_and_descendants_of(geographic_area)
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
            (geographic_areas.id != ?)',
-        geographic_area.lft, geographic_area.rgt,
-        geographic_area.lft, geographic_area.rgt,
-        geographic_area.id).order(:lft)
+          geographic_area.lft, geographic_area.rgt,
+          geographic_area.lft, geographic_area.rgt,
+          geographic_area.id).order(:lft)
   end
 
   # TODO: Test
   # A scope. Matches GeographicAreas that have name and parent name.
   scope :with_name_and_parent_name, -> (names) {
     joins(:parent).
-    where(name: names[0], parent: {name: names[1]})
+      where(name: names[0], parent: {name: names[1]})
   }
 
   # TODO: Test, or extend a general method
@@ -109,24 +109,24 @@ class GeographicArea < ActiveRecord::Base
   #   GeographicArea.with_name_and_parents(%{United\ States Illinois Champaign})
   scope :with_name_and_parents, -> (names) {
     joins(parent: :parent).
-    where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2]}})
+      where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2]}})
   }
 
- # Route out to a scope given the length of the
+  # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
   # needed more than three nesting
- def self.find_by_self_and_parents(array)
-   if array.length == 1
-     where(name: array.first)
-   elsif array.length == 2
-     with_name_and_parent_name(array)
-   elsif array.length == 3
-     with_name_and_parents(array)
-   else
-     where { 'false' }
-   end
- end
+  def self.find_by_self_and_parents(array)
+    if array.length == 1
+      where(name: array.first)
+    elsif array.length == 2
+      with_name_and_parent_name(array)
+    elsif array.length == 3
+      with_name_and_parents(array)
+    else
+      where { 'false' }
+    end
+  end
 
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
@@ -151,9 +151,9 @@ class GeographicArea < ActiveRecord::Base
   # Returns a HASH with keys pointing to each of the four level components of the ID.  Matches values in original data.
   def tdwg_ids
     {lvl1: self.tdwgID.slice(0),
-     lvl2: self.tdwgID.slice(0,2),
-     lvl3: self.tdwgID.slice(2,3),
-     lvl4: self.tdwgID.slice(2,6) 
+     lvl2: self.tdwgID.slice(0, 2),
+     lvl3: self.tdwgID.slice(2, 3),
+     lvl4: self.tdwgID.slice(2, 6)
     }
   end
 
@@ -164,7 +164,7 @@ class GeographicArea < ActiveRecord::Base
 
   def default_geographic_item
     # Postgis specific.
-    GeographicAreasGeographicItem.order(
+    retval = GeographicAreasGeographicItem.where(:geographic_area_id => self.id).order(
       "CASE data_origin
       WHEN 'ne_country' THEN 1
       WHEN 'ne_state' THEN 2
@@ -172,6 +172,7 @@ class GeographicArea < ActiveRecord::Base
       ELSE 4
       END, id"
     ).first.geographic_item
+    retval
   end
 
   def geo_object
