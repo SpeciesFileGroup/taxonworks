@@ -206,42 +206,42 @@ describe CollectingEvent do
       }
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          partial = @ce_p7.find_others_within_radius_of(2000000)
-          expect(partial.count).to eq(8)
-          expect(partial).to include(@ce_p0, @ce_p2, @ce_p3,
+          pieces = @ce_p7.find_others_within_radius_of(2000000)
+          expect(pieces.count).to eq(8)
+          expect(pieces).to include(@ce_p0, @ce_p2, @ce_p3,
                                      @ce_p5, @ce_p6, @ce_p8, @ce_p9)
-          expect(partial).not_to include(@ce_p1, @ce_p4, @ce_p7)
+          expect(pieces).not_to include(@ce_p1, @ce_p4, @ce_p7)
         end
 
         specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          partial = @ce_p2.find_others_intersecting_with
+          pieces = @ce_p2.find_others_intersecting_with
           # @ce_p2.first will find @k and @p2
           # @k will find @p1, @p2, @p3, filter out @p2, and return @p1 and @p3
-          expect(partial.count).to eq(2)
-          expect(partial).to include(@ce_p1, @ce_p3)
-          expect(partial).not_to include(@ce_p7) # even though @p17 is close to @k
+          expect(pieces.count).to eq(2)
+          expect(pieces).to include(@ce_p1, @ce_p3)
+          expect(pieces).not_to include(@ce_p7) # even though @p17 is close to @k
         end
       end
 
       context 'and that GR has both GI and EGI' do
         specify 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI' do
-          partial = @ce_p2.find_others_within_radius_of(1000000)
-          expect(partial.count).to eq(4)
-          expect(partial).to include(@ce_p1, @ce_p3,
+          pieces = @ce_p2.find_others_within_radius_of(1000000)
+          expect(pieces.count).to eq(4)
+          expect(pieces).to include(@ce_p1, @ce_p3,
                                      @ce_p4, @ce_p7)
           # @ce_p1 is included because of @p1,
           # @ce_p3 is included because of @p3,
           # @ce_p4 is included because of @p4,
           # @ce_p7 is included because of @p17 (near @k)
-          expect(partial).not_to include(@ce_p0)
+          expect(pieces).not_to include(@ce_p0)
         end
 
         specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
           # skip 'contained in error_gi'
-          partial = @ce_p1.find_others_contained_in_error
-          expect(partial.count).to eq(1)
-          expect(partial.first).to eq(@ce_p2)
-          expect(partial).not_to include(@ce_p1)
+          pieces = @ce_p1.find_others_contained_in_error
+          expect(pieces.count).to eq(1)
+          expect(pieces.first).to eq(@ce_p2)
+          expect(pieces).not_to include(@ce_p1)
         end
       end
     end

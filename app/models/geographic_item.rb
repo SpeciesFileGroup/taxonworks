@@ -234,14 +234,14 @@ class GeographicItem < ActiveRecord::Base
 
     def intersecting(column_name, *geographic_items)
       if column_name.downcase == 'any'
-        partial = []
+        pieces = []
         DATA_TYPES.each { |column|
-          partial.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
+          pieces.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
         }
 
         # todo: change 'id in (?)' to some other sql construct
 
-        GeographicItem.where(id: partial.flatten.map(&:id))
+        GeographicItem.where(id: pieces.flatten.map(&:id))
 
       else
         q = geographic_items.flatten.collect { |geographic_item|
@@ -298,13 +298,13 @@ class GeographicItem < ActiveRecord::Base
   # distance is measured in meters
   def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
-      partial = []
+      pieces = []
 
       DATA_TYPES.each { |column|
-        partial.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
+        pieces.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
       }
 
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id: pieces.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
         where("st_distance(#{column_name}, #{ select_geography_sql(geographic_item) }) < #{distance}")
@@ -337,7 +337,7 @@ class GeographicItem < ActiveRecord::Base
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: partial.flatten.map(&:id))
+      GeographicItem.where(id: pieces.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)

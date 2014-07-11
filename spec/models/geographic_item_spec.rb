@@ -665,42 +665,42 @@ describe GeographicItem do
     context 'scopes (GeographicItems can be found by searching with) ' do
       # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
       specify '::geo_with_collecting_event' do
-        partial = GeographicItem.geo_with_collecting_event.order('id').to_a
-        expect(partial.count).to eq(22) # p12 will be listed twice, once for e1, and once for e2
-        expect(partial).to include(@p0, @p1, @p2, @p3,
+        pieces = GeographicItem.geo_with_collecting_event.order('id').to_a
+        expect(pieces.count).to eq(22) # p12 will be listed twice, once for e1, and once for e2
+        expect(pieces).to include(@p0, @p1, @p2, @p3,
                                    @p4, @p5, @p6, @p7,
                                    @p8, @p9, @p10, @p11,
                                    @p12, @p13, @p14, @p15,
                                    @p16, @p17, @p18, @p19,
                                    @area_d) #
-        expect(partial).not_to include(@e4)
+        expect(pieces).not_to include(@e4)
       end
 
       specify '::err_with_collecting_event' do
-        partial = GeographicItem.err_with_collecting_event.order('id').to_a
-        expect(partial.count).to eq(10) # @e1, @e2 listed twice, @k listed three times
-        expect(partial).to include(@b2, @b, @e1, @e2, @k, @area_c) #
-        expect(partial).not_to include(@e4, @b1)
+        pieces = GeographicItem.err_with_collecting_event.order('id').to_a
+        expect(pieces.count).to eq(10) # @e1, @e2 listed twice, @k listed three times
+        expect(pieces).to include(@b2, @b, @e1, @e2, @k, @area_c) #
+        expect(pieces).not_to include(@e4, @b1)
       end
 
       specify '::with_collecting_event_through_georeferences' do
-        partial = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-        expect(partial.count).to eq(27) # @k only listed once
-        expect(partial).to include(@p0, @p1, @p2, @p3,
+        pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
+        expect(pieces.count).to eq(27) # @k only listed once
+        expect(pieces).to include(@p0, @p1, @p2, @p3,
                                    @p4, @p5, @p6, @p7,
                                    @p8, @p9, @p10, @p11,
                                    @p12, @p13, @p14, @p15,
                                    @p16, @p17, @p18, @p19,
                                    @area_c, @area_d, @e1, @e2,
                                    @k) #
-        expect(partial).not_to include(@e4)
+        expect(pieces).not_to include(@e4)
       end
 
       specify '::include_collecting_event' do
         # skip 'construction of method'
-        partial = GeographicItem.include_collecting_event.order('id').to_a
-        expect(partial.count).to eq(60)
-        expect(partial).to eq(@all_gi)
+        pieces = GeographicItem.include_collecting_event.order('id').to_a
+        expect(pieces.count).to eq(60)
+        expect(pieces).to eq(@all_gi)
       end
 
       specify '::containing - returns objects which contain another objects.' do
