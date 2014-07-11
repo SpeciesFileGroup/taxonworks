@@ -209,7 +209,7 @@ describe CollectingEvent do
           pieces = @ce_p7.find_others_within_radius_of(2000000)
           expect(pieces.count).to eq(8)
           expect(pieces).to include(@ce_p0, @ce_p2, @ce_p3,
-                                     @ce_p5, @ce_p6, @ce_p8, @ce_p9)
+                                    @ce_p5, @ce_p6, @ce_p8, @ce_p9)
           expect(pieces).not_to include(@ce_p1, @ce_p4, @ce_p7)
         end
 
@@ -228,7 +228,7 @@ describe CollectingEvent do
           pieces = @ce_p2.find_others_within_radius_of(1000000)
           expect(pieces.count).to eq(4)
           expect(pieces).to include(@ce_p1, @ce_p3,
-                                     @ce_p4, @ce_p7)
+                                    @ce_p4, @ce_p7)
           # @ce_p1 is included because of @p1,
           # @ce_p3 is included because of @p3,
           # @ce_p4 is included because of @p4,
@@ -269,13 +269,13 @@ describe CollectingEvent do
     end
   end
 
-  context 'fuzzy matching' do 
+  context 'fuzzy matching' do
     before {
-     @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
-     @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
 
-     @c3 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
-     @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
+      @c3 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
+      @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
     }
 
     specify 'nearest_by_levenshtein(compared_string = nil, column = "verbatim_locality", limit = 10)' do
@@ -289,6 +289,7 @@ describe CollectingEvent do
   context 'geopolitical labels' do
     before {
       # create some bogus countries, states, provinces, counties, and a parish
+      generate_political_areas
       #
       # The idea: 
       #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
@@ -312,12 +313,12 @@ describe CollectingEvent do
         context 'when one possible name is present' do
           skip 'derived from geographic_area_chain'
           skip 'derived from geographic_area_chain'
-          skip 'derived from georeference -> geographic_areas chain' 
+          skip 'derived from georeference -> geographic_areas chain'
         end
 
         context 'when more than one possible name is present' do
           skip 'derived from geographic_area_chain'
-          skip 'derived from georeference -> geographic_areas chain' 
+          skip 'derived from georeference -> geographic_areas chain'
         end
       end
 
@@ -328,12 +329,12 @@ describe CollectingEvent do
           skip 'it should return the value derived from the geographic_area chain if georeference chain is not present'
         end
 
-        context 'result priority' do 
+        context 'result priority' do
           skip 'it should return #countries_hash.keys.first when only one key is present'
           skip 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present'
           skip 'it should return the first #countries_hash.key when an equal number of .values is present'
         end
-     end
+      end
     end
 
     context 'states/provinces' do
@@ -345,7 +346,7 @@ describe CollectingEvent do
 
     context 'counties etc.' do
       # target types should be drawn from GeographicAreaType#COUNTY_OR_EQUIVALENT, for now = ["county", "parish"]
-      context '#county_or_equivalent_name' do 
+      context '#county_or_equivalent_name' do
       end
     end
   end
