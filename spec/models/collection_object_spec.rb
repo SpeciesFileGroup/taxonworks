@@ -45,20 +45,21 @@ describe CollectionObject do
   context 'associations' do
     context 'belongs_to' do
       specify 'preparation_type' do
-        expect(collection_object).to respond_to(:preparation_type)
+        expect(collection_object.preparation_type = FactoryGirl.create(:valid_preparation_type)).to be_truthy
       end
 
       specify 'repository' do
-        expect(collection_object).to respond_to(:repository)
+        expect(collection_object.repository = FactoryGirl.create(:valid_repository) ).to be_truthy 
       end
 
       specify 'collecting_event' do
-        expect(collection_object).to respond_to(:collecting_event)
+        expect(collection_object.collecting_event = FactoryGirl.create(:valid_collecting_event)).to be_truthy
       end
 
-      specify 'preparation_type' do
-        expect(collection_object).to respond_to(:preparation_type)
+      specify 'ranged_lot_category' do
+        expect(collection_object.ranged_lot_category = FactoryGirl.create(:ranged_lot_category)).to be_truthy
       end
+
     end
   end
 
@@ -76,12 +77,6 @@ describe CollectionObject do
     end
   end
 
-  context 'general functionality' do
-    it "should return the repository"
-    it "should permit arbitrary requirable properties (key/value pairs)"
-    it "on update it should SCREAM AT YOU when you change implied data if more than one biological_collection_object uses that data" 
-  end
-
   context 'attributes' do
     specify "current_location (the present location [time axis])" 
     specify "disposition ()"  # was boolean lost or not
@@ -90,10 +85,6 @@ describe CollectionObject do
     specify "accession source (from whom the biological_collection_object came)"
     specify "deaccession recipient (to whom the biological_collection_object went)"
     specify "depository (where the)"  
-  end
-
-  describe "validation" do
-    specify "once set, a verbatim label can not change" # DDA: not a good idea, students may have questions, after which the label could be updated
   end
 
   context 'soft validation' do
@@ -135,6 +126,5 @@ describe CollectionObject do
 
     specify "locatable (location)"
     specify "figurable (images)"
-
   end
 end
