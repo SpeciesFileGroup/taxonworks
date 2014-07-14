@@ -1,16 +1,27 @@
-<% @biocuration_groups.each_with_index do |bg, i| -%>
-  <div> 
-    <div class='left_floater'> 
-      <%= number_field_tag("collection_objects[object#{i}][total]") -%>
+<% @biocuration_groups.each_with_index do |bg, i| %>
+  <div class='flexbox'> 
+    <div class='item item1'> 
+      Total: <%= number_field_tag("collection_objects[object#{i}][total]") %>
     </div> 
 
-    <fieldset class='right_floater'>
-      <%= content_tag(:legend, bg.name) -%>
-      <% bg.biocuration_classes.each do |bc| %>
-        <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object#{i}][biocuration_classes][#{bc.id}]" ) -%>
-      <% end %>
-    </fieldset> 
-    <br style="clear:both;" />
-  <div>
+    <div class="item item2">
+      <fieldset >
+        <%= content_tag(:legend, bg.name) -%>
+        <% bg.biocuration_classes.each do |bc| %>
+          <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object#{i}][biocuration_classes][#{bc.id}]" ) -%>
+        <% end %>
+      </fieldset>
+    </div>
+  </div> 
 <% end %>
+
+<% if @biocuration_groups.count == 0 -%>
+  <div class='item item1'> 
+    Total: <%= number_field_tag("collection_objects[object1][total]") %>
+  </div> 
+<% end %>
+
+
+
+
 
