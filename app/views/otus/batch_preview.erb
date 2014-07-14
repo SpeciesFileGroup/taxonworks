@@ -1,0 +1,16 @@
+<h2> Batch preview </h2>
+<%= form_tag batch_create_otus_path do -%>
+  <% @otus.each_with_index do |o, i| %>
+    <div id="otus"> <%= text_field_tag("otus[#{i}][name]", o.name) -%> <%= link_to('Remove', "#", class: 'remove_link') %> <%# otus_list_tag(Otu.similarly_named(@otu)) -%> </div>
+  <% end %>
+<%= submit_tag(:create) -%>
+<% end %>
+
+<%# remove this -%>
+<script>
+$(function() {
+    $('.remove_link').click(function() {
+      $(this).parent().remove(); 
+      });
+});
+</script>
