@@ -311,13 +311,19 @@ describe CollectingEvent do
     context 'countries' do
       context 'it should return the name of the country with #countries_hash' do
         context 'when one possible name is present' do
-          skip 'derived from geographic_area_chain'
-          skip 'derived from geographic_area_chain'
-          skip 'derived from georeference -> geographic_areas chain'
+          specify 'derived from geographic_area_chain' do
+            expect(@ce_m3.countries_hash).to eq('R')
+          end
+          specify 'derived from georeference -> geographic_areas chain' do
+            # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
+            expect(@ce_p4.countries_hash).to include('S')
+          end
         end
 
         context 'when more than one possible name is present' do
-          skip 'derived from geographic_area_chain'
+          specify 'derived from geographic_area_chain' do
+            expect(@ce_m1.countries_hash).to include('Q', 'Big Boxia', 'Northern Land Mass')
+          end
           skip 'derived from georeference -> geographic_areas chain'
         end
       end

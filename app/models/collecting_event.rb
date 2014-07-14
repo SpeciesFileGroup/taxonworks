@@ -222,7 +222,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def countries_hash
-    # return all of the GAs which are country_level, amd have GIs containing the (GI, EGI)
+    # return all of the names of the GAs which are country_level, and have GIs containing the (GI, EGI)
 
   end
 
