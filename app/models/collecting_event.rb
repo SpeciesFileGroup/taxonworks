@@ -51,12 +51,14 @@ class CollectingEvent < ActiveRecord::Base
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_many :collection_objects, inverse_of: :collecting_event
-  has_many :collector_roles, class_name: 'Collector', as: :role_object
+  has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
+  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :georeferences
+  has_many :georeferences, dependent: :destroy
+
+  # Todo: this needs work
   has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
 
   before_validation :check_verbatim_geolocation_uncertainty,
@@ -173,8 +175,8 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+  # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def find_others_intersecting_with
-    # find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
     gr     = [] # all collecting events for a geographic_item
 
@@ -188,8 +190,8 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+   # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
   def find_others_contained_in_error
-    # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
     # find all the GIs and EGIs associated with CEs
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
 
@@ -213,16 +215,14 @@ class CollectingEvent < ActiveRecord::Base
 
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
-
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
-
     CollectingEvent.where("id <> ?", self.to_param).
       order(order_str).
       limit(limit)
   end
 
+  # return all of the GAs which are country_level, amd have GIs containing the (GI, EGI)
   def countries_hash
-    # return all of the GAs which are country_level, amd have GIs containing the (GI, EGI)
 
   end
 
