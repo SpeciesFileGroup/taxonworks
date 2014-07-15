@@ -1,4 +1,3 @@
-# Concerns for models that have creator/updaters.
 module Housekeeping 
   extend ActiveSupport::Concern
 
@@ -7,6 +6,7 @@ module Housekeeping
     include Projects 
     include Timestamps
     include CombinedScopes
+    include SharedAttributeScopes
   end
 
   def has_polymorphic_relationship?

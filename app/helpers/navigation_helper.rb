@@ -26,6 +26,14 @@ module NavigationHelper
     link_to('List', list_path_for_model(model)) 
   end 
 
+  def download_for_model_link(model)
+    link_to('Download', download_path_for_model(model)) 
+  end
+
+  def download_path_for_model(model)
+    send("download_#{model.name.tableize}_path")
+  end
+
   def object_link(object)
     link_to(object_tag(object), object)
   end

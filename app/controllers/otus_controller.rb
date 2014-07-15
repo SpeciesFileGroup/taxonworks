@@ -6,7 +6,7 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    @recent_objects = Otu.recent_from_project_id($project_id).limit(5)
+    @recent_objects = Otu.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
   end
 
   # GET /otus/1
@@ -87,8 +87,26 @@ class OtusController < ApplicationController
     render :json => data 
   end
 
+  # batch is demo only ... 
+  def batch_preview
+    @otus = Otu.batch_preview(file: params[:file].tempfile)
+  end
+
+  def batch_create
+    if @otus = Otu.batch_create(params.symbolize_keys.to_h)
+     flash[:notice] = "Successfully batched created #{@otus.count} OTUs."
+    else
+      # TODO: more response
+      flash[:notice] = 'Failed to create the Otus.' 
+    end
+    redirect_to otus_path
+  end
 
 
+  # GET /otus/download
+  def download
+    send_data Otu.generate_download(project_id: $project_id), type: 'text'
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

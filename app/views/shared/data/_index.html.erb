@@ -8,7 +8,8 @@
   <div class="item item2">
     <%= new_for_model_link(@data_model) %><br />
     <%= list_for_model_link(@data_model) %><br />
-    <%= search_form_for_model(@data_model) -%>
+    <%= search_form_for_model(@data_model) %>
+    <%= download_for_model_link(@data_model) %>
   </div>
 
   <div class="item item3">
@@ -23,7 +24,13 @@
 
 
   <div class="item item4">
-    column 4
+    <h2> Batch load </h2> 
+    
+    <%= form_tag batch_preview_otus_path, multipart: true do -%>
+      <%= file_field_tag :file -%>
+      <%= submit_tag 'Preview' -%>
+    <% end %>
+
   </div>
 
 </div>

@@ -60,9 +60,12 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layouts
   resources :otus do
     collection do
-      post 'search'
-      get 'list'
       get 'auto_complete_for_otus'
+      get 'download'
+      get 'list'
+      post 'batch_create'
+      post 'batch_preview'
+      post 'search'
    end
   end
   resources :people

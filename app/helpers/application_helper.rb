@@ -70,8 +70,6 @@ module ApplicationHelper
   end
 
 
-
-
   def model_name_title
     controller_name.humanize.titleize
   end
@@ -83,7 +81,5 @@ module ApplicationHelper
   def collapsed_css_property_if(tru)
     tru ? 'collapsed'.html_safe : nil
   end
-
-
 
 end

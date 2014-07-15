@@ -51,7 +51,6 @@ class Otu < ActiveRecord::Base
   #end region
 
   #region Soft validation
-
   def sv_taxon_name
     soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
   end
@@ -63,5 +62,41 @@ class Otu < ActiveRecord::Base
     end
   end
   #endregion
+
+  # Generate a CSV version of the raw Otus table for the given project_id
+  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
+  def self.generate_download(project_id: nil)
+    CSV.generate() do |csv|
+      csv << column_names
+      all.with_project_id(project_id).each do |otu|
+        csv << otu.attributes.values_at(*column_names)
+      end
+    end
+  end
+
+  def self.batch_preview(file: nil, **args)
+    f = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
+    @otus = []
+    f.each do |row| 
+      @otus.push(Otu.new(name: row[:name]))
+    end
+    @otus
+  end
+
+  def self.batch_create(otus: {}, **args)
+    new_otus = []
+    begin
+      Otu.transaction do
+        otus.keys.each do |k|
+          o = Otu.new(otus[k])
+          o.save!
+          new_otus.push(o) 
+        end 
+      end
+    rescue
+      return false
+    end
+   new_otus 
+  end
 
 end

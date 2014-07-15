@@ -5,14 +5,9 @@ class DynamicContent
 
   attr_accessible :otu
 
-  def initialize(options = {})
-    opts = {
-      otu: nil,
-      keywords: nil
-    }.merge!(options)
-
-    @otu = opts[:otu]
-    return false if opts[:otu].nil? || !opts[:otu]
+  def initialize(otu: nil, keywords: nil)
+    @otu = otu
+    return false if otu.nil?
   end 
 
 
