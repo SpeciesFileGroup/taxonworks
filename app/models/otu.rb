@@ -68,7 +68,7 @@ class Otu < ActiveRecord::Base
   def self.generate_download(project_id: nil)
     CSV.generate() do |csv|
       csv << column_names
-      all.with_project_id(project_id).each do |otu|
+      all.with_project_id(project_id).order(id: :asc).each do |otu|
         csv << otu.attributes.values_at(*column_names)
       end
     end

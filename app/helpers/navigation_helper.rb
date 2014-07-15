@@ -15,7 +15,7 @@ module NavigationHelper
   end
 
   def list_path_for_model(model)
-    send("list_#{model.class.name.tableize}_path")
+    send("list_#{model.name.tableize}_path")
   end
 
   def new_for_model_link(model)

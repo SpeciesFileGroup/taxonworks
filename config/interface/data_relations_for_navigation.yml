@@ -2,6 +2,7 @@
 ---
 otus: 
   - taxon_names
+  - taxon_determinations
 taxon_names: 
   - otus
   - taxon_name_relationships
