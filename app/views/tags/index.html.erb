@@ -1,0 +1,39 @@
+<h1>Tags</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Keyword</th>
+      <th>Tag object</th>
+      <th>Tag object type</th>
+      <th>Tag object attribute</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th>Position</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tags.each do |tag| %>
+      <tr>
+        <td><%= tag.keyword_id %></td>
+        <td><%= tag.tag_object_id %></td>
+        <td><%= tag.tag_object_type %></td>
+        <td><%= tag.tag_object_attribute %></td>
+        <td><%= tag.created_by_id %></td>
+        <td><%= tag.updated_by_id %></td>
+        <td><%= tag.project_id %></td>
+        <td><%= tag.position %></td>
+        <td><%= link_to 'Show', tag %></td>
+        <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
+        <td><%= link_to 'Destroy', tag, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Tag', new_tag_path %>

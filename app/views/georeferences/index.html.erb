@@ -1,4 +1,4 @@
-<h1>Listing georeferences</h1>
+<h1>Georeferences</h1>
 
 <table>
   <thead>
@@ -42,9 +42,9 @@
         <td><%= georeference.project_id %></td>
         <td><%= georeference.is_undefined_z %></td>
         <td><%= georeference.is_median_z %></td>
-        <td><%= link_to 'Show', georeference %></td>
-        <td><%= link_to 'Edit', edit_georeference_path(georeference) %></td>
-        <td><%= link_to 'Destroy', georeference, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', georeference.becomes(Georeference) %></td>
+        <td><%= link_to 'Edit', edit_georeference_path(georeference.becomes(Georeference)) %></td>
+        <td><%= link_to 'Destroy', georeference.becomes(Georeference), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

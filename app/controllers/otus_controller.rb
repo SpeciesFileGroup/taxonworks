@@ -1,12 +1,12 @@
 class OtusController < ApplicationController
-  before_action :require_sign_in_and_project_selection
+  include DataControllerConfiguration
+
   before_action :set_otu, only: [:show, :edit, :update, :destroy]
 
   # GET /otus
   # GET /otus.json
   def index
-    # TODO: this is to make the test pass, once we get the authorization pattern running it the controller_spec will need to change
-    @otus = Otu.all
+    @recent_objects = Otu.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
   end
 
   # GET /otus/1
@@ -68,8 +68,44 @@ class OtusController < ApplicationController
   end
 
   def search
-    @otus = Otu.where(name: params[:name])
-    render :list
+    redirect_to otu_path(params[:otu][:id])
+  end
+
+ def auto_complete_for_otus
+    @otus = Otu.where('name LIKE ?', "#{params[:term]}%") # find_for_auto_complete(conditions, table_name)
+
+    data = @otus.collect do |t|
+      {id: t.id,
+       label: OtusHelper.otu_tag(t), 
+       response_values: {
+         params[:method] => t.id  
+       },
+       label_html: OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data 
+  end
+
+  # batch is demo only ... 
+  def batch_preview
+    @otus = Otu.batch_preview(file: params[:file].tempfile)
+  end
+
+  def batch_create
+    if @otus = Otu.batch_create(params.symbolize_keys.to_h)
+     flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
+    else
+      # TODO: more response
+      flash[:notice] = 'Failed to create the Otus.' 
+    end
+    redirect_to otus_path
+  end
+
+
+  # GET /otus/download
+  def download
+    send_data Otu.generate_download(project_id: $project_id), type: 'text'
   end
 
   private
@@ -80,6 +116,6 @@ class OtusController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def otu_params
-      params.require(:otu).permit(:name, :created_by_id, :updated_by_id, :project_id)
+      params.require(:otu).permit(:name)
     end
 end

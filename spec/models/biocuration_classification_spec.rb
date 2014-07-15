@@ -18,11 +18,11 @@ describe BiocurationClassification do
       biocuration_classification.valid?
     end 
     specify 'biological_collection_object is required' do
-      expect(biocuration_classification.errors.include?(:biological_collection_object)).to be_true 
+      expect(biocuration_classification.errors.include?(:biological_collection_object)).to be_truthy
     end
 
     specify 'biocuration_class is required' do
-      expect(biocuration_classification.errors.include?(:biocuration_class)).to be_true 
+      expect(biocuration_classification.errors.include?(:biocuration_class)).to be_truthy
     end
 
     context 'with a biocuration class' do
@@ -32,17 +32,17 @@ describe BiocurationClassification do
 
       specify 'a specimen can be biocuration classified' do
         biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_specimen)
-        expect(biocuration_classification.save).to be_true 
+        expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a lot can be biocuration classified' do
         biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_lot)
-        expect(biocuration_classification.save).to be_true 
+        expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a ranged_lot can be biocuration classified' do
         biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_ranged_lot)
-        expect(biocuration_classification.save).to be_true 
+        expect(biocuration_classification.save).to be_truthy
       end
 
 

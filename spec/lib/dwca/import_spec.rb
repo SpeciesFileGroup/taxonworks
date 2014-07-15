@@ -10,7 +10,7 @@ describe Dwca::Import do
 
   context 'incoming archive' do
     specify 'can be opened with read_dwc()' do
-      expect(a = Dwca::Import.new_dwc(@archive_path.to_s)).to be_true
+      expect(a = Dwca::Import.new_dwc(@archive_path.to_s)).to be_truthy
       expect(a.class).to eq(DarwinCore)
     end
   end
@@ -72,7 +72,7 @@ describe Dwca::Import do
     end
 
     specify 'build_row_objects' do
-      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object, :collecting_event])).to be_true
+      expect(result = manager.build_row_objects(@data.first, [:otu, :collection_object, :collecting_event])).to be_truthy
       expect(result[:otu].name).to eq('Stenacron carolina (Banks 1914)')
       expect(result[:collection_object].total).to eq(3)
       expect(result[:collecting_event].verbatim_method).to eq(nil)

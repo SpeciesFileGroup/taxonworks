@@ -1,0 +1,41 @@
+<%= form_for(@geographic_areas_geographic_item) do |f| %>
+  <% if @geographic_areas_geographic_item.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@geographic_areas_geographic_item.errors.count, "error") %> prohibited this geographic_areas_geographic_item from being saved:</h2>
+
+      <ul>
+      <% @geographic_areas_geographic_item.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :geographic_area_id %><br>
+    <%= f.number_field :geographic_area_id %>
+  </div>
+  <div class="field">
+    <%= f.label :geographic_item_id %><br>
+    <%= f.number_field :geographic_item_id %>
+  </div>
+  <div class="field">
+    <%= f.label :data_origin %><br>
+    <%= f.text_field :data_origin %>
+  </div>
+  <div class="field">
+    <%= f.label :origin_gid %><br>
+    <%= f.number_field :origin_gid %>
+  </div>
+  <div class="field">
+    <%= f.label :date_valid_from %><br>
+    <%= f.text_field :date_valid_from %>
+  </div>
+  <div class="field">
+    <%= f.label :date_valid_to %><br>
+    <%= f.text_field :date_valid_to %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

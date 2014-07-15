@@ -12,11 +12,11 @@ describe BiologicalAssociationsBiologicalAssociationsGraph do
       }      
 
       specify "biological_associations_graph" do
-        expect(biological_associations_biological_associations_graph.errors.include?(:biological_associations_graph)).to be_true
+        expect(biological_associations_biological_associations_graph.errors.include?(:biological_associations_graph)).to be_truthy
       end
 
       specify "biological_association" do
-        expect(biological_associations_biological_associations_graph.errors.include?(:biological_association)).to be_true
+        expect(biological_associations_biological_associations_graph.errors.include?(:biological_association)).to be_truthy
       end
     end
   end

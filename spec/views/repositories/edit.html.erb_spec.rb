@@ -8,7 +8,7 @@ describe "repositories/edit" do
       :acronym => "MyString",
       :status => "MyString",
       :institutional_LSID => "MyString",
-      :is_index_herbarioum_record => false,
+      :is_index_herbariorum => false,
       :created_by_id => 1,
       :updated_by_id => 1
     ))
@@ -24,7 +24,7 @@ describe "repositories/edit" do
       assert_select "input#repository_acronym[name=?]", "repository[acronym]"
       assert_select "input#repository_status[name=?]", "repository[status]"
       assert_select "input#repository_institutional_LSID[name=?]", "repository[institutional_LSID]"
-      assert_select "input#repository_is_index_herbarioum_record[name=?]", "repository[is_index_herbarioum_record]"
+      assert_select "input#repository_is_index_herbariorum[name=?]", "repository[is_index_herbariorum]"
     end
   end
 end

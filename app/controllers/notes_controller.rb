@@ -1,4 +1,6 @@
 class NotesController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_note, only: [:show, :edit, :update, :destroy]
 
   # GET /notes

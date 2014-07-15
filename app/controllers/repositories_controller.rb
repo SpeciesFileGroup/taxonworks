@@ -1,10 +1,12 @@
 class RepositoriesController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_repository, only: [:show, :edit, :update, :destroy]
 
   # GET /repositories
   # GET /repositories.json
   def index
-    @repositories = Repository.all
+    @repositories = Repository.limit(20)
   end
 
   # GET /repositories/1

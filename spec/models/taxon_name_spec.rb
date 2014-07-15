@@ -14,23 +14,23 @@ describe TaxonName do
     @root = @subspecies.root
   end
 
-  after(:all) { 
+  after(:all) do
    # TestDbCleanup.cleanup_taxon_name_and_related
     TaxonNameRelationship.delete_all
-  }
+  end
 
   context 'double checking FactoryGirl' do
     specify 'is building all related names for respective models' do
       expect(@subspecies.ancestors.length).to be >= 10
       (@subspecies.ancestors + [@subspecies]).each do |i|
-        expect(i.valid?).to be_true
+        expect(i.valid?).to be_truthy
       end
     end
     specify 'ICN' do
       variety = FactoryGirl.create(:icn_variety)
       expect(variety.ancestors.length).to be >= 17
       (variety.ancestors + [variety]).each do |i|
-        expect(i.valid?).to be_true
+        expect(i.valid?).to be_truthy
       end
       expect(variety.root.id).to eq(@species.root.id)
       #variety.save
@@ -80,9 +80,9 @@ describe TaxonName do
 
         specify 'respond to unavailable_or_invalid' do
           relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          expect(relationship.save).to be_true
-          expect(@type_of_genus.unavailable_or_invalid?).to be_false
-          expect(@original_genus.unavailable_or_invalid?).to be_true
+          expect(relationship.save).to be_truthy
+          expect(@type_of_genus.unavailable_or_invalid?).to be_falsey
+          expect(@original_genus.unavailable_or_invalid?).to be_truthy
         end
       end
     end
@@ -93,7 +93,7 @@ describe TaxonName do
       specify 'parens are allowed' do
         taxon_name.verbatim_author = '(Smith)' 
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:verbatim_author)).to be_false
+        expect(taxon_name.errors.include?(:verbatim_author)).to be_falsey
       end
     end
 
@@ -161,7 +161,7 @@ describe TaxonName do
       specify 'permit multiple roots across the database' do
         root2 = FactoryGirl.build(:root_taxon_name)
         expect(root2.parent).to be_nil
-        expect(root2.valid?).to be_true
+        expect(root2.valid?).to be_truthy
       end
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
@@ -207,7 +207,7 @@ describe TaxonName do
 
     context 'required fields' do
       specify 'rank' do
-        expect(taxon_name.errors.include?(:rank_class)).to be_true
+        expect(taxon_name.errors.include?(:rank_class)).to be_truthy
       end
       specify 'type' do
         expect(taxon_name.type).to eq('Protonym')
@@ -228,20 +228,20 @@ describe TaxonName do
         taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
         taxon_name.parent = @species
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:parent_id)).to be_true
+        expect(taxon_name.errors.include?(:parent_id)).to be_truthy
       end
       specify 'child rank is lower' do
         phylum = FactoryGirl.create(:iczn_phylum)
         kingdom = phylum.ancestor_at_rank('kingdom')
         kingdom.rank_class = Ranks.lookup(:iczn, 'subphylum')
         kingdom.valid?
-        expect(kingdom.errors.include?(:rank_class)).to be_true
+        expect(kingdom.errors.include?(:rank_class)).to be_truthy
       end
       specify 'a new taxon rank in the same group' do
         t = FactoryGirl.create(:iczn_kingdom)
         t.rank_class = Ranks.lookup(:iczn, 'genus')
         t.valid?
-        expect(t.errors.include?(:rank_class)).to be_true
+        expect(t.errors.include?(:rank_class)).to be_truthy
       end
     end
 
@@ -250,11 +250,11 @@ describe TaxonName do
         h = FactoryGirl.build(:human_source)
         taxon_name.source = h
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:source_id)).to be_true
+        expect(taxon_name.errors.include?(:source_id)).to be_truthy
         b = FactoryGirl.build(:source_bibtex)
         taxon_name.source = b
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:source_id)).to be_false
+        expect(taxon_name.errors.include?(:source_id)).to be_falsey
       end
     end
 
@@ -263,17 +263,17 @@ describe TaxonName do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
         taxon_name.name = 'Aaa'
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:rank_class)).to be_false
+        expect(taxon_name.errors.include?(:rank_class)).to be_falsey
       end
       specify 'is invalidly_published when not a NomenclaturalRank subclass' do
         taxon_name.rank_class = 'foo'
         taxon_name.valid?
-        expect(taxon_name.errors.include?(:rank_class)).to be_true
+        expect(taxon_name.errors.include?(:rank_class)).to be_truthy
       end
     end
 
     context 'name' do
-      context 'validate cashed values' do
+      context 'validate cached values' do
         specify 'ICZN subspecies' do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
@@ -283,14 +283,14 @@ describe TaxonName do
         specify 'ICZN species misspelling' do
           sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
           sp.iczn_set_as_misapplication_of = @species
-          expect(sp.save).to be_true
+          expect(sp.save).to be_truthy
           expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
         end
         specify 'ICZN family' do
-          expect(@family.valid?).to be_true
+          expect(@family.valid?).to be_truthy
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
           expect(@family.cached_author_year).to eq('Say, 1800')
-          expect(@family.cached_name.nil?).to be_true
+          expect(@family.cached_name.nil?).to be_truthy
         end
         specify 'nil author and year - cashed value should be empty' do
           t = @subspecies.ancestor_at_rank('kingdom')
@@ -316,7 +316,7 @@ describe TaxonName do
         specify 'source_classified_as' do
           c = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
-          expect(c.save).to be_true
+          expect(c.save).to be_truthy
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
         specify 'different gender' do
@@ -324,20 +324,20 @@ describe TaxonName do
           @species.masculine_name = 'vitus'
           @species.feminine_name = 'vita'
           @species.neuter_name = 'vitum'
-          expect(@species.save).to be_true
+          expect(@species.save).to be_truthy
           gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
-          expect(gender.save).to be_true
+          expect(gender.save).to be_truthy
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
-          expect(gender.save).to be_true
+          expect(gender.save).to be_truthy
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
         specify 'misspelled original combination' do
           g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
           g.iczn_set_as_misspelling_of = @genus
-          expect(g.save).to be_true
+          expect(g.save).to be_truthy
           @subspecies.original_genus = g
           @subspecies.reload
           expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
@@ -348,7 +348,7 @@ describe TaxonName do
           subsp = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
           subsp.parent = @species
           subsp.valid?
-          expect(subsp.errors.include?(:parent_id)).to be_true
+          expect(subsp.errors.include?(:parent_id)).to be_truthy
         end
         context 'cached homonyms' do
           before(:all) do
@@ -356,12 +356,12 @@ describe TaxonName do
             @g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @tribe, year_of_publication: 2000)
             @s1 = FactoryGirl.create(:relationship_species, name: 'vitatus', parent: @g1, year_of_publication: 1999)
             @s2 = FactoryGirl.create(:relationship_species, name: 'vitatta', parent: @g2, year_of_publication: 2000)
-            expect(@family.valid?).to be_true
-            expect(@tribe.valid?).to be_true
-            expect(@g1.valid?).to be_true
-            expect(@g2.valid?).to be_true
-            expect(@s1.valid?).to be_true
-            expect(@s2.valid?).to be_true
+            expect(@family.valid?).to be_truthy
+            expect(@tribe.valid?).to be_truthy
+            expect(@g1.valid?).to be_truthy
+            expect(@g2.valid?).to be_truthy
+            expect(@s1.valid?).to be_truthy
+            expect(@s2.valid?).to be_truthy
           end
           specify 'primary homonym' do
             expect(@family.cached_primary_homonym).to eq('Cicadellidae')
@@ -369,21 +369,21 @@ describe TaxonName do
             expect(@tribe.cached_primary_homonym_alt).to eq('Erythroneuridae')
             expect(@g1.cached_primary_homonym).to eq('Aus')
             expect(@g2.cached_primary_homonym).to eq('Bus')
-            expect(@s1.cached_primary_homonym.blank?).to be_true
-            expect(@s2.cached_primary_homonym.blank?).to be_true
+            expect(@s1.cached_primary_homonym.blank?).to be_truthy
+            expect(@s2.cached_primary_homonym.blank?).to be_truthy
           end
           specify 'secondary homonym' do
-            expect(@family.cached_secondary_homonym.blank?).to be_true
-            expect(@g1.cached_secondary_homonym.blank?).to be_true
-            expect(@g2.cached_secondary_homonym.blank?).to be_true
+            expect(@family.cached_secondary_homonym.blank?).to be_truthy
+            expect(@g1.cached_secondary_homonym.blank?).to be_truthy
+            expect(@g2.cached_secondary_homonym.blank?).to be_truthy
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do
             @s1.original_genus = @g1
             @s2.original_genus = @g1
-            expect(@s1.save).to be_true
-            expect(@s2.save).to be_true
+            expect(@s1.save).to be_truthy
+            expect(@s2.save).to be_truthy
             @s1.reload
             @s2.reload
             expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
@@ -406,7 +406,7 @@ describe TaxonName do
             expect(@s.soft_validations.messages_on(:base).count).to eq(1)
             @s.fix_soft_validations
             @s.soft_validate(:cached_names)
-            expect(@s.soft_validations.messages_on(:base).empty?).to be_true
+            expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
           end
         end
       end
@@ -414,19 +414,25 @@ describe TaxonName do
       context 'when rank ICZN family' do
         specify "is validly_published when ending in '-idae'" do
           @family.valid?
-          expect(@family.errors.include?(:name)).to be_false
+          expect(@family.errors.include?(:name)).to be_falsey
         end
         specify "is invalidly_published when not ending in '-idae'" do
           taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:name)).to be_true
+          expect(taxon_name.errors.include?(:name)).to be_truthy
         end
         specify 'is invalidly_published when not capitalized' do
           taxon_name.name = 'fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:name)).to be_true
+          expect(taxon_name.errors.include?(:name)).to be_truthy
+        end
+        specify 'species name starting with apper case' do
+          taxon_name.name = 'Aus'
+          taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
+          taxon_name.soft_validate(:validate_name)
+          expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
         end
       end
 
@@ -435,13 +441,13 @@ describe TaxonName do
           taxon_name.name = 'Aaceae'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:name)).to be_false
+          expect(taxon_name.errors.include?(:name)).to be_falsey
         end
         specify "is invalidly_published when not ending in '-aceae'" do
           taxon_name.name = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:name)).to be_true
+          expect(taxon_name.errors.include?(:name)).to be_truthy
         end
       end
     end
@@ -458,7 +464,7 @@ describe TaxonName do
         expect(g.soft_validations.messages_on(:base).count).to eq(1)
         s.fix_soft_validations
         s.soft_validate(:parent_is_valid_name)
-        expect(s.soft_validations.messages_on(:parent_id).empty?).to be_true
+        expect(s.soft_validations.messages_on(:parent_id).empty?).to be_truthy
       end
     end
 
@@ -466,33 +472,33 @@ describe TaxonName do
       specify 'valid iczn names' do
         s = FactoryGirl.build_stubbed(:relationship_species, parent: @genus, name: 'aus')
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'a-aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'aus-aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_false
+        expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
       end
       specify 'valid icn names' do
         s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus')
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'a-aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'aus-aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'aus × aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = '× aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         s.name = 'aus aus'
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_false
+        expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
       end
       specify 'unavailable' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
@@ -501,7 +507,7 @@ describe TaxonName do
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
         s.reload
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
       end
       specify 'misspelling' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
@@ -510,7 +516,7 @@ describe TaxonName do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         s.reload
         s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_true
+        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
       end
     end
     context 'possible homonyms' do
@@ -523,7 +529,10 @@ describe TaxonName do
         expect(s.name_with_alternative_spelling).to eq('nigricinta')
       end
       specify 'name_with_alternative_spelling and no family_group_base matches fails now' do
-        pending
+        s = FactoryGirl.build_stubbed(:relationship_family, parent: nil, name: 'Aini')
+        expect(s.name_with_alternative_spelling).to eq('Aidae')
+        s.name = 'Ayni'
+        expect(s.name_with_alternative_spelling).to eq('Ayni')
       end
     end
   end

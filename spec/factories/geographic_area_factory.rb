@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   trait :parent_earth do
-    parent {  
+    parent {
       if o = GeographicArea.where(name: 'Earth').first
         o
       else
@@ -22,7 +22,6 @@ FactoryGirl.define do
   end
 
   trait :parent_state do
-    parent_country    
     parent {
       if o = GeographicArea.where(name: 'Illinois').first
         o
@@ -33,46 +32,54 @@ FactoryGirl.define do
     level1 { parent }
   end
 
-  factory :geographic_area, traits: [:creator_and_updater, ], aliases: [:valid_geographic_area_stack] do
-    # TODO: fix to *really* be vaclid
+  factory :geographic_area, traits: [:creator_and_updater,], aliases: [:geographic_area_stack] do
+    # TODO: fix to *really* be valid
     factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin 'Test Data'
       name 'Test'
       geographic_area_type factory: :valid_geographic_area_type
-      after(:build) {|o| o.level0 = o}
+      after(:build) { |o| o.level0 = o }
     end
 
     factory :with_data_origin_geographic_area do
       data_origin 'Test Data'
 
-      factory :level2_geographic_area do
+      factory :level2_geographic_area, aliases: [:valid_geographic_area_stack] do
         name 'Champaign'
         parent_state
         association :geographic_area_type, factory: :county_geographic_area_type
-        after(:build) {|o| o.level2 = o}
+        after(:build) { |o| 
+          o.level2 = o
+          o.level1 = o.parent
+          o.level0 = FactoryGirl.build(:level0_geographic_area) 
+        }
       end
 
       factory :level1_geographic_area do
-        name "Illinois"
+        name 'Illinois'
+        tdwgID '74ILL-00'
         parent_country
-        association :geographic_area_type, factory: :state_geographic_area_type 
-        after(:build) {|o| o.level1 = o}
+        association :geographic_area_type, factory: :state_geographic_area_type
+        after(:build) { |o| 
+          o.level1 = o 
+          o.level0 = o.parent
+        }
       end
 
       factory :level0_geographic_area do
         name 'United States of America'
-        iso_3166_a3  'USA'
-        iso_3166_a2  'US'
+        iso_3166_a3 'USA'
+        iso_3166_a2 'US'
         parent_earth
         association :geographic_area_type, factory: :country_geographic_area_type
-        after(:build) {|o| o.level0 = o}
+        after(:build) { |o| o.level0 = o }
       end
 
       factory :earth_geographic_area do
         name 'Earth'
         parent_id nil
         level0_id nil
-        association :geographic_area_type, factory: :planet_geographic_area_type 
+        association :geographic_area_type, factory: :planet_geographic_area_type
       end
 
     end

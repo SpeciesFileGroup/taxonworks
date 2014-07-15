@@ -31,15 +31,15 @@ describe TypeMaterial do
         @type_material.valid?
       end
       specify 'protonym' do
-        expect(@type_material.errors.include?(:protonym)).to be_true
+        expect(@type_material.errors.include?(:protonym)).to be_truthy
       end
 
       specify 'material' do
-        expect(@type_material.errors.include?(:material)).to be_true
+        expect(@type_material.errors.include?(:material)).to be_truthy
       end
 
       specify 'type_type' do
-        expect(@type_material.errors.include?(:type_type)).to be_true
+        expect(@type_material.errors.include?(:type_type)).to be_truthy
       end
     end
 
@@ -52,30 +52,30 @@ describe TypeMaterial do
       specify 'type_type is one of ICZN_TYPES.keys for ICZN name' do
         @iczn_type.type_type = 'foo'
         @iczn_type.valid?
-        expect(@iczn_type.errors.include?(:type_type)).to be_true
+        expect(@iczn_type.errors.include?(:type_type)).to be_truthy
         expect(@iczn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
         @iczn_type.type_type = 'holotype'
         @iczn_type.valid?
-        expect(@iczn_type.errors.include?(:type_type)).to be_false
+        expect(@iczn_type.errors.include?(:type_type)).to be_falsey
       end
 
       specify 'type_type is one of ICN_TYPES.keys for ICN name' do
         @icn_type.type_type = 'foo'
         @icn_type.valid?
-        expect(@icn_type.errors.include?(:type_type)).to be_true
+        expect(@icn_type.errors.include?(:type_type)).to be_truthy
         expect(@icn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
         @icn_type.type_type = 'holotype'
         @icn_type.valid?
-        expect(@icn_type.errors.include?(:type_type)).to be_false
+        expect(@icn_type.errors.include?(:type_type)).to be_falsey
       end
 
       specify 'protonym not a species' do
         t = FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
         t.valid?
-        expect(t.errors.include?(:protonym_id)).to be_true
+        expect(t.errors.include?(:protonym_id)).to be_truthy
         t.protonym = FactoryGirl.build(:relationship_species, parent: nil)
         t.valid?
-        expect(t.errors.include?(:protonym_id)).to be_false
+        expect(t.errors.include?(:protonym_id)).to be_falsey
       end
     end
 
@@ -105,7 +105,7 @@ describe TypeMaterial do
       expect(t.type_source).not_to eq(t.protonym.source)
     end
 
-    pending 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
+    skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
   context 'soft validation' do

@@ -2,11 +2,11 @@
 
 <p>
   <strong>Parent:</strong>
-  <%= geographic_area_link(@geographic_area.parent)  %>
+  <%= geographic_area_link(@geographic_area.parent) %>
 </p>
 
 <p>
-<strong>Name:</strong>
+  <strong>Name:</strong>
   <%= @geographic_area.name -%>
 </p>
 
@@ -37,17 +37,17 @@
 
 <p>
   <strong>Level0:</strong>
-  <%= geographic_area_link( @geographic_area.level0 ) %>
+  <%= geographic_area_link(@geographic_area.level0) %>
 </p>
 
 <p>
   <strong>Level1:</strong>
-  <%= geographic_area_link( @geographic_area.level1 ) %>
+  <%= geographic_area_link(@geographic_area.level1) %>
 </p>
 
 <p>
   <strong>Level2:</strong>
-  <%= geographic_area_link( @geographic_area.level2 ) %>
+  <%= geographic_area_link(@geographic_area.level2) %>
 </p>
 
 <p>
@@ -61,16 +61,16 @@
 </p>
 
 <p><%= similarly_named_records_list(@geographic_area) -%> </p>
-<p> <strong> Children: </strong>
+<p><strong> Children: </strong>
   <%= geographic_area_link_list(@geographic_area.children) -%>
 </p>
 
 <p>
-<strong> Geographic items (shapes):  </strong>
-  <%= geographic_item_links( @geographic_area.geographic_items)  -%>
+  <strong> Geographic items (shapes): </strong>
+  <%= geographic_item_links(@geographic_area.geographic_items) -%>
 </p>
 
-<%= forward_back_links(@geographic_area) -%> <br>
+<%# forward_back_links(@geographic_area) -%> <br>
 
 <%= link_to 'Edit', edit_geographic_area_path(@geographic_area) %> |
 <%= link_to 'Back', geographic_areas_path %>

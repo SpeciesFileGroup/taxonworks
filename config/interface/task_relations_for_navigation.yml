@@ -1,0 +1,8 @@
+# Values must be named task routes, _path will be appended
+# TODO: This is directional graph, load it as such, with edges b/w unique tasks.
+---
+build_biocuration_groups_task:
+  - quick_verbatim_material_task
+quick_verbatim_material_task:
+  - build_biocuration_groups_task
+

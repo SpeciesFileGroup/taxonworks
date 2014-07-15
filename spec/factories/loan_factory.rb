@@ -13,11 +13,15 @@ FactoryGirl.define do
     recipient_phone "MyString"
     recipient_country 1
     supervisor_person_id "MyString"
-    supvervisor_email "MyString"
+    supervisor_email "MyString"
     supervisor_phone "MyString"
     date_closed "2014-02-26"
     created_by_id 1
-    modified_by_id 1
+    updated_by_id 1
     project_id 1
+
+    factory :second_loan, aliases: [:valid_loan] do
+
+    end
   end
 end

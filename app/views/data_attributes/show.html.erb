@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @data_attribute.type %>
+</p>
+
+<p>
+  <strong>Attribute subject:</strong>
+  <%= @data_attribute.attribute_subject_id %>
+</p>
+
+<p>
+  <strong>Attribute subject type:</strong>
+  <%= @data_attribute.attribute_subject_type %>
+</p>
+
+<p>
+  <strong>Controlled vocabulary term:</strong>
+  <%= @data_attribute.controlled_vocabulary_term_id %>
+</p>
+
+<p>
+  <strong>Import predicate:</strong>
+  <%= @data_attribute.import_predicate %>
+</p>
+
+<p>
+  <strong>Value:</strong>
+  <%= @data_attribute.value %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @data_attribute.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @data_attribute.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @data_attribute.project_id %>
+</p>
+
+<%= link_to 'Edit', edit_data_attribute_path(@data_attribute) %> |
+<%= link_to 'Back', data_attributes_path %>

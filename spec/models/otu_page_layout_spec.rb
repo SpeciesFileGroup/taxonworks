@@ -10,7 +10,7 @@ describe OtuPageLayout do
       end
 
       specify 'name' do
-        expect(otu_page_layout.errors.include?(:name)).to be_true
+        expect(otu_page_layout.errors.include?(:name)).to be_truthy
       end
     end
 

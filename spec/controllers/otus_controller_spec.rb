@@ -20,15 +20,14 @@ require 'spec_helper'
 
 describe OtusController do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_otu).attributes )
-  } 
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_otu).attributes)
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -40,7 +39,7 @@ describe OtusController do
       otu = Otu.create!(valid_attributes)
       get :index, {}, valid_session
       # The following means that @otus = Otu.all in the controller.
-      assigns(:otus).should eq([otu])
+      assigns(:recent_objects).should eq([otu])
     end
   end
 
@@ -91,14 +90,14 @@ describe OtusController do
       it "assigns a newly created but unsaved otu as @otu" do
         # Trigger the behavior that occurs when invalid params are submitted
         Otu.any_instance.stub(:save).and_return(false)
-        post :create, {:otu => { "name" => "invalid value" }}, valid_session
+        post :create, {:otu => {"name" => "invalid value"}}, valid_session
         assigns(:otu).should be_a_new(Otu)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Otu.any_instance.stub(:save).and_return(false)
-        post :create, {:otu => { "name" => "invalid value" }}, valid_session
+        post :create, {:otu => {"name" => "invalid value"}}, valid_session
         response.should render_template("new")
       end
     end
@@ -112,8 +111,8 @@ describe OtusController do
         # specifies that the Otu created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Otu.any_instance.should_receive(:update).with({ "name" => "MyString" })
-        put :update, {:id => otu.to_param, :otu => { "name" => "MyString" }}, valid_session
+        Otu.any_instance.should_receive(:update).with({"name" => "MyString"})
+        put :update, {:id => otu.to_param, :otu => {"name" => "MyString"}}, valid_session
       end
 
       it "assigns the requested otu as @otu" do
@@ -134,7 +133,7 @@ describe OtusController do
         otu = Otu.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Otu.any_instance.stub(:save).and_return(false)
-        put :update, {:id => otu.to_param, :otu => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => otu.to_param, :otu => {"name" => "invalid value"}}, valid_session
         assigns(:otu).should eq(otu)
       end
 
@@ -142,7 +141,7 @@ describe OtusController do
         otu = Otu.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Otu.any_instance.stub(:save).and_return(false)
-        put :update, {:id => otu.to_param, :otu => { "name" => "invalid value" }}, valid_session
+        put :update, {:id => otu.to_param, :otu => {"name" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end

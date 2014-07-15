@@ -1,0 +1,39 @@
+<h1>Public Contents</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Otu</th>
+      <th>Topic</th>
+      <th>Text</th>
+      <th>Project</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Content</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @public_contents.each do |public_content| %>
+      <tr>
+        <td><%= public_content.otu_id %></td>
+        <td><%= public_content.topic_id %></td>
+        <td><%= public_content.text %></td>
+        <td><%= public_content.project_id %></td>
+        <td><%= public_content.created_by_id %></td>
+        <td><%= public_content.updated_by_id %></td>
+        <td><%= public_content.content_id %></td>
+        <td><%= link_to 'Show', public_content %></td>
+        <td><%= link_to 'Edit', edit_public_content_path(public_content) %></td>
+        <td><%= link_to 'Destroy', public_content, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Public content', new_public_content_path %>

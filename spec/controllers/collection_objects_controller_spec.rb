@@ -19,15 +19,15 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe CollectionObjectsController do
- before(:each) {
-   sign_in 
+  before(:each) {
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_collection_object).attributes )
+  let(:valid_attributes) {
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_collection_object).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -90,14 +90,14 @@ describe CollectionObjectsController do
       it "assigns a newly created but unsaved collection_object as @collection_object" do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionObject.any_instance.stub(:save).and_return(false)
-        post :create, {:collection_object => { "total" => "invalid value" }}, valid_session
+        post :create, {:collection_object => {"total" => "invalid value"}}, valid_session
         assigns(:collection_object).should be_a_new(CollectionObject)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionObject.any_instance.stub(:save).and_return(false)
-        post :create, {:collection_object => { "total" => "invalid value" }}, valid_session
+        post :create, {:collection_object => {"total" => "invalid value"}}, valid_session
         response.should render_template("new")
       end
     end
@@ -111,8 +111,8 @@ describe CollectionObjectsController do
         # specifies that the CollectionObject created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CollectionObject.any_instance.should_receive(:update).with({ "total" => "1" })
-        put :update, {:id => collection_object.to_param, :collection_object => { "total" => "1" }}, valid_session
+        CollectionObject.any_instance.should_receive(:update).with({"total" => "1"})
+        put :update, {:id => collection_object.to_param, :collection_object => {"total" => "1"}}, valid_session
       end
 
       it "assigns the requested collection_object as @collection_object" do
@@ -133,7 +133,7 @@ describe CollectionObjectsController do
         collection_object = CollectionObject.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionObject.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collection_object.to_param, :collection_object => { "total" => "invalid value" }}, valid_session
+        put :update, {:id => collection_object.to_param, :collection_object => {"total" => "invalid value"}}, valid_session
         assigns(:collection_object).should eq(collection_object)
       end
 
@@ -141,7 +141,7 @@ describe CollectionObjectsController do
         collection_object = CollectionObject.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectionObject.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collection_object.to_param, :collection_object => { "total" => "invalid value" }}, valid_session
+        put :update, {:id => collection_object.to_param, :collection_object => {"total" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end

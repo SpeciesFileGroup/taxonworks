@@ -1,4 +1,6 @@
 class ControlledVocabularyTermsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy]
 
   # GET /controlled_vocabulary_terms
@@ -26,12 +28,22 @@ class ControlledVocabularyTermsController < ApplicationController
   def create
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
 
+
+
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        format.html { redirect_to @controlled_vocabulary_term.becomes(ControlledVocabularyTerm), notice: 'Controlled vocabulary term was successfully created.' }
+        redirect_url = (request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new') ? controlled_vocabulary_term_path(@controlled_vocabulary_term) : :back)
+        format.html { redirect_to redirect_url, notice: 'Controlled vocabulary term was successfully created.' } # !! new behaviour to test
         format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.becomes(ControlledVocabularyTerm) }
       else
-        format.html { render action: 'new' }
+        format.html { 
+          flash[:notice] = 'Controlled vocabulary term NOT successfully created.' 
+          if redirect_url == :back 
+            redirect_to :back 
+          else
+            render action: 'new'
+          end
+        }
         format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
       end
     end
@@ -54,9 +66,10 @@ class ControlledVocabularyTermsController < ApplicationController
   # DELETE /controlled_vocabulary_terms/1
   # DELETE /controlled_vocabulary_terms/1.json
   def destroy
+    redirect_url = (request.env['HTTP_REFERER'].include?(controlled_vocabulary_term_path(@controlled_vocabulary_term.becomes(ControlledVocabularyTerm))) ? controlled_vocabulary_terms_url : :back)
     @controlled_vocabulary_term.destroy
     respond_to do |format|
-      format.html { redirect_to controlled_vocabulary_terms_url }
+      format.html { redirect_to redirect_url }
       format.json { head :no_content }
     end
   end

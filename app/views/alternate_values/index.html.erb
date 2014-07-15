@@ -1,0 +1,41 @@
+<h1>Alternate Values</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Value</th>
+    <th>Type</th>
+    <th>Language</th>
+    <th>Alternate object type</th>
+    <th>Alternate object</th>
+    <th>Alternate object attribute</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @alternate_values.each do |alternate_value| %>
+      <tr>
+        <td><%= alternate_value.value %></td>
+        <td><%= alternate_value.type %></td>
+        <td><%= alternate_value.language_id %></td>
+        <td><%= alternate_value.alternate_object_type %></td>
+        <td><%= alternate_value.alternate_object_id %></td>
+        <td><%= alternate_value.alternate_object_attribute %></td>
+        <td><%= alternate_value.created_by_id %></td>
+        <td><%= alternate_value.updated_by_id %></td>
+        <td><%= link_to 'Show', alternate_value %></td>
+        <td><%= link_to 'Edit', edit_alternate_value_path(alternate_value) %></td>
+        <td><%= link_to 'Destroy', alternate_value, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Alternate value', new_alternate_value_path %>

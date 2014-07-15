@@ -21,24 +21,24 @@ describe Georeference do
     }
 
     specify '#geographic_item is required' do
-      expect(georeference.errors.keys.include?(:geographic_item)).to be_true
+      expect(georeference.errors.keys.include?(:geographic_item)).to be_truthy
     end
     specify '#collecting_event is required' do
-      expect(georeference.errors.keys.include?(:collecting_event)).to be_true
+      expect(georeference.errors.keys.include?(:collecting_event)).to be_truthy
     end
     specify '#type is required' do
-      expect(georeference.errors.keys.include?(:type)).to be_true
+      expect(georeference.errors.keys.include?(:type)).to be_truthy
     end
     specify "#error_geographic_item is not required" do
       # <- what did we conclude if no error is provided, just nil? -> will cause issues if so for calculations
-      #pending 'setting error distance to 3 meters if not provided'
-      expect(georeference.errors.keys.include?(:error_geographic_item)).not_to be_true
+      #skip 'setting error distance to 3 meters if not provided'
+      expect(georeference.errors.keys.include?(:error_geographic_item)).to be_falsey
     end
     specify 'error_radius is not required' do
-      expect(georeference.errors.keys.include?(:error_radius)).to be_false
+      expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
     end
     specify 'error_depth is not required' do
-      expect(georeference.errors.keys.include?(:error_depth)).to be_false
+      expect(georeference.errors.keys.include?(:error_depth)).to be_falsey
     end
 
     context 'legal values' do
@@ -61,7 +61,6 @@ describe Georeference do
         @c_e      = CollectingEvent.new(geographic_area:    @g_a,
                                         verbatim_locality:  'Test Event',
                                         minimum_elevation:  0.1,
-                                        elevation_unit:     'meters',
                                         verbatim_latitude:  '0.1',
                                         verbatim_longitude: '0.1')
 
@@ -72,26 +71,26 @@ describe Georeference do
 
       specify '#error_radius is < some Earth-based limit' do
         # 12,400 miles, 20,000 km
-        #pending 'setting error radius to some reasonable distance'
+        #skip 'setting error radius to some reasonable distance'
         georeference.valid?
-        expect(georeference.save).to be_false # many other reasons
-        expect(georeference.errors.keys.include?(:error_radius)).to be_true
+        expect(georeference.save).to be_falsey # many other reasons
+        expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
 
         georeference.error_radius = 3
-        expect(georeference.save).to be_false # many other reasons
-        expect(georeference.errors.keys.include?(:error_radius)).to be_false
+        expect(georeference.save).to be_falsey # many other reasons
+        expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
 
       end
 
       specify '#error_depth is < some Earth-based limit' do
         # 8,800 meters
-        #pending 'setting error depth to some reasonable distance'
-        expect(georeference.save).to be_false # many other reasons
-        expect(georeference.errors.keys.include?(:error_depth)).to be_true
+        #skip 'setting error depth to some reasonable distance'
+        expect(georeference.save).to be_falsey # many other reasons
+        expect(georeference.errors.keys.include?(:error_depth)).to be_truthy
 
         georeference.error_depth = 3
-        expect(georeference.save).to be_false # many other reasons
-        expect(georeference.errors.keys.include?(:error_depth)).to be_false
+        expect(georeference.save).to be_falsey # many other reasons
+        expect(georeference.errors.keys.include?(:error_depth)).to be_falsey
 
       end
 
@@ -99,8 +98,8 @@ describe Georeference do
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       error_geographic_item: GeographicItem.new(polygon: POLY_E1))
         georeference.save
-        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
-        expect(georeference.errors.keys.include?(:collecting_event)).to be_true
+        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_truthy
+        expect(georeference.errors.keys.include?(:collecting_event)).to be_truthy
 
       end
 
@@ -109,8 +108,8 @@ describe Georeference do
                                                       error_radius:          16000,
                                                       error_geographic_item: @e_g_i)
         georeference.save
-        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
-        expect(georeference.errors.keys.include?(:error_radius)).to be_true
+        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_truthy
+        expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
 
       end
 
@@ -127,12 +126,12 @@ describe Georeference do
                                                       # @e_g_i is test_box_1
                                                       error_geographic_item: @e_g_i)
 
-        expect(@c_e.geographic_area.default_geographic_item.save).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
 
         georeference.valid?
-        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_true
-        expect(georeference.errors.keys.include?(:geographic_item)).to be_true
-        expect(georeference.errors.keys.include?(:collecting_event)).to be_true
+        expect(georeference.errors.keys.include?(:error_geographic_item)).to be_truthy
+        expect(georeference.errors.keys.include?(:geographic_item)).to be_truthy
+        expect(georeference.errors.keys.include?(:collecting_event)).to be_truthy
 
       end
 
@@ -147,11 +146,11 @@ describe Georeference do
         # @g_a.ne_geo_item = @area_d
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                       error_radius:     160000)
-        expect(@c_e.geographic_area.default_geographic_item.save).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
         georeference.save
-        expect(georeference.errors.keys.include?(:error_radius)).to be_true
-        expect(georeference.errors.keys.include?(:geographic_item)).to be_true
-        expect(georeference.errors.keys.include?(:collecting_event)).to be_true
+        expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
+        expect(georeference.errors.keys.include?(:geographic_item)).to be_truthy
+        expect(georeference.errors.keys.include?(:collecting_event)).to be_truthy
 
       end
 
@@ -159,14 +158,14 @@ describe Georeference do
         # case 1
         #   GeoRef    A (POINT0)
         #   GeoItem   B (BOX_B)
-        #pending 'validation of the accceptability of the error geo_object, if provided'
+        #skip 'validation of the accceptability of the error geo_object, if provided'
         #
         # building up a georeference:
         #
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       error_geographic_item: @e_g_i)
         georeference.save
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
       end
 
       specify '.error_box with error_radius returns a key-stone' do
@@ -175,7 +174,7 @@ describe Georeference do
                                                       error_radius:     160000)
         # TODO: Figure out why the save of the georeference does not propagate down to the geographic_item which is part of the geographic_area.
         # here, we make sure the geographic_item gets saved.
-        expect(@c_e.geographic_area.default_geographic_item.save).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
         georeference.save
         # TODO: the following expectation will not be met, under some circumstances (different math packages on different operating systems), and has been temporarily disabled
         expect(georeference.error_box.to_s).to match(/POLYGON \(\(-1\.3445210431568\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* 1\.54698968799752\d* 0\.0\)\)/)
@@ -187,19 +186,19 @@ describe Georeference do
         @e_g_i.save
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       error_geographic_item: @e_g_i)
-        expect(georeference.save).to be_true
+        expect(georeference.save).to be_truthy
         expect(georeference.error_box.geo_object.to_s).to eq(BOX_1.to_s)
       end
 
       specify 'error_radius, when provided, should contain geographic_item' do
         # case 2c
-        # pending 'implementation of geo_object for geographic_area'
+        # skip 'implementation of geo_object for geographic_area'
         # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
         # must ALWAYS be 'contained' within the radius
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                       error_radius:     16000)
-        expect(georeference.save).to be_true
-        expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference.save).to be_truthy
+        expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_truthy
       end
 
       specify 'error_radius, when provided, should contain error_geographic_item, when provided' do
@@ -208,30 +207,30 @@ describe Georeference do
                                                       error_geographic_item: @e_g_i,
                                                       error_radius:          160000)
         georeference.save
-        expect(georeference).to be_true
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
-        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference).to be_truthy
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
+        expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
         # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
-        expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_true
+        expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_truthy
       end
 
       specify 'collecting_event.geographic_area.geo_object contains self.geographic_item.geo_object or larger than georeference ?!' do
         # TODO: Don't know what 'or larger than georeference ?!' is supposed to mean
-        #pending 'determination of what \'something like this\' means in the context of collecting_event'
+        #skip 'determination of what \'something like this\' means in the context of collecting_event'
         #   Need a GeographicArea somewhere on earth called
         # need a collecting event using box_1
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e)
-        expect(georeference.save).to be_true
+        expect(georeference.save).to be_truthy
 
         # @c_e got saved...
-        expect(@c_e.new_record?).to be_false
+        expect(@c_e.new_record?).to be_falsey
         #
         # TODO: follow the save propagation chain and figure out why @c_e.@g_a.@area_d DID NOT get saved
-        # expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_true
+        # expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_truthy
         # force the save
-        expect(@c_e.geographic_area.default_geographic_item.save).to be_true
+        expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
 
-        expect(georeference.collecting_event.geographic_area.geo_object.contains?(georeference.geographic_item.geo_object)).to be_true
+        expect(georeference.collecting_event.geographic_area.geo_object.contains?(georeference.geographic_item.geo_object)).to be_truthy
 
       end
     end
@@ -260,7 +259,7 @@ describe Georeference do
 
   context 'scopes' do
 
-    before(:all) { generate_test_objects }
+    before(:all) { generate_geo_test_objects }
 
     before(:each) {
       # build some geo-references for testing using existing factories and geometries, something roughly like this
@@ -286,7 +285,7 @@ describe Georeference do
     }
 
     specify '.within_radius_of(geographic_item, distance)' do
-      #pending 'determination of what is intended'
+      #skip 'determination of what is intended'
       # Return all Georeferences within some distance of a geographic_item
       # You're just going to use existing scopes in geographic item here, something like:
       # .where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
@@ -296,7 +295,7 @@ describe Georeference do
       # TODOne: (04/15/14) these have to be turned into ActiveRecord::Relationship
       expect(Georeference.within_radius_of(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
       # but specifically *not* @gr1
-      #pending 'construction of appropriate Georeference method'
+      #skip 'construction of appropriate Georeference method'
 
     end
 
@@ -310,7 +309,7 @@ describe Georeference do
       expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr_point])
       expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1.becomes(Georeference::VerbatimData), @gr_poly])
       expect(Georeference.with_locality_like('Saskatoon').to_a).to eq([])
-      # pending 'construction of appropriate Georeference objects'
+      # skip 'construction of appropriate Georeference objects'
 
     end
 
@@ -323,7 +322,7 @@ describe Georeference do
       expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
       expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
       # expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
-      # pending 'construction of appropriate Georeference objects'
+      # skip 'construction of appropriate Georeference objects'
 
     end
 
@@ -374,7 +373,7 @@ describe Georeference do
       # Create an orphan collecting_event which uses g_a4, so that first phase of 'with_geographic_area' will
       # have two records to fins
       o_c_e = FactoryGirl.create(:valid_collecting_event, geographic_area: @g_a4)
-      expect(o_c_e.valid?).to be_true
+      expect(o_c_e.valid?).to be_truthy
 
       # there are no georeferences which have collecting_events which have geographic_areas which refer to @g_a1
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([])
@@ -385,72 +384,10 @@ describe Georeference do
       @gr1.save!
 
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
-      # pending 'construction of appropriate Georeference objects'
-
-
+      # skip 'construction of appropriate Georeference objects'
     end
   end
 
-  context 'request responses' do
-    specify 'creates a geo_object' do
-      #pending 'fixup on \'c\' vs. \'georeference\''
-      c = Georeference::GeoLocate.new(request:          request_params,
-                                      collecting_event: FactoryGirl.build(:valid_collecting_event))
-      c.locate
-      c.save
-
-      expect(c.geographic_item.class).to eq(GeographicItem)
-      expect(c.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
-    end
-=begin
-      georeference.locate
-      georeference.save!
-      expect(georeference.geographic_item.class).to eq(GeographicItem)
-      expect(georeference.geographic_item.geo_object.class).to eq(RGeo::Geographic::ProjectedPointImpl)
-    end
-=end
-
-    specify 'can be geometrically compared through #geographic_item.geo_object' do
-      c_locator = Georeference::GeoLocate.new(request:          request_params,
-                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
-      c_locator.locate
-      u_locator = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
-                                              collecting_event: FactoryGirl.build(:valid_collecting_event))
-
-      c_locator.save
-      u_locator.save
-
-      expect(c_locator.error_geographic_item.geo_object.intersects?(u_locator.error_geographic_item.geo_object)).to be_true
-      expect(c_locator.geographic_item.geo_object.distance(u_locator.geographic_item.geo_object)).to eq 0.03657760243645799
-      expect(c_locator.geographic_item.geo_object.distance(u_locator.error_geographic_item.geo_object)).to eq 0.014470082533135583
-      expect(u_locator.geographic_item.geo_object.distance(c_locator.error_geographic_item.geo_object)).to eq 0.021583346308561287
-    end
-  end
-
-
-  context 'methods provide that' do
-    context 'the object returns a type' do
-      specify 'which is GeoLocate' do
-
-        geo_locate = Georeference::GeoLocate.new(request:          {country: 'USA', locality: 'Urbana', state: 'IL', doPoly: 'true'},
-                                                 collecting_event: FactoryGirl.build(:valid_collecting_event))
-        geo_locate.build
-        geo_locate.save
-
-        expect(geo_locate.type).to eq 'Georeference::GeoLocate'
-      end
-
-      specify 'which is Verbatim' do
-        georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
-                                                                                          minimum_elevation:  795,
-                                                                                          verbatim_latitude:  '40.092067',
-                                                                                          verbatim_longitude: '-88.249519'))
-        #georeference = FactoryGirl.build(:valid_georeference_verbatim_data)
-        expect(georeference.type).to eq 'Georeference::VerbatimData'
-      end
-    end
-
-  end
 end
 
 

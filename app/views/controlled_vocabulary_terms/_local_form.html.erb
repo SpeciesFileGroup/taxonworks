@@ -1,0 +1,29 @@
+<%= form_for(controlled_vocabulary_term.becomes(ControlledVocabularyTerm)) do |f| %>
+  <% if controlled_vocabulary_term.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(controlled_vocabulary_term.errors.count, "error") %> prohibited this controlled_vocabulary_term from being saved:</h2>
+      <ul>
+        <% controlled_vocabulary_term.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+    <div class="field <%= collapsed_css_property_if(hide_type) -%> ">
+      <%= f.label :type %>
+      <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, controlled_vocabulary_term.type) %>
+    </div>
+
+    <div class="field">
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+    </div>
+
+    <div class="field">
+      <%= f.label :definition %>
+      <%= f.text_area :definition %>
+    </div>
+
+<div class="actions">
+  <%= f.submit %>
+</div>
+<% end %>

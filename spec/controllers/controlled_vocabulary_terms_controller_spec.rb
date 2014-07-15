@@ -19,15 +19,15 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe ControlledVocabularyTermsController do
- before(:each) {
-   sign_in 
+  before(:each) {
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_controlled_vocabulary_term).attributes )
+  let(:valid_attributes) {
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_controlled_vocabulary_term).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -68,6 +68,10 @@ describe ControlledVocabularyTermsController do
 
   describe "POST create" do
     describe "with valid params" do
+      before { 
+        request.env["HTTP_REFERER"] = new_controlled_vocabulary_term_path
+      }
+
       it "creates a new ControlledVocabularyTerm" do
         expect {
           post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
@@ -87,17 +91,20 @@ describe ControlledVocabularyTermsController do
     end
 
     describe "with invalid params" do
+      before { 
+        request.env["HTTP_REFERER"] = new_controlled_vocabulary_term_path
+      }
       it "assigns a newly created but unsaved controlled_vocabulary_term as @controlled_vocabulary_term" do
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => { "name" => nil }}, valid_session
+        post :create, {:controlled_vocabulary_term => {"name" => nil}}, valid_session
         assigns(:controlled_vocabulary_term).should be_a_new(ControlledVocabularyTerm)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => { "name" => nil }}, valid_session
+        post :create, {:controlled_vocabulary_term => {"name" => nil}}, valid_session
         response.should render_template("new")
       end
     end
@@ -111,8 +118,8 @@ describe ControlledVocabularyTermsController do
         # specifies that the ControlledVocabularyTerm created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        ControlledVocabularyTerm.any_instance.should_receive(:update).with({ "type" => "" })
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => { "type" => "" }}, valid_session
+        ControlledVocabularyTerm.any_instance.should_receive(:update).with({"type" => ""})
+        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => ""}}, valid_session
       end
 
       it "assigns the requested controlled_vocabulary_term as @controlled_vocabulary_term" do
@@ -133,7 +140,7 @@ describe ControlledVocabularyTermsController do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => { "type" => "invalid value" }}, valid_session
+        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, valid_session
         assigns(:controlled_vocabulary_term).should eq(controlled_vocabulary_term)
       end
 
@@ -141,7 +148,7 @@ describe ControlledVocabularyTermsController do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ControlledVocabularyTerm.any_instance.stub(:save).and_return(false)
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => { "type" => "invalid value" }}, valid_session
+        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end
@@ -150,6 +157,7 @@ describe ControlledVocabularyTermsController do
   describe "DELETE destroy" do
     it "destroys the requested controlled_vocabulary_term" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
+      request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
       expect {
         delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
       }.to change(ControlledVocabularyTerm, :count).by(-1)
@@ -157,6 +165,7 @@ describe ControlledVocabularyTermsController do
 
     it "redirects to the controlled_vocabulary_terms list" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
+      request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
       delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
       response.should redirect_to(controlled_vocabulary_terms_url)
     end

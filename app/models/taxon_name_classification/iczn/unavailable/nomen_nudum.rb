@@ -173,7 +173,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     extend InnerClassAfter1930GenusGroup
   end
 
-  class UmbiguousGenericPlacement < TaxonNameClassification::Iczn::Unavailable::NomenNudum
+  class AmbiguousGenericPlacement < TaxonNameClassification::Iczn::Unavailable::NomenNudum
     extend InnerClassSpeciesGroup
   end
 

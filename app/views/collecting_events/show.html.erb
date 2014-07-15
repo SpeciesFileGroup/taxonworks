@@ -11,11 +11,6 @@
 </p>
 
 <p>
-  <strong>Print label number to print:</strong>
-  <%= @collecting_event.print_label_number_to_print %>
-</p>
-
-<p>
   <strong>Document label:</strong>
   <%= @collecting_event.document_label %>
 </p>
@@ -56,6 +51,11 @@
 </p>
 
 <p>
+  <strong>Verbatim habitat:</strong>
+  <%= @collecting_event.verbatim_habitat %>
+</p>
+
+<p>
   <strong>Geographic area:</strong>
   <%= @collecting_event.geographic_area_id %>
 </p>
@@ -68,11 +68,6 @@
 <p>
   <strong>Maximum elevation:</strong>
   <%= @collecting_event.maximum_elevation %>
-</p>
-
-<p>
-  <strong>Elevation unit:</strong>
-  <%= @collecting_event.elevation_unit %>
 </p>
 
 <p>
@@ -118,16 +113,6 @@
 <p>
   <strong>End date year:</strong>
   <%= @collecting_event.end_date_year %>
-</p>
-
-<p>
-  <strong>Micro habitat:</strong>
-  <%= @collecting_event.micro_habitat %>
-</p>
-
-<p>
-  <strong>Macro habitat:</strong>
-  <%= @collecting_event.macro_habitat %>
 </p>
 
 <p>

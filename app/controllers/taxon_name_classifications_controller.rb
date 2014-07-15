@@ -1,4 +1,6 @@
 class TaxonNameClassificationsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_taxon_name_classification, only: [:show, :edit, :update, :destroy]
 
   # GET /taxon_name_classifications

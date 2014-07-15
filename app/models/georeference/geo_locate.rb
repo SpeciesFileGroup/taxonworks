@@ -1,146 +1,172 @@
+# A Georeference derived from a call to the Tulay GeoLocate API.
 class Georeference::GeoLocate < Georeference
-  #require 'json'
-  attr_accessor :response
-  attr_accessor :request
+  attr_accessor :api_response, :iframe_response
 
-  # These are fine here
-  URI_HOST = 'www.museum.tulane.edu'
-  URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+  def api_response=(response)
+    make_geographic_item(response.coordinates)
+    make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
+  end
 
-=begin
-
-g = Georeference::GeoLocate.new
-g.locate('USA', 'Champaign', 'IL')
-
-  Things to build a request:
-
-  r = JSON.parse(Net::HTTP.get('www.museum.tulane.edu', '/webservices/geolocatesvcv2/glcwrap.aspx?Country=USA&Locality=champaign&state=illinois&dopoly=true'))
-
-  request => text from '?' to end of request
-  '?country=usa&locality=champaign&state=illinois&dopoly=true'
-
-  locality => name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
-  country => name of a country 'USA', or Germany
-  state => 'IL', or 'illinois' (required in the United States)
-  county => supply as a parameter, returned as 'Adm='
-  hwyX
-  enableH2O
-  doUncert
-  doPoly
-  displacePoly
-  languageKey
-  fmt => JSON or GeoJSON
-
-=end
-
-  def initialize(params = {})
-    if params != {}
-      @request = params[:request]
-      params.delete(:request)
-    end
-    super
-    @response = nil
-    @request  ||= {}
-    build if @request != {}
+  def iframe_response=(response_string)
+    lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_embedded_result(response_string)
+    make_geographic_item([long, lat])
+    make_error_geographic_item(uncertainty_points, error_radius)
   end
 
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
-  def locate
-    if self.make_request
-      get_response
+  # coordinates is an Array of Stings of [longitude, latitude]
+  def make_geographic_item(coordinates)
+    self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(coordinates[0], coordinates[1]))
+  end
+
+# def make_error_geographic_item(result)
+#   # evaluate for error_radius only if called for (default)
+#   er = result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
+#   self.error_radius = (er ? er : 3.0)
+
+#   #evaluate for error polygon only if called for (non-default)
+#   if  result['resultSet']['features'][0]['properties']['uncertaintyPolygon'] #     @request[:doPoly]
+#     # Build the error geographic shape
+#     # isolate the array of points from the response, and build the polygon from a line_string
+#     # made out of the points
+#     p         = result['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
+#     # build an array of Georeference::FACTORY.points from p
+
+#     # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
+#     # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+
+#     err_array = []
+#     # TODO: get geoJson results and handle all this automatically? 
+#     p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+#     self.error_geographic_item         = GeographicItem.new
+#     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
+#   end
+# end
+
+  def make_error_geographic_item(uncertainty_polygon, uncertainty_radius = 3)
+    self.error_radius = uncertainty_radius.to_i
+    unless uncertainty_polygon.nil?
+      err_array = []
+      # TODO: get geoJson results and handle all this automatically?
+      uncertainty_polygon.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+      self.error_geographic_item = GeographicItem.new(polygon: Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array)))
     end
   end
 
-  def make_request
-    # TODO: validation: if country is some form of 'USA', a state is required
-    # TODO: options can be added: county, hwyX, etc.
-    opts             = {
-      country:      nil,
-      state:        nil,
-      county:       nil,
-      locality:     nil,
+  def self.build_from_embedded_result(response_string)
+    # TODO: Add error adding
+    self.new(iframe_response: response_string)
+  end
+
+  def self.parse_embedded_result(response_string)
+    lat, long, error_radius, uncertainty_polygon = response_string.split("|")
+    uncertainty_points                           = uncertainty_polygon.split(',').reverse.in_groups_of(2)
+    [lat, long, error_radius, uncertainty_points]
+  end
+
+  # Build a georeference starting with a set of request parameters.
+  def self.build(request_params)
+    g = self.new
+
+    # TODO: write a Request.valid_params? method to use here
+    # TODO: #1: Just what will be the validation criteria for the request?
+    # TODO: #2: Why not judge validity from the response?
+    if request_params.nil?
+      g.errors.add(:base, 'invalid or no request parameters provided.')
+      return g
+    end
+
+    request = Request.new(request_params)
+    request.locate
+
+    if request.succeeded?
+      g.api_response = request.response
+      g.api_request  = request.request_param_string
+    else
+      g.errors.add(:api_request, 'requested parameters did not succeed to return a result')
+    end
+
+    g
+  end
+
+  class Request
+    URI_HOST = 'www.museum.tulane.edu'
+    URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+
+    REQUEST_PARAMS = {
+      country:      nil, # name of a country 'USA', or Germany
+      state:        nil, # 'IL', or 'illinois' (required in the United States)
+      county:       nil, # upply as a parameter, returned as 'Adm='
+      locality:     nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
       hwyX:         'false',
       enableH2O:    'false',
       doUncert:     'true',
       doPoly:       'false',
       displacePoly: 'false',
       languageKey:  '0',
-      fmt:          'json'
-    }.merge!(@request)
+      fmt:          'json' # or geojson ?
+    }
 
-    # store the complete request to be evaluated to parse results later
-    @request = opts
+    attr_accessor :succeeded
+    attr_reader :request_params, :response, :request_param_string
 
-    # TODO: write actual validation
-    # if valid == true
-    self.api_request = opts.collect { |key, value| "#{key}=#{value}" }.join('&')
-    #  true
-    # else
-    #  errors.add(:api_request, 'invalid request parameters')
-    #  false
-    # end
-  end
+    def initialize(request_params)
+      @request_params = REQUEST_PARAMS.merge(request_params)
+      @succeeded      = nil
+    end
 
-  def get_response
-    @response = JSON.parse(self.call_api)
-    # TODO: remove the following line after debugging
-    @response
-  end
+    def locate
+      @response = Georeference::GeoLocate::Response.new(self)
+    end
 
-  def call_api
-    # TODO: remove 'part' after debugging
-    part = Net::HTTP.get(URI_HOST, URI_PATH + self.api_request)
-    part
-  end
+    def build_param_string
+      @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
+    end
 
-  def make_geographic_item
-    p                          = @response['resultSet']['features'][0]['geometry']['coordinates']
-    self.geographic_item       = GeographicItem.new
-    self.geographic_item.point = Georeference::FACTORY.point(p[0], p[1])
-  end
+    def request_string
+      build_param_string
+      URI_PATH + @request_param_string
+    end
 
-  def make_error_geographic_item
+    def succeeded?
+      @succeeded
+    end
 
-    # evaluate for error_radius only if called for (default)
-    self.error_radius = @request[:doUncert] ? @response['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters'] : 3.0
-
-    #evaluate for error polygon only if called for (non-default)
-    if @request[:doPoly]
-      # Build the error geographic shape
-      # isolate the array of points from the response, and build the polygon from a line_string
-      # made out of the points
-      p         = @response['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
-      # build an array of Georeference::FACTORY.points from p
-
-      # TODO: could benchmark
-      # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
-      # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
-
-      err_array = []
-      p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item         = GeographicItem.new
-      self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
-    else
-      # this may not be strictly necessary...
-      self.error_geographic_item = nil
+    def response
+      @response ||= locate
     end
 
   end
 
-  def build
-    if @request.keys.size > 0
-      locate
-      if @response['numResults'] > 0
-        make_geographic_item
-        make_error_geographic_item
-      else
-        errors.add(:api_request, 'requested parameters returned no results.')
-      end
-    else
-      errors.add(:base, 'no request parameters provided.')
+  class Response
+    attr_accessor :result
+
+    def initialize(request)
+      @result           = JSON.parse(call_api(Georeference::GeoLocate::Request::URI_HOST, request))
+      request.succeeded = true if @result['numResults'].to_i == 1
+    end
+
+    def coordinates
+      @result['resultSet']['features'][0]['geometry']['coordinates']
+    end
+
+    def uncertainty_radius
+      retval = @result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
+      (retval == 'Unavailable') ? 3 : retval
+    end
+
+    def uncertainty_polygon
+      retval = @result['resultSet']['features'][0]['properties']['uncertaintyPolygon']
+      (retval == 'Unavailable') ? nil : retval['coordinates'][0]
+    end
+
+    protected
+
+    def call_api(host, request)
+      Net::HTTP.get(host, request.request_string)
     end
   end
 

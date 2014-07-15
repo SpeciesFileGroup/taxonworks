@@ -1,0 +1,2 @@
+module DataAttributesHelper
+end

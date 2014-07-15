@@ -17,7 +17,7 @@ describe PreparationType do
     before do
       preparation_type.valid?
       specify 'name is required' do
-        expect(preparation_type.errors.include?(:name)).to be_true
+        expect(preparation_type.errors.include?(:name)).to be_truthy
       end
     end
 

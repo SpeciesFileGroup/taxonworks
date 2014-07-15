@@ -1,8 +1,8 @@
 namespace :tw do
   namespace :initialization do
 
-    desc 'call like "rake tw:initialization:build_repositories[/Users/matt/Downloads/biorepositories.csv]"'
-    task :build_repositories, [:data_directory] => [:environment] do |t, args|
+    desc 'call like "rake tw:initialization:build_repositories[/Users/matt/Downloads/biorepositories.csv] user_id=1"'
+    task :build_repositories, [:data_directory] => [:environment, :user_id] do |t, args|
       args.with_defaults(:data_directory => './biorepositories.csv')
      
       # TODO: check checksums of incoming files?
@@ -15,7 +15,7 @@ namespace :tw do
             r = Repository.new(
               url: row[0],                       
               name: row[1],                      
-              is_index_herbarioum_record: (row[2] == 'yes' ? true : false),
+              is_index_herbariorum: (row[2] == 'yes' ? true : false),
               acronym: row[3],
               institutional_LSID: row[8],         
               status: row[26],                    
@@ -23,6 +23,7 @@ namespace :tw do
             r.save!
           end
         end
+        puts "Success!"
       rescue
         raise
       end

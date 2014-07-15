@@ -1,7 +1,12 @@
 class BiocurationGroup < Keyword 
 
-  # Watch out this is borked with squeel
-  has_many :biocuration_classes, through: :tags, source: 'tag_object', source_type: 'ControlledVocabularyTerm'
+  # This could ultimately be SQL'ed out 
+  def biocuration_classes
+    tagged_objects
+  end
 
+  def can_tag
+    %w{BiocurationClass}
+  end
 
 end

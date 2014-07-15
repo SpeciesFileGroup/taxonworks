@@ -1,0 +1,21 @@
+<h3> Housekeeping </h3>
+<p>
+<strong>Created by:</strong>
+<%= object_tag(object.creator) %>
+</p>
+
+<p>
+<strong>Updated by:</strong>
+<%= object_tag(object.updater) %>
+</p>
+
+<p>
+<strong>Updated at:</strong>
+<%=  object_time_since_update_tag(object) -%> ago
+</p>
+
+<p>
+<strong>Created at:</strong>
+<%= object_time_since_creation_tag(object) -%> ago
+</p>
+

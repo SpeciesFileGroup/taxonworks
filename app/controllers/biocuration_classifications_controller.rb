@@ -1,4 +1,6 @@
 class BiocurationClassificationsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_biocuration_classification, only: [:show, :edit, :update, :destroy]
 
   # GET /biocuration_classifications

@@ -8,7 +8,11 @@ FactoryGirl.define do
     collection_object_status "MyString"
     position 1
     created_by_id 1
-    modified_by_id 1
+    updated_by_id 1
     project_id 1
+
+    factory :second_loan_item, aliases: [:valid_loan_item] do
+
+    end
   end
 end

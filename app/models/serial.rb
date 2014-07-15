@@ -91,6 +91,15 @@ class Serial < ActiveRecord::Base
       ret_val = Serial.where( "name = '#{self.name}' AND NOT (id = #{self.id})").to_a.count > 0
     end
 
+    if ret_val == false
+      # check if there is another alternate value with the same name
+      a = Serial.with_alternate_value_on(:name, self.name)
+      # select alternate value based on alternate_object class, alternate_object_attribute(column) & value
+      if a.count > 0
+        ret_val = true
+      end
+    end
+
     ret_val # return
   end
 
@@ -108,7 +117,6 @@ class Serial < ActiveRecord::Base
 
   protected
 
-
   def sv_duplicate?
     if self.duplicate?
       soft_validations.add(:name, 'There is another serial with this name in the database.')
@@ -118,6 +126,5 @@ class Serial < ActiveRecord::Base
 
   def match_alternate_value?
     #Select value from AlternateValue WHERE alternate_object_type = 'Serial' AND alternate_object_attribute = 'name'
-
   end
 end

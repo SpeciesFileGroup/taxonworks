@@ -8,9 +8,9 @@ shared_examples 'data_attributes' do
     specify 'has many data_attributes - includes creating a data_attribute' do
       expect(class_with_data_attributes).to respond_to(:data_attributes) 
       expect(class_with_data_attributes.data_attributes.to_a).to eq([]) 
-      expect(class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_true
-      expect(class_with_data_attributes.data_attributes).to have(1).things
-      expect(class_with_data_attributes.save).to be_true
+      expect(class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_truthy
+      expect(class_with_data_attributes.data_attributes.count).to eq(1)
+      expect(class_with_data_attributes.save).to be_truthy
     end
   end
 
@@ -22,7 +22,7 @@ shared_examples 'data_attributes' do
     specify 'keyword_value_hash' do
       class_with_data_attributes.data_attributes.delete_all # sanity !! CAREFUL DON'T DO THIS TO PROJECT!
       class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute_import_attribute, value: '10', import_predicate: 'legs')
-      expect(class_with_data_attributes.data_attributes).to have(1).things
+      expect(class_with_data_attributes.data_attributes.count).to eq(1)
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10')
       class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute)
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10', 'Color' => 'purple')
@@ -31,7 +31,7 @@ shared_examples 'data_attributes' do
 
   context 'adding lots of attributes' do
     specify 'add_import_attributes(hash) should add multiple pairs of ImportAttributes' do
-      pending
+      skip 
     end 
   end
 end

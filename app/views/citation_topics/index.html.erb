@@ -1,0 +1,37 @@
+<h1>Citation Topics</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Topic</th>
+      <th>Citation</th>
+      <th>Pages</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @citation_topics.each do |citation_topic| %>
+      <tr>
+        <td><%= citation_topic.topic_id %></td>
+        <td><%= citation_topic.citation_id %></td>
+        <td><%= citation_topic.pages %></td>
+        <td><%= citation_topic.created_by_id %></td>
+        <td><%= citation_topic.updated_by_id %></td>
+        <td><%= citation_topic.project_id %></td>
+        <td><%= link_to 'Show', citation_topic %></td>
+        <td><%= link_to 'Edit', edit_citation_topic_path(citation_topic) %></td>
+        <td><%= link_to 'Destroy', citation_topic, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Citation topic', new_citation_topic_path %>

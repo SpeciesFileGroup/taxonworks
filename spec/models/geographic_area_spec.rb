@@ -3,7 +3,7 @@ require 'spec_helper'
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
 
 describe GeographicArea do
-  let(:geographic_area) { FactoryGirl.build(:valid_geographic_area_stack) }
+  let(:geographic_area) { FactoryGirl.build(:geographic_area_stack) }
 
   context 'validation' do
     before(:each) {
@@ -12,33 +12,33 @@ describe GeographicArea do
 
     context 'required fields' do
       specify 'name' do
-        expect(geographic_area.errors.include?(:name)).to be_true
+        expect(geographic_area.errors.include?(:name)).to be_truthy
       end
 
       specify 'blank names are invalid' do
         geographic_area.name = ''
         geographic_area.valid?
-        expect(geographic_area.errors.include?(:name)).to be_true 
+        expect(geographic_area.errors.include?(:name)).to be_truthy
       end
 
       specify 'names are minimum length' do
         geographic_area.name = '1'
         geographic_area.valid?
-        expect(geographic_area.errors.include?(:name)).to be_false
+        expect(geographic_area.errors.include?(:name)).to be_falsey
       end
 
       specify 'data_origin' do
-        expect(geographic_area.errors.include?(:data_origin)).to be_true
+        expect(geographic_area.errors.include?(:data_origin)).to be_truthy
       end
 
       specify 'geographic_area_type' do
-        expect(geographic_area.errors.include?(:geographic_area_type)).to be_true
+        expect(geographic_area.errors.include?(:geographic_area_type)).to be_truthy
       end
     end
   end
 
   context 'instance methods' do
-    specify "tdwg_ids" do
+    specify "#tdwg_ids" do
       geographic_area.tdwgID = '41SCS-PI'
       expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
       expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
@@ -46,7 +46,7 @@ describe GeographicArea do
       expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
     end
 
-    specify "tdwg_level" do
+    specify "#tdwg_level" do
       geographic_area.data_origin = 'TDWG2 Level 1'
       expect(geographic_area.tdwg_level).to eq('1')
     end
@@ -57,7 +57,7 @@ describe GeographicArea do
       specify 'parent' do
         expect(geographic_area).to respond_to(:parent)
       end
-      
+
       specify 'level0' do
         expect(geographic_area).to respond_to(:level0)
       end
@@ -67,7 +67,7 @@ describe GeographicArea do
       specify 'level2' do
         expect(geographic_area).to respond_to(:level2)
       end
-      
+
       specify 'geo_object' do
         expect(geographic_area).to respond_to(:geo_object)
       end
@@ -88,9 +88,9 @@ describe GeographicArea do
           @champaign = FactoryGirl.create(:level2_geographic_area)
         }
 
-        specify 'lft,rgt' do
-          expect(@champaign.lft > 0).to be_true
-          expect(@champaign.rgt > 0).to be_true
+        specify 'lft, rgt' do
+          expect(@champaign.lft > 0).to be_truthy
+          expect(@champaign.rgt > 0).to be_truthy
         end
 
         specify 'parent string' do
@@ -98,13 +98,6 @@ describe GeographicArea do
           expect(@champaign.parent.name).to eq('Illinois')
           expect(@champaign.parent.parent.name).to eq('United States of America')
           expect(@champaign.parent.parent.parent.name).to eq('Earth')
-        end
-
-        specify 'TDWG parent string' do
-          pending 're-write'
-          # expect(@champaign.tdwg_parent.name).to eq('Illinois')
-          # expect(@champaign.parent.tdwg_parent.name).to eq('United States of America')
-          # expect(@champaign.parent.parent.tdwg_parent.name).to eq('Earth')
         end
 
         specify 'ancestors' do
@@ -116,7 +109,7 @@ describe GeographicArea do
         end
 
         specify 'descendants' do
-          expect(@champaign.root.descendants).to have(3).things
+          expect(@champaign.root.descendants.count).to eq(3)
         end
       end
     end
@@ -137,15 +130,15 @@ describe GeographicArea do
 
     context 'scopes/AREL' do
       specify 'children_at_level1' do
-        expect(@champaign.children_at_level1).to have(0).things
-        expect(@champaign.root.children_at_level1).to have(1).things
-        expect(@champaign.parent.parent.children_at_level1).to have(1).things
+        expect(@champaign.children_at_level1.count).to eq(0)
+        expect(@champaign.root.children_at_level1.count).to eq(1)
+        expect(@champaign.parent.parent.children_at_level1.count).to eq(1)
       end
 
       specify 'children_at_level2' do
-        expect(@champaign.children_at_level2).to have(0).things
-        expect(@champaign.root.children_at_level2).to have(1).things
-        expect(@champaign.parent.children_at_level2).to have(1).things
+        expect(@champaign.children_at_level2.count).to eq(0)
+        expect(@champaign.root.children_at_level2.count).to eq(1)
+        expect(@champaign.parent.children_at_level2.count).to eq(1)
       end
 
       specify 'descendants_of' do
@@ -161,7 +154,7 @@ describe GeographicArea do
       end
 
       specify 'countries' do
-        expect(GeographicArea.countries).to eq([@champaign.parent.parent])
+        expect(GeographicArea.countries).to include(@champaign.parent.parent)
       end
 
       specify 'descendants_of_geographic_area_type' do
@@ -179,7 +172,7 @@ describe GeographicArea do
   # TODO: cleanup/extend
   context 'interaction with geographic_items' do
     after(:all) {
-        GeographicArea.destroy_all
+      GeographicArea.destroy_all
     }
     before(:each) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
@@ -189,7 +182,7 @@ describe GeographicArea do
                                                         RSPEC_GEO_FACTORY.point(-21, -11),
                                                         RSPEC_GEO_FACTORY.point(-27, -13)])
       @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(listK))
-      @geographic_area.geographic_areas_geographic_items <<  GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
+      @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
       @geographic_area.save
       @gi
     }

@@ -62,7 +62,7 @@ describe Combination do
           @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
           @combination1 = FactoryGirl.create(:combination, parent: @species)
           @combination1.combination_species = @species
-          expect(@combination1.save).to be_true
+          expect(@combination1.save).to be_truthy
         end
         specify 'empty' do
           expect(@combination1.get_combination).to eq('<em>vitis</em>')
@@ -89,7 +89,7 @@ describe Combination do
       end
 
       specify 'name to be nil' do
-        expect(@combination.errors.include?(:name)).to be_false
+        expect(@combination.errors.include?(:name)).to be_falsey
       end
 
       specify 'type is Combination' do
@@ -97,7 +97,7 @@ describe Combination do
       end
 
       specify 'rank_class is optional' do
-        expect(@combination.errors.include?(:rank_class)).to be_false
+        expect(@combination.errors.include?(:rank_class)).to be_falsey
       end
     end
 
@@ -112,7 +112,7 @@ describe Combination do
         c = FactoryGirl.create(:combination, parent: @subgenus)
         c.genus = @genus
         c.subgenus = @subgenus
-        expect(c.valid?).to be_true
+        expect(c.valid?).to be_truthy
         expect(c.genus.name).to eq('Aus')
         expect(c.subgenus.name).to eq('Bus')
       end
@@ -120,7 +120,7 @@ describe Combination do
         c = FactoryGirl.create(:combination, parent: @species)
         c.genus = @genus
         c.species = @species
-        expect(c.valid?).to be_true
+        expect(c.valid?).to be_truthy
         expect(c.genus.name).to eq('Aus')
         expect(c.species.name).to eq('bus')
       end
@@ -131,8 +131,8 @@ describe Combination do
 
     specify 'missing source and year' do
       @combination.soft_validate(:missing_fields)
-      expect(@combination.soft_validations.messages_on(:source_id).empty?).to be_false
-      expect(@combination.soft_validations.messages_on(:year_of_publication).empty?).to be_false
+      expect(@combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+      expect(@combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
     end
 
     specify 'year of combination and year of source does not match' do
@@ -140,21 +140,21 @@ describe Combination do
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:source_id).count).to eq(1)
       c.year_of_publication = 1940
-      expect(c.valid?).to be_true
+      expect(c.valid?).to be_truthy
       c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:source_id).empty?).to be_true
+      expect(c.soft_validations.messages_on(:source_id).empty?).to be_truthy
     end
 
     specify 'combination is older than taxon' do
       c = FactoryGirl.create(:combination, year_of_publication: 1900, parent: @family)
       @family.year_of_publication = 1940
-      expect(@family.save).to be_true
+      expect(@family.save).to be_truthy
       c.soft_validate(:source_older_then_description)
       expect(c.soft_validations.messages_on(:year_of_publication).count).to eq(1)
       c.year_of_publication = 1940
-      expect(c.valid?).to be_true
+      expect(c.valid?).to be_truthy
       c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_true
+      expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
     end
 
     specify 'duplicate combination' do
@@ -164,11 +164,11 @@ describe Combination do
       c2 = FactoryGirl.create(:combination, parent: species)
       c1.combination_genus = genus
       c1.combination_species = species
-      expect(c1.save).to be_true
+      expect(c1.save).to be_truthy
       c1.reload
       c2.combination_genus = genus
       c2.combination_species = species
-      expect(c2.save).to be_true
+      expect(c2.save).to be_truthy
       c2.reload
       expect(c1.cached_original_combination).to eq('<em>Aus bus</em>')
       expect(c2.cached_original_combination).to eq('<em>Aus bus</em>')

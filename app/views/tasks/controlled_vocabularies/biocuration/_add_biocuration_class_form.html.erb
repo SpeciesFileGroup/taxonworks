@@ -1,0 +1,13 @@
+<%= form_for(new_tag, url: build_biocuration_group_path) do |f| %>
+
+  <%= f.hidden_field :tag_object_type -%>
+  <%= f.hidden_field :keyword_id -%>
+
+  <span class="field">
+    <%= f.select :tag_object_id, options_from_collection_for_select(tag_objects, :id, :name) -%>
+  </span>
+  <span class="actions">
+    <%= f.submit 'Add' %>
+  </span>
+<% end %>
+

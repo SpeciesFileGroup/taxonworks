@@ -46,15 +46,17 @@ describe GeographicAreasController do
   describe 'GET index' do
     it 'assigns all geographic_areas as @geographic_areas' do
       # geographic_area = GeographicArea.create! valid_attributes
-      geographic_area_4 = FactoryGirl.create(:level2_geographic_area)
-      geographic_area_3 = GeographicArea.find(geographic_area_4.id - 1)
-      geographic_area_2 = GeographicArea.find(geographic_area_4.id - 2)
-      geographic_area_1 = GeographicArea.find(geographic_area_4.id - 3)
+      geographic_area_5 = FactoryGirl.create(:level2_geographic_area)
+      geographic_area_4 = GeographicArea.find(geographic_area_5.id - 1)
+      geographic_area_3 = GeographicArea.find(geographic_area_5.id - 2)
+      geographic_area_2 = GeographicArea.find(geographic_area_5.id - 3)
+      geographic_area_1 = GeographicArea.find(geographic_area_5.id - 4)
       get :index, {}, valid_session
       assigns(:geographic_areas).order('id').to_a.should eq([geographic_area_1,
                                                              geographic_area_2,
                                                              geographic_area_3,
-                                                             geographic_area_4])
+                                                             geographic_area_4,
+                                                             geographic_area_5])
     end
   end
 

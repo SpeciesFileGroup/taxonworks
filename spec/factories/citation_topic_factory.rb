@@ -5,5 +5,10 @@ FactoryGirl.define do
     topic nil
     citation nil
     pages "MyString"
+
+    factory :valid_citation_topic do
+      association :topic, factory: :valid_topic
+      association :citation, factory: :valid_citation  
+    end
   end
 end

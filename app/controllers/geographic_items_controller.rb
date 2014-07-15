@@ -1,10 +1,12 @@
 class GeographicItemsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 
   # GET /geographic_items
   # GET /geographic_items.json
   def index
-    @geographic_items = GeographicItem.all.limit(10)  # was just all, but this is unbleevablee long process
+    @geographic_items = GeographicItem.all.limit(3)
   end
 
   # GET /geographic_items/1

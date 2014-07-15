@@ -1,4 +1,9 @@
 class NamespacesController < ApplicationController
+
+  before_action :require_administrator_sign_in
+
+
+  # TODO: scope this to administrators?
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
   # GET /namespaces

@@ -11,7 +11,7 @@ describe BiologicalRelationship do
       }      
 
       specify "name" do
-        expect(biological_relationship.errors.include?(:name)).to be_true
+        expect(biological_relationship.errors.include?(:name)).to be_truthy
       end
     end
   end

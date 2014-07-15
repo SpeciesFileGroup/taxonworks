@@ -1,14 +1,16 @@
 source 'https://rubygems.org'
 ruby '2.1.1'
 
-gem 'rails', '4.0.4'
+gem 'rails', '4.1.4'
+gem 'psych', '2.0.3'
 
 # PostgreSQL
 gem 'pg', '~> 0.17.0'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 1.1.0'
-gem 'squeel', git: 'https://github.com/nybex/squeel.git'
+gem 'activerecord-postgis-adapter', '~> 2.1.0'
+# Has been removed for some time?
+# gem 'squeel', git: 'https://github.com/gtimti/squeel.git'  # nybex and kiela forks were also used
 
 # rgeo support
 gem 'ffi-geos'
@@ -25,19 +27,20 @@ gem 'uglifier', '~> 2.4'
 gem 'coffee-rails', '~> 4.0'
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails'
+gem 'jquery-rails', '~> 3.1.1'
+gem 'jquery-ui-rails'
 
 # Turbolinks makes following links in your web application faster.
 # Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
+gem 'jquery-turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
-
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
-  tag: 'v3.0.0.rc.2', 
+  tag: 'v3.0.0.rc.5', 
   git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling
@@ -69,7 +72,8 @@ gem 'rabl'
 gem 'rmagick', '~> 2.13.2'
 
 group :test, :development do
-  gem 'rspec-rails', '~> 2.14.2'
+  gem 'rspec-rails', '~> 3.0' #  
+  gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
@@ -81,7 +85,7 @@ group :doc do
 end
 
 group :test do
-  gem "rspec", '~> 2.14.1'
+  gem "rspec", '~> 3.0'
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
 end

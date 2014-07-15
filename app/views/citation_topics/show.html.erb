@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Topic:</strong>
+  <%= @citation_topic.topic_id %>
+</p>
+
+<p>
+  <strong>Citation:</strong>
+  <%= @citation_topic.citation_id %>
+</p>
+
+<p>
+  <strong>Pages:</strong>
+  <%= @citation_topic.pages %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @citation_topic.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @citation_topic.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @citation_topic.project_id %>
+</p>
+
+<%= link_to 'Edit', edit_citation_topic_path(@citation_topic) %> |
+<%= link_to 'Back', citation_topics_path %>

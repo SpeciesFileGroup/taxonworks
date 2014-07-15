@@ -1,0 +1,48 @@
+<%= form_for(@alternate_value) do |f| %>
+    <% if @alternate_value.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@alternate_value.errors.count, "error") %> prohibited this alternate_value from being
+            saved:</h2>
+
+          <ul>
+            <% @alternate_value.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :value %>
+      <br>
+      <%= f.text_area :value %>
+    </div>
+    <div class="field">
+      <%= f.label :type %>
+      <br>
+      <%= f.text_field :type %>
+    </div>
+    <div class="field">
+      <%= f.label :language_id %>
+      <br>
+      <%= f.number_field :language_id %>
+    </div>
+    <div class="field">
+      <%= f.label :alternate_object_type %>
+      <br>
+      <%= f.text_field :alternate_object_type %>
+    </div>
+    <div class="field">
+      <%= f.label :alternate_object_id %>
+      <br>
+      <%= f.number_field :alternate_object_id %>
+    </div>
+    <div class="field">
+      <%= f.label :alternate_object_attribute %>
+      <br>
+      <%= f.text_field :alternate_object_attribute %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

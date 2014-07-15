@@ -5,7 +5,6 @@ class Specimen < CollectionObject::BiologicalCollectionObject
   validates_presence_of :total 
   validates :total, :inclusion => { :in => 1..1 }
 
-
   protected
 
   def check_and_set_total

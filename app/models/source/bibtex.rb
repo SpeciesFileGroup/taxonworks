@@ -253,9 +253,9 @@ class Source::Bibtex < Source
 # 
   # TODO add linkage to serials ==> belongs_to serial
   # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
-  has_many :author_roles, class_name: 'SourceAuthor', as: :role_object
+  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
-  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
+  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
@@ -326,6 +326,7 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 #endregion
 
+ # TODO: This should be moved out to notable likely, and inherited at Source
  accepts_nested_attributes_for :notes
 
  #region ruby-bibtex related
@@ -377,20 +378,24 @@ class Source::Bibtex < Source
 
     bibtex = to_bibtex
     bibtex.parse_names
+
     bibtex.names.each do |a|
       p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
 
       # TODO: These are required in present FactoryGirl tests, but not in production,
       # factor out when FactoryGirl + Housekeeping issues are resolved.
-      p.creator = self.creator
-      p.updater = self.updater
+      # p.creator = self.creator
+      # p.updater = self.updater
 
       if bibtex.author
         self.authors << p if bibtex.author.include?(a)
       end
+
+
       if bibtex.editor
         self.editors << p if bibtex.editor.include?(a)
       end
+
     end
     return true
   end
@@ -447,17 +452,17 @@ class Source::Bibtex < Source
 
   def note=(value)
     write_attribute(:note, value)
-    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record?
+    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record? && !self.note.blank?
   end 
 
   def isbn=(value)
     write_attribute(:isbn, value)
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
+    # See note= comments
     self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
   def isbn
-    # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:isbn).first.identifier
+    identifier_string_of_type(:isbn) 
   end
 
   def doi=(value)
@@ -466,8 +471,7 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
   end
   def doi
-    # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:doi).first.identifier
+    identifier_string_of_type(:doi)
   end
 
   def issn=(value)
@@ -476,8 +480,14 @@ class Source::Bibtex < Source
     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
   end
   def issn
+    identifier_string_of_type(:issn) 
+  end
+
+  # TODO: Turn this into a has_one relationship
+  def identifier_string_of_type(type)
     # This relies on the identifier class to enforce a single version of any identifier
-    self.identifiers.of_type(:issn).first.identifier
+    identifiers = self.identifiers.of_type(type)
+    identifiers.size == 0 ? nil : identifiers.first.identifier
   end
 
 #TODO if language is set => set language_id
@@ -533,17 +543,16 @@ class Source::Bibtex < Source
   protected
 
    def set_cached_values
+     bx_entry = self.to_bibtex
+     if bx_entry.key.blank? then
+       bx_entry.key = 'tmpID'
+     end
+     key = bx_entry.key
+     #bx_entry.key = 'tmpID'
+     bx_bibliography = BibTeX::Bibliography.new()
+     bx_bibliography.add(bx_entry)
 
-    bx_entry = self.to_bibtex
-    if bx_entry.key.blank? then
-      bx_entry.key = 'tmpID'
-    end
-    key = bx_entry.key
-    #bx_entry.key = 'tmpID'
-    bx_bibliography = BibTeX::Bibliography.new()
-    bx_bibliography.add(bx_entry)
-
-    cp = CiteProc::Processor.new(style: 'apa', format: 'text')
+     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
      cp.import bx_bibliography.to_citeproc
 
 =begin

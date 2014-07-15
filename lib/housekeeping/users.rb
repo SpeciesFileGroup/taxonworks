@@ -1,4 +1,4 @@
-# Concern the provides housekeeping and related methods for models that belong_to a creator and updator
+# Concern that provides housekeeping and related methods for models that belong_to a creator and updator
 module Housekeeping::Users 
   extend ActiveSupport::Concern
 

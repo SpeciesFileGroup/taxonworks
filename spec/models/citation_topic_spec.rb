@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CitationTopic do
   let(:citation_topic) { CitationTopic.new }
 
-  pending "add some examples to (or delete) #{__FILE__}"
+  skip "add some examples to (or delete) #{__FILE__}"
 
   context 'Beth' do
     context 'validation' do
@@ -13,11 +13,11 @@ describe CitationTopic do
 
       context 'required fields' do
         specify 'citation_id' do
-          expect(citation_topic.errors.include?(:citation_id)).to be_true
+          expect(citation_topic.errors.include?(:citation_id)).to be_truthy
         end
 
         specify 'topic_id' do
-          expect(citation_topic.errors.include?(:topic_id)).to be_true
+          expect(citation_topic.errors.include?(:topic_id)).to be_truthy
         end
       end
 

@@ -1,3 +1,9 @@
 <h1>Hub</h1>
 
-<%= render('hub/navigation_lists/all') -%>
+<%= render(partial: 'navigation_index_bar') -%>
+
+<navigation>
+  <ul>
+    <%= render(partial: "hub/navigation_lists/#{@links_to_render}") -%>
+  </ul>
+</navigation>

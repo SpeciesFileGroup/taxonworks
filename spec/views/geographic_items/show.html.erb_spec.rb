@@ -1,23 +1,25 @@
 require 'spec_helper'
 
-describe "geographic_items/show" do
+describe 'geographic_items/show' do
   before(:each) do
-    @geographic_item = assign(:geographic_item, stub_model(GeographicItem,
-      :point => "",
-      :line_string => "",
-      :polygon => "",
-      :multi_point => "",
-      :multi_line_string => "",
-      :multi_polygon => "",
-      :geometry_collection => "",
-      :created_by_id => 1,
-      :updated_by_id => 2
-    ))
+    @geographic_item = assign(:geographic_item,
+                              stub_model(GeographicItem,
+                                         :point               => ROOM2024,
+                                         :line_string         => nil,
+                                         :polygon             => nil,
+                                         :multi_point         => nil,
+                                         :multi_line_string   => nil,
+                                         :multi_polygon       => nil,
+                                         :geometry_collection => nil,
+                                         :created_by_id       => 1,
+                                         :updated_by_id       => 2
+                              ))
   end
 
   it "renders attributes in <p>" do
+    # skip 'reconstruction of the geographic_items/show view or spec'
     render
-    # Run the generator again with the --webrat flag if you want to use webrat matchers
+# Run the generator again with the --webrat flag if you want to use webrat matchers
     rendered.should match(//)
     rendered.should match(//)
     rendered.should match(//)

@@ -19,11 +19,11 @@ describe Note do
 
     context 'required' do
       specify 'note_object (the thing that has the note)' do 
-        expect(note.errors.include?(:note_object)).to be_true
+        expect(note.errors.include?(:note_object)).to be_truthy
       end
 
       specify 'text' do
-        expect(note.errors.include?(:text)).to be_true 
+        expect(note.errors.include?(:text)).to be_truthy
       end
     end
   end

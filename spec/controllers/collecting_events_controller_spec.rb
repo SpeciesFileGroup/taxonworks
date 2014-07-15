@@ -20,14 +20,14 @@ require 'spec_helper'
 
 describe CollectingEventsController do
   before(:each) {
-   sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_collecting_event).attributes )
+  let(:valid_attributes) {
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_collecting_event).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -90,14 +90,14 @@ describe CollectingEventsController do
       it "assigns a newly created but unsaved collecting_event as @collecting_event" do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectingEvent.any_instance.stub(:save).and_return(false)
-        post :create, {:collecting_event => { "verbatim_label" => "invalid value" }}, valid_session
+        post :create, {:collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
         assigns(:collecting_event).should be_a_new(CollectingEvent)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CollectingEvent.any_instance.stub(:save).and_return(false)
-        post :create, {:collecting_event => { "verbatim_label" => "invalid value" }}, valid_session
+        post :create, {:collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
         response.should render_template("new")
       end
     end
@@ -111,8 +111,8 @@ describe CollectingEventsController do
         # specifies that the CollectingEvent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CollectingEvent.any_instance.should_receive(:update).with({ "verbatim_label" => "MyText" })
-        put :update, {:id => collecting_event.to_param, :collecting_event => { "verbatim_label" => "MyText" }}, valid_session
+        CollectingEvent.any_instance.should_receive(:update).with({"verbatim_label" => "MyText"})
+        put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "MyText"}}, valid_session
       end
 
       it "assigns the requested collecting_event as @collecting_event" do
@@ -133,7 +133,7 @@ describe CollectingEventsController do
         collecting_event = CollectingEvent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectingEvent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collecting_event.to_param, :collecting_event => { "verbatim_label" => "invalid value" }}, valid_session
+        put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
         assigns(:collecting_event).should eq(collecting_event)
       end
 
@@ -141,7 +141,7 @@ describe CollectingEventsController do
         collecting_event = CollectingEvent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CollectingEvent.any_instance.stub(:save).and_return(false)
-        put :update, {:id => collecting_event.to_param, :collecting_event => { "verbatim_label" => "invalid value" }}, valid_session
+        put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
         response.should render_template("edit")
       end
     end

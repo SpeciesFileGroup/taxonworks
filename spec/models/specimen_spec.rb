@@ -10,9 +10,9 @@ describe Specimen do
 
     specify 'valid_specimen is valid' do
       s = FactoryGirl.build(:valid_specimen)
-      expect(s.creator == s.updater).to be_true
-      expect(s.project).to be_true
-      expect(s.save).to be_true
+      expect(s.creator == s.updater).to be_truthy
+      expect(s.project).to be_truthy
+      expect(s.save).to be_truthy
     end
 
     specify "total must be one" do 

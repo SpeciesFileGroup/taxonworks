@@ -1,0 +1,33 @@
+<%= form_for(@serial_chronology) do |f| %>
+  <% if @serial_chronology.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@serial_chronology.errors.count, "error") %> prohibited this serial_chronology from being saved:</h2>
+
+      <ul>
+      <% @serial_chronology.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :preceding_serial_id %><br>
+    <%= f.number_field :preceding_serial_id %>
+  </div>
+  <div class="field">
+    <%= f.label :succeeding_serial_id %><br>
+    <%= f.number_field :succeeding_serial_id %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :modified_by_id %><br>
+    <%= f.number_field :modified_by_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

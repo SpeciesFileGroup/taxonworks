@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Text:</strong>
+  <%= @content.text %>
+</p>
+
+<p>
+  <strong>Otu:</strong>
+  <%= @content.otu_id %>
+</p>
+
+<p>
+  <strong>Topic:</strong>
+  <%= @content.topic_id %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @content.type %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @content.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @content.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @content.project_id %>
+</p>
+
+<p>
+  <strong>Revision:</strong>
+  <%= @content.revision_id %>
+</p>
+
+<%= link_to 'Edit', edit_content_path(@content) %> |
+<%= link_to 'Back', contents_path %>

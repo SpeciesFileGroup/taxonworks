@@ -4,10 +4,6 @@ describe 'Authentication' do
 
   subject { page }
 
-  before { 
-    visit signup_path 
-  }
-
   #   context 'when user enters valid information' do
 
   #     before do
@@ -81,6 +77,6 @@ describe 'Authentication' do
       subject.should_not have_content 'Signed in as user'
       subject.should_not have_content('Your account')
     end
-  end
-
+ 
+  end 
 end

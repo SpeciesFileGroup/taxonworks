@@ -1,0 +1,94 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Date requested:</strong>
+  <%= @loan.date_requested %>
+</p>
+
+<p>
+  <strong>Request method:</strong>
+  <%= @loan.request_method %>
+</p>
+
+<p>
+  <strong>Date sent:</strong>
+  <%= @loan.date_sent %>
+</p>
+
+<p>
+  <strong>Date received:</strong>
+  <%= @loan.date_received %>
+</p>
+
+<p>
+  <strong>Date return expected:</strong>
+  <%= @loan.date_return_expected %>
+</p>
+
+<p>
+  <strong>Recipient person:</strong>
+  <%= @loan.recipient_person_id %>
+</p>
+
+<p>
+  <strong>Recipient address:</strong>
+  <%= @loan.recipient_address %>
+</p>
+
+<p>
+  <strong>Recipient email:</strong>
+  <%= @loan.recipient_email %>
+</p>
+
+<p>
+  <strong>Recipient phone:</strong>
+  <%= @loan.recipient_phone %>
+</p>
+
+<p>
+  <strong>Recipient country:</strong>
+  <%= @loan.recipient_country %>
+</p>
+
+<p>
+  <strong>Supervisor person:</strong>
+  <%= @loan.supervisor_person_id %>
+</p>
+
+<p>
+  <strong>Supervisor email:</strong>
+  <%= @loan.supervisor_email %>
+</p>
+
+<p>
+  <strong>Supervisor phone:</strong>
+  <%= @loan.supervisor_phone %>
+</p>
+
+<p>
+  <strong>Date closed:</strong>
+  <%= @loan.date_closed %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @loan.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @loan.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @loan.project_id %>
+</p>
+
+<p>
+  <strong>Recipient honorarium:</strong>
+  <%= @loan.recipient_honorarium %>
+</p>
+
+<%= link_to 'Edit', edit_loan_path(@loan) %> |
+<%= link_to 'Back', loans_path %>

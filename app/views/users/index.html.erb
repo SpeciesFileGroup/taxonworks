@@ -1,19 +1,18 @@
-
-
 <section>
   <header>
     <h1><%= @page_title %></h1>
   </header>
 
   <% if @users.empty? %>
-    <p>No users found.</p>
-<% else %>
-    <ul>
-    <% @users.each do |user| %>
-      <li><%= link_to user.email.to_s, user_path(user) %></li>
-  <% end %>
+      <p>No users found.</p>
+  <% else %>
+      <ul>
+        <% @users.each do |user| %>
+            <li><%= link_to user.email.to_s, user_path(user) %></li>
+        <% end %>
+      </ul>
   <% end %>
 
-    <br>
-  </section>
+  <br>
+</section>
 

@@ -80,9 +80,11 @@ class NomenclaturalRank
   end
   
   private
+
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
+
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|

@@ -1,4 +1,6 @@
 class TaxonDeterminationsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
 
   # GET /taxon_determinations

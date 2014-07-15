@@ -1,6 +1,13 @@
 class Combination < TaxonName
 
-  include Housekeeping
+  def set_cached_original_combination
+    self.cached_original_combination = get_combination
+  end
+
+  def set_cached_full_name
+    self.cached_name = get_combination
+  end
+
 
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)

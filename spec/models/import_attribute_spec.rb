@@ -9,7 +9,7 @@ describe ImportAttribute do
     }
     context 'requires' do
       specify 'import_predicate' do
-        expect(attribute.errors.include?(:import_predicate)).to be_true
+        expect(attribute.errors.include?(:import_predicate)).to be_truthy
       end
     end
   end

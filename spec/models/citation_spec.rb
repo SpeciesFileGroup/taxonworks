@@ -16,9 +16,9 @@ describe Citation do
   end
 
   context 'validation' do
-    pending ' for all required fields (:citation_object_id, :citation_object_type, :source_id).'
-    pending 'uniqueness'
-    pending 'topic_id is of class Topic only' 
+    skip ' for all required fields (:citation_object_id, :citation_object_type, :source_id).'
+    skip 'uniqueness'
+    skip 'topic_id is of class Topic only' 
   end
 
 end

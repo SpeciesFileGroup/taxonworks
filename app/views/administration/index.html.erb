@@ -1,0 +1,23 @@
+<h1> Projects </h1>
+<navigation>
+<ul>
+  <%= content_tag(:li, link_to("New", new_project_path)) -%>
+  <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
+</ul>
+</navigation>
+
+<h1> Project Membership </h1>
+<navigation>
+<ul>
+  <%= content_tag(:li, link_to("Add a user to a project", new_project_member_path)) -%>
+</ul>
+</navigation>
+
+
+<h1> Users </h1>
+<navigation>
+<ul>
+  <%= content_tag(:li, link_to("New", signup_path)) -%>
+  <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
+</ul>
+</navigation>

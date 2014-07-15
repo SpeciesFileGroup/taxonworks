@@ -1,4 +1,6 @@
 class TaxonNameRelationshipsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_taxon_name_relationship, only: [:show, :edit, :update, :destroy]
 
   # GET /taxon_name_relationships

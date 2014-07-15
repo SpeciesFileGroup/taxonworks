@@ -8,7 +8,7 @@ describe Keyword do
 
     specify "can be used for tags" do
       t = Tag.new(keyword: @k, tag_object: FactoryGirl.build(:valid_otu))
-      expect(t.save).to be_true
+      expect(t.save).to be_truthy
     end
 
     specify "can not be used for other things" do
@@ -19,7 +19,7 @@ describe Keyword do
   context 'associations' do
     context 'has_many' do
       specify 'tags' do
-        expect(keyword.tags << FactoryGirl.build(:valid_tag)).to be_true
+        expect(keyword.tags << FactoryGirl.build(:valid_tag)).to be_truthy
       end
     end
   end
@@ -29,8 +29,16 @@ describe Keyword do
     k = FactoryGirl.create(:valid_keyword)
     t1 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_otu))
     t2 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_specimen))
-    expect(k.tagged_objects).to have(2).things
-    expect(k.tags).to have(2).things
+    expect(k.tagged_objects.count).to eq(2)
+    expect(k.tags.count).to eq(2)
+  end
+
+  specify 'tagged_object_class_names' do
+    expect(keyword).to respond_to(:tagged_object_class_names)
+    k = FactoryGirl.create(:valid_keyword)
+    t1 = Tag.create(keyword: k, tag_object: FactoryGirl.create(:valid_otu))
+    expect(k.tagged_object_class_names).to eq(%w{Otu})
+
   end
 
 

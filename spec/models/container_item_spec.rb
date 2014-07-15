@@ -10,11 +10,11 @@ describe ContainerItem do
         container_item.valid?
       }
       specify "contained_object" do
-        expect(container_item.errors.include?(:contained_object)).to be_true
+        expect(container_item.errors.include?(:contained_object)).to be_truthy
       end
 
       specify "container" do
-        expect(container_item.errors.include?(:container)).to be_true
+        expect(container_item.errors.include?(:container)).to be_truthy
       end
     end
   end

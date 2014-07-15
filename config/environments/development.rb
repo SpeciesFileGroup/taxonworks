@@ -7,7 +7,7 @@ TaxonWorks::Application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true # false TODO revisit this with taxonworks.rb, at present the nesting/inclusion of TaxonName sublcasses and methods is borking development
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -25,7 +25,7 @@ TaxonWorks::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = true
+  config.assets.debug = false # true if you are stuck
 
   require 'taxonworks'
 end

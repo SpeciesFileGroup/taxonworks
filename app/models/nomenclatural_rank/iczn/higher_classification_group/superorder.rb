@@ -4,6 +4,6 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Superorder < Nomenclat
     NomenclaturalRank::Iczn::HigherClassificationGroup::Magnorder
   end
 
-  COMMON = false
+  #COMMON = false
 
 end

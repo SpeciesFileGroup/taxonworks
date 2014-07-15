@@ -35,5 +35,5 @@
   <%= @collection_object.project_id %>
 </p>
 
-<%= link_to 'Edit', edit_collection_object_path(@collection_object) %> |
+<%= link_to 'Edit', edit_collection_object_path(@collection_object.becomes(CollectionObject)) %> |
 <%= link_to 'Back', collection_objects_path %>

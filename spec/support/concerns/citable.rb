@@ -9,9 +9,9 @@ shared_examples 'citable' do
       expect(class_with_citations).to respond_to(:citations) # tests that the method citations exists
       expect(class_with_citations.citations.to_a).to eq([]) # there are no citations yet.
 
-      expect(class_with_citations.citations << FactoryGirl.build(:citation, source: FactoryGirl.create(:valid_source_bibtex))).to be_true
-      expect(class_with_citations.citations).to have(1).things
-      expect(class_with_citations.save).to be_true
+      expect(class_with_citations.citations << FactoryGirl.build(:citation, source: FactoryGirl.create(:valid_source_bibtex))).to be_truthy
+      expect(class_with_citations.citations.count).to eq(1)
+      expect(class_with_citations.save).to be_truthy
     end
   end
 

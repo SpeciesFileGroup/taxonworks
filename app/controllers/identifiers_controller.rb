@@ -1,4 +1,6 @@
 class IdentifiersController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_identifier, only: [:show, :edit, :update, :destroy]
 
   # GET /identifiers

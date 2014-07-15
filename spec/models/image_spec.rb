@@ -18,7 +18,7 @@ describe Image do
 
   # paperclip MD5 add-on tests
   specify 'should have a computed MD5 checksum' do
-    expect(@i.image_file_fingerprint.blank?).to be_false
+    expect(@i.image_file_fingerprint.blank?).to be_falsey
     expect(@i.image_file_fingerprint).to eq('00ec7e524efd83ab3533c47bcb659bf6')
   end
 
@@ -35,20 +35,20 @@ describe Image do
     end
 
     @i.soft_validate
-    expect(@i.soft_validations.messages.empty?).to be_true
-    expect(@i.save).to be_true
+    expect(@i.soft_validations.messages.empty?).to be_truthy
+    expect(@i.save).to be_truthy
 
     k = FactoryGirl.build(:valid_image)
     k.soft_validate
-    expect(k.soft_validations.messages_on(:image_file_fingerprint).empty?).to be_false
+    expect(k.soft_validations.messages_on(:image_file_fingerprint).empty?).to be_falsey
     expect(k.soft_validations.messages).to \
       include 'This image is a duplicate of an image already stored.'
-    expect(k.has_duplicate?).to be_true
+    expect(k.has_duplicate?).to be_truthy
     expect(k.duplicate_images.count).to eq(1)
-    expect(k.save).to be_true
+    expect(k.save).to be_truthy
 
     j = FactoryGirl.build(:valid_image)
-    expect(j.has_duplicate?).to be_true
+    expect(j.has_duplicate?).to be_truthy
     image_array = j.duplicate_images
     expect(image_array.count).to eq(2)
     expect(image_array.sort).to eq([@i, k].sort)
@@ -59,8 +59,8 @@ describe Image do
 
   specify 'TW attributes should be set before save' do
     weird = FactoryGirl.build(:weird_image)
-    expect(@i.save).to be_true
-    expect(weird.save).to be_true
+    expect(@i.save).to be_truthy
+    expect(weird.save).to be_truthy
 
     #'valid images have an unmodified user_file_name' do
     expect(@i.user_file_name).to eq('tiny.png')
@@ -78,25 +78,25 @@ describe Image do
   end
   context 'should manipulate the file system' do
     specify 'creating an image should add it to the filesystem' do
-      expect(@i.save).to be_true
-      expect(File.exist?(@i.image_file.path)).to be_true
+      expect(@i.save).to be_truthy
+      expect(File.exist?(@i.image_file.path)).to be_truthy
     end
     specify 'destroying an image should remove it from the filesystem' do
-      expect(@i.destroy).to be_true
+      expect(@i.destroy).to be_truthy
 
       # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
       # This causes the necessary callback to get fired within an rspec test, clearing the images.
       # Any destroy method will have to use the same.
       @i.run_callbacks(:commit)
 
-      expect(File.exist?(@i.image_file.url)).to be_false
+      expect(File.exist?(@i.image_file.url)).to be_falsey
     end
   end
 
   specify 'is the missing image gif path set & present' do
     #TODO we'll need to test that this actually works like we think it does.
     # I believe that paperclip just looks for that path as stated in the const.
-    expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_true
+    expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_truthy
   end
 
   specify 'exif data should be available if it was provided in the image' do
@@ -109,7 +109,7 @@ describe Image do
 
   end
 
-  pending 'return gps data as decimal degrees'
+  skip 'return gps data as decimal degrees'
 
   # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do

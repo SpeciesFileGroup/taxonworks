@@ -1,22 +1,3 @@
-<div class="four_columns">
-  <div class="col1"><%= model_name_title -%></div>
-  <div class="col2 left_vertical_separator left_column_whitespace">
-    <%= link_to 'New', new_otu_path %><br>
-    <%= link_to 'List', list_otus_path %><br>
-    <%#= text_field(:get, :search, :value => 'search') %>
 
-    <%= form_tag(search_otus_path) do %>
-        <%= text_field_tag :name %>
-        <%= submit_tag 'Show' %>
+<%= render partial: '/shared/data/index' -%>
 
-        <%#= button_to 'Show', show_otu_path %>
-        <%#= button_to 'Edit', edit_otu_path %>
-    <% end %>
-
-
-  </div>
-
-  <div class="col3">column 3</div>
-  <div class="col4">column 4</div><br style="clear:both;">
-
-</div>

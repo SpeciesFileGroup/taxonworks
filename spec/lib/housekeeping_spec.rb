@@ -2,10 +2,15 @@ require 'spec_helper'
 
 describe 'Housekeeping::User' do
 
+  before(:all) {
+    $project_id = 1
+    $user_id = 1
+  }
+
   context 'Users' do
 
     let(:instance) {
-      stub_model HousekeepingTestClass::WithUser, id: 10
+      stub_model(HousekeepingTestClass::WithUser, id: 10)
     }
 
     context 'associations' do
@@ -25,31 +30,31 @@ describe 'Housekeeping::User' do
 
       context 'presence of the id itself' do
         before(:each) { $user_id = nil } 
-        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
+        after(:each)  { $user_id = 1   } # see spec/support/project_and_user.rb 
 
         specify 'created_by_id is required' do
           @i.valid?
-          expect(@i.errors.include?(:creator)).to be_true
+          expect(@i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updated_by_id is required' do
           @i.valid?
-          expect(@i.errors.include?(:updater)).to be_true
+          expect(@i.errors.include?(:updater)).to be_truthy
         end
       end
 
       context 'presence in database' do
         before(:each) { $user_id = 49999 } # better not be one, but fragile
-        after(:each) { $user_id = 1 } # see spec/support/project_and_user.rb 
+        after(:each)  { $user_id = 1 }      # see spec/support/project_and_user.rb 
 
         specify 'creator must exist' do
           @i.valid? 
-          expect(@i.errors.include?(:creator)).to be_true  
+          expect(@i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updater must exist' do
           @i.valid? 
-          expect(@i.errors.include?(:updater)).to be_true  
+          expect(@i.errors.include?(:updater)).to be_truthy
         end
       end
     end
@@ -101,34 +106,47 @@ describe 'Housekeeping::User' do
         specify 'project is set from $project_id ' do
           $project_id = nil # TODO: make a with_no_project method 
           @i.valid?
-          expect(@i.project_id.nil?).to be_true 
-          expect(@i.errors.include?(:project)).to be_true
+          expect(@i.project_id.nil?).to be_truthy
+          expect(@i.errors.include?(:project)).to be_truthy
           $project_id = 1 # return the global to its state
         end
 
         specify 'project must exist' do
           $project_id = 342432
           @i.valid?  # even when set, it's not necessarily valid
-          expect(@i.errors.include?(:project)).to be_true  # there is no project with id 1 in the present paradigm
+          expect(@i.errors.include?(:project)).to be_truthy  # there is no project with id 1 in the present paradigm
           $project_id = 1
         end
 
         context 'belonging to a project' do
           before(:each) {
-            @project1 = FactoryGirl.build(:valid_project)
-            @project2 = FactoryGirl.build(:valid_project)
+            @project1 = FactoryGirl.create(:valid_project)
+            @project2 = FactoryGirl.create(:valid_project)
           }
 
           after(:each) {
+            @project1.destroy
+            @project2.destroy
+          }
+
+          after(:all) {
             $project_id = 1
           }
 
+          specify 'scoped by a project' do
+            @otu1 = Otu.create(project: @project1, name: 'Fus')
+            @otu2 = Otu.create(project: @project2, name: 'Bus')
+
+            expect(Otu.in_project(@project1).to_a).to eq([@otu1])
+            expect(Otu.with_project_id(@project2.id).to_a).to eq([@otu2])
+          end
+
           specify 'instance must belong to the project before save' do
-            pending
+            skip 
             # $project_id = @project1.id
-            # expect(@i.valid?).to be_true
+            # expect(@i.valid?).to be_truthy
             # expect(@i.project_id).to eq(@project1.id)
-            # expect(@i.save).to be_true
+            # expect(@i.save).to be_truthy
 
             # @i.project_id = @project2.id 
             # expect{@i.save}.to raise_error
@@ -138,7 +156,6 @@ describe 'Housekeeping::User' do
       end
     end
   end
-
 
 
   # Do not extend these tests. This
@@ -175,5 +192,12 @@ module HousekeepingTestClass
     include FakeTable 
     include Housekeeping::Projects 
   end
+
+  class WithTimestamps < ActiveRecord::Base
+    include FakeTable 
+    include Housekeeping::Timestamps
+  end
+
+
 
 end

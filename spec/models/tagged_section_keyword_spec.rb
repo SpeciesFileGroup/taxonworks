@@ -10,11 +10,11 @@ describe TaggedSectionKeyword do
         tagged_section_keyword.valid?
       }
       specify 'out_page_layout_section' do
-        expect(tagged_section_keyword.errors.include?(:otu_page_layout_section)).to be_true
+        expect(tagged_section_keyword.errors.include?(:otu_page_layout_section)).to be_truthy
       end
 
       specify 'keyword' do
-        expect(tagged_section_keyword.errors.include?(:keyword)).to be_true
+        expect(tagged_section_keyword.errors.include?(:keyword)).to be_truthy
       end
     end
   end

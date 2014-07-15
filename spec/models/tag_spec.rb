@@ -6,11 +6,11 @@ describe Tag do
 
   context 'associations' do
     specify 'tag_object' do 
-      expect(tag.tag_object = FactoryGirl.create(:valid_biocuration_class)).to be_true
+      expect(tag.tag_object = FactoryGirl.create(:valid_biocuration_class)).to be_truthy
     end
 
     specify 'keyword' do
-      expect(tag.keyword = FactoryGirl.create(:valid_keyword)).to be_true
+      expect(tag.keyword = FactoryGirl.create(:valid_keyword)).to be_truthy
     end
   end
 
@@ -20,11 +20,11 @@ describe Tag do
     end
 
     specify 'a tag object is required' do 
-      expect(tag.errors.include?(:tag_object)).to be_true
+      expect(tag.errors.include?(:tag_object)).to be_truthy
     end
 
     specify 'a keyword is required' do
-      expect(tag.errors.include?(:keyword)).to be_true
+      expect(tag.errors.include?(:keyword)).to be_truthy
     end
 
     specify 'a topic can not be used' do
@@ -38,12 +38,28 @@ describe Tag do
       tag.tag_object = b
       tag.keyword = k
       tag.valid?
-      expect(tag.errors.include?(:keyword)).to be_false
-      expect(tag.errors.include?(:tag_object)).to be_false
+      expect(tag.errors.include?(:keyword)).to be_falsey
+      expect(tag.errors.include?(:tag_object)).to be_falsey
       tag.save!
       dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: b) 
       dupe_tag.valid?
-      expect(dupe_tag.errors.include?(:keyword_id)).to be_true
+      expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
+    end
+
+   specify 'keywords scope can be limited with Keyword#can_tag' do
+     a = FactoryGirl.create(:valid_biocuration_group)
+     b = FactoryGirl.create(:valid_specimen)
+     t = Tag.new(tag_object: b, keyword: a)
+     expect(t.valid?).to be_falsey
+     expect(t.errors.include?(:keyword)).to be_truthy
+   end
+
+    specify 'tag_object class can be limited with TagObject#taggable_with' do
+      a = FactoryGirl.create(:valid_keyword)
+      b = FactoryGirl.create(:valid_biocuration_class)
+      t = Tag.new(tag_object: b, keyword: a)
+      expect(t.valid?).to be_falsey
+      expect(t.errors.include?(:tag_object)).to be_truthy
     end
 
     context 'STI based tag behaviour' do
@@ -53,18 +69,18 @@ describe Tag do
       }
 
       specify 'tagging an subclass of an STI model instance *stores* the tag_type as the superclass' do
-        expect(tag.save).to be_true
+        expect(tag.save).to be_truthy
         expect(tag.tag_object_type).to eq('CollectionObject')
       end
 
       specify 'tagging an subclass of an STI model instance, with subclass namespace, *stores* the tag_type as the superclass' do
         tag.tag_object = FactoryGirl.create(:valid_container_box)
-        expect(tag.save).to be_true
+        expect(tag.save).to be_truthy
         expect(tag.tag_object_type).to eq('Container')
       end
 
       specify 'tagging a subclass of an STI model *returns* the subclassed object' do
-        expect(tag.save).to be_true
+        expect(tag.save).to be_truthy
         expect(tag.tag_object.class).to eq(Specimen) 
       end
     end

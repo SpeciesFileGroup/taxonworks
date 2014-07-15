@@ -1,4 +1,6 @@
 class CollectionObjectsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_collection_object, only: [:show, :edit, :update, :destroy]
 
   # GET /collection_objects

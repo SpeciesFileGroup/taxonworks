@@ -1,0 +1,32 @@
+/* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
+.flexbox {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  -webkit-flex-flow: row wrap;
+
+  display: flex;
+  flex-direction: column; 
+  flex-flow: row wrap; 
+  justify-content: center;
+}
+
+.flexbox > * {
+  padding: 10px;
+  flex: 1 100%;
+}
+
+@media all and (min-width: 600px) {
+  .item { flex: 1 auto; }
+}
+
+@media all and (min-width: 800px) {
+  .item1 { 
+    order: 1 0px;
+  } 
+  .item2 { order: 2; }
+  .item3 { order: 3; }
+  .item4 { order: 4; }
+}
+
