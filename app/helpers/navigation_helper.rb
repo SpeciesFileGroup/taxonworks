@@ -15,7 +15,7 @@ module NavigationHelper
   end
 
   def list_path_for_model(model)
-    send("list_#{model.name.tableize}_path")
+    send("list_#{model.class.name.tableize}_path")
   end
 
   def new_for_model_link(model)
@@ -35,11 +35,13 @@ module NavigationHelper
   end
 
   def object_link(object)
+    return nil if object.nil?
     link_to(object_tag(object), object)
   end
 
   # TODO: Move somewhere-else, all object methods are likely borked for subclasses.
   def object_tag(object)
+    return content_tag(:em, 'None') if object.nil?
     send("#{object.class.name.underscore}_tag", object)
   end
 

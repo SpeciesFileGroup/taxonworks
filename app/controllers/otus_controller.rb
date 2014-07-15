@@ -94,7 +94,7 @@ class OtusController < ApplicationController
 
   def batch_create
     if @otus = Otu.batch_create(params.symbolize_keys.to_h)
-     flash[:notice] = "Successfully batched created #{@otus.count} OTUs."
+     flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
     else
       # TODO: more response
       flash[:notice] = 'Failed to create the Otus.' 
