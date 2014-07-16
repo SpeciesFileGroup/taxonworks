@@ -83,6 +83,11 @@ group :test, :development do
   gem "factory_girl_rails", "~> 4.0"
 end
 
+group :development do
+  gem "better_errors"
+  gem "binding_of_caller"
+end
+
 group :doc do
   gem 'sdoc', require: false # bundle exec rake doc:rails generates the API under doc/api.
 end
