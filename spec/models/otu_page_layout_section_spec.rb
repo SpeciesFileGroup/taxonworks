@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # Get the subclasses
 Dir[Rails.root.to_s + '/app/models/otu_page_layout_section/**/*.rb'].sort.each {|file| require file }

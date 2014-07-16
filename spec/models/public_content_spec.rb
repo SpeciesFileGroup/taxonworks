@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe PublicContent do
   let(:public_content) {FactoryGirl.build(:public_content) }

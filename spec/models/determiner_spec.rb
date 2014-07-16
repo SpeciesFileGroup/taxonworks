@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Determiner do
   let(:determiner) {Determiner.new}

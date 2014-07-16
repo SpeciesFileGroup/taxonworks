@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Identifier::Local do
   let(:local_identifier) {Identifier::Local.new}

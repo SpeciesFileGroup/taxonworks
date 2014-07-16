@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "taxon_determinations/index" do
   before(:each) do

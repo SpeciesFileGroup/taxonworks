@@ -28,4 +28,8 @@ TaxonWorks::Application.configure do
   config.assets.debug = false # true if you are stuck
 
   require 'taxonworks'
+  require 'taxonworks_autoload'
 end
+
+
+

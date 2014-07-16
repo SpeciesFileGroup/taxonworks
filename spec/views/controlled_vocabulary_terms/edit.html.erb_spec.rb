@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "controlled_vocabulary_terms/edit" do
   before(:each) do

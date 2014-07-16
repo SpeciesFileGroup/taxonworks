@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe TaxonNameRelationshipsController do
   describe "routing" do

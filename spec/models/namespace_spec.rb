@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Namespace do
   let(:namespace) { FactoryGirl.build(:namespace)  }

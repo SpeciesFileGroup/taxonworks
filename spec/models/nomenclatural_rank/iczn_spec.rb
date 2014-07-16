@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe NomenclaturalRank::Iczn do
   skip "add some examples to (or delete) #{__FILE__}"

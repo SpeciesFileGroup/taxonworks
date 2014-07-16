@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "geographic_area_types/show" do
   before(:each) do

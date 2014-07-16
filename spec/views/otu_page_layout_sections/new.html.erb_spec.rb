@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "otu_page_layout_sections/new" do
   before(:each) do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 describe Topic do
   let(:topic) { FactoryGirl.build(:topic) }
  

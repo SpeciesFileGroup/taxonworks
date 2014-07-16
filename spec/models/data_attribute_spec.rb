@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe DataAttribute do
   let (:attribute) {DataAttribute.new}

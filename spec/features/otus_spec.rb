@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # :base_class is defined by us, it is accessible as example.metadata[:base_class].  It's used 
 describe 'Otus' do 

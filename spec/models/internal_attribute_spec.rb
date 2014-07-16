@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe InternalAttribute do
   let (:attribute) { FactoryGirl.build(:data_attribute_internal_attribute) } 

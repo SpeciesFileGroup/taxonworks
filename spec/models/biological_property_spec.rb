@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe BiologicalProperty do
   let(:biological_property) { FactoryGirl.build(:controlled_vocabulary_term_biological_property) }

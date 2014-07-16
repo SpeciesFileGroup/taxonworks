@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe BiologicalRelationshipType do
   let(:biological_relationship_type) { FactoryGirl.build(:biological_relationship_type) }

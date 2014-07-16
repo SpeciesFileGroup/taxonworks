@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe CitationsController do
   describe "routing" do

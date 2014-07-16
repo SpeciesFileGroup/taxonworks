@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe OtuContent do
   let(:otu_content) { OtuContent.new }

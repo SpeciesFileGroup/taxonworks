@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # See bottom of this file for the Softy class stub.
 

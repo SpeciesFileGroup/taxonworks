@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ControlledVocabularyTerm do
   let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term)  }

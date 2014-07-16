@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ImportAttribute do
   let (:attribute) {ImportAttribute.new}

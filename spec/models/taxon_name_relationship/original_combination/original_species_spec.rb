@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe TaxonNameRelationship::OriginalCombination::OriginalSpecies do
   skip "add some examples to (or delete) #{__FILE__}"

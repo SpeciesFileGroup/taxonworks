@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "taxon_name_classifications/new" do
   before(:each) do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "biocuration_classifications/index" do
   before(:each) do
