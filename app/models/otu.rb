@@ -10,10 +10,11 @@ class Otu < ActiveRecord::Base
   include Shared::Taggable
   include Shared::AlternateValues
 
-  belongs_to :taxon_name
+  belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :contents, inverse_of: :otu
-  has_many :taxon_determinations, inverse_of: :otu
+  has_many :contents, inverse_of: :otu, dependent: :destroy
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+  has_many :collection_object, through: :taxon_determinations
   has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic
 
