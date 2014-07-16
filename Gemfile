@@ -49,7 +49,10 @@ gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
 
-# file upload manager & image processor
+# Pagination
+gem 'kaminari'
+
+# File upload manager & image processor
 gem 'paperclip', '~> 4.1'
 
 # Ordering records
