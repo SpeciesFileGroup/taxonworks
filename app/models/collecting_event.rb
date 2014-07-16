@@ -221,7 +221,10 @@ class CollectingEvent < ActiveRecord::Base
       limit(limit)
   end
 
-  # return all of the GAs which are country_level, amd have GIs containing the (GI, EGI)
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  # which are country_level, amd have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
 
   end
