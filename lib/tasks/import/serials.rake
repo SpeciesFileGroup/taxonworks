@@ -1,5 +1,5 @@
 namespace :tw do
-  namespace :initialization do
+  namespace :import do
 
     desc 'call like "rake tw:initialization:build_serials[/Users/eef/src/taxonworks/tmp/eef/SerialSubset2.txt] user_id=1" '
     task :build_serials, [:data_directory] => [:environment, :user_id] do |t, args|

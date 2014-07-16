@@ -70,7 +70,7 @@ describe Serial do
       @s.language = 'test'
       expect(@s.primary_language_id).to be_nil
       expect(@s.save).to be_truthy
-     end
+    end
     specify 'if set by primary language id, should be able to get language full name & abbreviation' do
       @s.primary_language_id = @eng.id
       expect(@s.language).to eq('English')
@@ -80,13 +80,64 @@ describe Serial do
 
   end
 
-  it 'should list the Serial Chronology'
+  context 'Serial Chronology' do
+    before {
+      @a = Serial.create(name: 'A')
+      @b = Serial.create(name: 'B')
+      @c = Serial.create(name: 'C')
+      @d = Serial.create(name: 'D')
+      @e = Serial.create(name: 'E')
+      @f = Serial.create(name: 'F')
+      @g = Serial.create(name: 'G')
+      @h = Serial.create(name: 'H')
 
-  it 'should list all preceding serials' do
-    skip 'not implemented yet'
+      #  a & b merge into e splits into g & h
+      SerialChronology::SerialMerge.create(preceding_serial: @a, succeeding_serial: @e)
+      SerialChronology::SerialMerge.create(preceding_serial: @b, succeeding_serial: @e)
+      SerialChronology::SerialMerge.create(preceding_serial: @e, succeeding_serial: @g)
+      SerialChronology::SerialMerge.create(preceding_serial: @e, succeeding_serial: @h)
+
+      # d becomes f
+      SerialChronology::SerialSequence.create(preceding_serial: @d, succeeding_serial: @f)
+    }
+    specify '#immediately_preceding_serials - immediately preceding serial(s if merge)' do
+      expect(@e.immediately_preceding_serials.order(:name).to_a).to eq([@a, @b])
+      expect(@h.immediately_preceding_serials.to_a).to eq([@e])
+      expect(@d.immediately_preceding_serials.to_a).to eq([])
+      expect(@f.immediately_preceding_serials.to_a).to eq([@d])
+    end
+
+    specify '#all_previous - should list all historically related previous serials' do
+      # want all previous serials of h == [e,[a,b]]
+      expect(@h.all_previous).to eq([@e, [@a, @b]])
+    end
+
+    #TODO reflect previous to get succeeding
+    it 'should list all succeeding serials' do
+      skip 'not implemented yet'
+    end
   end
 
-  it 'should list all succeeding serials' do
-    skip 'not implemented yet'
+  context 'Serial translations' do
+    before {
+      @c = Serial.create(name: 'C')
+      @d = Serial.create(name: 'D')
+      @c.translated_from_serial= @d
+      @c.save!
+      @a = Serial.create(name: 'A')
+    }
+    context 'find translations of a serial' do
+      specify 'single serial' do
+        expect(@d.translations.to_a).to eq([@c])
+      end
+      specify 'no translations' do
+        expect(@c.translations.to_a).to eq([])
+      end
+      specify 'mult translations' do
+        @a.translated_from_serial = @d
+        @a.save!
+        expect(@d.translations.order(:name).to_a).to eq([@a,@c])
+      end
+    end
   end
 end
