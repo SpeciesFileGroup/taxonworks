@@ -358,6 +358,7 @@ describe CollectingEvent, :type => :model do
             list = @ce_p1.countries_hash
             expect(list).to include({'Q' => [@area_q]})
             expect(list).to include({'Big Boxia' => [@area_big_boxia]})
+            expect(list).to include({'East Boxia' => [@area_east_boxia]})
             #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
