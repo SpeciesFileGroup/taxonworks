@@ -7,6 +7,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events.json
   def index
     @recent_objects = CollectingEvent.with_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects
   end
 
   # GET /collecting_events/1
