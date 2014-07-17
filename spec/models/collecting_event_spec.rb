@@ -204,6 +204,19 @@ describe CollectingEvent do
         CollectingEvent.destroy_all
         clean_slate_geo
       }
+
+      context 'and that GR has some combination of GIs, and EGIs' do
+        skip 'that the count of which can be found' do
+          # @ce_p5 has two GRs, each of which has a GI.
+          expect(@ce_p5.all_geographic_items.count).to eq(2)
+          # @ce_p8 has two GRs, one of which has only a GI, and the other of which
+          # has a GI, and an EGI.
+          expect(@ce_p8.all_geographic_items.count).to eq(3)
+          # #ce_area_v has a GR which has no GIs, nor EGIs
+          expect(@ce_area_v.all_geographic_items.count).to eq(0)
+        end
+      end
+
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
           pieces = @ce_p7.find_others_within_radius_of(2000000)

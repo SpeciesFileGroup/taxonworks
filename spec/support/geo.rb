@@ -643,6 +643,11 @@ def generate_ce_test_objects
                                   :collecting_event => @ce_area_d,
                                   :geographic_item  => @area_d)
 
+  @ce_area_v = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_area_v collecting event test')
+  # @gr_area_v = FactoryGirl.create(:georeference_verbatim_data,
+  #                                 :api_request      => 'gr_area_v',
+  #                                 :collecting_event => @ce_area_d)
+
 end
 
 
