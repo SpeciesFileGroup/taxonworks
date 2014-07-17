@@ -406,12 +406,12 @@ describe CollectingEvent, :type => :model do
       context 'should return hash of the state with #states_hash' do
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
-            # @ce_o3 has no georeference, so the only way to 'R' is through geographic_area
+            # @ce_o3 has no georeference, so the only way to 'O3' is through geographic_area
             expect(@ce_o3.states_hash).to eq({'O3' => [@area_o3]})
             expect(@ce_o2.states_hash).to eq({'U' => [@area_u]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
-            # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
+            # @ce_p4 has no geographic_area, so the only way to 'N4' is through georeference
             expect(@ce_n4.states_hash).to eq({'N4' => [@area_n4]})
             expect(@ce_n2.states_hash).to eq({'T' => [@area_t]})
           end
@@ -448,16 +448,16 @@ describe CollectingEvent, :type => :model do
         end
 
         context 'result priority' do
-          specify 'it should return #countries_hash.keys.first when only one key is present' do
+          specify 'it should return #states_hash.keys.first when only one key is present' do
             # @ce_o3 leads to only one GA (named area).
             expect(@ce_o3.state_name).to eq('O3')
           end
-          specify 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present' do
+          specify 'it should return the #states_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
             expect(@ce_n2.state_name).to eq('T')
           end
-          specify 'it should return the first #countries_hash.key when an equal number of .values is present' do
-            # @ce_n3 leads back to two GAs; 'R', and 'Old Boxia'
+          specify 'it should return the first #states_hash.key when an equal number of .values is present' do
+            # @ce_n3 is state names 'N3', and leads back to two GAs; 'R', and 'Old Boxia'
             expect(@ce_n3.state_name).to eq('N3')
           end
         end

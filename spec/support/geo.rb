@@ -788,12 +788,12 @@ Great Northern Land Mass overlays Q, R, and S.
 |------|------|------|------| |------|------|------|------|
 |                           | |                           |
 |                           | |                           |
+|                           | |                           |
 |       Q, aka Big Boxia    | |                           |
 |                           | |                           |
 |                           | |                           |
 |                           | |                           |
-|                           | | Great Northern Land Mass  |
-|------|------|------|------| |                           |
+|------|------|------|------| | Great Northern Land Mass  |
 |             |             | |                           |
 |             |             | |                           |
 |             |             | |                           |
@@ -811,9 +811,9 @@ Old Boxia overlays R, and western Q.
 |             |      |      | |      |      |      |      |
 |             |------|------| |      |------|------|------|
 |             |      |      | |      |      |      |      |
-|             |  O2  |  P2  | | West | QTN2 | QUO2 | QUP2 |
-|     Old     |      |      | |Boxia |      |      |      |
-|    Boxia    |------|------| |      |------|------|------|
+|             |  O2  |  P2  | |      | QTN2 | QUO2 | QUP2 |
+|     Old     |      |      | | West |      |      |      |
+|    Boxia    |------|------| |Boxia |------|------|------|
 |             |      |      | |      |      |      |      |
 |             |  O3  |  P3  | |      | RN3  | SO3  | SP3  |
 |             |      |      | |      |      |      |      |
@@ -980,6 +980,79 @@ Old Boxia overlays R, and western Q.
                               :parent => @area_q)
   @area_u.geographic_items << @item_u
   @area_u.save
+
+  @area_qtm1 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QTM1',
+                                 :parent => @area_t)
+
+  @area_qtm2 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QTM2',
+                                 :parent => @area_t)
+
+  @area_qtn1 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QTN1',
+                                 :parent => @area_t)
+
+  @area_qtn2 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QTN2',
+                                 :parent => @area_t)
+
+  @area_quo1 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QUO1',
+                                 :parent => @area_u)
+
+  @area_quo2 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QUO2',
+                                 :parent => @area_u)
+
+  @area_qup1 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QUP1',
+                                 :tdwgID => nil,
+                                 :parent => @area_u)
+
+  @area_qup2 = FactoryGirl.build(:level2_geographic_area,
+                                 :name   => 'QUP2',
+                                 :parent => @area_u)
+
+  @area_rm3 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'RM3',
+                                :tdwgID => nil,
+                                :parent => @area_r)
+
+  @area_rm4 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'RM4',
+                                :tdwgID => nil,
+                                :parent => @area_r)
+
+  @area_rn3 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'RN3',
+                                :tdwgID => nil,
+                                :parent => @area_r)
+
+  @area_rn4 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'RN4',
+                                :tdwgID => nil,
+                                :parent => @area_r)
+
+  @area_so3 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'SO3',
+                                :tdwgID => nil,
+                                :parent => @area_s)
+
+  @area_so4 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'SO4',
+                                :tdwgID => nil,
+                                :parent => @area_s)
+
+  @area_sp3 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'SP3',
+                                :tdwgID => nil,
+                                :parent => @area_s)
+
+  @area_sp4 = FactoryGirl.build(:level1_geographic_area,
+                                :name   => 'SP4',
+                                :tdwgID => nil,
+                                :parent => @area_s)
 
   @area_m3 = FactoryGirl.build(:level1_geographic_area,
                                :name                 => 'M3',
@@ -1184,7 +1257,7 @@ Old Boxia overlays R, and western Q.
   # @ce_o3 has no georeference
   @ce_o3   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_o3',
-                                :geographic_area => @area_s)
+                                :geographic_area => @area_o3)
   # @ce_p3 has no georeference
   @ce_p3   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_p3',
