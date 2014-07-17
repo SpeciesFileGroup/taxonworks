@@ -23,6 +23,10 @@ module ApplicationHelper
     controller_name.humanize.titleize
   end
 
+  def object_attributes_partial_path(object)
+    "/#{object.class.name.downcase.pluralize}/attributes"
+  end
+
   def hidden_css_property_if(tru)
     tru ? 'hidden'.html_safe : nil
   end
@@ -30,5 +34,7 @@ module ApplicationHelper
   def collapsed_css_property_if(tru)
     tru ? 'collapsed'.html_safe : nil
   end
+
+
 
 end

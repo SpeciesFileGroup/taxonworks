@@ -14,7 +14,7 @@ class Otu < ActiveRecord::Base
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_object, through: :taxon_determinations
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object 
   has_many :collection_profiles
   has_many :topics, through: :contents, source: :topic
 

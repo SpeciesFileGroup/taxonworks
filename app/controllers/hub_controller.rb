@@ -4,6 +4,13 @@ class HubController < ApplicationController
 
   # GET /hub
   def index
+
+     respond_to do |format|
+       format.html {}
+       format.js {
+         render partial: 'navigation_index' # layout: nil
+       }
+    end 
   end
 
   protected

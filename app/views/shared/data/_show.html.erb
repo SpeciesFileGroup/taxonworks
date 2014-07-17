@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<div class="flexbox">
+  <div class="item item1">
+    <h2> <%= model_name_title -%></h2>
+    <div>id: <%= object.id -%></div>
+    <%= forward_back_links(object) -%> <br>
+    <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%>
+</div>
+
+  <div class="item item2">
+    <%= render object_attributes_partial_path(object) %>
+    <%= render partial: '/shared/data/show/housekeeping',    locals: { object: object} -%>
+    <%= render partial: '/shared/data/show/soft_validation', locals: { object: object} -%>
+  </div>
+
+  <div class="item item3">
+    <h2> Related data </h2>
+    <% object.class.reflect_on_all_associations(:has_many).sort{|a,b| a.name <=> b.name}.each do |r|  -%>
+      <%= r.name.to_s.humanize -%> <%= object.send(r.name.to_s.pluralize).count -%> <br>
+    <% end %> 
+  </div>
+</div>
+
+
+
+
