@@ -425,7 +425,7 @@ E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
 
-def generate_geo_test_objects
+def prepare_test
 
   u = User.order(:id).first
   if u.nil?
@@ -439,6 +439,12 @@ def generate_geo_test_objects
 
   $user_id    = u.id
   $project_id = p.id
+
+end
+
+def generate_geo_test_objects
+
+  prepare_test
 
   @p0  = FactoryGirl.build(:geographic_item, :point => POINT0.as_binary) # 0
   @p1  = FactoryGirl.build(:geographic_item, :point => POINT1.as_binary) # 1
@@ -920,40 +926,10 @@ Two different shapes with the same name, 'East Boxia', and
 |  M4  |  N4  |  O4  |      | | RM4  | RN4  | SO4  | SP4  |
 |      |      |      |      | |      |      |      |      |
 |------|------|------|------| |------|------|------|------|
-                                                           
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 =end
 
-  u = User.order(:id).first
-  if u.nil?
-    u = FactoryGirl.create(:valid_user, id: 1)
-  end
-
-  p = Project.order(:id).first
-  if p.nil?
-    p = FactoryGirl.create(:valid_project, id: 1)
-  end
-
-  $user_id    = u.id
-  $project_id = p.id
+  prepare_test
 
   gat_country   = GeographicAreaType.find_or_create_by(name: 'Country')
   gat_state     = GeographicAreaType.find_or_create_by(name: 'State')
@@ -1173,16 +1149,16 @@ Two different shapes with the same name, 'East Boxia', and
   @area_qtn1.save
 
   @area_qtn2_1 = FactoryGirl.build(:level2_geographic_area,
-                                 :name                 => 'QTN2',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                   :name                 => 'QTN2',
+                                   :geographic_area_type => gat_county,
+                                   :parent               => @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save
 
   @area_qtn2_2 = FactoryGirl.build(:level2_geographic_area,
-                                 :name                 => 'QTN2',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                   :name                 => 'QTN2',
+                                   :geographic_area_type => gat_county,
+                                   :parent               => @area_t_1)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 

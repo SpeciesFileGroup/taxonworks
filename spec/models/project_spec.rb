@@ -82,6 +82,7 @@ describe Project, :type => :model do
       @failed_factories     = {}
       FactoryGirl.factories.each { |factory|
         if factory.name =~ /^valid_/
+          next if factory.name.to_s == 'valid_biological_relationship_type'
           begin
             test_factory = FactoryGirl.build(factory.name)
           rescue => detail
@@ -98,6 +99,9 @@ describe Project, :type => :model do
           end
         end
       }
+      if @failed_factories.length > 0
+        puts "\n#{@failed_factories.length} invalid factories."
+      end
     }
 
 

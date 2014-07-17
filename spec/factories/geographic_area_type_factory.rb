@@ -55,7 +55,7 @@ FactoryGirl.define do
   factory :geographic_area_type, traits: [:creator_and_updater] do
 
     factory :valid_geographic_area_type do
-      name 'AnyType'
+      name {Faker::Lorem.word}
     end
 
     factory :planet_geographic_area_type do
