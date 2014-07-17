@@ -228,23 +228,36 @@ class CollectingEvent < ActiveRecord::Base
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
     retval  = []
-    ga_list = []
+    # ga_list = []
     gi_list = []
 
-    gi_list << GeographicItem.containing('any', self.geographic_items)
-    gi_list << GeographicItem.containing('any', self.error_geographic_items)
 
-    ga_list << gi_list.uniq.flatten.map(&:geographic_areas).uniq
+    # gather all the GIs which contain this GI or EGI
+    gi_list << GeographicItem.containing('any', self.geographic_items).pluck(:id)
+    gi_list << GeographicItem.containing('any', self.error_geographic_items).pluck(:id)
 
-    ga_list.flatten.each {|ga|
-      GeographicAreaType::COUNTRY_LEVEL_TYPES.each {|gat|
-        gat = GeographicAreaType.where(:name => gat).first
-        if ga.geographic_area_type == gat
-          retval << {ga.name => ga}
-        end
-      }
-    }
+    gi_list.flatten!
+    ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
+      where(geographic_area_types:             {name: GeographicAreaType::COUNTRY_LEVEL_TYPES},
+            geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+
+    # map the resulting GIs to their corresponding GAs
+    # ga_list << gi_list.uniq.flatten.map(&:geographic_areas).uniq
+
+    # isolate those which are of the level0 GATs like 'Country'.
+    # ga_list.flatten.each { |ga|
+    #   GeographicAreaType::COUNTRY_LEVEL_TYPES.each { |gat_text|
+    #     gat = GeographicAreaType.where(:name => gat_text).first
+    #     if ga.geographic_area_type == gat
+    #       retval << {ga.name => ga}
+    #     end
+    #   }
+    # }
     # gi_list = GeographicItem.containing('any', self.geographic_items.first).to_a
+
+    ga_list.each { |ga|
+      retval << {ga.name => ga}
+    }
     if retval.count < 2
       retval = retval[0]
     end

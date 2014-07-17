@@ -321,13 +321,17 @@ describe CollectingEvent do
       #  
     }
 
+    after(:all) {
+      clean_slate_geo
+    }
+
     context 'countries' do
       context 'should return hash of the country with #countries_hash' do
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
-            # @ce_o3 has no georeference, so the only way to 'R' is through geographic_area
+            # @ce_o3 has no georeference, so the only way to 'S' is through geographic_area
             list = @ce_o3.countries_hash
-            expect(list).to eq({'R' => [@area_r]})
+            expect(list).to eq({'S' => [@area_s]})
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
@@ -505,17 +509,17 @@ describe CollectingEvent do
         end
 
         context 'result priority' do
-          specify 'it should return #countries_hash.keys.first when only one key is present' do
+          specify 'it should return #counties_hash.keys.first when only one key is present' do
             # @ce_o3 leads to only one GA (named area).
             expect(@ce_o3.county_name).to eq('O3')
           end
-          specify 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present' do
+          specify 'it should return the #counties_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
             expect(@ce_n2.county_name).to eq('N2')
           end
-          specify 'it should return the first #countries_hash.key when an equal number of .values is present' do
-            # @ce_n3 leads back to two GAs; 'R', and 'Old Boxia'
-            expect(@ce_n3.county_name).to be_nil
+          specify 'it should return the first #counties_hash.key when an equal number of .values is present' do
+            # @ce_o2 leads back to two GAs; 'U', 'Q', and 'Big Boxia'
+            expect(@ce_o2.county_name).to eq('O2')
           end
         end
       end
