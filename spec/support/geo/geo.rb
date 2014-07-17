@@ -33,6 +33,97 @@ ROOMS20NN = RSPEC_GEO_FACTORY.multi_point([ROOM2020,
                                            ROOM2022,
                                            ROOM2024])
 
+GI_POINT_A       = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655)
+GI_POINT_C       = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402)
+GI_POINT_M       = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091)
+GI_POINT_U       = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037)
+GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
+                                                  RSPEC_GEO_FACTORY.point(-25, 21),
+                                                  RSPEC_GEO_FACTORY.point(-25, 16),
+                                                  RSPEC_GEO_FACTORY.point(-21, 20)])
+GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
+                                                  RSPEC_GEO_FACTORY.point(-25, 21),
+                                                  RSPEC_GEO_FACTORY.point(-25, 16),
+                                                  RSPEC_GEO_FACTORY.point(-21, 20)])
+GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
+GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
+  [RSPEC_GEO_FACTORY.polygon(
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
+        RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
+        RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
+        RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
+        RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
+
+   RSPEC_GEO_FACTORY.polygon(
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868),
+        RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885),
+        RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927),
+        RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851),
+        RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988),
+        RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999),
+        RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909),
+        RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995),
+        RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892),
+        RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883),
+        RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873),
+        RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912),
+        RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907),
+        RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956),
+        RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944),
+        RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918),
+        RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929),
+        RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887),
+        RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936),
+        RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894),
+        RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872),
+        RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868)])),
+
+   RSPEC_GEO_FACTORY.polygon(
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913),
+        RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917),
+        RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914),
+        RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906),
+        RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853),
+        RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848),
+        RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937),
+        RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999),
+        RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944),
+        RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891),
+        RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988),
+        RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941),
+        RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894),
+        RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878),
+        RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886),
+        RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988),
+        RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932),
+        RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913),
+        RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893),
+        RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913)])),
+
+   RSPEC_GEO_FACTORY.polygon(
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991),
+        RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901),
+        RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886),
+        RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901),
+        RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901),
+        RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927),
+        RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892),
+        RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848),
+        RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991)])),
+
+   RSPEC_GEO_FACTORY.polygon(
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876),
+        RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859),
+        RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888),
+        RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987),
+        RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903),
+        RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876)]))])
+
 POINT0  = RSPEC_GEO_FACTORY.point(0, 0)
 POINT1  = RSPEC_GEO_FACTORY.point(-29, -16)
 POINT2  = RSPEC_GEO_FACTORY.point(-25, -18)
@@ -806,8 +897,48 @@ Old Boxia overlays R, and western Q.
 |             |      |      | |      |      |      |      |
 |             |  O4  |  P4  | |      | RN4  | SO4  |      |
 |             |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|     
+
+Two different shapes with the same name, 'East Boxia', and
+'East Boxia' (the square) is also listed as a state in
+'Old Boxia'.
+                                                           
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |             |
+|  M1  |  N1  |  O1  |      | | QTM1 | QTN1 |             |
+|      |      |      |      | |      |      |     East    |
+|------|------|------|      | |------|------|    Boxia    |
+|      |      |      |      | |      |      |             |
+|  M2  |  N2  |  O2  |      | | QTM2 | QTN2 |             |
+|      |      |      | East | |      |      |             |
+|------|------|------|Boxia | |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M3  |  N3  |  O3  |      | | RM3  | RN3  | SO3  | SP3  |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|      | |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M4  |  N4  |  O4  |      | | RM4  | RN4  | SO4  | SP4  |
+|      |      |      |      | |      |      |      |      |
 |------|------|------|------| |------|------|------|------|
                                                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 =end
 
@@ -824,6 +955,9 @@ Old Boxia overlays R, and western Q.
   $user_id    = u.id
   $project_id = p.id
 
+  gat_country   = GeographicAreaType.find_or_create_by(name: 'Country')
+  gat_state     = GeographicAreaType.find_or_create_by(name: 'State')
+  gat_county    = GeographicAreaType.find_or_create_by(name: 'County')
   gat_province  = GeographicAreaType.find_or_create_by(name: 'Province')
   gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
   gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
@@ -848,23 +982,25 @@ Old Boxia overlays R, and western Q.
   shape_o4 = make_box(POINT_M1_P0, 2, 3, 1, 1)
   shape_p4 = make_box(POINT_M1_P0, 3, 3, 1, 1)
 
-  shape_q = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
-  shape_t = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_u = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_q   = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
+  shape_t_1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_t_2 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_u   = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
 
   shape_r = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
   shape_s = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
 
-  shape_ob = make_box(POINT_M1_P0, 0, 0, 2, 4)
-  shape_eb = make_box(POINT_M1_P0, 3, 0, 1, 4)
-  shape_wb = make_box(POINT_M1_P0, 0, 0, 1, 4)
-  shape_w  = make_box(POINT_M1_P0, 0, 0, 4, 4)
+  shape_ob   = make_box(POINT_M1_P0, 0, 0, 2, 4)
+  shape_eb_1 = make_box(POINT_M1_P0, 3, 0, 1, 4)
+  shape_eb_2 = make_box(POINT_M1_P0, 2, 0, 2, 2)
+  shape_wb   = make_box(POINT_M1_P0, 0, 0, 1, 4)
+  shape_w    = make_box(POINT_M1_P0, 0, 0, 4, 4)
 
   # first, the basic 16 shapes
-  @item_m1 = FactoryGirl.create(:geographic_item, :polygon => shape_m1)
-  @item_n1 = FactoryGirl.create(:geographic_item, :polygon => shape_n1)
-  @item_o1 = FactoryGirl.create(:geographic_item, :polygon => shape_o1)
-  @item_p1 = FactoryGirl.create(:geographic_item, :polygon => shape_p1)
+  @item_m1   = FactoryGirl.create(:geographic_item, :polygon => shape_m1)
+  @item_n1   = FactoryGirl.create(:geographic_item, :polygon => shape_n1)
+  @item_o1   = FactoryGirl.create(:geographic_item, :polygon => shape_o1)
+  @item_p1   = FactoryGirl.create(:geographic_item, :polygon => shape_p1)
 
   @item_m2 = FactoryGirl.create(:geographic_item, :polygon => shape_m2)
   @item_n2 = FactoryGirl.create(:geographic_item, :polygon => shape_n2)
@@ -883,7 +1019,8 @@ Old Boxia overlays R, and western Q.
 
   # next, the big shape, and two sub-shapes
   @item_q         = FactoryGirl.create(:geographic_item, :polygon => shape_q)
-  @item_t         = FactoryGirl.create(:geographic_item, :polygon => shape_t)
+  @item_t_1       = FactoryGirl.create(:geographic_item, :polygon => shape_t_1)
+  @item_t_2       = FactoryGirl.create(:geographic_item, :polygon => shape_t_2)
   @item_u         = FactoryGirl.create(:geographic_item, :polygon => shape_u)
 
   # then the medium shapes
@@ -896,7 +1033,8 @@ Old Boxia overlays R, and western Q.
 
   # superseded country shapes
   @item_ob        = FactoryGirl.create(:geographic_item, :polygon => shape_ob)
-  @item_eb        = FactoryGirl.create(:geographic_item, :polygon => shape_eb)
+  @item_eb_1      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_1)
+  @item_eb_2      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_2)
   @item_wb        = FactoryGirl.create(:geographic_item, :polygon => shape_wb)
 
   # the entire land mass
@@ -918,134 +1056,229 @@ Old Boxia overlays R, and western Q.
   @area_land_mass.save
 
   @area_old_boxia = FactoryGirl.build(:level0_geographic_area,
-                                      :name        => 'Old Boxia',
-                                      :iso_3166_a3 => nil,
-                                      :iso_3166_a2 => nil)
+                                      :name                 => 'Old Boxia',
+                                      :geographic_area_type => gat_country,
+                                      :iso_3166_a3          => nil,
+                                      :iso_3166_a2          => nil)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
   @area_big_boxia = FactoryGirl.build(:level0_geographic_area,
-                                      :name        => 'Big Boxia',
-                                      :iso_3166_a3 => nil,
-                                      :iso_3166_a2 => nil)
+                                      :name                 => 'Big Boxia',
+                                      :geographic_area_type => gat_country,
+                                      :iso_3166_a3          => nil,
+                                      :iso_3166_a2          => nil)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.build(:level0_geographic_area,
-                              :name        => 'Q',
-                              :iso_3166_a3 => 'QQQ',
-                              :iso_3166_a2 => 'QQ')
+                              :name                 => 'Q',
+                              :geographic_area_type => gat_country,
+                              :iso_3166_a3          => 'QQQ',
+                              :iso_3166_a2          => 'QQ')
   @area_q.geographic_items << @item_q
   @area_q.save
-  @area_east_boxia = FactoryGirl.build(:level0_geographic_area,
-                                       :name        => 'East Boxia',
-                                       :iso_3166_a3 => nil,
-                                       :iso_3166_a2 => nil)
-  @area_east_boxia.geographic_items << @item_eb
-  @area_east_boxia.save
-  @area_west_boxia = FactoryGirl.build(:level0_geographic_area,
-                                       :name        => 'West Boxia',
-                                       :iso_3166_a3 => nil,
-                                       :iso_3166_a2 => nil)
-  @area_west_boxia.geographic_items << @item_wb
-  @area_west_boxia.save
+  @area_east_boxia_1 = FactoryGirl.build(:level0_geographic_area,
+                                         :name                 => 'East Boxia',
+                                         :geographic_area_type => gat_country,
+                                         :iso_3166_a3          => 'EB1',
+                                         :iso_3166_a2          => nil)
+  @area_east_boxia_1.geographic_items << @item_eb_1
+  @area_east_boxia_1.save
+  @area_east_boxia_2 = FactoryGirl.build(:level0_geographic_area,
+                                         :name                 => 'East Boxia',
+                                         :geographic_area_type => gat_country,
+                                         :iso_3166_a3          => 'EB2',
+                                         :iso_3166_a2          => nil)
+  @area_east_boxia_2.geographic_items << @item_eb_2
+  @area_east_boxia_2.save
+  @area_east_boxia_3 = FactoryGirl.build(:level1_geographic_area,
+                                         :name                 => 'East Boxia',
+                                         :geographic_area_type => gat_state,
+                                         :iso_3166_a3          => 'EB3',
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_old_boxia)
+  @area_east_boxia_3.geographic_items << @item_eb_2
+  @area_east_boxia_3.save
+  @area_west_boxia_1 = FactoryGirl.build(:level0_geographic_area,
+                                         :name                 => 'West Boxia',
+                                         :geographic_area_type => gat_country,
+                                         :iso_3166_a3          => 'WB1',
+                                         :iso_3166_a2          => nil)
+  @area_west_boxia_1.geographic_items << @item_wb
+  @area_west_boxia_1.save
+  @area_west_boxia_3 = FactoryGirl.build(:level1_geographic_area,
+                                         :name                 => 'West Boxia',
+                                         :geographic_area_type => gat_state,
+                                         :iso_3166_a3          => 'WB3',
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_old_boxia)
+  @area_west_boxia_3.geographic_items << @item_wb
+  @area_west_boxia_3.save
   @area_r = FactoryGirl.build(:level0_geographic_area,
-                              :name        => 'R',
-                              :iso_3166_a3 => 'RRR',
-                              :iso_3166_a2 => 'RR')
+                              :name                 => 'R',
+                              :geographic_area_type => gat_country,
+                              :iso_3166_a3          => 'RRR',
+                              :iso_3166_a2          => 'RR')
   @area_r.geographic_items << @item_r
   @area_r.save
   @area_s = FactoryGirl.build(:level0_geographic_area,
-                              :name        => 'S',
-                              :iso_3166_a3 => 'SSS',
-                              :iso_3166_a2 => 'SS')
+                              :name                 => 'S',
+                              :geographic_area_type => gat_country,
+                              :iso_3166_a3          => 'SSS',
+                              :iso_3166_a2          => 'SS')
   @area_s.geographic_items << @item_s
   @area_s.save
 
   # next, level 1 areas
-  @area_t = FactoryGirl.build(:level1_geographic_area,
-                              :name   => 'T',
-                              :tdwgID => nil,
-                              :parent => @area_q)
-  @area_t.geographic_items << @item_t
-  @area_t.save
+  @area_t_1 = FactoryGirl.build(:level1_geographic_area,
+                                :name                 => 'T',
+                                :tdwgID               => '10TTT',
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_q)
+  @area_t_1.geographic_items << @item_t_1
+  @area_t_1.save
+  @area_t_2 = FactoryGirl.build(:level1_geographic_area,
+                                :name                 => 'T',
+                                :tdwgID               => '20TTT',
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_q)
+  @area_t_2.geographic_items << @item_t_2
+  @area_t_2.save
   @area_u = FactoryGirl.build(:level1_geographic_area,
-                              :name   => 'U',
-                              :tdwgID => nil,
-                              :parent => @area_q)
+                              :name                 => 'U',
+                              :tdwgID               => nil,
+                              :geographic_area_type => gat_state,
+                              :parent               => @area_q)
   @area_u.geographic_items << @item_u
   @area_u.save
 
   @area_qtm1 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QTM1',
-                                 :parent => @area_t)
+                                 :name                 => 'QTM1',
+                                 :geographic_area_type => gat_county,
+                                 :parent               => @area_t_1)
+  @area_qtm1.geographic_items << @item_m1
+  @area_qtm1.save
 
   @area_qtm2 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QTM2',
-                                 :parent => @area_t)
+                                 :name                 => 'QTM2',
+                                 :geographic_area_type => gat_county,
+                                 :parent               => @area_t_1)
+  @area_qtm2.geographic_items << @item_m1
+  @area_qtm2.save
 
   @area_qtn1 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QTN1',
-                                 :parent => @area_t)
+                                 :name                 => 'QTN1',
+                                 :geographic_area_type => gat_county,
+                                 :parent               => @area_t_1)
+  @area_qtn1.geographic_items << @item_n1
+  @area_qtn1.save
 
-  @area_qtn2 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QTN2',
-                                 :parent => @area_t)
+  @area_qtn2_1 = FactoryGirl.build(:level2_geographic_area,
+                                 :name                 => 'QTN2',
+                                 :geographic_area_type => gat_county,
+                                 :parent               => @area_t_1)
+  @area_qtn2_1.geographic_items << @item_n2
+  @area_qtn2_1.save
+
+  @area_qtn2_2 = FactoryGirl.build(:level2_geographic_area,
+                                 :name                 => 'QTN2',
+                                 :geographic_area_type => gat_county,
+                                 :parent               => @area_t_1)
+  @area_qtn2_2.geographic_items << @item_n2
+  @area_qtn2_2.save
 
   @area_quo1 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QUO1',
-                                 :parent => @area_u)
+                                 :name                 => 'QUO1',
+                                 :geographic_area_type => gat_parish,
+                                 :parent               => @area_u)
+  # @area_quo1.geographic_items << @item_o1
+  # @area_quo1.save
 
   @area_quo2 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QUO2',
-                                 :parent => @area_u)
+                                 :name                 => 'QUO2',
+                                 :geographic_area_type => gat_parish,
+                                 :parent               => @area_u)
+  @area_quo2.geographic_items << @item_o2
+  @area_quo2.save
 
   @area_qup1 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QUP1',
-                                 :tdwgID => nil,
-                                 :parent => @area_u)
+                                 :name                 => 'QUP1',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_parish,
+                                 :parent               => @area_u)
+  @area_qup1.geographic_items << @item_p1
+  @area_qup1.save
 
   @area_qup2 = FactoryGirl.build(:level2_geographic_area,
-                                 :name   => 'QUP2',
-                                 :parent => @area_u)
+                                 :name                 => 'QUP2',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_parish,
+                                 :parent               => @area_u)
+  @area_qup2.geographic_items << @item_p2
+  @area_qup2.save
 
   @area_rm3 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'RM3',
-                                :tdwgID => nil,
-                                :parent => @area_r)
+                                :name                 => 'RM3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
+  @area_rm3.geographic_items << @item_m3
+  @area_rm3.save
 
   @area_rm4 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'RM4',
-                                :tdwgID => nil,
-                                :parent => @area_r)
+                                :name                 => 'RM4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
+  @area_rm4.geographic_items << @item_m4
+  @area_rm4.save
 
   @area_rn3 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'RN3',
-                                :tdwgID => nil,
-                                :parent => @area_r)
+                                :name                 => 'RN3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
+  @area_rn3.geographic_items << @item_n3
+  @area_rn3.save
 
   @area_rn4 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'RN4',
-                                :tdwgID => nil,
-                                :parent => @area_r)
+                                :name                 => 'RN4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
+  @area_rn4.geographic_items << @item_n4
+  @area_rn4.save
 
   @area_so3 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'SO3',
-                                :tdwgID => nil,
-                                :parent => @area_s)
+                                :name                 => 'SO3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
+  @area_so3.geographic_items << @item_o3
+  @area_so3.save
 
   @area_so4 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'SO4',
-                                :tdwgID => nil,
-                                :parent => @area_s)
+                                :name                 => 'SO4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
+  # @area_so4.geographic_items << @item_o4
+  # @area_so4.save
 
   @area_sp3 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'SP3',
-                                :tdwgID => nil,
-                                :parent => @area_s)
+                                :name                 => 'SP3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
+  @area_sp3.geographic_items << @item_p3
+  @area_sp3.save
 
   @area_sp4 = FactoryGirl.build(:level1_geographic_area,
-                                :name   => 'SP4',
-                                :tdwgID => nil,
-                                :parent => @area_s)
+                                :name                 => 'SP4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
+  @area_sp4.geographic_items << @item_p4
+  @area_sp4.save
 
   @area_m3 = FactoryGirl.build(:level1_geographic_area,
                                :name                 => 'M3',
@@ -1077,53 +1310,61 @@ Old Boxia overlays R, and western Q.
   @area_n4.save
 
   @area_o3 = FactoryGirl.build(:level1_geographic_area,
-                               :name   => 'O3',
-                               :tdwgID => nil,
-                               :parent => @area_s)
+                               :name                 => 'O3',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save
   @area_p3 = FactoryGirl.build(:level1_geographic_area,
-                               :name   => 'P3',
-                               :tdwgID => nil,
-                               :parent => @area_s)
+                               :name                 => 'P3',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save
   @area_o4 = FactoryGirl.build(:level1_geographic_area,
-                               :name   => 'O4',
-                               :tdwgID => nil,
-                               :parent => @area_s)
+                               :name                 => 'O4',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save
   @area_p4 = FactoryGirl.build(:level1_geographic_area,
-                               :name   => 'P4',
-                               :tdwgID => nil,
-                               :parent => @area_s)
+                               :name                 => 'P4',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_s)
   @area_p4.geographic_items << @item_p4
   @area_p4.save
 
   # last, for level2
   @area_m1        = FactoryGirl.build(:level2_geographic_area,
-                                      :name   => 'M1',
-                                      :parent => @area_t)
-  @area_m1.level0 = @area_t
+                                      :name                 => 'M1',
+                                      :geographic_area_type => gat_county,
+                                      :parent               => @area_t_1)
+  @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save
   @area_n1        = FactoryGirl.build(:level2_geographic_area,
-                                      :name   => 'N1',
-                                      :parent => @area_t)
-  @area_n1.level0 = @area_t
+                                      :name                 => 'N1',
+                                      :geographic_area_type => gat_county,
+                                      :parent               => @area_t_1)
+  @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save
   @area_m2        = FactoryGirl.build(:level2_geographic_area,
-                                      :name   => 'M2',
-                                      :parent => @area_t)
-  @area_m2.level0 = @area_t
+                                      :name                 => 'M2',
+                                      :geographic_area_type => gat_county,
+                                      :parent               => @area_t_1)
+  @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save
   @area_n2        = FactoryGirl.build(:level2_geographic_area,
-                                      :name   => 'N2',
-                                      :parent => @area_t)
-  @area_n2.level0 = @area_t
+                                      :name                 => 'N2',
+                                      :geographic_area_type => gat_county,
+                                      :parent               => @area_t_1)
+  @area_n2.level0 = @area_t_1
   @area_n2.geographic_items << @item_n2
   @area_n2.save
 
@@ -1266,7 +1507,7 @@ Old Boxia overlays R, and western Q.
                                        :geographic_item       => GeographicItem.new(:point => @item_m4.st_centroid))
   @ce_n4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_n4',
-                                       :geographic_area => @area_n4)
+                                       :geographic_area => nil)
   @gr_n4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n4',
                                        :collecting_event      => @ce_n4,
@@ -1293,12 +1534,12 @@ Old Boxia overlays R, and western Q.
 
   # this one is just a collecting event, no georeferences or geographic_area
   @ce_v           = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_v',
+                                       :verbatim_label  => '@ce_v',
                                        :geographic_area => nil)
 
   # collecting events in superseded country
   @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_old_boxia_1',
+                                       :verbatim_label  => '@ce_old_boxia_1',
                                        :geographic_area => nil)
   @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_m2_ob',
@@ -1306,7 +1547,7 @@ Old Boxia overlays R, and western Q.
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
   @ce_old_boxia_2 = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_old_boxia_2',
+                                       :verbatim_label  => '@ce_old_boxia_2',
                                        :geographic_area => nil)
   @gr_n3_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n3_ob',
@@ -1333,7 +1574,6 @@ def clean_slate_geo
   Georeference.delete_all
   CollectingEvent.delete_all
 end
-
 
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.
