@@ -86,14 +86,14 @@ describe Project, :type => :model do
             test_factory = FactoryGirl.build(factory.name)
           rescue => detail
             @failed_factories[factory.name] = detail
-            puts "Factory #{factory.name} is not valid: #{detail}"
+            puts "\"#{factory.name}\" build #{detail}"
           else
             if test_factory.valid?
               test_factory.save
               @factories_under_test[factory.name] = test_factory
             else
               @failed_factories[factory.name] = test_factory.errors
-              puts "Factory #{factory.name} is not valid: #{test_factory.errors.to_a}"
+              puts "\"#{factory.name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
         end
