@@ -46,13 +46,13 @@ describe Georeference, :type => :model do
         georeference.error_radius = 30000000
         georeference.error_depth  = 9000
         @e_g_i                    = GeographicItem.new(polygon: BOX_1)
-        @area_d                   = GeographicItem.new(polygon: BOX_4)
+        @item_d                   = GeographicItem.new(polygon: BOX_4)
         @g_a                      = GeographicArea.new(name:                 'Box_4',
                                                        data_origin:          'Test Data',
                                                        geographic_area_type: FactoryGirl.create(:testbox_geographic_area_type),
                                                        parent:               FactoryGirl.build(:earth_geographic_area))
 
-        GeographicAreasGeographicItem.create(geographic_item: @area_d, geographic_area: @g_a)
+        GeographicAreasGeographicItem.create(geographic_item: @item_d, geographic_area: @g_a)
 
         # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
         @point0   = GeographicItem.new(point: POINT0)
@@ -114,14 +114,14 @@ describe Georeference, :type => :model do
       end
 
       specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
-        # from the context 'before' process, area_d is already BOX_4
+        # from the context 'before' process, item_d is already BOX_4
         # so we remove the old (outdated) association,
-        @g_a.geographic_items.delete(@area_d)
+        @g_a.geographic_items.delete(@item_d)
         # create the new area,
-        @area_d = GeographicItem.new(polygon: POLY_E1)
-        # ()previous - @g_a.ne_geo_item = @area_d)
+        @item_d = GeographicItem.new(polygon: POLY_E1)
+        # ()previous - @g_a.ne_geo_item = @item_d)
         # and create a new one to the new area
-        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @area_d)
+        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @item_d)
         georeference = Georeference::VerbatimData.new(collecting_event:      @c_e,
                                                       # @e_g_i is test_box_1
                                                       error_geographic_item: @e_g_i)
@@ -136,14 +136,14 @@ describe Georeference, :type => :model do
       end
 
       specify 'errors which result from badly formed collecting_event area values and error_radius' do
-        # from the context 'before' process, area_d is already BOX_4
+        # from the context 'before' process, item_d is already BOX_4
         # so we remove the old (outdated) association,
-        @g_a.geographic_items.delete(@area_d)
+        @g_a.geographic_items.delete(@item_d)
 
-        @area_d = GeographicItem.new(polygon: POLY_E1)
+        @item_d = GeographicItem.new(polygon: POLY_E1)
 
-        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @area_d)
-        # @g_a.ne_geo_item = @area_d
+        GeographicAreasGeographicItem.create(geographic_area: @g_a, geographic_item: @item_d)
+        # @g_a.ne_geo_item = @item_d
         georeference = Georeference::VerbatimData.new(collecting_event: @c_e,
                                                       error_radius:     160000)
         expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
@@ -225,7 +225,7 @@ describe Georeference, :type => :model do
         # @c_e got saved...
         expect(@c_e.new_record?).to be_falsey
         #
-        # TODO: follow the save propagation chain and figure out why @c_e.@g_a.@area_d DID NOT get saved
+        # TODO: follow the save propagation chain and figure out why @c_e.@g_a.@item_d DID NOT get saved
         # expect(@c_e.geographic_area.default_geographic_item.new_record?).to be_truthy
         # force the save
         expect(@c_e.geographic_area.default_geographic_item.save).to be_truthy
@@ -282,6 +282,7 @@ describe Georeference, :type => :model do
       GeographicItem.destroy_all
       Georeference.destroy_all
       CollectingEvent.destroy_all
+      clean_slate_geo
     }
 
     specify '.within_radius_of(geographic_item, distance)' do
@@ -341,7 +342,7 @@ describe Georeference, :type => :model do
                                  geographic_area_type:                         g_a_t,
                                  parent:                                       p_a,
                                  level0:                                       p_a,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_a, data_origin: 'Test Data'}])
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @item_a, data_origin: 'Test Data'}])
 
       @g_a2 = GeographicArea.new(name:                                         'Box_2',
                                  data_origin:                                  'Test Data',
@@ -349,7 +350,7 @@ describe Georeference, :type => :model do
                                  geographic_area_type:                         g_a_t,
                                  parent:                                       p_a,
                                  level0:                                       p_a,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_b, data_origin: 'Test Data'}])
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @item_b, data_origin: 'Test Data'}])
 
       @g_a3 = GeographicArea.new(name:                                         'Box_3',
                                  data_origin:                                  'Test Data',
@@ -357,7 +358,7 @@ describe Georeference, :type => :model do
                                  geographic_area_type:                         g_a_t,
                                  parent:                                       p_a,
                                  level0:                                       p_a,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_c, data_origin: 'Test Data'}]
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @item_c, data_origin: 'Test Data'}]
       )
 
       @g_a4 = GeographicArea.new(name:                                         'Box_4',
@@ -365,7 +366,7 @@ describe Georeference, :type => :model do
                                  geographic_area_type:                         g_a_t,
                                  parent:                                       p_a,
                                  level0:                                       p_a,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: @area_d, data_origin: 'Test Data'}])
+                                 geographic_areas_geographic_items_attributes: [{geographic_item: @item_d, data_origin: 'Test Data'}])
 
       @g_a4.save! # make sure the id is set
 
@@ -378,7 +379,7 @@ describe Georeference, :type => :model do
       expect(Georeference.with_geographic_area(@g_a4).to_a).to eq([])
 
       @gr1.collecting_event.geographic_area = @g_a4
-      @gr1.geographic_item                  = @area_a
+      @gr1.geographic_item                  = @item_a
       @gr1.collecting_event.save!
       @gr1.save!
 

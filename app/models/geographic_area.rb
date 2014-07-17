@@ -96,7 +96,6 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.id).order(:lft)
   end
 
-  # TODO: Test
   # A scope. Matches GeographicAreas that have name and parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
@@ -106,7 +105,7 @@ class GeographicArea < ActiveRecord::Base
   }
 
   # TODO: Test, or extend a general method
-  # Matches GeographicAreas that match name, parent name, parent name.
+  # Matches GeographicAreas that match name, parent name, parent.parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
   scope :with_name_and_parent_names, -> (names) {
     joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
@@ -116,7 +115,6 @@ class GeographicArea < ActiveRecord::Base
     where(['gb.name = ?', names[2] ])
   }
  
-  # TODO: test 
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
@@ -125,7 +123,7 @@ class GeographicArea < ActiveRecord::Base
     if array.length == 1
       where(name: array.first)
     elsif array.length == 2
-      with_name_and_parent_names(array)
+      with_name_and_parent_name(array)
     elsif array.length == 3
       with_name_and_parent_names(array)
     else
