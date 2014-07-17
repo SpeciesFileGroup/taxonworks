@@ -171,17 +171,12 @@ describe GeographicArea do
 
   # TODO: cleanup/extend
   context 'interaction with geographic_items' do
-    after(:all) {
-      GeographicArea.destroy_all
-    }
+    # after(:all) {
+    #   GeographicArea.destroy_all
+    # }
     before(:each) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
-      listK            = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
-                                                        RSPEC_GEO_FACTORY.point(-33, -23),
-                                                        RSPEC_GEO_FACTORY.point(-21, -23),
-                                                        RSPEC_GEO_FACTORY.point(-21, -11),
-                                                        RSPEC_GEO_FACTORY.point(-27, -13)])
-      @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(listK))
+      @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(LIST_K))
       @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
       @geographic_area.save
       @gi
