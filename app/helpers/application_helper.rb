@@ -19,6 +19,7 @@ module ApplicationHelper
     end
   end
 
+
   def model_name_title
     controller_name.humanize.titleize
   end
@@ -26,6 +27,12 @@ module ApplicationHelper
   def object_attributes_partial_path(object)
     "/#{object.class.name.downcase.pluralize}/attributes"
   end
+
+  def batch_preview_model_path
+    send("batch_preview_#{controller_name.to_s.pluralize}_path") 
+  end
+
+
 
   def hidden_css_property_if(tru)
     tru ? 'hidden'.html_safe : nil

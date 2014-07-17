@@ -29,7 +29,7 @@ module NavigationHelper
 
 
   def new_path_for_model(model)
-    send("new_#{model.name.downcase}_path")
+    send("new_#{model.name.tableize.singularize}_path")
   end
 
   def list_path_for_model(model)
@@ -45,11 +45,15 @@ module NavigationHelper
   end 
 
   def download_for_model_link(model)
-    link_to('Download', download_path_for_model(model)) 
+    if self.controller.respond_to?(:download)
+      link_to('Download', download_path_for_model(model)) 
+    else
+      content_tag(:em, 'Download not yet available.')
+    end
   end
 
   def download_path_for_model(model)
-    send("download_#{model.name.tableize}_path")
+      send("download_#{model.name.tableize}_path")
   end
 
   def object_link(object)

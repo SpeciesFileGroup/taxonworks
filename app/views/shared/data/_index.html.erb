@@ -1,4 +1,3 @@
-
 <div class="flexbox"> 
 
   <div class="item item1">
@@ -6,31 +5,18 @@
   </div>
 
   <div class="item item2">
-    <%= new_for_model_link(@data_model) %><br />
-    <%= list_for_model_link(@data_model) %><br />
-    <%= search_form_for_model(@data_model) %>
-    <%= download_for_model_link(@data_model) %>
+    <%= new_for_model_link(@data_model) %><br>
+    <%= list_for_model_link(@data_model) %><br>
+    <%= search_form_for_model(@data_model) %><br>
+    <%= download_for_model_link(@data_model) %><br>
   </div>
 
   <div class="item item3">
-    <h2> Recent Updates </h2>
-    <ul> 
-      <% @recent_objects.each do |r| -%>
-        <li> <%= object_link(r) -%> <%= edit_object_link(r) -%>  <%= object_time_since_update_tag(r) -%> ago </li>
-    <% end %>
-    </ul>
-    <%= content_tag(:em, "No recently updated or created #{@data_model.name.tableize.humanize}.") if @recent_objects.empty? -%>
+    <%= render '/shared/data/recent_objects_list' %>
   </div>
 
-
   <div class="item item4">
-    <h2> Batch load </h2> 
-    
-    <%= form_tag batch_preview_otus_path, multipart: true do -%>
-      <%= file_field_tag :file -%>
-      <%= submit_tag 'Preview' -%>
-    <% end %>
-
+    <%= render '/shared/data/batch_load_form' %>
   </div>
 </div>
 
