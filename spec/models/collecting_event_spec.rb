@@ -347,14 +347,17 @@ describe CollectingEvent do
             # 'Q' is synonymous with 'Big Boxia'
             # @ce_n1 has no georeference, so the only way to 'Q' is through geographic_area
             list = @ce_n1.countries_hash
-            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
+            expect(list).to include({'Q' => [@area_q]})
+            expect(list).to include({'Old Boxia' => [@area_old_boxia]})
+            expect(list).to include({'Big Boxia' => [@area_big_boxia]})
             #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
             list = @ce_p1.countries_hash
-            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
+            expect(list).to include({'Q' => [@area_q]})
+            expect(list).to include({'Big Boxia' => [@area_big_boxia]})
             #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end

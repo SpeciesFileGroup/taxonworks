@@ -186,7 +186,7 @@ class CollectingEvent < ActiveRecord::Base
       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
 
-    ## todo: change 'id in (?)' to some other sql construct
+    # todo: change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
@@ -227,41 +227,47 @@ class CollectingEvent < ActiveRecord::Base
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
-    retval  = []
-    # ga_list = []
-    gi_list = []
+    retval   = []
+    ga_list  = []
+    ga_names = []
+    gi_list  = []
 
+    # only if there are NO geographic_items of any type
+    unless self.geographic_items.count == 0 && self.error_geographic_items.count == 0
 
-    # gather all the GIs which contain this GI or EGI
-    gi_list << GeographicItem.containing('any', self.geographic_items).pluck(:id)
-    gi_list << GeographicItem.containing('any', self.error_geographic_items).pluck(:id)
+      # gather all the GIs which contain this GI or EGI
+      gi_list << GeographicItem.containing('any', self.geographic_items)
+      gi_list << GeographicItem.containing('any', self.error_geographic_items)
 
-    gi_list.flatten!
-    ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-      where(geographic_area_types:             {name: GeographicAreaType::COUNTRY_LEVEL_TYPES},
-            geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+    else
+      # we need to use the geographic_area directly
+      gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
+    end
 
     # map the resulting GIs to their corresponding GAs
-    # ga_list << gi_list.uniq.flatten.map(&:geographic_areas).uniq
+    pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
+    ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
+      where(geographic_area_types:             {name: GeographicAreaType::COUNTRY_LEVEL_TYPES},
+            geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
+    # now find all of the GAs which have the same names as the ones we collected.
 
-    # isolate those which are of the level0 GATs like 'Country'.
-    # ga_list.flatten.each { |ga|
-    #   GeographicAreaType::COUNTRY_LEVEL_TYPES.each { |gat_text|
-    #     gat = GeographicAreaType.where(:name => gat_text).first
-    #     if ga.geographic_area_type == gat
-    #       retval << {ga.name => ga}
-    #     end
-    #   }
-    # }
-    # gi_list = GeographicItem.containing('any', self.geographic_items.first).to_a
+    ga_names << ga_list.map(&:name)
 
-    ga_list.each { |ga|
-      retval << {ga.name => ga}
+    ga_names.flatten.each { |name|
+      retval << {name => GeographicArea.where(name: name).to_a}
     }
-    if retval.count < 2
-      retval = retval[0]
+
+    # translate the list into
+    # ga_list.each { |ga|
+    #   retval << {ga.name => ga}
+    # }
+
+    case retval.count
+      when 1
+        retval.first
+      else
+        retval
     end
-    retval
   end
 
   # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
