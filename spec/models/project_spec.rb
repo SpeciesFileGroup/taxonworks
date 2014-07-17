@@ -6,7 +6,7 @@ require 'rails_helper'
 
 describe Project, :type => :model do
 
-  let(:project) {FactoryGirl.build(:project)}
+  let(:project) { FactoryGirl.build(:project) }
 
   context 'associations' do
     context 'has_many' do
@@ -34,18 +34,18 @@ describe Project, :type => :model do
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do 
+    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
       expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
     specify 'updating an attribute is a little tricky, use _will_change!' do
-     expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-     expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path"=>"/hub"})  # was changed from nil
-     expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
-     expect(project.save!).to be_truthy
-     project.reload
-     expect(project.workbench_starting_path).to eq('/dashboard')
+      expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
+      expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
+      expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
+      expect(project.save!).to be_truthy
+      project.reload
+      expect(project.workbench_starting_path).to eq('/dashboard')
     end
 
   end
@@ -70,17 +70,40 @@ describe Project, :type => :model do
   context 'destroy' do
 
     before {
-      @p = Project.create(name: 'a little bit of everything')
+      @p                    = Project.create(name: 'a little bit of everything')
+      @project_id           = @p.id
+      @user_id              = User.where(id: 1)
 
       # Generate 1 of ever valid_ factory
       #    loop through all factories
       #       if a valid_ factory build one setting the project_id to @p.id when present
+
+      @factories_under_test = {}
+      @failed_factories     = {}
+      FactoryGirl.factories.each { |factory|
+        if factory.name =~ /^valid_/
+          begin
+            test_factory = FactoryGirl.build(factory.name)
+          rescue => detail
+            @failed_factories[factory.name] = detail
+            puts "Factory #{factory.name} is not valid: #{detail}"
+          else
+            if test_factory.valid?
+              test_factory.save
+              @factories_under_test[factory.name] = test_factory
+            else
+              @failed_factories[factory.name] = test_factory.errors
+              puts "Factory #{factory.name} is not valid: #{test_factory.errors.to_a}"
+            end
+          end
+        end
+      }
     }
 
 
     specify '#destroy' do
       expect(@p.destroy).to be_truthy # confirm this is a really what we want
-      expect(@p.destroyed?).to be(true) 
+      expect(@p.destroyed?).to be(true)
     end
 
     context '#destroy' do
@@ -101,4 +124,4 @@ describe Project, :type => :model do
 
   end
 
- end
+end
