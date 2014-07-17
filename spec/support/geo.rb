@@ -1168,7 +1168,7 @@ Old Boxia overlays R, and western Q.
 
   @ce_m1 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_m1',
-                              :geographic_area => @area_t)
+                              :geographic_area => @area_m1)
   @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_m1',
                               :collecting_event      => @ce_m1,
@@ -1176,7 +1176,7 @@ Old Boxia overlays R, and western Q.
                               :geographic_item       => GeographicItem.new(:point => @item_m1.st_centroid))
   @ce_n1 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_n1',
-                              :geographic_area => @area_t)
+                              :geographic_area => @area_n1)
   # @gr_n1 = FactoryGirl.create(:georeference_verbatim_data,
   #                             :api_request           => 'gr_n1',
   #                             :collecting_event      => @ce_n1,
@@ -1184,7 +1184,7 @@ Old Boxia overlays R, and western Q.
   #                             :geographic_item       => GeographicItem.new(:point => @item_n1.st_centroid))
   @ce_o1 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_o1',
-                              :geographic_area => @area_u)
+                              :geographic_area => @area_o1)
   @gr_o1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_o1',
                               :collecting_event      => @ce_o1,
@@ -1192,7 +1192,7 @@ Old Boxia overlays R, and western Q.
                               :geographic_item       => GeographicItem.new(:point => @item_o1.st_centroid))
   @ce_p1 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_p1',
-                              :geographic_area => @area_u)
+                              :geographic_area => @area_p1)
   @gr_p1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_p1',
                               :collecting_event      => @ce_p1,
@@ -1210,7 +1210,7 @@ Old Boxia overlays R, and western Q.
   # @ce_n2 has two GRs
   @ce_n2   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_n2',
-                                :geographic_area => @area_q)
+                                :geographic_area => @area_n2)
   @gr_n2_a = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_n2_a',
                                 :collecting_event      => @ce_n2,
@@ -1223,7 +1223,7 @@ Old Boxia overlays R, and western Q.
                                 :geographic_item       => @gr_n2_a.geographic_item)
   @ce_o2   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_o2',
-                                :geographic_area => @area_q)
+                                :geographic_area => @area_o2)
   @gr_o2   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_o2',
                                 :collecting_event      => @ce_o2,
@@ -1231,7 +1231,7 @@ Old Boxia overlays R, and western Q.
                                 :geographic_item       => GeographicItem.new(:point => @item_o2.st_centroid))
   @ce_p2   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_p2',
-                                :geographic_area => @area_q)
+                                :geographic_area => @area_p2)
   # @gr_p2   = FactoryGirl.create(:georeference_verbatim_data,
   #                               :api_request           => 'gr_p2',
   #                               :collecting_event      => @ce_p2,
@@ -1240,7 +1240,7 @@ Old Boxia overlays R, and western Q.
 
   @ce_m3   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_m3',
-                                :geographic_area => @area_r)
+                                :geographic_area => @area_m3)
   @gr_m3   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_m3',
                                 :collecting_event      => @ce_m3,
@@ -1248,7 +1248,7 @@ Old Boxia overlays R, and western Q.
                                 :geographic_item       => GeographicItem.new(:point => @item_m3.st_centroid))
   @ce_n3   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_n3',
-                                :geographic_area => @area_r)
+                                :geographic_area => @area_n3)
   @gr_n3   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_n3',
                                 :collecting_event      => @ce_n3,
@@ -1265,7 +1265,7 @@ Old Boxia overlays R, and western Q.
 
   @ce_m4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_m4',
-                                       :geographic_area => @area_r)
+                                       :geographic_area => @area_m4)
   @gr_m4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_m4',
                                        :collecting_event      => @ce_m4,
@@ -1273,7 +1273,7 @@ Old Boxia overlays R, and western Q.
                                        :geographic_item       => GeographicItem.new(:point => @item_m4.st_centroid))
   @ce_n4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_n4',
-                                       :geographic_area => @area_r)
+                                       :geographic_area => @area_n4)
   @gr_n4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n4',
                                        :collecting_event      => @ce_n4,
@@ -1281,7 +1281,7 @@ Old Boxia overlays R, and western Q.
                                        :geographic_item       => GeographicItem.new(:point => @item_n4.st_centroid))
   @ce_o4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_o4',
-                                       :geographic_area => @area_s)
+                                       :geographic_area => @area_o4)
   @gr_o4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_o4',
                                        :collecting_event      => @ce_o4,
@@ -1300,18 +1300,21 @@ Old Boxia overlays R, and western Q.
 
   # this one is just a collecting event, no georeferences or geographic_area
   @ce_v           = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_v')
+                                       :verbatim_label => '@ce_v',
+                                       :geographic_area => nil)
 
   # collecting events in superseded country
   @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_old_boxia_1')
+                                       :verbatim_label => '@ce_old_boxia_1',
+                                       :geographic_area => nil)
   @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_m2_ob',
                                        :collecting_event      => @ce_old_boxia_1,
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
   @ce_old_boxia_2 = FactoryGirl.create(:collecting_event,
-                                       :verbatim_label => '@ce_old_boxia_2')
+                                       :verbatim_label => '@ce_old_boxia_2',
+                                       :geographic_area => nil)
   @gr_n3_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n3_ob',
                                        :collecting_event      => @ce_old_boxia_2,
