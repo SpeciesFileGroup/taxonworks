@@ -1165,14 +1165,21 @@ M1-upper_left is at (33, 28)
   @ce_v           = FactoryGirl.create(:collecting_event,
                                        :verbatim_label => '@ce_v')
 
-  # collecting event in superseded country
+  # collecting events in superseded country
   @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
                                        :verbatim_label => '@ce_old_boxia_1')
   @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_m2_ob',
-                                       :collecting_event      => @ce_old_boxia,
+                                       :collecting_event      => @ce_old_boxia_1,
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
+  @ce_old_boxia_2 = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label => '@ce_old_boxia_2')
+  @gr_n3_ob       = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_n3_ob',
+                                       :collecting_event      => @ce_old_boxia_2,
+                                       :error_geographic_item => @item_ob,
+                                       :geographic_item       => GeographicItem.new(:point => @item_n3.st_centroid))
 
 end
 
