@@ -2,7 +2,8 @@ require 'rails_helper'
 
 describe "collecting_events/index", :type => :view do
   before(:each) do
-    assign(:collecting_events, [
+    @data_model = CollectingEvent
+    assign(:recent_objects, [
       stub_model(CollectingEvent,
         :verbatim_label => "MyText0",
         :print_label => "MyText1",

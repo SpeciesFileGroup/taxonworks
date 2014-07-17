@@ -60,8 +60,8 @@ describe "collecting_events/edit", :type => :view do
       assert_select "input#collecting_event_end_date_year[name=?]", "collecting_event[end_date_year]"
       assert_select "input#collecting_event_verbatim_habitat[name=?]", "collecting_event[verbatim_habitat]"
       assert_select "textarea#collecting_event_field_notes[name=?]", "collecting_event[field_notes]"
-      assert_select "input#collecting_event_md5_of_verbatim_label[name=?]", "collecting_event[md5_of_verbatim_label]"
-      assert_select "textarea#collecting_event_cached_display[name=?]", "collecting_event[cached_display]"
+      # assert_select "input#collecting_event_md5_of_verbatim_label[name=?]", "collecting_event[md5_of_verbatim_label]"
+      # assert_select "textarea#collecting_event_cached_display[name=?]", "collecting_event[cached_display]"
     end
   end
 end
