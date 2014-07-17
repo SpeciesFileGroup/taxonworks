@@ -320,7 +320,7 @@ describe CollectingEvent do
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
             list = @ce_p4.countries_hash
-            expect(list).to include({'S' => [@area_s]})
+            expect(list).to eq({'S' => [@area_s]})
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
         end
@@ -328,15 +328,16 @@ describe CollectingEvent do
         context 'when more than one possible name is present' do
           specify 'derived from geographic_area_chain' do
             # 'Q' is synonymous with 'Big Boxia'
-            list = @ce_m1.countries_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
+            # @ce_n1 has no georeference, so the only way to 'Q' is through geographic_area
+            list = @ce_n1.countries_hash
+            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
             #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
             list = @ce_p1.countries_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
+            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
             #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
@@ -362,7 +363,7 @@ describe CollectingEvent do
         context 'result priority' do
           specify 'it should return #countries_hash.keys.first when only one key is present' do
             # @ce_o3 leads to only one GA (named area).
-            expect(ce_o3.country_name).to eq('S')
+            expect(@ce_o3.country_name).to eq('S')
           end
           specify 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
@@ -381,32 +382,26 @@ describe CollectingEvent do
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
             # @ce_o3 has no georeference, so the only way to 'R' is through geographic_area
-            list = @ce_o3.states_hash
-            expect(list).to eq({'R' => [@area_r]})
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            expect(@ce_o3.states_hash).to eq({'O3' => [@area_o3]})
+            expect(@ce_o2.states_hash).to eq({'U' => [@area_u]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
-            list = @ce_p4.states_hash
-            expect(list).to include({'S' => [@area_s]})
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            expect(@ce_n4.states_hash).to eq({'N4' => [@area_n4]})
+            expect(@ce_n2.states_hash).to eq({'T' => [@area_t]})
           end
         end
 
         context 'when more than one possible name is present' do
           specify 'derived from geographic_area_chain' do
-            # 'Q' is synonymous with 'Big Boxia'
+            # 'T' is a state in 'Q'
             list = @ce_m1.states_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
-            #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            expect(list).to eq({'T' => [@area_t]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
             list = @ce_p1.states_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
-            #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            expect(list).to eq({'U' => [@area_u]})
           end
         end
       end
@@ -430,7 +425,7 @@ describe CollectingEvent do
         context 'result priority' do
           specify 'it should return #countries_hash.keys.first when only one key is present' do
             # @ce_o3 leads to only one GA (named area).
-            expect(ce_o3.state_name).to eq('O3')
+            expect(@ce_o3.state_name).to eq('O3')
           end
           specify 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
@@ -448,31 +443,27 @@ describe CollectingEvent do
       context 'should return hash of the county with #counties_hash' do
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
-            # @ce_o3 has no georeference, so the only way to 'R' is through geographic_area
-            list = @ce_o3.counties_hash
-            expect(list).to eq({'R' => [@area_r]})
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            # @ce_p2 has no georeference, so the only way to 'P2' is through geographic_area
+            expect(@ce_P2.counties_hash).to eq({'P2' => [@area_p2]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
-            # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
-            list = @ce_p4.counties_hash
-            expect(list).to include({'S' => [@area_s]})
-            expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+            # @ce_m2 has no geographic_area, so the only way to 'M2' is through georeference
+            expect(@ce_m2.counties_hash).to eq({'M2' => [@area_m2]})
           end
         end
 
         context 'when more than one possible name is present' do
           specify 'derived from geographic_area_chain' do
             # 'Q' is synonymous with 'Big Boxia'
-            list = @ce_m1.counties_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
+            list = @ce_n1.counties_hash
+            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}, {'Old Boxia' => [@area_ob]}])
             #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
             list = @ce_p1.counties_hash
-            expect(list).to include([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
+            expect(list).to eq([{'Q' => [@area_q]}, {'Big Boxia' => [@area_q]}])
             #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end

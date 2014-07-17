@@ -224,8 +224,24 @@ class CollectingEvent < ActiveRecord::Base
   # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
-  # which are country_level, amd have GIs containing the (GI and/or EGI) of this CE
+  # which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
+
+  end
+
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  # which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  def states_hash
+
+  end
+
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  # which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  def counties_hash
 
   end
 
@@ -237,8 +253,16 @@ class CollectingEvent < ActiveRecord::Base
 
   end
 
+  def state_name
+    state_or_province_name
+  end
+
   def county_or_equivalent_name
 
+  end
+
+  def county_name
+    county_or_equivalent_name
   end
 
   # class methods
