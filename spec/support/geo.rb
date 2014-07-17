@@ -534,7 +534,7 @@ def generate_ce_test_objects
                               :collecting_event => @ce_p0,
                               :geographic_item  => @p10) #  2
 
-  @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1')
+  @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1 collect_event test')
   @gr01  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr01',
                               :collecting_event      => @ce_p1,
@@ -546,7 +546,7 @@ def generate_ce_test_objects
                               :collecting_event      => @ce_p1,
                               :geographic_item       => @p11) #  4
 
-  @ce_p2 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p2')
+  @ce_p2 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p2 collect_event test')
   @gr02  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr02',
                               :collecting_event      => @ce_p2,
@@ -563,7 +563,7 @@ def generate_ce_test_objects
                               :error_geographic_item => @e2,
                               :geographic_item       => @p12)
 
-  @ce_p3 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p3')
+  @ce_p3 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p3 collect_event test')
   @gr03  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr03',
                               :collecting_event      => @ce_p3,
@@ -575,7 +575,7 @@ def generate_ce_test_objects
                               :error_geographic_item => @e2,
                               :geographic_item       => @p13)
 
-  @ce_p4 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p4')
+  @ce_p4 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p4 collect_event test')
   @gr04  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request      => 'gr04',
                               :collecting_event => @ce_p4,
@@ -873,7 +873,7 @@ M1-upper_left is at (33, 28)
                                       :iso_3166_a2 => nil)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
-  @area_old_boxia = FactoryGirl.build(:level0_geographic_area,
+  @area_big_boxia = FactoryGirl.build(:level0_geographic_area,
                                       :name        => 'Big Boxia',
                                       :iso_3166_a3 => nil,
                                       :iso_3166_a2 => nil)
@@ -1063,44 +1063,44 @@ M1-upper_left is at (33, 28)
                               :error_geographic_item => @item_p1,
                               :geographic_item       => GeographicItem.new(:point => @item_p1.st_centroid))
 
-  @ce_m2    = FactoryGirl.create(:collecting_event,
-                                 :verbatim_label  => '@ce_m2 in Big Boxia',
-                                 :geographic_area => @area_big_boxia)
-  @gr_m2    = FactoryGirl.create(:georeference_verbatim_data,
-                                 :api_request           => 'gr_m2 in Big Boxia',
-                                 :collecting_event      => @ce_m2,
-                                 :error_geographic_item => @item_m2,
-                                 :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
+  @ce_m2   = FactoryGirl.create(:collecting_event,
+                                :verbatim_label  => '@ce_m2 in Big Boxia',
+                                :geographic_area => @area_big_boxia)
+  @gr_m2   = FactoryGirl.create(:georeference_verbatim_data,
+                                :api_request           => 'gr_m2 in Big Boxia',
+                                :collecting_event      => @ce_m2,
+                                :error_geographic_item => @item_m2,
+                                :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
   # @ce_n2 has two GRs
-  @ce_n2    = FactoryGirl.create(:collecting_event,
-                                 :verbatim_label  => '@ce_n2',
-                                 :geographic_area => @area_q)
-  @gr_n2    = FactoryGirl.create(:georeference_verbatim_data,
-                                 :api_request           => 'gr_n2',
-                                 :collecting_event      => @ce_n2,
-                                 :error_geographic_item => @item_n2,
-                                 :geographic_item       => GeographicItem.new(:point => @item_n2.st_centroid))
-  @gr_n2_ob = FactoryGirl.create(:georeference_verbatim_data,
-                                 :api_request           => 'gr_n2_ob',
-                                 :collecting_event      => @ce_n2,
-                                 :error_geographic_item => @item_ob,
-                                 :geographic_item       => GeographicItem.new(:point => @item_ob.st_centroid))
-  @ce_o2    = FactoryGirl.create(:collecting_event,
-                                 :verbatim_label  => '@ce_o2',
-                                 :geographic_area => @area_q)
-  @gr_o2    = FactoryGirl.create(:georeference_verbatim_data,
-                                 :api_request           => 'gr_o2',
-                                 :collecting_event      => @ce_o2,
-                                 :error_geographic_item => @item_o2,
-                                 :geographic_item       => GeographicItem.new(:point => @item_o2.st_centroid))
-  @ce_p2    = FactoryGirl.create(:collecting_event,
-                                 :verbatim_label  => '@ce_p2',
-                                 :geographic_area => @area_q)
-  @gr_p2    = FactoryGirl.create(:georeference_verbatim_data,
-                                 :api_request           => 'gr_p2',
-                                 :collecting_event      => @ce_p2,
-                                 :error_geographic_item => @item_p2,
-                                 :geographic_item       => GeographicItem.new(:point => @item_p2.st_centroid))
+  @ce_n2   = FactoryGirl.create(:collecting_event,
+                                :verbatim_label  => '@ce_n2',
+                                :geographic_area => @area_q)
+  @gr_n2_a = FactoryGirl.create(:georeference_verbatim_data,
+                                :api_request           => 'gr_n2_a',
+                                :collecting_event      => @ce_n2,
+                                :error_geographic_item => @item_n2,
+                                :geographic_item       => GeographicItem.new(:point => @item_n2.st_centroid))
+  @gr_n2_b = FactoryGirl.create(:georeference_verbatim_data,
+                                :api_request           => 'gr_n2_b',
+                                :collecting_event      => @ce_n2,
+                                :error_geographic_item => @item_n2,
+                                :geographic_item       => @gr_n2_a.geographic_item)
+  @ce_o2   = FactoryGirl.create(:collecting_event,
+                                :verbatim_label  => '@ce_o2',
+                                :geographic_area => @area_q)
+  @gr_o2   = FactoryGirl.create(:georeference_verbatim_data,
+                                :api_request           => 'gr_o2',
+                                :collecting_event      => @ce_o2,
+                                :error_geographic_item => @item_o2,
+                                :geographic_item       => GeographicItem.new(:point => @item_o2.st_centroid))
+  @ce_p2   = FactoryGirl.create(:collecting_event,
+                                :verbatim_label  => '@ce_p2',
+                                :geographic_area => @area_q)
+  @gr_p2   = FactoryGirl.create(:georeference_verbatim_data,
+                                :api_request           => 'gr_p2',
+                                :collecting_event      => @ce_p2,
+                                :error_geographic_item => @item_p2,
+                                :geographic_item       => GeographicItem.new(:point => @item_p2.st_centroid))
 
   @ce_m3 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_m3',
@@ -1127,43 +1127,52 @@ M1-upper_left is at (33, 28)
                               :verbatim_label  => '@ce_p3',
                               :geographic_area => @area_s)
 
-  @ce_m4 = FactoryGirl.create(:collecting_event,
-                              :verbatim_label  => '@ce_m4',
-                              :geographic_area => @area_r)
-  @gr_m4 = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr_m4',
-                              :collecting_event      => @ce_m4,
-                              :error_geographic_item => @item_m4,
-                              :geographic_item       => GeographicItem.new(:point => @item_m4.st_centroid))
-  @ce_n4 = FactoryGirl.create(:collecting_event,
-                              :verbatim_label  => '@ce_n4',
-                              :geographic_area => @area_r)
-  @gr_n4 = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr_n4',
-                              :collecting_event      => @ce_n4,
-                              :error_geographic_item => @item_n4,
-                              :geographic_item       => GeographicItem.new(:point => @item_n4.st_centroid))
-  @ce_o4 = FactoryGirl.create(:collecting_event,
-                              :verbatim_label  => '@ce_o4',
-                              :geographic_area => @area_s)
-  @gr_o4 = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr_o4',
-                              :collecting_event      => @ce_o4,
-                              :error_geographic_item => @item_o4,
-                              :geographic_item       => GeographicItem.new(:point => @item_o4.st_centroid))
+  @ce_m4          = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label  => '@ce_m4',
+                                       :geographic_area => @area_r)
+  @gr_m4          = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_m4',
+                                       :collecting_event      => @ce_m4,
+                                       :error_geographic_item => @item_m4,
+                                       :geographic_item       => GeographicItem.new(:point => @item_m4.st_centroid))
+  @ce_n4          = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label  => '@ce_n4',
+                                       :geographic_area => @area_r)
+  @gr_n4          = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_n4',
+                                       :collecting_event      => @ce_n4,
+                                       :error_geographic_item => @item_n4,
+                                       :geographic_item       => GeographicItem.new(:point => @item_n4.st_centroid))
+  @ce_o4          = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label  => '@ce_o4',
+                                       :geographic_area => @area_s)
+  @gr_o4          = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_o4',
+                                       :collecting_event      => @ce_o4,
+                                       :error_geographic_item => @item_o4,
+                                       :geographic_item       => GeographicItem.new(:point => @item_o4.st_centroid))
 
   # ce_p4 does not have a geographic_area
-  @ce_p4 = FactoryGirl.create(:collecting_event,
-                              :verbatim_label => '@ce_p4')
-  @gr_p4 = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr_p4',
-                              :collecting_event      => @ce_p4,
-                              :error_geographic_item => @item_p4,
-                              :geographic_item       => GeographicItem.new(:point => @item_p4.st_centroid))
+  @ce_p4          = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label => '@ce_p4')
+  @gr_p4          = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_p4',
+                                       :collecting_event      => @ce_p4,
+                                       :error_geographic_item => @item_p4,
+                                       :geographic_item       => GeographicItem.new(:point => @item_p4.st_centroid))
 
   # this one is just a collecting event, no georeferences or geographic_area
-  @ce_v  = FactoryGirl.create(:collecting_event,
-                              :verbatim_label => '@ce_v')
+  @ce_v           = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label => '@ce_v')
+
+  # collecting event in superseded country
+  @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
+                                       :verbatim_label => '@ce_old_boxia_1')
+  @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
+                                       :api_request           => 'gr_m2_ob',
+                                       :collecting_event      => @ce_old_boxia,
+                                       :error_geographic_item => @item_ob,
+                                       :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
 
 end
 

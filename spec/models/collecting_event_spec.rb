@@ -287,7 +287,7 @@ describe CollectingEvent do
   end
 
   context 'geopolitical labels' do
-    before {
+    before(:all) {
       # create some bogus countries, states, provinces, counties, and a parish
       generate_political_areas
       #
