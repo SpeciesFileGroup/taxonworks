@@ -444,7 +444,7 @@ describe CollectingEvent do
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
             # @ce_p2 has no georeference, so the only way to 'P2' is through geographic_area
-            expect(@ce_P2.counties_hash).to eq({'P2' => [@area_p2]})
+            expect(@ce_p2.counties_hash).to eq({'P2' => [@area_p2]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_m2 has no geographic_area, so the only way to 'M2' is through georeference
@@ -489,7 +489,7 @@ describe CollectingEvent do
         context 'result priority' do
           specify 'it should return #countries_hash.keys.first when only one key is present' do
             # @ce_o3 leads to only one GA (named area).
-            expect(ce_o3.county_name).to eq('O3')
+            expect(@ce_o3.county_name).to eq('O3')
           end
           specify 'it should return the #countries_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
