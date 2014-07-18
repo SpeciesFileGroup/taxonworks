@@ -1,38 +1,45 @@
-<%= content_tag :li, link_to('Alternate values', alternate_values_path) %>
-<%= content_tag :li, link_to('Biocuration classifications', biocuration_classifications_path) %>
+
+<h3> Core objects [have index_pages etc.] </h3>
+
+<%= content_tag :li, link_to('OTUs', otus_path) %>
+<%= content_tag :li, link_to('Taxon names', taxon_names_path) %>
 <%= content_tag :li, link_to('Collecting events', collecting_events_path) %>
 <%= content_tag :li, link_to('Collection objects', collection_objects_path) %>
 <%= content_tag :li, link_to('Collection profile', collection_profiles_path) %>
+<%= content_tag :li, link_to('Loans', loans_path) %>
 <%= content_tag :li, link_to('Controlled vocabulary terms', controlled_vocabulary_terms_path) %>
+
+<h3> Core - supporting [have index pages, however their use is integrated with Core objects above lesser use] </h3>
 <%= content_tag :li, link_to('Contents', contents_path) %>
-<%= content_tag :li, link_to('Citations', citations_path) %>
-<%= content_tag :li, link_to('Citation topics', citation_topics_path) %>
-<%= content_tag :li, link_to('Data attributes', data_attributes_path) %>
-<%= content_tag :li, link_to('Geographic area types', geographic_area_types_path) %>
-<%= content_tag :li, link_to('Geographic areas', geographic_areas_path) %>
-<%= content_tag :li, link_to('Geographic areas-Geographic items', geographic_areas_geographic_items_path) %>
 <%= content_tag :li, link_to('Geographic items', geographic_items_path) %>
 <%= content_tag :li, link_to('Georeferences', georeferences_path) %>
-<%= content_tag :li, link_to('Identifiers', identifiers_path) %>
 <%= content_tag :li, link_to('Loan items', loan_items_path) %>
-<%= content_tag :li, link_to('Loans', loans_path) %>
-<%= content_tag :li, link_to('Namespaces', namespaces_path) %>
-<%= content_tag :li, link_to('Notes', notes_path) %>
-<%= content_tag :li, link_to('OTU page layout sections', otu_page_layout_sections_path) %>
 <%= content_tag :li, link_to('OTU page layouts', otu_page_layouts_path) %>
-<%= content_tag :li, link_to('OTUs', otus_path) %>
-<%= content_tag :li, link_to('People', people_path) %>
-<%= content_tag :li, link_to('Projects', projects_path) %>
-<%= content_tag :li, link_to('Public contents', public_contents_path) %>
 <%= content_tag :li, link_to('Ranged lot categories', ranged_lot_categories_path) %>
-<%= content_tag :li, link_to('Repositories', repositories_path) %>
-<%= content_tag :li, link_to('Serial chronologies', serial_chronologies_path) %>
-<%= content_tag :li, link_to('Serials', serials_path) %>
-<%= content_tag :li, link_to('Sources', sources_path) %>
-<%= content_tag :li, link_to('Tagged section keywords', tagged_section_keywords_path) %>
-<%= content_tag :li, link_to('Tags', tags_path) %>
 <%= content_tag :li, link_to('Taxon determinations', taxon_determinations_path) %>
 <%= content_tag :li, link_to('Taxon name classifications', taxon_name_classifications_path) %>
 <%= content_tag :li, link_to('Taxon name relationships', taxon_name_relationships_path) %>
-<%= content_tag :li, link_to('Taxon names', taxon_names_path) %>
+
+<h3> Annotations </h3>
+<%= content_tag :li, link_to('Citations', citations_path) %>
+<%= content_tag :li, link_to('Notes', notes_path) %>
+<%= content_tag :li, link_to('Tags', tags_path) %>
+<%= content_tag :li, link_to('Identifiers', identifiers_path) %>
+
+
+<div> <em> Below to be moved off this page </em> </div>
+<h3> Admin related </h3>
+<%= content_tag :li, link_to('Namespaces', namespaces_path) %>
 <%= content_tag :li, link_to('Users', users_path) %>
+<%= content_tag :li, link_to('Projects', projects_path) %>
+
+<h3> Supporting [will remove index pages etc.] </h3>
+<%= content_tag :li, link_to('Alternate values', alternate_values_path) %>
+<%= content_tag :li, link_to('Biocuration classifications', biocuration_classifications_path) %>
+<%= content_tag :li, link_to('Citation topics', citation_topics_path) %>
+<%= content_tag :li, link_to('Data attributes', data_attributes_path) %>
+<%= content_tag :li, link_to('Geographic areas-Geographic items', geographic_areas_geographic_items_path) %>
+<%= content_tag :li, link_to('OTU page layout sections', otu_page_layout_sections_path) %>
+<%= content_tag :li, link_to('Public contents', public_contents_path) %>
+<%= content_tag :li, link_to('Serial chronologies', serial_chronologies_path) %>
+<%= content_tag :li, link_to('Tagged section keywords', tagged_section_keywords_path) %>
