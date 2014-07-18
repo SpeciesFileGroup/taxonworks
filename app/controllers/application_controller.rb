@@ -7,7 +7,14 @@ class ApplicationController < ActionController::Base
   include ProjectsHelper
 
   before_filter :set_project_and_user_variables
+  after_filter :log_user_recent_route 
   after_filter :clear_project_and_user_variables
+
+  def log_user_recent_route
+    if !(request.fullpath =~ /hub/) && @sessions_current_user
+      @sessions_current_user.update_attributes(recent_routes: (@sessions_current_user.recent_routes + [request.fullpath]).uniq[0..9] )
+    end
+  end
 
   def set_project_and_user_variables
     $project_id = sessions_current_project_id 

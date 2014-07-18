@@ -15,6 +15,16 @@ describe User do
     end
   end
 
+  context 'preferences' do
+    specify '#favorite_routes' do
+      expect(user.favorite_routes).to eq([])
+    end
+
+    specify '#recent_routes' do
+      expect(user.recent_routes).to eq([])
+    end
+  end
+
   context 'authorization' do
     context 'when just a user' do
       specify '#is_administrator? is false' do
@@ -44,7 +54,6 @@ describe User do
       specify '#is_superuser(project)?' do
         expect(user.is_superuser?(Project.find($project_id))).to be true
       end
-
     end
   end
 
