@@ -1,4 +1,5 @@
 # Work arounds for eager loading issues.  Do not include in production.
+# Related code is farmed out in some individual files (e.g. protonym.rb).
 module TaxonWorksAutoload
   if Rails.env == 'test' || Rails.env == 'development' 
     Dir[Rails.root.to_s + '/app/models/taxon_name'].sort.each {|file| require file }

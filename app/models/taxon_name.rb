@@ -112,7 +112,6 @@
 #
 # @!all_generic_placements #array of genera where the species was placed
 #
-#
 class TaxonName < ActiveRecord::Base
 
   include Housekeeping

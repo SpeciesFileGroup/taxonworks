@@ -1,3 +1,14 @@
+# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
+Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
+
+# A *monomial* TaxonNames first usage. This follows Pyle's concept almost exactly.
+#
+# We inject a lot of relationship helper methods here, in this format. 
+#   subject                      object
+#   Aus      original_genus of   bus
+#   aus      type_species of     Bus
+#
+#
 class Protonym < TaxonName
 
   before_validation :set_cached_names
@@ -20,10 +31,6 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameClassification'
 
   has_many :type_materials, class_name: 'TypeMaterial'
-
-  # subject                      object
-  # Aus      original_genus of   bus
-  # aus      type_species of     Bus
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
@@ -53,7 +60,10 @@ class Protonym < TaxonName
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
       end
     end
+
   end
+
+
 
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
@@ -193,6 +203,7 @@ class Protonym < TaxonName
 
 
   def incorrect_original_spelling
+    return nil
     self.iczn_set_as_incorrect_original_spelling_of_relationship
     #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
   end
@@ -527,7 +538,8 @@ class Protonym < TaxonName
   def sv_parent_priority
     rank_group = self.rank_class.parent
     parent = self.parent
-    if rank_group == parent.rank_class.parent
+
+    if parent && rank_group == parent.rank_class.parent
       unless self.unavailable_or_invalid?
         date1 = self.nomenclature_date
         date2 = parent.nomenclature_date
@@ -675,8 +687,6 @@ class Protonym < TaxonName
     self.cached_original_combination = get_original_combination
   end
 
-
-
 #  def sv_fix_add_relationship(method, object_id)
 #    begin
 #      Protonym.transaction do
@@ -692,3 +702,4 @@ class Protonym < TaxonName
   #endregion
 
 end
+
