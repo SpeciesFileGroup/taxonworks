@@ -15,12 +15,12 @@
 
 <p>
   <strong>Source [Original publication]:</strong>
-  <%= object_tag(@taxon_name.source) %>
+  <%= object_link(@taxon_name.source) %>
 </p>
 
 <p>
   <strong>Parent:</strong>
-  <%= @taxon_name.parent_id %>
+  <%= object_link(@taxon_name.parent) %>
 </p>
 
 <p>

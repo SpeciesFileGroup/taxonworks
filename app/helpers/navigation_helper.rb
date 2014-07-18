@@ -58,7 +58,7 @@ module NavigationHelper
 
   def object_link(object)
     return nil if object.nil?
-    link_to(object_tag(object), object.becomes(object.class.base_class))
+    link_to(object_tag(object).html_safe, object.becomes(object.class.base_class))
   end
 
   # TODO: Move somewhere-else, all object methods are likely borked for subclasses.
