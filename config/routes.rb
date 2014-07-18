@@ -28,6 +28,8 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+
   resources :project_members
 
   match '/hub', to: 'hub#index', via: 'get'

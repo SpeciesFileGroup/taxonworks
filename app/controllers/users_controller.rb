@@ -5,7 +5,6 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
   before_action :validate_user_id_belongs_to_user_or_require_a_superuser, only: [:show, :edit, :update] 
 
-
   # GET /users
   def index
     @users = User.all

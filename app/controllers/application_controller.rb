@@ -11,9 +11,7 @@ class ApplicationController < ActionController::Base
   after_filter :clear_project_and_user_variables
 
   def log_user_recent_route
-    if !(request.fullpath =~ /hub/) && @sessions_current_user
-      @sessions_current_user.update_attributes(recent_routes: (@sessions_current_user.recent_routes + [request.fullpath]).uniq[0..9] )
-    end
+    @sessions_current_user.add_page_to_recent(request.fullpath) if @sessions_current_user
   end
 
   def set_project_and_user_variables
