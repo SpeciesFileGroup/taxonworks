@@ -64,7 +64,11 @@ class CollectingEventsController < ApplicationController
   end
 
   def test
-    @geo=CollectingEvent.test
+    @geo = CollectingEvent.test
+  end
+
+  def list
+    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   private

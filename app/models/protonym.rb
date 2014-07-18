@@ -43,6 +43,9 @@ class Protonym < TaxonName
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  
+       
+        # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
         has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
       end
     end
@@ -247,7 +250,7 @@ class Protonym < TaxonName
 
   def sv_missing_relationships
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
+      soft_validations.add(:base, 'Original genus is missing') if self.original_genus # TODO: @proceps , is this right? it was changed from non existant call
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)

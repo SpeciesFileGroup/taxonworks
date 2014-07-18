@@ -45,13 +45,13 @@ class User < ActiveRecord::Base
   end
 
   def add_page_to_favorites(favourite_route) 
-    update_attributes(favorite_routes: (favorite_routes + [favourite_route]).uniq[0..19] )
+    update_attributes(favorite_routes: ([favourite_route] + favorite_routes).uniq[0..19] )
     true
   end
 
   def add_page_to_recent(recent_route)
     if !(recent_route =~ /hub/)
-      update_attributes(recent_routes: (recent_routes + [recent_route]).uniq[0..9] )
+      update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9] )
     end
     true
   end

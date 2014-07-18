@@ -16,15 +16,15 @@ module NavigationHelper
   # A previous record link.  Assumes the instance has a project_id! 
   def previous_link(instance)
     text = 'Previous'
-    link = instance.class.order(id: :desc).with_project_id(instance.project_id).where(['id < ?', instance.id]).limit(1).first
-    link.nil? ? text : link_to(text, link)
+    link_object = instance.class.base_class.order(id: :desc).with_project_id(instance.project_id).where(['id < ?', instance.id]).limit(1).first
+    link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 
   # A next record link.  Assumes the instance has a project_id! 
   def next_link(instance)
     text = 'Next'
-    link = instance.class.order(id: :asc).with_project_id(instance.project_id).where(['id > ?', instance.id]).limit(1).first
-    link.nil? ? text : link_to(text, link)
+    link_object = instance.class.base_class.order(id: :asc).with_project_id(instance.project_id).where(['id > ?', instance.id]).limit(1).first
+    link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 
 
@@ -72,11 +72,11 @@ module NavigationHelper
   end
 
   def edit_object_link(object)
-    link_to('Edit', edit_object_path(object))
+    link_to('Edit', edit_object_path(object.becomes(object.class.base_class)))
   end
 
   def destroy_object_link(object)
-    link_to('Destroy', object, method: :delete, data: { confirm: 'Are you sure?' })
+    link_to('Destroy', object.becomes(object.class.base_class), method: :delete, data: { confirm: 'Are you sure?' })
   end
 
 end

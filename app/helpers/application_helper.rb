@@ -25,7 +25,7 @@ module ApplicationHelper
   end
 
   def object_attributes_partial_path(object)
-    "/#{object.class.name.downcase.pluralize}/attributes"
+    "/#{object.class.base_class.name.tableize}/attributes"
   end
 
   def batch_preview_model_path

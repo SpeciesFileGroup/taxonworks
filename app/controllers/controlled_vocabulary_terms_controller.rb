@@ -27,9 +27,6 @@ class ControlledVocabularyTermsController < ApplicationController
   # POST /controlled_vocabulary_terms.json
   def create
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
-
-
-
     respond_to do |format|
       if @controlled_vocabulary_term.save
         redirect_url = (request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new') ? controlled_vocabulary_term_path(@controlled_vocabulary_term) : :back)
@@ -73,6 +70,11 @@ class ControlledVocabularyTermsController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def list
+    @controlled_vocabulary_terms =  ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
