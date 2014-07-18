@@ -589,7 +589,7 @@ describe GeographicItem do
 
     specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
       # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
-      expect(@area_d.st_centroid).to eq('POINT(-0 -0)')
+      expect(@item_d.st_centroid).to eq('POINT(-0 -0)')
     end
 
     specify '#start_point returns a lat/lng of the first point of the GeoObject' do
@@ -668,31 +668,30 @@ describe GeographicItem do
         pieces = GeographicItem.geo_with_collecting_event.order('id').to_a
         expect(pieces.count).to eq(22) # p12 will be listed twice, once for e1, and once for e2
         expect(pieces).to include(@p0, @p1, @p2, @p3,
-                                   @p4, @p5, @p6, @p7,
-                                   @p8, @p9, @p10, @p11,
-                                   @p12, @p13, @p14, @p15,
-                                   @p16, @p17, @p18, @p19,
-                                   @area_d) #
+                                  @p4, @p5, @p6, @p7,
+                                  @p8, @p9, @p10, @p11,
+                                  @p12, @p13, @p14, @p15,
+                                  @p16, @p17, @p18, @p19,
+                                  @item_d) #
         expect(pieces).not_to include(@e4)
       end
 
       specify '::err_with_collecting_event' do
         pieces = GeographicItem.err_with_collecting_event.order('id').to_a
         expect(pieces.count).to eq(10) # @e1, @e2 listed twice, @k listed three times
-        expect(pieces).to include(@b2, @b, @e1, @e2, @k, @area_c) #
+        expect(pieces).to include(@b2, @b, @e1, @e2, @k, @item_d) #
         expect(pieces).not_to include(@e4, @b1)
       end
 
       specify '::with_collecting_event_through_georeferences' do
         pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-        expect(pieces.count).to eq(27) # @k only listed once
+        expect(pieces.count).to eq(26) # @k only listed once
         expect(pieces).to include(@p0, @p1, @p2, @p3,
-                                   @p4, @p5, @p6, @p7,
-                                   @p8, @p9, @p10, @p11,
-                                   @p12, @p13, @p14, @p15,
-                                   @p16, @p17, @p18, @p19,
-                                   @area_c, @area_d, @e1, @e2,
-                                   @k) #
+                                  @p4, @p5, @p6, @p7,
+                                  @p8, @p9, @p10, @p11,
+                                  @p12, @p13, @p14, @p15,
+                                  @p16, @p17, @p18, @p19,
+                                  @item_d, @e1, @e2, @k) #
         expect(pieces).not_to include(@e4)
       end
 
@@ -769,11 +768,11 @@ describe GeographicItem do
       end
 
       specify '::within_radius of returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5, @area_a, @area_b, @area_c, @area_d])
+        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to eq([@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d])
       end
 
       specify '::within_radius("any"...)' do
-        expect(GeographicItem.within_radius_of('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @area_a, @area_b, @area_c, @area_d)
+        expect(GeographicItem.within_radius_of('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify "::intersecting list of objects (uses 'or')" do

@@ -212,7 +212,7 @@ describe CollectingEvent do
           # @ce_p8 has two GRs, one of which has only a GI, and the other of which
           # has a GI, and an EGI.
           expect(@ce_p8.all_geographic_items.count).to eq(3)
-          # #ce_area_v has a GR which has no GIs, nor EGIs
+          # #ce_area_v has no GR.
           expect(@ce_area_v.all_geographic_items.count).to eq(0)
         end
       end

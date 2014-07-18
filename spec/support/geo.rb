@@ -351,9 +351,18 @@ IOWA              = 'MULTIPOLYGON (((-90.64127811889006 42.51177166572978 0.0, -
 
 def generate_geo_test_objects
 
-  $user_id    = 1 if $user_id.nil?
-  $project_id = 1 if $project_id.nil?
+  u = User.order(:id).first
+  if u.nil?
+    u = FactoryGirl.create(:valid_user, id: 1)
+  end
 
+  p = Project.order(:id).first
+  if p.nil?
+    p = FactoryGirl.create(:valid_project, id: 1)
+  end
+
+  $user_id    = u.id
+  $project_id = p.id
 
   @p0  = FactoryGirl.build(:geographic_item, :point => POINT0.as_binary) # 0
   @p1  = FactoryGirl.build(:geographic_item, :point => POINT1.as_binary) # 1
@@ -415,10 +424,10 @@ def generate_geo_test_objects
   @all_items    = FactoryGirl.build(:geographic_item, :geometry_collection => ALL_SHAPES.as_binary) # 54
   @outer_limits = FactoryGirl.build(:geographic_item, :line_string => CONVEX_HULL.exterior_ring.as_binary) # 55
 
-  @area_a = FactoryGirl.build(:geographic_item, polygon: BOX_1)
-  @area_b = FactoryGirl.build(:geographic_item, polygon: BOX_2)
-  @area_c = FactoryGirl.build(:geographic_item, polygon: BOX_3)
-  @area_d = FactoryGirl.build(:geographic_item, polygon: BOX_4)
+  @item_a = FactoryGirl.build(:geographic_item, polygon: BOX_1)
+  @item_b = FactoryGirl.build(:geographic_item, polygon: BOX_2)
+  @item_c = FactoryGirl.build(:geographic_item, polygon: BOX_3)
+  @item_d = FactoryGirl.build(:geographic_item, polygon: BOX_4)
 
   @all_gi = [@p0, @p1, @p2, @p3, @p4,
              @p5, @p6, @p7, @p8, @p9,
@@ -439,7 +448,7 @@ def generate_geo_test_objects
              @l,
              @r2020, @r2022, @r2024, @rooms,
              @all_items, @outer_limits,
-             @area_a, @area_b, @area_c, @area_d]
+             @item_a, @item_b, @item_c, @item_d]
 
   @all_gi.map(&:save!)
 
@@ -503,10 +512,10 @@ def generate_geo_test_objects
     all_items:    @all_items.id,
     outer_limits: @outer_limits.id,
 
-    area_a:       @area_a.id,
-    area_b:       @area_b.id,
-    area_c:       @area_c.id,
-    area_d:       @area_d.id
+    item_a:       @item_a.id,
+    item_b:       @item_b.id,
+    item_c:       @item_c.id,
+    item_d:       @item_d.id
   }
 
   my_debug = false
@@ -527,7 +536,7 @@ def generate_ce_test_objects
   @gr00  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr00',
                               :collecting_event      => @ce_p0,
-                              :error_geographic_item => @area_c,
+                              :error_geographic_item => @item_d,
                               :geographic_item       => @p0) #  1
   @gr10  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request      => 'gr10',
@@ -641,12 +650,13 @@ def generate_ce_test_objects
   @gr_area_d = FactoryGirl.create(:georeference_verbatim_data,
                                   :api_request      => 'gr_area_d',
                                   :collecting_event => @ce_area_d,
-                                  :geographic_item  => @area_d)
+                                  :geographic_item  => @item_d)
 
   @ce_area_v = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_area_v collecting event test')
   # @gr_area_v = FactoryGirl.create(:georeference_verbatim_data,
   #                                 :api_request      => 'gr_area_v',
-  #                                 :collecting_event => @ce_area_d)
+  #                                 :collecting_event => @ce_area_v,
+  #                                 :geographic_item  => @item_v)
 
 end
 

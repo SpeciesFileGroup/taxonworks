@@ -191,7 +191,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
-   # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
+  # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
   def find_others_contained_in_error
     # find all the GIs and EGIs associated with CEs
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
@@ -217,7 +217,7 @@ class CollectingEvent < ActiveRecord::Base
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
-    CollectingEvent.where("id <> ?", self.to_param).
+    CollectingEvent.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
   end
@@ -225,15 +225,36 @@ class CollectingEvent < ActiveRecord::Base
   # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
-  # which are country_level, and have GIs containing the (GI and/or EGI) of this CE
+  #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
+    retval  = []
+    ga_list = []
+    gi_list = []
 
+    gi_list << GeographicItem.containing('any', self.geographic_items)
+    gi_list << GeographicItem.containing('any', self.error_geographic_items)
+
+    ga_list << gi_list.uniq.flatten.map(&:geographic_areas).uniq
+
+    ga_list.flatten.each {|ga|
+      GeographicAreaType::COUNTRY_LEVEL_TYPES.each {|gat|
+        gat = GeographicAreaType.where(:name => gat).first
+        if ga.geographic_area_type == gat
+          retval << {ga.name => ga}
+        end
+      }
+    }
+    # gi_list = GeographicItem.containing('any', self.geographic_items.first).to_a
+    if retval.count < 2
+      retval = retval[0]
+    end
+    retval
   end
 
   # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
   #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
-  # which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
   def states_hash
 
   end
@@ -241,7 +262,7 @@ class CollectingEvent < ActiveRecord::Base
   # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
   #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
-  # which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
   def counties_hash
 
   end
