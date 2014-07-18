@@ -7,7 +7,7 @@ TaxonWorks::Application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = true # false TODO revisit this with taxonworks.rb, at present the nesting/inclusion of TaxonName sublcasses and methods is borking development
+  config.eager_load = false 
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true

@@ -58,17 +58,17 @@ module NavigationHelper
 
   def object_link(object)
     return nil if object.nil?
-    link_to(object_tag(object), object)
+    link_to(object_tag(object), object.becomes(object.class.base_class))
   end
 
   # TODO: Move somewhere-else, all object methods are likely borked for subclasses.
   def object_tag(object)
     return content_tag(:em, 'None') if object.nil?
-    send("#{object.class.name.underscore}_tag", object)
+    send("#{object.class.base_class.name.underscore}_tag", object)
   end
 
   def edit_object_path(object)
-    send("edit_#{object.class.name.underscore}_path", object)
+    send("edit_#{object.class.base_class.name.underscore}_path", object)
   end
 
   def edit_object_link(object)

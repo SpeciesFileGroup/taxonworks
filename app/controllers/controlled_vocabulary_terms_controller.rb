@@ -6,7 +6,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @controlled_vocabulary_terms = ControlledVocabularyTerm.all
+    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
   end
 
   # GET /controlled_vocabulary_terms/1

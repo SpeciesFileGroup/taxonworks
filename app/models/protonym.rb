@@ -190,7 +190,7 @@ class Protonym < TaxonName
     end
   end
 
-  protected
+
 
   def incorrect_original_spelling
     self.iczn_set_as_incorrect_original_spelling_of_relationship
@@ -199,9 +199,12 @@ class Protonym < TaxonName
 
   def incertae_sedis
     # TODO: check this
+    return nil
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
+
+  protected
 
   #region Validation
 

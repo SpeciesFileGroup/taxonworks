@@ -9,20 +9,13 @@ module TaxonNamesHelper
     taxon_name.parent ? taxon_name_for_select(taxon_name.parent) : nil
   end
 
-  # TODO: deprecate for self.taxon_name_tag
-  def self.display_taxon_name(taxon_name)
+  def self.taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_name
+    taxon_name.cached_name || taxon_name.name #TODO: fixe cached name generation
   end
 
-  # TODO: deprecate for taxon_name_tag
-  def display_taxon_name(taxon_name)
-    TaxonNamesHelper.display_taxon_name(taxon_name)
-  end
-
-  def taxon_name_tag
-    return nil if taxon_name.nil?
-    taxon_name.cached_name
+  def taxon_name_tag(taxon_name)
+    TaxonNamesHelper.taxon_name_tag(taxon_name)
   end
 
     # TODO: Scope to code
