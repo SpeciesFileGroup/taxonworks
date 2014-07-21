@@ -62,9 +62,9 @@ gem 'acts_as_list'
 gem 'paper_trail', '~> 3.0.0'
 
 # DwC-A archive handling 
-gem "dwc-archive", "~> 0.9.11"
+gem 'dwc-archive', '~> 0.9.11'
 
-gem 'validates_timeliness', "~> 3.0.14"
+gem 'validates_timeliness', '~> 3.0.14'
 
 # Password encryption
 gem 'bcrypt-ruby', '~> 3.1.5'
@@ -80,12 +80,12 @@ group :test, :development do
   gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
-  gem "factory_girl_rails", "~> 4.0"
+  gem 'factory_girl_rails', '~> 4.0'
 end
 
 group :development do
-  gem "better_errors"
-  gem "binding_of_caller"
+  gem 'better_errors'
+  gem 'binding_of_caller'
 end
 
 group :doc do
@@ -93,8 +93,9 @@ group :doc do
 end
 
 group :test do
-  gem "rspec", '~> 3.0'
+  gem 'rspec', '~> 3.0'
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
+  gem 'timecop', '~> 0.7.1'
 end
 

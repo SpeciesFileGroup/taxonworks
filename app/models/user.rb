@@ -55,6 +55,17 @@ class User < ActiveRecord::Base
     end
     true
   end
+  
+  def generate_password_reset_token()
+    token = User.secure_random_token
+    self.password_reset_token = User.encrypt(token)
+    self.password_reset_token_date = DateTime.now
+    token
+  end
+  
+  def password_reset_token_matches?(token)
+    self.password_reset_token == User.encrypt(token)
+  end
 
   private
 
