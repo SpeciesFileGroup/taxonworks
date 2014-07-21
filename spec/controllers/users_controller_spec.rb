@@ -26,6 +26,8 @@ describe UsersController do
 
   let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
 
+  let(:invalid_attributes) {{  "email" => "invalid value" }  } 
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # UsersController. Be sure to keep this updated too.
@@ -102,35 +104,31 @@ describe UsersController do
     describe "with invalid params" do
       it "assigns a newly created but unsaved user as @user" do
         # Trigger the behavior that occurs when invalid params are submitted
-        expect_any_instance_of(User).to receive(:save).and_return(false) 
-        #  User.any_instance.stub(:save).and_return(false)
-        
-        post :create, {:user => { "email" => "invalid value" }}, valid_session
+        post :create, {:user =>  invalid_attributes }, valid_session
         expect(assigns(:user)).to be_a_new(User)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-
-        expect_any_instance_of(User).to receive(:save).and_return(false) 
-        post :create, {:user => { "email" => "invalid value" }}, valid_session
+        post :create, {:user =>  invalid_attributes }, valid_session
         expect(response).to render_template("new")
       end
     end
   end
 
   describe "PUT update" do
-    before { sign_in_administrator } 
+    before { sign_in_administrator }  # update!
+
+    let(:new_attributes) {
+      {   "email" => "fooa1@bar.com" }
+    }
+
     describe "with valid params" do
       it "updates the requested user" do
-       
-        user = User.create!(valid_attributes)
-        # Assuming there are no other users in the database, this
-        # specifies that the User created on the previous line
-        # receives the :update_attributes message with whatever params are
-        # submitted in the request.
-        expect_any_instance_of(User).to receive(:update_attributes).with({ "email" => "fooa1@bar.com" })
-        put :update, {:id => user.to_param, :user => { "email" => "fooa1@bar.com" }}, valid_session
+        user = User.create! valid_attributes
+        put :update, {:id => user.to_param, :user => new_attributes }, valid_session
+        user.reload
+        expect(user.email).to eq('fooa1@bar.com') 
       end
 
       it "assigns the requested user as @user" do
@@ -149,17 +147,13 @@ describe UsersController do
     describe "with invalid params" do
       it "assigns the user as @user" do
         user = User.create! valid_attributes
-        # Trigger the behavior that occurs when invalid params are submitted
-        expect_any_instance_of(User).to receive(:save).and_return(false)
-        put :update, {:id => user.to_param, :user => { "email" => "invalid value" }}, valid_session
+        put :update, {:id => user.to_param, :user => invalid_attributes}, valid_session
         expect(assigns(:user)).to eq(user)
       end
 
       it "re-renders the 'edit' template" do
         user = User.create! valid_attributes
-        # Trigger the behavior that occurs when invalid params are submitted
-        expect_any_instance_of(User).to receive(:save).and_return(false)
-        put :update, {:id => user.to_param, :user => { "email" => "invalid value" }}, valid_session
+        put :update, {:id => user.to_param, :user => invalid_attributes }, valid_session
         expect(response).to render_template("edit")
       end
     end
