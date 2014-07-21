@@ -53,7 +53,7 @@ gem 'csl-styles'
 gem 'kaminari'
 
 # File upload manager & image processor
-gem 'paperclip', '~> 4.1'
+gem 'paperclip', '~> 4.2'
 
 # Ordering records
 gem 'acts_as_list'
