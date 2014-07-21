@@ -357,6 +357,11 @@ describe CollectingEvent do
         end
       end
 
+# GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
+#                   where(
+#                     geographic_area_types: {name: %w{state province}},
+#                     geographic_areas_geographic_items: {geographic_item_id: %w{1 2 3}})
+
       context '#country_name' do
         context 'derivation priority' do
           specify 'it should return nil when no georeference or CollectingEvent#geographic_area_id is present' do
