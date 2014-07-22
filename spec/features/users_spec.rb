@@ -1,10 +1,9 @@
 require 'rails_helper'
 
 describe 'Users' do
-
   subject { page }
 
-  describe '/users' do
+  describe 'GET /users' do
     context 'when administrator' do
       before {
         sign_in_administrator
@@ -47,7 +46,6 @@ describe 'Users' do
           sign_in_administrator
           visit edit_user_path(@user)
         }
-
         it 'should render' do
         end
       end
@@ -59,7 +57,6 @@ describe 'Users' do
       context 'and logged in as a project_administrator' do
         before  {
         }
-
         it 'should redirect to dashboard and provide a notice'
       end
     end
