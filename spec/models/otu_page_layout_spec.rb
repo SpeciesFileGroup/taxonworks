@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe OtuPageLayout do
   let(:otu_page_layout) {FactoryGirl.build(:otu_page_layout)} 

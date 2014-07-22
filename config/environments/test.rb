@@ -37,5 +37,6 @@ TaxonWorks::Application.configure do
 
   # Post scaffolding changes 
   require 'taxonworks'
-  I18n.enforce_available_locales = false
+  require 'taxonworks_autoload'
+
 end

@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
     length: { minimum: 8, :if => :validate_password? }, 
     :confirmation => { :if => :validate_password? }
 
-  has_many :project_members
+  has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
 
   def User.secure_random_token
@@ -42,6 +42,29 @@ class User < ActiveRecord::Base
   def is_project_administrator?(project = nil)
     return false if project.nil?
     project.project_members.where(user_id: id).first.is_project_administrator
+  end
+
+  def add_page_to_favorites(favourite_route) 
+    update_attributes(favorite_routes: ([favourite_route] + favorite_routes).uniq[0..19] )
+    true
+  end
+
+  def add_page_to_recent(recent_route)
+    if !(recent_route =~ /hub/)
+      update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9] )
+    end
+    true
+  end
+  
+  def generate_password_reset_token()
+    token = User.secure_random_token
+    self.password_reset_token = User.encrypt(token)
+    self.password_reset_token_date = DateTime.now
+    token
+  end
+  
+  def password_reset_token_matches?(token)
+    self.password_reset_token == User.encrypt(token)
   end
 
   private

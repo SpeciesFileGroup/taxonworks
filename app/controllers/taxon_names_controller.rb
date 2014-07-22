@@ -6,7 +6,7 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @taxon_names = TaxonName.limit(100)
+    @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
   end
 
   # GET /taxon_names/1
@@ -68,12 +68,12 @@ class TaxonNamesController < ApplicationController
 
     data = @taxon_names.collect do |t|
       {id: t.id,
-       label: TaxonNamesHelper.display_taxon_name(t), 
+       label: TaxonNamesHelper.taxon_name_tag(t),
        response_values: {
          # 'taxon_name[id]' => t.id, <- pretty sure this will bork things.
          params[:method] => t.id  
        },
-       label_html: TaxonNamesHelper.display_taxon_name(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: TaxonNamesHelper.taxon_name_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 

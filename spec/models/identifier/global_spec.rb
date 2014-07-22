@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 describe Identifier::Global do
 
   let(:guid_identifier) {Identifier::Global.new}

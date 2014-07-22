@@ -1,6 +1,6 @@
 class Keyword < ControlledVocabularyTerm 
 
-  has_many :tags, foreign_key: :keyword_id
+  has_many :tags, foreign_key: :keyword_id, dependent: :destroy
 
   def tagged_objects
     self.tags.collect{|t| t.tag_object}

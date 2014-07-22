@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe AlternateValue do
   let (:alternate_value) { FactoryGirl.build(:alternate_value)}

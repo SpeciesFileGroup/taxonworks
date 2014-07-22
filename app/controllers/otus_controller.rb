@@ -24,7 +24,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.all
+    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # POST /otus
@@ -71,7 +71,7 @@ class OtusController < ApplicationController
     redirect_to otu_path(params[:otu][:id])
   end
 
- def auto_complete_for_otus
+ def auto_complete
     @otus = Otu.where('name LIKE ?', "#{params[:term]}%") # find_for_auto_complete(conditions, table_name)
 
     data = @otus.collect do |t|

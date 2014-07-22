@@ -17,12 +17,25 @@ class Serial < ActiveRecord::Base
   # Class variables
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many
-  has_many :serial_chronologies_as_succeeding, foreign_key: :subject_serial_id
-  has_many :serial_chronologies_as_preceding, foreign_key: :subject_object_id
-  has_many :succeeding_serials, through: :serial_chronologies_as_subject, class_name: 'Serial'
-  has_many :preceding_serials, through: :serial_chronologies_as_object, class_name: 'Serial'
+  belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
 
-  # Scopes, clustered by function
+  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
+
+  has_many :succeeding_serial_chronologies, foreign_key:  :succeeding_serial_id, class_name: 'SerialChronology'
+  # all serialChronologies where SerialChronology.succeeding_serial_id = my.id
+
+  has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology'
+  # all serialChronologies where SerialChronology.preceding_serial_id = my.id
+
+  has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
+  # .to_a will return an array of serials - single preceding chronology will be multiple serials if there is a merge
+
+  has_many :immediately_succeeding_serials, through:  :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
+  # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
+
+  # TODO handle translations (which are simultaneous)
+
+   # Scopes, clustered by function
   # select all serials with this name this will handled by
   # TODO to be implemented include shared::scopes
   # ^= scope :with_<attribute name>, ->(<search value>) {where <attribute name>:<search value>}
@@ -42,6 +55,7 @@ class Serial < ActiveRecord::Base
     test should be in alternate value
   # select all serials with this translation name - fine to implement scope here, but primary
     test should be in alternate value
+  # TODO follow question (7/16/14) - Matt - there are translations as different serials (different ISSNs) and translations of the name of the current serial which are alternate values
 =end
 
   # "Hard" Validations
@@ -103,16 +117,23 @@ class Serial < ActiveRecord::Base
     ret_val # return
   end
 
-  def previous_serial
-    # return previous serial object or nil
-  end
-
-  def succeeding_serial
-    # return succeeding serial object or nil
-  end
 
   def chronology
     # return ordered array of serials associated with this serial
+  end
+
+  def all_previous(start_serial=self)
+    # provides an array of all previous incarnations of me
+
+    out_array = []
+    start_serial.immediately_preceding_serials.order(:name).each do |serial|
+      out_array.push(serial)
+      prev = all_previous(serial)
+
+      out_array.push( prev) unless prev.empty?
+
+    end
+    return out_array
   end
 
   protected

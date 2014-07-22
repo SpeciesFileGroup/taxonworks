@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Georeference::VerbatimData do
   context 'VerbatimData uses self.collecting_event to internalize data' do

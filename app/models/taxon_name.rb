@@ -112,7 +112,6 @@
 #
 # @!all_generic_placements #array of genera where the species was placed
 #
-#
 class TaxonName < ActiveRecord::Base
 
   include Housekeeping
@@ -136,7 +135,7 @@ class TaxonName < ActiveRecord::Base
 
   belongs_to :source
   has_many :taxon_name_classifications
-  has_many :otus
+  has_many :otus, inverse_of: :taxon_name, dependent: :nullify
 
   #relationships as a subject
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id

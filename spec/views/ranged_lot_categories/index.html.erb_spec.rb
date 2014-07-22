@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "ranged_lot_categories/index" do
   before(:each) do

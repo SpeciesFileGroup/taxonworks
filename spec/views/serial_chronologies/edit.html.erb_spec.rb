@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "serial_chronologies/edit" do
   before(:each) do

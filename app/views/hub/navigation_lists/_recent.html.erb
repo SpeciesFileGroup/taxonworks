@@ -1,0 +1,8 @@
+<h3> Recently visited </h3>
+<ul>
+  <% @sessions_current_user.recent_routes.each do |route| -%>
+    <%= content_tag(:li, link_to(route.parameterize(' - '), route)) -%>
+  <% end %>
+</ul>
+<%= content_tag(:em, 'Nowhere. Do something!') if @sessions_current_user.recent_routes.empty? -%>
+

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe BiocurationClassification do
   let(:biocuration_classification) {BiocurationClassification.new}

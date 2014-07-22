@@ -1,8 +1,19 @@
 TaxonWorks::Application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
- 
   # Vetted / tested
+ 
+  # All models that use data controllers should include this concern. 
+  # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
+  # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
+  concern :data_routes do |options|
+    collection do
+      get 'download'
+      get 'list'
+      post 'batch_create'
+      post 'batch_preview'
+      post 'search'
+      get "auto_complete"
+    end
+  end
 
   root 'dashboard#index'
 
@@ -18,13 +29,15 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+
   resources :project_members
 
   match '/hub', to: 'hub#index', via: 'get'
   match '/administration', to: 'administration#index', via: 'get'
 
-
   # Stubbed
+ 
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
   resources :alternate_values
@@ -32,21 +45,25 @@ TaxonWorks::Application.routes.draw do
   resources :citation_topics
   resources :citations
   resources :collecting_events do
+    concerns [:data_routes]
     collection do
       get 'test'
     end
-
   end
-  resources :collection_objects
+  resources :collection_objects do
+    concerns [:data_routes]
+  end
   resources :collection_profiles
   resources :contents
-  resources :controlled_vocabulary_terms
+  
+  resources :controlled_vocabulary_terms do
+    concerns [:data_routes]
+  end
+
   resources :data_attributes
   resources :geographic_area_types
   resources :geographic_areas do
-    collection do
-      post 'search'
-    end
+    concerns :data_routes
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items
@@ -59,14 +76,7 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layout_sections
   resources :otu_page_layouts
   resources :otus do
-    collection do
-      get 'auto_complete_for_otus'
-      get 'download'
-      get 'list'
-      post 'batch_create'
-      post 'batch_preview'
-      post 'search'
-   end
+    concerns :data_routes
   end
   resources :people
   resources :public_contents
@@ -79,9 +89,7 @@ TaxonWorks::Application.routes.draw do
   resources :tags
   resources :taxon_determinations
   resources :taxon_names do
-    collection do
-      get 'auto_complete_for_taxon_names'
-    end
+    concerns :data_routes
   end
 
   resources :taxon_name_classifications

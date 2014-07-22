@@ -1,0 +1,10 @@
+<h2> Batch load </h2> 
+<% if self.controller.respond_to?(:batch_preview) -%>
+  <%= form_tag batch_preview_model_path, multipart: true do -%>
+    <%= file_field_tag :file -%>
+    <%= submit_tag 'Preview' -%>
+  <% end %>
+<% else %>
+  <em> Batch loading not yet available. </em>
+<% end%>
+

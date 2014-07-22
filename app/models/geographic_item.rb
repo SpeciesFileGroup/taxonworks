@@ -150,7 +150,7 @@ class GeographicItem < ActiveRecord::Base
     [o.y, o.x]
   end
 
-  # Return an Array of [latitude, longitude] for the centroid of GeoItem
+  # Return a WKT for the centroid of GeoItem
   def center_coords
     # to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
     # [$2.to_f, $1.to_f]
@@ -162,7 +162,7 @@ class GeographicItem < ActiveRecord::Base
   end
 
   # TODO: Find ST_Centroid(g1) method and
-  # Return an Array of [latitude, longitude] for the centroid of GeoItem
+  # Return a WKT for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
     GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) centroid").first['centroid']
@@ -258,7 +258,7 @@ class GeographicItem < ActiveRecord::Base
 
     def st_intersects(column_name = :multi_polygon, geometry)
       geographic_item = GeographicItem.arel_table
-      Arel::Nodes::NamedFunction.new("ST_Intersects", geographic_item[column_name], geometry)
+      Arel::Nodes::NamedFunction.new('ST_Intersects', geographic_item[column_name], geometry)
     end
 
 =begin
@@ -337,7 +337,7 @@ class GeographicItem < ActiveRecord::Base
         end
       }
       # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: pieces.flatten.map(&:id))
+      GeographicItem.where(id: part.flatten.map(&:id))
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)

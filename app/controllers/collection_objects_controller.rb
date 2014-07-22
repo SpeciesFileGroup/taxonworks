@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @collection_objects = CollectionObject.all
+    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
   end
 
   # GET /collection_objects/1
@@ -61,6 +61,10 @@ class CollectionObjectsController < ApplicationController
       format.html { redirect_to collection_objects_url }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @collection_objects =  CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   private

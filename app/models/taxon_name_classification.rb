@@ -140,9 +140,11 @@ class TaxonNameClassification < ActiveRecord::Base
   #endregion
   
   private
+
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
+  
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
@@ -150,6 +152,7 @@ class TaxonNameClassification < ActiveRecord::Base
     end
     ans    
   end
+ 
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end

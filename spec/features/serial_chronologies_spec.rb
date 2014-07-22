@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # TODO: this is a join
 

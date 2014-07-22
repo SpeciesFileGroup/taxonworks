@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "api/v1/taxon_names/all.rabl" do
 

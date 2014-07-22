@@ -1,3 +1,5 @@
+# A Role relates a Person (data in Taxonworks) with another data object.
+#
 class Role < ActiveRecord::Base
 
   acts_as_list scope: [ :type, :role_object_type, :role_object_id  ]
@@ -14,6 +16,7 @@ class Role < ActiveRecord::Base
   before_validation :set_creator_and_updater_from_person_if_possible
 
   protected
+
   def set_creator_and_updater_from_person_if_possible
     self.creator = self.person.creator if self.person && self.creator.nil?
     self.updater = self.person.updater if self.person && self.updater.nil?

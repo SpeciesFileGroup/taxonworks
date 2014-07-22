@@ -1,5 +1,14 @@
-# OTU is defined by name or by taxon_name_id.
-
+# An Otu (losely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
+#
+# An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows 
+# in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
+# Otus are a primary unit of work in TaxonWorks.
+#
+# OTU is labeled with a name, either arbitrarily given or specificly linked to a taxon_name_id.
+#
+#
+# TODO: Add simple semantics (same_as etc.) describing taxon_name_id
+#
 class Otu < ActiveRecord::Base
   include Housekeeping
   include SoftValidation
@@ -10,17 +19,17 @@ class Otu < ActiveRecord::Base
   include Shared::Taggable
   include Shared::AlternateValues
 
-  belongs_to :taxon_name
+  belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :contents, inverse_of: :otu
-  has_many :taxon_determinations, inverse_of: :otu
-  has_many :collection_profiles
+  has_many :contents, inverse_of: :otu, dependent: :destroy
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object 
+  has_many :collection_profiles # @proceps dependent: what?
   has_many :topics, through: :contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) {where(taxon_name_id: taxon_name_id)}
   scope :with_name, -> (name) {where(name: name)}
   scope :not_self, -> (id) {where('otus.id <> ?', id )}
-
 
   #  validates_uniqueness_of :name, scope: :taxon_name_id
 

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "tagged_section_keywords/index" do
   before(:each) do

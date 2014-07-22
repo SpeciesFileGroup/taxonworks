@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'geographic_areas/edit' do
   before(:each) do

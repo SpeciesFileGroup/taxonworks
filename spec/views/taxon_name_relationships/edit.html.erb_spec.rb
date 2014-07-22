@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "taxon_name_relationships/edit" do
   before(:each) do

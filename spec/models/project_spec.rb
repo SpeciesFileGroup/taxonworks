@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # Projects are extended by various related concerns.  When 
 # we get to testing them we will have to do this here:

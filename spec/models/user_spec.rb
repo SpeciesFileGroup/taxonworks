@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe User do
 
@@ -12,6 +12,16 @@ describe User do
       specify 'projects' do
         expect(user.projects << Project.new()).to be_truthy
       end
+    end
+  end
+
+  context 'preferences' do
+    specify '#favorite_routes' do
+      expect(user.favorite_routes).to eq([])
+    end
+
+    specify '#recent_routes' do
+      expect(user.recent_routes).to eq([])
     end
   end
 
@@ -44,7 +54,6 @@ describe User do
       specify '#is_superuser(project)?' do
         expect(user.is_superuser?(Project.find($project_id))).to be true
       end
-
     end
   end
 
@@ -101,6 +110,59 @@ describe User do
   describe 'remember token' do
     before { user.save }
     it(:remember_token) { should_not be_blank }
+  end
+  
+  describe 'password reset token' do
+    
+    it 'is nil on a newly created user' do
+      expect(user.password_reset_token).to be_nil
+    end
+    
+    describe '#generate_password_reset_token' do
+      it 'records the time it was generated' do
+          Timecop.freeze(DateTime.now) do
+            user.generate_password_reset_token()
+            expect(user.password_reset_token_date).to eq(DateTime.now)
+        end
+      end
+    
+      it 'generates a random token' do
+        expect(user.generate_password_reset_token()).to_not eq(user.generate_password_reset_token())
+      end
+      
+      it 'does not record the token in plain text' do
+        token = user.generate_password_reset_token()
+        expect(token).to_not eq(user.password_reset_token)
+      end
+      
+      it 'generates the token with at least 16 chars' do
+        expect(user.generate_password_reset_token).to satisfy { |v| v.length >= 16 }
+      end
+    end
+    
+    describe '#password_reset_token_matches?' do
+            
+      context 'valid' do
+        it 'returns truthy when the supplied token matches the user''s' do
+          token = user.generate_password_reset_token()
+          expect(user.password_reset_token_matches?(token)).to be_truthy
+        end
+      end
+      
+      context 'invalid' do
+        let(:examples) { [nil, '', 'token'] }
+          
+        it 'returns falsey when the user has no token' do
+          user.password_reset_token = nil
+          examples.each { |e| expect(user.password_reset_token_matches?(e)).to be_falsey }
+        end
+        
+        it 'returns falsey when the supplied token does not match the user''s' do
+          user.generate_password_reset_token()
+          examples.each { |e| expect(user.password_reset_token_matches?(e)).to be_falsey }
+        end
+      end
+    end
   end
 
 end

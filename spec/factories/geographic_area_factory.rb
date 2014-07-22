@@ -37,7 +37,8 @@ FactoryGirl.define do
     factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin 'Test Data'
       name 'Test'
-      geographic_area_type factory: :valid_geographic_area_type
+      valid_gat
+      # geographic_area_type factory: :valid_geographic_area_type
       after(:build) { |o| o.level0 = o }
     end
 
@@ -47,7 +48,8 @@ FactoryGirl.define do
       factory :level2_geographic_area, aliases: [:valid_geographic_area_stack] do
         name 'Champaign'
         parent_state
-        association :geographic_area_type, factory: :county_geographic_area_type
+        county_gat
+        # association :geographic_area_type, factory: :county_geographic_area_type
         after(:build) { |o| 
           o.level2 = o
           o.level1 = o.parent
@@ -59,7 +61,8 @@ FactoryGirl.define do
         name 'Illinois'
         tdwgID '74ILL-00'
         parent_country
-        association :geographic_area_type, factory: :state_geographic_area_type
+        state_gat
+        # association :geographic_area_type, factory: :state_geographic_area_type
         after(:build) { |o| 
           o.level1 = o 
           o.level0 = o.parent
@@ -71,7 +74,8 @@ FactoryGirl.define do
         iso_3166_a3 'USA'
         iso_3166_a2 'US'
         parent_earth
-        association :geographic_area_type, factory: :country_geographic_area_type
+        country_gat
+        # association :geographic_area_type, factory: :country_geographic_area_type
         after(:build) { |o| o.level0 = o }
       end
 
@@ -79,7 +83,8 @@ FactoryGirl.define do
         name 'Earth'
         parent_id nil
         level0_id nil
-        association :geographic_area_type, factory: :planet_geographic_area_type
+        planet_gat
+        # association :geographic_area_type, factory: :planet_geographic_area_type
       end
 
     end

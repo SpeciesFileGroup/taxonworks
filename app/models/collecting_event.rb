@@ -152,6 +152,7 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  # TODO: 'figure out what it actually means' (mjy) 20140718
   def all_geographic_items
     GeographicItem.select('g1.* FROM geographic_items gi').
       join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
@@ -185,12 +186,12 @@ class CollectingEvent < ActiveRecord::Base
       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
 
-    ## todo: change 'id in (?)' to some other sql construct
+    # todo: change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
 
-   # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
+  # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
   def find_others_contained_in_error
     # find all the GIs and EGIs associated with CEs
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
@@ -216,13 +217,72 @@ class CollectingEvent < ActiveRecord::Base
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
-    CollectingEvent.where("id <> ?", self.to_param).
+    CollectingEvent.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
   end
 
-  # return all of the GAs which are country_level, amd have GIs containing the (GI, EGI)
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def countries_hash
+    retval   = []
+    ga_list  = []
+    ga_names = []
+    gi_list  = []
+
+    # only if there are NO geographic_items of any type
+    unless self.geographic_items.count == 0 && self.error_geographic_items.count == 0
+
+      # gather all the GIs which contain this GI or EGI
+      gi_list << GeographicItem.containing('any', self.geographic_items)
+      gi_list << GeographicItem.containing('any', self.error_geographic_items)
+
+    else
+      # we need to use the geographic_area directly
+      gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
+    end
+
+    # map the resulting GIs to their corresponding GAs
+    pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
+    ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
+      where(geographic_area_types:             {name: GeographicAreaType::COUNTRY_LEVEL_TYPES},
+            geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
+    # now find all of the GAs which have the same names as the ones we collected.
+
+    ga_names << ga_list.map(&:name)
+
+    ga_names.flatten.each { |name|
+      retval << {name => GeographicArea.where(name: name).to_a}
+    }
+
+    # translate the list into
+    # ga_list.each { |ga|
+    #   retval << {ga.name => ga}
+    # }
+
+    case retval.count
+      when 1
+        retval.first
+      else
+        retval
+    end
+  end
+
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  def states_hash
+
+  end
+
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  def counties_hash
 
   end
 
@@ -234,8 +294,16 @@ class CollectingEvent < ActiveRecord::Base
 
   end
 
+  def state_name
+    state_or_province_name
+  end
+
   def county_or_equivalent_name
 
+  end
+
+  def county_name
+    county_or_equivalent_name
   end
 
   # class methods

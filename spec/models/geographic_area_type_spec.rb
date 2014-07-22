@@ -1,11 +1,12 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe GeographicAreaType do
   let(:geographic_area_type) {FactoryGirl.build(:geographic_area_type)}
+
   context 'associations' do
     context 'has_many' do
       specify 'geographic_areas' do
-        expect(geographic_area_type).to respond_to(:geographic_areas)
+        expect(geographic_area_type.geographic_areas << GeographicArea.new()).to be_truthy
       end
     end
   end

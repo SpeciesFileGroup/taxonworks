@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Identifier::Global::Issn do
   skip "add some examples to (or delete) #{__FILE__}"

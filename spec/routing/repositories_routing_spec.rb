@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe RepositoriesController do
   describe "routing" do

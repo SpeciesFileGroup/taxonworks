@@ -1,3 +1,14 @@
+# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
+Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
+
+# A *monomial* TaxonNames first usage. This follows Pyle's concept almost exactly.
+#
+# We inject a lot of relationship helper methods here, in this format. 
+#   subject                      object
+#   Aus      original_genus of   bus
+#   aus      type_species of     Bus
+#
+#
 class Protonym < TaxonName
 
   before_validation :set_cached_names
@@ -21,10 +32,6 @@ class Protonym < TaxonName
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
-  # subject                      object
-  # Aus      original_genus of   bus
-  # aus      type_species of     Bus
-
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
@@ -36,6 +43,9 @@ class Protonym < TaxonName
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  
+       
+        # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
         has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
       end
     end
@@ -53,7 +63,10 @@ class Protonym < TaxonName
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
       end
     end
+
   end
+
+
 
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
@@ -190,18 +203,22 @@ class Protonym < TaxonName
     end
   end
 
-  protected
+
 
   def incorrect_original_spelling
+    return nil
     self.iczn_set_as_incorrect_original_spelling_of_relationship
     #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
   end
 
   def incertae_sedis
     # TODO: check this
+    return nil
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
+
+  protected
 
   #region Validation
 
@@ -233,7 +250,7 @@ class Protonym < TaxonName
 
   def sv_missing_relationships
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Original genus is missing') if self.original_combination_genus.nil?
+      soft_validations.add(:base, 'Original genus is missing') if self.original_genus # TODO: @proceps , is this right? it was changed from non existant call
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
@@ -524,7 +541,8 @@ class Protonym < TaxonName
   def sv_parent_priority
     rank_group = self.rank_class.parent
     parent = self.parent
-    if rank_group == parent.rank_class.parent
+
+    if parent && rank_group == parent.rank_class.parent
       unless self.unavailable_or_invalid?
         date1 = self.nomenclature_date
         date2 = parent.nomenclature_date
@@ -672,8 +690,6 @@ class Protonym < TaxonName
     self.cached_original_combination = get_original_combination
   end
 
-
-
 #  def sv_fix_add_relationship(method, object_id)
 #    begin
 #      Protonym.transaction do
@@ -689,3 +705,4 @@ class Protonym < TaxonName
   #endregion
 
 end
+

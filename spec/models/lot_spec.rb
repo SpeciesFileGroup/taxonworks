@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 describe Lot do
   let(:lot) { FactoryGirl.build(:lot) }
 

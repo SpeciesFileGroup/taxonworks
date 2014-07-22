@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe LoanItemsController do
   describe "routing" do

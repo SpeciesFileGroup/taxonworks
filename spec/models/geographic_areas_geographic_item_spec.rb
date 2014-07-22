@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe GeographicAreasGeographicItem do
   let(:geographic_areas_geographic_item) {FactoryGirl.build(:geographic_areas_geographic_item)}
