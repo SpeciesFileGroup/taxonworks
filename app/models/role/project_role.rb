@@ -1,7 +1,8 @@
+# A ProjectRole is data within a project.
+#
 class Role::ProjectRole < Role
   include Housekeeping
 
-  
   # TODO: Refactor after Housekeeping / FactoryGirl issues resolveds
   before_validation :set_project_if_possible # facilitates << additions
 

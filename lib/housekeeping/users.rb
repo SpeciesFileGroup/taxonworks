@@ -3,6 +3,9 @@ module Housekeeping::Users
   extend ActiveSupport::Concern
 
   included do
+   related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' gives :threes
+   related_class = self.name
+
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
@@ -13,18 +16,23 @@ module Housekeeping::Users
       set_created_by_id
       set_updated_by_id 
     end
+
+    # And extend User
+    User.class_eval do
+      raise 'Class name collision for User#has_many' if self.methods and self.methods.include?(:related_instances)
+      has_many "created_#{related_instances}".to_sym, class_name: related_class, foreign_key: :created_by_id, inverse_of: :creator, dependent: :restrict_with_error
+      has_many "updated_#{related_instances}".to_sym, class_name: related_class, foreign_key: :updated_by_id, inverse_of: :updater, dependent: :restrict_with_error
+    end
   end
 
   module ClassMethods
-
-    def all_creators
-      #User
-    end
-
+   #def all_creators
+   #  #User
+   #end
   end
 
-  def alive?
-  end
+  # def alive?
+  # end
 
   def set_created_by_id
     self.created_by_id ||= $user_id

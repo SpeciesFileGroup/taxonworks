@@ -8,7 +8,7 @@ class Project < ActiveRecord::Base
     'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
   }
 
-  has_many :project_members
+  has_many :project_members, dependent: :destroy
   has_many :users, through: :project_members
 
   after_initialize :set_default_workbench_settings

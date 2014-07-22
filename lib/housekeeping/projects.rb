@@ -19,7 +19,7 @@ module Housekeeping::Projects
     # Also extend the project 
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
-      has_many related_instances, class_name: related_class # inverse_of: :project,
+      has_many related_instances, class_name: related_class, dependent: :delete_all, inverse_of: :project
     end
   end
 
