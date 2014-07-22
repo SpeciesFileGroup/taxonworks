@@ -7,7 +7,7 @@ class RangedLotCategory < ActiveRecord::Base
   validates :minimum_value, numericality: {greater_than: 0, only_integer: true}, allow_nil: true
   validates :maximum_value, numericality: {greater_than: 1, only_integer: true}, allow_nil: true
 
-  has_many :ranged_lots, inverse_of: :ranged_lot_category
+  has_many :ranged_lots, inverse_of: :ranged_lot_category, dependent: :restrict_with_error
 
   protected
 

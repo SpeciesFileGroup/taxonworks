@@ -1,4 +1,4 @@
-# A class representing a single, physical, and biological individual that has been collected.  Used when the curator has enumerated something to 1.
+# A Specimen is a single (by single we mean a curator has enumerated the object as 1), physical, and biological individual that has been collected. 
 class Specimen < CollectionObject::BiologicalCollectionObject
 
   before_validation :check_and_set_total 

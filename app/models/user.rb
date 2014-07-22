@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
     length: { minimum: 8, :if => :validate_password? }, 
     :confirmation => { :if => :validate_password? }
 
-  has_many :project_members
+  has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
 
   def User.secure_random_token

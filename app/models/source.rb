@@ -1,3 +1,7 @@
+# A Source is the metadata that identifies the origin of some information.
+
+# The primary purpose of Source metadata is to allow the user to find the source, that's all. 
+# 
 class Source < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::Identifiable
@@ -7,8 +11,8 @@ class Source < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Taggable
 
-  has_many :citations, inverse_of: :source
-  has_many :cited_objects, through: :citations, source: :citation_object # not ordered
+  has_many :citations, inverse_of: :source, dependent: :destroy
+  has_many :cited_objects, through: :citations, source: :citation_object, dependent: :destroy # not ordered
 
   #validate :not_empty
 
