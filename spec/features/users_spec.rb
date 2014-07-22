@@ -22,6 +22,21 @@ describe 'Users' do
   end
 
   describe 'GET /users/:id' do
+
+    context 'show my user data' do
+      before {
+        sign_in_user
+        visit user_path(@user)
+      }
+
+      it 'should show my email' do
+        subject.should have_content("#{@user.email}")
+      end
+    end
+
+
+
+
     context 'when editing self' do
       before {
         sign_in_user
