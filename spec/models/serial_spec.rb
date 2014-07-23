@@ -112,9 +112,19 @@ describe Serial do
       expect(@h.all_previous).to eq([@e, [@a, @b]])
     end
 
-    #TODO reflect previous to get succeeding
-    it 'should list all succeeding serials' do
-      skip 'not implemented yet'
+    specify '#immediately_succeeding_serials - immediately succeeding serial(s if split)' do
+      expect(@a.immediately_succeeding_serials.to_a).to eq([@e])
+      expect(@e.immediately_succeeding_serials.order(:name).to_a).to eq([@g, @h])
+      expect(@h.immediately_succeeding_serials.to_a).to eq([])
+      expect(@d.immediately_succeeding_serials.to_a).to eq([@f])
+    end
+    specify '#all_succeeding_serials - should list all historically related succeeding serials' do
+      # want all succeeding serials of a == [e, [g,h]]
+      expect(@a.all_succeeding).to eq([@e, [@g, @h]])
+    end
+
+    specify '#full_chronology - should list the full serial tree' do
+
     end
   end
 

@@ -131,7 +131,18 @@ class Serial < ActiveRecord::Base
       prev = all_previous(serial)
 
       out_array.push( prev) unless prev.empty?
+    end
+    return out_array
+  end
 
+  def all_succeeding(start_serial=self)
+    # provides an array of all succeeding incarnations of me
+    out_array = []
+    start_serial.immediately_succeeding_serials.order(:name).each do |serial|
+      out_array.push(serial)
+      succeeding = all_succeeding(serial)
+
+      out_array.push(succeeding) unless succeeding.empty?
     end
     return out_array
   end
