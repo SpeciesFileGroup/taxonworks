@@ -145,7 +145,9 @@ describe Serial do
       expect(@h.all_previous).to eq([@e, [@a, [@f], @b, [@d]]])
     end
     skip '#full_chronology - should list the full serial tree' do
-
+      # Not sure we're going to implement this - it is complex to represent a full chronology because we need
+      # to represent siblings somehow and how do you handle translations? Also do you provide full trees for siblings
+      # as well?
     end
   end
 
