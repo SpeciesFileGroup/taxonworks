@@ -47,8 +47,8 @@ describe 'Users' do
 
       it 'should let user edit their account information' do
         txt = "Edit user #{@user.id}"
-        expect(subject).to have_selector('h1', txt)
-        expect(subject).to have_title("#{txt} | TaxonWorks")
+        expect(page).to have_selector('h1', txt)
+        expect(page).to have_title("#{txt} | TaxonWorks")
         fill_in 'Email', with: 'edit_user_modified@example.com'
         fill_in 'Password', with: '1234ZZZ!'
         fill_in 'Password confirmation', with: '1234ZZZ!'
