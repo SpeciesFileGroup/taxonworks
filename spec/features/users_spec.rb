@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe 'Users', :type => :feature do
-  subject { page }
+describe 'Users' do
+  # subject { page }
 
   describe 'GET /users' do
     context 'when administrator' do
@@ -10,31 +10,33 @@ describe 'Users', :type => :feature do
         visit users_path 
       }
       it 'should list users' do
-        expect(subject).to have_selector('h1', text: 'Users')
-        expect(subject).to have_content("#{@user.email}")
+        expect(page).to have_selector('h1', text: 'Users')
+        expect(page).to have_content("#{@user.email}")
       end
     end
 
     context 'when not an administrator' do
-      before {sign_in_administrator}
-      it 'should redirect to dashboard and provide a notice' 
+      before { sign_in_administrator }
+      it 'should redirect to dashboard and provide a notice'
     end
   end
 
   describe 'GET /users/:id' do
 
-    context 'show my user data' do
+    context 'when logged in on dashboard' do
       before {
         sign_in_user
         visit user_path(@user)
       }
 
-      it 'should show my email' do
-        subject.should have_content("#{@user.email}")
-      end
     end
 
 
+    # it 'should show my basic attributes' do
+    #   expect(page).to have_link("Edit user information", href: user_information_path)
+    #   expect(page).to have_link("View my statistics", href: user_statistics_path)
+    #   # what projects I belong, currently logged into projects,
+    # end
 
 
     context 'when editing self' do
@@ -70,11 +72,10 @@ describe 'Users', :type => :feature do
       end
 
       context 'and logged in as a project_administrator' do
-        before  {
+        before {
         }
         it 'should redirect to dashboard and provide a notice'
       end
     end
   end
-
 end
