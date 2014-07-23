@@ -75,9 +75,13 @@ describe Protonym do
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
             relationship = "#{d.assignment_method}_relationship".to_sym
             relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+            method = d.assignment_method.to_sym
+            methods = d.inverse_assignment_method.to_s.pluralize.to_sym
           elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
             relationship = "#{d.inverse_assignment_method}_relationship".to_sym
             relationships = "#{d.assignment_method}_relationships".to_sym
+            method = d.inverse_assignment_method.to_sym
+            methods = d.assignment_method.to_s.pluralize.to_sym
           end
 
           specify relationship do
@@ -86,11 +90,11 @@ describe Protonym do
           specify relationships do
             expect(@protonym).to respond_to(relationships)
           end
-          specify d.assignment_method.to_s do
-            expect(@protonym).to respond_to(d.assignment_method.to_sym)
+          specify method do
+            expect(@protonym).to respond_to(method)
           end
-          specify d.inverse_assignment_method.to_s do
-            expect(@protonym).to respond_to(d.inverse_assignment_method.to_sym)
+          specify methods do
+            expect(@protonym).to respond_to(methods)
           end
         end
       end

@@ -46,7 +46,7 @@ class Protonym < TaxonName
   
        
         # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
-        has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
+        has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
     end
 
@@ -56,7 +56,7 @@ class Protonym < TaxonName
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-        has_many d.inverse_assignment_method.to_sym, through: relationships, source: :subject_taxon_name
+        has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
         relationship = "#{d.inverse_assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
@@ -206,14 +206,11 @@ class Protonym < TaxonName
 
 
   def incorrect_original_spelling
-#    return nil
     self.iczn_set_as_incorrect_original_spelling_of_relationship
     #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
   end
 
   def incertae_sedis
-    # TODO: check this
-#    return nil
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
