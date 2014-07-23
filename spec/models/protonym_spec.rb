@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Protonym do
+describe Protonym, :type => :model do
   let(:protonym) { Protonym.new }
   before(:all) do
     TaxonName.delete_all

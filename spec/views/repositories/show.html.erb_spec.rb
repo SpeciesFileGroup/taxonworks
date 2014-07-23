@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "repositories/show" do
+describe "repositories/show", :type => :view do
   before(:each) do
     @repository = assign(:repository, stub_model(Repository,
       :name => "Name",
@@ -17,13 +17,13 @@ describe "repositories/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
-    rendered.should match(/Url/)
-    rendered.should match(/Acronym/)
-    rendered.should match(/Status/)
-    rendered.should match(/Institutional Lsid/)
-    rendered.should match(/false/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/Url/)
+    expect(rendered).to match(/Acronym/)
+    expect(rendered).to match(/Status/)
+    expect(rendered).to match(/Institutional Lsid/)
+    expect(rendered).to match(/false/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
   end
 end

@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe OtuPageLayoutSectionsController do
+describe OtuPageLayoutSectionsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe OtuPageLayoutSectionsController do
     it "assigns all otu_page_layout_sections as @otu_page_layout_sections" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:otu_page_layout_sections).should eq([otu_page_layout_section])
+      expect(assigns(:otu_page_layout_sections)).to eq([otu_page_layout_section])
     end
   end
 
@@ -45,14 +45,14 @@ describe OtuPageLayoutSectionsController do
     it "assigns the requested otu_page_layout_section as @otu_page_layout_section" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
       get :show, {:id => otu_page_layout_section.to_param}, valid_session
-      assigns(:otu_page_layout_section).should eq(otu_page_layout_section)
+      expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
     end
   end
 
   describe "GET new" do
     it "assigns a new otu_page_layout_section as @otu_page_layout_section" do
       get :new, {}, valid_session
-      assigns(:otu_page_layout_section).should be_a_new(OtuPageLayoutSection)
+      expect(assigns(:otu_page_layout_section)).to be_a_new(OtuPageLayoutSection)
     end
   end
 
@@ -60,7 +60,7 @@ describe OtuPageLayoutSectionsController do
     it "assigns the requested otu_page_layout_section as @otu_page_layout_section" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
       get :edit, {:id => otu_page_layout_section.to_param}, valid_session
-      assigns(:otu_page_layout_section).should eq(otu_page_layout_section)
+      expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
     end
   end
 
@@ -74,29 +74,29 @@ describe OtuPageLayoutSectionsController do
 
       it "assigns a newly created otu_page_layout_section as @otu_page_layout_section" do
         post :create, {:otu_page_layout_section => valid_attributes}, valid_session
-        assigns(:otu_page_layout_section).should be_a(OtuPageLayoutSection)
-        assigns(:otu_page_layout_section).should be_persisted
+        expect(assigns(:otu_page_layout_section)).to be_a(OtuPageLayoutSection)
+        expect(assigns(:otu_page_layout_section)).to be_persisted
       end
 
       it "redirects to the created otu_page_layout_section" do
         post :create, {:otu_page_layout_section => valid_attributes}, valid_session
-        response.should redirect_to(OtuPageLayoutSection.last.becomes(OtuPageLayoutSection))
+        expect(response).to redirect_to(OtuPageLayoutSection.last.becomes(OtuPageLayoutSection))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved otu_page_layout_section as @otu_page_layout_section" do
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayoutSection.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
         post :create, {:otu_page_layout_section => {:invalid => 'parms'}}, valid_session
-        assigns(:otu_page_layout_section).should be_a_new(OtuPageLayoutSection)
+        expect(assigns(:otu_page_layout_section)).to be_a_new(OtuPageLayoutSection)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayoutSection.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
         post :create, {:otu_page_layout_section => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe OtuPageLayoutSectionsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         t = FactoryGirl.create(:random_controlled_vocabulary_term, type: 'Topic')
-        OtuPageLayoutSection.any_instance.should_receive(:update).with({"topic_id" => t.id.to_s})
+        expect_any_instance_of(OtuPageLayoutSection).to receive(:update).with({"topic_id" => t.id.to_s})
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:topic_id => t.id.to_s}}, valid_session
       end
 
       it "assigns the requested otu_page_layout_section as @otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => valid_attributes}, valid_session
-        assigns(:otu_page_layout_section).should eq(otu_page_layout_section)
+        expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
       end
 
       it "redirects to the otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => valid_attributes}, valid_session
-        response.should redirect_to(otu_page_layout_section.becomes(OtuPageLayoutSection))
+        expect(response).to redirect_to(otu_page_layout_section.becomes(OtuPageLayoutSection))
       end
     end
 
@@ -132,17 +132,17 @@ describe OtuPageLayoutSectionsController do
       it "assigns the otu_page_layout_section as @otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayoutSection.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:invalid => 'parms'}}, valid_session
-        assigns(:otu_page_layout_section).should eq(otu_page_layout_section)
+        expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
       end
 
       it "re-renders the 'edit' template" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayoutSection.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
         put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe OtuPageLayoutSectionsController do
     it "redirects to the otu_page_layout_sections list" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
       delete :destroy, {:id => otu_page_layout_section.to_param}, valid_session
-      response.should redirect_to(otu_page_layout_sections_url)
+      expect(response).to redirect_to(otu_page_layout_sections_url)
     end
   end
 

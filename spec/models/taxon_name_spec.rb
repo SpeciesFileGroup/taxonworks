@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe TaxonName do
+describe TaxonName, :type => :model do
 
   let(:taxon_name) { TaxonName.new }
   before(:all) do

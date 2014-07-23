@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectingEvent do
+describe CollectingEvent, :type => :model do
   before(:all) {
     # generate_geo_test_objects
   }

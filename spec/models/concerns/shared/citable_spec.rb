@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Citable' do
+describe 'Citable', :type => :model do
   let(:class_with_citations) { TestCitable.new } 
   context 'associations' do
     specify 'has many citations - includes creating a citation' do

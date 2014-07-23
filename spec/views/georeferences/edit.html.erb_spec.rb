@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'georeferences/edit' do
+describe 'georeferences/edit', :type => :view do
   before(:each) do
     @georeference = assign(:georeference,
                            stub_model(Georeference,

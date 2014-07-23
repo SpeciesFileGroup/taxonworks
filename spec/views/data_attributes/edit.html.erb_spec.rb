@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "data_attributes/edit" do
+describe "data_attributes/edit", :type => :view do
   before(:each) do
     @data_attribute = assign(:data_attribute, stub_model(DataAttribute,
       :type => "",

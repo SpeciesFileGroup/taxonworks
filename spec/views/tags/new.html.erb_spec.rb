@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tags/new" do
+describe "tags/new", :type => :view do
   before(:each) do
     assign(:tag, stub_model(Tag,
       :keyword_id => 1,

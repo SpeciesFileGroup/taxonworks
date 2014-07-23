@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "people/new" do
+describe "people/new", :type => :view do
   before(:each) do
     assign(:person, stub_model(Person,
       :type => "",

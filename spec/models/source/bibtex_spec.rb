@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Bibtex do
+describe Source::Bibtex, :type => :model do
 
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 

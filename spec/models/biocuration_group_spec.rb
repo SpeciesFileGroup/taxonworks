@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiocurationGroup do
+describe BiocurationGroup, :type => :model do
 
   let(:biocuration_group) {FactoryGirl.build(:biocuration_group)}
 

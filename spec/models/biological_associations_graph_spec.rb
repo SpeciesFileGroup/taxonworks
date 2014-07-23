@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalAssociationsGraph do
+describe BiologicalAssociationsGraph, :type => :model do
 
   let(:biological_associations_graph) { FactoryGirl.build(:biological_associations_graph) } 
 

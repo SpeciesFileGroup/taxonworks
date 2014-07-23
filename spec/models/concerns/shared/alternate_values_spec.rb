@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'AlternateValues' do
+describe 'AlternateValues', :type => :model do
   let(:class_with_alternate_values) { TestAlternateValue.new } 
 
   context 'reflections / foreign keys' do

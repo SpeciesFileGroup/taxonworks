@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe LoansController do
+describe LoansController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe LoansController do
     it "assigns all loans as @loans" do
       loan = Loan.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:loans).should eq([loan])
+      expect(assigns(:loans)).to eq([loan])
     end
   end
 
@@ -45,14 +45,14 @@ describe LoansController do
     it "assigns the requested loan as @loan" do
       loan = Loan.create! valid_attributes
       get :show, {:id => loan.to_param}, valid_session
-      assigns(:loan).should eq(loan)
+      expect(assigns(:loan)).to eq(loan)
     end
   end
 
   describe "GET new" do
     it "assigns a new loan as @loan" do
       get :new, {}, valid_session
-      assigns(:loan).should be_a_new(Loan)
+      expect(assigns(:loan)).to be_a_new(Loan)
     end
   end
 
@@ -60,7 +60,7 @@ describe LoansController do
     it "assigns the requested loan as @loan" do
       loan = Loan.create! valid_attributes
       get :edit, {:id => loan.to_param}, valid_session
-      assigns(:loan).should eq(loan)
+      expect(assigns(:loan)).to eq(loan)
     end
   end
 
@@ -74,29 +74,29 @@ describe LoansController do
 
       it "assigns a newly created loan as @loan" do
         post :create, {:loan => valid_attributes}, valid_session
-        assigns(:loan).should be_a(Loan)
-        assigns(:loan).should be_persisted
+        expect(assigns(:loan)).to be_a(Loan)
+        expect(assigns(:loan)).to be_persisted
       end
 
       it "redirects to the created loan" do
         post :create, {:loan => valid_attributes}, valid_session
-        response.should redirect_to(Loan.last)
+        expect(response).to redirect_to(Loan.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved loan as @loan" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Loan.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Loan).to receive(:save).and_return(false)
         post :create, {:loan => {:invalid => 'parms'}}, valid_session
-        assigns(:loan).should be_a_new(Loan)
+        expect(assigns(:loan)).to be_a_new(Loan)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Loan.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Loan).to receive(:save).and_return(false)
         post :create, {:loan => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe LoansController do
         # specifies that the Loan created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Loan.any_instance.should_receive(:update).with({'supervisor_email' => 'ugly'})
+        expect_any_instance_of(Loan).to receive(:update).with({'supervisor_email' => 'ugly'})
         put :update, {:id => loan.to_param, :loan => {:supervisor_email => 'ugly'}}, valid_session
       end
 
       it "assigns the requested loan as @loan" do
         loan = Loan.create! valid_attributes
         put :update, {:id => loan.to_param, :loan => valid_attributes}, valid_session
-        assigns(:loan).should eq(loan)
+        expect(assigns(:loan)).to eq(loan)
       end
 
       it "redirects to the loan" do
         loan = Loan.create! valid_attributes
         put :update, {:id => loan.to_param, :loan => valid_attributes}, valid_session
-        response.should redirect_to(loan)
+        expect(response).to redirect_to(loan)
       end
     end
 
@@ -130,17 +130,17 @@ describe LoansController do
       it "assigns the loan as @loan" do
         loan = Loan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Loan.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Loan).to receive(:save).and_return(false)
         put :update, {:id => loan.to_param, :loan => {:invalid => 'parms'}}, valid_session
-        assigns(:loan).should eq(loan)
+        expect(assigns(:loan)).to eq(loan)
       end
 
       it "re-renders the 'edit' template" do
         loan = Loan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Loan.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Loan).to receive(:save).and_return(false)
         put :update, {:id => loan.to_param, :loan => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe LoansController do
     it "redirects to the loans list" do
       loan = Loan.create! valid_attributes
       delete :destroy, {:id => loan.to_param}, valid_session
-      response.should redirect_to(loans_url)
+      expect(response).to redirect_to(loans_url)
     end
   end
 

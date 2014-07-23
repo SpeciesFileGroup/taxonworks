@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe 'Citable' do
+describe 'Citable', :type => :model do
   let(:class_with_roles) { TestHasRole.new } 
  
   context "associations" do

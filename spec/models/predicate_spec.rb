@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Predicate do
+describe Predicate, :type => :model do
   let(:predicate) { Predicate.new }
 
   # foreign key relationships

@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TagsController do
+describe TagsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe TagsController do
     it "assigns all tags as @tags" do
       tag = Tag.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:tags).should eq([tag])
+      expect(assigns(:tags)).to eq([tag])
     end
   end
 
@@ -45,14 +45,14 @@ describe TagsController do
     it "assigns the requested tag as @tag" do
       tag = Tag.create! valid_attributes
       get :show, {:id => tag.to_param}, valid_session
-      assigns(:tag).should eq(tag)
+      expect(assigns(:tag)).to eq(tag)
     end
   end
 
   describe "GET new" do
     it "assigns a new tag as @tag" do
       get :new, {}, valid_session
-      assigns(:tag).should be_a_new(Tag)
+      expect(assigns(:tag)).to be_a_new(Tag)
     end
   end
 
@@ -60,7 +60,7 @@ describe TagsController do
     it "assigns the requested tag as @tag" do
       tag = Tag.create! valid_attributes
       get :edit, {:id => tag.to_param}, valid_session
-      assigns(:tag).should eq(tag)
+      expect(assigns(:tag)).to eq(tag)
     end
   end
 
@@ -79,29 +79,29 @@ describe TagsController do
 
         it "assigns a newly created tag as @tag" do
           post :create, {:tag => valid_attributes}, valid_session
-          assigns(:tag).should be_a(Tag)
-          assigns(:tag).should be_persisted
+          expect(assigns(:tag)).to be_a(Tag)
+          expect(assigns(:tag)).to be_persisted
         end
 
         it "redirects to the created tag" do
           post :create, {:tag => valid_attributes}, valid_session
-          response.should redirect_to(Tag.last)
+          expect(response).to redirect_to(Tag.last)
         end
       end
 
       describe "with invalid params" do
         it "assigns a newly created but unsaved tag as @tag" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Tag.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Tag).to receive(:save).and_return(false)
           post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
-          assigns(:tag).should be_a_new(Tag)
+          expect(assigns(:tag)).to be_a_new(Tag)
         end
 
         it "re-renders the 'new' template" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Tag.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Tag).to receive(:save).and_return(false)
           post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
-          response.should render_template("new")
+          expect(response).to render_template("new")
         end
       end
     end
@@ -114,12 +114,12 @@ describe TagsController do
 
       it 'redirects to :back on successfull create' do
         post :create, {:tag => valid_attributes}, valid_session
-        response.should redirect_to(@referer)
+        expect(response).to redirect_to(@referer)
       end
 
       it 'redirects to :back on unsuccessfull create' do
         post :create, {:tag => { "keyword_id" => "invalid value" } }, valid_session
-        response.should redirect_to(@referer)
+        expect(response).to redirect_to(@referer)
       end
     end
 
@@ -133,20 +133,20 @@ describe TagsController do
         # specifies that the Tag created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Tag.any_instance.should_receive(:update).with({ "keyword_id" => "1" })
+        expect_any_instance_of(Tag).to receive(:update).with({ "keyword_id" => "1" })
         put :update, {:id => tag.to_param, :tag => { "keyword_id" => "1" }}, valid_session
       end
 
       it "assigns the requested tag as @tag" do
         tag = Tag.create! valid_attributes
         put :update, {:id => tag.to_param, :tag => valid_attributes}, valid_session
-        assigns(:tag).should eq(tag)
+        expect(assigns(:tag)).to eq(tag)
       end
 
       it "redirects to the tag" do
         tag = Tag.create! valid_attributes
         put :update, {:id => tag.to_param, :tag => valid_attributes}, valid_session
-        response.should redirect_to(tag)
+        expect(response).to redirect_to(tag)
       end
     end
 
@@ -154,17 +154,17 @@ describe TagsController do
       it "assigns the tag as @tag" do
         tag = Tag.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Tag.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Tag).to receive(:save).and_return(false)
         put :update, {:id => tag.to_param, :tag => { "keyword_id" => "invalid value" }}, valid_session
-        assigns(:tag).should eq(tag)
+        expect(assigns(:tag)).to eq(tag)
       end
 
       it "re-renders the 'edit' template" do
         tag = Tag.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Tag.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Tag).to receive(:save).and_return(false)
         put :update, {:id => tag.to_param, :tag => { "keyword_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -184,7 +184,7 @@ describe TagsController do
 
       it "redirects to the tags list if arriving from tag_path" do
         delete :destroy, {:id => @tag.to_param}, valid_session
-        response.should redirect_to(tags_url)
+        expect(response).to redirect_to(tags_url)
       end
     end
 
@@ -194,7 +194,7 @@ describe TagsController do
         request.env["HTTP_REFERER"] = p
         tag = Tag.create! valid_attributes
         delete :destroy, {:id => tag.to_param}, valid_session
-        response.should redirect_to(p)
+        expect(response).to redirect_to(p)
       end
     end
 

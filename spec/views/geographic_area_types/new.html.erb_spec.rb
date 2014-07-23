@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "geographic_area_types/new" do
+describe "geographic_area_types/new", :type => :view do
   before(:each) do
     assign(:geographic_area_type, stub_model(GeographicAreaType,
       :name => "MyString",

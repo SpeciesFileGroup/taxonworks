@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_determinations/new" do
+describe "taxon_determinations/new", :type => :view do
   before(:each) do
     assign(:taxon_determination, stub_model(TaxonDetermination,
       :biological_collection_object_id => 1,

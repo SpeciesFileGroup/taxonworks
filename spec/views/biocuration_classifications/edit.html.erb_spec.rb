@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "biocuration_classifications/edit" do
+describe "biocuration_classifications/edit", :type => :view do
   before(:each) do
     @biocuration_classification = assign(:biocuration_classification, stub_model(BiocurationClassification,
       :biocuration_class_id => 1,

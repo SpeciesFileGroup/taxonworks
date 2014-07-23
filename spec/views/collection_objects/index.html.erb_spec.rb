@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collection_objects/index" do
+describe "collection_objects/index", :type => :view do
   before(:each) do
     assign(:collection_objects, [
       stub_model(CollectionObject,

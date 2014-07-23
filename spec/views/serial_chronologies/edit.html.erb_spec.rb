@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "serial_chronologies/edit" do
+describe "serial_chronologies/edit", :type => :view do
   before(:each) do
     @serial_chronology = assign(:serial_chronology, stub_model(SerialChronology,
       :preceding_serial_id => 1,

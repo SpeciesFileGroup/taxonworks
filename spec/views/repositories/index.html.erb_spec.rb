@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "repositories/index" do
+describe "repositories/index", :type => :view do
   before(:each) do
     assign(:repositories, [
       stub_model(Repository,

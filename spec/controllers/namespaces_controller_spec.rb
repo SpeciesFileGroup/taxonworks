@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe NamespacesController do
+describe NamespacesController, :type => :controller do
   before(:each) {
     sign_in_administrator
   }
@@ -39,7 +39,7 @@ describe NamespacesController do
     it "assigns all namespaces as @namespaces" do
       namespace = Namespace.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:namespaces).should eq([namespace])
+      expect(assigns(:namespaces)).to eq([namespace])
     end
   end
 
@@ -47,14 +47,14 @@ describe NamespacesController do
     it "assigns the requested namespace as @namespace" do
       namespace = Namespace.create! valid_attributes
       get :show, {:id => namespace.to_param}, valid_session
-      assigns(:namespace).should eq(namespace)
+      expect(assigns(:namespace)).to eq(namespace)
     end
   end
 
   describe "GET new" do
     it "assigns a new namespace as @namespace" do
       get :new, {}, valid_session
-      assigns(:namespace).should be_a_new(Namespace)
+      expect(assigns(:namespace)).to be_a_new(Namespace)
     end
   end
 
@@ -62,7 +62,7 @@ describe NamespacesController do
     it "assigns the requested namespace as @namespace" do
       namespace = Namespace.create! valid_attributes
       get :edit, {:id => namespace.to_param}, valid_session
-      assigns(:namespace).should eq(namespace)
+      expect(assigns(:namespace)).to eq(namespace)
     end
   end
 
@@ -76,29 +76,29 @@ describe NamespacesController do
 
       it "assigns a newly created namespace as @namespace" do
         post :create, {:namespace => valid_attributes}, valid_session
-        assigns(:namespace).should be_a(Namespace)
-        assigns(:namespace).should be_persisted
+        expect(assigns(:namespace)).to be_a(Namespace)
+        expect(assigns(:namespace)).to be_persisted
       end
 
       it "redirects to the created namespace" do
         post :create, {:namespace => valid_attributes}, valid_session
-        response.should redirect_to(Namespace.last)
+        expect(response).to redirect_to(Namespace.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved namespace as @namespace" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Namespace.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Namespace).to receive(:save).and_return(false)
         post :create, {:namespace => { "institution" => "invalid value" }}, valid_session
-        assigns(:namespace).should be_a_new(Namespace)
+        expect(assigns(:namespace)).to be_a_new(Namespace)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Namespace.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Namespace).to receive(:save).and_return(false)
         post :create, {:namespace => { "institution" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe NamespacesController do
         # specifies that the Namespace created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Namespace.any_instance.should_receive(:update).with({ "institution" => "MyString" })
+        expect_any_instance_of(Namespace).to receive(:update).with({ "institution" => "MyString" })
         put :update, {:id => namespace.to_param, :namespace => { "institution" => "MyString" }}, valid_session
       end
 
       it "assigns the requested namespace as @namespace" do
         namespace = Namespace.create! valid_attributes
         put :update, {:id => namespace.to_param, :namespace => valid_attributes}, valid_session
-        assigns(:namespace).should eq(namespace)
+        expect(assigns(:namespace)).to eq(namespace)
       end
 
       it "redirects to the namespace" do
         namespace = Namespace.create! valid_attributes
         put :update, {:id => namespace.to_param, :namespace => valid_attributes}, valid_session
-        response.should redirect_to(namespace)
+        expect(response).to redirect_to(namespace)
       end
     end
 
@@ -132,17 +132,17 @@ describe NamespacesController do
       it "assigns the namespace as @namespace" do
         namespace = Namespace.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Namespace.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Namespace).to receive(:save).and_return(false)
         put :update, {:id => namespace.to_param, :namespace => { "institution" => "invalid value" }}, valid_session
-        assigns(:namespace).should eq(namespace)
+        expect(assigns(:namespace)).to eq(namespace)
       end
 
       it "re-renders the 'edit' template" do
         namespace = Namespace.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Namespace.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Namespace).to receive(:save).and_return(false)
         put :update, {:id => namespace.to_param, :namespace => { "institution" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe NamespacesController do
     it "redirects to the namespaces list" do
       namespace = Namespace.create! valid_attributes
       delete :destroy, {:id => namespace.to_param}, valid_session
-      response.should redirect_to(namespaces_url)
+      expect(response).to redirect_to(namespaces_url)
     end
   end
 

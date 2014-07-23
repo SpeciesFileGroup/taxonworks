@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Combination do
+describe Combination, :type => :model do
 
   before(:all) do
     TaxonName.delete_all

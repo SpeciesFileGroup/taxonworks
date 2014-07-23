@@ -10,6 +10,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-describe CollectionProfilesHelper do
+describe CollectionProfilesHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

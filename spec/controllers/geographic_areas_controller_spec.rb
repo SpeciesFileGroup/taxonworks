@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe GeographicAreasController do
+describe GeographicAreasController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -52,7 +52,7 @@ describe GeographicAreasController do
       geographic_area_2 = GeographicArea.find(geographic_area_5.id - 3)
       geographic_area_1 = GeographicArea.find(geographic_area_5.id - 4)
       get :index, {}, valid_session
-      assigns(:geographic_areas).order('id').to_a.should eq([geographic_area_1,
+      expect(assigns(:geographic_areas).order('id').to_a).to eq([geographic_area_1,
                                                              geographic_area_2,
                                                              geographic_area_3,
                                                              geographic_area_4,
@@ -64,14 +64,14 @@ describe GeographicAreasController do
     it 'assigns the requested geographic_area as @geographic_area' do
       geographic_area = FactoryGirl.create(:level2_geographic_area)
       get :show, {:id => geographic_area.to_param}, valid_session
-      assigns(:geographic_area).should eq(geographic_area)
+      expect(assigns(:geographic_area)).to eq(geographic_area)
     end
   end
 
   describe 'GET new' do
     it 'assigns a new geographic_area as @geographic_area' do
       get :new, {}, valid_session
-      assigns(:geographic_area).should be_a_new(GeographicArea)
+      expect(assigns(:geographic_area)).to be_a_new(GeographicArea)
     end
   end
 
@@ -79,7 +79,7 @@ describe GeographicAreasController do
     it 'assigns the requested geographic_area as @geographic_area' do
       geographic_area = FactoryGirl.create(:level2_geographic_area)
       get :edit, {:id => geographic_area.to_param}, valid_session
-      assigns(:geographic_area).should eq(geographic_area)
+      expect(assigns(:geographic_area)).to eq(geographic_area)
     end
   end
 
@@ -93,29 +93,29 @@ describe GeographicAreasController do
 
       it "assigns a newly created geographic_area as @geographic_area" do
         post :create, {:geographic_area => valid_attributes}, valid_session
-        assigns(:geographic_area).should be_a(GeographicArea)
-        assigns(:geographic_area).should be_persisted
+        expect(assigns(:geographic_area)).to be_a(GeographicArea)
+        expect(assigns(:geographic_area)).to be_persisted
       end
 
       it "redirects to the created geographic_area" do
         post :create, {:geographic_area => valid_attributes}, valid_session
-        response.should redirect_to(GeographicArea.last)
+        expect(response).to redirect_to(GeographicArea.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved geographic_area as @geographic_area" do
         # Trigger the behavior that occurs when invalid params are submitted
-        GeographicArea.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(GeographicArea).to receive(:save).and_return(false)
         post :create, {:geographic_area => {"name" => "invalid value"}}, valid_session
-        assigns(:geographic_area).should be_a_new(GeographicArea)
+        expect(assigns(:geographic_area)).to be_a_new(GeographicArea)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        GeographicArea.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(GeographicArea).to receive(:save).and_return(false)
         post :create, {:geographic_area => {"name" => "invalid value"}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -128,20 +128,20 @@ describe GeographicAreasController do
         # specifies that the GeographicArea created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        GeographicArea.any_instance.should_receive(:update).with({"name" => "MyString"})
+        expect_any_instance_of(GeographicArea).to receive(:update).with({"name" => "MyString"})
         put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "MyString"}}, valid_session
       end
 
       it "assigns the requested geographic_area as @geographic_area" do
         geographic_area = GeographicArea.create! valid_attributes
         put :update, {:id => geographic_area.to_param, :geographic_area => valid_attributes}, valid_session
-        assigns(:geographic_area).should eq(geographic_area)
+        expect(assigns(:geographic_area)).to eq(geographic_area)
       end
 
       it "redirects to the geographic_area" do
         geographic_area = GeographicArea.create! valid_attributes
         put :update, {:id => geographic_area.to_param, :geographic_area => valid_attributes}, valid_session
-        response.should redirect_to(geographic_area)
+        expect(response).to redirect_to(geographic_area)
       end
     end
 
@@ -149,17 +149,17 @@ describe GeographicAreasController do
       it "assigns the geographic_area as @geographic_area" do
         geographic_area = GeographicArea.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        GeographicArea.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(GeographicArea).to receive(:save).and_return(false)
         put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "invalid value"}}, valid_session
-        assigns(:geographic_area).should eq(geographic_area)
+        expect(assigns(:geographic_area)).to eq(geographic_area)
       end
 
       it "re-renders the 'edit' template" do
         geographic_area = GeographicArea.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        GeographicArea.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(GeographicArea).to receive(:save).and_return(false)
         put :update, {:id => geographic_area.to_param, :geographic_area => {"name" => "invalid value"}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -175,7 +175,7 @@ describe GeographicAreasController do
     it "redirects to the geographic_areas list" do
       geographic_area = GeographicArea.create! valid_attributes
       delete :destroy, {:id => geographic_area.to_param}, valid_session
-      response.should redirect_to(geographic_areas_url)
+      expect(response).to redirect_to(geographic_areas_url)
     end
   end
 

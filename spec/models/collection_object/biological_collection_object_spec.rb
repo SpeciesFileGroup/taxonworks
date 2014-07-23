@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe CollectionObject::BiologicalCollectionObject do
+describe CollectionObject::BiologicalCollectionObject, :type => :model do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
 

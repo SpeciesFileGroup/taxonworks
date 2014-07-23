@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe PublicContentsController do
+describe PublicContentsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -41,7 +41,7 @@ describe PublicContentsController do
     it "assigns all public_contents as @public_contents" do
       public_content = PublicContent.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:public_contents).should eq([public_content])
+      expect(assigns(:public_contents)).to eq([public_content])
     end
   end
 
@@ -49,14 +49,14 @@ describe PublicContentsController do
     it "assigns the requested public_content as @public_content" do
       public_content = PublicContent.create! valid_attributes
       get :show, {:id => public_content.to_param}, valid_session
-      assigns(:public_content).should eq(public_content)
+      expect(assigns(:public_content)).to eq(public_content)
     end
   end
 
   describe "GET new" do
     it "assigns a new public_content as @public_content" do
       get :new, {}, valid_session
-      assigns(:public_content).should be_a_new(PublicContent)
+      expect(assigns(:public_content)).to be_a_new(PublicContent)
     end
   end
 
@@ -64,7 +64,7 @@ describe PublicContentsController do
     it "assigns the requested public_content as @public_content" do
       public_content = PublicContent.create! valid_attributes
       get :edit, {:id => public_content.to_param}, valid_session
-      assigns(:public_content).should eq(public_content)
+      expect(assigns(:public_content)).to eq(public_content)
     end
   end
 
@@ -78,29 +78,29 @@ describe PublicContentsController do
 
       it "assigns a newly created public_content as @public_content" do
         post :create, {:public_content => valid_attributes}, valid_session
-        assigns(:public_content).should be_a(PublicContent)
-        assigns(:public_content).should be_persisted
+        expect(assigns(:public_content)).to be_a(PublicContent)
+        expect(assigns(:public_content)).to be_persisted
       end
 
       it "redirects to the created public_content" do
         post :create, {:public_content => valid_attributes}, valid_session
-        response.should redirect_to(PublicContent.last)
+        expect(response).to redirect_to(PublicContent.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved public_content as @public_content" do
         # Trigger the behavior that occurs when invalid params are submitted
-        PublicContent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         post :create, {:public_content => {:invalid => 'parms'}}, valid_session
-        assigns(:public_content).should be_a_new(PublicContent)
+        expect(assigns(:public_content)).to be_a_new(PublicContent)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        PublicContent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         post :create, {:public_content => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -113,20 +113,20 @@ describe PublicContentsController do
         # specifies that the PublicContent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        PublicContent.any_instance.should_receive(:update).with({"text" => "New text"})
+        expect_any_instance_of(PublicContent).to receive(:update).with({"text" => "New text"})
         put :update, {:id => public_content.to_param, :public_content => { text: 'New text'}}, valid_session
       end
 
       it "assigns the requested public_content as @public_content" do
         public_content = PublicContent.create! valid_attributes
         put :update, {:id => public_content.to_param, :public_content => valid_attributes}, valid_session
-        assigns(:public_content).should eq(public_content)
+        expect(assigns(:public_content)).to eq(public_content)
       end
 
       it "redirects to the public_content" do
         public_content = PublicContent.create! valid_attributes
         put :update, {:id => public_content.to_param, :public_content => valid_attributes}, valid_session
-        response.should redirect_to(public_content)
+        expect(response).to redirect_to(public_content)
       end
     end
 
@@ -134,17 +134,17 @@ describe PublicContentsController do
       it "assigns the public_content as @public_content" do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        PublicContent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
-        assigns(:public_content).should eq(public_content)
+        expect(assigns(:public_content)).to eq(public_content)
       end
 
       it "re-renders the 'edit' template" do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        PublicContent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -160,7 +160,7 @@ describe PublicContentsController do
     it "redirects to the public_contents list" do
       public_content = PublicContent.create! valid_attributes
       delete :destroy, {:id => public_content.to_param}, valid_session
-      response.should redirect_to(public_contents_url)
+      expect(response).to redirect_to(public_contents_url)
     end
   end
 

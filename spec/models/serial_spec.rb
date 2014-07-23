@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Serial do
+describe Serial, :type => :model do
 
   it 'should only save valid serials' do
     # to be valid it must have a name

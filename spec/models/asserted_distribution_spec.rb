@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AssertedDistribution do
+describe AssertedDistribution, :type => :model do
 
   let(:asserted_distribution) { FactoryGirl.build(:asserted_distribution) }
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otus/index" do
+describe "otus/index", :type => :view do
   before(:each) do
     @data_model = Otu
     assign(:recent_objects, [

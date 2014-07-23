@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Notes' do
+describe 'Notes', :type => :feature do
   
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { notes_path }

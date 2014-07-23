@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe PublicContent do
+describe PublicContent, :type => :model do
   let(:public_content) {FactoryGirl.build(:public_content) }
 
   context 'validation' do

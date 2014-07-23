@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Administration' do 
+describe 'Administration', :type => :feature do 
  
   it_behaves_like 'an_administrator_login_required_controller' do
     let(:index_path) { administration_path }

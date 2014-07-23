@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Api::V1::TaxonNamesController do
+describe Api::V1::TaxonNamesController, :type => :controller do
 
   describe "Taxon names API" do
 

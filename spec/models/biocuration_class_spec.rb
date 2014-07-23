@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiocurationClass do
+describe BiocurationClass, :type => :model do
 
   let(:biocuration_class) {BiocurationClass.new}
 

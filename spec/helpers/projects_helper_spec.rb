@@ -11,6 +11,6 @@ require 'rails_helper'
 #   end
 # end
 
-describe ProjectsHelper do
+describe ProjectsHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Authentication' do
+describe 'Authentication', :type => :feature do
 
   subject { page }
 
@@ -45,22 +45,22 @@ describe 'Authentication' do
       it 'should sign user in' do
         sign_in_with(@valid_user.email, TEST_USER_PASSWORD)
 
-        subject.should have_link('Account') # TODO, add href
-        subject.should_not have_link('Sign out', href: signin_path)
+        expect(subject).to have_link('Account') # TODO, add href
+        expect(subject).not_to have_link('Sign out', href: signin_path)
 
-        subject.should have_content "Dashboard" 
-        subject.should have_content "Projects" 
+        expect(subject).to have_content "Dashboard" 
+        expect(subject).to have_content "Projects" 
       end
     end
 
     context 'when credentials do not match existing user' do
       it 'should not sign user in' do
         sign_in_with('', '')
-        subject.should have_title('Sign in | TaxonWorks')
-        subject.should have_button('Sign in')
-        subject.should_not have_link('Sign out', href: signout_path)
-        subject.should_not have_content 'Signed in as user'
-        subject.should_not have_link('Account')
+        expect(subject).to have_title('Sign in | TaxonWorks')
+        expect(subject).to have_button('Sign in')
+        expect(subject).not_to have_link('Sign out', href: signout_path)
+        expect(subject).not_to have_content 'Signed in as user'
+        expect(subject).not_to have_link('Account')
       end
     end
   end
@@ -72,10 +72,10 @@ describe 'Authentication' do
 
     it 'should log user out' do
       click_link 'Sign out'
-      subject.should have_button('Sign in')
-      subject.should_not have_link('Sign out', href: signout_path)
-      subject.should_not have_content 'Signed in as user'
-      subject.should_not have_content('Your account')
+      expect(subject).to have_button('Sign in')
+      expect(subject).not_to have_link('Sign out', href: signout_path)
+      expect(subject).not_to have_content 'Signed in as user'
+      expect(subject).not_to have_content('Your account')
     end
  
   end 

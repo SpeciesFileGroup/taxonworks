@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Verbatim do
+describe Source::Verbatim, :type => :model do
   context 'validation' do
     skip 'should only use verbatim field' # and cached values?
   end

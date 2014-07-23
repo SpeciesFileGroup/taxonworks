@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collection_profiles/index" do
+describe "collection_profiles/index", :type => :view do
   before(:each) do
     assign(:collection_profiles, [
       stub_model(CollectionProfile,

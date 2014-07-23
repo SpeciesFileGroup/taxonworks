@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Tag do
+describe Tag, :type => :model do
 
   let(:tag) {FactoryGirl.build(:tag)}
 

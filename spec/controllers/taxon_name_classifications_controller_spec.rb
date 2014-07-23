@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TaxonNameClassificationsController do
+describe TaxonNameClassificationsController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -39,7 +39,7 @@ describe TaxonNameClassificationsController do
     it "assigns all taxon_name_classifications as @taxon_name_classifications" do
       taxon_name_classification = TaxonNameClassification.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:taxon_name_classifications).should eq([taxon_name_classification])
+      expect(assigns(:taxon_name_classifications)).to eq([taxon_name_classification])
     end
   end
 
@@ -47,14 +47,14 @@ describe TaxonNameClassificationsController do
     it "assigns the requested taxon_name_classification as @taxon_name_classification" do
       taxon_name_classification = TaxonNameClassification.create! valid_attributes
       get :show, {:id => taxon_name_classification.to_param}, valid_session
-      assigns(:taxon_name_classification).should eq(taxon_name_classification)
+      expect(assigns(:taxon_name_classification)).to eq(taxon_name_classification)
     end
   end
 
   describe "GET new" do
     it "assigns a new taxon_name_classification as @taxon_name_classification" do
       get :new, {}, valid_session
-      assigns(:taxon_name_classification).should be_a_new(TaxonNameClassification)
+      expect(assigns(:taxon_name_classification)).to be_a_new(TaxonNameClassification)
     end
   end
 
@@ -62,7 +62,7 @@ describe TaxonNameClassificationsController do
     it "assigns the requested taxon_name_classification as @taxon_name_classification" do
       taxon_name_classification = TaxonNameClassification.create! valid_attributes
       get :edit, {:id => taxon_name_classification.to_param}, valid_session
-      assigns(:taxon_name_classification).should eq(taxon_name_classification)
+      expect(assigns(:taxon_name_classification)).to eq(taxon_name_classification)
     end
   end
 
@@ -76,29 +76,29 @@ describe TaxonNameClassificationsController do
 
       it "assigns a newly created taxon_name_classification as @taxon_name_classification" do
         post :create, {:taxon_name_classification => valid_attributes}, valid_session
-        assigns(:taxon_name_classification).should be_a(TaxonNameClassification)
-        assigns(:taxon_name_classification).should be_persisted
+        expect(assigns(:taxon_name_classification)).to be_a(TaxonNameClassification)
+        expect(assigns(:taxon_name_classification)).to be_persisted
       end
 
       it "redirects to the created taxon_name_classification" do
         post :create, {:taxon_name_classification => valid_attributes}, valid_session
-        response.should redirect_to(TaxonNameClassification.last.becomes(TaxonNameClassification))
+        expect(response).to redirect_to(TaxonNameClassification.last.becomes(TaxonNameClassification))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved taxon_name_classification as @taxon_name_classification" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameClassification).to receive(:save).and_return(false)
         post :create, {:taxon_name_classification => { "taxon_name_id" => "invalid value" }}, valid_session
-        assigns(:taxon_name_classification).should be_a_new(TaxonNameClassification)
+        expect(assigns(:taxon_name_classification)).to be_a_new(TaxonNameClassification)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameClassification).to receive(:save).and_return(false)
         post :create, {:taxon_name_classification => { "taxon_name_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe TaxonNameClassificationsController do
         # specifies that the TaxonNameClassification created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        TaxonNameClassification.any_instance.should_receive(:update).with({ "taxon_name_id" => "1" })
+        expect_any_instance_of(TaxonNameClassification).to receive(:update).with({ "taxon_name_id" => "1" })
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => { "taxon_name_id" => "1" }}, valid_session
       end
 
       it "assigns the requested taxon_name_classification as @taxon_name_classification" do
         taxon_name_classification = TaxonNameClassification.create! valid_attributes
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => valid_attributes}, valid_session
-        assigns(:taxon_name_classification).should eq(taxon_name_classification)
+        expect(assigns(:taxon_name_classification)).to eq(taxon_name_classification)
       end
 
       it "redirects to the taxon_name_classification" do
         taxon_name_classification = TaxonNameClassification.create! valid_attributes
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => valid_attributes}, valid_session
-        response.should redirect_to(taxon_name_classification.becomes(TaxonNameClassification))
+        expect(response).to redirect_to(taxon_name_classification.becomes(TaxonNameClassification))
       end
     end
 
@@ -132,17 +132,17 @@ describe TaxonNameClassificationsController do
       it "assigns the taxon_name_classification as @taxon_name_classification" do
         taxon_name_classification = TaxonNameClassification.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameClassification).to receive(:save).and_return(false)
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => { "taxon_name_id" => "invalid value" }}, valid_session
-        assigns(:taxon_name_classification).should eq(taxon_name_classification)
+        expect(assigns(:taxon_name_classification)).to eq(taxon_name_classification)
       end
 
       it "re-renders the 'edit' template" do
         taxon_name_classification = TaxonNameClassification.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameClassification).to receive(:save).and_return(false)
         put :update, {:id => taxon_name_classification.to_param, :taxon_name_classification => { "taxon_name_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe TaxonNameClassificationsController do
     it "redirects to the taxon_name_classifications list" do
       taxon_name_classification = TaxonNameClassification.create! valid_attributes
       delete :destroy, {:id => taxon_name_classification.to_param}, valid_session
-      response.should redirect_to(taxon_name_classifications_url)
+      expect(response).to redirect_to(taxon_name_classifications_url)
     end
   end
 

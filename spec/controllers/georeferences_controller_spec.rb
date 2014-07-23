@@ -17,7 +17,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe GeoreferencesController do
+describe GeoreferencesController, :type => :controller do
   before(:each) {
    sign_in 
   }
@@ -39,7 +39,7 @@ describe GeoreferencesController do
     it "assigns all georeferences as @georeferences" do
       georeference = Georeference.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:georeferences).should eq([georeference])
+      expect(assigns(:georeferences)).to eq([georeference])
     end
   end
 
@@ -48,14 +48,14 @@ describe GeoreferencesController do
       georeference = Georeference.create! valid_attributes
 
       get :show, {:id => georeference.to_param}, valid_session
-      assigns(:georeference).should eq(georeference)
+      expect(assigns(:georeference)).to eq(georeference)
     end
   end
 
   describe "GET new" do
     it "assigns a new georeference as @georeference" do
       get :new, {}, valid_session
-      assigns(:georeference).should be_a_new(Georeference)
+      expect(assigns(:georeference)).to be_a_new(Georeference)
     end
   end
 
@@ -63,7 +63,7 @@ describe GeoreferencesController do
     it "assigns the requested georeference as @georeference" do
       georeference = Georeference.create! valid_attributes
       get :edit, {:id => georeference.to_param}, valid_session
-      assigns(:georeference).should eq(georeference)
+      expect(assigns(:georeference)).to eq(georeference)
     end
   end
 
@@ -77,29 +77,29 @@ describe GeoreferencesController do
 
       it "assigns a newly created georeference as @georeference" do
         post :create, {:georeference => valid_attributes}, valid_session
-        assigns(:georeference).should be_a(Georeference)
-        assigns(:georeference).should be_persisted
+        expect(assigns(:georeference)).to be_a(Georeference)
+        expect(assigns(:georeference)).to be_persisted
       end
 
       it "redirects to the created georeference" do
         post :create, {:georeference => valid_attributes}, valid_session
-        response.should redirect_to(Georeference.last.becomes(Georeference))
+        expect(response).to redirect_to(Georeference.last.becomes(Georeference))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved georeference as @georeference" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Georeference.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Georeference).to receive(:save).and_return(false)
         post :create, {:georeference => { "geographic_item_id" => "invalid value" }}, valid_session
-        assigns(:georeference).should be_a_new(Georeference)
+        expect(assigns(:georeference)).to be_a_new(Georeference)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Georeference.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Georeference).to receive(:save).and_return(false)
         post :create, {:georeference => { "geographic_item_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -112,20 +112,20 @@ describe GeoreferencesController do
         # specifies that the Georeference created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Georeference.any_instance.should_receive(:update).with({ "geographic_item_id" => "1" })
+        expect_any_instance_of(Georeference).to receive(:update).with({ "geographic_item_id" => "1" })
         put :update, {:id => georeference.to_param, :georeference => { "geographic_item_id" => "1" }}, valid_session
       end
 
       it "assigns the requested georeference as @georeference" do
         georeference = Georeference.create! valid_attributes
         put :update, {:id => georeference.to_param, :georeference => valid_attributes}, valid_session
-        assigns(:georeference).should eq(georeference)
+        expect(assigns(:georeference)).to eq(georeference)
       end
 
       it "redirects to the georeference" do
         georeference = Georeference.create! valid_attributes
         put :update, {:id => georeference.to_param, :georeference => valid_attributes}, valid_session
-        response.should redirect_to(georeference.becomes(Georeference))
+        expect(response).to redirect_to(georeference.becomes(Georeference))
       end
     end
 
@@ -133,17 +133,17 @@ describe GeoreferencesController do
       it "assigns the georeference as @georeference" do
         georeference = Georeference.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Georeference.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Georeference).to receive(:save).and_return(false)
         put :update, {:id => georeference.to_param, :georeference => { "geographic_item_id" => "invalid value" }}, valid_session
-        assigns(:georeference).should eq(georeference)
+        expect(assigns(:georeference)).to eq(georeference)
       end
 
       it "re-renders the 'edit' template" do
         georeference = Georeference.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Georeference.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Georeference).to receive(:save).and_return(false)
         put :update, {:id => georeference.to_param, :georeference => { "geographic_item_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -159,7 +159,7 @@ describe GeoreferencesController do
     it "redirects to the georeferences list" do
       georeference = Georeference.create! valid_attributes
       delete :destroy, {:id => georeference.to_param}, valid_session
-      response.should redirect_to(georeferences_url)
+      expect(response).to redirect_to(georeferences_url)
     end
   end
 

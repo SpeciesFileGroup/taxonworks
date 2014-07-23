@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameRelationship::OriginalCombination do
+describe TaxonNameRelationship::OriginalCombination, :type => :model do
   context 'respond to' do
     specify 'order_index' do
       genus_index = TaxonNameRelationship::OriginalCombination::OriginalGenus.order_index

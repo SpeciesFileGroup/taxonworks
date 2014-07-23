@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe 'Notable' do
+describe 'Notable', :type => :model do
   let(:class_with_note) { TestNotable.new } 
  
   context 'foo', a: :b do

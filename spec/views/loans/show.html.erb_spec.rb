@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "loans/show" do
+describe "loans/show", :type => :view do
   before(:each) do
     @loan = assign(:loan, stub_model(Loan,
       :request_method => "Request Method",
@@ -22,18 +22,18 @@ describe "loans/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Request Method/)
-    rendered.should match(/1/)
-    rendered.should match(/Recipient Address/)
-    rendered.should match(/Recipient Email/)
-    rendered.should match(/Recipient Phone/)
-    rendered.should match(/2/)
-    rendered.should match(/Supervisor Person/)
-    rendered.should match(/Supervisor Email/)
-    rendered.should match(/Supervisor Phone/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/Recipient Honorarium/)
+    expect(rendered).to match(/Request Method/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/Recipient Address/)
+    expect(rendered).to match(/Recipient Email/)
+    expect(rendered).to match(/Recipient Phone/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/Supervisor Person/)
+    expect(rendered).to match(/Supervisor Email/)
+    expect(rendered).to match(/Supervisor Phone/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/Recipient Honorarium/)
   end
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "users/show" do
+describe "users/show", :type => :view do
   before(:each) do
     @user = assign(:user, stub_model(User,
       :email => "Email",
@@ -12,6 +12,6 @@ describe "users/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Edit account/)
+    expect(rendered).to match(/Edit account/)
   end
 end

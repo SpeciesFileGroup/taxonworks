@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_names/index" do
+describe "taxon_names/index", :type => :view do
   before(:each) do
     assign(:taxon_names, [
       stub_model(TaxonName,

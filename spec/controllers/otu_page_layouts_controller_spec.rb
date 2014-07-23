@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe OtuPageLayoutsController do
+describe OtuPageLayoutsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe OtuPageLayoutsController do
     it "assigns all otu_page_layouts as @otu_page_layouts" do
       otu_page_layout = OtuPageLayout.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:otu_page_layouts).should eq([otu_page_layout])
+      expect(assigns(:otu_page_layouts)).to eq([otu_page_layout])
     end
   end
 
@@ -45,14 +45,14 @@ describe OtuPageLayoutsController do
     it "assigns the requested otu_page_layout as @otu_page_layout" do
       otu_page_layout = OtuPageLayout.create! valid_attributes
       get :show, {:id => otu_page_layout.to_param}, valid_session
-      assigns(:otu_page_layout).should eq(otu_page_layout)
+      expect(assigns(:otu_page_layout)).to eq(otu_page_layout)
     end
   end
 
   describe "GET new" do
     it "assigns a new otu_page_layout as @otu_page_layout" do
       get :new, {}, valid_session
-      assigns(:otu_page_layout).should be_a_new(OtuPageLayout)
+      expect(assigns(:otu_page_layout)).to be_a_new(OtuPageLayout)
     end
   end
 
@@ -60,7 +60,7 @@ describe OtuPageLayoutsController do
     it "assigns the requested otu_page_layout as @otu_page_layout" do
       otu_page_layout = OtuPageLayout.create! valid_attributes
       get :edit, {:id => otu_page_layout.to_param}, valid_session
-      assigns(:otu_page_layout).should eq(otu_page_layout)
+      expect(assigns(:otu_page_layout)).to eq(otu_page_layout)
     end
   end
 
@@ -74,29 +74,29 @@ describe OtuPageLayoutsController do
 
       it "assigns a newly created otu_page_layout as @otu_page_layout" do
         post :create, {:otu_page_layout => valid_attributes}, valid_session
-        assigns(:otu_page_layout).should be_a(OtuPageLayout)
-        assigns(:otu_page_layout).should be_persisted
+        expect(assigns(:otu_page_layout)).to be_a(OtuPageLayout)
+        expect(assigns(:otu_page_layout)).to be_persisted
       end
 
       it "redirects to the created otu_page_layout" do
         post :create, {:otu_page_layout => valid_attributes}, valid_session
-        response.should redirect_to(OtuPageLayout.last)
+        expect(response).to redirect_to(OtuPageLayout.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved otu_page_layout as @otu_page_layout" do
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayout.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
         post :create, {:otu_page_layout => {:invalid => 'parms'}}, valid_session
-        assigns(:otu_page_layout).should be_a_new(OtuPageLayout)
+        expect(assigns(:otu_page_layout)).to be_a_new(OtuPageLayout)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayout.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
         post :create, {:otu_page_layout => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe OtuPageLayoutsController do
         # specifies that the OtuPageLayout created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        OtuPageLayout.any_instance.should_receive(:update).with({'name' => 'sunshine'})
+        expect_any_instance_of(OtuPageLayout).to receive(:update).with({'name' => 'sunshine'})
         put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {name: 'sunshine'}}, valid_session
       end
 
       it "assigns the requested otu_page_layout as @otu_page_layout" do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         put :update, {:id => otu_page_layout.to_param, :otu_page_layout => valid_attributes}, valid_session
-        assigns(:otu_page_layout).should eq(otu_page_layout)
+        expect(assigns(:otu_page_layout)).to eq(otu_page_layout)
       end
 
       it "redirects to the otu_page_layout" do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         put :update, {:id => otu_page_layout.to_param, :otu_page_layout => valid_attributes}, valid_session
-        response.should redirect_to(otu_page_layout)
+        expect(response).to redirect_to(otu_page_layout)
       end
     end
 
@@ -130,17 +130,17 @@ describe OtuPageLayoutsController do
       it "assigns the otu_page_layout as @otu_page_layout" do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayout.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
         put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {:invalid => 'parms'}}, valid_session
-        assigns(:otu_page_layout).should eq(otu_page_layout)
+        expect(assigns(:otu_page_layout)).to eq(otu_page_layout)
       end
 
       it "re-renders the 'edit' template" do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        OtuPageLayout.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
         put :update, {:id => otu_page_layout.to_param, :otu_page_layout => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe OtuPageLayoutsController do
     it "redirects to the otu_page_layouts list" do
       otu_page_layout = OtuPageLayout.create! valid_attributes
       delete :destroy, {:id => otu_page_layout.to_param}, valid_session
-      response.should redirect_to(otu_page_layouts_url)
+      expect(response).to redirect_to(otu_page_layouts_url)
     end
   end
 

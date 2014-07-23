@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'DataAttributes' do
+describe 'DataAttributes', :type => :model do
   let(:class_with_data_attributes) { TestDataAttribute.new } 
 
   context 'associations' do

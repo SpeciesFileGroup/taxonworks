@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "geographic_areas_geographic_items/index" do
+describe "geographic_areas_geographic_items/index", :type => :view do
   before(:each) do
     assign(:geographic_areas_geographic_items, [
       stub_model(GeographicAreasGeographicItem,

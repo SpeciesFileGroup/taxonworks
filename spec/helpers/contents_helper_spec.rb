@@ -10,6 +10,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-describe ContentsHelper do
+describe ContentsHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ProjectMember do
+describe ProjectMember, :type => :model do
 
   let(:project_member) {FactoryGirl.build(:project_member) }
 

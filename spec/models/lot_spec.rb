@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Lot do
+describe Lot, :type => :model do
   let(:lot) { FactoryGirl.build(:lot) }
 
   context "validation" do

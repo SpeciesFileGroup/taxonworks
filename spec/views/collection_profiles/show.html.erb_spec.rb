@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collection_profiles/show" do
+describe "collection_profiles/show", :type => :view do
   before(:each) do
     @collection_profile = assign(:collection_profile, stub_model(CollectionProfile,
       :container_id => 1,
@@ -25,21 +25,21 @@ describe "collection_profiles/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/6/)
-    rendered.should match(/7/)
-    rendered.should match(/8/)
-    rendered.should match(/9/)
-    rendered.should match(/10/)
-    rendered.should match(/11/)
-    rendered.should match(/12/)
-    rendered.should match(/13/)
-    rendered.should match(/14/)
-    rendered.should match(/15/)
-    rendered.should match(/Collection Type/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/6/)
+    expect(rendered).to match(/7/)
+    expect(rendered).to match(/8/)
+    expect(rendered).to match(/9/)
+    expect(rendered).to match(/10/)
+    expect(rendered).to match(/11/)
+    expect(rendered).to match(/12/)
+    expect(rendered).to match(/13/)
+    expect(rendered).to match(/14/)
+    expect(rendered).to match(/15/)
+    expect(rendered).to match(/Collection Type/)
   end
 end

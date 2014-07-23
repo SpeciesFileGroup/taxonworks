@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Namespaces' do
+describe 'Namespaces', :type => :feature do
 
   it_behaves_like 'an_administrator_login_required_controller' do 
     let(:index_path) { namespaces_path }

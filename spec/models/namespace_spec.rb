@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Namespace do
+describe Namespace, :type => :model do
   let(:namespace) { FactoryGirl.build(:namespace)  }
 
   context 'validation' do

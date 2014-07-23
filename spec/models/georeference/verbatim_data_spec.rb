@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Georeference::VerbatimData do
+describe Georeference::VerbatimData, :type => :model do
   context 'VerbatimData uses self.collecting_event to internalize data' do
 
     specify 'without elevation' do

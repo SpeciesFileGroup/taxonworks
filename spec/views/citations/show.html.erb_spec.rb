@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "citations/show" do
+describe "citations/show", :type => :view do
   before(:each) do
     @citation = assign(:citation, stub_model(Citation,
       :citation_object_id => "Citation Object",
@@ -15,11 +15,11 @@ describe "citations/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Citation Object/)
-    rendered.should match(/Citation Object Type/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
+    expect(rendered).to match(/Citation Object/)
+    expect(rendered).to match(/Citation Object Type/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
   end
 end

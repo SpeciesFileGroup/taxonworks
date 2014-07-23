@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe SourcesController do
+describe SourcesController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -38,7 +38,7 @@ describe SourcesController do
     it "assigns all sources as @sources" do
       source = Source.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:sources).should eq([source])
+      expect(assigns(:sources)).to eq([source])
     end
   end
 
@@ -46,14 +46,14 @@ describe SourcesController do
     it "assigns the requested source as @source" do
       source = Source.create! valid_attributes
       get :show, {:id => source.to_param}, valid_session
-      assigns(:source).should eq(source)
+      expect(assigns(:source)).to eq(source)
     end
   end
 
   describe "GET new" do
     it "assigns a new source as @source" do
       get :new, {}, valid_session
-      assigns(:source).should be_a_new(Source)
+      expect(assigns(:source)).to be_a_new(Source)
     end
   end
 
@@ -61,7 +61,7 @@ describe SourcesController do
     it "assigns the requested source as @source" do
       source = Source.create! valid_attributes
       get :edit, {:id => source.to_param}, valid_session
-      assigns(:source).should eq(source)
+      expect(assigns(:source)).to eq(source)
     end
   end
 
@@ -75,29 +75,29 @@ describe SourcesController do
 
       it "assigns a newly created source as @source" do
         post :create, {:source => valid_attributes}, valid_session
-        assigns(:source).should be_a(Source)
-        assigns(:source).should be_persisted
+        expect(assigns(:source)).to be_a(Source)
+        expect(assigns(:source)).to be_persisted
       end
 
       it "redirects to the created source" do
         post :create, {:source => valid_attributes}, valid_session
-        response.should redirect_to(Source.last.becomes(Source))
+        expect(response).to redirect_to(Source.last.becomes(Source))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved source as @source" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Source.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Source).to receive(:save).and_return(false)
         post :create, {:source => { "serial_id" => "invalid value" }}, valid_session
-        assigns(:source).should be_a_new(Source)
+        expect(assigns(:source)).to be_a_new(Source)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Source.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Source).to receive(:save).and_return(false)
         post :create, {:source => { "serial_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -110,20 +110,20 @@ describe SourcesController do
         # specifies that the Source created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Source.any_instance.should_receive(:update).with({ "serial_id" => "1" })
+        expect_any_instance_of(Source).to receive(:update).with({ "serial_id" => "1" })
         put :update, {:id => source.to_param, :source => { "serial_id" => "1" }}, valid_session
       end
 
       it "assigns the requested source as @source" do
         source = Source.create! valid_attributes
         put :update, {:id => source.to_param, :source => valid_attributes}, valid_session
-        assigns(:source).should eq(source)
+        expect(assigns(:source)).to eq(source)
       end
 
       it "redirects to the source" do
         source = Source.create! valid_attributes
         put :update, {:id => source.to_param, :source => valid_attributes}, valid_session
-        response.should redirect_to(source.becomes(Source))
+        expect(response).to redirect_to(source.becomes(Source))
       end
     end
 
@@ -131,17 +131,17 @@ describe SourcesController do
       it "assigns the source as @source" do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Source.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Source).to receive(:save).and_return(false)
         put :update, {:id => source.to_param, :source => { "serial_id" => "invalid value" }}, valid_session
-        assigns(:source).should eq(source)
+        expect(assigns(:source)).to eq(source)
       end
 
       it "re-renders the 'edit' template" do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Source.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Source).to receive(:save).and_return(false)
         put :update, {:id => source.to_param, :source => { "serial_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -157,7 +157,7 @@ describe SourcesController do
     it "redirects to the sources list" do
       source = Source.create! valid_attributes
       delete :destroy, {:id => source.to_param}, valid_session
-      response.should redirect_to(sources_url)
+      expect(response).to redirect_to(sources_url)
     end
   end
 

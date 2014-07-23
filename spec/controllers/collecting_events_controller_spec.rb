@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe CollectingEventsController do
+describe CollectingEventsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -39,7 +39,7 @@ describe CollectingEventsController do
     it "assigns all collecting_events as @collecting_events" do
       collecting_event = CollectingEvent.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:collecting_events).should eq([collecting_event])
+      expect(assigns(:collecting_events)).to eq([collecting_event])
     end
   end
 
@@ -47,14 +47,14 @@ describe CollectingEventsController do
     it "assigns the requested collecting_event as @collecting_event" do
       collecting_event = CollectingEvent.create! valid_attributes
       get :show, {:id => collecting_event.to_param}, valid_session
-      assigns(:collecting_event).should eq(collecting_event)
+      expect(assigns(:collecting_event)).to eq(collecting_event)
     end
   end
 
   describe "GET new" do
     it "assigns a new collecting_event as @collecting_event" do
       get :new, {}, valid_session
-      assigns(:collecting_event).should be_a_new(CollectingEvent)
+      expect(assigns(:collecting_event)).to be_a_new(CollectingEvent)
     end
   end
 
@@ -62,7 +62,7 @@ describe CollectingEventsController do
     it "assigns the requested collecting_event as @collecting_event" do
       collecting_event = CollectingEvent.create! valid_attributes
       get :edit, {:id => collecting_event.to_param}, valid_session
-      assigns(:collecting_event).should eq(collecting_event)
+      expect(assigns(:collecting_event)).to eq(collecting_event)
     end
   end
 
@@ -76,29 +76,29 @@ describe CollectingEventsController do
 
       it "assigns a newly created collecting_event as @collecting_event" do
         post :create, {:collecting_event => valid_attributes}, valid_session
-        assigns(:collecting_event).should be_a(CollectingEvent)
-        assigns(:collecting_event).should be_persisted
+        expect(assigns(:collecting_event)).to be_a(CollectingEvent)
+        expect(assigns(:collecting_event)).to be_persisted
       end
 
       it "redirects to the created collecting_event" do
         post :create, {:collecting_event => valid_attributes}, valid_session
-        response.should redirect_to(CollectingEvent.last)
+        expect(response).to redirect_to(CollectingEvent.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved collecting_event as @collecting_event" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectingEvent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectingEvent).to receive(:save).and_return(false)
         post :create, {:collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
-        assigns(:collecting_event).should be_a_new(CollectingEvent)
+        expect(assigns(:collecting_event)).to be_a_new(CollectingEvent)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectingEvent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectingEvent).to receive(:save).and_return(false)
         post :create, {:collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe CollectingEventsController do
         # specifies that the CollectingEvent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CollectingEvent.any_instance.should_receive(:update).with({"verbatim_label" => "MyText"})
+        expect_any_instance_of(CollectingEvent).to receive(:update).with({"verbatim_label" => "MyText"})
         put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "MyText"}}, valid_session
       end
 
       it "assigns the requested collecting_event as @collecting_event" do
         collecting_event = CollectingEvent.create! valid_attributes
         put :update, {:id => collecting_event.to_param, :collecting_event => valid_attributes}, valid_session
-        assigns(:collecting_event).should eq(collecting_event)
+        expect(assigns(:collecting_event)).to eq(collecting_event)
       end
 
       it "redirects to the collecting_event" do
         collecting_event = CollectingEvent.create! valid_attributes
         put :update, {:id => collecting_event.to_param, :collecting_event => valid_attributes}, valid_session
-        response.should redirect_to(collecting_event)
+        expect(response).to redirect_to(collecting_event)
       end
     end
 
@@ -132,17 +132,17 @@ describe CollectingEventsController do
       it "assigns the collecting_event as @collecting_event" do
         collecting_event = CollectingEvent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectingEvent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectingEvent).to receive(:save).and_return(false)
         put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
-        assigns(:collecting_event).should eq(collecting_event)
+        expect(assigns(:collecting_event)).to eq(collecting_event)
       end
 
       it "re-renders the 'edit' template" do
         collecting_event = CollectingEvent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectingEvent.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectingEvent).to receive(:save).and_return(false)
         put :update, {:id => collecting_event.to_param, :collecting_event => {"verbatim_label" => "invalid value"}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe CollectingEventsController do
     it "redirects to the collecting_events list" do
       collecting_event = CollectingEvent.create! valid_attributes
       delete :destroy, {:id => collecting_event.to_param}, valid_session
-      response.should redirect_to(collecting_events_url)
+      expect(response).to redirect_to(collecting_events_url)
     end
   end
 

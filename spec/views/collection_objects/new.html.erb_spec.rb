@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collection_objects/new" do
+describe "collection_objects/new", :type => :view do
   before(:each) do
     assign(:collection_object, stub_model(CollectionObject,
       :total => 1,

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicAreaType do
+describe GeographicAreaType, :type => :model do
   let(:geographic_area_type) {FactoryGirl.build(:geographic_area_type)}
 
   context 'associations' do

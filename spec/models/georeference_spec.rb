@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Georeference do
+describe Georeference, :type => :model do
 
   #grgl = Georeference::GeoLocate.new()
   #grvd = Georeference::VerbatimData.new()

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaggedSectionKeyword do
+describe TaggedSectionKeyword, :type => :model do
 
   let(:tagged_section_keyword) {FactoryGirl.build(:tagged_section_keyword) }
 

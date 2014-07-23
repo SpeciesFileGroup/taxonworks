@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Human do
+describe Source::Human, :type => :model do
 
   let(:source_human) { Source::Human.new }
 

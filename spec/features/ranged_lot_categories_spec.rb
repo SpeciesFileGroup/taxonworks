@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'RangedLotCategories' do
+describe 'RangedLotCategories', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { ranged_lot_categories_path }

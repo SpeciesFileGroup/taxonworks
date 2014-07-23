@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Person do
+describe Person, :type => :model do
 
   let(:person) { FactoryGirl.build(:person) }
   let(:source_bibtex) {
