@@ -478,17 +478,20 @@ describe CollectingEvent do
         end
 
         context 'when more than one possible name is present' do
+         
+          let(:list) { @ce_n1.counties_hash } 
+          
           specify 'derived from geographic_area_chain' do
             # 'Q' is synonymous with 'Big Boxia'
-            list = @ce_n1.counties_hash
+            # list = @ce_n1.counties_hash
             expect(list).to eq({'Q' => [@area_q], 'Big Boxia' => [@area_q], 'Old Boxia' => [@area_ob]}) # TODO: check,  was modified from array
             #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
-            list = @ce_p1.counties_hash
-            expect(list).to eq('Q' => [@area_q], 'Big Boxia' => [@area_q]) # TODO: check, was modified from array
+            # list = @ce_p1.counties_hash
+            expect(list).to eq({'Q' => [@area_q], 'Big Boxia' => [@area_q]}) # TODO: check, was modified from array
             #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
             expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
           end
