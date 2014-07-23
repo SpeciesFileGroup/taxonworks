@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_names/show" do
+describe "taxon_names/show", :type => :view do
   before(:each) do
     @taxon_name = assign(:taxon_name, stub_model(TaxonName,
       :name => "Name",
@@ -29,25 +29,25 @@ describe "taxon_names/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
-    rendered.should match(/1/)
-    rendered.should match(/Cached Name/)
-    rendered.should match(/Cached Author Year/)
-    rendered.should match(/Cached Higher Classification/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/Cached Name/)
+    expect(rendered).to match(/Cached Author Year/)
+    expect(rendered).to match(/Cached Higher Classification/)
     #rendered.should match(/2/)
     #rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/Verbatim Author/)
-    rendered.should match(/Rank Class/)
-    rendered.should match(/Type/)
-    rendered.should match(/6/)
-    rendered.should match(/7/)
-    rendered.should match(/8/)
-    rendered.should match(/Cached Original Combination/)
-    rendered.should match(/Cached Secondary Homonym/)
-    rendered.should match(/Cached Primary Homonym/)
-    rendered.should match(/Cached Secondary Homonym Alt/)
-    rendered.should match(/Cached Primary Homonym Alt/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/Verbatim Author/)
+    expect(rendered).to match(/Rank Class/)
+    expect(rendered).to match(/Type/)
+    expect(rendered).to match(/6/)
+    expect(rendered).to match(/7/)
+    expect(rendered).to match(/8/)
+    expect(rendered).to match(/Cached Original Combination/)
+    expect(rendered).to match(/Cached Secondary Homonym/)
+    expect(rendered).to match(/Cached Primary Homonym/)
+    expect(rendered).to match(/Cached Secondary Homonym Alt/)
+    expect(rendered).to match(/Cached Primary Homonym Alt/)
   end
 end

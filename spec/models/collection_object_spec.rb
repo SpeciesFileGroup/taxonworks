@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionObject do
+describe CollectionObject, :type => :model do
 
   let(:collection_object) {FactoryGirl.build(:collection_object) }
 

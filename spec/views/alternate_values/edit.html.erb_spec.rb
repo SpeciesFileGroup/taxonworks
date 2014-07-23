@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "alternate_values/edit" do
+describe "alternate_values/edit", :type => :view do
   before(:each) do
     @alternate_value = assign(:alternate_value, stub_model(AlternateValue,
       :value => "MyText",

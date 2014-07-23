@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "loans/new" do
+describe "loans/new", :type => :view do
   before(:each) do
     assign(:loan, stub_model(Loan,
       :request_method => "MyString",

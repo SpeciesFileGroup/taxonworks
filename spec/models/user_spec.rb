@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe User do
+describe User, :type => :model do
 
   let(:user) { User.new(password: 'password',
                         password_confirmation: 'password',
@@ -58,39 +58,39 @@ describe User do
   end
 
   context 'with password, password confirmation and email' do
-    it { should be_valid }
+    it { is_expected.to be_valid }
   end
 
   context 'when password is empty' do
     before { user.password = user.password_confirmation = '' }
-    it { should be_invalid }
+    it { is_expected.to be_invalid }
   end
 
   context 'when password confirmation doesn\'t match' do
     before { user.password_confirmation = 'mismatch' }
-    it { should be_invalid }
+    it { is_expected.to be_invalid }
   end
 
   context 'when password is too short' do
     before { user.password = user.password_confirmation = 'a' * 5 }
-    it { should be_invalid }
+    it { is_expected.to be_invalid }
   end
 
   context 'when email is empty' do
     before { user.email = '' }
-    it { should be_invalid }
+    it { is_expected.to be_invalid }
   end
 
   context 'when email doesn\'t match expected format' do
     before { user.email = 'a b@c.d' }
-    it { should be_invalid }
+    it { is_expected.to be_invalid }
   end
 
   describe 'saved user' do
     before { user.save }
     context 'password is not validated on .update() when neither password and password_confirmation are provided' do
       before { user.update(email: 'abc@def.com') }
-      it {should be_valid}
+      it {is_expected.to be_valid}
       specify 'without errors' do
         expect(user.errors.count).to eq(0)
       end
@@ -98,18 +98,18 @@ describe User do
 
     context 'password is validated on .update() when password is provided' do
       before { user.update(password: 'Abcd123!') }
-      it {should_not be_valid}
+      it {is_expected.not_to be_valid}
     end
 
     context 'password is validated on .update() when password is provided' do
       before { user.update(password_confirmation: 'Abcd123!') }
-      it {should_not be_valid}
+      it {is_expected.not_to be_valid}
     end
   end
 
   describe 'remember token' do
     before { user.save }
-    it(:remember_token) { should_not be_blank }
+    it(:remember_token) { is_expected.not_to be_blank }
   end
   
   describe 'password reset token' do

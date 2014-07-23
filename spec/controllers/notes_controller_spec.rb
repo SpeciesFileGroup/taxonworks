@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe NotesController do
+describe NotesController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -39,7 +39,7 @@ describe NotesController do
     it "assigns all notes as @notes" do
       note = Note.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:notes).should eq([note])
+      expect(assigns(:notes)).to eq([note])
     end
   end
 
@@ -47,14 +47,14 @@ describe NotesController do
     it "assigns the requested note as @note" do
       note = Note.create! valid_attributes
       get :show, {:id => note.to_param}, valid_session
-      assigns(:note).should eq(note)
+      expect(assigns(:note)).to eq(note)
     end
   end
 
   describe "GET new" do
     it "assigns a new note as @note" do
       get :new, {}, valid_session
-      assigns(:note).should be_a_new(Note)
+      expect(assigns(:note)).to be_a_new(Note)
     end
   end
 
@@ -62,7 +62,7 @@ describe NotesController do
     it "assigns the requested note as @note" do
       note = Note.create! valid_attributes
       get :edit, {:id => note.to_param}, valid_session
-      assigns(:note).should eq(note)
+      expect(assigns(:note)).to eq(note)
     end
   end
 
@@ -76,29 +76,29 @@ describe NotesController do
 
       it "assigns a newly created note as @note" do
         post :create, {:note => valid_attributes}, valid_session
-        assigns(:note).should be_a(Note)
-        assigns(:note).should be_persisted
+        expect(assigns(:note)).to be_a(Note)
+        expect(assigns(:note)).to be_persisted
       end
 
       it "redirects to the created note" do
         post :create, {:note => valid_attributes}, valid_session
-        response.should redirect_to(Note.last)
+        expect(response).to redirect_to(Note.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved note as @note" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Note.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Note).to receive(:save).and_return(false)
         post :create, {:note => { "text" => "invalid value" }}, valid_session
-        assigns(:note).should be_a_new(Note)
+        expect(assigns(:note)).to be_a_new(Note)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Note.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Note).to receive(:save).and_return(false)
         post :create, {:note => { "text" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe NotesController do
         # specifies that the Note created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Note.any_instance.should_receive(:update).with({ "text" => "MyString" })
+        expect_any_instance_of(Note).to receive(:update).with({ "text" => "MyString" })
         put :update, {:id => note.to_param, :note => { "text" => "MyString" }}, valid_session
       end
 
       it "assigns the requested note as @note" do
         note = Note.create! valid_attributes
         put :update, {:id => note.to_param, :note => valid_attributes}, valid_session
-        assigns(:note).should eq(note)
+        expect(assigns(:note)).to eq(note)
       end
 
       it "redirects to the note" do
         note = Note.create! valid_attributes
         put :update, {:id => note.to_param, :note => valid_attributes}, valid_session
-        response.should redirect_to(note)
+        expect(response).to redirect_to(note)
       end
     end
 
@@ -132,17 +132,17 @@ describe NotesController do
       it "assigns the note as @note" do
         note = Note.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Note.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Note).to receive(:save).and_return(false)
         put :update, {:id => note.to_param, :note => { "text" => "invalid value" }}, valid_session
-        assigns(:note).should eq(note)
+        expect(assigns(:note)).to eq(note)
       end
 
       it "re-renders the 'edit' template" do
         note = Note.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Note.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Note).to receive(:save).and_return(false)
         put :update, {:id => note.to_param, :note => { "text" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe NotesController do
     it "redirects to the notes list" do
       note = Note.create! valid_attributes
       delete :destroy, {:id => note.to_param}, valid_session
-      response.should redirect_to(notes_url)
+      expect(response).to redirect_to(notes_url)
     end
   end
 

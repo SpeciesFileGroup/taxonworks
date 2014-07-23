@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "georeferences/show" do
+describe "georeferences/show", :type => :view do
   before(:each) do
     @georeference = assign(:georeference, stub_model(Georeference,
                                                      :geographic_item_id       => 1,
@@ -24,20 +24,20 @@ describe "georeferences/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/9.99/)
-    rendered.should match(/9.99/)
-    rendered.should match(/3/)
-    rendered.should match(/Type/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/false/)
-    rendered.should match(/Api Request/)
-    rendered.should match(/6/)
-    rendered.should match(/7/)
-    rendered.should match(/8/)
-    rendered.should match(/false/)
-    rendered.should match(/false/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/9.99/)
+    expect(rendered).to match(/9.99/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/Type/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/false/)
+    expect(rendered).to match(/Api Request/)
+    expect(rendered).to match(/6/)
+    expect(rendered).to match(/7/)
+    expect(rendered).to match(/8/)
+    expect(rendered).to match(/false/)
+    expect(rendered).to match(/false/)
   end
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collecting_events/show" do
+describe "collecting_events/show", :type => :view do
   before(:each) do
     @collecting_event = assign(:collecting_event, stub_model(CollectingEvent,
       :verbatim_label => "MyText",
@@ -38,35 +38,35 @@ describe "collecting_events/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/MyText/)
-    rendered.should match(/MyText/)
-    rendered.should match(/1/)
-    rendered.should match(/MyText/)
-    rendered.should match(/Verbatim Locality/)
-    rendered.should match(/Verbatim Longitude/)
-    rendered.should match(/Verbatim Latitude/)
-    rendered.should match(/Verbatim Geolocation Uncertainty/)
-    rendered.should match(/Verbatim Trip Identifier/)
-    rendered.should match(/Verbatim Collectors/)
-    rendered.should match(/Verbatim Method/)
-    rendered.should match(/2/)
-    rendered.should match(/9.99/)
-    rendered.should match(/9.99/)
-    rendered.should match(/Elevation Precision/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/Verbatim Locality/)
+    expect(rendered).to match(/Verbatim Longitude/)
+    expect(rendered).to match(/Verbatim Latitude/)
+    expect(rendered).to match(/Verbatim Geolocation Uncertainty/)
+    expect(rendered).to match(/Verbatim Trip Identifier/)
+    expect(rendered).to match(/Verbatim Collectors/)
+    expect(rendered).to match(/Verbatim Method/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/9.99/)
+    expect(rendered).to match(/9.99/)
+    expect(rendered).to match(/Elevation Precision/)
     skip 'reconstruction of the collecting_events/show view or spec'
-    rendered.should match(/Start Date Day/)
-    rendered.should match(/Start Date Month/)
-    rendered.should match(/Start Date Year/)
-    rendered.should match(/End Date Day/)
-    rendered.should match(/End Date Month/)
-    rendered.should match(/End Date Year/)
-    rendered.should match(/Micro Habitat/)
-    rendered.should match(/Macro Habitat/)
-    rendered.should match(/MyText/)
-    rendered.should match(/Md5 Of Verbatim Label/)
-    rendered.should match(/MyText/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
+    expect(rendered).to match(/Start Date Day/)
+    expect(rendered).to match(/Start Date Month/)
+    expect(rendered).to match(/Start Date Year/)
+    expect(rendered).to match(/End Date Day/)
+    expect(rendered).to match(/End Date Month/)
+    expect(rendered).to match(/End Date Year/)
+    expect(rendered).to match(/Micro Habitat/)
+    expect(rendered).to match(/Macro Habitat/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/Md5 Of Verbatim Label/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
   end
 end

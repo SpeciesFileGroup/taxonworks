@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Containables' do
+describe 'Containables', :type => :model do
   let(:containable_class) { TestContainable.new } 
 
   context "associationas" do

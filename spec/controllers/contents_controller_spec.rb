@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe ContentsController do
+describe ContentsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe ContentsController do
     it "assigns all contents as @contents" do
       content = Content.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:contents).should eq([content])
+      expect(assigns(:contents)).to eq([content])
     end
   end
 
@@ -45,14 +45,14 @@ describe ContentsController do
     it "assigns the requested content as @content" do
       content = Content.create! valid_attributes
       get :show, {:id => content.to_param}, valid_session
-      assigns(:content).should eq(content)
+      expect(assigns(:content)).to eq(content)
     end
   end
 
   describe "GET new" do
     it "assigns a new content as @content" do
       get :new, {}, valid_session
-      assigns(:content).should be_a_new(Content)
+      expect(assigns(:content)).to be_a_new(Content)
     end
   end
 
@@ -60,7 +60,7 @@ describe ContentsController do
     it "assigns the requested content as @content" do
       content = Content.create! valid_attributes
       get :edit, {:id => content.to_param}, valid_session
-      assigns(:content).should eq(content)
+      expect(assigns(:content)).to eq(content)
     end
   end
 
@@ -74,29 +74,29 @@ describe ContentsController do
 
       it "assigns a newly created content as @content" do
         post :create, {:content => valid_attributes}, valid_session
-        assigns(:content).should be_a(Content)
-        assigns(:content).should be_persisted
+        expect(assigns(:content)).to be_a(Content)
+        expect(assigns(:content)).to be_persisted
       end
 
       it "redirects to the created content" do
         post :create, {:content => valid_attributes}, valid_session
-        response.should redirect_to(Content.last)
+        expect(response).to redirect_to(Content.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved content as @content" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Content.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Content).to receive(:save).and_return(false)
         post :create, {:content => {:invalid => 'parms'}}, valid_session
-        assigns(:content).should be_a_new(Content)
+        expect(assigns(:content)).to be_a_new(Content)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Content.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Content).to receive(:save).and_return(false)
         post :create, {:content => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe ContentsController do
         # specifies that the Content created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Content.any_instance.should_receive(:update).with({'text' => 'params'})
+        expect_any_instance_of(Content).to receive(:update).with({'text' => 'params'})
         put :update, {:id => content.to_param, :content => {:text => 'params'}}, valid_session
       end
 
       it "assigns the requested content as @content" do
         content = Content.create! valid_attributes
         put :update, {:id => content.to_param, :content => valid_attributes}, valid_session
-        assigns(:content).should eq(content)
+        expect(assigns(:content)).to eq(content)
       end
 
       it "redirects to the content" do
         content = Content.create! valid_attributes
         put :update, {:id => content.to_param, :content => valid_attributes}, valid_session
-        response.should redirect_to(content)
+        expect(response).to redirect_to(content)
       end
     end
 
@@ -130,17 +130,17 @@ describe ContentsController do
       it "assigns the content as @content" do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Content.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Content).to receive(:save).and_return(false)
         put :update, {:id => content.to_param, :content => {:invalid => 'parms'}}, valid_session
-        assigns(:content).should eq(content)
+        expect(assigns(:content)).to eq(content)
       end
 
       it "re-renders the 'edit' template" do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Content.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Content).to receive(:save).and_return(false)
         put :update, {:id => content.to_param, :content => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe ContentsController do
     it "redirects to the contents list" do
       content = Content.create! valid_attributes
       delete :destroy, {:id => content.to_param}, valid_session
-      response.should redirect_to(contents_url)
+      expect(response).to redirect_to(contents_url)
     end
   end
 

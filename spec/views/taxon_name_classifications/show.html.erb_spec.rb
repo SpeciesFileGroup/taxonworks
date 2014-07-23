@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_name_classifications/show" do
+describe "taxon_name_classifications/show", :type => :view do
   before(:each) do
     @taxon_name_classification = assign(:taxon_name_classification, stub_model(TaxonNameClassification,
       :taxon_name_id => 1,
@@ -14,10 +14,10 @@ describe "taxon_name_classifications/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/Type/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/Type/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
   end
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "notes/index" do
+describe "notes/index", :type => :view do
   before(:each) do
     assign(:notes, [
       stub_model(Note,

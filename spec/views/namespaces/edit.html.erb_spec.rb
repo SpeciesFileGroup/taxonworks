@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "namespaces/edit" do
+describe "namespaces/edit", :type => :view do
   before(:each) do
     @namespace = assign(:namespace, stub_model(Namespace,
       :institution => "MyString",

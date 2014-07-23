@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe BiocurationClassificationsController do
+describe BiocurationClassificationsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe BiocurationClassificationsController do
     it "assigns all biocuration_classifications as @biocuration_classifications" do
       biocuration_classification = BiocurationClassification.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:biocuration_classifications).should eq([biocuration_classification])
+      expect(assigns(:biocuration_classifications)).to eq([biocuration_classification])
     end
   end
 
@@ -45,14 +45,14 @@ describe BiocurationClassificationsController do
     it "assigns the requested biocuration_classification as @biocuration_classification" do
       biocuration_classification = BiocurationClassification.create! valid_attributes
       get :show, {:id => biocuration_classification.to_param}, valid_session
-      assigns(:biocuration_classification).should eq(biocuration_classification)
+      expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
     end
   end
 
   describe "GET new" do
     it "assigns a new biocuration_classification as @biocuration_classification" do
       get :new, {}, valid_session
-      assigns(:biocuration_classification).should be_a_new(BiocurationClassification)
+      expect(assigns(:biocuration_classification)).to be_a_new(BiocurationClassification)
     end
   end
 
@@ -60,7 +60,7 @@ describe BiocurationClassificationsController do
     it "assigns the requested biocuration_classification as @biocuration_classification" do
       biocuration_classification = BiocurationClassification.create! valid_attributes
       get :edit, {:id => biocuration_classification.to_param}, valid_session
-      assigns(:biocuration_classification).should eq(biocuration_classification)
+      expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
     end
   end
 
@@ -74,29 +74,29 @@ describe BiocurationClassificationsController do
 
       it "assigns a newly created biocuration_classification as @biocuration_classification" do
         post :create, {:biocuration_classification => valid_attributes}, valid_session
-        assigns(:biocuration_classification).should be_a(BiocurationClassification)
-        assigns(:biocuration_classification).should be_persisted
+        expect(assigns(:biocuration_classification)).to be_a(BiocurationClassification)
+        expect(assigns(:biocuration_classification)).to be_persisted
       end
 
       it "redirects to the created biocuration_classification" do
         post :create, {:biocuration_classification => valid_attributes}, valid_session
-        response.should redirect_to(BiocurationClassification.last)
+        expect(response).to redirect_to(BiocurationClassification.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved biocuration_classification as @biocuration_classification" do
         # Trigger the behavior that occurs when invalid params are submitted
-        BiocurationClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         post :create, {:biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        assigns(:biocuration_classification).should be_a_new(BiocurationClassification)
+        expect(assigns(:biocuration_classification)).to be_a_new(BiocurationClassification)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        BiocurationClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         post :create, {:biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe BiocurationClassificationsController do
         # specifies that the BiocurationClassification created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        BiocurationClassification.any_instance.should_receive(:update).with({ "biocuration_class_id" => "1" })
+        expect_any_instance_of(BiocurationClassification).to receive(:update).with({ "biocuration_class_id" => "1" })
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => { "biocuration_class_id" => "1" }}, valid_session
       end
 
       it "assigns the requested biocuration_classification as @biocuration_classification" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => valid_attributes}, valid_session
-        assigns(:biocuration_classification).should eq(biocuration_classification)
+        expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
       end
 
       it "redirects to the biocuration_classification" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => valid_attributes}, valid_session
-        response.should redirect_to(biocuration_classification)
+        expect(response).to redirect_to(biocuration_classification)
       end
     end
 
@@ -130,17 +130,17 @@ describe BiocurationClassificationsController do
       it "assigns the biocuration_classification as @biocuration_classification" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        BiocurationClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        assigns(:biocuration_classification).should eq(biocuration_classification)
+        expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
       end
 
       it "re-renders the 'edit' template" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        BiocurationClassification.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe BiocurationClassificationsController do
     it "redirects to the biocuration_classifications list" do
       biocuration_classification = BiocurationClassification.create! valid_attributes
       delete :destroy, {:id => biocuration_classification.to_param}, valid_session
-      response.should redirect_to(biocuration_classifications_url)
+      expect(response).to redirect_to(biocuration_classifications_url)
     end
   end
 

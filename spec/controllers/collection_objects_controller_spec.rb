@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe CollectionObjectsController do
+describe CollectionObjectsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -39,7 +39,7 @@ describe CollectionObjectsController do
     it "assigns all collection_objects as @recent_objects" do
       collection_object = CollectionObject.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:recent_objects).should eq([collection_object])
+      expect(assigns(:recent_objects)).to eq([collection_object])
     end
   end
 
@@ -47,14 +47,14 @@ describe CollectionObjectsController do
     it "assigns the requested collection_object as @collection_object" do
       collection_object = CollectionObject.create! valid_attributes
       get :show, {:id => collection_object.to_param}, valid_session
-      assigns(:collection_object).should eq(collection_object)
+      expect(assigns(:collection_object)).to eq(collection_object)
     end
   end
 
   describe "GET new" do
     it "assigns a new collection_object as @collection_object" do
       get :new, {}, valid_session
-      assigns(:collection_object).should be_a_new(CollectionObject)
+      expect(assigns(:collection_object)).to be_a_new(CollectionObject)
     end
   end
 
@@ -62,7 +62,7 @@ describe CollectionObjectsController do
     it "assigns the requested collection_object as @collection_object" do
       collection_object = CollectionObject.create! valid_attributes
       get :edit, {:id => collection_object.to_param}, valid_session
-      assigns(:collection_object).should eq(collection_object)
+      expect(assigns(:collection_object)).to eq(collection_object)
     end
   end
 
@@ -76,29 +76,29 @@ describe CollectionObjectsController do
 
       it "assigns a newly created collection_object as @collection_object" do
         post :create, {:collection_object => valid_attributes}, valid_session
-        assigns(:collection_object).should be_a(CollectionObject)
-        assigns(:collection_object).should be_persisted
+        expect(assigns(:collection_object)).to be_a(CollectionObject)
+        expect(assigns(:collection_object)).to be_persisted
       end
 
       it "redirects to the created collection_object" do
         post :create, {:collection_object => valid_attributes}, valid_session
-        response.should redirect_to(CollectionObject.last.becomes(CollectionObject))
+        expect(response).to redirect_to(CollectionObject.last.becomes(CollectionObject))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved collection_object as @collection_object" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectionObject.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectionObject).to receive(:save).and_return(false)
         post :create, {:collection_object => {"total" => "invalid value"}}, valid_session
-        assigns(:collection_object).should be_a_new(CollectionObject)
+        expect(assigns(:collection_object)).to be_a_new(CollectionObject)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectionObject.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectionObject).to receive(:save).and_return(false)
         post :create, {:collection_object => {"total" => "invalid value"}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe CollectionObjectsController do
         # specifies that the CollectionObject created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        CollectionObject.any_instance.should_receive(:update).with({"total" => "1"})
+        expect_any_instance_of(CollectionObject).to receive(:update).with({"total" => "1"})
         put :update, {:id => collection_object.to_param, :collection_object => {"total" => "1"}}, valid_session
       end
 
       it "assigns the requested collection_object as @collection_object" do
         collection_object = CollectionObject.create! valid_attributes
         put :update, {:id => collection_object.to_param, :collection_object => valid_attributes}, valid_session
-        assigns(:collection_object).should eq(collection_object)
+        expect(assigns(:collection_object)).to eq(collection_object)
       end
 
       it "redirects to the collection_object" do
         collection_object = CollectionObject.create! valid_attributes
         put :update, {:id => collection_object.to_param, :collection_object => valid_attributes}, valid_session
-        response.should redirect_to(collection_object.becomes(CollectionObject))
+        expect(response).to redirect_to(collection_object.becomes(CollectionObject))
       end
     end
 
@@ -132,17 +132,17 @@ describe CollectionObjectsController do
       it "assigns the collection_object as @collection_object" do
         collection_object = CollectionObject.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectionObject.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectionObject).to receive(:save).and_return(false)
         put :update, {:id => collection_object.to_param, :collection_object => {"total" => "invalid value"}}, valid_session
-        assigns(:collection_object).should eq(collection_object)
+        expect(assigns(:collection_object)).to eq(collection_object)
       end
 
       it "re-renders the 'edit' template" do
         collection_object = CollectionObject.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CollectionObject.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CollectionObject).to receive(:save).and_return(false)
         put :update, {:id => collection_object.to_param, :collection_object => {"total" => "invalid value"}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe CollectionObjectsController do
     it "redirects to the collection_objects list" do
       collection_object = CollectionObject.create! valid_attributes
       delete :destroy, {:id => collection_object.to_param}, valid_session
-      response.should redirect_to(collection_objects_url)
+      expect(response).to redirect_to(collection_objects_url)
     end
   end
 

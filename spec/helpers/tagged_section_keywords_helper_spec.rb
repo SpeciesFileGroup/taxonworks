@@ -10,6 +10,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-describe TaggedSectionKeywordsHelper do
+describe TaggedSectionKeywordsHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

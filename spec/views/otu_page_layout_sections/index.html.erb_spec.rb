@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otu_page_layout_sections/index" do
+describe "otu_page_layout_sections/index", :type => :view do
   before(:each) do
     assign(:otu_page_layout_sections, [
       stub_model(OtuPageLayoutSection,

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Note do
+describe Note, :type => :model do
 
   let(:note) {FactoryGirl.build(:note)} 
 

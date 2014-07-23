@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "sources/edit" do
+describe "sources/edit", :type => :view do
   before(:each) do
     @source = assign(:source, stub_model(Source,
       :serial_id => 1,

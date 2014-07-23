@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "identifiers/edit" do
+describe "identifiers/edit", :type => :view do
   before(:each) do
     @identifier = assign(:identifier, stub_model(Identifier,
       :identified_object_id => 1,

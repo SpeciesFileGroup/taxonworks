@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe AlternateValuesController do
+describe AlternateValuesController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe AlternateValuesController do
     it "assigns all alternate_values as @alternate_values" do
       alternate_value = AlternateValue.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:alternate_values).should eq([alternate_value])
+      expect(assigns(:alternate_values)).to eq([alternate_value])
     end
   end
 
@@ -45,14 +45,14 @@ describe AlternateValuesController do
     it "assigns the requested alternate_value as @alternate_value" do
       alternate_value = AlternateValue.create! valid_attributes
       get :show, {:id => alternate_value.to_param}, valid_session
-      assigns(:alternate_value).should eq(alternate_value)
+      expect(assigns(:alternate_value)).to eq(alternate_value)
     end
   end
 
   describe "GET new" do
     it "assigns a new alternate_value as @alternate_value" do
       get :new, {}, valid_session
-      assigns(:alternate_value).should be_a_new(AlternateValue)
+      expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
     end
   end
 
@@ -60,7 +60,7 @@ describe AlternateValuesController do
     it "assigns the requested alternate_value as @alternate_value" do
       alternate_value = AlternateValue.create! valid_attributes
       get :edit, {:id => alternate_value.to_param}, valid_session
-      assigns(:alternate_value).should eq(alternate_value)
+      expect(assigns(:alternate_value)).to eq(alternate_value)
     end
   end
 
@@ -74,29 +74,29 @@ describe AlternateValuesController do
 
       it "assigns a newly created alternate_value as @alternate_value" do
         post :create, {:alternate_value => valid_attributes}, valid_session
-        assigns(:alternate_value).should be_a(AlternateValue)
-        assigns(:alternate_value).should be_persisted
+        expect(assigns(:alternate_value)).to be_a(AlternateValue)
+        expect(assigns(:alternate_value)).to be_persisted
       end
 
       it "redirects to the created alternate_value" do
         post :create, {:alternate_value => valid_attributes}, valid_session
-        response.should redirect_to(AlternateValue.last.becomes(AlternateValue))
+        expect(response).to redirect_to(AlternateValue.last.becomes(AlternateValue))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved alternate_value as @alternate_value" do
         # Trigger the behavior that occurs when invalid params are submitted
-        AlternateValue.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         post :create, {:alternate_value => {value: 'Bar'  }}, valid_session
-        assigns(:alternate_value).should be_a_new(AlternateValue)
+        expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        AlternateValue.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         post :create, {:alternate_value => {value: 'Foo'  }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe AlternateValuesController do
         # specifies that the AlternateValue created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        AlternateValue.any_instance.should_receive(:update).with({ 'value' => 'Smorf' })
+        expect_any_instance_of(AlternateValue).to receive(:update).with({ 'value' => 'Smorf' })
         put :update, {:id => alternate_value.to_param, :alternate_value => { value: 'Smorf' }}, valid_session
       end
 
       it "assigns the requested alternate_value as @alternate_value" do
         alternate_value = AlternateValue.create! valid_attributes
         put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
-        assigns(:alternate_value).should eq(alternate_value)
+        expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
       it "redirects to the alternate_value" do
         alternate_value = AlternateValue.create! valid_attributes
         put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
-        response.should redirect_to(alternate_value.becomes(AlternateValue))
+        expect(response).to redirect_to(alternate_value.becomes(AlternateValue))
       end
     end
 
@@ -130,17 +130,17 @@ describe AlternateValuesController do
       it "assigns the alternate_value as @alternate_value" do
         alternate_value = AlternateValue.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        AlternateValue.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         put :update, {:id => alternate_value.to_param, :alternate_value => { foo: 'Bar'  }}, valid_session
-        assigns(:alternate_value).should eq(alternate_value)
+        expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
       it "re-renders the 'edit' template" do
         alternate_value = AlternateValue.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
-        AlternateValue.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         put :update, {:id => alternate_value.to_param, :alternate_value => { value: "Smorf"  }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe AlternateValuesController do
     it "redirects to the alternate_values list" do
       alternate_value = AlternateValue.create! valid_attributes
       delete :destroy, {:id => alternate_value.to_param}, valid_session
-      response.should redirect_to(alternate_values_url)
+      expect(response).to redirect_to(alternate_values_url)
     end
   end
 

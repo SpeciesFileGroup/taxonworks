@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe 'Identifiable' do
+describe 'Identifiable', :type => :model do
   let(:identifiable_class) { TestIdentifiable.new } 
  
  

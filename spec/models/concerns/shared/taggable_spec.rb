@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Taggable' do
+describe 'Taggable', :type => :model do
   let(:class_with_tags) { TestTaggable.new } 
 
   context 'associations' do

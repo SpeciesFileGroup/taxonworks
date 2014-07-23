@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "serials/edit" do
+describe "serials/edit", :type => :view do
   before(:each) do
     @serial = assign(:serial, stub_model(Serial,
       :name => "MyString",

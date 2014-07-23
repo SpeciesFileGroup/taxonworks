@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionProfile do
+describe CollectionProfile, :type => :model do
   before(:all) do
     @collection_profile = FactoryGirl.build_stubbed(:collection_profile)
   end

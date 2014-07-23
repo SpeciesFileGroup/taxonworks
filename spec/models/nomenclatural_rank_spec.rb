@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe NomenclaturalRank do
+describe NomenclaturalRank, :type => :model do
 
   context 'David' do
     specify 'ranks should have an integer index' do

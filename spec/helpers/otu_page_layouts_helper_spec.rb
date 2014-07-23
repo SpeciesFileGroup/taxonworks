@@ -10,6 +10,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-describe OtuPageLayoutsHelper do
+describe OtuPageLayoutsHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

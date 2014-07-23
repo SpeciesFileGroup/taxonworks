@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe InternalAttribute do
+describe InternalAttribute, :type => :model do
   let (:attribute) { FactoryGirl.build(:data_attribute_internal_attribute) } 
 
   context 'validation' do

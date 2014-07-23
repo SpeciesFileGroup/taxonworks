@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Local do
+describe Identifier::Local, :type => :model do
   let(:local_identifier) {Identifier::Local.new}
 
   context 'validation' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameClassification do
+describe TaxonNameClassification, :type => :model do
 
   after(:all) {
     TaxonNameRelationship.delete_all

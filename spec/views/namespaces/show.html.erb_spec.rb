@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "namespaces/show" do
+describe "namespaces/show", :type => :view do
   before(:each) do
     @namespace = assign(:namespace, stub_model(Namespace,
       :institution => "Institution",
@@ -14,10 +14,10 @@ describe "namespaces/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Institution/)
-    rendered.should match(/Name/)
-    rendered.should match(/Short Name/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
+    expect(rendered).to match(/Institution/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/Short Name/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
   end
 end

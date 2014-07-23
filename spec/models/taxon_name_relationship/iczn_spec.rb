@@ -1,5 +1,5 @@
 require 'rails_helper'
 
-describe TaxonNameRelationship::Iczn do
+describe TaxonNameRelationship::Iczn, :type => :model do
   skip "add some examples to (or delete) #{__FILE__}"
 end

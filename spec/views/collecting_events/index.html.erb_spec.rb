@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collecting_events/index" do
+describe "collecting_events/index", :type => :view do
   before(:each) do
     assign(:collecting_events, [
       stub_model(CollectingEvent,

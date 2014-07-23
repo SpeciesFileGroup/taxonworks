@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "serials/index" do
+describe "serials/index", :type => :view do
   before(:each) do
     assign(:serials, [
       stub_model(Serial,

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "controlled_vocabulary_terms/index" do
+describe "controlled_vocabulary_terms/index", :type => :view do
   before(:each) do
     assign(:controlled_vocabulary_terms, [
       stub_model(ControlledVocabularyTerm,

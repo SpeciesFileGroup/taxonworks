@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe RepositoriesController do
+describe RepositoriesController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -39,7 +39,7 @@ describe RepositoriesController do
     it "assigns all repositories as @repositories" do
       repository = Repository.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:repositories).should eq([repository])
+      expect(assigns(:repositories)).to eq([repository])
     end
   end
 
@@ -47,14 +47,14 @@ describe RepositoriesController do
     it "assigns the requested repository as @repository" do
       repository = Repository.create! valid_attributes
       get :show, {:id => repository.to_param}, valid_session
-      assigns(:repository).should eq(repository)
+      expect(assigns(:repository)).to eq(repository)
     end
   end
 
   describe "GET new" do
     it "assigns a new repository as @repository" do
       get :new, {}, valid_session
-      assigns(:repository).should be_a_new(Repository)
+      expect(assigns(:repository)).to be_a_new(Repository)
     end
   end
 
@@ -62,7 +62,7 @@ describe RepositoriesController do
     it "assigns the requested repository as @repository" do
       repository = Repository.create! valid_attributes
       get :edit, {:id => repository.to_param}, valid_session
-      assigns(:repository).should eq(repository)
+      expect(assigns(:repository)).to eq(repository)
     end
   end
 
@@ -76,29 +76,29 @@ describe RepositoriesController do
 
       it "assigns a newly created repository as @repository" do
         post :create, {:repository => valid_attributes}, valid_session
-        assigns(:repository).should be_a(Repository)
-        assigns(:repository).should be_persisted
+        expect(assigns(:repository)).to be_a(Repository)
+        expect(assigns(:repository)).to be_persisted
       end
 
       it "redirects to the created repository" do
         post :create, {:repository => valid_attributes}, valid_session
-        response.should redirect_to(Repository.last)
+        expect(response).to redirect_to(Repository.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved repository as @repository" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Repository.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Repository).to receive(:save).and_return(false)
         post :create, {:repository => { "name" => "invalid value" }}, valid_session
-        assigns(:repository).should be_a_new(Repository)
+        expect(assigns(:repository)).to be_a_new(Repository)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Repository.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Repository).to receive(:save).and_return(false)
         post :create, {:repository => { "name" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe RepositoriesController do
         # specifies that the Repository created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Repository.any_instance.should_receive(:update).with({ "name" => "MyString" })
+        expect_any_instance_of(Repository).to receive(:update).with({ "name" => "MyString" })
         put :update, {:id => repository.to_param, :repository => { "name" => "MyString" }}, valid_session
       end
 
       it "assigns the requested repository as @repository" do
         repository = Repository.create! valid_attributes
         put :update, {:id => repository.to_param, :repository => valid_attributes}, valid_session
-        assigns(:repository).should eq(repository)
+        expect(assigns(:repository)).to eq(repository)
       end
 
       it "redirects to the repository" do
         repository = Repository.create! valid_attributes
         put :update, {:id => repository.to_param, :repository => valid_attributes}, valid_session
-        response.should redirect_to(repository)
+        expect(response).to redirect_to(repository)
       end
     end
 
@@ -132,17 +132,17 @@ describe RepositoriesController do
       it "assigns the repository as @repository" do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Repository.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Repository).to receive(:save).and_return(false)
         put :update, {:id => repository.to_param, :repository => { "name" => "invalid value" }}, valid_session
-        assigns(:repository).should eq(repository)
+        expect(assigns(:repository)).to eq(repository)
       end
 
       it "re-renders the 'edit' template" do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Repository.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Repository).to receive(:save).and_return(false)
         put :update, {:id => repository.to_param, :repository => { "name" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe RepositoriesController do
     it "redirects to the repositories list" do
       repository = Repository.create! valid_attributes
       delete :destroy, {:id => repository.to_param}, valid_session
-      response.should redirect_to(repositories_url)
+      expect(response).to redirect_to(repositories_url)
     end
   end
 

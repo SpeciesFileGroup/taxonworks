@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TaxonNameRelationshipsController do
+describe TaxonNameRelationshipsController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -39,7 +39,7 @@ describe TaxonNameRelationshipsController do
     it "assigns all taxon_name_relationships as @taxon_name_relationships" do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:taxon_name_relationships).should eq([taxon_name_relationship])
+      expect(assigns(:taxon_name_relationships)).to eq([taxon_name_relationship])
     end
   end
 
@@ -47,14 +47,14 @@ describe TaxonNameRelationshipsController do
     it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       get :show, {:id => taxon_name_relationship.to_param}, valid_session
-      assigns(:taxon_name_relationship).should eq(taxon_name_relationship)
+      expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
     end
   end
 
   describe "GET new" do
     it "assigns a new taxon_name_relationship as @taxon_name_relationship" do
       get :new, {}, valid_session
-      assigns(:taxon_name_relationship).should be_a_new(TaxonNameRelationship)
+      expect(assigns(:taxon_name_relationship)).to be_a_new(TaxonNameRelationship)
     end
   end
 
@@ -62,7 +62,7 @@ describe TaxonNameRelationshipsController do
     it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       get :edit, {:id => taxon_name_relationship.to_param}, valid_session
-      assigns(:taxon_name_relationship).should eq(taxon_name_relationship)
+      expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
     end
   end
 
@@ -76,29 +76,29 @@ describe TaxonNameRelationshipsController do
 
       it "assigns a newly created taxon_name_relationship as @taxon_name_relationship" do
         post :create, {:taxon_name_relationship => valid_attributes}, valid_session
-        assigns(:taxon_name_relationship).should be_a(TaxonNameRelationship)
-        assigns(:taxon_name_relationship).should be_persisted
+        expect(assigns(:taxon_name_relationship)).to be_a(TaxonNameRelationship)
+        expect(assigns(:taxon_name_relationship)).to be_persisted
       end
 
       it "redirects to the created taxon_name_relationship" do
         post :create, {:taxon_name_relationship => valid_attributes}, valid_session
-        response.should redirect_to(TaxonNameRelationship.last.becomes(TaxonNameRelationship))
+        expect(response).to redirect_to(TaxonNameRelationship.last.becomes(TaxonNameRelationship))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved taxon_name_relationship as @taxon_name_relationship" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameRelationship.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
         post :create, {:taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        assigns(:taxon_name_relationship).should be_a_new(TaxonNameRelationship)
+        expect(assigns(:taxon_name_relationship)).to be_a_new(TaxonNameRelationship)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameRelationship.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
         post :create, {:taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe TaxonNameRelationshipsController do
         # specifies that the TaxonNameRelationship created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        TaxonNameRelationship.any_instance.should_receive(:update).with({ "subject_taxon_name_id" => "1" })
+        expect_any_instance_of(TaxonNameRelationship).to receive(:update).with({ "subject_taxon_name_id" => "1" })
         put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "1" }}, valid_session
       end
 
       it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => valid_attributes}, valid_session
-        assigns(:taxon_name_relationship).should eq(taxon_name_relationship)
+        expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
       end
 
       it "redirects to the taxon_name_relationship" do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => valid_attributes}, valid_session
-        response.should redirect_to(taxon_name_relationship.becomes(TaxonNameRelationship))
+        expect(response).to redirect_to(taxon_name_relationship.becomes(TaxonNameRelationship))
       end
     end
 
@@ -132,17 +132,17 @@ describe TaxonNameRelationshipsController do
       it "assigns the taxon_name_relationship as @taxon_name_relationship" do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameRelationship.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
         put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        assigns(:taxon_name_relationship).should eq(taxon_name_relationship)
+        expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
       end
 
       it "re-renders the 'edit' template" do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaxonNameRelationship.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
         put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe TaxonNameRelationshipsController do
     it "redirects to the taxon_name_relationships list" do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       delete :destroy, {:id => taxon_name_relationship.to_param}, valid_session
-      response.should redirect_to(taxon_name_relationships_url)
+      expect(response).to redirect_to(taxon_name_relationships_url)
     end
   end
 

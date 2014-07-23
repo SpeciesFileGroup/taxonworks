@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "alternate_values/index" do
+describe "alternate_values/index", :type => :view do
   before(:each) do
     assign(:alternate_values, [
       stub_model(AlternateValue,

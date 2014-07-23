@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "people/show" do
+describe "people/show", :type => :view do
   before(:each) do
     @person = assign(:person, stub_model(Person,
       :type => "Type",
@@ -16,12 +16,12 @@ describe "people/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Type/)
-    rendered.should match(/Last Name/)
-    rendered.should match(/First Name/)
-    rendered.should match(/Suffix/)
-    rendered.should match(/Prefix/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
+    expect(rendered).to match(/Type/)
+    expect(rendered).to match(/Last Name/)
+    expect(rendered).to match(/First Name/)
+    expect(rendered).to match(/Suffix/)
+    expect(rendered).to match(/Prefix/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
   end
 end

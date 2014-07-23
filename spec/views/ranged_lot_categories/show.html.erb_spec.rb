@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "ranged_lot_categories/show" do
+describe "ranged_lot_categories/show", :type => :view do
   before(:each) do
     @ranged_lot_category = assign(:ranged_lot_category, stub_model(RangedLotCategory,
       :name => "Name",
@@ -15,11 +15,11 @@ describe "ranged_lot_categories/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
   end
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_names/edit" do
+describe "taxon_names/edit", :type => :view do
   before(:each) do
     @taxon_name = assign(:taxon_name, stub_model(TaxonName,
       :name => "MyString",

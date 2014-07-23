@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CitationTopic do
+describe CitationTopic, :type => :model do
   let(:citation_topic) { CitationTopic.new }
 
   skip "add some examples to (or delete) #{__FILE__}"

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source do
+describe Source, :type => :model do
   let(:source) { Source.new }
 
 

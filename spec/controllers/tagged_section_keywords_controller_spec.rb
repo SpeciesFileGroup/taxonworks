@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TaggedSectionKeywordsController do
+describe TaggedSectionKeywordsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe TaggedSectionKeywordsController do
     it "assigns all tagged_section_keywords as @tagged_section_keywords" do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:tagged_section_keywords).should eq([tagged_section_keyword])
+      expect(assigns(:tagged_section_keywords)).to eq([tagged_section_keyword])
     end
   end
 
@@ -45,14 +45,14 @@ describe TaggedSectionKeywordsController do
     it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       get :show, {:id => tagged_section_keyword.to_param}, valid_session
-      assigns(:tagged_section_keyword).should eq(tagged_section_keyword)
+      expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
     end
   end
 
   describe "GET new" do
     it "assigns a new tagged_section_keyword as @tagged_section_keyword" do
       get :new, {}, valid_session
-      assigns(:tagged_section_keyword).should be_a_new(TaggedSectionKeyword)
+      expect(assigns(:tagged_section_keyword)).to be_a_new(TaggedSectionKeyword)
     end
   end
 
@@ -60,7 +60,7 @@ describe TaggedSectionKeywordsController do
     it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       get :edit, {:id => tagged_section_keyword.to_param}, valid_session
-      assigns(:tagged_section_keyword).should eq(tagged_section_keyword)
+      expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
     end
   end
 
@@ -74,29 +74,29 @@ describe TaggedSectionKeywordsController do
 
       it "assigns a newly created tagged_section_keyword as @tagged_section_keyword" do
         post :create, {:tagged_section_keyword => valid_attributes}, valid_session
-        assigns(:tagged_section_keyword).should be_a(TaggedSectionKeyword)
-        assigns(:tagged_section_keyword).should be_persisted
+        expect(assigns(:tagged_section_keyword)).to be_a(TaggedSectionKeyword)
+        expect(assigns(:tagged_section_keyword)).to be_persisted
       end
 
       it "redirects to the created tagged_section_keyword" do
         post :create, {:tagged_section_keyword => valid_attributes}, valid_session
-        response.should redirect_to(TaggedSectionKeyword.last)
+        expect(response).to redirect_to(TaggedSectionKeyword.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved tagged_section_keyword as @tagged_section_keyword" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         post :create, {:tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        assigns(:tagged_section_keyword).should be_a_new(TaggedSectionKeyword)
+        expect(assigns(:tagged_section_keyword)).to be_a_new(TaggedSectionKeyword)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         post :create, {:tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe TaggedSectionKeywordsController do
         # specifies that the TaggedSectionKeyword created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        TaggedSectionKeyword.any_instance.should_receive(:update).with({'position' => '6'})
+        expect_any_instance_of(TaggedSectionKeyword).to receive(:update).with({'position' => '6'})
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {position: 6}}, valid_session
       end
 
       it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => valid_attributes}, valid_session
-        assigns(:tagged_section_keyword).should eq(tagged_section_keyword)
+        expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
       it "redirects to the tagged_section_keyword" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => valid_attributes}, valid_session
-        response.should redirect_to(tagged_section_keyword)
+        expect(response).to redirect_to(tagged_section_keyword)
       end
     end
 
@@ -130,17 +130,17 @@ describe TaggedSectionKeywordsController do
       it "assigns the tagged_section_keyword as @tagged_section_keyword" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        assigns(:tagged_section_keyword).should eq(tagged_section_keyword)
+        expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
       it "re-renders the 'edit' template" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        TaggedSectionKeyword.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe TaggedSectionKeywordsController do
     it "redirects to the tagged_section_keywords list" do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       delete :destroy, {:id => tagged_section_keyword.to_param}, valid_session
-      response.should redirect_to(tagged_section_keywords_url)
+      expect(response).to redirect_to(tagged_section_keywords_url)
     end
   end
 

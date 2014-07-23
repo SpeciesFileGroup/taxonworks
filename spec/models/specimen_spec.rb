@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Specimen do
+describe Specimen, :type => :model do
   let(:specimen) { Specimen.new }
 
   context "validation" do

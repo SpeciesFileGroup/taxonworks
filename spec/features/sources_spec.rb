@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Sources' do
+describe 'Sources', :type => :feature do
 
   it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { sources_path }

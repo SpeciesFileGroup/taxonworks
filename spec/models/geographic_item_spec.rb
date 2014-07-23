@@ -1,7 +1,7 @@
 require 'rails_helper'
 require_relative '../support/geo'
 
-describe GeographicItem do
+describe GeographicItem, :type => :model do
   before(:all) {
     generate_ce_test_objects # includes generate_geo_test_objects
   }

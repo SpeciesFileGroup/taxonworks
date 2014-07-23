@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "citation_topics/edit" do
+describe "citation_topics/edit", :type => :view do
   before(:each) do
     @citation_topic = assign(:citation_topic, stub_model(CitationTopic,
       :topic_id => 1,

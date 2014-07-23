@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe DataAttributesController do
+describe DataAttributesController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe DataAttributesController do
     it "assigns all data_attributes as @data_attributes" do
       data_attribute = DataAttribute.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:data_attributes).should eq([data_attribute])
+      expect(assigns(:data_attributes)).to eq([data_attribute])
     end
   end
 
@@ -45,14 +45,14 @@ describe DataAttributesController do
     it "assigns the requested data_attribute as @data_attribute" do
       data_attribute = DataAttribute.create! valid_attributes
       get :show, {:id => data_attribute.to_param}, valid_session
-      assigns(:data_attribute).should eq(data_attribute)
+      expect(assigns(:data_attribute)).to eq(data_attribute)
     end
   end
 
   describe "GET new" do
     it "assigns a new data_attribute as @data_attribute" do
       get :new, {}, valid_session
-      assigns(:data_attribute).should be_a_new(DataAttribute)
+      expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
     end
   end
 
@@ -60,7 +60,7 @@ describe DataAttributesController do
     it "assigns the requested data_attribute as @data_attribute" do
       data_attribute = DataAttribute.create! valid_attributes
       get :edit, {:id => data_attribute.to_param}, valid_session
-      assigns(:data_attribute).should eq(data_attribute)
+      expect(assigns(:data_attribute)).to eq(data_attribute)
     end
   end
 
@@ -74,29 +74,29 @@ describe DataAttributesController do
 
       it "assigns a newly created data_attribute as @data_attribute" do
         post :create, {:data_attribute => valid_attributes}, valid_session
-        assigns(:data_attribute).should be_a(DataAttribute)
-        assigns(:data_attribute).should be_persisted
+        expect(assigns(:data_attribute)).to be_a(DataAttribute)
+        expect(assigns(:data_attribute)).to be_persisted
       end
 
       it "redirects to the created data_attribute" do
         post :create, {:data_attribute => valid_attributes}, valid_session
-        response.should redirect_to(DataAttribute.last.becomes(DataAttribute))
+        expect(response).to redirect_to(DataAttribute.last.becomes(DataAttribute))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved data_attribute as @data_attribute" do
         # Trigger the behavior that occurs when invalid params are submitted
-        DataAttribute.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
-        assigns(:data_attribute).should be_a_new(DataAttribute)
+        expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        DataAttribute.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe DataAttributesController do
         # specifies that the DataAttribute created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        DataAttribute.any_instance.should_receive(:update).with({'value'  => 'black'})
+        expect_any_instance_of(DataAttribute).to receive(:update).with({'value'  => 'black'})
         put :update, {:id => data_attribute.to_param, :data_attribute => {:value  => 'black'}}, valid_session
       end
 
       it "assigns the requested data_attribute as @data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
         put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
-        assigns(:data_attribute).should eq(data_attribute)
+        expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
       it "redirects to the data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
         put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
-        response.should redirect_to(data_attribute.becomes(DataAttribute))
+        expect(response).to redirect_to(data_attribute.becomes(DataAttribute))
       end
     end
 
@@ -130,17 +130,17 @@ describe DataAttributesController do
       it "assigns the data_attribute as @data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        DataAttribute.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
-        assigns(:data_attribute).should eq(data_attribute)
+        expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
       it "re-renders the 'edit' template" do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        DataAttribute.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe DataAttributesController do
     it "redirects to the data_attributes list" do
       data_attribute = DataAttribute.create! valid_attributes
       delete :destroy, {:id => data_attribute.to_param}, valid_session
-      response.should redirect_to(data_attributes_url)
+      expect(response).to redirect_to(data_attributes_url)
     end
   end
 

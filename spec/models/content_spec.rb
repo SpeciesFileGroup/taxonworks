@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Content do
+describe Content, :type => :model do
 
   let(:content) {FactoryGirl.build(:content) }
 

@@ -1,34 +1,34 @@
 require "rails_helper"
 
-describe IdentifiersController do
+describe IdentifiersController, :type => :routing do
   describe "routing" do
 
     it "routes to #index" do
-      get("/identifiers").should route_to("identifiers#index")
+      expect(get("/identifiers")).to route_to("identifiers#index")
     end
 
     it "routes to #new" do
-      get("/identifiers/new").should route_to("identifiers#new")
+      expect(get("/identifiers/new")).to route_to("identifiers#new")
     end
 
     it "routes to #show" do
-      get("/identifiers/1").should route_to("identifiers#show", :id => "1")
+      expect(get("/identifiers/1")).to route_to("identifiers#show", :id => "1")
     end
 
     it "routes to #edit" do
-      get("/identifiers/1/edit").should route_to("identifiers#edit", :id => "1")
+      expect(get("/identifiers/1/edit")).to route_to("identifiers#edit", :id => "1")
     end
 
     it "routes to #create" do
-      post("/identifiers").should route_to("identifiers#create")
+      expect(post("/identifiers")).to route_to("identifiers#create")
     end
 
     it "routes to #update" do
-      put("/identifiers/1").should route_to("identifiers#update", :id => "1")
+      expect(put("/identifiers/1")).to route_to("identifiers#update", :id => "1")
     end
 
     it "routes to #destroy" do
-      delete("/identifiers/1").should route_to("identifiers#destroy", :id => "1")
+      expect(delete("/identifiers/1")).to route_to("identifiers#destroy", :id => "1")
     end
 
   end

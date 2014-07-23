@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'DataAttributes' do
+describe 'DataAttributes', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { data_attributes_path }

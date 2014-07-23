@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_name_relationships/new" do
+describe "taxon_name_relationships/new", :type => :view do
   before(:each) do
     assign(:taxon_name_relationship, stub_model(TaxonNameRelationship,
       :subject_taxon_name_id => 1,

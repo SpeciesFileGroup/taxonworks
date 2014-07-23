@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "namespaces/index" do
+describe "namespaces/index", :type => :view do
   before(:each) do
     assign(:namespaces, [
       stub_model(Namespace,

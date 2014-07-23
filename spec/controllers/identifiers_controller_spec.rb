@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe IdentifiersController do
+describe IdentifiersController, :type => :controller do
   before(:each) {
     sign_in 
   }
@@ -39,7 +39,7 @@ describe IdentifiersController do
     it "assigns all identifiers as @identifiers" do
       identifier = Identifier.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:identifiers).should eq([identifier])
+      expect(assigns(:identifiers)).to eq([identifier])
     end
   end
 
@@ -47,14 +47,14 @@ describe IdentifiersController do
     it "assigns the requested identifier as @identifier" do
       identifier = Identifier.create! valid_attributes
       get :show, {:id => identifier.to_param}, valid_session
-      assigns(:identifier).should eq(identifier)
+      expect(assigns(:identifier)).to eq(identifier)
     end
   end
 
   describe "GET new" do
     it "assigns a new identifier as @identifier" do
       get :new, {}, valid_session
-      assigns(:identifier).should be_a_new(Identifier)
+      expect(assigns(:identifier)).to be_a_new(Identifier)
     end
   end
 
@@ -62,7 +62,7 @@ describe IdentifiersController do
     it "assigns the requested identifier as @identifier" do
       identifier = Identifier.create! valid_attributes
       get :edit, {:id => identifier.to_param}, valid_session
-      assigns(:identifier).should eq(identifier)
+      expect(assigns(:identifier)).to eq(identifier)
     end
   end
 
@@ -76,29 +76,29 @@ describe IdentifiersController do
 
       it "assigns a newly created identifier as @identifier" do
         post :create, {:identifier => valid_attributes}, valid_session
-        assigns(:identifier).should be_a(Identifier)
-        assigns(:identifier).should be_persisted
+        expect(assigns(:identifier)).to be_a(Identifier)
+        expect(assigns(:identifier)).to be_persisted
       end
 
       it "redirects to the created identifier" do
         post :create, {:identifier => valid_attributes}, valid_session
-        response.should redirect_to(Identifier.last.becomes(Identifier))
+        expect(response).to redirect_to(Identifier.last.becomes(Identifier))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved identifier as @identifier" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Identifier.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         post :create, {:identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        assigns(:identifier).should be_a_new(Identifier)
+        expect(assigns(:identifier)).to be_a_new(Identifier)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Identifier.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         post :create, {:identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe IdentifiersController do
         # specifies that the Identifier created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Identifier.any_instance.should_receive(:update).with({ "identified_object_id" => "1" })
+        expect_any_instance_of(Identifier).to receive(:update).with({ "identified_object_id" => "1" })
         put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "1" }}, valid_session
       end
 
       it "assigns the requested identifier as @identifier" do
         identifier = Identifier.create! valid_attributes
         put :update, {:id => identifier.to_param, :identifier => valid_attributes}, valid_session
-        assigns(:identifier).should eq(identifier)
+        expect(assigns(:identifier)).to eq(identifier)
       end
 
       it "redirects to the identifier" do
         identifier = Identifier.create! valid_attributes
         put :update, {:id => identifier.to_param, :identifier => valid_attributes}, valid_session
-        response.should redirect_to(identifier.becomes(Identifier))
+        expect(response).to redirect_to(identifier.becomes(Identifier))
       end
     end
 
@@ -132,17 +132,17 @@ describe IdentifiersController do
       it "assigns the identifier as @identifier" do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Identifier.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        assigns(:identifier).should eq(identifier)
+        expect(assigns(:identifier)).to eq(identifier)
       end
 
       it "re-renders the 'edit' template" do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Identifier.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe IdentifiersController do
     it "redirects to the identifiers list" do
       identifier = Identifier.create! valid_attributes
       delete :destroy, {:id => identifier.to_param}, valid_session
-      response.should redirect_to(identifiers_url)
+      expect(response).to redirect_to(identifiers_url)
     end
   end
 

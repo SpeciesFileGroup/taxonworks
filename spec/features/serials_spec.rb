@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Serials' do
+describe 'Serials', :type => :feature do
 
   it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { serials_path }

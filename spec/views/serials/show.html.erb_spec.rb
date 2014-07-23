@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "serials/show" do
+describe "serials/show", :type => :view do
   before(:each) do
     @serial = assign(:serial, stub_model(Serial,
       :name => "Name",
@@ -18,14 +18,14 @@ describe "serials/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/Publisher/)
-    rendered.should match(/Place Published/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/6/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/Publisher/)
+    expect(rendered).to match(/Place Published/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/6/)
   end
 end

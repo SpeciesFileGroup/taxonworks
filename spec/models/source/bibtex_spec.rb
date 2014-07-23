@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Bibtex do
+describe Source::Bibtex, :type => :model do
 
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
@@ -116,24 +116,30 @@ describe Source::Bibtex do
 
     specify 'to_bibtex' do
       expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
-      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
+      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1['type'].to_s)
       skip 'test that notes gets converted properly to a bibtex note'
       # TODO test serial gets converted properly to bibtex journal
     end
 
-    specify 'valid_bibtex?' do
-      expect(@s.valid_bibtex?).to be_falsey   # missing a publisher
-      @s.soft_validate(:bibtex_fields)
-      expect(@s.soft_validations.messages_on(:publisher).empty?).to be_falsey
-      expect(@s.soft_validations.messages).to include 'There is no publisher associated with this source.'
-      @s.publisher = 'Silly Books Inc'
-      expect(@s.valid_bibtex?).to be_truthy
+    context 'validate bibtex' do
+      specify 'check that valid_bibtex? works (relies on BibTeX::Entry.valid? which is not currently working)' do
+        expect(@s.valid_bibtex?).to be_falsey # missing a publisher
+      end
+      specify 'soft_validate bibtex fields - get error messages' do
+        @s.soft_validate(:bibtex_fields)
+        expect(@s.soft_validations.messages_on(:publisher).empty?).to be_falsey
+        expect(@s.soft_validations.messages).to include 'There is no publisher associated with this source.'
+      end
+      specify 'make it valid' do
+        @s.publisher = 'Silly Books Inc'
+        expect(@s.valid_bibtex?).to be_truthy
+      end
     end
 
     specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
-      note =  "This is a note.\n With multiple lines."
-      @valid_gem_bibtex_book.note = note 
-      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      note                        = "This is a note.\n With multiple lines."
+      @valid_gem_bibtex_book.note = note
+      s                           = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
       expect(s.notes.to_a.count).to eq(1)
       expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
       expect(s.save).to be_truthy
@@ -141,9 +147,9 @@ describe Source::Bibtex do
     end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier = '1-84356-028-3' # TODO: update when validation on isbn happens
+      identifier                  = '1-84356-028-3' # TODO: update when validation on isbn happens
       @valid_gem_bibtex_book.isbn = identifier
-      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      s                           = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
       expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -171,9 +177,9 @@ describe Source::Bibtex do
       #  Registrant using SICI: doi:10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
       #  Registrant using internal scheme: doi:10.6789/JoesPaper56
 
-      identifier = '10.2345/S1384107697000225' # TODO: update when validation on doi happens
+      identifier                 = '10.2345/S1384107697000225' # TODO: update when validation on doi happens
       @valid_gem_bibtex_book.doi = identifier
-      s = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
+      s                          = Source::Bibtex.new_from_bibtex(@valid_gem_bibtex_book)
       expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -261,7 +267,7 @@ describe Source::Bibtex do
 
         specify 'month must be in %w{jan feb mar ...}' do
           ::VALID_BIBTEX_MONTHS.each do |m|
-            @source_bibtex.month = m 
+            @source_bibtex.month = m
             expect(@source_bibtex.valid?).to be_truthy
           end
         end
@@ -309,45 +315,107 @@ describe Source::Bibtex do
           expect(@source_bibtex.valid?).to be_falsey
           expect(@source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
         end
-        
+
         specify 'day, if present, must be valid for month' do
-          @source_bibtex.day =  30
+          @source_bibtex.day   = 30
           @source_bibtex.month = 'feb'
           expect(@source_bibtex.valid?).to be_falsey
           expect(@source_bibtex.errors.messages[:day].include?('30 is not a valid day for the month provided')).to be_truthy
-          @source_bibtex.day = 4 
+          @source_bibtex.day = 4
           expect(@source_bibtex.valid?).to be_truthy
         end
       end
     end
 
-    specify 'before save set cached values' do
-      l_src = FactoryGirl.create(:soft_valid_bibtex_source_article)
+    context 'on save set cached values - single author' do
+      before(:each) {
+        @l_src = FactoryGirl.create(:soft_valid_bibtex_source_article)
+      }
 
-      expect(l_src.save).to be_truthy
-      expect(l_src.cached.blank?).to be_falsey
-      expect(l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
-      expect(l_src.cached_author_string.blank?).to be_falsey
-      expect(l_src.cached_author_string).to eq('Person, Test')
+      specify 'save src' do
+        expect(@l_src.save).to be_truthy
+      end
+      context 'after save' do
+        before {
+          @l_src.save
+        }
 
-      expect(l_src.create_related_people).to be_truthy
-      expect(l_src.save).to be_truthy
-      expect(l_src.authors.count).to eq(1)
-      expect(l_src.authors.first.first_name).to eq('Test')
-      expect(l_src.authors.first.last_name).to eq('Person')
-      expect(l_src.cached_author_string).to eq('Person')
+        specify 'src should have a cached value' do
+          expect(@l_src.cached.blank?).to be_falsey
+        end
+        specify 'which equals...(currently failing due to problems with citeproc)' do
+          expect(@l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
+        end
+        specify 'cached author should be set' do
+          expect(@l_src.cached_author_string.blank?).to be_falsey
+        end
+        specify 'which equals...' do
+          expect(@l_src.cached_author_string).to eq('Person, Test')
+        end
+        specify 'should be able to build & save related people' do
+          expect(@l_src.build_related_people_and_roles).to be_truthy
+          expect(@l_src.save).to be_truthy
+        end
+      end
+      context 'after creating related people' do
+        before {
+          @l_src.build_related_people_and_roles
+          @l_src.save
+        }
+        specify 'author count should be correct' do
+          expect(@l_src.authors.count).to eq(1)
+        end
+        specify 'author name should be correct' do
+          expect(@l_src.authors.first.first_name).to eq('Test')
+          expect(@l_src.authors.first.last_name).to eq('Person')
+          expect(@l_src.cached_author_string).to eq('Person')
+        end
+      end
+    end
 
-      l_src = FactoryGirl.build(:src_mult_authors)
-      expect(l_src.save).to be_truthy
-      expect(l_src.cached.blank?).to be_falsey
-      expect(l_src.create_related_people).to be_truthy
-      expect(l_src.save).to be_truthy
-      expect(l_src.authors.first.first_name).to eq('Dave')
-      expect(l_src.authors.first.last_name).to eq('Thomas')
-      expect(l_src.authors.last.first_name).to eq('Andy')
-      expect(l_src.authors.last.last_name).to eq('Hunt')
-      expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
-      expect(l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
+    context 'before save set cached values - multiple authors' do
+      before(:all) {
+        @l_src = FactoryGirl.create(:src_mult_authors)
+      }
+
+      specify 'src should save' do
+        expect(@l_src.save).to be_truthy
+      end
+
+      context 'after save' do
+        before {
+          @l_src.save
+        }
+
+        specify 'src should have a cached value' do
+          expect(@l_src.cached.blank?).to be_falsey
+        end
+        specify 'cached author string should be correct' do
+          expect(@l_src.cached_author_string).to eq('Thomas, Dave and Fowler, Chad and Hunt, Andy')
+        end
+        specify 'cached string should be correct' do
+          expect(@l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
+        end
+      end
+      specify 'should be able to build & save related people' do
+        expect(@l_src.build_related_people_and_roles).to be_truthy
+        expect(@l_src.save).to be_truthy
+      end
+      context 'after creating related people' do
+        before {
+          @l_src.build_related_people_and_roles
+          @l_src.save
+        }
+        specify 'author count should be correct' do
+          expect(@l_src.authors.count).to eq(3)
+        end
+        specify 'author names should be correct' do
+          expect(@l_src.authors.first.first_name).to eq('Dave')
+          expect(@l_src.authors.first.last_name).to eq('Thomas')
+          expect(@l_src.authors.last.first_name).to eq('Andy')
+          expect(@l_src.authors.last.last_name).to eq('Hunt')
+        end
+      end
     end
 
     specify 'the url must be valid' do
@@ -378,22 +446,22 @@ describe Source::Bibtex do
     context 'with an existing instance of Source::Bibtex' do
 
       # TODO: Update to create_roles for instance methods
-      context 'create_related_people()' do
+      context 'build_related_people_and_roles()' do
         specify 'can not be run when .new_record?' do
           expect(@source_bibtex.new_record?).to be_truthy
           expect(@source_bibtex.valid?).to be_truthy
           @source_bibtex.author = 'Smith, James'
-          expect(@source_bibtex.create_related_people).to be_falsey
+          expect(@source_bibtex.build_related_people_and_roles).to be_falsey
         end
 
         # NOTE: Be aware of possible translator roles, we don't handle this
         specify 'returns false when author.nil? && editor.nil?' do
-          expect(@source_bibtex.create_related_people).to be_falsey
+          expect(@source_bibtex.build_related_people_and_roles).to be_falsey
         end
 
         specify 'returns false when instance.valid? is false' do
           s = FactoryGirl.build(:source_bibtex)
-          expect(s.create_related_people).to be_falsey
+          expect(s.build_related_people_and_roles).to be_falsey
         end
 
         %w{author editor}.each do |a|
@@ -403,7 +471,7 @@ describe Source::Bibtex do
               @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
               @source_bibtex.save
               expect(@source_bibtex.send(method.to_sym).size).to eq(0)
-              expect(@source_bibtex.create_related_people).to be_truthy
+              expect(@source_bibtex.build_related_people_and_roles).to be_truthy
               @source_bibtex.reload
               expect(@source_bibtex.send(method.to_sym).size).to eq(1)
               #@source_bibtex.reload
@@ -417,7 +485,7 @@ describe Source::Bibtex do
               @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
               @source_bibtex.save
               expect(@source_bibtex.send(method.to_sym).size).to eq(0)
-              expect(@source_bibtex.create_related_people).to be_truthy
+              expect(@source_bibtex.build_related_people_and_roles).to be_truthy
               @source_bibtex.reload
 
               expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(3)
@@ -439,9 +507,9 @@ describe Source::Bibtex do
             method_roles = "#{a}_roles"
             @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
             @source_bibtex.save
-            
+
             expect(@source_bibtex.send(method.to_sym).size).to eq(0)
-            expect(@source_bibtex.create_related_people).to be_truthy
+            expect(@source_bibtex.build_related_people_and_roles).to be_truthy
             @source_bibtex.reload
             @source_bibtex.authors.reload
             @source_bibtex.editors.reload
@@ -476,7 +544,7 @@ describe Source::Bibtex do
           @source_bibtex.save
           expect(@source_bibtex.authors.size).to eq(0)
           expect(@source_bibtex.editors.size).to eq(0)
-          expect(@source_bibtex.create_related_people).to be_truthy
+          expect(@source_bibtex.build_related_people_and_roles).to be_truthy
           @source_bibtex.reload
 
           expect(@source_bibtex.authors.to_a.count).to eq(3)
@@ -500,7 +568,7 @@ describe Source::Bibtex do
             specify "can not be run when #{a} exists" do
               @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill and Jones, Jane')
               @source_bibtex.save
-              expect(@source_bibtex.create_related_people).to be_truthy #saves the roles
+              expect(@source_bibtex.build_related_people_and_roles).to be_truthy #saves the roles
               @source_bibtex.reload
               if a == 'author'
                 expect(@source_bibtex.valid? && @source_bibtex.authors.count == 2).to be_truthy
@@ -509,7 +577,7 @@ describe Source::Bibtex do
                 expect(@source_bibtex.valid? && @source_bibtex.editors.count == 2).to be_truthy
                 expect(@source_bibtex.authors.count == 0).to be_truthy
               end
-              expect(@source_bibtex.create_related_people).to be_falsey #roles/people already exist
+              expect(@source_bibtex.build_related_people_and_roles).to be_falsey #roles/people already exist
             end
           end
         end
@@ -524,11 +592,11 @@ describe Source::Bibtex do
         has_method = "has_#{a}s?"
         expect(@source_bibtex.send(has_method)).to be_falsey # returns false if neither exist
         @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
-        expect(@source_bibtex.send(has_method)).to be_truthy  # returns true if has author attribute with a value
+        expect(@source_bibtex.send(has_method)).to be_truthy # returns true if has author attribute with a value
         @source_bibtex.save
-        @source_bibtex.create_related_people
+        @source_bibtex.build_related_people_and_roles
         @source_bibtex.reload
-        expect(@source_bibtex.send(has_method)).to be_truthy  # returns true if has both
+        expect(@source_bibtex.send(has_method)).to be_truthy # returns true if has both
         @source_bibtex.send("#{a}=".to_sym, '')
         expect(@source_bibtex.send(has_method)).to be_truthy # returns true if has only author roles
       end
@@ -539,17 +607,17 @@ describe Source::Bibtex do
       expect(@source_bibtex.save).to be_truthy
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 12, 31))
-     
+
       @source_bibtex.month = 'feb'
       expect(@source_bibtex.save).to be_truthy
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 29))
-    
+
       @source_bibtex.day = 12
       expect(@source_bibtex.save).to be_truthy
       @source_bibtex.reload
       expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 12))
-      
+
       # Times before before 1823, or after 2116 are handled differently.
       @source_bibtex.year  = 1775
       @source_bibtex.month = nil
@@ -569,11 +637,11 @@ describe Source::Bibtex do
 
     specify 'sort an array of source by potentially_validating date' do
       Source.delete_all
-      @source_bibtex.year = 2002                                # @source_bibtex has no date, title: 'article 1 just title'
+      @source_bibtex.year = 2002 # @source_bibtex has no date, title: 'article 1 just title'
       expect(@source_bibtex.save).to be_truthy
-      FactoryGirl.create(:valid_bibtex_source_book_title_only)  # 'valid book with just a title' : no date
-      FactoryGirl.create(:valid_thesis)                         # 'Bugs by Beth': june 1982
-      FactoryGirl.create(:valid_misc)                           # 'misc source': july 4 2010
+      FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
+      FactoryGirl.create(:valid_thesis) # 'Bugs by Beth': june 1982
+      FactoryGirl.create(:valid_misc) # 'misc source': july 4 2010
       @sources = Source::Bibtex.all
       expect(@sources.count).to eq(4)
 
@@ -581,8 +649,8 @@ describe Source::Bibtex do
       expect(@sources[1].title).to eq('valid book with just a title')
       expect(@sources[2].title).to eq('Bugs by Beth')
       expect(@sources[3].title).to eq('misc source')
-      
-      @source2 = @sources.order_by_nomenclature_date 
+
+      @source2 = @sources.order_by_nomenclature_date
       expect(@source2.count).to eq(4)
       expect(@source2.map(&:title)).to eq(['Bugs by Beth', 'article 1 just title', 'misc source', 'valid book with just a title'])
     end
@@ -615,7 +683,7 @@ describe Source::Bibtex do
     context 'roles' do
       before(:each) {
         @valid_person = FactoryGirl.create(:valid_person)
-      } 
+      }
 
       specify 'after create/saved populate author/editor roles' do
         # bs1 was saved in the "before", since the authors already exist in the db,
@@ -639,7 +707,7 @@ describe Source::Bibtex do
         skip 'invalidate if editors exist and editor has changed, and no longer matches'
       end
 
-      
+
       %w{author editor}.each do |i|
         specify "#{i}s" do
           method = "#{i}s"
@@ -647,9 +715,9 @@ describe Source::Bibtex do
           expect(bibtex.send(method)).to eq([])
           bibtex.title       = 'valid record'
           bibtex.bibtex_type = 'book'
-          expect(bibtex.save).to be_truthy                         # save record to get an ID
+          expect(bibtex.save).to be_truthy # save record to get an ID
           expect(bibtex.send(method) << @valid_person).to be_truthy # assigns author but doesn't save role
-          expect(bibtex.save).to be_truthy                         # saving bibtex also saves role
+          expect(bibtex.save).to be_truthy # saving bibtex also saves role
           expect(bibtex.send(method).first).to eq(@valid_person)
         end
 
@@ -728,7 +796,7 @@ describe Source::Bibtex do
       expect(@source_bibtex.valid?).to be_truthy
       @source_bibtex.soft_validate()
       expect(@source_bibtex.soft_validations.messages_on(:year).empty?).to be_falsey
-      expect(@source_bibtex.soft_validations.messages).to include  'This year is prior to the 1700s'
+      expect(@source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s'
       @source_bibtex.year = 1700
       @source_bibtex.save
       @source_bibtex.soft_validate()

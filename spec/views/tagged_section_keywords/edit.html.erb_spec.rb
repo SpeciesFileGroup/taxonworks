@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tagged_section_keywords/edit" do
+describe "tagged_section_keywords/edit", :type => :view do
   before(:each) do
     @tagged_section_keyword = assign(:tagged_section_keyword, stub_model(TaggedSectionKeyword,
       :otu_page_layout_section_id => 1,

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier do
+describe Identifier, :type => :model do
 
   let(:identifier) { FactoryGirl.build(:identifier) }
 

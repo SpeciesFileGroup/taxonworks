@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'geographic_areas/edit' do
+describe 'geographic_areas/edit', :type => :view do
   before(:each) do
     @geographic_area = assign(:geographic_area,
                               stub_model(GeographicArea,

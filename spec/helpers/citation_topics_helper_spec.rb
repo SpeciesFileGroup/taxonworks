@@ -10,6 +10,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-describe CitationTopicsHelper do
+describe CitationTopicsHelper, :type => :helper do
   skip "add some examples to (or delete) #{__FILE__}"
 end

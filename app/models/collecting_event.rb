@@ -231,94 +231,68 @@ class CollectingEvent < ActiveRecord::Base
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   def name_hash(types)
-    retval   = {} # changed from []
-    ga_list  = []
-    # ga_names = []
-    gi_list  = []
+    retval  = {} # changed from []
+    gi_list = []
 
-    # use if not unless, double negatives are teh hard  
-    if self.geographic_items.count == 0 && self.error_geographic_items.count == 0
-      gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
-
-    # only if there are NO geographic_items of any type
-    else 
-      # we need to use the geographic_area directly
+    if self.georeferences.count == 0
+      # use geographic_area only if there are no GIs or EGIs
+      unless self.geographic_area.nil?
+        # we need to use the geographic_area directly
+        gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
+      end
+    else
       # gather all the GIs which contain this GI or EGI
       gi_list << GeographicItem.containing('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
-
-      # was:     
-      # gi_list << GeographicItem.containing('any', self.geographic_items)
-      # gi_list << GeographicItem.containing('any', self.error_geographic_items)
-
     end
 
-    # map the resulting GIs to their corresponding GAs
-    pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
-    ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-      where(geographic_area_types:             {name: types},
-            geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
-    
-    # WAS: now find all of the GAs which have the same names as the ones we collected.
+    # there are a few ways we can end up with no GIs
+    unless gi_list.count == 0
+      # map the resulting GIs to their corresponding GAs
+      pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
+      ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
+        where(geographic_area_types:             {name: types},
+              geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
 
-    # map the names to an array of results
-    ga_list.each do |i|
-      retval[i.name] ||= []  # if we haven't come across this name yet, set it to point to a blank array
-      retval[i.name].push i  # we now have at least a blank array, push the result into it
+      # WAS: now find all of the GAs which have the same names as the ones we collected.
+
+      # map the names to an array of results
+      ga_list.each { |i|
+        retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
+        retval[i.name].push i # we now have at least a blank array, push the result into it
+      }
     end
-
-    retval # return the hash of results
-
-    # WAS:  
-    # ga_names << ga_list.map(&:name)
-
-    # ga_names.flatten.each { |name|
-    #   retval << {name => GeographicArea.where(name: name).to_a} # definitely not this find again, it's a name match, not a GIS match
-    # }
-
-    # translate the list into
-    # ga_list.each { |ga|
-    #   retval << {ga.name => ga}
-    # }
-
-     #case retval.count
-     #  when 1
-     #    retval.first
-     #  else
-     #    retval
-     #end
-
+    retval
   end
 
-
- def countries_hash
+  def countries_hash
     name_hash(GeographicAreaType::COUNTRY_LEVEL_TYPES)
   end
 
-  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-  #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
-  #   an array of all of the hashes (name/GA pairs),
-  #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+#   one hash, consisting of a state name paired with an array of the corresponding GAs, or
+#   an array of all of the hashes (name/GA pairs),
+#   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
   def states_hash
     name_hash(GeographicAreaType::STATE_LEVEL_TYPES)
   end
 
-  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-  #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
-  #   an array of all of the hashes (name/GA pairs),
-  #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+#   one hash, consisting of a county name paired with an array of the corresponding GAs, or
+#   an array of all of the hashes (name/GA pairs),
+#   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
   def counties_hash
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
 
   def name_from_geopolitical_hash(name_hash)
     return name_hash.keys.first if name_hash.keys.count == 1
-    most_key = nil 
+    most_key   = nil
     most_count = 0
     name_hash.keys.sort.each do |k| # alphabetically first (keys are unordered)
       if name_hash[k].size > most_count
         most_count = name_hash[k].size
-        most_key = k
-      end 
+        most_key   = k
+      end
     end
     most_key
   end
@@ -343,13 +317,13 @@ class CollectingEvent < ActiveRecord::Base
     county_or_equivalent_name
   end
 
-  # class methods
+# class methods
 
   def self.excluding(collecting_events)
     where.not(id: collecting_events)
   end
 
-  # Rich-  add a comment indicating why it's here if you want this to persist for a temporary period of time).
+# Rich-  add a comment indicating why it's here if you want this to persist for a temporary period of time).
   def self.test
     result = []
     colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]

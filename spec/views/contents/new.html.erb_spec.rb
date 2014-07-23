@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "contents/new" do
+describe "contents/new", :type => :view do
   before(:each) do
     assign(:content, stub_model(Content,
       :text => "MyText",

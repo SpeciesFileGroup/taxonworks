@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "geographic_items/index" do
+describe "geographic_items/index", :type => :view do
   before(:each) do
     assign(:geographic_items, [
       FactoryGirl.create(:geographic_item_with_polygon),

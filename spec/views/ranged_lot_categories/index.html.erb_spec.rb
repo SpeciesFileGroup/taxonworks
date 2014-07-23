@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "ranged_lot_categories/index" do
+describe "ranged_lot_categories/index", :type => :view do
   before(:each) do
     assign(:ranged_lot_categories, [
       stub_model(RangedLotCategory,

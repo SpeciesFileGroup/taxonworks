@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tagged_section_keywords/index" do
+describe "tagged_section_keywords/index", :type => :view do
   before(:each) do
     assign(:tagged_section_keywords, [
       stub_model(TaggedSectionKeyword,

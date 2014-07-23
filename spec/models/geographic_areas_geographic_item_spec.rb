@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicAreasGeographicItem do
+describe GeographicAreasGeographicItem, :type => :model do
   let(:geographic_areas_geographic_item) {FactoryGirl.build(:geographic_areas_geographic_item)}
   let(:valid_geographic_areas_geographic_item) {FactoryGirl.build(:valid_geographic_areas_geographic_item)}
 

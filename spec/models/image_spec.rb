@@ -1,14 +1,14 @@
 require 'rails_helper'
 
-describe Image do
+describe Image, :type => :model do
   # Taken verbatim from the doc. 
   context 'default paperclip tests' do
-    it { should have_attached_file(:image_file) }
-    it { should validate_attachment_presence(:image_file) }
-    it { should validate_attachment_content_type(:image_file).
+    it { is_expected.to have_attached_file(:image_file) }
+    it { is_expected.to validate_attachment_presence(:image_file) }
+    it { is_expected.to validate_attachment_content_type(:image_file).
                   allowing('image/png', 'image/gif').
                   rejecting('text/plain', 'text/xml') }
-    it { should validate_attachment_size(:image_file).
+    it { is_expected.to validate_attachment_size(:image_file).
                   greater_than(1.kilobytes) }
   end
 

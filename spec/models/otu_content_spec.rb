@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe OtuContent do
+describe OtuContent, :type => :model do
   let(:otu_content) { OtuContent.new }
 
   context "reflections / foreign keys" do

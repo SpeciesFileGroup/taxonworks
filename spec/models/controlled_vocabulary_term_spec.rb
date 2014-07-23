@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ControlledVocabularyTerm do
+describe ControlledVocabularyTerm, :type => :model do
   let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term)  }
 
   context 'validation' do 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tags/index" do
+describe "tags/index", :type => :view do
   before(:each) do
     assign(:tags, [
       stub_model(Tag,

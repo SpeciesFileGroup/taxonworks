@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otus/edit" do
+describe "otus/edit", :type => :view do
   before(:each) do
     @otu = assign(:otu, stub_model(Otu,
       :name => "MyString",

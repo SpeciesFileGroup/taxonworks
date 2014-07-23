@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonDetermination do
+describe TaxonDetermination, :type => :model do
 
   let(:taxon_determination) {TaxonDetermination.new}
 

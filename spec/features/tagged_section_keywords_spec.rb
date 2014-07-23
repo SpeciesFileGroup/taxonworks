@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaggedSectionKeywords' do
+describe 'TaggedSectionKeywords', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { tagged_section_keywords_path }
