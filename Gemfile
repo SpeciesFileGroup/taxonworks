@@ -44,7 +44,7 @@ gem 'awesome_nested_set',
   git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 
 # BibTex handling
-gem 'bibtex-ruby'
+gem 'bibtex-ruby', '~> 4.0.3'
 gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
