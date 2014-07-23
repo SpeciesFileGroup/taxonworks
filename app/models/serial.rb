@@ -118,7 +118,7 @@ class Serial < ActiveRecord::Base
   end
 
 
-  def chronology
+  def full_chronology
     # return ordered array of serials associated with this serial
   end
 

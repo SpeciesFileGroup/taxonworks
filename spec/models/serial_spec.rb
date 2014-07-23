@@ -121,9 +121,30 @@ describe Serial do
     specify '#all_succeeding_serials - should list all historically related succeeding serials' do
       # want all succeeding serials of a == [e, [g,h]]
       expect(@a.all_succeeding).to eq([@e, [@g, @h]])
+      expect(@d.all_succeeding).to eq([@f])
+      expect(@f.all_succeeding).to eq([])
+
+      @i = Serial.create(name: 'I')
+      SerialChronology::SerialSequence.create(preceding_serial: @f, succeeding_serial: @i)
+      expect(@d.all_succeeding).to eq([@f, [@i]])
     end
 
-    specify '#full_chronology - should list the full serial tree' do
+    specify 'should be able to delete & re-arrange serial chronologies' do
+      SerialChronology::SerialSequence.create(preceding_serial: @f, succeeding_serial: @a)
+      # d => f=> a merge b => e splits g & h
+      expect(@h.all_previous).to eq([@e, [@a, [@f,[@d]], @b]])
+
+      # delete [@f, @d]
+      expect(@f.immediately_preceding_serials).to eq([@d])
+      r = SerialChronology::SerialSequence.where(preceding_serial: @d, succeeding_serial: @f)  # returns an array
+      expect(r.count).to eq(1)
+      expect(r.first.destroy).to be_truthy
+
+      SerialChronology::SerialSequence.create(preceding_serial: @d, succeeding_serial: @b)
+      # f => a ; d =>b  ; a & b merge to e which splits to g & h
+      expect(@h.all_previous).to eq([@e, [@a, [@f], @b, [@d]]])
+    end
+    skip '#full_chronology - should list the full serial tree' do
 
     end
   end
