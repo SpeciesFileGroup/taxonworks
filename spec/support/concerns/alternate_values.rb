@@ -1,22 +1,8 @@
+# See spec/models/concerns/shared/ for functional tests on a fake Model, this only tests for include
 shared_examples 'alternate_values' do
-
-  let(:class_with_alt) { FactoryGirl.create(valid_class_factory_name(described_class).to_sym) }
-
-  context 'reflections / foreign keys' do
-    specify 'has many alternates' do
-      expect(class_with_alt).to respond_to(:alternate_values)
-      expect(class_with_alt.alternate_values.count == 0).to be_truthy
-    end
-
-    # See alternate_values_spec for test on field restrictions
+  specify 'class includes Shared::AlternateValues' do
+    expect(described_class.ancestors.map(&:name).include?('Shared::AlternateValues')).to be true
   end
-
-  context 'methods' do
-    specify 'has_alternate_values?' do
-      expect(class_with_alt).to respond_to(:has_alternate_values?)
-      expect(class_with_alt.has_alternate_values?).to be_falsey
-    end
-    
-  end
-
 end
+
+

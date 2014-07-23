@@ -18,7 +18,6 @@
 #    end
 #
 module FakeTable
-
   extend ActiveSupport::Concern
   included do 
     self.table_name = 'test_classes' 

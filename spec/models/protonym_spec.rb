@@ -353,7 +353,7 @@ describe Protonym do
         s2 = FactoryGirl.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
         s2.soft_validate(:validate_coordinated_names)
-        #author in speciec and incorrect original spelling are different
+        #author in species and incorrect original spelling are different
         expect(s2.soft_validations.messages_on(:verbatim_author).size).to eq(1)
         #year in speciec and incorrect original spelling are different
         expect(s2.soft_validations.messages_on(:year_of_publication).size).to eq(1)

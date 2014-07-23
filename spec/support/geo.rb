@@ -807,19 +807,19 @@ Old Boxia overlays R, and western Q.
  
 |------|------|------|------| |------|------|------|------|
 |             |      |      | |      |      |      |      |
-|             |  O1  |  P1  | | QTM1 | QTN1 | QUO1 | QUP1 |
+|             |  O1  |  P1  | |      | QTN1 | QUO1 | QUP1 |
 |             |      |      | |      |      |      |      |
-|             |------|------| |------|------|------|------|
+|             |------|------| |      |------|------|------|
 |             |      |      | |      |      |      |      |
-|             |  O2  |  P2  | | QTM2 | QTN2 | QUO2 | QUP2 |
-|     Old     |      |      | |      |      |      |      |
-|    Boxia    |------|------| |------|------|------|------|
+|             |  O2  |  P2  | | West | QTN2 | QUO2 | QUP2 |
+|     Old     |      |      | |Boxia |      |      |      |
+|    Boxia    |------|------| |      |------|------|------|
 |             |      |      | |      |      |      |      |
-|             |  O3  |  P3  | | RM3  | RN3  | SO3  | SP3  |
+|             |  O3  |  P3  | |      | RN3  | SO3  | SP3  |
 |             |      |      | |      |      |      |      |
-|             |------|------| |------|------|------|------|
+|             |------|------| |      |------|------|------|
 |             |      |      | |      |      |      |      |
-|             |  O4  |  P4  | | RM4  | RN4  | SO4  | SP4  |
+|             |  O4  |  P4  | |      | RN4  | SO4  | SP4  |
 |             |      |      | |      |      |      |      |
 |------|------|------|------| |------|------|------|------|
                                                            
@@ -871,6 +871,7 @@ Old Boxia overlays R, and western Q.
   shape_s = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
 
   shape_ob = make_box(POINT_M1_P0, 0, 0, 2, 4)
+  shape_wb = make_box(POINT_M1_P0, 0, 0, 1, 4)
   shape_w  = make_box(POINT_M1_P0, 0, 0, 4, 4)
 
   # first, the basic 16 shapes
@@ -903,8 +904,13 @@ Old Boxia overlays R, and western Q.
   @item_r         = FactoryGirl.create(:geographic_item, :polygon => shape_r)
   @item_s         = FactoryGirl.create(:geographic_item, :polygon => shape_s)
 
-  # superseded country shape
+  # secondary country shapes
+  # same shape as Q, different object
+  @item_bb        = FactoryGirl.create(:geographic_item, :polygon => shape_q)
+
+  # superseded country shapes
   @item_ob        = FactoryGirl.create(:geographic_item, :polygon => shape_ob)
+  @item_wb        = FactoryGirl.create(:geographic_item, :polygon => shape_wb)
 
   # the entire land mass
   @item_w         = FactoryGirl.create(:geographic_item, :polygon => shape_w)
@@ -934,7 +940,7 @@ Old Boxia overlays R, and western Q.
                                       :name        => 'Big Boxia',
                                       :iso_3166_a3 => nil,
                                       :iso_3166_a2 => nil)
-  @area_big_boxia.geographic_items << @item_q
+  @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.build(:level0_geographic_area,
                               :name        => 'Q',
@@ -946,7 +952,7 @@ Old Boxia overlays R, and western Q.
                                        :name        => 'West Boxia',
                                        :iso_3166_a3 => nil,
                                        :iso_3166_a2 => nil)
-  @area_west_boxia.geographic_items << @item_r
+  @area_west_boxia.geographic_items << @item_wb
   @area_west_boxia.save
   @area_r = FactoryGirl.build(:level0_geographic_area,
                               :name        => 'R',
@@ -1238,6 +1244,7 @@ Old Boxia overlays R, and western Q.
                                        :collecting_event      => @ce_old_boxia_2,
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_n3.st_centroid))
+
 
 end
 
