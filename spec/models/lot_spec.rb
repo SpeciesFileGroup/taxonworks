@@ -17,7 +17,6 @@ describe Lot do
   context "concerns" do
     it_behaves_like "containable"
     it_behaves_like "identifiable"
-    it_behaves_like "determinable"
   end
 
 end
