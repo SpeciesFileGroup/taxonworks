@@ -12,7 +12,7 @@ describe ProjectsSources, :type => :model do
       specify 'project' do
         expect(project_source.errors.include?(:project)).to be_truthy
       end
-      specify 'project' do
+      specify 'source' do
         expect(project_source.errors.include?(:source)).to be_truthy
       end
     end
