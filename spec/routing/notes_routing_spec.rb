@@ -1,34 +1,34 @@
 require "rails_helper"
 
-describe NotesController do
+describe NotesController, :type => :routing do
   describe "routing" do
 
     it "routes to #index" do
-      get("/notes").should route_to("notes#index")
+      expect(get("/notes")).to route_to("notes#index")
     end
 
     it "routes to #new" do
-      get("/notes/new").should route_to("notes#new")
+      expect(get("/notes/new")).to route_to("notes#new")
     end
 
     it "routes to #show" do
-      get("/notes/1").should route_to("notes#show", :id => "1")
+      expect(get("/notes/1")).to route_to("notes#show", :id => "1")
     end
 
     it "routes to #edit" do
-      get("/notes/1/edit").should route_to("notes#edit", :id => "1")
+      expect(get("/notes/1/edit")).to route_to("notes#edit", :id => "1")
     end
 
     it "routes to #create" do
-      post("/notes").should route_to("notes#create")
+      expect(post("/notes")).to route_to("notes#create")
     end
 
     it "routes to #update" do
-      put("/notes/1").should route_to("notes#update", :id => "1")
+      expect(put("/notes/1")).to route_to("notes#update", :id => "1")
     end
 
     it "routes to #destroy" do
-      delete("/notes/1").should route_to("notes#destroy", :id => "1")
+      expect(delete("/notes/1")).to route_to("notes#destroy", :id => "1")
     end
 
   end

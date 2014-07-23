@@ -4,7 +4,7 @@ require 'rails_helper'
 # we get to testing them we will have to do this here:
 #   Rails.application.eager_load!
 
-describe Project do
+describe Project, :type => :model do
 
   let(:project) {FactoryGirl.build(:project)}
 

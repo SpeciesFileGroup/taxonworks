@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "data_attributes/index" do
+describe "data_attributes/index", :type => :view do
   before(:each) do
     assign(:data_attributes, [
       stub_model(DataAttribute,

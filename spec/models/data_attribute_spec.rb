@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe DataAttribute do
+describe DataAttribute, :type => :model do
   let (:attribute) {DataAttribute.new}
 
   context 'validation' do

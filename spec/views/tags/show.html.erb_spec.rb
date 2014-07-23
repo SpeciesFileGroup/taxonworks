@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tags/show" do
+describe "tags/show", :type => :view do
   before(:each) do
     @tag = assign(:tag, stub_model(Tag,
       :keyword_id => 1,
@@ -17,13 +17,13 @@ describe "tags/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/Tag Object Type/)
-    rendered.should match(/Tag Object Attribute/)
-    rendered.should match(/3/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/6/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/Tag Object Type/)
+    expect(rendered).to match(/Tag Object Attribute/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/6/)
   end
 end

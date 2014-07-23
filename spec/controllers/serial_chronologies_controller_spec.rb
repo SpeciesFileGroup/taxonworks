@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe SerialChronologiesController do
+describe SerialChronologiesController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe SerialChronologiesController do
     it "assigns all serial_chronologies as @serial_chronologies" do
       serial_chronology = SerialChronology.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:serial_chronologies).should eq([serial_chronology])
+      expect(assigns(:serial_chronologies)).to eq([serial_chronology])
     end
   end
 
@@ -45,14 +45,14 @@ describe SerialChronologiesController do
     it "assigns the requested serial_chronology as @serial_chronology" do
       serial_chronology = SerialChronology.create! valid_attributes
       get :show, {:id => serial_chronology.to_param}, valid_session
-      assigns(:serial_chronology).should eq(serial_chronology)
+      expect(assigns(:serial_chronology)).to eq(serial_chronology)
     end
   end
 
   describe "GET new" do
     it "assigns a new serial_chronology as @serial_chronology" do
       get :new, {}, valid_session
-      assigns(:serial_chronology).should be_a_new(SerialChronology)
+      expect(assigns(:serial_chronology)).to be_a_new(SerialChronology)
     end
   end
 
@@ -60,7 +60,7 @@ describe SerialChronologiesController do
     it "assigns the requested serial_chronology as @serial_chronology" do
       serial_chronology = SerialChronology.create! valid_attributes
       get :edit, {:id => serial_chronology.to_param}, valid_session
-      assigns(:serial_chronology).should eq(serial_chronology)
+      expect(assigns(:serial_chronology)).to eq(serial_chronology)
     end
   end
 
@@ -75,20 +75,20 @@ describe SerialChronologiesController do
 
       it "assigns a newly created serial_chronology as @serial_chronology" do
         post :create, {:serial_chronology => valid_attributes}, valid_session
-        assigns(:serial_chronology).should be_a(SerialChronology)
-        assigns(:serial_chronology).should be_persisted
+        expect(assigns(:serial_chronology)).to be_a(SerialChronology)
+        expect(assigns(:serial_chronology)).to be_persisted
       end
 
       it "redirects to the created serial_chronology" do
         post :create, {:serial_chronology => valid_attributes}, valid_session
-        response.should redirect_to(SerialChronology.last)
+        expect(response).to redirect_to(SerialChronology.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved serial_chronology as @serial_chronology" do
         # Trigger the behavior that occurs when invalid params are submitted
-        SerialChronology.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         post :create, {:serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
         # assigns(:serial_chronology).should be_a_new(SerialChronology)
         expect(assigns(:serial_chronology)).to be_a_new(SerialChronology) 
@@ -96,9 +96,9 @@ describe SerialChronologiesController do
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        SerialChronology.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         post :create, {:serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe SerialChronologiesController do
         # specifies that the SerialChronology created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        SerialChronology.any_instance.should_receive(:update).with({ "preceding_serial_id" => "1" })
+        expect_any_instance_of(SerialChronology).to receive(:update).with({ "preceding_serial_id" => "1" })
         put :update, {:id => serial_chronology.to_param, :serial_chronology => { "preceding_serial_id" => "1" }}, valid_session
       end
 
       it "assigns the requested serial_chronology as @serial_chronology" do
         serial_chronology = SerialChronology.create! valid_attributes
         put :update, {:id => serial_chronology.to_param, :serial_chronology => valid_attributes}, valid_session
-        assigns(:serial_chronology).should eq(serial_chronology)
+        expect(assigns(:serial_chronology)).to eq(serial_chronology)
       end
 
       it "redirects to the serial_chronology" do
         serial_chronology = SerialChronology.create! valid_attributes
         put :update, {:id => serial_chronology.to_param, :serial_chronology => valid_attributes}, valid_session
-        response.should redirect_to(serial_chronology)
+        expect(response).to redirect_to(serial_chronology)
       end
     end
 
@@ -132,17 +132,17 @@ describe SerialChronologiesController do
       it "assigns the serial_chronology as @serial_chronology" do
         serial_chronology = SerialChronology.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        SerialChronology.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         put :update, {:id => serial_chronology.to_param, :serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        assigns(:serial_chronology).should eq(serial_chronology)
+        expect(assigns(:serial_chronology)).to eq(serial_chronology)
       end
 
       it "re-renders the 'edit' template" do
         serial_chronology = SerialChronology.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        SerialChronology.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         put :update, {:id => serial_chronology.to_param, :serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe SerialChronologiesController do
     it "redirects to the serial_chronologies list" do
       serial_chronology = SerialChronology.create! valid_attributes
       delete :destroy, {:id => serial_chronology.to_param}, valid_session
-      response.should redirect_to(serial_chronologies_url)
+      expect(response).to redirect_to(serial_chronologies_url)
     end
   end
 

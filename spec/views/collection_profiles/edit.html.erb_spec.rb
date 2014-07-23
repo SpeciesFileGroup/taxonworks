@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collection_profiles/edit" do
+describe "collection_profiles/edit", :type => :view do
   before(:each) do
     @collection_profile = assign(:collection_profile, stub_model(CollectionProfile,
       :container_id => 1,

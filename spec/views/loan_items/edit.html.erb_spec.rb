@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "loan_items/edit" do
+describe "loan_items/edit", :type => :view do
   before(:each) do
     @loan_item = assign(:loan_item, stub_model(LoanItem,
       :loan_id => 1,

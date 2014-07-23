@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'geographic_areas/show' do
+describe 'geographic_areas/show', :type => :view do
   before(:each) do
     @geographic_area = assign(:geographic_area,
                               stub_model(GeographicArea,
@@ -27,17 +27,17 @@ describe 'geographic_areas/show' do
   it 'renders attributes in <p>' do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Area 51/)
-    rendered.should match(/1/)
-    rendered.should match(/Black Ops Zone/)
-    rendered.should match(/AA/)
-    rendered.should match(/AAA/)
-    rendered.should match(/Someplace/)
-    rendered.should match(/Tdwg/)
-    rendered.should match(/1/)
-    rendered.should match(/0/)
-    rendered.should match(/0/)
-    rendered.should match(/12/)
-    rendered.should match(/13/)
+    expect(rendered).to match(/Area 51/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/Black Ops Zone/)
+    expect(rendered).to match(/AA/)
+    expect(rendered).to match(/AAA/)
+    expect(rendered).to match(/Someplace/)
+    expect(rendered).to match(/Tdwg/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/0/)
+    expect(rendered).to match(/0/)
+    expect(rendered).to match(/12/)
+    expect(rendered).to match(/13/)
   end
 end

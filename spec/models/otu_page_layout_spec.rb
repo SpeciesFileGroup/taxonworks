@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe OtuPageLayout do
+describe OtuPageLayout, :type => :model do
   let(:otu_page_layout) {FactoryGirl.build(:otu_page_layout)} 
 
   context 'validation' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'GeographicItems' do
+describe 'GeographicItems', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { geographic_items_path }

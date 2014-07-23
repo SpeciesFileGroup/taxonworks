@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "taxon_determinations/show" do
+describe "taxon_determinations/show", :type => :view do
   before(:each) do
     @taxon_determination = assign(:taxon_determination, stub_model(TaxonDetermination,
       :biological_collection_object_id => 1,
@@ -18,14 +18,14 @@ describe "taxon_determinations/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/Year made/)
-    rendered.should match(/Month made/)
-    rendered.should match(/Day made/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/6/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/Year made/)
+    expect(rendered).to match(/Month made/)
+    expect(rendered).to match(/Day made/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/6/)
   end
 end

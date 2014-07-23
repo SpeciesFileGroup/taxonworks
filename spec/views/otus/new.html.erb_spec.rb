@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otus/new" do
+describe "otus/new", :type => :view do
   before(:each) do
     assign(:otu, stub_model(Otu,
       :name => "MyString",

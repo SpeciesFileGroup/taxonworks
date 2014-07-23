@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TypeMaterial do
+describe TypeMaterial, :type => :model do
   before(:all) do
     @type_material = FactoryGirl.build_stubbed(:type_material)
   end

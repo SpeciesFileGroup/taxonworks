@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Container do
+describe Container, :type => :model do
 
   let(:container) { FactoryGirl.build(:container) }
 

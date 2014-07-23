@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Combination do
+describe Combination, :type => :model do
 
   before(:all) do
     TaxonName.delete_all
@@ -38,6 +38,8 @@ describe Combination do
           if d.respond_to?(:assignment_method) and d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
             relationship = "#{d.inverse_assignment_method}_relationship".to_sym
             relationships = "#{d.assignment_method}_relationships".to_sym
+            method = d.inverse_assignment_method.to_sym
+            methods = d.assignment_method.to_s.pluralize.to_sym
 
             specify relationship do
               expect(@combination).to respond_to(relationship)
@@ -45,11 +47,11 @@ describe Combination do
             specify relationships do
               expect(@combination).to respond_to(relationships)
             end
-            specify d.assignment_method.to_s do
-              expect(@combination).to respond_to(d.assignment_method.to_sym)
+            specify method do
+              expect(@combination).to respond_to(method)
             end
-            specify d.inverse_assignment_method.to_s do
-              expect(@combination).to respond_to(d.inverse_assignment_method.to_sym)
+            specify methods do
+              expect(@combination).to respond_to(methods)
             end
           end
         end

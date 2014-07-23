@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Citation do
+describe Citation, :type => :model do
   let(:citation) {FactoryGirl.build(:citation) }
 
   context 'associations' do

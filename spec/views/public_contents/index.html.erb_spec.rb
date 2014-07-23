@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "public_contents/index" do
+describe "public_contents/index", :type => :view do
   before(:each) do
     assign(:public_contents, [
       stub_model(PublicContent,

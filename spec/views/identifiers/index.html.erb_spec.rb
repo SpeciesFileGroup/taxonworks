@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "identifiers/index" do
+describe "identifiers/index", :type => :view do
   before(:each) do
     assign(:identifiers, [
       stub_model(Identifier,

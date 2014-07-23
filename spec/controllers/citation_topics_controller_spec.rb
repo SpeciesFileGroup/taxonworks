@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe CitationTopicsController do
+describe CitationTopicsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe CitationTopicsController do
     it "assigns all citation_topics as @citation_topics" do
       citation_topic = CitationTopic.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:citation_topics).should eq([citation_topic])
+      expect(assigns(:citation_topics)).to eq([citation_topic])
     end
   end
 
@@ -45,14 +45,14 @@ describe CitationTopicsController do
     it "assigns the requested citation_topic as @citation_topic" do
       citation_topic = CitationTopic.create! valid_attributes
       get :show, {:id => citation_topic.to_param}, valid_session
-      assigns(:citation_topic).should eq(citation_topic)
+      expect(assigns(:citation_topic)).to eq(citation_topic)
     end
   end
 
   describe "GET new" do
     it "assigns a new citation_topic as @citation_topic" do
       get :new, {}, valid_session
-      assigns(:citation_topic).should be_a_new(CitationTopic)
+      expect(assigns(:citation_topic)).to be_a_new(CitationTopic)
     end
   end
 
@@ -60,7 +60,7 @@ describe CitationTopicsController do
     it "assigns the requested citation_topic as @citation_topic" do
       citation_topic = CitationTopic.create! valid_attributes
       get :edit, {:id => citation_topic.to_param}, valid_session
-      assigns(:citation_topic).should eq(citation_topic)
+      expect(assigns(:citation_topic)).to eq(citation_topic)
     end
   end
 
@@ -74,29 +74,29 @@ describe CitationTopicsController do
 
       it "assigns a newly created citation_topic as @citation_topic" do
         post :create, {:citation_topic => valid_attributes}, valid_session
-        assigns(:citation_topic).should be_a(CitationTopic)
-        assigns(:citation_topic).should be_persisted
+        expect(assigns(:citation_topic)).to be_a(CitationTopic)
+        expect(assigns(:citation_topic)).to be_persisted
       end
 
       it "redirects to the created citation_topic" do
         post :create, {:citation_topic => valid_attributes}, valid_session
-        response.should redirect_to(CitationTopic.last)
+        expect(response).to redirect_to(CitationTopic.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved citation_topic as @citation_topic" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CitationTopic.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         post :create, {:citation_topic => {bar: 'Foo'  }}, valid_session
-        assigns(:citation_topic).should be_a_new(CitationTopic)
+        expect(assigns(:citation_topic)).to be_a_new(CitationTopic)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        CitationTopic.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         post :create, {:citation_topic => {bar: 'Foo'  }}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -110,20 +110,20 @@ describe CitationTopicsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         t = Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast.')
-        CitationTopic.any_instance.should_receive(:update).with({ 'topic_id' => t.id.to_s})
+        expect_any_instance_of(CitationTopic).to receive(:update).with({ 'topic_id' => t.id.to_s})
         put :update, {:id => citation_topic.to_param, :citation_topic => { topic_id: t.id }}, valid_session
       end
 
       it "assigns the requested citation_topic as @citation_topic" do
         citation_topic = CitationTopic.create! valid_attributes
         put :update, {:id => citation_topic.to_param, :citation_topic => valid_attributes}, valid_session
-        assigns(:citation_topic).should eq(citation_topic)
+        expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
       it "redirects to the citation_topic" do
         citation_topic = CitationTopic.create! valid_attributes
         put :update, {:id => citation_topic.to_param, :citation_topic => valid_attributes}, valid_session
-        response.should redirect_to(citation_topic)
+        expect(response).to redirect_to(citation_topic)
       end
     end
 
@@ -131,17 +131,17 @@ describe CitationTopicsController do
       it "assigns the citation_topic as @citation_topic" do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CitationTopic.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         put :update, {:id => citation_topic.to_param, :citation_topic => { foo: 'bar'  }}, valid_session
-        assigns(:citation_topic).should eq(citation_topic)
+        expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
       it "re-renders the 'edit' template" do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        CitationTopic.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         put :update, {:id => citation_topic.to_param, :citation_topic => { foo: 'bar'  }}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -157,7 +157,7 @@ describe CitationTopicsController do
     it "redirects to the citation_topics list" do
       citation_topic = CitationTopic.create! valid_attributes
       delete :destroy, {:id => citation_topic.to_param}, valid_session
-      response.should redirect_to(citation_topics_url)
+      expect(response).to redirect_to(citation_topics_url)
     end
   end
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe OtuContent::Text do
+describe OtuContent::Text, :type => :model do
   let(:text) { OtuContent::Text.new }
 
   # foreign key relationships

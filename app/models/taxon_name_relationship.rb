@@ -510,7 +510,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       if !self.object_taxon_name.iczn_set_as_total_suppression_of.nil?
         soft_validations.add(:type, 'Taxon should not be treated as homonym, since the related taxon is totally suppressed')
       elsif self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-        if self.subject_taxon_name.iczn_replacement_name.empty?
+        if self.subject_taxon_name.iczn_replacement_names.empty?
           soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
         else
           soft_validations.add(:type, 'Please select a valid name using synonym relationships',
@@ -523,7 +523,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_add_synonym_for_homonym
     if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
       if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-        unless self.subject_taxon_name.iczn_replacement_name.empty?
+        unless self.subject_taxon_name.iczn_replacement_names.empty?
           self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
           begin
             TaxonNameRelationship.transaction do

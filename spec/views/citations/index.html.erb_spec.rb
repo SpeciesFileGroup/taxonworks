@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "citations/index" do
+describe "citations/index", :type => :view do
   before(:each) do
     assign(:citations, [
       stub_model(Citation,

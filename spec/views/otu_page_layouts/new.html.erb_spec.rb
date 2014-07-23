@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otu_page_layouts/new" do
+describe "otu_page_layouts/new", :type => :view do
   before(:each) do
     assign(:otu_page_layout, stub_model(OtuPageLayout,
       :name => "MyString",

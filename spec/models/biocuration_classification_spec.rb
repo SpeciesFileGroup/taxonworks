@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiocurationClassification do
+describe BiocurationClassification, :type => :model do
   let(:biocuration_classification) {BiocurationClassification.new}
   context 'associations' do
     context 'belongs_to' do

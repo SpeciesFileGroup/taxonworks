@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 
-describe Repository do
+describe Repository, :type => :model do
   let(:repository) {FactoryGirl.build(:repository)}
 
   context 'validation' do

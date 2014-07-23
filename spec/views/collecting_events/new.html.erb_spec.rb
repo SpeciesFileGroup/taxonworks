@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "collecting_events/new" do
+describe "collecting_events/new", :type => :view do
   before(:each) do
     assign(:collecting_event, stub_model(CollectingEvent,
       :verbatim_label => "MyText",

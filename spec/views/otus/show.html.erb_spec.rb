@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otus/show" do
+describe "otus/show", :type => :view do
   before(:each) do
     @otu = assign(:otu, stub_model(Otu,
       :name => "Name",
@@ -13,9 +13,9 @@ describe "otus/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
-    rendered.should match(/1/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
+    expect(rendered).to match(/Name/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
   end
 end

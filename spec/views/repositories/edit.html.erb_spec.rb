@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "repositories/edit" do
+describe "repositories/edit", :type => :view do
   before(:each) do
     @repository = assign(:repository, stub_model(Repository,
       :name => "MyString",

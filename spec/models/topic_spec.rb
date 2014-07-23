@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Topic do
+describe Topic, :type => :model do
   let(:topic) { FactoryGirl.build(:topic) }
  
   # validation is handlded in superclass or associated classes

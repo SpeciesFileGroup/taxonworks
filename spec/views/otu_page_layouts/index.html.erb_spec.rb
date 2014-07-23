@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otu_page_layouts/index" do
+describe "otu_page_layouts/index", :type => :view do
   before(:each) do
     assign(:otu_page_layouts, [
       stub_model(OtuPageLayout,

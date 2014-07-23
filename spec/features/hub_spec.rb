@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Hub' do
+describe 'Hub', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { hub_path }
@@ -17,7 +17,7 @@ describe 'Hub' do
 
     it 'should have a hub title' do
       expect(page).to have_selector('h1', text: 'Hub')
-      subject.should have_selector('h1', text: 'Hub')
+      expect(subject).to have_selector('h1', text: 'Hub')
     end
 
   end

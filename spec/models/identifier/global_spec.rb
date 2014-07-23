@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Identifier::Global do
+describe Identifier::Global, :type => :model do
 
   let(:guid_identifier) {Identifier::Global.new}
 

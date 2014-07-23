@@ -1,18 +1,9 @@
-shared_examples "has_roles" do
-
-  let(:class_with_roles) {described_class.new()}
-
-  context "reflections / foreign keys" do
-    specify "has many roles" do
-      expect(class_with_roles).to respond_to(:roles)
-    end
-  end
-
-  context "methods" do
-    specify "has_roles?" do
-      expect(class_with_roles.has_roles?).to eq(false)
-    end
-
+# See spec/models/concerns/shared/ for functional tests on a fake Model, this only tests for include
+shared_examples 'has_roles' do
+  specify 'class includes Shared::HasRoles' do
+    expect(described_class.ancestors.map(&:name).include?('Shared::HasRoles')).to be true
   end
 end
+
+
 

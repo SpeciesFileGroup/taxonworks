@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe LoanItemsController do
+describe LoanItemsController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe LoanItemsController do
     it "assigns all loan_items as @loan_items" do
       loan_item = LoanItem.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:loan_items).should eq([loan_item])
+      expect(assigns(:loan_items)).to eq([loan_item])
     end
   end
 
@@ -45,14 +45,14 @@ describe LoanItemsController do
     it "assigns the requested loan_item as @loan_item" do
       loan_item = LoanItem.create! valid_attributes
       get :show, {:id => loan_item.to_param}, valid_session
-      assigns(:loan_item).should eq(loan_item)
+      expect(assigns(:loan_item)).to eq(loan_item)
     end
   end
 
   describe "GET new" do
     it "assigns a new loan_item as @loan_item" do
       get :new, {}, valid_session
-      assigns(:loan_item).should be_a_new(LoanItem)
+      expect(assigns(:loan_item)).to be_a_new(LoanItem)
     end
   end
 
@@ -60,7 +60,7 @@ describe LoanItemsController do
     it "assigns the requested loan_item as @loan_item" do
       loan_item = LoanItem.create! valid_attributes
       get :edit, {:id => loan_item.to_param}, valid_session
-      assigns(:loan_item).should eq(loan_item)
+      expect(assigns(:loan_item)).to eq(loan_item)
     end
   end
 
@@ -74,29 +74,29 @@ describe LoanItemsController do
 
       it "assigns a newly created loan_item as @loan_item" do
         post :create, {:loan_item => valid_attributes}, valid_session
-        assigns(:loan_item).should be_a(LoanItem)
-        assigns(:loan_item).should be_persisted
+        expect(assigns(:loan_item)).to be_a(LoanItem)
+        expect(assigns(:loan_item)).to be_persisted
       end
 
       it "redirects to the created loan_item" do
         post :create, {:loan_item => valid_attributes}, valid_session
-        response.should redirect_to(LoanItem.last)
+        expect(response).to redirect_to(LoanItem.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved loan_item as @loan_item" do
         # Trigger the behavior that occurs when invalid params are submitted
-        LoanItem.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
-        assigns(:loan_item).should be_a_new(LoanItem)
+        expect(assigns(:loan_item)).to be_a_new(LoanItem)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        LoanItem.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe LoanItemsController do
         # specifies that the LoanItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        LoanItem.any_instance.should_receive(:update).with({'collection_object_status' => 'confused'})
+        expect_any_instance_of(LoanItem).to receive(:update).with({'collection_object_status' => 'confused'})
         put :update, {:id => loan_item.to_param, :loan_item => {collection_object_status: 'confused'}}, valid_session
       end
 
       it "assigns the requested loan_item as @loan_item" do
         loan_item = LoanItem.create! valid_attributes
         put :update, {:id => loan_item.to_param, :loan_item => valid_attributes}, valid_session
-        assigns(:loan_item).should eq(loan_item)
+        expect(assigns(:loan_item)).to eq(loan_item)
       end
 
       it "redirects to the loan_item" do
         loan_item = LoanItem.create! valid_attributes
         put :update, {:id => loan_item.to_param, :loan_item => valid_attributes}, valid_session
-        response.should redirect_to(loan_item)
+        expect(response).to redirect_to(loan_item)
       end
     end
 
@@ -130,17 +130,17 @@ describe LoanItemsController do
       it "assigns the loan_item as @loan_item" do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        LoanItem.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
-        assigns(:loan_item).should eq(loan_item)
+        expect(assigns(:loan_item)).to eq(loan_item)
       end
 
       it "re-renders the 'edit' template" do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        LoanItem.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe LoanItemsController do
     it "redirects to the loan_items list" do
       loan_item = LoanItem.create! valid_attributes
       delete :destroy, {:id => loan_item.to_param}, valid_session
-      response.should redirect_to(loan_items_url)
+      expect(response).to redirect_to(loan_items_url)
     end
   end
 

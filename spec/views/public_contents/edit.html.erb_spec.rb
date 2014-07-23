@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "public_contents/edit" do
+describe "public_contents/edit", :type => :view do
   before(:each) do
     @public_content = assign(:public_content, stub_model(PublicContent,
       :otu_id => 1,

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 # TODO: this is a join
 
-describe 'SerialChronologies' do
+describe 'SerialChronologies', :type => :feature do
 
   it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { serial_chronologies_path }

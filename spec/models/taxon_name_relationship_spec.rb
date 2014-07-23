@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameRelationship do
+describe TaxonNameRelationship, :type => :model do
 
   context 'Taxon Name relationships' do
     before(:all) do

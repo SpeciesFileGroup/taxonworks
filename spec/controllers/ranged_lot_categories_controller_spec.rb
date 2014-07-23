@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe RangedLotCategoriesController do
+describe RangedLotCategoriesController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -37,7 +37,7 @@ describe RangedLotCategoriesController do
     it "assigns all ranged_lot_categories as @ranged_lot_categories" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:ranged_lot_categories).should eq([ranged_lot_category])
+      expect(assigns(:ranged_lot_categories)).to eq([ranged_lot_category])
     end
   end
 
@@ -45,14 +45,14 @@ describe RangedLotCategoriesController do
     it "assigns the requested ranged_lot_category as @ranged_lot_category" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes
       get :show, {:id => ranged_lot_category.to_param}, valid_session
-      assigns(:ranged_lot_category).should eq(ranged_lot_category)
+      expect(assigns(:ranged_lot_category)).to eq(ranged_lot_category)
     end
   end
 
   describe "GET new" do
     it "assigns a new ranged_lot_category as @ranged_lot_category" do
       get :new, {}, valid_session
-      assigns(:ranged_lot_category).should be_a_new(RangedLotCategory)
+      expect(assigns(:ranged_lot_category)).to be_a_new(RangedLotCategory)
     end
   end
 
@@ -60,7 +60,7 @@ describe RangedLotCategoriesController do
     it "assigns the requested ranged_lot_category as @ranged_lot_category" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes
       get :edit, {:id => ranged_lot_category.to_param}, valid_session
-      assigns(:ranged_lot_category).should eq(ranged_lot_category)
+      expect(assigns(:ranged_lot_category)).to eq(ranged_lot_category)
     end
   end
 
@@ -74,29 +74,29 @@ describe RangedLotCategoriesController do
 
       it "assigns a newly created ranged_lot_category as @ranged_lot_category" do
         post :create, {:ranged_lot_category => valid_attributes}, valid_session
-        assigns(:ranged_lot_category).should be_a(RangedLotCategory)
-        assigns(:ranged_lot_category).should be_persisted
+        expect(assigns(:ranged_lot_category)).to be_a(RangedLotCategory)
+        expect(assigns(:ranged_lot_category)).to be_persisted
       end
 
       it "redirects to the created ranged_lot_category" do
         post :create, {:ranged_lot_category => valid_attributes}, valid_session
-        response.should redirect_to(RangedLotCategory.last)
+        expect(response).to redirect_to(RangedLotCategory.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved ranged_lot_category as @ranged_lot_category" do
         # Trigger the behavior that occurs when invalid params are submitted
-        RangedLotCategory.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(RangedLotCategory).to receive(:save).and_return(false)
         post :create, {:ranged_lot_category => {:invalid => 'parms'}}, valid_session
-        assigns(:ranged_lot_category).should be_a_new(RangedLotCategory)
+        expect(assigns(:ranged_lot_category)).to be_a_new(RangedLotCategory)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        RangedLotCategory.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(RangedLotCategory).to receive(:save).and_return(false)
         post :create, {:ranged_lot_category => {:invalid => 'parms'}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -109,20 +109,20 @@ describe RangedLotCategoriesController do
         # specifies that the RangedLotCategory created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        RangedLotCategory.any_instance.should_receive(:update).with({'name' => 'params'})
+        expect_any_instance_of(RangedLotCategory).to receive(:update).with({'name' => 'params'})
         put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:name => "params"}}, valid_session
       end
 
       it "assigns the requested ranged_lot_category as @ranged_lot_category" do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => valid_attributes}, valid_session
-        assigns(:ranged_lot_category).should eq(ranged_lot_category)
+        expect(assigns(:ranged_lot_category)).to eq(ranged_lot_category)
       end
 
       it "redirects to the ranged_lot_category" do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => valid_attributes}, valid_session
-        response.should redirect_to(ranged_lot_category)
+        expect(response).to redirect_to(ranged_lot_category)
       end
     end
 
@@ -130,17 +130,17 @@ describe RangedLotCategoriesController do
       it "assigns the ranged_lot_category as @ranged_lot_category" do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        RangedLotCategory.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(RangedLotCategory).to receive(:save).and_return(false)
         put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:invalid => 'parms'}}, valid_session
-        assigns(:ranged_lot_category).should eq(ranged_lot_category)
+        expect(assigns(:ranged_lot_category)).to eq(ranged_lot_category)
       end
 
       it "re-renders the 'edit' template" do
         ranged_lot_category = RangedLotCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        RangedLotCategory.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(RangedLotCategory).to receive(:save).and_return(false)
         put :update, {:id => ranged_lot_category.to_param, :ranged_lot_category => {:invalid => 'parms'}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -156,7 +156,7 @@ describe RangedLotCategoriesController do
     it "redirects to the ranged_lot_categories list" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes
       delete :destroy, {:id => ranged_lot_category.to_param}, valid_session
-      response.should redirect_to(ranged_lot_categories_url)
+      expect(response).to redirect_to(ranged_lot_categories_url)
     end
   end
 

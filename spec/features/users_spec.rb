@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Users' do
+describe 'Users', :type => :feature do
   subject { page }
 
   describe 'GET /users' do
@@ -10,8 +10,8 @@ describe 'Users' do
         visit users_path 
       }
       it 'should list users' do
-        subject.should have_selector('h1', text: 'Users')
-        subject.should have_content("#{@user.email}")
+        expect(subject).to have_selector('h1', text: 'Users')
+        expect(subject).to have_content("#{@user.email}")
       end
     end
 
@@ -30,13 +30,13 @@ describe 'Users' do
 
       it 'should let user edit their account information' do
         txt = "Edit user #{@user.id}"
-        subject.should have_selector('h1', txt)
-        subject.should have_title("#{txt} | TaxonWorks")
+        expect(subject).to have_selector('h1', txt)
+        expect(subject).to have_title("#{txt} | TaxonWorks")
         fill_in 'Email', with: 'edit_user_modified@example.com'
         fill_in 'Password', with: '1234ZZZ!'
         fill_in 'Password confirmation', with: '1234ZZZ!'
         click_button 'Update User'
-        subject.should have_selector('.alert--success', 'Your changes have been saved.')
+        expect(subject).to have_selector('.alert--success', 'Your changes have been saved.')
       end
     end
 

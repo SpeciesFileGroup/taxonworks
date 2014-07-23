@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "otu_page_layout_sections/show" do
+describe "otu_page_layout_sections/show", :type => :view do
   before(:each) do
     @otu_page_layout_section = assign(:otu_page_layout_section, stub_model(OtuPageLayoutSection,
       :otu_page_layout_id => 1,
@@ -17,13 +17,13 @@ describe "otu_page_layout_sections/show" do
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
-    rendered.should match(/Type/)
-    rendered.should match(/2/)
-    rendered.should match(/3/)
-    rendered.should match(/Dynamic Content Class/)
-    rendered.should match(/4/)
-    rendered.should match(/5/)
-    rendered.should match(/6/)
+    expect(rendered).to match(/1/)
+    expect(rendered).to match(/Type/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/Dynamic Content Class/)
+    expect(rendered).to match(/4/)
+    expect(rendered).to match(/5/)
+    expect(rendered).to match(/6/)
   end
 end

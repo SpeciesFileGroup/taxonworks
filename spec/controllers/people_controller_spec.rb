@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe PeopleController do
+describe PeopleController, :type => :controller do
   before(:each) {
     sign_in
   }
@@ -39,7 +39,7 @@ describe PeopleController do
     it "assigns all people as @people" do
       person = Person.create! valid_attributes
       get :index, {}, valid_session
-      assigns(:people).to_a.should eq([person.becomes(Person::Unvetted)])
+      expect(assigns(:people).to_a).to eq([person.becomes(Person::Unvetted)])
     end
   end
 
@@ -47,14 +47,14 @@ describe PeopleController do
     it "assigns the requested person as @person" do
       person = Person.create! valid_attributes
       get :show, {:id => person.to_param}, valid_session
-      assigns(:person).should eq(person.becomes(Person::Unvetted))
+      expect(assigns(:person)).to eq(person.becomes(Person::Unvetted))
     end
   end
 
   describe "GET new" do
     it "assigns a new person as @person" do
       get :new, {}, valid_session
-      assigns(:person).should be_a_new(Person)
+      expect(assigns(:person)).to be_a_new(Person)
     end
   end
 
@@ -62,7 +62,7 @@ describe PeopleController do
     it "assigns the requested person as @person" do
       person = Person.create! valid_attributes
       get :edit, {:id => person.to_param}, valid_session
-      assigns(:person).should eq(person.becomes(Person::Unvetted))
+      expect(assigns(:person)).to eq(person.becomes(Person::Unvetted))
     end
   end
 
@@ -76,29 +76,29 @@ describe PeopleController do
 
       it "assigns a newly created person as @person" do
         post :create, {:person => valid_attributes}, valid_session
-        assigns(:person).should be_a(Person)
-        assigns(:person).should be_persisted
+        expect(assigns(:person)).to be_a(Person)
+        expect(assigns(:person)).to be_persisted
       end
 
       it "redirects to the created person" do
         post :create, {:person => valid_attributes}, valid_session
-        response.should redirect_to(Person.last.becomes(Person))
+        expect(response).to redirect_to(Person.last.becomes(Person))
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved person as @person" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Person.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Person).to receive(:save).and_return(false)
         post :create, {:person => {last_name: nil}}, valid_session
-        assigns(:person).should be_a_new(Person)
+        expect(assigns(:person)).to be_a_new(Person)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        Person.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Person).to receive(:save).and_return(false)
         post :create, {:person => {last_name: nil}}, valid_session
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -111,20 +111,20 @@ describe PeopleController do
         # specifies that the Person created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Person.any_instance.should_receive(:update).with({"type" => ""})
+        expect_any_instance_of(Person).to receive(:update).with({"type" => ""})
         put :update, {:id => person.to_param, :person => {"type" => ""}}, valid_session
       end
 
       it "assigns the requested person as @person" do
         person = Person.create! valid_attributes
         put :update, {:id => person.to_param, :person => valid_attributes}, valid_session
-        assigns(:person).should eq(person.becomes(Person::Unvetted))
+        expect(assigns(:person)).to eq(person.becomes(Person::Unvetted))
       end
 
       it "redirects to the person" do
         person = Person.create! valid_attributes
         put :update, {:id => person.to_param, :person => valid_attributes}, valid_session
-        response.should redirect_to(person.becomes(Person))
+        expect(response).to redirect_to(person.becomes(Person))
       end
     end
 
@@ -132,17 +132,17 @@ describe PeopleController do
       it "assigns the person as @person" do
         person = Person.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Person.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Person).to receive(:save).and_return(false)
         put :update, {:id => person.to_param, :person => {"type" => "invalid value"}}, valid_session
-        assigns(:person).should eq(person.becomes(Person::Unvetted))
+        expect(assigns(:person)).to eq(person.becomes(Person::Unvetted))
       end
 
       it "re-renders the 'edit' template" do
         person = Person.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
-        Person.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Person).to receive(:save).and_return(false)
         put :update, {:id => person.to_param, :person => {"type" => "invalid value"}}, valid_session
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
   end
@@ -158,7 +158,7 @@ describe PeopleController do
     it "redirects to the people list" do
       person = Person.create! valid_attributes
       delete :destroy, {:id => person.to_param}, valid_session
-      response.should redirect_to(people_url)
+      expect(response).to redirect_to(people_url)
     end
   end
 

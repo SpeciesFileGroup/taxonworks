@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "geographic_areas_geographic_items/show" do
+describe "geographic_areas_geographic_items/show", :type => :view do
   before(:each) do
     @geographic_areas_geographic_item = assign(:geographic_areas_geographic_item,
                                                stub_model(GeographicAreasGeographicItem,
@@ -19,11 +19,11 @@ describe "geographic_areas_geographic_items/show" do
     render
     # skip 'reconstruction of the geographic_areas_geographic_items/show view or spec'
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Area 51/)
-    rendered.should match(/2/)
-    rendered.should match(/Data Origin/)
-    rendered.should match(/3/)
-    rendered.should match(/Date Valid From/)
-    rendered.should match(/Date Valid To/)
+    expect(rendered).to match(/Area 51/)
+    expect(rendered).to match(/2/)
+    expect(rendered).to match(/Data Origin/)
+    expect(rendered).to match(/3/)
+    expect(rendered).to match(/Date Valid From/)
+    expect(rendered).to match(/Date Valid To/)
   end
 end

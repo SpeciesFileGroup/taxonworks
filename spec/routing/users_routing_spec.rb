@@ -1,10 +1,10 @@
 require "rails_helper"
 
-describe UsersController do
+describe UsersController, :type => :routing do
   describe "routing" do
 
     it "routes to #index" do
-      get("/users").should route_to("users#index")
+      expect(get("/users")).to route_to("users#index")
     end
 
 #   it "routes to #new" do
@@ -12,23 +12,23 @@ describe UsersController do
 #   end
 
     it "routes to #show" do
-      get("/users/1").should route_to("users#show", :id => "1")
+      expect(get("/users/1")).to route_to("users#show", :id => "1")
     end
 
     it "routes to #edit" do
-      get("/users/1/edit").should route_to("users#edit", :id => "1")
+      expect(get("/users/1/edit")).to route_to("users#edit", :id => "1")
     end
 
     it "routes to #create" do
-      post("/users").should route_to("users#create")
+      expect(post("/users")).to route_to("users#create")
     end
 
     it "routes to #update" do
-      put("/users/1").should route_to("users#update", :id => "1")
+      expect(put("/users/1")).to route_to("users#update", :id => "1")
     end
 
     it "routes to #destroy" do
-      delete("/users/1").should route_to("users#destroy", :id => "1")
+      expect(delete("/users/1")).to route_to("users#destroy", :id => "1")
     end
 
   end

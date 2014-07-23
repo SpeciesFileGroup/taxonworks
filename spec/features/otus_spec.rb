@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 # :base_class is defined by us, it is accessible as example.metadata[:base_class].  It's used 
-describe 'Otus' do 
+describe 'Otus', :type => :feature do 
  
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { otus_path }

@@ -1,34 +1,34 @@
 require "rails_helper"
 
-describe GeographicAreasGeographicItemsController do
+describe GeographicAreasGeographicItemsController, :type => :routing do
   describe "routing" do
 
     it "routes to #index" do
-      get("/geographic_areas_geographic_items").should route_to("geographic_areas_geographic_items#index")
+      expect(get("/geographic_areas_geographic_items")).to route_to("geographic_areas_geographic_items#index")
     end
 
     it "routes to #new" do
-      get("/geographic_areas_geographic_items/new").should route_to("geographic_areas_geographic_items#new")
+      expect(get("/geographic_areas_geographic_items/new")).to route_to("geographic_areas_geographic_items#new")
     end
 
     it "routes to #show" do
-      get("/geographic_areas_geographic_items/1").should route_to("geographic_areas_geographic_items#show", :id => "1")
+      expect(get("/geographic_areas_geographic_items/1")).to route_to("geographic_areas_geographic_items#show", :id => "1")
     end
 
     it "routes to #edit" do
-      get("/geographic_areas_geographic_items/1/edit").should route_to("geographic_areas_geographic_items#edit", :id => "1")
+      expect(get("/geographic_areas_geographic_items/1/edit")).to route_to("geographic_areas_geographic_items#edit", :id => "1")
     end
 
     it "routes to #create" do
-      post("/geographic_areas_geographic_items").should route_to("geographic_areas_geographic_items#create")
+      expect(post("/geographic_areas_geographic_items")).to route_to("geographic_areas_geographic_items#create")
     end
 
     it "routes to #update" do
-      put("/geographic_areas_geographic_items/1").should route_to("geographic_areas_geographic_items#update", :id => "1")
+      expect(put("/geographic_areas_geographic_items/1")).to route_to("geographic_areas_geographic_items#update", :id => "1")
     end
 
     it "routes to #destroy" do
-      delete("/geographic_areas_geographic_items/1").should route_to("geographic_areas_geographic_items#destroy", :id => "1")
+      expect(delete("/geographic_areas_geographic_items/1")).to route_to("geographic_areas_geographic_items#destroy", :id => "1")
     end
 
   end

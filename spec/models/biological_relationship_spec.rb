@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalRelationship do
+describe BiologicalRelationship, :type => :model do
 
   let(:biological_relationship) { FactoryGirl.build(:biological_relationship) } 
 

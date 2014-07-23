@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe PreparationType do
+describe PreparationType, :type => :model do
 
   let(:preparation_type) {PreparationType.new}
 

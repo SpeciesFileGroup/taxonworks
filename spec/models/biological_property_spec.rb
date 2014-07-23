@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalProperty do
+describe BiologicalProperty, :type => :model do
   let(:biological_property) { FactoryGirl.build(:controlled_vocabulary_term_biological_property) }
 
   context "validation" do 

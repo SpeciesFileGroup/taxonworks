@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaxonNameRelationships' do
+describe 'TaxonNameRelationships', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { taxon_name_relationships_path }

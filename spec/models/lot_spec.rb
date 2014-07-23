@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Lot do
+describe Lot, :type => :model do
   let(:lot) { FactoryGirl.build(:lot) }
 
   context "validation" do
@@ -17,7 +17,6 @@ describe Lot do
   context "concerns" do
     it_behaves_like "containable"
     it_behaves_like "identifiable"
-    it_behaves_like "determinable"
   end
 
 end

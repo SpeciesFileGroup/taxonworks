@@ -1,34 +1,34 @@
 require "rails_helper"
 
-describe PublicContentsController do
+describe PublicContentsController, :type => :routing do
   describe "routing" do
 
     it "routes to #index" do
-      get("/public_contents").should route_to("public_contents#index")
+      expect(get("/public_contents")).to route_to("public_contents#index")
     end
 
     it "routes to #new" do
-      get("/public_contents/new").should route_to("public_contents#new")
+      expect(get("/public_contents/new")).to route_to("public_contents#new")
     end
 
     it "routes to #show" do
-      get("/public_contents/1").should route_to("public_contents#show", :id => "1")
+      expect(get("/public_contents/1")).to route_to("public_contents#show", :id => "1")
     end
 
     it "routes to #edit" do
-      get("/public_contents/1/edit").should route_to("public_contents#edit", :id => "1")
+      expect(get("/public_contents/1/edit")).to route_to("public_contents#edit", :id => "1")
     end
 
     it "routes to #create" do
-      post("/public_contents").should route_to("public_contents#create")
+      expect(post("/public_contents")).to route_to("public_contents#create")
     end
 
     it "routes to #update" do
-      put("/public_contents/1").should route_to("public_contents#update", :id => "1")
+      expect(put("/public_contents/1")).to route_to("public_contents#update", :id => "1")
     end
 
     it "routes to #destroy" do
-      delete("/public_contents/1").should route_to("public_contents#destroy", :id => "1")
+      expect(delete("/public_contents/1")).to route_to("public_contents#destroy", :id => "1")
     end
 
   end

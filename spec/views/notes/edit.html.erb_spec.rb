@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "notes/edit" do
+describe "notes/edit", :type => :view do
   before(:each) do
     @note = assign(:note, stub_model(Note,
       :text => "MyString",

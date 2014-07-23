@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "sources/index" do
+describe "sources/index", :type => :view do
   before(:each) do
     assign(:sources, [
       stub_model(Source,

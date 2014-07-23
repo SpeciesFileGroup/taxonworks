@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "contents/index" do
+describe "contents/index", :type => :view do
   before(:each) do
     assign(:contents, [
       stub_model(Content,

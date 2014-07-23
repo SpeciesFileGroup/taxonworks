@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "users/edit" do
+describe "users/edit", :type => :view do
   before(:each) do
     @user = assign(:user, stub_model(User,
       :email => "MyString",

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "geographic_items/new" do
+describe "geographic_items/new", :type => :view do
   before(:each) do
     assign(:geographic_item, stub_model(GeographicItem,
       :point => "",

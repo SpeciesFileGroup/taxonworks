@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalRelationshipType do
+describe BiologicalRelationshipType, :type => :model do
   let(:biological_relationship_type) { FactoryGirl.build(:biological_relationship_type) }
 
   context "validation" do 

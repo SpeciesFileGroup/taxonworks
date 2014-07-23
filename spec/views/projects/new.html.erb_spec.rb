@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "projects/new" do
+describe "projects/new", :type => :view do
   before(:each) do
     assign(:project, stub_model(Project,
       :name => "MyString",

@@ -1,5 +1,5 @@
 require 'rails_helper'
 
-describe SerialChronology do
+describe SerialChronology, :type => :model do
 
 end

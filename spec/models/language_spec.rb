@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Language do
+describe Language, :type => :model do
 
   let(:language) {Language.new}
 

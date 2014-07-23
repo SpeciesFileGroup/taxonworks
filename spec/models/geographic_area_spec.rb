@@ -2,7 +2,7 @@ require 'rails_helper'
 
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
 
-describe GeographicArea do
+describe GeographicArea, :type => :model do
   let(:geographic_area) { FactoryGirl.build(:geographic_area_stack) }
 
   context 'validation' do

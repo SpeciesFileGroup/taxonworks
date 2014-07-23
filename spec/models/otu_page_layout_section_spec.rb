@@ -3,7 +3,7 @@ require 'rails_helper'
 # Get the subclasses
 Dir[Rails.root.to_s + '/app/models/otu_page_layout_section/**/*.rb'].sort.each {|file| require file }
 
-describe OtuPageLayoutSection do
+describe OtuPageLayoutSection, :type => :model do
   let(:otu_page_layout_section) {FactoryGirl.build(:otu_page_layout_section)} 
   context 'validation' do
     specify 'type is a legal type' do

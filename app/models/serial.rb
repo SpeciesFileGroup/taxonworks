@@ -9,7 +9,7 @@ class Serial < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::AlternateValues   # abbreviations, alternate titles, language translations
+  include Shared::AlternateValues # abbreviations, alternate titles, language translations
   include Shared::DataAttributes
   include Shared::Taggable
 
@@ -21,7 +21,7 @@ class Serial < ActiveRecord::Base
 
   has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
 
-  has_many :succeeding_serial_chronologies, foreign_key:  :succeeding_serial_id, class_name: 'SerialChronology'
+  has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, class_name: 'SerialChronology'
   # all serialChronologies where SerialChronology.succeeding_serial_id = my.id
 
   has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology'
@@ -30,12 +30,12 @@ class Serial < ActiveRecord::Base
   has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
   # .to_a will return an array of serials - single preceding chronology will be multiple serials if there is a merge
 
-  has_many :immediately_succeeding_serials, through:  :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
+  has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
   # TODO handle translations (which are simultaneous)
 
-   # Scopes, clustered by function
+  # Scopes, clustered by function
   # select all serials with this name this will handled by
   # TODO to be implemented include shared::scopes
   # ^= scope :with_<attribute name>, ->(<search value>) {where <attribute name>:<search value>}
@@ -76,9 +76,10 @@ class Serial < ActiveRecord::Base
     else
       self.primary_language_id = lang.id
     end
-   end
+  end
+
   def language_abbrev
-     lang = Language.where(id: self.primary_language_id).to_a[0].alpha_3_bibliographic
+    lang = Language.where(id: self.primary_language_id).to_a[0].alpha_3_bibliographic
   end
 
   def language=(value)
@@ -89,6 +90,7 @@ class Serial < ActiveRecord::Base
       self.primary_language_id = lang.id
     end
   end
+
   def language
     lang = Language.where(id: self.primary_language_id).to_a[0].english_name
   end
@@ -102,7 +104,7 @@ class Serial < ActiveRecord::Base
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where( "name = '#{self.name}' AND NOT (id = #{self.id})").to_a.count > 0
+      ret_val = Serial.where("name = '#{self.name}' AND NOT (id = #{self.id})").to_a.count > 0
     end
 
     if ret_val == false
@@ -118,9 +120,11 @@ class Serial < ActiveRecord::Base
   end
 
 
-  def chronology
+=begin
+  def full_chronology
     # return ordered array of serials associated with this serial
   end
+=end
 
   def all_previous(start_serial=self)
     # provides an array of all previous incarnations of me
@@ -130,8 +134,19 @@ class Serial < ActiveRecord::Base
       out_array.push(serial)
       prev = all_previous(serial)
 
-      out_array.push( prev) unless prev.empty?
+      out_array.push(prev) unless prev.empty?
+    end
+    return out_array
+  end
 
+  def all_succeeding(start_serial=self)
+    # provides an array of all succeeding incarnations of me
+    out_array = []
+    start_serial.immediately_succeeding_serials.order(:name).each do |serial|
+      out_array.push(serial)
+      succeeding = all_succeeding(serial)
+
+      out_array.push(succeeding) unless succeeding.empty?
     end
     return out_array
   end

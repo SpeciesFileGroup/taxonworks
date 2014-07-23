@@ -1,4 +1,9 @@
+
+
 <h1>Taxon Names</h1>
+
+
+<%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
 
 <table>
   <thead>
@@ -60,6 +65,3 @@
   </tbody>
 </table>
 
-<br>
-
-<%= link_to 'New Taxon name', new_taxon_name_path %>
