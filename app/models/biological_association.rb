@@ -11,4 +11,5 @@ class BiologicalAssociation < ActiveRecord::Base
   validates :biological_association_subject, presence: true
   validates :biological_association_object, presence: true
 
+  validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
 end
