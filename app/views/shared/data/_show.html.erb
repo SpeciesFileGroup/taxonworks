@@ -4,7 +4,8 @@
 
     <div>id: <%= object.id -%></div>
     <%= forward_back_links(object) -%> <br>
-    <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%>
+    <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
+    <%= pin_item_to_pinboard_link(object) -%>
   </div>
 
   <div class="item item2">

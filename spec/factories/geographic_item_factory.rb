@@ -1,4 +1,4 @@
-require_relative '../support/geo'
+require_relative '../support/geo/geo'
 # TODO: Jim, use constants instead of instantiating factories again? 
 FactoryGirl.define do
 

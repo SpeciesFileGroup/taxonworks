@@ -38,13 +38,15 @@ TaxonWorks::Application.routes.draw do
   match '/hub', to: 'hub#index', via: 'get'
   match '/administration', to: 'administration#index', via: 'get'
 
-  # Stubbed
- 
-  match '/forgot_password', to: 'users#forgot_password', via: 'get'
-
   resources :pinboard_items
 
-  resources :alternate_values
+  #
+  # Unvetted/not fully tested Stubbed
+  # 
+
+  match '/forgot_password', to: 'users#forgot_password', via: 'get'
+
+    resources :alternate_values
   resources :biocuration_classifications
   resources :citation_topics
   resources :citations
@@ -67,7 +69,7 @@ TaxonWorks::Application.routes.draw do
   resources :data_attributes
   resources :geographic_area_types
   resources :geographic_areas do
-    concerns :data_routes
+    concerns [:data_routes]
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items
@@ -80,7 +82,7 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layout_sections
   resources :otu_page_layouts
   resources :otus do
-    concerns :data_routes
+    concerns [:data_routes]
   end
   resources :people
   resources :public_contents
@@ -93,7 +95,7 @@ TaxonWorks::Application.routes.draw do
   resources :tags
   resources :taxon_determinations
   resources :taxon_names do
-    concerns :data_routes
+    concerns [:data_routes]
   end
 
   resources :taxon_name_classifications

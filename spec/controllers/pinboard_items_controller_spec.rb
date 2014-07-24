@@ -24,48 +24,17 @@ RSpec.describe PinboardItemsController, :type => :controller do
   # PinboardItem. As you add validations to PinboardItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    FactoryGirl.build(:valid_pinboard_item).attributes
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {pinned_object_type: "Smurf"}
   }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # PinboardItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
-
-  describe "GET index" do
-    it "assigns all pinboard_items as @pinboard_items" do
-      pinboard_item = PinboardItem.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:pinboard_items)).to eq([pinboard_item])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested pinboard_item as @pinboard_item" do
-      pinboard_item = PinboardItem.create! valid_attributes
-      get :show, {:id => pinboard_item.to_param}, valid_session
-      expect(assigns(:pinboard_item)).to eq(pinboard_item)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new pinboard_item as @pinboard_item" do
-      get :new, {}, valid_session
-      expect(assigns(:pinboard_item)).to be_a_new(PinboardItem)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested pinboard_item as @pinboard_item" do
-      pinboard_item = PinboardItem.create! valid_attributes
-      get :edit, {:id => pinboard_item.to_param}, valid_session
-      expect(assigns(:pinboard_item)).to eq(pinboard_item)
-    end
-  end
 
   describe "POST create" do
     describe "with valid params" do
@@ -96,47 +65,6 @@ RSpec.describe PinboardItemsController, :type => :controller do
       it "re-renders the 'new' template" do
         post :create, {:pinboard_item => invalid_attributes}, valid_session
         expect(response).to render_template("new")
-      end
-    end
-  end
-
-  describe "PUT update" do
-    describe "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
-
-      it "updates the requested pinboard_item" do
-        pinboard_item = PinboardItem.create! valid_attributes
-        put :update, {:id => pinboard_item.to_param, :pinboard_item => new_attributes}, valid_session
-        pinboard_item.reload
-        skip("Add assertions for updated state")
-      end
-
-      it "assigns the requested pinboard_item as @pinboard_item" do
-        pinboard_item = PinboardItem.create! valid_attributes
-        put :update, {:id => pinboard_item.to_param, :pinboard_item => valid_attributes}, valid_session
-        expect(assigns(:pinboard_item)).to eq(pinboard_item)
-      end
-
-      it "redirects to the pinboard_item" do
-        pinboard_item = PinboardItem.create! valid_attributes
-        put :update, {:id => pinboard_item.to_param, :pinboard_item => valid_attributes}, valid_session
-        expect(response).to redirect_to(pinboard_item)
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns the pinboard_item as @pinboard_item" do
-        pinboard_item = PinboardItem.create! valid_attributes
-        put :update, {:id => pinboard_item.to_param, :pinboard_item => invalid_attributes}, valid_session
-        expect(assigns(:pinboard_item)).to eq(pinboard_item)
-      end
-
-      it "re-renders the 'edit' template" do
-        pinboard_item = PinboardItem.create! valid_attributes
-        put :update, {:id => pinboard_item.to_param, :pinboard_item => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
       end
     end
   end

@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
+  has_many :pinboard_items, dependent: :destroy
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64
@@ -65,6 +66,10 @@ class User < ActiveRecord::Base
   
   def password_reset_token_matches?(token)
     self.password_reset_token == User.encrypt(token)
+  end
+
+  def pinboard_hash(project_id)
+    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by{|a| a.pinned_object_type}
   end
 
   private
