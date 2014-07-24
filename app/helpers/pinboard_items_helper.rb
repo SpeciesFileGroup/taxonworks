@@ -1,0 +1,2 @@
+module PinboardItemsHelper
+end

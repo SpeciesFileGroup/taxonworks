@@ -5,6 +5,7 @@
 #
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type
+  include Shared::SharedAcrossProjects
   include SoftValidation
   include Housekeeping::Users
   include Shared::Identifiable

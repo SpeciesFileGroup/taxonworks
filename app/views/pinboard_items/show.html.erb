@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Pinned object:</strong>
+  <%= @pinboard_item.pinned_object %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @pinboard_item.user %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @pinboard_item.project %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @pinboard_item.position %>
+</p>
+
+<p>
+  <strong>Is inserted:</strong>
+  <%= @pinboard_item.is_inserted %>
+</p>
+
+<p>
+  <strong>Is cross project:</strong>
+  <%= @pinboard_item.is_cross_project %>
+</p>
+
+<p>
+  <strong>Inserted count:</strong>
+  <%= @pinboard_item.inserted_count %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @pinboard_item.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @pinboard_item.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_pinboard_item_path(@pinboard_item) %> |
+<%= link_to 'Back', pinboard_items_path %>

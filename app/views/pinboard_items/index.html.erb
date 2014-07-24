@@ -1,0 +1,41 @@
+<h1>Listing pinboard_items</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinned object</th>
+      <th>User</th>
+      <th>Project</th>
+      <th>Position</th>
+      <th>Is inserted</th>
+      <th>Is cross project</th>
+      <th>Inserted count</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @pinboard_items.each do |pinboard_item| %>
+      <tr>
+        <td><%= pinboard_item.pinned_object %></td>
+        <td><%= pinboard_item.user %></td>
+        <td><%= pinboard_item.project %></td>
+        <td><%= pinboard_item.position %></td>
+        <td><%= pinboard_item.is_inserted %></td>
+        <td><%= pinboard_item.is_cross_project %></td>
+        <td><%= pinboard_item.inserted_count %></td>
+        <td><%= pinboard_item.created_by_id %></td>
+        <td><%= pinboard_item.updated_by_id %></td>
+        <td><%= link_to 'Show', pinboard_item %></td>
+        <td><%= link_to 'Edit', edit_pinboard_item_path(pinboard_item) %></td>
+        <td><%= link_to 'Destroy', pinboard_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Pinboard item', new_pinboard_item_path %>
