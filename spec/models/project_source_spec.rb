@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'ProjectSource', :type => :model do
+describe ProjectSource do
 
   let(:project_source) { FactoryGirl.build(:project_source) }
 

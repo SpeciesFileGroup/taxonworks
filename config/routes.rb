@@ -1,4 +1,6 @@
 TaxonWorks::Application.routes.draw do
+
+
   # Vetted / tested
  
   # All models that use data controllers should include this concern. 
@@ -39,6 +41,8 @@ TaxonWorks::Application.routes.draw do
   # Stubbed
  
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
+
+  resources :pinboard_items
 
   resources :alternate_values
   resources :biocuration_classifications
