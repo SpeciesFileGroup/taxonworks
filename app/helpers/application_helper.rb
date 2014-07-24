@@ -32,8 +32,6 @@ module ApplicationHelper
     send("batch_preview_#{controller_name.to_s.pluralize}_path") 
   end
 
-
-
   def hidden_css_property_if(tru)
     tru ? 'hidden'.html_safe : nil
   end
@@ -41,7 +39,5 @@ module ApplicationHelper
   def collapsed_css_property_if(tru)
     tru ? 'collapsed'.html_safe : nil
   end
-
-
 
 end

@@ -251,54 +251,54 @@ class Source::Bibtex < Source
 # @!group identifiers
 # @!endgroup
 # 
-  # TODO add linkage to serials ==> belongs_to serial
-  # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+# TODO add linkage to serials ==> belongs_to serial
+# TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
-  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
+# TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_inclusion_of :bibtex_type,
-    in: ::VALID_BIBTEX_TYPES,
-    message: '%{value} is not a valid source type'
+                         in:      ::VALID_BIBTEX_TYPES,
+                         message: '%{value} is not a valid source type'
   validates_presence_of :year,
-    if: '!month.nil?',
-    message: 'year is required when month is provided'
+                        if:      '!month.nil?',
+                        message: 'year is required when month is provided'
   validates_numericality_of :year,
-    only_integer: true, greater_than: 999,
-    less_than_or_equal_to: Time.now.year + 2,
-    allow_nil: true,
-    message: 'year must be an integer greater than 999 and no more than 2 years in the future'
-  validates_presence_of :month, 
-    if: '!day.nil?',
-    message: 'month is required when day is provided'
+                            only_integer:          true, greater_than: 999,
+                            less_than_or_equal_to: Time.now.year + 2,
+                            allow_nil:             true,
+                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+  validates_presence_of :month,
+                        if:      '!day.nil?',
+                        message: 'month is required when day is provided'
   validates_inclusion_of :month,
-    in: ::VALID_BIBTEX_MONTHS,
-    allow_nil: true,
-    message: ' month'
+                         in:        ::VALID_BIBTEX_MONTHS,
+                         allow_nil: true,
+                         message:   ' month'
   validates_numericality_of :day,
-    allow_nil: true,
-    only_integer: true,
-    greater_than: 0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-    :unless => 'year.nil? || month.nil?',
-    message: '%{value} is not a valid day for the month provided'
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
+                            :unless                => 'year.nil? || month.nil?',
+                            message:               '%{value} is not a valid day for the month provided'
 
 #  validates :url, :format => /\A#{URI::regexp}\z/, allow_nil: true  # this line is essentially the same as below
-  # but isn't as clear. Note that both validations allow multiple urls strung together with a ',' provided
-  # no spaces are included.
-  validates :url, :format => { :with => URI::regexp(%w(http https ftp)),
-            message: "[%{value}] is not a valid URL"}, allow_nil: true
+# but isn't as clear. Note that both validations allow multiple urls strung together with a ',' provided
+# no spaces are included.
+  validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
+                              message: "[%{value}] is not a valid URL"}, allow_nil: true
 
   before_validation :check_has_field
   before_save :set_nomenclature_date, :set_cached_values
 
 #endregion validations
 
-  # nil is last by default, exclude it explicitly with another condition if need be
-  scope :order_by_nomenclature_date, -> { order(:nomenclature_date) } 
+# nil is last by default, exclude it explicitly with another condition if need be
+  scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
 #region soft_validate setup calls
 
@@ -315,21 +315,21 @@ class Source::Bibtex < Source
 #region constants
 # TW required fields (must have one of these fields filled in)
   TW_REQ_FIELDS = [
-      :author,
-      :editor,
-      :booktitle,
-      :title,
-      :url,
-      :journal,
-      :year,
-      :stated_year
+    :author,
+    :editor,
+    :booktitle,
+    :title,
+    :url,
+    :journal,
+    :year,
+    :stated_year
   ] # either year or stated_year is acceptable
 #endregion
 
- # TODO: This should be moved out to notable likely, and inherited at Source
- accepts_nested_attributes_for :notes
+# TODO: This should be moved out to notable likely, and inherited at Source
+  accepts_nested_attributes_for :notes
 
- #region ruby-bibtex related
+  #region ruby-bibtex related
 
   def to_bibtex # outputs BibTeX::Entry equivalent to me.
     b = BibTeX::Entry.new(type: self.bibtex_type)
@@ -356,7 +356,7 @@ class Source::Bibtex < Source
   def self.new_from_bibtex(bibtex_entry)
 # TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+    s = Source::Bibtex.new(bibtex_type: bibtex_entry['type'].to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
       s.send("#{key}=", v) # = v
@@ -370,56 +370,58 @@ class Source::Bibtex < Source
     self[:year].to_s + self[:year_suffix].to_s
   end
 
-  def create_related_people
+  def build_related_people_and_roles
     return false if !self.valid? ||
-        self.new_record? ||
-        (self.author.blank? && self.editor.blank?) ||
-        self.roles.count > 0
+      self.new_record? ||
+      (self.author.blank? && self.editor.blank?) ||
+      self.roles.count > 0
 
     bibtex = to_bibtex
     bibtex.parse_names
 
-    bibtex.names.each do |a|
-      p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
-
-      # TODO: These are required in present FactoryGirl tests, but not in production,
-      # factor out when FactoryGirl + Housekeeping issues are resolved.
-      # p.creator = self.creator
-      # p.updater = self.updater
-
-      if bibtex.author
-        self.authors << p if bibtex.author.include?(a)
+    unless bibtex.authors.blank?
+      bibtex.authors.each do |a|
+        p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
+        self.authors << p
       end
+    end
 
+ #   a=1
 
-      if bibtex.editor
-        self.editors << p if bibtex.editor.include?(a)
+    if !bibtex.editors.blank?
+      bibtex.editors.each do |a|
+#        a =0
+        p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
+        self.editors << p
       end
 
     end
+
+    #a=2
+
     return true
   end
 
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
     Person.new(
-        first_name: bibtex_author.first,
-        prefix:     bibtex_author.prefix,
-        last_name:  bibtex_author.last,
-        suffix:     bibtex_author.suffix)
+      first_name: bibtex_author.first,
+      prefix:     bibtex_author.prefix,
+      last_name:  bibtex_author.last,
+      suffix:     bibtex_author.suffix)
   end
 
   #TODO create related Serials
 
-#endregion  ruby-bibtex related
+  #endregion  ruby-bibtex related
 
-#region getters & setters
+  #region getters & setters
   def authority_name
     # TODO need to use full last name with suffix not just last_name
-    case  self.authors.count
+    case self.authors.count
       when 0
         return ((self.author.blank?) ? '' : self.author)
-        #return self.author # return author or ''
+      #return self.author # return author or ''
       when 1
         return (authors[0].last_name)
       else
@@ -428,7 +430,7 @@ class Source::Bibtex < Source
         for i in 0..(self.authors.count-1) do
           p_array.push(self.authors[i].last_name)
         end
-        p_array.to_sentence(:last_word_connector =>' & ')
+        p_array.to_sentence(:last_word_connector => ' & ')
     end
   end
 
@@ -440,7 +442,7 @@ class Source::Bibtex < Source
       write_attribute(:year_suffix, $2) if $2
       write_attribute(:year, value) if self.year.blank?
     else
-      write_attribute(:year, value) 
+      write_attribute(:year, value)
     end
   end
 
@@ -452,8 +454,8 @@ class Source::Bibtex < Source
 
   def note=(value)
     write_attribute(:note, value)
-    self.notes.build({text: value + ' [Created on import from BibTeX.]'} ) if self.new_record? && !self.note.blank?
-  end 
+    self.notes.build({text: value + ' [Created on import from BibTeX.]'}) if self.new_record? && !self.note.blank?
+  end
 
   def isbn=(value)
     write_attribute(:isbn, value)
@@ -461,8 +463,9 @@ class Source::Bibtex < Source
     # See note= comments
     self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
+
   def isbn
-    identifier_string_of_type(:isbn) 
+    identifier_string_of_type(:isbn)
   end
 
   def doi=(value)
@@ -470,6 +473,7 @@ class Source::Bibtex < Source
     #TODO if there is already an 'Identifier::Global::Doi' update instead of add
     self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
   end
+
   def doi
     identifier_string_of_type(:doi)
   end
@@ -479,8 +483,9 @@ class Source::Bibtex < Source
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
   end
+
   def issn
-    identifier_string_of_type(:issn) 
+    identifier_string_of_type(:issn)
   end
 
   # TODO: Turn this into a has_one relationship
@@ -493,8 +498,8 @@ class Source::Bibtex < Source
 #TODO if language is set => set language_id
 #endregion getters & setters
 
-  # turn bibtex URL field into a Ruby URI object
-  def url_as_uri 
+# turn bibtex URL field into a Ruby URI object
+  def url_as_uri
     URI(self.url) unless self.url.blank?
   end
 
@@ -526,47 +531,53 @@ class Source::Bibtex < Source
 
 #endregion has_<attribute>? section
 
-  #region time/date related
-  # @return[Time] alias for nomenclature_date, computed if not yet saved
+#region time/date related
+# @return[Time] alias for nomenclature_date, computed if not yet saved
   def date
     set_nomenclature_date if !self.persisted?
     self.nomenclature_date
   end
 
   def set_nomenclature_date
-    self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year) 
+    self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
   end
-  #todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
+
+#todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
 
 #endregion    time/date related
 
   protected
 
-   def set_cached_values
-     bx_entry = self.to_bibtex
-     if bx_entry.key.blank? then
-       bx_entry.key = 'tmpID'
-     end
-     key = bx_entry.key
-     #bx_entry.key = 'tmpID'
-     bx_bibliography = BibTeX::Bibliography.new()
-     bx_bibliography.add(bx_entry)
+  def set_cached_values
+    bx_entry = self.to_bibtex
+    if bx_entry.key.blank? then
+      bx_entry.key = 'tmpID'
+    end
+    key             = bx_entry.key
+    #bx_entry.key = 'tmpID'
+    bx_bibliography = BibTeX::Bibliography.new()
+    bx_bibliography.add(bx_entry)
 
-     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
-     cp.import bx_bibliography.to_citeproc
+    cp = CiteProc::Processor.new(style: 'apa', format: 'text')
+    cp.import bx_bibliography.to_citeproc
 
 =begin
     cp << bx_bibliography.to_citeproc
     cp.process(bx_bibliography[self.id].to_citeproc)
 
     self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
+
+7/23/24 - new version of CiteProc==> CiteProc.process b[:pickaxe].to_citeproc, :style => :apa
+ a = CiteProc.process bx_bibliography[:key].to_citeproc, :style => :assign_nested_parameter_attributes
+ ^ didn't work
 =end
 
-     # format cached = full reference
-    self.cached = cp.render(:bibliography, id: key)[0]
+
+    # format cached = full reference
+    self.cached               = cp.render(:bibliography, id: key)[0]
     # self.cached = cp.render(:bibliography, id: 'tmpID')[0]
-    # format cached_author_srting = either the bibtex author or the last names of all the normalized authors.
-     self.cached_author_string = authority_name
+    # format cached_author_string = either the bibtex author or the last names of all the normalized authors.
+    self.cached_author_string = authority_name
   end
 
 
@@ -590,7 +601,7 @@ class Source::Bibtex < Source
     #  return true
     #end
     errors.add(:base, 'no core data provided') if !valid
-                      # return false # none of the required fields have a value
+    # return false # none of the required fields have a value
   end
 
 #endregion  hard validations
@@ -675,10 +686,10 @@ class Source::Bibtex < Source
   end
 
   def sv_has_note
-     # TODO we may need to check of a note in the TW sense as well - has_note? above.
-     if (self.note.blank?) && (self.notes.count = 0)
-       soft_validations.add(:note, 'There is no note associated with this source.')
-     end
+    # TODO we may need to check of a note in the TW sense as well - has_note? above.
+    if (self.note.blank?) && (self.notes.count = 0)
+      soft_validations.add(:note, 'There is no note associated with this source.')
+    end
   end
 
   def sv_missing_required_bibtex_fields

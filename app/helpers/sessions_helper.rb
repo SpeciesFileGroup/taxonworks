@@ -110,7 +110,7 @@ module SessionsHelper
     [
       link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post),
       content_tag(:span, ('Signed in as ' + content_tag(:mark, sessions_current_user.email)).html_safe),
-      link_to('Account', users_path(sessions_current_user)),
+      link_to('Account', sessions_current_user),
       project_settings_link, 
       administration_link,
       link_to('Sign out', signout_path, method: :delete)

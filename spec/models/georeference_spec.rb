@@ -362,7 +362,6 @@ describe Georeference, :type => :model do
 
       @g_a4 = GeographicArea.new(name:                                         'Box_4',
                                  data_origin:                                  'Test Data',
-                                 #                                 neID:                 'TD-004',
                                  geographic_area_type:                         g_a_t,
                                  parent:                                       p_a,
                                  level0:                                       p_a,
@@ -371,7 +370,7 @@ describe Georeference, :type => :model do
       @g_a4.save! # make sure the id is set
 
       # Create an orphan collecting_event which uses g_a4, so that first phase of 'with_geographic_area' will
-      # have two records to fins
+      # have two records to find
       o_c_e = FactoryGirl.create(:valid_collecting_event, geographic_area: @g_a4)
       expect(o_c_e.valid?).to be_truthy
 

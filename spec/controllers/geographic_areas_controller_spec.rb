@@ -34,8 +34,9 @@ describe GeographicAreasController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
+  let(:geographic_area_type) {FactoryGirl.create(:valid_geographic_area_type)}
   let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_area).attributes )
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_area).attributes.merge(geographic_area_type_id: geographic_area_type.id ) )
   } 
 
   # This should return the minimal set of values that should be in the session

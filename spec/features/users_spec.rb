@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe 'Users', :type => :feature do
-  subject { page }
+describe 'Users' do
+  # subject { page }
 
   describe 'GET /users' do
     context 'when administrator' do
@@ -10,18 +10,35 @@ describe 'Users', :type => :feature do
         visit users_path 
       }
       it 'should list users' do
-        expect(subject).to have_selector('h1', text: 'Users')
-        expect(subject).to have_content("#{@user.email}")
+        expect(page).to have_selector('h1', text: 'Users')
+        expect(page).to have_content("#{@user.email}")
       end
     end
 
     context 'when not an administrator' do
-      before {sign_in_administrator}
-      it 'should redirect to dashboard and provide a notice' 
+      before { sign_in_administrator }
+      it 'should redirect to dashboard and provide a notice'
     end
   end
 
   describe 'GET /users/:id' do
+
+    context 'when logged in on dashboard' do
+      before {
+        sign_in_user
+        visit user_path(@user)
+      }
+
+    end
+
+
+    # it 'should show my basic attributes' do
+    #   expect(page).to have_link("Edit user information", href: user_information_path)
+    #   expect(page).to have_link("View my statistics", href: user_statistics_path)
+    #   # what projects I belong, currently logged into projects,
+    # end
+
+
     context 'when editing self' do
       before {
         sign_in_user
@@ -30,8 +47,8 @@ describe 'Users', :type => :feature do
 
       it 'should let user edit their account information' do
         txt = "Edit user #{@user.id}"
-        expect(subject).to have_selector('h1', txt)
-        expect(subject).to have_title("#{txt} | TaxonWorks")
+        expect(page).to have_selector('h1', txt)
+        expect(page).to have_title("#{txt} | TaxonWorks")
         fill_in 'Email', with: 'edit_user_modified@example.com'
         fill_in 'Password', with: '1234ZZZ!'
         fill_in 'Password confirmation', with: '1234ZZZ!'
@@ -55,11 +72,10 @@ describe 'Users', :type => :feature do
       end
 
       context 'and logged in as a project_administrator' do
-        before  {
+        before {
         }
         it 'should redirect to dashboard and provide a notice'
       end
     end
   end
-
 end

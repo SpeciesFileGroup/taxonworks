@@ -27,7 +27,6 @@ module NavigationHelper
     link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 
-
   def new_path_for_model(model)
     send("new_#{model.name.tableize.singularize}_path")
   end

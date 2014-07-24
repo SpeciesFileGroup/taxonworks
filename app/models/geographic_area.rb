@@ -98,20 +98,25 @@ class GeographicArea < ActiveRecord::Base
 
   # TODO: Test
   # A scope. Matches GeographicAreas that have name and parent name.
+  # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
-    joins(:parent).
-      where(name: names[0], parent: {name: names[1]})
+    joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
+    where(name: names[0]).
+    where(['ga.name = ?', names[1] ])
   }
 
   # TODO: Test, or extend a general method
-  # Matches GeographicAreas that match name, parent name, parent name
-  # Like:
-  #   GeographicArea.with_name_and_parents(%{United\ States Illinois Champaign})
-  scope :with_name_and_parents, -> (names) {
-    joins(parent: :parent).
-      where(name: names[0].to_s, parent: {name: names[1].to_s, parent: {name: names[2]}})
+  # Matches GeographicAreas that match name, parent name, parent name.
+  # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
+  scope :with_name_and_parent_names, -> (names) {
+    joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
+    joins('join geographic_areas gb on gb.id = ga.parent_id').
+    where(name: names[0]).
+    where(['ga.name = ?', names[1] ]).
+    where(['gb.name = ?', names[2] ])
   }
-
+ 
+  # TODO: test 
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
@@ -120,9 +125,9 @@ class GeographicArea < ActiveRecord::Base
     if array.length == 1
       where(name: array.first)
     elsif array.length == 2
-      with_name_and_parent_name(array)
+      with_name_and_parent_names(array)
     elsif array.length == 3
-      with_name_and_parents(array)
+      with_name_and_parent_names(array)
     else
       where { 'false' }
     end
