@@ -1,0 +1,5 @@
+Style/Encoding:
+  Enabled: false
+
+Style/LineLength:
+  Max: 200 
