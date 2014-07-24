@@ -116,6 +116,7 @@ class GeographicArea < ActiveRecord::Base
     where(['gb.name = ?', names[2] ])
   }
  
+  # TODO: test 
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
@@ -124,9 +125,9 @@ class GeographicArea < ActiveRecord::Base
     if array.length == 1
       where(name: array.first)
     elsif array.length == 2
-      with_name_and_parent_name(array)
+      with_name_and_parent_names(array)
     elsif array.length == 3
-      with_name_and_parents(array)
+      with_name_and_parent_names(array)
     else
       where { 'false' }
     end
