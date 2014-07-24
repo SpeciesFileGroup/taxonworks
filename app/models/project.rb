@@ -10,6 +10,8 @@ class Project < ActiveRecord::Base
 
   has_many :project_members, dependent: :destroy
   has_many :users, through: :project_members
+  has_many :sources, through: :project_sources
+  has_many :project_sources, dependent: :destroy
 
   after_initialize :set_default_workbench_settings
 

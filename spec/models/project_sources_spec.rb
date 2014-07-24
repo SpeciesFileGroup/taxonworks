@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe ProjectsSources, :type => :model do
+describe 'ProjectSource', :type => :model do
 
-  let(:project_source) { FactoryGirl.build(:projects_source) }
+  let(:project_source) { FactoryGirl.build(:project_source) }
 
   context 'validation' do
     before(:each) {
@@ -15,6 +15,7 @@ describe ProjectsSources, :type => :model do
       specify 'source' do
         expect(project_source.errors.include?(:source)).to be_truthy
       end
+      skip 'test uniqueness of combination'
     end
   end
 

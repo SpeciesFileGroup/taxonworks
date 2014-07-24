@@ -13,6 +13,8 @@ class Source < ActiveRecord::Base
 
   has_many :citations, inverse_of: :source, dependent: :destroy
   has_many :cited_objects, through: :citations, source: :citation_object, dependent: :destroy # not ordered
+  has_many :projects, through: :project_sources
+  has_many :project_sources, dependent: :destroy
 
   #validate :not_empty
 
