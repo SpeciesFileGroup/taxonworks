@@ -1,5 +1,4 @@
 class PinboardItem < ActiveRecord::Base
-
   include Housekeeping
 
   acts_as_list scope: [:project_id, :pinned_object_type]

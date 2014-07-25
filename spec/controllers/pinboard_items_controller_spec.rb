@@ -19,12 +19,16 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe PinboardItemsController, :type => :controller do
-
+  before(:each) {
+    sign_in
+  }
+ 
   # This should return the minimal set of attributes required to create a valid
   # PinboardItem. As you add validations to PinboardItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    FactoryGirl.build(:valid_pinboard_item).attributes
+    o = FactoryGirl.create(:valid_otu)
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_pinboard_item).attributes.merge(pinned_object_id: o.id, pinned_object_type: o.class.name, user_id: 1))
   }
 
   let(:invalid_attributes) {
@@ -37,6 +41,10 @@ RSpec.describe PinboardItemsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "POST create" do
+    before { 
+      request.env["HTTP_REFERER"] = otus_path
+    }
+
     describe "with valid params" do
       it "creates a new PinboardItem" do
         expect {
@@ -50,9 +58,9 @@ RSpec.describe PinboardItemsController, :type => :controller do
         expect(assigns(:pinboard_item)).to be_persisted
       end
 
-      it "redirects to the created pinboard_item" do
+      it "redirects to the previous page" do
         post :create, {:pinboard_item => valid_attributes}, valid_session
-        expect(response).to redirect_to(PinboardItem.last)
+        expect(response).to redirect_to(otus_path)
       end
     end
 
@@ -62,25 +70,29 @@ RSpec.describe PinboardItemsController, :type => :controller do
         expect(assigns(:pinboard_item)).to be_a_new(PinboardItem)
       end
 
-      it "re-renders the 'new' template" do
+      it "redirects to the previous page" do
         post :create, {:pinboard_item => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(otus_path)
       end
     end
   end
 
   describe "DELETE destroy" do
+    before { 
+      request.env["HTTP_REFERER"] = dashboard_path 
+    }
+
     it "destroys the requested pinboard_item" do
       pinboard_item = PinboardItem.create! valid_attributes
       expect {
-        delete :destroy, {:id => pinboard_item.to_param}, valid_session
+        delete :destroy, {id: pinboard_item.to_param}, valid_session
       }.to change(PinboardItem, :count).by(-1)
     end
 
     it "redirects to the pinboard_items list" do
       pinboard_item = PinboardItem.create! valid_attributes
-      delete :destroy, {:id => pinboard_item.to_param}, valid_session
-      expect(response).to redirect_to(pinboard_items_url)
+      delete :destroy, {id: pinboard_item.to_param}, valid_session
+      expect(response).to redirect_to(dashboard_path)
     end
   end
 
