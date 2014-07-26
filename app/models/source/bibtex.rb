@@ -332,12 +332,13 @@ class Source::Bibtex < Source
   #region ruby-bibtex related
 
   def to_bibtex # outputs BibTeX::Entry equivalent to me.
-    b = BibTeX::Entry.new(type: self.bibtex_type)
+    b = BibTeX::Entry.new()
     ::BIBTEX_FIELDS.each do |f|
-      if !(f == :bibtex_type) && (!self[f].blank?)
-        b[f] = self.send(f)
+     if (!self[f].blank?) && !(f == :bibtex_type)
+       b[f] = self.send(f)
       end
     end
+
     if !self.year_suffix.blank?
       b.year = self.year_with_suffix
     end
@@ -354,9 +355,10 @@ class Source::Bibtex < Source
   end
 
   def self.new_from_bibtex(bibtex_entry)
-# TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
+    # TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
+    
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s = Source::Bibtex.new(bibtex_type: bibtex_entry['type'].to_s)
+    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
       s.send("#{key}=", v) # = v
@@ -567,14 +569,13 @@ class Source::Bibtex < Source
 
     self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
 
-7/23/24 - new version of CiteProc==> CiteProc.process b[:pickaxe].to_citeproc, :style => :apa
+7/23/14 - new version of CiteProc==> CiteProc.process b[:pickaxe].to_citeproc, :style => :apa
  a = CiteProc.process bx_bibliography[:key].to_citeproc, :style => :assign_nested_parameter_attributes
  ^ didn't work
 =end
 
-
     # format cached = full reference
-    self.cached               = cp.render(:bibliography, id: key)[0]
+    self.cached               = cp.render(:bibliography, id: key).first
     # self.cached = cp.render(:bibliography, id: 'tmpID')[0]
     # format cached_author_string = either the bibtex author or the last names of all the normalized authors.
     self.cached_author_string = authority_name

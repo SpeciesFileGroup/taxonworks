@@ -5,18 +5,27 @@ describe Source::Bibtex, :type => :model do
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
   before(:each) do
+
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
     @simple1_gem_bibtex      = BibTeX::Entry.new()
     @simple2_gem_bibtex      = BibTeX::Entry.new()
-    @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+
+    # Beth - type: needs to be bibtex_type
+    @gem_bibtex_entry1       = BibTeX::Entry.new(bibtex_type: :book, title: 'Foos of Bar America', author: 'Smith, James',
                                                  year: 1921)
-    @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+    @gem_bibtex_entry2       = BibTeX::Entry.new(bibtex_type: :book, title: 'Foos of Bar America', author: 'Smith, James',
                                                  year: '1921')
-    @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+
+    # Beth, chaing the bibtex_type above causes all but 2 tests to pass, but below adds another 6 failing test. passing via hash is correct here.
+    @valid_gem_bibtex_book   = BibTeX::Entry.new(bibtex_type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
                                                  year: 1921, publisher: 'Test Books Inc.')
-    @invalid_gem_bibtex_book = BibTeX::Entry.new(type:   :book, title: 'InValid Bibtex of America',
+    @invalid_gem_bibtex_book = BibTeX::Entry.new(bibtex_type:   :book, title: 'InValid Bibtex of America',
                                                  author: 'Smith, James', year: 1921)
   end
+
+  after(:all) {
+    Source.destroy_all
+  }
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
 
@@ -115,13 +124,15 @@ describe Source::Bibtex, :type => :model do
     end
 
     specify 'to_bibtex' do
+      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
       expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
-      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1['type'].to_s)
       skip 'test that notes gets converted properly to a bibtex note'
       # TODO test serial gets converted properly to bibtex journal
     end
 
+
     context 'validate bibtex' do
+      # TODO: I expect this is actually working? 
       specify 'check that valid_bibtex? works (relies on BibTeX::Entry.valid? which is not currently working)' do
         expect(@s.valid_bibtex?).to be_falsey # missing a publisher
       end
