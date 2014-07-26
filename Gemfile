@@ -97,5 +97,7 @@ group :test do
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.7.1'
+  gem 'webmock', '~> 1.18.0'
+  gem 'vcr', '~> 2.9.2'
 end
 
