@@ -91,8 +91,8 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def sv_missing_deaccession_fields
-    if self.deaccession_at.nil?
-      soft_validations.add(:deaccession_at, 'Date is not selected') unless self.deaccession_reason.blank? && self.deaccession_recipient_id.nil?
+    if self.deaccessioned_at.nil?
+      soft_validations.add(:deaccessioned_at, 'Date is not selected') unless self.deaccession_reason.blank? && self.deaccession_recipient_id.nil?
     end
     if self.deaccession_recipient_id.nil?
       soft_validations.add(:deaccession_recipient_id, 'Recipient is not selected') unless self.deaccession_reason.blank? && self.deaccessioned_at.nil?

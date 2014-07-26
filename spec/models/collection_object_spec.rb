@@ -104,13 +104,13 @@ describe CollectionObject, :type => :model do
       specify 'deaccessioned_at and deaccession_reason are missing' do
         o = Specimen.new(deaccession_recipient_id: 1)
         o.soft_validate(:missing_deaccession_fields)
-        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
+        expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
         expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
       end
       specify 'deaccessioned_at and deaccession_reason are missing' do
         o = Specimen.new(deaccession_reason: 'gift')
         o.soft_validate(:missing_deaccession_fields)
-        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
+        expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
         expect(o.soft_validations.messages_on(:deaccession_recipient_id).count).to eq(1)
       end
     end

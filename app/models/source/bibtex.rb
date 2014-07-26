@@ -253,6 +253,21 @@ class Source::Bibtex < Source
 # 
 # TODO add linkage to serials ==> belongs_to serial
 # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+
+#region constants
+# TW required fields (must have one of these fields filled in)
+  TW_REQ_FIELDS = [
+    :author,
+    :editor,
+    :booktitle,
+    :title,
+    :url,
+    :journal,
+    :year,
+    :stated_year
+  ] # either year or stated_year is acceptable
+#endregion
+
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
@@ -286,9 +301,6 @@ class Source::Bibtex < Source
                             :unless                => 'year.nil? || month.nil?',
                             message:               '%{value} is not a valid day for the month provided'
 
-#  validates :url, :format => /\A#{URI::regexp}\z/, allow_nil: true  # this line is essentially the same as below
-# but isn't as clear. Note that both validations allow multiple urls strung together with a ',' provided
-# no spaces are included.
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
                               message: "[%{value}] is not a valid URL"}, allow_nil: true
 
@@ -297,7 +309,7 @@ class Source::Bibtex < Source
 
 #endregion validations
 
-# nil is last by default, exclude it explicitly with another condition if need be
+  # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
 #region soft_validate setup calls
@@ -312,19 +324,6 @@ class Source::Bibtex < Source
 
 #endregion
 
-#region constants
-# TW required fields (must have one of these fields filled in)
-  TW_REQ_FIELDS = [
-    :author,
-    :editor,
-    :booktitle,
-    :title,
-    :url,
-    :journal,
-    :year,
-    :stated_year
-  ] # either year or stated_year is acceptable
-#endregion
 
 # TODO: This should be moved out to notable likely, and inherited at Source
   accepts_nested_attributes_for :notes
@@ -388,18 +387,12 @@ class Source::Bibtex < Source
       end
     end
 
- #   a=1
-
     if !bibtex.editors.blank?
       bibtex.editors.each do |a|
-#        a =0
         p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
         self.editors << p
       end
-
     end
-
-    #a=2
 
     return true
   end
@@ -428,7 +421,7 @@ class Source::Bibtex < Source
         return (authors[0].last_name)
       else
         # authors[0..-2].join(", ") + " & #{authors.last.last_name}"
-        p_array = Array.new
+        p_array = [] 
         for i in 0..(self.authors.count-1) do
           p_array.push(self.authors[i].last_name)
         end
@@ -462,7 +455,6 @@ class Source::Bibtex < Source
   def isbn=(value)
     write_attribute(:isbn, value)
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
-    # See note= comments
     self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
   end
 
@@ -480,6 +472,7 @@ class Source::Bibtex < Source
     identifier_string_of_type(:doi)
   end
 
+  # TODO: Are ISSN only Serials now?
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
@@ -556,28 +549,13 @@ class Source::Bibtex < Source
       bx_entry.key = 'tmpID'
     end
     key             = bx_entry.key
-    #bx_entry.key = 'tmpID'
     bx_bibliography = BibTeX::Bibliography.new()
     bx_bibliography.add(bx_entry)
 
     cp = CiteProc::Processor.new(style: 'apa', format: 'text')
     cp.import bx_bibliography.to_citeproc
 
-=begin
-    cp << bx_bibliography.to_citeproc
-    cp.process(bx_bibliography[self.id].to_citeproc)
-
-    self.cached = CiteProc.process bx_entry.to_citeproc, style: 'apa', format: 'text'
-
-7/23/14 - new version of CiteProc==> CiteProc.process b[:pickaxe].to_citeproc, :style => :apa
- a = CiteProc.process bx_bibliography[:key].to_citeproc, :style => :assign_nested_parameter_attributes
- ^ didn't work
-=end
-
-    # format cached = full reference
-    self.cached               = cp.render(:bibliography, id: key).first
-    # self.cached = cp.render(:bibliography, id: 'tmpID')[0]
-    # format cached_author_string = either the bibtex author or the last names of all the normalized authors.
+    self.cached = cp.render(:bibliography, id: key).first
     self.cached_author_string = authority_name
   end
 
@@ -589,20 +567,16 @@ class Source::Bibtex < Source
 #     errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
 #   end
 
-  def check_has_field # must have at least one of the required fields (TW_REQ_FIELDS)
+  # must have at least one of the required fields (TW_REQ_FIELDS)
+  def check_has_field
     valid = false
-    TW_REQ_FIELDS.each do |i| # for each i in the required fields list
+    TW_REQ_FIELDS.each do |i| 
       if !self[i].blank?
         valid = true
         break
       end
     end
-    # if i is not nil and not == "", it's validly_published
-    #if (!self[i].nil?) && (self[i] != '')
-    #  return true
-    #end
-    errors.add(:base, 'no core data provided') if !valid
-    # return false # none of the required fields have a value
+   errors.add(:base, 'no core data provided') if !valid
   end
 
 #endregion  hard validations
