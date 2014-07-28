@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AlternateValue, :type => :model do
+describe AlternateValue do
   let (:alternate_value) { FactoryGirl.build(:alternate_value)}
 
   context 'associations' do
