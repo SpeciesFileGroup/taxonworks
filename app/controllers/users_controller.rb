@@ -64,7 +64,7 @@ class UsersController < ApplicationController
   private
 
     def user_params
-      # TODO: revist authorization of specific field settings
+      # TODO: revisit authorization of specific field settings
       basic = [:name,
       :email,
       :password,

@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 describe 'Users' do
-  # subject { page }
+  #  subject { page }
 
   describe 'GET /users' do
     context 'when administrator' do
       before {
         sign_in_administrator
-        visit users_path 
+        visit users_path
       }
       it 'should list users' do
         expect(page).to have_selector('h1', text: 'Users')
@@ -53,7 +53,10 @@ describe 'Users' do
         fill_in 'Password', with: '1234ZZZ!'
         fill_in 'Password confirmation', with: '1234ZZZ!'
         click_button 'Update User'
-        expect(subject).to have_selector('.alert--success', 'Your changes have been saved.')
+
+        expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
+
+
       end
     end
 

@@ -52,6 +52,8 @@ class User < ActiveRecord::Base
     length: { minimum: 8, :if => :validate_password? }, 
     :confirmation => { :if => :validate_password? }
 
+  validates :name, presence: true, length: { minimum: 3 }
+
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy

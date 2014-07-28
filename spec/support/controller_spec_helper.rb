@@ -29,8 +29,8 @@ module ControllerSpecHelper
 
     pwd = 'abcD123!'
     user = User.create(is_administrator: true, email: 'admin_foo@bar.com', password: pwd, password_confirmation: pwd)
-    user.update_attribute(:remember_token, User.encrypt(remember_token)) 
-    
+    user.update_attribute(:remember_token, User.encrypt(remember_token))
+
     set_user_project(user.id, 1)
   end
 
