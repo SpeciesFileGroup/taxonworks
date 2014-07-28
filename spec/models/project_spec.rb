@@ -67,4 +67,38 @@ describe Project, :type => :model do
     end
   end
 
+  context 'destroy' do
+
+    before {
+      @p = Project.create(name: 'a little bit of everything')
+
+      # Generate 1 of ever valid_ factory
+      #    loop through all factories
+      #       if a valid_ factory build one setting the project_id to @p.id when present
+    }
+
+
+    specify '#destroy' do
+      expect(@p.destroy).to be_truthy # confirm this is a really what we want
+      expect(@p.destroyed?).to be(true) 
+    end
+
+    context '#destroy' do
+      before {
+        @p.destroy
+      }
+
+      skip '#destroy nukes "everything"' do
+        # loop through all the valid_ factories, for each find the class that they build
+        #    expect(class_that_was_built.all.reload.count).to eq(0) 
+      end
+
+      skip "#destroy doesn't nuke shared data" do
+        # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
+        # We may need a constant that stores a *string* representative of the shared classes to loop through, but for now just enumerate a number of them
+      end
+    end
+
+  end
+
  end
