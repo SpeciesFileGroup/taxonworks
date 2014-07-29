@@ -4,6 +4,7 @@ require 'csl/styles'
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
 #
 # Bibtex - Subclass of Source that represents most references.
+#   Cached values are formatted using the 'zootaxa' style from 'csl/styles'
 #
 # TaxonWorks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies,
 # and has a strict list of required fields. TW itself only requires that :bibtex_type
@@ -345,7 +346,7 @@ class Source::Bibtex < Source
     # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
     if (self.notes.count > 0)
       n_out = []
-      self.notes.each do |n|
+      self.notes.order(:updated_at).each do |n|
        n_out << n[:text]
       end
       b[:note] = n_out.to_csv
@@ -559,7 +560,7 @@ class Source::Bibtex < Source
     bx_bibliography = BibTeX::Bibliography.new()
     bx_bibliography.add(bx_entry)
 
-    cp = CiteProc::Processor.new(style: 'apa', format: 'text')
+    cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
     cp.import bx_bibliography.to_citeproc
 
     self.cached = cp.render(:bibliography, id: key).first
