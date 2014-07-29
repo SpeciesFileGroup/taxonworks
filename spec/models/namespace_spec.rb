@@ -19,8 +19,8 @@ describe Namespace, :type => :model do
 
     context 'uniqueness' do
       before(:each) {
-        n1 = FactoryGirl.create(:valid_namespace)
-        @n2 = FactoryGirl.build(:valid_namespace)
+        n1 = FactoryGirl.create(:namespace, name: 'Final Frontier', short_name: 'Final')
+        @n2 = FactoryGirl.build(:valid_namespace, name: 'Final Frontier', short_name: 'Final')
         @n2.valid?
       }
       specify 'name is unique' do

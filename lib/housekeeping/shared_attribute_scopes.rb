@@ -4,7 +4,6 @@ module Housekeeping::SharedAttributeScopes
 
 #  base.class_eval do 
 
-#    byebug
 #    if self.columns.map(&:name).include?('name')
 #      def named_similarly_to(object)
 #        where(['name LIKE ? or name LIKE ?', "#{object.name}%", "%#{object.name}%"])

@@ -44,8 +44,8 @@ describe Otu, :type => :model do
       expect(otu.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
     end
     specify 'duplicate OTU' do
-      o1 = FactoryGirl.create(:valid_otu)
-      o2 = FactoryGirl.build_stubbed(:valid_otu)
+      o1 = FactoryGirl.create(:otu, name: 'Aus')
+      o2 = FactoryGirl.build_stubbed(:otu, name: 'Aus')
       o1.soft_validate(:duplicate_otu)
       expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_truthy
       o2.soft_validate(:duplicate_otu)

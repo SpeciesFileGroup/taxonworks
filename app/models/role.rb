@@ -1,6 +1,8 @@
 # A Role relates a Person (data in Taxonworks) with another data object.
 #
 class Role < ActiveRecord::Base
+  include Housekeeping::Users
+
 
   acts_as_list scope: [ :type, :role_object_type, :role_object_id  ]
 

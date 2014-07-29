@@ -4,7 +4,9 @@ describe User, :type => :model do
 
   let(:user) { User.new(password: 'password',
                         password_confirmation: 'password',
-                        email: 'user_model@example.com')}
+                        email: 'user_model@example.com',
+                        name: 'Bob' 
+                       )}
   subject { user }
 
   context 'associations' do
@@ -57,7 +59,7 @@ describe User, :type => :model do
     end
   end
 
-  context 'with password, password confirmation and email' do
+  context 'with password, password confirmation, name, and email' do
     it { is_expected.to be_valid }
   end
 

@@ -3,7 +3,7 @@
 class Role::ProjectRole < Role
   include Housekeeping
 
-  # TODO: Refactor after Housekeeping / FactoryGirl issues resolveds
+  # TODO: Refactor after Housekeeping / FactoryGirl issues resolveds (nested set!!)
   before_validation :set_project_if_possible # facilitates << additions
 
   protected

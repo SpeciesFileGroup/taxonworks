@@ -28,7 +28,7 @@ module ControllerSpecHelper
     cookies.permanent[:remember_token] = remember_token
 
     pwd = 'abcD123!'
-    user = User.create(is_administrator: true, email: 'admin_foo@bar.com', password: pwd, password_confirmation: pwd)
+    user = User.create(name: 'Administrator (controller tests)', is_administrator: true, email: 'admin_foo@bar.com', password: pwd, password_confirmation: pwd)
     user.update_attribute(:remember_token, User.encrypt(remember_token))
 
     set_user_project(user.id, 1)
@@ -40,7 +40,7 @@ module ControllerSpecHelper
     cookies.permanent[:remember_token] = remember_token
 
     pwd = 'abcD123!'
-    user = User.create(is_project_administrator: true, email: 'foo@bar.com', password: pwd, password_confirmation: pwd)
+    user = User.create(name: 'Administrator (controller tests)', is_project_administrator: true, email: 'foo@bar.com', password: pwd, password_confirmation: pwd)
     user.update_attribute(:remember_token, User.encrypt(remember_token)) 
 
     set_user_project(user.id, 1)
