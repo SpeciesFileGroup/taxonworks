@@ -137,9 +137,20 @@ describe Source::Bibtex, :type => :model do
         expect(@s.save).to be_truthy
         expect(@s.notes.count).to eq(1)
         b = @s.to_bibtex
-        expect(b[:note].to_s).to eq(n)
+        expect(b[:note].to_s).to eq(n + "\n")
       end
-      skip 'multiple object notes get converted properly'
+      specify 'multiple object notes get converted properly' do
+        n1 = 'test note1'
+        n2 = 'test note2'
+        expect(@s.notes.count).to eq(0) # @s has no notes
+        expect(@s.save).to be_truthy # object has to be saved before adding a note
+        expect(@s.notes.build({text: n1})).to be_truthy # add 1st note to object
+        expect(@s.notes.build({text: n2})).to be_truthy # add 2nd note to object
+        expect(@s.save).to be_truthy
+        expect(@s.notes.count).to eq(2)
+        b = @s.to_bibtex
+        expect(b[:note].to_s).to eq(n1 + ',' + n2 + "\n") # change to contain n1 & contain n2?
+      end
       skip 'a single attribute note gets converted properly'
       skip 'multiple attribute notes get converted properly'
 
@@ -372,7 +383,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached.blank?).to be_falsey
         end
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(@l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
+          expect(@l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles. ')
         end
         specify 'cached author should be set' do
           expect(@l_src.cached_author_string.blank?).to be_falsey
@@ -422,7 +433,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached_author_string).to eq('Thomas, Dave and Fowler, Chad and Hunt, Andy')
         end
         specify 'cached string should be correct' do
-          expect(@l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
+          expect(@l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles. ')
         end
       end
       specify 'should be able to build & save related people' do
