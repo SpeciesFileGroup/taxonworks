@@ -74,6 +74,9 @@ gem 'rabl'
 
 gem 'rmagick', '~> 2.13.2'
 
+# Generate fake data: names, addresses, phone numbers, etc.
+gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
+
 group :test, :development do
   gem 'rspec-rails', '~> 3.0' #  
   gem 'rspec-activemodel-mocks', '~> 1.0.1'
