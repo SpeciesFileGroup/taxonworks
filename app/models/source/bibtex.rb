@@ -168,7 +168,8 @@ require 'csl/styles'
 #   Any additional information that can help the reader. The first word should be capitalized.
 #
 #   This attribute is used on import, but is otherwise ignored.   Updates to this field are
-#   NOT transferred to the associated TW note and not added to any export.
+#   NOT transferred to the associated TW note and not added to any export.  TW does NOT allow '|' within a note. (\'s
+#   are used to separate multiple TW notes associated with a single object on import)
 #   @return[String] the BibTeX note associated with this source
 #   @return [nil] means the attribute is not stored in the database.
 #
@@ -275,10 +276,11 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
 #region validations
-# TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_inclusion_of :bibtex_type,
                          in:      ::VALID_BIBTEX_TYPES,
                          message: '%{value} is not a valid source type'
+
+# TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_presence_of :year,
                         if:      '!month.nil?',
                         message: 'year is required when month is provided'
@@ -310,7 +312,7 @@ class Source::Bibtex < Source
 
 #endregion validations
 
-  # includes nil last, exclude it explicitly with another condition if need be
+# includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
 #region soft_validate setup calls
@@ -334,8 +336,8 @@ class Source::Bibtex < Source
   def to_bibtex # outputs BibTeX::Entry equivalent to me.
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
-     if (!self[f].blank?) && !(f == :bibtex_type)
-       b[f] = self.send(f)
+      if (!self[f].blank?) && !(f == :bibtex_type)
+        b[f] = self.send(f)
       end
     end
 
@@ -343,13 +345,13 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
-    # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
+    # TODO add conversion of identifiers to ruby-bibtex fields
     if (self.notes.count > 0)
       n_out = []
-      self.notes.order(:updated_at).each do |n|
-       n_out << n[:text]
+      self.notes.order(updated_at: :desc).each do |n|
+        n_out << "#{n[:updated_at]} : #{n.updater.name} : #{n[:text]} "
       end
-      b[:note] = n_out.to_csv
+      b[:note] = n_out.join('|') # join with pipe
     end
     # TODO add conversion of Serial ID to journal name
 
@@ -362,14 +364,15 @@ class Source::Bibtex < Source
   end
 
   def self.new_from_bibtex(bibtex_entry)
-    # TODO On input, convert ruby-bibtex.url to an identifier & ruby-bibtex.note to a notation
-    
+    # TODO On input, convert ruby-bibtex.url to an identifier
+
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
       s.send("#{key}=", v) # = v
     end
+    # note conversion is handled in note setter
     s
   end
 
@@ -429,7 +432,7 @@ class Source::Bibtex < Source
         return (authors[0].last_name)
       else
         # authors[0..-2].join(", ") + " & #{authors.last.last_name}"
-        p_array = [] 
+        p_array = []
         for i in 0..(self.authors.count-1) do
           p_array.push(self.authors[i].last_name)
         end
@@ -457,7 +460,16 @@ class Source::Bibtex < Source
 
   def note=(value)
     write_attribute(:note, value)
-    self.notes.build({text: value + ' [Created on import from BibTeX.]'}) if self.new_record? && !self.note.blank?
+    if !self.note.blank? && self.new_record?
+      if value.include?('|')
+        a = value.split(/|/)
+        a.each do |n|
+          self.notes.build({text: n + ' [Created on import from BibTeX.]'})
+        end
+      else
+        self.notes.build({text: value + ' [Created on import from BibTeX.]'})
+      end
+    end
   end
 
   def isbn=(value)
@@ -563,7 +575,7 @@ class Source::Bibtex < Source
     cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
     cp.import bx_bibliography.to_citeproc
 
-    self.cached = cp.render(:bibliography, id: key).first
+    self.cached               = cp.render(:bibliography, id: key).first
     self.cached_author_string = authority_name
   end
 
@@ -575,16 +587,16 @@ class Source::Bibtex < Source
 #     errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
 #   end
 
-  # must have at least one of the required fields (TW_REQ_FIELDS)
+# must have at least one of the required fields (TW_REQ_FIELDS)
   def check_has_field
     valid = false
-    TW_REQ_FIELDS.each do |i| 
+    TW_REQ_FIELDS.each do |i|
       if !self[i].blank?
         valid = true
         break
       end
     end
-   errors.add(:base, 'no core data provided') if !valid
+    errors.add(:base, 'no core data provided') if !valid
   end
 
 #endregion  hard validations
