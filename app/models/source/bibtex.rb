@@ -331,7 +331,7 @@ class Source::Bibtex < Source
   #region ruby-bibtex related
 
   def to_bibtex # outputs BibTeX::Entry equivalent to me.
-    b = BibTeX::Entry.new()
+    b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
      if (!self[f].blank?) && !(f == :bibtex_type)
        b[f] = self.send(f)
@@ -343,9 +343,16 @@ class Source::Bibtex < Source
     end
 
     # TODO add conversion of identifiers to ruby-bibtex fields, & notations to notes field.
+    if (self.notes.count > 0)
+      n_out = []
+      self.notes.each do |n|
+       n_out << n[:text]
+      end
+      b[:note] = n_out.to_csv
+    end
     # TODO add conversion of Serial ID to journal name
 
-    b.key = self.id
+    b.key = self.id unless self.id.blank?
     b
   end
 
