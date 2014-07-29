@@ -22,11 +22,12 @@ describe Source::Human, :type => :model do
           expect(source_human).to respond_to(:people)
         end
 
-        specify 'add a person save the source' do
-          p1 = FactoryGirl.build(:valid_person)
-          source_human.people << p1
-          expect(source_human.people.to_a[0]).to be(p1)
-          #TODO need to create a valid human source. assigned a person but still not a valid source?
+        specify 'add a person, save the source' do
+          p1 = FactoryGirl.create(:valid_person)
+          expect(source_human.save).to be_truthy
+          expect(source_human.people << p1).to be_truthy   #must have source & person must be saved before << operator
+          expect(source_human.people.first).to eq(p1.becomes(Person::Unvetted))
+          expect(source_human.save).to be_truthy
         end
       end
       specify 'source_source' do
