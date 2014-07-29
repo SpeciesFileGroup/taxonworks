@@ -14,16 +14,20 @@ describe 'DataAttributes', :type => :model do
   end
 
   context 'methods' do
+    before(:each) {
+      class_with_data_attributes.data_attributes.delete_all 
+    }
+
+
     specify 'has_data_attributes?' do
       expect(class_with_data_attributes.has_data_attributes?).to eq(false)
     end
 
     specify 'keyword_value_hash' do
-      class_with_data_attributes.data_attributes.delete_all # sanity !! CAREFUL DON'T DO THIS TO PROJECT!
       class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute_import_attribute, value: '10', import_predicate: 'legs')
       expect(class_with_data_attributes.data_attributes.size).to eq(1)
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10')
-      class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute)
+      class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute, value: 'purple', predicate: FactoryGirl.build(:valid_controlled_vocabulary_term_predicate, name: 'Color') )
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10', 'Color' => 'purple')
     end
   end
