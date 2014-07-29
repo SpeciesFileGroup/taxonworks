@@ -1,9 +1,17 @@
 <h2> Shared </h2>
 <h3> Cross project considerations </h3>
-<%= content_tag :li, link_to('Geographic areas', geographic_areas_path) %>
+
 <%= content_tag :li, link_to('People', people_path) %>
-<%= content_tag :li, link_to('Geographic area types', geographic_area_types_path) %>
+
 <%= content_tag :li, link_to('Serials', serials_path) %>
 <%= content_tag :li, link_to('Sources', sources_path) %>
+
+<h4> annotated but not updated by non-superuser (e.g. add alternate spelling) </h4>
+<%= content_tag :li, link_to('Geographic areas', geographic_areas_path) %>
+
+<h4> admin only </h4>
+<%= content_tag :li, link_to('Geographic area types', geographic_area_types_path) %>
+
+<h4> have to decide how rigourous we are to only using the repos provided by biorep </h4>
 <%= content_tag :li, link_to('Repositories', repositories_path) %>
 
