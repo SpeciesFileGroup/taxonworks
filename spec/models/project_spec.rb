@@ -82,7 +82,7 @@ describe Project, :type => :model do
       @failed_factories     = {}
       FactoryGirl.factories.each { |factory|
         if factory.name =~ /^valid_/
-          next if factory.name.to_s == 'valid_biological_relationship_type'
+#          next if factory.name.to_s == 'valid_biological_relationship_type'
           begin
             test_factory = FactoryGirl.build(factory.name)
           rescue => detail
