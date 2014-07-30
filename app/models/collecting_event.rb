@@ -63,7 +63,8 @@ class CollectingEvent < ActiveRecord::Base
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
-                    :check_elevation_range
+                    :check_elevation_range,
+                    :build_cached
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
@@ -323,7 +324,7 @@ class CollectingEvent < ActiveRecord::Base
     where.not(id: collecting_events)
   end
 
-# Rich-  add a comment indicating why it's here if you want this to persist for a temporary period of time).
+# Rich-  add a comment indicating why this is here if you want this to persist for a temporary period of time).
   def self.test
     result = []
     colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
@@ -335,6 +336,15 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   protected
+
+  # TODO: Draper Candidate
+  def build_cached
+    if verbatim_label.blank?
+      cached = [country_name, state_name, county_name, "\n", verbatim_locality, date_string, verbatim_collectors, "\n"]
+    else
+      cached = verbatim_label  
+    end
+  end
 
   def check_verbatim_geolocation_uncertainty
     errors.add(:verbatim_geolocation_uncertainty, 'Provide both verbatim_latitude and verbatim_longitude if you provide verbatim_uncertainty.') if !verbatim_geolocation_uncertainty.blank? && verbatim_longitude.blank? && verbatim_latitude.blank?

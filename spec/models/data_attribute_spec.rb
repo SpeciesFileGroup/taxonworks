@@ -21,8 +21,9 @@ describe DataAttribute, :type => :model do
       end
     end
 
+    # Hmmm.. review this
     specify 'key/value is unique' do
-      a = FactoryGirl.create(:valid_data_attribute)
+      a = FactoryGirl.create(:valid_data_attribute, value: 'black')
       p = ImportAttribute.new(attribute_subject: a.attribute_subject, import_predicate: 'hair color', value: 'black')
       expect(p.valid?).to be_falsey
       expect(p.errors.include?(:value)).to be_truthy
