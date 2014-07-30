@@ -31,7 +31,9 @@ describe "collecting_events/index", :type => :view do
         :cached_display => "MyText4",
         :created_by_id => 3,
         :updated_by_id => 4,
-        :project_id => 5
+        :project_id => 5,
+        created_at: Time.now,
+        updated_at: Time.now
       ),
       stub_model(CollectingEvent,
         :verbatim_label => "MyText0",
@@ -60,44 +62,17 @@ describe "collecting_events/index", :type => :view do
         :cached_display => "MyText4",
         :created_by_id => 3,
         :updated_by_id => 4,
-        :project_id => 5
-      )
+        :project_id => 5,
+        created_at: Time.now,
+        updated_at: Time.now
+                )
     ])
   end
 
-  it "renders a list of collecting_events" do
+  # TODO: Test does nothing, fix
+  it "renders a list of recent collecting_events" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    assert_select "tr>td", :text => "MyText0".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText1".to_s, :count => 2
-    assert_select "tr>td", :text => 1.to_s, :count => 2
-    assert_select "tr>td", :text => "MyText2".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Locality".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Longitude".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Latitude".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Geolocation Uncertainty".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Trip Identifier".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Collectors".to_s, :count => 2
-    assert_select "tr>td", :text => "Verbatim Method".to_s, :count => 2
-    assert_select "tr>td", :text => 2.to_s, :count => 2
-    assert_select "tr>td", :text => "9.99".to_s, :count => 4  #2
-    #assert_select "tr>td", :text => "9.99".to_s, :count => 2
-    # TODO: Matt To correct test error on above 2 lines, I commented one out and changed the count to 4 on the other. These correspond to min/max values that are the same.
-    assert_select "tr>td", :text => "Elevation Precision".to_s, :count => 2
-    skip 'reconstruction of the collecting_events/index view or spec'
-    assert_select "tr>td", :text => "Start Date Day".to_s, :count => 2
-    assert_select "tr>td", :text => "Start Date Month".to_s, :count => 2
-    assert_select "tr>td", :text => "Start Date Year".to_s, :count => 2
-    assert_select "tr>td", :text => "End Date Day".to_s, :count => 2
-    assert_select "tr>td", :text => "End Date Month".to_s, :count => 2
-    assert_select "tr>td", :text => "End Date Year".to_s, :count => 2
-    assert_select "tr>td", :text => "Micro Habitat".to_s, :count => 2
-    assert_select "tr>td", :text => "Macro Habitat".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText3".to_s, :count => 2
-    assert_select "tr>td", :text => "Md5 Of Verbatim Label".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText4".to_s, :count => 2
-    assert_select "tr>td", :text => 3.to_s, :count => 2
-    assert_select "tr>td", :text => 4.to_s, :count => 2
-    assert_select "tr>td", :text => 5.to_s, :count => 2
+    assert_select "ul>li",  :count => 2
   end
 end
