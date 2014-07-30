@@ -81,26 +81,39 @@ describe Project, :type => :model do
       @factories_under_test = {}
       @failed_factories     = {}
       FactoryGirl.factories.each { |factory|
-        if factory.name =~ /^valid_/
-#          next if factory.name.to_s == 'valid_biological_relationship_type'
+        f_name = factory.name
+        if f_name =~ /^valid_/
+#          next if f_name.to_s == 'valid_biological_relationship_type'
           begin
-            test_factory = FactoryGirl.build(factory.name)
-          rescue => detail
-            @failed_factories[factory.name] = detail
-            puts "\"#{factory.name}\" build #{detail}"
-          else
-            if test_factory.valid?
-              test_factory.save
-              @factories_under_test[factory.name] = test_factory
+            if factory.definition.attributes.names.include?(:project_id)
+              test_factory = FactoryGirl.build(f_name, project_id: @p.id)
             else
-              @failed_factories[factory.name] = test_factory.errors
-              puts "\"#{factory.name}\" is not valid: #{test_factory.errors.to_a}"
+              test_factory = FactoryGirl.build(f_name)
+            end
+          rescue => detail
+            @failed_factories[f_name] = detail
+            puts "\"#{f_name}\" build #{detail}"
+          else
+            unless test_factory.attributes['project_id'].nil?
+              test_factory.project = @p
+            end
+            if test_factory.valid?
+              begin
+                test_factory.save
+              rescue => detail
+                puts "\n#{f_name}: #{detail}"
+              else
+                @factories_under_test[f_name] = test_factory
+              end
+            else
+              @failed_factories[f_name] = test_factory.errors
+              puts "\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
         end
       }
       if @failed_factories.length > 0
-        puts "\n#{@failed_factories.length} invalid factories."
+        puts "\n#{@failed_factories.length} invalid factor#{@failed_factories.length == 1 ? 'y' : 'ies' }."
       end
     }
 
@@ -122,7 +135,8 @@ describe Project, :type => :model do
 
       skip "#destroy doesn't nuke shared data" do
         # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
-        # We may need a constant that stores a *string* representative of the shared classes to loop through, but for now just enumerate a number of them
+        # We may need a constant that stores a *string* representative of the shared classes to loop through,
+        #   but for now just enumerate a number of them
       end
     end
 
