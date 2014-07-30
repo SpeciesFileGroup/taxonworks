@@ -92,7 +92,7 @@ describe Project, :type => :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            puts "\"#{f_name}\" build #{detail}"
+            puts "\"#{f_name}\" build => #{detail}"
           else
             unless test_factory.attributes['project_id'].nil?
               test_factory.project = @p
@@ -101,7 +101,8 @@ describe Project, :type => :model do
               begin
                 test_factory.save
               rescue => detail
-                puts "\n#{f_name}: #{detail}"
+                @failed_factories[f_name] = detail
+                puts "\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
@@ -116,7 +117,6 @@ describe Project, :type => :model do
         puts "\n#{@failed_factories.length} invalid factor#{@failed_factories.length == 1 ? 'y' : 'ies' }."
       end
     }
-
 
     specify '#destroy' do
       expect(@p.destroy).to be_truthy # confirm this is a really what we want
