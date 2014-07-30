@@ -340,7 +340,7 @@ class CollectingEvent < ActiveRecord::Base
   # TODO: Draper Candidate
   def build_cached
     if verbatim_label.blank?
-      cached = [country_name, state_name, county_name, "\n", verbatim_locality, date_string, verbatim_collectors, "\n"]
+      cached = [country_name, state_name, county_name, "\n", verbatim_locality, verbatim_collectors, "\n"]
     else
       cached = verbatim_label  
     end
