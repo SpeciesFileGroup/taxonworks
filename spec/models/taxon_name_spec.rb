@@ -247,7 +247,7 @@ describe TaxonName, :type => :model do
 
     context 'source' do
       specify 'when provided, is type Source::Bibtex' do
-        h = FactoryGirl.build(:human_source)
+        h = FactoryGirl.build(:source_human)
         taxon_name.source = h
         taxon_name.valid?
         expect(taxon_name.errors.include?(:source_id)).to be_truthy

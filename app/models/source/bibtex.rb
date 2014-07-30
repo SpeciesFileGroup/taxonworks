@@ -345,19 +345,14 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
-    # TODO add conversion of identifiers to ruby-bibtex fields
-    if (self.notes.count > 0)
-      n_out = []
-      self.notes.order(updated_at: :desc).each do |n|
-        n_out << "#{n[:updated_at]} : #{n.updater.name} : #{n[:text]} "
-      end
-      b[:note] = n_out.join('|') # join with pipe
-    end
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable 
     # TODO add conversion of Serial ID to journal name
 
-    b.key = self.id unless self.id.blank?
+    b.key = self.id unless self.new_record? # id.blank?
     b
   end
+
+  # TODO add conversion of identifiers to ruby-bibtex fields
 
   def valid_bibtex?
     self.to_bibtex.valid?

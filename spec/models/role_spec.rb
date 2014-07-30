@@ -41,7 +41,7 @@ describe Role, :type => :model do
 
     context 'after save' do 
       specify 'position is specified by acts_as_list' do
-        @author_role = FactoryGirl.build(:source_author_role)
+        @author_role = FactoryGirl.build(:valid_source_author)
         @author_role.save
         expect(@author_role.position).to eq(1)
       end

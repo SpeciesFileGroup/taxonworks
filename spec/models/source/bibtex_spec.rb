@@ -131,29 +131,35 @@ describe Source::Bibtex, :type => :model do
 
       specify 'a single object note gets converted properly to a bibtex note'   do
         n = 'I am a test note'
-        expect(@s.notes.count).to eq(0) # @s has no notes
+        expect(@s.notes.size).to eq(0) # @s has no notes
         expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes.build({text: n})).to be_truthy # add note to object
+        expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
         expect(@s.save).to be_truthy
-        expect(@s.notes.count).to eq(1)
+        expect(@s.notes.size).to eq(1)
         b = @s.to_bibtex
-        expect(b[:note].to_s).to eq(n + "\n")
+        
+        #TODO: test formatting in notes 
+        expect(b[:note].to_s =~ /#{n}/).to be_truthy
+        expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
       end
       specify 'multiple object notes get converted properly' do
         n1 = 'test note1'
         n2 = 'test note2'
         expect(@s.notes.count).to eq(0) # @s has no notes
         expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes.build({text: n1})).to be_truthy # add 1st note to object
-        expect(@s.notes.build({text: n2})).to be_truthy # add 2nd note to object
+        expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
+        expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
         expect(@s.save).to be_truthy
         expect(@s.notes.count).to eq(2)
         b = @s.to_bibtex
-        expect(b[:note].to_s).to eq(n1 + ',' + n2 + "\n") # change to contain n1 & contain n2?
+
+        #TODO: test formatting in notes 
+        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
       end
+
       skip 'a single attribute note gets converted properly'
       skip 'multiple attribute notes get converted properly'
-
       skip 'serial gets converted properly to bibtex journal' do
 
       end
