@@ -71,8 +71,8 @@ describe Project, :type => :model do
 
     before {
       @p                    = Project.create(name: 'a little bit of everything')
-      @project_id           = @p.id
-      @user_id              = User.where(id: 1)
+      $project_id           = @p.id
+      $user_id              = 1
 
       # Generate 1 of ever valid_ factory
       #    loop through all factories
@@ -96,6 +96,9 @@ describe Project, :type => :model do
           else
             unless test_factory.attributes['project_id'].nil?
               test_factory.project = @p
+            end
+            if f_name == :valid_taxon_name
+              test_factory.parent.project_id = @p.id
             end
             if test_factory.valid?
               begin
