@@ -69,7 +69,7 @@ describe Project, :type => :model do
 
   context 'destroy' do
 
-    before {
+    before(:all) {
       @p                    = Project.create(name: 'a little bit of everything')
       $project_id           = @p.id
       $user_id              = 1
@@ -84,6 +84,7 @@ describe Project, :type => :model do
         f_name = factory.name
         if f_name =~ /^valid_/
 #          next if f_name.to_s == 'valid_biological_relationship_type'
+          next if f_name.to_s == 'valid_taxon_name'
           begin
             if factory.definition.attributes.names.include?(:project_id)
               test_factory = FactoryGirl.build(f_name, project_id: @p.id)
@@ -92,7 +93,7 @@ describe Project, :type => :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            puts "\"#{f_name}\" build => #{detail}"
+            print "\n\"#{f_name}\" build => #{detail}"
           else
             unless test_factory.attributes['project_id'].nil?
               test_factory.project = @p
@@ -105,20 +106,39 @@ describe Project, :type => :model do
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                puts "\"#{f_name}\" save => #{detail}"
+                print "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              puts "\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              print "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
         end
       }
-      if @failed_factories.length > 0
-        puts "\n#{@failed_factories.length} invalid factor#{@failed_factories.length == 1 ? 'y' : 'ies' }."
+      length = @failed_factories.length
+      if length > 0
+        # puts "\n#{length} invalid factor#{length == 1 ? 'y' : 'ies' }."
+        puts "\n#{length} invalid #{'factory'.pluralize(length)}."
       end
+    }
+
+    after(:all) {
+      FactoryGirl.factories.each { |factory|
+        f_name = factory.name
+        if f_name =~ /^valid_/
+          this_class = factory.build_class.to_s
+          model      = this_class.constantize
+          case this_class
+            when 'User', 'Project'
+              # todo: figure out how to delete all with id greater than 1
+            else
+              model.delete_all
+          end
+        end
+      }
+      # puts
     }
 
     specify '#destroy' do
@@ -127,19 +147,48 @@ describe Project, :type => :model do
     end
 
     context '#destroy' do
-      before {
+      before(:all) {
         @p.destroy
       }
 
-      skip '#destroy nukes "everything"' do
+      specify '#destroy nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build
-        #    expect(class_that_was_built.all.reload.count).to eq(0) 
+        #    expect(class_that_was_built.all.reload.count).to eq(0)
+        orphans = {}
+        FactoryGirl.factories.each { |factory|
+          f_name = factory.name
+          if f_name =~ /^valid/
+            this_class = factory.build_class
+            model      = this_class.to_s.constantize
+            if model.column_names.include?('project_id')
+              count = model.all.reload.count
+              if count > 0
+                print "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}."
+                orphans[model] = count
+              end
+            end
+          end
+        }
+        if orphans.length > 0
+          puts
+        end
+        expect(orphans.length).to eq(0)
       end
 
-      skip "#destroy doesn't nuke shared data" do
+      specify "#destroy doesn't nuke shared data" do
         # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
         # We may need a constant that stores a *string* representative of the shared classes to loop through,
         #   but for now just enumerate a number of them
+        FactoryGirl.factories.each { |factory|
+          f_name = factory.name
+          if f_name =~ /^valid_/
+            this_class = factory.build_class
+            model      = this_class.to_s.constantize
+            unless model.column_names.include?('project_id')
+              expect(model.all.reload.count).to be >= 1
+            end
+          end
+        }
       end
     end
 
