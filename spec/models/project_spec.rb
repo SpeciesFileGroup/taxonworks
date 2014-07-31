@@ -80,6 +80,7 @@ describe Project, :type => :model do
 
       @factories_under_test = {}
       @failed_factories     = {}
+      @project_build_err_msg = ''
       FactoryGirl.factories.each { |factory|
         f_name = factory.name
         if f_name =~ /^valid_/
@@ -93,7 +94,7 @@ describe Project, :type => :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            print "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
           else
             unless test_factory.attributes['project_id'].nil?
               test_factory.project = @p
@@ -106,13 +107,13 @@ describe Project, :type => :model do
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                print "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg +=  "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              print "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg +=  "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
         end
@@ -120,7 +121,7 @@ describe Project, :type => :model do
       length = @failed_factories.length
       if length > 0
         # puts "\n#{length} invalid factor#{length == 1 ? 'y' : 'ies' }."
-        puts "\n#{length} invalid #{'factory'.pluralize(length)}."
+        @project_build_err_msg +=  "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
       end
     }
 
@@ -141,6 +142,10 @@ describe Project, :type => :model do
       # puts
     }
 
+    specify 'project build goes well' do
+      expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
+    end
+
     specify '#destroy' do
       expect(@p.destroy).to be_truthy # confirm this is a really what we want
       expect(@p.destroyed?).to be(true)
@@ -155,6 +160,7 @@ describe Project, :type => :model do
         # loop through all the valid_ factories, for each find the class that they build
         #    expect(class_that_was_built.all.reload.count).to eq(0)
         orphans = {}
+        project_destroy_err_msg = ''
         FactoryGirl.factories.each { |factory|
           f_name = factory.name
           if f_name =~ /^valid/
@@ -163,16 +169,16 @@ describe Project, :type => :model do
             if model.column_names.include?('project_id')
               count = model.all.reload.count
               if count > 0
-                print "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}."
+                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}."
                 orphans[model] = count
               end
             end
           end
         }
         if orphans.length > 0
-          puts
+          project_destroy_err_msg += "\n"
         end
-        expect(orphans.length).to eq(0)
+        expect(orphans.length).to eq(0), project_destroy_err_msg
       end
 
       specify "#destroy doesn't nuke shared data" do
