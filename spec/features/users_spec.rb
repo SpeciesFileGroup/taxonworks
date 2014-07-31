@@ -3,7 +3,13 @@ require 'rails_helper'
 describe 'Users' do
   #  subject { page }
 
-  describe 'GET /users' do
+  # All users must sign in
+  # When a worker signs in, what does he see, what can he do?  dashboard, what links?
+  # When a project administrator signs in, what does he see, what can do?
+  # When an administrator signs in, what does he see, what can he do?
+
+
+  describe 'GET /users' do    # this is users/index page? Only signed in admins can see it
     context 'when administrator' do
       before {
         sign_in_administrator
@@ -12,16 +18,17 @@ describe 'Users' do
       it 'should list users' do
         expect(page).to have_selector('h1', text: 'Users')
         expect(page).to have_content("#{@user.email}")
+        expect(page).to have_link('Administration')
       end
     end
 
-    context 'when not an administrator' do
+    context 'when not an administrator' do   # how would a non administrator get to this page?
       before { sign_in_administrator }
       it 'should redirect to dashboard and provide a notice'
     end
   end
 
-  describe 'GET /users/:id' do
+  describe 'GET /users/:id' do    # this is user show
 
     context 'when logged in on dashboard' do
       before {
@@ -39,7 +46,7 @@ describe 'Users' do
     # end
 
 
-    context 'when editing self' do
+    context 'when editing self' do         # this is either edit oneself or an admin editing someone else
       before {
         sign_in_user
         visit edit_user_path(@user)
