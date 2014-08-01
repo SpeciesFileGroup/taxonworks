@@ -1,7 +1,4 @@
 module OtusHelper
-  def otu_tag(otu)
-    otu.name
-  end
 
   def self.otu_tag(otu)
     return nil if otu.nil?

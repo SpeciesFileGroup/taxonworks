@@ -13,7 +13,7 @@ TaxonWorks::Application.routes.draw do
       post 'batch_create'
       post 'batch_preview'
       post 'search'
-      get "auto_complete"
+      get 'autocomplete'
     end
   end
 
