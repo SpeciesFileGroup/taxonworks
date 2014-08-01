@@ -742,7 +742,6 @@ def generate_ce_test_objects
 
 end
 
-
 def gen_wkt_files_1()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
   f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
@@ -1550,7 +1549,6 @@ def clean_slate_geo
   Georeference.delete_all
   CollectingEvent.delete_all
 end
-
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.
 module GeoDev
