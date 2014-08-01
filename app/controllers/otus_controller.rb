@@ -71,8 +71,8 @@ class OtusController < ApplicationController
     redirect_to otu_path(params[:otu][:id])
   end
 
- def auto_complete
-    @otus = Otu.where('name LIKE ?', "#{params[:term]}%") # find_for_auto_complete(conditions, table_name)
+ def autocomplete
+    @otus = Otu.find_for_autocomplete(params)
 
     data = @otus.collect do |t|
       {id: t.id,

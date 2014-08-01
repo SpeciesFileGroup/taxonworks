@@ -72,6 +72,11 @@ class Otu < ActiveRecord::Base
   end
   #endregion
 
+  def self.find_for_autocomplete(params)
+    where('name LIKE ?', "#{params[:term]}%") 
+  end
+
+
   # Generate a CSV version of the raw Otus table for the given project_id
   # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
   def self.generate_download(project_id: nil)

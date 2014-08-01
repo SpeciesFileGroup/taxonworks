@@ -1,16 +1,14 @@
 <%# Configuration for all pickers  -%>
 <% css_class ||= 'ajaxPicker' -%>
-<% action ||= "auto_complete".html_safe -%>
+<% action ||= "autocomplete".html_safe -%>
 
-<%# Taxon name specific  -%>
-<% name_group ||= 'all' -%>
-<% use_proj ||= 'true'  -%>
-
-<%# Geog name specific  -%>
-<% geog_types ||= 'all' -%>
-
-<% url = url_for({:proj_id => (@proj ? @proj.id : nil), :controller => controller, :action => action, :tag_id => tag_id, :method => "#{object}[#{method}]",
-    :name_group => name_group, :use_proj => use_proj, :escape => false, :geog_types => geog_types}) -%>
+<% url = url_for({
+  proj_id:    (@proj ? @proj.id : nil),
+  controller: controller,
+  action:     action,
+  tag_id:     tag_id,
+  method:     "#{object}[#{method}]",
+  escape:     false}) -%>
 
 <input autocomplete="off"
       title="find and select <%= controller.pluralize.html_safe -%>"
