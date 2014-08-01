@@ -335,6 +335,11 @@ class CollectingEvent < ActiveRecord::Base
     'var data = ' + result.to_json + ';'
   end
 
+  def self.find_for_autocomplete(params)
+    where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
+    # changed from 'cached' to 'verbatim_locality':
+  end
+
   protected
 
   # TODO: Draper Candidate

@@ -73,7 +73,19 @@ class CollectingEventsController < ApplicationController
   end
 
   def autocomplete
+    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))   # in model
 
+    data = @collecting_events.collect do |t|
+      {id: t.id,
+       label: CollectingEventsHelper.collecting_event_tag(t),    # in helper
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: CollectingEventsHelper.collecting_event_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private
