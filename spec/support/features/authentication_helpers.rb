@@ -2,6 +2,7 @@
 module Features
   module AuthenticationHelpers
 
+  # Likely not used anywhere anymore
     def sign_up_with(email, password, password_confirmation)
       visit signup_path
       fill_in 'Email',                 with: email
