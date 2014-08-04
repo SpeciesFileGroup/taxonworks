@@ -120,7 +120,6 @@ describe Project, :type => :model do
       }
       length = @failed_factories.length
       if length > 0
-        # puts "\n#{length} invalid factor#{length == 1 ? 'y' : 'ies' }."
         @project_build_err_msg +=  "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
       end
     }
@@ -139,7 +138,6 @@ describe Project, :type => :model do
           end
         end
       }
-      # puts
     }
 
     specify 'project build goes well' do
