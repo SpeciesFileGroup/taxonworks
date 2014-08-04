@@ -1,7 +1,7 @@
 <%= form_for(@otu) do |f| %>
     <% if @otu.errors.any? %>
         <div id="error_explanation">
-          <h2><%= pluralize(@otu.errors.count, "error") %> prohibited this otu from being saved:</h2>
+          <h2><%= pluralize(@otu.errors.count, 'error') %> prohibited this otu from being saved:</h2>
 
           <ul>
             <% @otu.errors.full_messages.each do |msg| %>
@@ -20,11 +20,12 @@
     <div class="field">
       <%= f.label :taxon_name %>
       <br>
-      <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
-                                                                       :object     => 'taxon_name',
-                                                                       :method     => 'taxon_name_id',
-                                                                       :tag_id     => 'taxon_name_id_for_otu',
-                                                                       :display    => object_tag(@otu.taxon_name)} %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'taxon_names',
+                              :object     => 'taxon_name',
+                              :method     => 'taxon_name_id',
+                              :tag_id     => 'taxon_name_id_for_otu',
+                              :display    => object_tag(@otu.taxon_name)} %>
     </div>
 
     <div class="actions">

@@ -1,7 +1,7 @@
 <%= form_for(@collection_object.becomes(CollectionObject)) do |f| %>
     <% if @collection_object.errors.any? %>
         <div id="error_explanation">
-          <h2><%= pluralize(@collection_object.errors.count, "error") %> prohibited this collection_object from being
+          <h2><%= pluralize(@collection_object.errors.count, 'error') %> prohibited this collection_object from being
             saved:</h2>
 
           <ul>
@@ -40,11 +40,12 @@
       <%= f.label :collecting_event %>
       <br>
       <%#= f.select :collecting_event_id, options_from_collection_for_select(CollectingEvent.with_project_id($project_id).all, :id, :cached_display) -%>
-      <%= render :partial => 'elements/forms/ajax_select', :locals => {:controller => 'collecting_events', # controller location of autocomplete we want to run
-                                                                       :object     => 'collection_object', # symbolic reference to the form instance
-                                                                       :method     => 'collecting_event_id', # foreign key id
-                                                                       :tag_id     => 'collecting_event_id_for_collection_object', # html id
-                                                                       :display    => object_tag(@collection_object.collecting_event)} %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'collecting_events', # controller location of autocomplete we want to run
+                              :object     => 'collection_object', # symbolic reference to the form instance
+                              :method     => 'collecting_event_id', # foreign key id
+                              :tag_id     => 'collecting_event_id_for_collection_object', # html id
+                              :display    => object_tag(@collection_object.collecting_event)} %>
 
     </div>
 
