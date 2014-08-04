@@ -2,7 +2,7 @@ TaxonWorks::Application.routes.draw do
 
 
   # Vetted / tested
- 
+
   # All models that use data controllers should include this concern. 
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -20,14 +20,14 @@ TaxonWorks::Application.routes.draw do
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
-  match '/signin',  to: 'sessions#new',      via: :get
-  match '/signout', to: 'sessions#destroy',  via: :delete
+  match '/signin', to: 'sessions#new', via: :get
+  match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
-  
-  resources :projects do 
+
+  resources :projects do
     member do
       get 'select'
-      get 'settings_for' 
+      get 'settings_for'
     end
   end
 
@@ -46,7 +46,7 @@ TaxonWorks::Application.routes.draw do
 
   match '/forgot_password', to: 'users#forgot_password', via: 'get'
 
-    resources :alternate_values
+  resources :alternate_values
   resources :biocuration_classifications
   resources :citation_topics
   resources :citations
@@ -61,7 +61,7 @@ TaxonWorks::Application.routes.draw do
   end
   resources :collection_profiles
   resources :contents
-  
+
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
@@ -101,8 +101,8 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_name_classifications
   resources :taxon_name_relationships
 
-  match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get' 
-  post 'tasks/accessions/quick/verbatim_material/create' 
+  match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
+  post 'tasks/accessions/quick/verbatim_material/create'
 
   match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
   match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
