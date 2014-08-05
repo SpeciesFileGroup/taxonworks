@@ -11,7 +11,7 @@ module TaxonNamesHelper
 
   def self.taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_name || taxon_name.name #TODO: fix cached name generation
+    taxon_name.cached_name || taxon_name.name # TODO: fix cached name generation
   end
 
   def taxon_name_tag(taxon_name)
@@ -20,7 +20,7 @@ module TaxonNamesHelper
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(taxon_name.name, taxon_name)
+    link_to(taxon_name_tag(taxon_name), taxon_name)  # TODO: Jim please check this is correct. I accidentally deleted something from this file and think I fixed it ok. mb
   end
 
   # TODO: Scope to code

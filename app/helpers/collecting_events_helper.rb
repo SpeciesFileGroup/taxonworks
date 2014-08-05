@@ -6,7 +6,7 @@ module CollectingEventsHelper
   end
 
   def collecting_event_link
-    link_to(collecting_event.verbatim_locality, collecting_event)
+    link_to(collecting_event_tag(collecting_event), collecting_event)
   end
 
 end
