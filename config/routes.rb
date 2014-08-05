@@ -49,7 +49,10 @@ TaxonWorks::Application.routes.draw do
   resources :alternate_values
   resources :biocuration_classifications
   resources :citation_topics
-  resources :citations
+  resources :citations do
+    concerns [:data_routes]
+  end
+
   resources :collecting_events do
     concerns [:data_routes]
     collection do
@@ -60,7 +63,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :collection_profiles
-  resources :contents
+  resources :contents do
+    concerns [:data_routes]
+  end
+
 
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
@@ -76,7 +82,10 @@ TaxonWorks::Application.routes.draw do
   resources :georeferences
   resources :identifiers
   resources :loan_items
-  resources :loans
+  resources :loans do
+    concerns [:data_routes]
+  end
+
   resources :namespaces
   resources :notes
   resources :otu_page_layout_sections
@@ -92,7 +101,10 @@ TaxonWorks::Application.routes.draw do
   resources :serials
   resources :sources
   resources :tagged_section_keywords
-  resources :tags
+  resources :tags do
+    concerns [:data_routes]
+  end
+
   resources :taxon_determinations
   resources :taxon_names do
     concerns [:data_routes]
