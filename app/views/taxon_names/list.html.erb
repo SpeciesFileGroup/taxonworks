@@ -44,7 +44,7 @@
         <!--<td><%#= taxon_name.lft %></td>-->
         <!--<td><%#= taxon_name.rgt %></td>-->
         <td><%= taxon_name.source_id %></td>
-        <!--<td><%#= taxon_name.source.source_tag(taxon_name.source) %></td>-->
+        <!--<td><%#= taxon_name.source.source_tag(taxon_name.source) unless taxon_name.source.nil? %></td>-->
         <td><%= taxon_name.year_of_publication %></td>
         <td><%= taxon_name.verbatim_author %></td>
         <td><%= taxon_name.rank_class %></td>
