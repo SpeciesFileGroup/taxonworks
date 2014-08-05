@@ -37,7 +37,7 @@
       <tr>
         <td><%= taxon_name.name %></td>
         <td><%= taxon_name.parent_id %></td>
-        <!--<td><%#= taxon_name.parent.taxon_name_tag(taxon_name.parent) %></td>-->
+        <!--<td><%#= taxon_name.parent.taxon_name_tag(taxon_name.parent) unless taxon_name.parent.nil? %></td>-->
         <td><%= taxon_name.cached_name %></td>
         <td><%= taxon_name.cached_author_year %></td>
         <td><%= taxon_name.cached_higher_classification %></td>
