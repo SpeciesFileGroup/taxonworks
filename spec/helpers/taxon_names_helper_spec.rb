@@ -11,5 +11,35 @@ require 'rails_helper'
 #   end
 # end
 describe TaxonNamesHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+  context 'a taxon_name needs some helpers' do
+    befor(:all) {
+      @taxon_name = FactoryGirl.create(:valid_taxon_name)
+    }
+
+    specify '#taxon_name_for_select' do
+      expect(@taxon_name.taxon_name_for_select(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#parent_taxon_name_for_select' do
+      expect(@taxon_name.parent.taxon_name_for_select(@taxon_name)).to eq('Root')
+    end
+
+    specify '::taxon_name_tag' do
+      expect(TaxonName.taxon_name_tag(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#taxon_name_tag' do
+      expect(@taxon_name.taxon_name_tag(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#taxon_name_link' do
+      expect(@taxon_name.taxon_name_link(@taxon_name)).to eq('Adidae')
+    end
+
+    specify "#taxon_name_rank_select_tag" do
+      expect(@taxon_name.taxon_name_rank_select_tag(@taxon_name)).to eq('Family')
+    end
+
+  end
+
 end
