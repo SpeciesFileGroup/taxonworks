@@ -20,11 +20,12 @@
     <div class="field">
       <%= f.label :parent %>
       <br>
-      <%= render :partial => "elements/forms/ajax_select", locals: {controller: 'taxon_names',
-                                                                    object: 'taxon_name',
-                                                                    method: 'parent_id',
-                                                                    tag_id: 'parent_id_for_new_name',
-                                                                    display: parent_taxon_name_for_select(@taxon_name)} %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 locals:  {controller: 'taxon_names',
+                           object:     'taxon_name',
+                           method:     'parent_id',
+                           tag_id:     'parent_id_for_name',
+                           display:    taxon_name_tag(@taxon_name)} %>
     </div>
 
     <div class="field">
@@ -45,9 +46,17 @@
     </div>
 
     <div class="field">
-      <%= f.label :source_id %>
+      <!--<%#= f.label :source_id %>-->
+      <!--<br>-->
+      <!--<%#= f.number_field :source_id %>-->
+      <%= f.label :source %>
       <br>
-      <%= f.number_field :source_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 locals:  {controller: 'sources',
+                           object:     'source',
+                           method:     'source_id',
+                           tag_id:     'source_id_for_taxon_name',
+                           display:    source_tag(@taxon_name.source)} %>
     </div>
 
     <%= f.hidden_field :type %>

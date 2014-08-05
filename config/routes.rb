@@ -85,18 +85,23 @@ TaxonWorks::Application.routes.draw do
   resources :loans do
     concerns [:data_routes]
   end
-
-  resources :namespaces
+  resources :namespaces do
+    concerns [:data_routes]
+  end
   resources :notes
   resources :otu_page_layout_sections
   resources :otu_page_layouts
   resources :otus do
     concerns [:data_routes]
   end
-  resources :people
+  resources :people do
+    concerns [:data_routes]
+  end
   resources :public_contents
   resources :ranged_lot_categories
-  resources :repositories
+  resources :repositories do
+    concerns [:data_routes]
+  end
   resources :serial_chronologies
   resources :serials
   resources :sources
