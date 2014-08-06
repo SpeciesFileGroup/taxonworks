@@ -18,6 +18,10 @@ class Source < ActiveRecord::Base
 
   #validate :not_empty
 
+  def self.find_for_autocomplete(params)
+    where('cached LIKE ?', "%#{params[:term]}%") 
+  end
+
   protected
   
   # def not_empty

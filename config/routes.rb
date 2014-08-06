@@ -104,7 +104,10 @@ TaxonWorks::Application.routes.draw do
   end
   resources :serial_chronologies
   resources :serials
-  resources :sources
+  resources :sources do
+    concerns [:data_routes]
+  end
+
   resources :tagged_section_keywords
   resources :tags do
     concerns [:data_routes]
