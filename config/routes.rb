@@ -52,7 +52,6 @@ TaxonWorks::Application.routes.draw do
   resources :citations do
     concerns [:data_routes]
   end
-
   resources :collecting_events do
     concerns [:data_routes]
     collection do
@@ -66,12 +65,9 @@ TaxonWorks::Application.routes.draw do
   resources :contents do
     concerns [:data_routes]
   end
-
-
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
-
   resources :data_attributes
   resources :geographic_area_types
   resources :geographic_areas do
@@ -107,17 +103,14 @@ TaxonWorks::Application.routes.draw do
   resources :sources do
     concerns [:data_routes]
   end
-
   resources :tagged_section_keywords
   resources :tags do
     concerns [:data_routes]
   end
-
   resources :taxon_determinations
   resources :taxon_names do
     concerns [:data_routes]
   end
-
   resources :taxon_name_classifications
   resources :taxon_name_relationships
 

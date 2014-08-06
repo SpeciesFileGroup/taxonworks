@@ -75,6 +75,21 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_terms =  ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def autocomplete
+    @controlled_vocabulary_terms = controlled_vocabulary_term.find_for_autocomplete(params)
+
+    data = @controlled_vocabulary_terms.collect do |t|
+      {id:              t.id,
+       label:           ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

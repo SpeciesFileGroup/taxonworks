@@ -9,5 +9,9 @@ module TagsHelper
     TagsHelper.tag_tag(tag)
   end
 
+  def tag_link(tag)
+    return nil if tag.nil?
+    link_to(tag_tag(tag).html_safe, tag)
+  end
 
 end

@@ -9,6 +9,11 @@ module OtusHelper
     OtusHelper.otu_tag(otu)
   end
 
+  def otu_link(otu)
+    return nil if otu.nil?
+    link_to(otu_tag(otu).html_safe, otu)
+  end
+
   def otus_search_form
     render('/otus/quick_search_form')
   end
