@@ -5,8 +5,8 @@ require 'rails_helper'
 #
 # describe TaxonNamesHelper do
 #   describe "string concat" do
-#     it "concats two strings with spaces" do
-#       expect(helper.concat_strings("this","that")).to eq("this that")
+#     it "concatenates two strings with spaces" do
+#       expect(helper.concat_strings("this", "that")).to eq("this that")
 #     end
 #   end
 # end

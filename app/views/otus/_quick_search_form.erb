@@ -1,6 +1,6 @@
 <%= form_tag(search_otus_path) do %>
     <%= render :partial => 'elements/forms/ajax_select',
-               :locals  => {:controller => 'otus',
+               :locals  => {controller: 'otus',
                             object:     'otu',
                             method:     'id',
                             tag_id:     'otu_id_for_quick_search_form',
