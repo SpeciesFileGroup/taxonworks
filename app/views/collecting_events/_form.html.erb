@@ -1,114 +1,18 @@
 <%= form_for(@collecting_event) do |f| %>
   <% if @collecting_event.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@collecting_event.errors.count, "error") %> prohibited this collecting_event from being saved:</h2>
+  <div id="error_explanation">
+  <h2><%= pluralize(@collecting_event.errors.count, "error") %> prohibited this collecting_event from being saved:</h2>
 
-      <ul>
-      <% @collecting_event.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
+  <ul>
+    <% @collecting_event.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
   <% end %>
+  </ul>
+</div>
+<% end %>
 
-
-  <div class="flexbox">
-    <div class="item item1">
-
-      <div class="field">
-        <%= f.label :verbatim_locality %><br>
-        <%= f.text_field :verbatim_locality %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_longitude %><br>
-        <%= f.text_field :verbatim_longitude %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_latitude %><br>
-        <%= f.text_field :verbatim_latitude %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_geolocation_uncertainty %><br>
-        <%= f.text_field :verbatim_geolocation_uncertainty %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_trip_identifier %><br>
-        <%= f.text_field :verbatim_trip_identifier %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_collectors %><br>
-        <%= f.text_field :verbatim_collectors %>
-      </div>
-      <div class="field">
-        <%= f.label :verbatim_method %><br>
-        <%= f.text_field :verbatim_method %>
-      </div>
-
-      <div class="field">
-        <%= f.label :verbatim_elevation %><br>
-        <%= f.text_field :verbatim_elevation %>
-      </div>
- 
-      <div class="field">
-        <%= f.label :verbatim_habitat%><br>
-        <%= f.text_field :verbatim_habitat %>
-      </div>
-
-      <div class="field">
-        <%= f.label :geographic_area_id %><br>
-        <%= f.number_field :geographic_area_id %>
-      </div>
-      <div class="field">
-        <%= f.label :minimum_elevation %><br>
-        <%= f.text_field :minimum_elevation %>
-      </div>
-      <div class="field">
-        <%= f.label :maximum_elevation %><br>
-        <%= f.text_field :maximum_elevation %>
-      </div>
-      <div class="field">
-        <%= f.label :elevation_precision %><br>
-        <%= f.text_field :elevation_precision %>
-      </div>
-      <div class="field">
-        <%= f.label :time_start %><br>
-        <%= f.time_select :time_start %>
-      </div>
-      <div class="field">
-        <%= f.label :time_end %><br>
-        <%= f.time_select :time_end %>
-      </div>
-      <div class="field">
-        <%= f.label :start_date_day %><br>
-        <%= f.text_field :start_date_day %>
-      </div>
-      <div class="field">
-        <%= f.label :start_date_month %><br>
-        <%= f.text_field :start_date_month %>
-      </div>
-      <div class="field">
-        <%= f.label :start_date_year %><br>
-        <%= f.text_field :start_date_year %>
-      </div>
-      <div class="field">
-        <%= f.label :end_date_day %><br>
-        <%= f.text_field :end_date_day %>
-      </div>
-      <div class="field">
-        <%= f.label :end_date_month %><br>
-        <%= f.text_field :end_date_month %>
-      </div>
-      <div class="field">
-        <%= f.label :end_date_year %><br>
-        <%= f.text_field :end_date_year %>
-      </div>
-      <div class="field">
-        <%= f.label :field_notes %><br>
-        <%= f.text_area :field_notes %>
-      </div>
-    </div>
-
-     <div class="item item2">
+<div class="flexbox">
+  <div class="item item1">
 
     <div class="field">
       <%= f.label :verbatim_label %><br>
@@ -122,11 +26,118 @@
       <%= f.label :document_label %><br>
       <%= f.text_area :document_label %>
     </div>
+    
+    <div class="field">
+      <%= f.label :verbatim_locality %><br>
+      <%= f.text_field :verbatim_locality %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_longitude %><br>
+      <%= f.text_field :verbatim_longitude %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_latitude %><br>
+      <%= f.text_field :verbatim_latitude %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_geolocation_uncertainty %><br>
+      <%= f.text_field :verbatim_geolocation_uncertainty %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_trip_identifier %><br>
+      <%= f.text_field :verbatim_trip_identifier %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_collectors %><br>
+      <%= f.text_field :verbatim_collectors %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_method %><br>
+      <%= f.text_field :verbatim_method %>
+    </div>
+
+    <div class="field">
+      <%= f.label :verbatim_elevation %><br>
+      <%= f.text_field :verbatim_elevation %>
+    </div>
+
+    <div class="field">
+      <%= f.label :verbatim_habitat%><br>
+      <%= f.text_field :verbatim_habitat %>
+    </div>
+
+
+  </div>
+
+  <div class="item item2">
+
+    <div class="field">
+      <%= f.label :geographic_area_id %><br>
+      <%= f.number_field :geographic_area_id %>
+    </div>
+    <div class="field">
+      <%= f.label :minimum_elevation %><br>
+      <%= f.text_field :minimum_elevation %>
+    </div>
+    <div class="field">
+      <%= f.label :maximum_elevation %><br>
+      <%= f.text_field :maximum_elevation %>
+    </div>
+    <div class="field">
+      <%= f.label :elevation_precision %><br>
+      <%= f.text_field :elevation_precision %>
+    </div>
+    <div class="field">
+      <%= f.label :time_start %><br>
+      <%= f.time_select :time_start %>
+    </div>
+    <div class="field">
+      <%= f.label :time_end %><br>
+      <%= f.time_select :time_end %>
+    </div>
+
+    <h3> Start date  </h3>
+    <div class="field inline">
+      <%= f.label :start_date_day, 'day' %><br>
+      <%= f.text_field :start_date_day %>
+    </div>
+    <div class="field inline">
+      <%= f.label :start_date_month, 'month' %><br>
+      <%= f.text_field :start_date_month %>
+    </div>
+    
+    <div class="field inline">
+      <%= f.label :start_date_year, 'year' %><br>
+      <%= f.text_field :start_date_year %>
+    </div>
+   
+   <h3> End date  </h3>
+    <div class="field inline">
+      <%= f.label :end_date_day, 'day' %><br>
+      <%= f.text_field :end_date_day %>
+    </div>
+   
+    <div class="field inline">
+      <%= f.label :end_date_month, 'month' %><br>
+      <%= f.text_field :end_date_month %>
+    </div>
+    <div class="field inline">
+      <%= f.label :end_date_year, 'year' %><br>
+      <%= f.text_field :end_date_year %>
+    </div>
+
+    <br>
+    <div class="field">
+      <%= f.label :field_notes %><br>
+      <%= f.text_area :field_notes %>
+    </div>
+
   </div>
 
 </div>
 
-   <div class="actions">
-    <%= f.submit %>
-  </div>
+
+<div class="actions">
+  <%= f.submit %>
+</div>
 <% end %>
