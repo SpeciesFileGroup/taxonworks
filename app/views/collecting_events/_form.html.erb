@@ -57,8 +57,15 @@
       <div class="field">
         <%#= f.label :geographic_area_id %>
         <%= f.label :geographic_area %><br>
-        <%= f.number_field :geographic_area_id %>
-        <%#= f.text_field collecting_event_geographic_area_select_tag(@collecting_event.geographic_area_id) %>
+        <%#= f.number_field :geographic_area_id %>
+        <br>
+        <%= render :partial => 'elements/forms/ajax_select',
+                   :locals  => {:controller => 'geographic_areas',
+                                :object     => 'geographic_area',
+                                :method     => 'geographic_area_id',
+                                :tag_id     => 'geographic_area_id_for_collecting_event',
+                                :display    => object_tag(@collecting_event.geographic_area)} %>
+        <%#	 Also: :display    => object_tag(@collecting_event.geographic_area) %>
       </div>
       <div class="field">
         <%= f.label :minimum_elevation %><br>

@@ -19,12 +19,4 @@ module CollectingEventsHelper
     render('/collecting_events/quick_search_form')
   end
 
-  def collecting_event_geographic_area_select_tag(geographic_area_id)
-    # TODO: What goes here?
-    # if geographic_area_id.nil?
-    #   return nil # jdt?
-    # end
-    # GeographicArea.all.limit(5).to_a
-  end
-
 end
