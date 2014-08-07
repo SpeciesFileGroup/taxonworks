@@ -25,6 +25,10 @@ class GeographicAreasController < ApplicationController
   def edit
   end
 
+  def list
+    @geographic_areas = GeographicArea.order(:id).page(params[:page])
+  end
+
   # POST /geographic_areas
   # POST /geographic_areas.json
   def create
