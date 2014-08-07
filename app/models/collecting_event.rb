@@ -9,7 +9,7 @@
 #   used for retroactive data capture.
 # @!attribute print_label 
 #   @return [String]
-#   A print-formatted ready represenatation of this collecting event.  !! Do not assume that this remains static, 
+#   A print-formatted ready representation of this collecting event.  !! Do not assume that this remains static,
 #   it can change over time with user needs.
 # @!attribute document_label 
 #   @return [String]

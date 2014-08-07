@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Keyword:</strong>
+  <%= object_link(@tag.keyword) %>
+</p>
+
+<p>
+  <strong>Tag object:</strong>
+  <%= object_link(@tag.tag_object) %>
+</p>
+
+<p>
+  <strong>Tag object type:</strong>
+  <%= @tag.tag_object_type %>
+</p>
+
+<p>
+  <strong>Tag object attribute:</strong>
+  <%= @tag.tag_object_attribute %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @tag.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @tag.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @tag.project_id %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @tag.position %>
+</p>
+
+<%= link_to 'Edit', edit_tag_path(@tag) %> |
+<%= link_to 'Back', tags_path %>

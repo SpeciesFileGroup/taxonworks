@@ -20,7 +20,7 @@ module TaxonNamesHelper
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(taxon_name_tag(taxon_name), taxon_name)  # TODO: Jim please check this is correct. I accidentally deleted something from this file and think I fixed it ok. mb
+    link_to(taxon_name_tag(taxon_name).html_safe, taxon_name)
   end
 
   # TODO: Scope to code

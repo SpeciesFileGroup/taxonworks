@@ -71,20 +71,20 @@ class OtusController < ApplicationController
     redirect_to otu_path(params[:otu][:id])
   end
 
- def autocomplete
+  def autocomplete
     @otus = Otu.find_for_autocomplete(params)
 
     data = @otus.collect do |t|
-      {id: t.id,
-       label: OtusHelper.otu_tag(t), 
+      {id:              t.id,
+       label:           OtusHelper.otu_tag(t),
        response_values: {
-         params[:method] => t.id  
+         params[:method] => t.id
        },
-       label_html: OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 
-    render :json => data 
+    render :json => data
   end
 
   # batch is demo only ... 
@@ -94,10 +94,10 @@ class OtusController < ApplicationController
 
   def batch_create
     if @otus = Otu.batch_create(params.symbolize_keys.to_h)
-     flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
+      flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
     else
       # TODO: more response
-      flash[:notice] = 'Failed to create the Otus.' 
+      flash[:notice] = 'Failed to create the Otus.'
     end
     redirect_to otus_path
   end
@@ -109,13 +109,13 @@ class OtusController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_otu
-      @otu = Otu.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_otu
+    @otu = Otu.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def otu_params
-      params.require(:otu).permit(:name)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def otu_params
+    params.require(:otu).permit(:name)
+  end
 end
