@@ -20,15 +20,17 @@ In progres...
     # Tentative data model helper methods.
     #    
  
-    #  Return a single line, content_tag(:span, ... ) naming the instance.
+    #  Return a single line, ideally wrapped in a content_tag(:span, ... ) naming the instance.
     def <model_name>_tag(model)
+      return nil if model.nil
+      # return some model.attribute of interpolated string of model attributes
     end
 
-    #  Return a single line, content_tag(:span, ... ) briefly naming the instance.
+    #  Return a single line, ideally wrapped in a content_tag(:span, ... ) briefly naming the instance.
     def <model_name>_short_tag(model)
     end
   
-    #  Return on or more line, content_tag(:div, ... ) detailing the instance.
+    #  Return one or more line, ideally wrapped in a content_tag(:div, ... ) detailing the instance.
     def <model_name>_detailed_tag(model)
     end
 
