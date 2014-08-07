@@ -27,25 +27,37 @@
     <div class="field">
       <%= f.label :preparation_type %>
       <br>
-      <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name) -%>
+      <%#= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name) -%>
+      <%= render partial: 'elements/forms/ajax_select',
+                 locals:  {controller: 'preparation_types',
+                           object:     'preparation_type',
+                           method:     'preparation_type_id',
+                           tag_id:     'preparation_type_id_for_collection_object',
+                           display:    object_tag(@collection_object.preparation_type)} %>
     </div>
 
     <div class="field">
       <%= f.label :repository %>
       <br>
-      <%= f.select :repository_id, options_from_collection_for_select(Repository.all, :id, :name) -%>
+      <%#= f.select :repository_id, options_from_collection_for_select(Repository.all, :id, :name) -%>
+      <%= render partial: 'elements/forms/ajax_select',
+                 locals:  {controller: 'repositories',
+                           object:     'repository',
+                           method:     'repository',
+                           tag_id:     'repository_id_for_collection_object',
+                           display:    object_tag(@collection_object.repository)} %>
     </div>
 
     <div class="field">
       <%= f.label :collecting_event %>
       <br>
       <%#= f.select :collecting_event_id, options_from_collection_for_select(CollectingEvent.with_project_id($project_id).all, :id, :cached_display) -%>
-      <%= render :partial => 'elements/forms/ajax_select',
-                 :locals  => {:controller => 'collecting_events', # controller location of autocomplete we want to run
-                              :object     => 'collection_object', # symbolic reference to the form instance
-                              :method     => 'collecting_event_id', # foreign key id
-                              :tag_id     => 'collecting_event_id_for_collection_object', # html id
-                              :display    => object_tag(@collection_object.collecting_event)} %>
+      <%= render partial: 'elements/forms/ajax_select',
+                 locals:  {controller: 'collecting_events',
+                           object:     'collection_object',
+                           method:     'collecting_event_id',
+                           tag_id:     'collecting_event_id_for_collection_object',
+                           display:    object_tag(@collection_object.collecting_event)} %>
 
     </div>
 
@@ -82,13 +94,25 @@
     <div class="field">
       <%= f.label :accession_provider_id %>
       <br>
-      <%= f.select :accession_provider_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
+      <%#= f.select :accession_provider_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
+      <%= render partial: 'elements/forms/ajax_select',
+                 locals:  {controller: 'accession_providers',
+                           object:     'accession_provider',
+                           method:     'accession_provider_id',
+                           tag_id:     'accession_provider_id_for_collection_object',
+                           display:    object_tag(@collection_object.accession_provider)} %>
     </div>
 
     <div class="field">
       <%= f.label :deaccession_recipient_id %>
       <br>
-      <%= f.select :deaccession_recipient_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
+      <%#= f.select :deaccession_recipient_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
+      <%= render partial: 'elements/forms/ajax_select',
+                 locals:  {controller: 'deaccession_recipients',
+                           object:     'deaccession_recipient',
+                           method:     'deaccession_recipient_id',
+                           tag_id:     'deaccession_recipient_id_for_collection_object',
+                           display:    object_tag(@collection_object.deaccession_recipient)} %>
     </div>
 
     <div class="field">

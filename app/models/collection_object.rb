@@ -118,6 +118,10 @@ class CollectionObject < ActiveRecord::Base
     # see biological_collection_object
   end
 
+  def self.find_for_autocomplete(params)
+    where('type LIKE ?', "#{params[:term]}%") # TODO: Is "type"
+  end
+
   #endregion
 
   protected
