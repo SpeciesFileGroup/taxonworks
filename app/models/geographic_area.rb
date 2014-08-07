@@ -182,4 +182,9 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
+  def find_for_autocomplete(params)
+    where('name LIKE ?', "#{params[:term]}%")
+    # where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
+  end
+
 end

@@ -7,6 +7,8 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas.json
   def index
     @geographic_areas = GeographicArea.limit(30).offset(@geo_area_offset)
+    # @recent_objects   = GeographicArea.recent_in_time(1.year).order(updated_at: :desc).limit(10)
+    @recent_objects   = GeographicArea.order(updated_at: :desc).limit(10)
   end
 
   # GET /geographic_areas/1
@@ -65,19 +67,35 @@ class GeographicAreasController < ApplicationController
 
   def search
     @geographic_areas = GeographicArea.with_name_like(params[:name])
-    @search_string = params[:name]
+    @search_string    = params[:name]
     render :index
     @geo_area_offset = index
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_geographic_area
-      @geographic_area = GeographicArea.find(params[:id])
+  def autocomplete
+    @geographic_areas = GeographicArea.find_for_autocomplete(params)
+
+    data = @geographic_areas.collect do |t|
+      {id:              t.id,
+       label:           GeographicAreaHelper.otu_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      GeographicAreaHelper.geographic_area_tag(t)
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def geographic_area_params
-      params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id, :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID, :data_origin, :created_by_id, :updated_by_id)
-    end
+    render :json => data
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_geographic_area
+    @geographic_area = GeographicArea.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def geographic_area_params
+    params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id, :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID, :data_origin, :created_by_id, :updated_by_id)
+  end
 end

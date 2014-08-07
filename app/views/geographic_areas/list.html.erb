@@ -1,0 +1,55 @@
+<%#= render 'search' -%>
+
+<h1>Listing Geographic Areas</h1>
+
+<%= paginate @geographic_areas %> <%= page_entries_info @geographic_areas %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Parent</th>
+    <th>Geographic area type</th>
+    <th>Iso 3166 a2</th>
+    <th>Iso 3166 a3</th>
+    <th>Data origin</th>
+    <th>TDWG Id</th>
+    <th>GeoItem Count</th>
+    <th>Level0</th>
+    <th>Level1</th>
+    <th>Level2</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @geographic_areas.each do |geographic_area| %>
+      <tr>
+        <td><%= geographic_area.name %></td>
+        <td><%= geographic_area_link(geographic_area.parent) %></td>
+        <td><%= geographic_area.geographic_area_type ? geographic_area.geographic_area_type.name : nil %></td>
+        <td><%= geographic_area.iso_3166_a2 %></td>
+        <td><%= geographic_area.iso_3166_a3 %></td>
+        <td><%= geographic_area.data_origin %></td>
+        <td><%= geographic_area.tdwgID %></td>
+        <td><%= geographic_area.geographic_items.count %></td>
+        <td><%= geographic_area_link(geographic_area.level0) %></td>
+        <td><%= geographic_area_link(geographic_area.level1) %></td>
+        <td><%= geographic_area_link(geographic_area.level2) %></td>
+        <td><%= geographic_area.created_by_id %></td>
+        <td><%= geographic_area.updated_by_id %></td>
+        <td><%= link_to 'Show', geographic_area %></td>
+        <td><%= link_to 'Edit', edit_geographic_area_path(geographic_area) %></td>
+        <td><%= link_to 'Destroy', geographic_area, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Geographic area', new_geographic_area_path %>
