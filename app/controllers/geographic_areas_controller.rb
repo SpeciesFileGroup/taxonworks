@@ -25,6 +25,7 @@ class GeographicAreasController < ApplicationController
   def edit
   end
 
+  # triggered by "list" link on index page
   def list
     @geographic_areas = GeographicArea.order(:id).page(params[:page])
   end

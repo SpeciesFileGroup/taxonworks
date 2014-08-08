@@ -6,7 +6,7 @@ class TagsController < ApplicationController
   # GET /tags
   # GET /tags.json
   def index
-    @tags           = Tag.all
+    #@tags           = Tag.all
     @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
 
   end
@@ -25,7 +25,12 @@ class TagsController < ApplicationController
   def edit
   end
 
-  # POST /tags
+  # triggered by "list" link on index page
+  def list
+    @tags = Tag.order(:id).page(params[:page])
+  end
+
+# POST /tags
   # POST /tags.json
   def create
     @tag         = Tag.new(tag_params)
@@ -71,6 +76,10 @@ class TagsController < ApplicationController
       format.html { redirect_to redirect_url, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    redirect_to tag_path(params[:tag][:id])
   end
 
   def autocomplete

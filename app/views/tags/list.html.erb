@@ -1,6 +1,6 @@
-<h1>Tags</h1>
+<h1>Listing Tags</h1>
 
-<%= paginate @tags %> <%= page_entries_info @tags %>
+<%#= paginate @tags %> <%#= page_entries_info @tags %>
 
 <table>
   <thead>
@@ -20,8 +20,8 @@
   <tbody>
   <% @tags.each do |tag| %>
       <tr>
-        <td><%= tag.keyword_id %></td>
-        <td><%= tag.tag_object_id %></td>
+        <td><%= tag.keyword.name %></td>
+        <td><%= tag.tag_object %></td>
         <td><%= tag.tag_object_type %></td>
         <td><%= tag.tag_object_attribute %></td>
         <td><%= tag.created_by_id %></td>
