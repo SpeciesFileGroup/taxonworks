@@ -7,7 +7,7 @@ class TagsController < ApplicationController
   # GET /tags.json
   def index
     #@tags           = Tag.all
-    @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
 
   end
 
