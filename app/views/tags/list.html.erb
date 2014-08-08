@@ -21,7 +21,7 @@
   <% @tags.each do |tag| %>
       <tr>
         <td><%= tag.keyword.name %></td>
-        <td><%= tag.tag_object %></td>
+        <td><%= object_tag(tag.tag_object) %></td>
         <td><%= tag.tag_object_type %></td>
         <td><%= tag.tag_object_attribute %></td>
         <td><%= tag.created_by_id %></td>
