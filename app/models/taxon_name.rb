@@ -650,7 +650,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
   end
 
   #endregion

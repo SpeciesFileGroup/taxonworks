@@ -1,5 +1,3 @@
-<%#= render 'search' -%>
-
 <h1>Listing Geographic Areas</h1>
 
 <%= paginate @geographic_areas %> <%= page_entries_info @geographic_areas %>
@@ -31,7 +29,7 @@
       <tr>
         <td><%= geographic_area.name %></td>
         <td><%= geographic_area_link(geographic_area.parent) %></td>
-        <td><%= geographic_area.geographic_area_type ? geographic_area.geographic_area_type.name : nil %></td>
+        <td><%= geographic_area_type_tag(geographic_area.geographic_area_type) %></td>
         <td><%= geographic_area.iso_3166_a2 %></td>
         <td><%= geographic_area.iso_3166_a3 %></td>
         <td><%= geographic_area.data_origin %></td>

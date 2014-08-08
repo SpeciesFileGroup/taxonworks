@@ -36,15 +36,13 @@
   <% @taxon_names.each do |taxon_name| %>
       <tr>
         <td><%= taxon_name.name %></td>
-        <td><%= taxon_name.parent_id %></td>
-        <!--<td><%#= taxon_name.parent.taxon_name_tag(taxon_name.parent) unless taxon_name.parent.nil? %></td>-->
+        <td><%= object_tag(taxon_name.parent) %></td>
         <td><%= taxon_name.cached_name %></td>
         <td><%= taxon_name.cached_author_year %></td>
         <td><%= taxon_name.cached_higher_classification %></td>
         <!--<td><%#= taxon_name.lft %></td>-->
         <!--<td><%#= taxon_name.rgt %></td>-->
-        <td><%= taxon_name.source_id %></td>
-        <!--<td><%#= taxon_name.source.source_tag(taxon_name.source) unless taxon_name.source.nil? %></td>-->
+        <td><%= object_tag(taxon_name.source) %></td>
         <td><%= taxon_name.year_of_publication %></td>
         <td><%= taxon_name.verbatim_author %></td>
         <td><%= taxon_name.rank_class %></td>

@@ -6,7 +6,9 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    # todo: temporary, to at least show something
+    @recent_objects = TaxonName.with_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /taxon_names/1
@@ -61,6 +63,10 @@ class TaxonNamesController < ApplicationController
       format.html { redirect_to taxon_names_url }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    redirect_to taxon_name_path(params[:taxon_name][:id])
   end
 
   def autocomplete

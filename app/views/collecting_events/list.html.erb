@@ -28,7 +28,7 @@
       <th>End date year</th>
       <th>Verbatim habitat</th>
       <th>Field notes</th>
-      <th>Md5 of verbatim label</th>
+      <!--<th>Md5 of verbatim label</th>-->
       <th>Cached display</th>
       <th>Created by</th>
       <th>Updated by</th>
@@ -52,7 +52,7 @@
         <td><%= collecting_event.verbatim_trip_identifier %></td>
         <td><%= collecting_event.verbatim_collectors %></td>
         <td><%= collecting_event.verbatim_method %></td>
-        <td><%= collecting_event.geographic_area_id %></td>
+        <td><%= object_tag(collecting_event.geographic_area) %></td>
         <td><%= collecting_event.minimum_elevation %></td>
         <td><%= collecting_event.maximum_elevation %></td>
         <td><%= collecting_event.elevation_precision %></td>
@@ -66,7 +66,7 @@
         <td><%= collecting_event.end_date_year %></td>
         <td><%= collecting_event.verbatim_habitat %></td>
         <td><%= collecting_event.field_notes %></td>
-        <td><%= collecting_event.md5_of_verbatim_label %></td>
+        <!--<td><%#= collecting_event.md5_of_verbatim_label %></td>-->
         <td><%= collecting_event.cached %></td>
         <td><%= collecting_event.created_by_id %></td>
         <td><%= collecting_event.updated_by_id %></td>
