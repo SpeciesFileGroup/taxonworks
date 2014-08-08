@@ -70,10 +70,11 @@ class GeographicAreasController < ApplicationController
   end
 
   def search
-    @geographic_areas = GeographicArea.with_name_like(params[:name])
-    @search_string    = params[:name]
-    render :index
-    @geo_area_offset = index
+    # @geographic_areas = GeographicArea.with_name_like(params[:name])
+    # @search_string    = params[:name]
+    # render :index
+    # @geo_area_offset = index
+    redirect_to geographic_area_path(params[:geographic_area][:id])
   end
 
   def autocomplete
