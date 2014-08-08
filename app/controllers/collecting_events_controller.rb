@@ -88,6 +88,10 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
+  def list
+    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event

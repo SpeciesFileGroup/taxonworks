@@ -11,12 +11,14 @@
 
 <p>
   <strong>Preparation type:</strong>
-  <%= @collection_object.preparation_type_id %>
+  <%#= @collection_object.preparation_type_id %>
+  <%= object_link(@collection_object.preparation_type) %>
 </p>
 
 <p>
   <strong>Repository:</strong>
-  <%= @collection_object.repository_id %>
+  <%#= @collection_object.repository_id %>
+  <%= object_link(@collection_object.repository) %>
 </p>
 
 <p>

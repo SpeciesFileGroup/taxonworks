@@ -92,24 +92,24 @@
     </div>
 
     <div class="field">
-      <%= f.label :accession_provider_id %>
+      <%= f.label :accession_provider # was _id %>
       <br>
       <%#= f.select :accession_provider_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
       <%= render partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'accession_providers',
-                           object:     'accession_provider',
+                 locals:  {controller: 'people',
+                           object:     'person',
                            method:     'accession_provider_id',
                            tag_id:     'accession_provider_id_for_collection_object',
                            display:    object_tag(@collection_object.accession_provider)} %>
     </div>
 
     <div class="field">
-      <%= f.label :deaccession_recipient_id %>
+      <%= f.label :deaccession_recipient # was _id %>
       <br>
       <%#= f.select :deaccession_recipient_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
       <%= render partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'deaccession_recipients',
-                           object:     'deaccession_recipient',
+                 locals:  {controller: 'people',
+                           object:     'person',
                            method:     'deaccession_recipient_id',
                            tag_id:     'deaccession_recipient_id_for_collection_object',
                            display:    object_tag(@collection_object.deaccession_recipient)} %>
