@@ -81,11 +81,11 @@ class GeographicAreasController < ApplicationController
 
     data = @geographic_areas.collect do |t|
       {id:              t.id,
-       label:           GeographicAreaHelper.otu_tag(t),
+       label:           GeographicAreasHelper.geographic_area_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      GeographicAreaHelper.geographic_area_tag(t)
+       label_html:      GeographicAreasHelper.geographic_area_tag(t)
       }
     end
 
