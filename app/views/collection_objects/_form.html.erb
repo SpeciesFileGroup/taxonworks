@@ -27,8 +27,8 @@
     <div class="field">
       <%= f.label :preparation_type %>
       <br>
-      <%#= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name) -%>
-      <%= render partial: 'elements/forms/ajax_select',
+      <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name) -%>
+      <%# render partial: 'elements/forms/ajax_select',
                  locals:  {controller: 'preparation_types',
                            object:     'preparation_type',
                            method:     'preparation_type_id',
@@ -92,21 +92,22 @@
     </div>
 
     <div class="field">
-      <%= f.label :accession_provider # was _id %>
+      <%= f.label :accession_provider  %> <!-- was _id You can't add comments in line on ERB tags like this -->
       <br>
       <%#= f.select :accession_provider_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
-      <%= render partial: 'elements/forms/ajax_select',
+      <%= render(partial: 'elements/forms/ajax_select',
                  locals:  {controller: 'people',
                            object:     'person',
                            method:     'accession_provider_id',
                            tag_id:     'accession_provider_id_for_collection_object',
-                           display:    object_tag(@collection_object.accession_provider)} %>
+                           display:    object_tag(@collection_object.accession_provider)}) %>
     </div>
 
     <div class="field">
-      <%= f.label :deaccession_recipient # was _id %>
+      <%= f.label :deaccession_recipient %>
       <br>
       <%#= f.select :deaccession_recipient_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
+  
       <%= render partial: 'elements/forms/ajax_select',
                  locals:  {controller: 'people',
                            object:     'person',
