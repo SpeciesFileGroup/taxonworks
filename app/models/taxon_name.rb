@@ -216,11 +216,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def rank
-    ::RANKS.include?(self.rank_class) ? self.rank_class.rank_name : nil
+    ::RANKS.include?(self.rank_string) ? self.rank_class.rank_name : nil
   end
 
   def rank_string
-    self.rank_class.to_s
+    read_attribute(:rank_class)
   end
 
   def rank_class=(value)
@@ -266,7 +266,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def cached_name_and_author_year
-    if self.rank_class.to_s =~ /::(Species|Genus)/
+    if self.rank_string =~ /::(Species|Genus)/
       (self.cached_name.to_s + ' ' + self.cached_author_year.to_s).squish!
     else
       (self.name.to_s + ' ' + self.cached_author_year.to_s).squish!
@@ -307,7 +307,7 @@ class TaxonName < ActiveRecord::Base
   def name_with_alternative_spelling
     if self.class != Protonym || self.rank_class.nil? || self.rank_class.to_s =~ /::Icn::/
       return nil
-    elsif self.rank_class.to_s =~ /Species/
+    elsif self.rank_string =~ /Species/
       n = self.name.squish # remove extra spaces and line brakes
       n = n.split(' ').last
       n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/ # -iae > -ae in the end of word
@@ -346,7 +346,7 @@ class TaxonName < ActiveRecord::Base
         gsub('ph', 'f').
         gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
-    elsif self.rank_class.to_s =~ /Family/
+    elsif self.rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
       if n_base.nil?
         n = self.name
@@ -376,7 +376,7 @@ class TaxonName < ActiveRecord::Base
   # An array of genera where the species was placed
   def all_generic_placements
     valid_name = self.get_valid_taxon_name
-    return nil unless valid_name.rank_class.to_s !=~/Species/
+    return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self]
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
@@ -420,7 +420,7 @@ class TaxonName < ActiveRecord::Base
 
   def get_full_name
     # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
       cached_name = nil
     else
       genus        = ''
@@ -429,7 +429,7 @@ class TaxonName < ActiveRecord::Base
       species      = ''
       gender       = nil
       (self.ancestors + [self]).each do |i|
-        if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_class.to_s)
+        if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_string)
           case i.rank_class.rank_name
             when 'genus'
               genus  = '<em>' + i.name + '</em> '
@@ -472,7 +472,7 @@ class TaxonName < ActiveRecord::Base
   def name_with_misspelling(gender)
     if self.cached_misspelling
       self.name.to_s + ' [sic]'
-    elsif gender.nil? || self.rank_class.to_s =~ /Genus/
+    elsif gender.nil? || self.rank_string =~ /Genus/
       self.name.to_s
     else
       self.name_in_gender(gender)
@@ -480,7 +480,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_original_combination
-    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_class.to_s) && self.class == Protonym
+    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       cached_name = nil
     else
       relationships = self.original_combination_relationships
@@ -517,13 +517,13 @@ class TaxonName < ActiveRecord::Base
             species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
         end
       end
-      if self.rank_class.to_s =~ /Genus/
+      if self.rank_string =~ /Genus/
         if genus.blank?
           genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
         else
           subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
         end
-      elsif self.rank_class.to_s =~ /Species/
+      elsif self.rank_string =~ /Species/
         species += '<em>' + self.name_with_misspelling(nil) + '</em> '
         genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
       end
@@ -593,7 +593,7 @@ class TaxonName < ActiveRecord::Base
     end
     genus = genus.name unless genus.blank?
 
-    if self.rank_class.to_s =~ /Species/ && genus.blank?
+    if self.rank_string =~ /Species/ && genus.blank?
       return nil
     elsif self_option == :self
       name1 = self.name
@@ -607,7 +607,7 @@ class TaxonName < ActiveRecord::Base
     if self.rank.nil?
       ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
     else
-      rank = Object.const_get(self.rank_class.to_s)
+      rank = Object.const_get(self.rank_string)
       if rank.nomenclatural_code == :iczn
         misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
           with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
@@ -634,7 +634,7 @@ class TaxonName < ActiveRecord::Base
 
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    (self.ancestors + [self]).select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_class.to_s) }.collect { |i| i.name }.join(':')
+    (self.ancestors + [self]).select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
   end
 
   def get_classified_as
@@ -672,12 +672,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_parent_rank_is_higher
-    if self.parent && !self.rank_class.blank? && self.rank_class != NomenclaturalRank
-      if RANKS.index(self.rank_class) <= RANKS.index(self.parent.rank_class)
+    if self.parent && !self.rank_class.blank? && self.rank_string != 'NomenclaturalRank'
+      if RANKS.index(self.rank_string) <= RANKS.index(self.parent.rank_string)
         errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
       end
 
-      if (self.rank_class != self.rank_class_was) && self.children && !self.children.empty? && RANKS.index(self.rank_class) >= self.children.collect { |r| RANKS.index(r.rank_class) }.max
+      if (self.rank_class != self.rank_class_was) && # @proceps this catches nothing, as self.rank_class_was is never defined!
+          self.children &&
+          !self.children.empty? &&
+          RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
         errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
       end
     end
@@ -691,8 +694,10 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
   def check_new_rank_class
-    if self.rank_class != self.rank_class_was && !self.rank_class_was.nil?
+    if (self.rank_class != self.rank_class_was) && 
+      !self.rank_class_was.nil?
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
@@ -746,7 +751,7 @@ class TaxonName < ActiveRecord::Base
     end
 
     # TODO: break this one out   
-    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+    if SPECIES_RANK_NAMES.include?(self.rank_string)
       soft_validations.add(:name, 'name must be lower case') unless self.name == self.name.downcase
     end
 
@@ -847,7 +852,7 @@ class TaxonName < ActiveRecord::Base
         self.cached_higher_classification != get_higher_classification ||
         self.cached_primary_homonym != get_genus_species(:original, :self) ||
         self.cached_primary_homonym_alt != get_genus_species(:original, :alternative) ||
-        self.rank_class.to_s =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative))
+        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative))
         cached = false
       end
     end

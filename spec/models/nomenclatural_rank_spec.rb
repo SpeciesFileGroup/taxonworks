@@ -19,7 +19,7 @@ describe NomenclaturalRank, :type => :model do
     # TODO: can NomenclaturalRank be abstracted out as "subject" or similar
     specify "abbreviation" do
       expect(NomenclaturalRank).to respond_to(:abbreviation)
-      expect(Ranks.lookup(:iczn, 'genus').abbreviation).to eq("gen.")
+      expect(Ranks.lookup(:iczn, 'genus').constantize.abbreviation).to eq("gen.")
     end
 
     specify "common?" do
@@ -35,14 +35,14 @@ describe NomenclaturalRank, :type => :model do
     end
 
     specify "nomenclatural_code" do
-      expect(Ranks.lookup(:iczn, 'Family').nomenclatural_code).to eq(:iczn)
-      expect(Ranks.lookup(:icn, 'Class').nomenclatural_code).to eq(:icn)
+      expect(Ranks.lookup(:iczn, 'Family').constantize.nomenclatural_code).to eq(:iczn)
+      expect(Ranks.lookup(:icn, 'Class').constantize.nomenclatural_code).to eq(:icn)
 
     end
 
     specify "nomenclatural_code_class" do
-      expect(Ranks.lookup(:iczn, "Family").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
-      expect(Ranks.lookup(:iczn, "Class").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+      expect(Ranks.lookup(:iczn, "Family").constantize.nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+      expect(Ranks.lookup(:iczn, "Class").constantize.nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
     end
 
     # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 

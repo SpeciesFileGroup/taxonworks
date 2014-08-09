@@ -1,13 +1,15 @@
 # Be sure to restart your server when you modify this file.
 
+# !! All constants are now String referencing only.  They must not reference a class. !!
+
 # ICN Rank Classes ordered in an Array
-ICN = Ranks.ordered_ranks_for(NomenclaturalRank::Icn)
+ICN = Ranks.ordered_ranks_for(NomenclaturalRank::Icn).collect{|r| r.to_s}
  
 # ICZN Rank Classes ordered in an Array
-ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn)
+ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn).collect{|r| r.to_s}
 
 # All assignable Rank Classes
-RANKS = [NomenclaturalRank] + ICN + ICZN
+RANKS = ['NomenclaturalRank'] + ICN + ICZN
 
 # ICNZ Ranks, as Strings
 RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
@@ -16,20 +18,20 @@ RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
 RANK_CLASS_NAMES_ICN = ICN.collect{|r| r.to_s}
 
 # All Ranks, as Strings
-RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s}
+# RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s} # NOW RANKS
 
 # ICN Rank Classes in a Hash with keys being the "human" name
 # For example, to return the class for a plant family:
 #   ::ICN_LOOKUP['family']
-ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
+ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)}
 
 # ICZN Rank Classes in a Hash with keys being the "human" name
-ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.rank_name => r)}
+ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)}
 
 # All assignable ranks for family groups, for ICZN
 FAMILY_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|i| i.to_s}
 
-# All assignable ranks for family groups, for both ICN
+# All assignable ranks for family groups, for ICN
 FAMILY_RANK_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|i| i.to_s}
 
 # All assignable ranks for family group, for both ICN and ICZN

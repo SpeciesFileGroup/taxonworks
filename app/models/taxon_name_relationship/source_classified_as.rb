@@ -9,7 +9,7 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
 
   # right_side
   def self.valid_object_ranks
-    RANK_CLASS_NAMES
+    RANKS #  RANK_CLASS_NAMES
   end
 
   def self.disjoint_subject_classes
