@@ -16,7 +16,6 @@ FactoryGirl.define do
     end
 
     factory :random_controlled_vocabulary_term, traits: [:random_name, :random_definition] 
-
   end
 
 end

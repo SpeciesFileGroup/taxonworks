@@ -30,24 +30,34 @@ describe ControlledVocabularyTerm, :type => :model do
   end
 
   context 'within projects' do
+
+    let(:uri) { 'http://purl.org/net/foo/1' }
+
     specify 'name is unique within projects per type'  do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term)
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', same_as_uri: uri)
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
     end
 
     specify 'definition is unique within projects' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!')
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', same_as_uri: uri)
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', same_as_uri: uri)
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:definition)).to be_truthy
     end
 
+    specify 'same_as_uri is unique within projects' do
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, same_as_uri: uri)
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, same_as_uri: uri )
+      expect(b.valid?).to be_falsey
+      expect(b.errors.include?(:same_as_uri)).to be_truthy
+    end
+
     specify 'is case sensitive, i.e. bat and Bat are different' do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term, name: 'blue')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', same_as_uri: :uri)
       expect(b.valid?).to be_truthy
     end
 

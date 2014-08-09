@@ -72,7 +72,6 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    # @otus = Otu.find_for_autocomplete(params)
     @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @otus.collect do |t|

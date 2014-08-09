@@ -66,12 +66,12 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
 
-  belongs_to :preparation_type, inverse_of: :collection_objects
-  belongs_to :repository, inverse_of: :collection_objects
-  belongs_to :collecting_event, inverse_of: :collection_objects
-  belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :accession_provider, foreign_key: :accession_provider_id, class_name: 'Person'
+  belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :deaccession_recipient, foreign_key: :deaccession_recipient_id, class_name: 'Person'
+  belongs_to :preparation_type, inverse_of: :collection_objects
+  belongs_to :ranged_lot_category, inverse_of: :ranged_lots
+  belongs_to :repository, inverse_of: :collection_objects
 
   validates_presence_of :type
   before_validation :default_to_biological_collection_object_if_type_not_provided
@@ -121,6 +121,8 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
+    # add identifiers
+    # add determinations
     where('type LIKE ?', "#{params[:term]}%") # TODO: Is "type"
   end
 

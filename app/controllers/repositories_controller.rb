@@ -63,6 +63,24 @@ class RepositoriesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @repositories = Repository.find_for_autocomplete(params)
+
+    data = @repositories.collect do |t|
+      {id:              t.id,
+       label:           RepositoriesHelper.repository_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      RepositoriesHelper.repository_tag(t) 
+      }
+    end
+
+    render :json => data
+
+
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_repository
