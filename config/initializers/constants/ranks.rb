@@ -1,24 +1,15 @@
 # Be sure to restart your server when you modify this file.
 
-# !! All constants are now String referencing only.  They must not reference a class. !!
+# !! All constants are now composed of Strings only.  They must not reference a class. !!
 
-# ICN Rank Classes ordered in an Array
-ICN = Ranks.ordered_ranks_for(NomenclaturalRank::Icn).collect{|r| r.to_s}
- 
-# ICZN Rank Classes ordered in an Array
-ICZN = Ranks.ordered_ranks_for(NomenclaturalRank::Iczn).collect{|r| r.to_s}
+# ICN class names ordered in an Array
+ICN = NomenclaturalRank::Icn.ordered_ranks.collect{|r| r.to_s}
 
-# All assignable Rank Classes
+# ICZN class names  ordered in an Array
+ICZN = NomenclaturalRank::Iczn.ordered_ranks.collect{|r| r.to_s}
+
+# All assignable Rank Classes 
 RANKS = ['NomenclaturalRank'] + ICN + ICZN
-
-# ICNZ Ranks, as Strings
-RANK_CLASS_NAMES_ICZN = ICZN.collect{|r| r.to_s}
-
-# ICN Ranks, as Strings
-RANK_CLASS_NAMES_ICN = ICN.collect{|r| r.to_s}
-
-# All Ranks, as Strings
-# RANK_CLASS_NAMES = RANKS.collect{|r| r.to_s} # NOW RANKS
 
 # ICN Rank Classes in a Hash with keys being the "human" name
 # For example, to return the class for a plant family:

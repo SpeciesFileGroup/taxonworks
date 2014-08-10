@@ -3,20 +3,20 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
 
   # left_side
   def self.valid_subject_ranks
-    RANK_CLASS_NAMES_ICN
+    ::ICN
   end
 
   # right_side
   def self.valid_object_ranks
-    RANK_CLASS_NAMES_ICN
+    ::ICN
   end
 
   def self.disjoint_subject_classes
-    ICZN_TAXON_NAME_CLASS_NAMES
+    ::ICZN
   end
 
   def self.disjoint_object_classes
-    ICZN_TAXON_NAME_CLASS_NAMES +
+    ::ICZN +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished,
             TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
