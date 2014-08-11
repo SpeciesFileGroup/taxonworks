@@ -25,11 +25,6 @@ class GeographicAreasController < ApplicationController
   def edit
   end
 
-  # triggered by "list" link on index page
-  def list
-    @geographic_areas = GeographicArea.order(:id).page(params[:page])
-  end
-
   # POST /geographic_areas
   # POST /geographic_areas.json
   def create
@@ -68,6 +63,11 @@ class GeographicAreasController < ApplicationController
       format.html { redirect_to geographic_areas_url }
       format.json { head :no_content }
     end
+  end
+
+  # triggered by "list" link on index page
+  def list
+    @geographic_areas = GeographicArea.order(:id).page(params[:page])
   end
 
   def search

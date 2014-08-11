@@ -1,0 +1,11 @@
+<%= form_tag(search_contents_path) do %>
+    <%= render partial: 'elements/forms/ajax_select',
+               locals:  {controller: 'contents',
+                         object:     'content',
+                         method:     'id',
+                         tag_id:     'content_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

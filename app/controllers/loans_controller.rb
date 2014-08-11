@@ -1,12 +1,14 @@
 class LoansController < ApplicationController
   include DataControllerConfiguration
 
+  before_action :require_sign_in_and_project_selection
   before_action :set_loan, only: [:show, :edit, :update, :destroy]
 
   # GET /loans
   # GET /loans.json
   def index
-    @loans = Loan.all
+    @loans          = Loan.all
+    @recent_objects = Loan.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /loans/1
@@ -61,6 +63,30 @@ class LoansController < ApplicationController
       format.html { redirect_to loans_url }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @contents = Loan.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to loan_path(params[:loan][:id])
+  end
+
+  def autocomplete
+    @contents = Loan.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @loans.collect do |t|
+      {id:              t.id,
+       label:           LoansHelper.loan_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      LoansHelper.loan_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private
