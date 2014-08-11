@@ -14,7 +14,7 @@ module TaxonWorksAutoload
       /app/models/container/**/*.rb
       /app/models/alternate_value/**/*.rb
     }.each do |path|
-      Dir[Rails.root.to_s + path].each {|file| require_dependency file } # was .sort
+      Dir[Rails.root.to_s + path].sort.each {|file| require_dependency file } # was .sort
     end
 
     %w{Predicate Topic Keyword BiocurationClass BiologicalProperty BiocurationGroup}.each do |cv_class|
