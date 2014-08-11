@@ -30,6 +30,10 @@ describe UsersController, :type => :routing do
     it "routes to #destroy" do
       expect(delete("/users/1")).to route_to("users#destroy", :id => "1")
     end
+    
+    it "routes to #forgot_password" do
+      expect(get("/forgot_password")).to route_to("users#forgot_password")
+    end
 
   end
 end
