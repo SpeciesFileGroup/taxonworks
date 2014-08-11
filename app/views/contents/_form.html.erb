@@ -19,12 +19,22 @@
     <div class="field">
       <%= f.label :otu_id %>
       <br>
-      <%= f.number_field :otu_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'otus',
+                              :object     => 'otu',
+                              :method     => 'otu_id',
+                              :tag_id     => 'otu_id_for_content',
+                              :display    => otu_tag(@content.otu)} %>
     </div>
     <div class="field">
       <%= f.label :topic_id %>
       <br>
-      <%= f.number_field :topic_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'contents',
+                              :object     => 'content',
+                              :method     => 'topic_id',
+                              :tag_id     => 'topic_id_for_content',
+                              :display    => object_tag(@content.topic)} %>
     </div>
     <div class="field">
       <%= f.label :type %>
@@ -34,7 +44,14 @@
     <div class="field">
       <%= f.label :revision_id %>
       <br>
+      <!-- TODO: correct this for the true purpose of 'revision' -->
       <%= f.number_field :revision_id %>
+      <!--<%#= render :partial => 'elements/forms/ajax_select',-->
+                 <!--:locals  => {:controller => 'contents',-->
+                              <!--:object     => 'content',-->
+                              <!--:method     => 'revision_id',-->
+                              <!--:tag_id     => 'revision_id_for_content',-->
+                              <!--:display    => object_tag(@content.revision)} %>-->
     </div>
     <div class="actions">
       <%= f.submit %>

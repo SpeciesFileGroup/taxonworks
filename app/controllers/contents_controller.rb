@@ -7,7 +7,8 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @contents = Content.all
+    @contents       = Content.all
+    @recent_objects = Content.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /contents/1
@@ -64,14 +65,38 @@ class ContentsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_content
-      @content = Content.find(params[:id])
+  def list
+    @contents = Content.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to content_path(params[:content][:id])
+  end
+
+  def autocomplete
+    @contents = Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @contents.collect do |t|
+      {id:              t.id,
+       label:           ContentsHelper.content_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      ContentsHelper.content_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def content_params
-      params.require(:content).permit(:text, :otu_id, :topic_id, :type)
-    end
+    render :json => data
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_content
+    @content = Content.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def content_params
+    params.require(:content).permit(:text, :otu_id, :topic_id, :type)
+  end
 end
