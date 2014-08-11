@@ -175,5 +175,14 @@ describe UsersController, :type => :controller do
       expect(response).to redirect_to(root_path)
     end
   end
+  
+  describe "GET forgot_password" do
+    
+    it "renders password reset form" do
+      get :forgot_password
+      expect(response).to render_template(:forgot_password)
+    end
+    
+  end
 
 end
