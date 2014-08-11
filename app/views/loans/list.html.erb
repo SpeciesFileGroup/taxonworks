@@ -1,0 +1,63 @@
+<h1>Listing Loans</h1>
+
+<%= paginate @loans %> <%= page_entries_info @loans %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Date requested</th>
+      <th>Request method</th>
+      <th>Date sent</th>
+      <th>Date received</th>
+      <th>Date return expected</th>
+      <th>Recipient person</th>
+      <th>Recipient address</th>
+      <th>Recipient email</th>
+      <th>Recipient phone</th>
+      <th>Recipient country</th>
+      <th>Supervisor person</th>
+      <th>Supervisor email</th>
+      <th>Supervisor phone</th>
+      <th>Date closed</th>
+      <th>Recipient honorarium</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @loans.each do |loan| %>
+      <tr>
+        <td><%= loan.date_requested %></td>
+        <td><%= loan.request_method %></td>
+        <td><%= loan.date_sent %></td>
+        <td><%= loan.date_received %></td>
+        <td><%= loan.date_return_expected %></td>
+        <td><%= person_tag(loan.recipient_person) %></td>
+        <td><%= loan.recipient_address %></td>
+        <td><%= loan.recipient_email %></td>
+        <td><%= loan.recipient_phone %></td>
+        <td><%= loan.recipient_country %></td>
+        <td><%= person_tag(loan.supervisor_person) %></td>
+        <td><%= loan.supervisor_email %></td>
+        <td><%= loan.supervisor_phone %></td>
+        <td><%= loan.date_closed %></td>
+        <td><%= loan.recipient_honorarium %></td>
+        <td><%= loan.created_by_id %></td>
+        <td><%= loan.updated_by_id %></td>
+        <td><%= loan.project_id %></td>
+        <td><%= link_to 'Show', loan %></td>
+        <td><%= link_to 'Edit', edit_loan_path(loan) %></td>
+        <td><%= link_to 'Destroy', loan, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Loan', new_loan_path %>
