@@ -6,7 +6,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /controlled_vocabulary_terms/1
@@ -69,6 +69,10 @@ class ControlledVocabularyTermsController < ApplicationController
       format.html { redirect_to redirect_url }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    redirect_to controlled_vocabulary_term_path_path(params[:controlled_vocabulary_term][:id])
   end
 
   def list

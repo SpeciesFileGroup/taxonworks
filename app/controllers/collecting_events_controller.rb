@@ -6,8 +6,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events
   # GET /collecting_events.json
   def index
-    @recent_objects = CollectingEvent.with_project_id($project_id).order(updated_at: :desc).limit(5)
-    @recent_objects
+    @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /collecting_events/1
@@ -88,11 +87,8 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
-  # def list
-  #   @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
-  # end
-
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
     @collecting_event = CollectingEvent.find(params[:id])

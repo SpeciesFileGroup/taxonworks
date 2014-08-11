@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /collection_objects/1
@@ -82,10 +82,6 @@ class CollectionObjectsController < ApplicationController
 
     render :json => data
   end
-
-  # def list
-  #   @collection_objectss = CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
-  # end
 
   private
     # Use callbacks to share common setup or constraints between actions.
