@@ -14,7 +14,13 @@
     <div class="field">
       <%= f.label :citation_object_id %>
       <br>
-      <%= f.text_field :citation_object_id %>
+      <%#=TODO: mjy: how to de-reference the controller/object combinations based on actual object type %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'otus',
+                              :object     => 'otu',
+                              :method     => 'citation_object_id',
+                              :tag_id     => 'citation_object_id_for_citation',
+                              :display    => object_tag(@citation.citation_object)} %>
     </div>
     <div class="field">
       <%= f.label :citation_object_type %>
@@ -24,7 +30,12 @@
     <div class="field">
       <%= f.label :source_id %>
       <br>
-      <%= f.number_field :source_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'sources',
+                              :object     => 'source',
+                              :method     => 'source_id',
+                              :tag_id     => 'source_id_for_citation',
+                              :display    => source_tag(@citation.source)} %>
     </div>
     <div class="actions">
       <%= f.submit %>

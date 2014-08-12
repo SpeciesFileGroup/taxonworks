@@ -1,0 +1,39 @@
+<h1>Listing Citations</h1>
+
+<%= paginate @citations %> <%= page_entries_info @citations %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Citation object</th>
+      <th>Citation object type</th>
+      <th>Source</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @citations.each do |citation| %>
+      <tr>
+        <td><%= object_tag(citation.citation_object) %></td>
+        <td><%= citation.citation_object_type %></td>
+        <td><%= source_tag(citation.source) %></td>
+        <td><%= citation.created_by_id %></td>
+        <td><%= citation.updated_by_id %></td>
+        <td><%= citation.project_id %></td>
+        <td><%= link_to 'Show', citation %></td>
+        <td><%= link_to 'Edit', edit_citation_path(citation) %></td>
+        <td><%= link_to 'Destroy', citation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Citation', new_citation_path %>

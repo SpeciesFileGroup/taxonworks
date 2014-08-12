@@ -24,11 +24,10 @@
                               :display    => object_tag(@tag.keyword)} %>
     </div>
     <div class="field">
-      <%= f.label :tag_object %>
+      <%= f.label :tag_object_id %>
       <br>
       <%#= f.number_field :tag_object_id %>
-      <br>
-      <%#=TODO: how to dereference the controller/object combinations based on actual object type %>
+      <%#=TODO: mjy: how to de-reference the controller/object combinations based on actual object type %>
       <%= render :partial => 'elements/forms/ajax_select',
                  :locals  => {:controller => 'otus',
                               :object     => 'otu',
