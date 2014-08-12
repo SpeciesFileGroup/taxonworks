@@ -18,7 +18,11 @@ class Tag < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     # todo: @mjy figure out how to reach through the table for a list of controlled_vocabulary_terms.names
-    where('controlled_vocabulary_terms.name LIKE ?', "#{params[:term]}%")
+    # where('name LIKE ?', "#{params[:term]}%")
+
+    # todo: @mjy below code is running but not giving results we want
+    terms = params[:term].split.collect{ |t| "'#{t}%'"}.join(' or ')
+    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms) # "#{params[:term]}%" )
   end
 
   protected
