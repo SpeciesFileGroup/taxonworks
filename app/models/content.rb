@@ -31,7 +31,7 @@ class Content < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    where('text LIKE ?', "#{params[:term]}%")
   end
 
 end

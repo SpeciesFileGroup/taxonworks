@@ -26,4 +26,8 @@ class Project < ActiveRecord::Base
     self.workbench_settings = DEFAULT_WORKBENCH_SETTINGS.merge(self.workbench_settings ||= {})
   end
 
+  def self.find_for_autocomplete(params)
+    where('name LIKE ?', "#{params[:term]}%")
+  end
+
 end

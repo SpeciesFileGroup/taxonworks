@@ -2,6 +2,19 @@
 # verus those that aren't
 module ProjectsHelper
 
+  def self.project_tag(project)
+    return nil if project.nil?
+    project.name
+  end
+
+  def project_tag(project)
+    ContentsHelper.content_tag(project)
+  end
+
+  def project_search_form
+    render('/projects/quick_search_form')
+  end
+
   def project_link(project)
     return nil if project.nil?
     l = link_to(project.name, select_project_path(project))

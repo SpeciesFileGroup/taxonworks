@@ -24,6 +24,7 @@ TaxonWorks::Application.routes.draw do
   resources :sessions, only: :create
 
   resources :projects do
+    concerns [:data_routes]
     member do
       get 'select'
       get 'settings_for'
