@@ -17,7 +17,7 @@ class Tag < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    # todo: figure out how to reach through the table for a list of controlled_vocabulary_terms.names
+    # todo: @mjy figure out how to reach through the table for a list of controlled_vocabulary_terms.names
     where('controlled_vocabulary_terms.name LIKE ?', "#{params[:term]}%")
   end
 

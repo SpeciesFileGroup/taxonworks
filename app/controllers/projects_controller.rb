@@ -8,6 +8,7 @@ class ProjectsController < ApplicationController
   # GET /projects.json
   def index
     @projects = Project.all
+    @recent_objects = Project.order(updated_at: :desc).limit(10)
   end
 
   # GET /projects/1
@@ -76,6 +77,30 @@ class ProjectsController < ApplicationController
 
   def settings_for
     redirect_to otus_path, notice: 'Project settings not yet implemented'
+  end
+
+  def list
+    @projects = Project.order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to project_path(params[:project][:id])
+  end
+
+  def autocomplete
+    @projects = Project.find_for_autocomplete(params)
+
+    data = @projects.collect do |t|
+      {id:              t.id,
+       label:           ProjectsHelper.project_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      ProjectsHelper.project_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private

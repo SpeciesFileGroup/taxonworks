@@ -153,7 +153,7 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
-  # TODO: 'figure out what it actually means' (mjy) 20140718
+  # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
     GeographicItem.select('g1.* FROM geographic_items gi').
       join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
