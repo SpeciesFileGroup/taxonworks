@@ -123,12 +123,9 @@ describe Project, :type => :model do
       FactoryGirl.factories.each { |factory|
         f_name = factory.name
         if f_name =~ /^valid_/
-#          next if f_name.to_s == 'valid_biological_relationship_type'
-          next if f_name.to_s == 'valid_taxon_name'
-         
           begin
             if factory.build_class.column_names.include?('project_id') 
-              test_factory = FactoryGirl.build(f_name, project_id: @p.id)
+              test_factory = FactoryGirl.build(f_name)
             else
               test_factory = FactoryGirl.build(f_name)
             end
@@ -209,8 +206,8 @@ describe Project, :type => :model do
           if f_name =~ /^valid/
             this_class = factory.build_class
             model      = this_class.to_s.constantize
-            if model.column_names.include?('project_id')
-              count = model.all.reload.count
+            if model.column_names.include?('project_id') 
+              count = model.where(project_id: @p.id).all.reload.count
               if count > 0
                 project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{model.all.pluck(:project_id).uniq.join(',')}."
                 orphans[model] = count
