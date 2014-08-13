@@ -126,8 +126,6 @@ describe Project, :type => :model do
           begin
             if factory.build_class.column_names.include?('project_id') 
               test_factory = FactoryGirl.build(f_name)
-            else
-              test_factory = FactoryGirl.build(f_name)
             end
           rescue => detail
             @failed_factories[f_name] = detail
