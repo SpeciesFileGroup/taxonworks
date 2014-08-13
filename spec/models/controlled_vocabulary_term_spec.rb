@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 describe ControlledVocabularyTerm, :type => :model do
-  let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term)  }
+  let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term) }
 
-  context 'validation' do 
+  context 'validation' do
     before(:each) {
       controlled_vocabulary_term.valid?
     }
@@ -33,7 +33,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
     let(:uri) { 'http://purl.org/net/foo/1' }
 
-    specify 'name is unique within projects per type'  do
+    specify 'name is unique within projects per type' do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term)
       b = FactoryGirl.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', same_as_uri: uri))
       expect(b.valid?).to be_falsey
@@ -50,7 +50,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
     specify 'same_as_uri is unique within projects' do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term, same_as_uri: uri)
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, same_as_uri: uri )
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, same_as_uri: uri)
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:same_as_uri)).to be_truthy
     end
@@ -64,6 +64,6 @@ describe ControlledVocabularyTerm, :type => :model do
   end
 
   context 'concerns' do
-   it_behaves_like 'alternate_values'
+    it_behaves_like 'alternate_values'
   end
 end

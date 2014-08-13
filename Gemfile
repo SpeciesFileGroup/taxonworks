@@ -39,8 +39,8 @@ gem 'jquery-turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set',  
-  git: 'https://github.com/collectiveidea/awesome_nested_set.git'
+gem 'awesome_nested_set',
+    git: 'https://github.com/collectiveidea/awesome_nested_set.git'
 #  tag: 'v3.0.0.rc.5', 
 
 # BibTex handling
