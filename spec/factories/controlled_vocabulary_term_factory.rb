@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
-  trait :random_name do 
-     name { Utilities::Strings.random_string(10) }
+  trait :random_name do
+    name { Utilities::Strings.random_string(10) }
   end
 
   trait :random_definition do
@@ -10,10 +10,10 @@ FactoryGirl.define do
 
   factory :controlled_vocabulary_term, traits: [:housekeeping] do
     factory :valid_controlled_vocabulary_term, traits: [:random_name, :random_definition] do
-      type 'Keyword' 
+      type 'Keyword'
     end
 
-    factory :random_controlled_vocabulary_term, traits: [:random_name, :random_definition] 
+    factory :random_controlled_vocabulary_term, traits: [:random_name, :random_definition]
   end
 
 end

@@ -679,9 +679,9 @@ class TaxonName < ActiveRecord::Base
       end
 
       if (self.rank_class != self.rank_class_was) && # @proceps this catches nothing, as self.rank_class_was is never defined!
-          self.children &&
-          !self.children.empty? &&
-          RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
+        self.children &&
+        !self.children.empty? &&
+        RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
         errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
       end
     end
@@ -697,7 +697,7 @@ class TaxonName < ActiveRecord::Base
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
   def check_new_rank_class
-    if (self.rank_class != self.rank_class_was) && 
+    if (self.rank_class != self.rank_class_was) &&
       !self.rank_class_was.nil?
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
@@ -716,11 +716,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_source_type
-    errors.add(:source_id, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex' 
+    errors.add(:source_id, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
 
   def validate_one_root_per_project
-    errors.add(:parent_id, 'Only one root allowed per project') if TaxonName.where(parent_id: nil, project_id: self.project_id ).count > 1 
+    errors.add(:parent_id, 'Only one root allowed per project') if TaxonName.where(parent_id: nil, project_id: self.project_id).count > 1
   end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)
