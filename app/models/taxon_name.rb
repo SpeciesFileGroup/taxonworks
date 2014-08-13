@@ -121,7 +121,7 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::Notable
 
-  acts_as_nested_set scope: [:project_id]
+  acts_as_nested_set scope: [:project_id], dependent: :destroy
 
   before_validation :set_type_if_empty,
                     :check_format_of_name,
@@ -131,19 +131,20 @@ class TaxonName < ActiveRecord::Base
                     :check_new_rank_class,
                     :check_new_parent_class,
                     :validate_source_type,
+                    #:validate_one_root_per_project,
                     :set_cached_names
 
   belongs_to :source
-  has_many :taxon_name_classifications
-  has_many :otus, inverse_of: :taxon_name, dependent: :nullify
+  has_many :taxon_name_classifications, dependent: :destroy
+  has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
 
   #relationships as a subject
-  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id
+  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
 
   #relationships as an object
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :destroy
 
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -715,9 +716,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_source_type
-    if self.source
-      errors.add(:source_id, 'Source must be a Bibtex') if self.source.type != 'Source::Bibtex'
-    end
+    errors.add(:source_id, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex' 
+  end
+
+  def validate_one_root_per_project
+    errors.add(:parent_id, 'Only one root allowed per project') if TaxonName.where(parent_id: nil, project_id: self.project_id ).count > 1 
   end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)

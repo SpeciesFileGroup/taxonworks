@@ -15,6 +15,8 @@ module ModelHelper
   def valid_class_factory_name(klass)
     "valid_#{class_factory_name(klass)}"
   end
+
+
 end
 
 

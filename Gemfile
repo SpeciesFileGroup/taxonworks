@@ -40,8 +40,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set',  
-  tag: 'v3.0.0.rc.5', 
   git: 'https://github.com/collectiveidea/awesome_nested_set.git'
+#  tag: 'v3.0.0.rc.5', 
 
 # BibTex handling
 gem 'bibtex-ruby', '~> 4.0.3'
