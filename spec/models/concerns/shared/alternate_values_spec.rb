@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'AlternateValues', :type => :model do
-  let(:class_with_alternate_values) { TestAlternateValue.new } 
+  let(:class_with_alternate_values) { TestAlternateValue.new }
 
   context 'reflections / foreign keys' do
     specify 'has many alternates' do
@@ -10,11 +10,44 @@ describe 'AlternateValues', :type => :model do
     end
   end
 
+  specify '#has_alternate_values? is false when there are not alternative values' do
+    expect(class_with_alternate_values).to respond_to(:has_alternate_values?)
+    expect(class_with_alternate_values.has_alternate_values?).to eq(false)
+  end
+
   context 'methods' do
-    specify 'has_alternate_values?' do
+    before do
+      class_with_alternate_values.string = 'Testing alternate values'
+      class_with_alternate_values.save
+
+      syn = AlternateValue::Synonym.create(value:            'test1', alternate_object_attribute: 'string',
+                                           alternate_object: class_with_alternate_values)
+
+      trans = AlternateValue::Translation.create(value:                      'gibberish',
+                                                 language:                   FactoryGirl.create(:valid_language),
+                                                 alternate_object_attribute: 'string',
+                                                 alternate_object:           class_with_alternate_values)
+      abbrv = AlternateValue::Abbreviation.create(value: 'tst', alternate_object_attribute: 'string',
+                                             alternate_object: class_with_alternate_values)
+    end
+
+    specify '#has_alternate_values?' do
       expect(class_with_alternate_values).to respond_to(:has_alternate_values?)
-      expect(class_with_alternate_values.has_alternate_values?).to be_falsey
-    end 
+      expect(class_with_alternate_values.has_alternate_values?).to eq(true)
+    end
+
+    specify '#all_values_for' do
+       expect(class_with_alternate_values.all_values_for('string')).to \
+            eq(['gibberish', 'test1', 'Testing alternate values', 'tst'].sort)
+    end
+
+    specify '.with_alternate_value_on' do
+      # find me all the TestAlternateValue objects that have an alternate value of 'test1' on attribute 'string'
+      expect(TestAlternateValue.with_alternate_value_on('string', 'test1').to_a).to \
+        eq([class_with_alternate_values])
+      expect(TestAlternateValue.with_alternate_value_on('string', 'foo').to_a).to  \
+      eq([])
+    end
   end
 end
 
