@@ -157,9 +157,19 @@ describe TaxonName, :type => :model do
     end
 
     context 'class methods from awesome_nested_set' do
-      specify 'permit one root per project'
-      specify 'permit multiple roots across the database' do
+      before {
+        @p = Project.create(name: 'Taxon-name root test.')
+      }
+
+      specify 'permit one root per project' do
         root2 = FactoryGirl.build(:root_taxon_name)
+        expect(root2.parent).to be_nil
+        expect(root2.valid?).to be_falsey
+        expect(root2.errors.include?(:parent_id)).to be_truthy
+      end
+
+      specify 'permit multiple roots in different projects' do
+        root2 = FactoryGirl.build(:root_taxon_name, project_id: @p.id)
         expect(root2.parent).to be_nil
         expect(root2.valid?).to be_truthy
       end

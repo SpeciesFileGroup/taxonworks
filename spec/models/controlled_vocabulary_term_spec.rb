@@ -35,7 +35,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
     specify 'name is unique within projects per type'  do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term)
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', same_as_uri: uri)
+      b = FactoryGirl.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', same_as_uri: uri))
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy

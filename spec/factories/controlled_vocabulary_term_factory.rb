@@ -8,10 +8,8 @@ FactoryGirl.define do
     definition { "The #{Utilities::Strings.random_string(8)} that #{Utilities::Strings.random_string(8)}." }
   end
 
-  factory :controlled_vocabulary_term, class: ControlledVocabularyTerm, traits: [:housekeeping] do
-    factory :valid_controlled_vocabulary_term do
-      name 'Color'
-      definition 'A food group, like "purple".'
+  factory :controlled_vocabulary_term, traits: [:housekeeping] do
+    factory :valid_controlled_vocabulary_term, traits: [:random_name, :random_definition] do
       type 'Keyword' 
     end
 
