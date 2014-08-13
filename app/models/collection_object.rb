@@ -66,9 +66,14 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
 
-  belongs_to :accession_provider, foreign_key: :accession_provider_id, class_name: 'Person'
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
+  has_one :accession_provider, through: :accession_provider_role, source: :person
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
+  has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
+
+  # belongs_to :accession_provider, foreign_key: :accession_provider_id, class_name: 'Person'
   belongs_to :collecting_event, inverse_of: :collection_objects
-  belongs_to :deaccession_recipient, foreign_key: :deaccession_recipient_id, class_name: 'Person'
+  # belongs_to :deaccession_recipient, foreign_key: :deaccession_recipient_id, class_name: 'Person'
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects

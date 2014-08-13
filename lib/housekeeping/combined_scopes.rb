@@ -11,10 +11,6 @@ module Housekeeping::CombinedScopes
       where(project_id: project_id).created_this_week
     end
 
-    def recent_in_time(period)
-      where.updated_in_last(period)
-    end
-
   end
 
 end
