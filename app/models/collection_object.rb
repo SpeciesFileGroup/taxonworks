@@ -42,14 +42,6 @@
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-# @!attribute accession_provider_id
-#   @return [Integer]
-#   The person (Person::Vetted) that provided the specimen as an accession to the Repository.  If present Repository must be present.
-#
-# @!attribute deaccession_recipient_id
-#   @return [Integer]
-#   The person (Person::Vetted) that revieved the object  If present Repository must be absent.
-#
 # @!attribute deaccession_reason
 #   @return [String]
 #   A free text explanation of why the object was removed from tracking. 
@@ -71,9 +63,7 @@ class CollectionObject < ActiveRecord::Base
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
-  # belongs_to :accession_provider, foreign_key: :accession_provider_id, class_name: 'Person'
   belongs_to :collecting_event, inverse_of: :collection_objects
-  # belongs_to :deaccession_recipient, foreign_key: :deaccession_recipient_id, class_name: 'Person'
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
@@ -90,23 +80,14 @@ class CollectionObject < ActiveRecord::Base
   #region Soft Validation
 
   def sv_missing_accession_fields
-    if self.accessioned_at.nil? and !self.accession_provider_id.nil?
-      soft_validations.add(:accessioned_at, 'Date is not selected')
-    elsif !self.accessioned_at.nil? and self.accession_provider_id.nil?
-      soft_validations.add(:accession_provider_id, 'Provider is not selected')
-    end
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
   end
 
   def sv_missing_deaccession_fields
-    if self.deaccessioned_at.nil?
-      soft_validations.add(:deaccessioned_at, 'Date is not selected') unless self.deaccession_reason.blank? && self.deaccession_recipient_id.nil?
-    end
-    if self.deaccession_recipient_id.nil?
-      soft_validations.add(:deaccession_recipient_id, 'Recipient is not selected') unless self.deaccession_reason.blank? && self.deaccessioned_at.nil?
-    end
-    if self.deaccession_reason.blank?
-      soft_validations.add(:deaccession_reason, 'Reason is is not defined') unless self.deaccession_recipient_id.nil? && self.deaccessioned_at.nil?
-    end
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank? 
+    soft_validations.add(:base, 'Recipient is not selected')  if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
   def missing_determination

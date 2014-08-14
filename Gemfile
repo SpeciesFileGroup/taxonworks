@@ -8,7 +8,7 @@ gem 'psych', '~> 2.0.3'
 gem 'pg', '~> 0.17.0'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 2.1.0'
+gem 'activerecord-postgis-adapter', '~> 2.2.0'
 # Has been removed for some time?
 # gem 'squeel', git: 'https://github.com/gtimti/squeel.git'  # nybex and kiela forks were also used
 
