@@ -1,7 +1,7 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :loan do
+  factory :loan, aliases: [:valid_loan] do
     date_requested '2014-02-26'
     request_method { Faker::Lorem.word }
     date_sent '2014-02-26'
@@ -20,7 +20,7 @@ FactoryGirl.define do
     updated_by_id 1
     project_id 1
 
-    factory :second_loan, aliases: [:valid_loan] do
+    factory :second_loan do
 
     end
   end

@@ -25,7 +25,7 @@ describe TaxonNamesHelper, :type => :helper do
     end
 
     specify '::taxon_name_tag' do
-      expect(TaxonName.taxon_name_tag(@taxon_name)).to eq('Adidae')
+      expect(TaxonNamesHelper.taxon_name_tag(@taxon_name)).to eq('Adidae')
     end
 
     specify '#taxon_name_tag' do
