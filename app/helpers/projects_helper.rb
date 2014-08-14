@@ -8,7 +8,7 @@ module ProjectsHelper
   end
 
   def project_tag(project)
-    ContentsHelper.content_tag(project)
+    ProjectsHelper.project_tag(project)
   end
 
   def project_search_form
