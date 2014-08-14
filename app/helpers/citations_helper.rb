@@ -14,7 +14,7 @@ module CitationsHelper
     link_to(CitationsHelper.citation_tag(citation).html_safe, citation)
   end
 
-  def citation_search_form
+  def citations_search_form
     render('/citations/quick_search_form')
   end
 

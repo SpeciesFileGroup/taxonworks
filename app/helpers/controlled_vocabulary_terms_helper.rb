@@ -22,7 +22,7 @@ module ControlledVocabularyTermsHelper
     content_tag(:span, controlled_vocabulary_term) + ': ' + content_tag(:span, controlled_vocabulary_term.definition)
   end
 
-  def controlled_vocabulary_term_search_form
+  def controlled_vocabulary_terms_search_form
     render('/controlled_vocabulary_terms/quick_search_form')
   end
 

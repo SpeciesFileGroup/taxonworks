@@ -5,6 +5,7 @@ module ContentsHelper
     content.text
   end
 
+  # TODO: @mjy Have to resolve method_name conflict with tag_helper method 'content_tag'.
   # def content_tag(content)
   #   ContentsHelper.content_tag(content)
   # end
@@ -14,7 +15,7 @@ module ContentsHelper
     link_to(ContentsHelper.content_tag(content).html_safe, content)
   end
 
-  def content_search_form
+  def contents_search_form
     render('/contents/quick_search_form')
   end
 

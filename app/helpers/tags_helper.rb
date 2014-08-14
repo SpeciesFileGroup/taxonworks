@@ -9,7 +9,7 @@ module TagsHelper
     TagsHelper.tag_tag(tag)
   end
 
-  def tags_search_form_x
+  def tags_search_form
     render '/tags/quick_search_form'
   end
 

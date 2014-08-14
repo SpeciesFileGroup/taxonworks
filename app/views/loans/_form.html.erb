@@ -44,7 +44,7 @@
                               :object     => 'person',
                               :method     => 'recipient_person_id',
                               :tag_id     => 'recipient_person_id_for_loan',
-                              :display    => person_tag(@loan.recipient_person)} %>
+                              :display    => object_tag(@loan.recipient_person)} %>
     </div>
     <div class="field">
       <%= f.label :recipient_address %>
@@ -74,7 +74,7 @@
                               :object     => 'person',
                               :method     => 'supervisor_person_id',
                               :tag_id     => 'supervisor_person_id_for_loan',
-                              :display    => person_tag(@loan.supervisor_person)} %>
+                              :display    => object_tag(@loan.supervisor_person)} %>
     </div>
     <div class="field">
       <%= f.label :supervisor_email %>

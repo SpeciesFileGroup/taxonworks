@@ -80,7 +80,7 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def autocomplete
-    @controlled_vocabulary_terms = controlled_vocabulary_term.find_for_autocomplete(params)
+    @controlled_vocabulary_terms = ControlledVocabularyTerm.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @controlled_vocabulary_terms.collect do |t|
       {id:              t.id,

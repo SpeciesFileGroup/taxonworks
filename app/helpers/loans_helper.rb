@@ -14,7 +14,7 @@ module LoansHelper
     link_to(ContentsHelper.loan_tag(loan).html_safe, loan)
   end
 
-  def loan_search_form
+  def loans_search_form
     render('/loans/quick_search_form')
   end
 
