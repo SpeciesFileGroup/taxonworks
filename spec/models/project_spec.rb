@@ -124,17 +124,11 @@ describe Project, :type => :model do
         f_name = factory.name
         if f_name =~ /^valid_/
           begin
-            if factory.build_class.column_names.include?('project_id')
-              test_factory = FactoryGirl.build(f_name)
-            end
+            test_factory = FactoryGirl.build(f_name)
           rescue => detail
             @failed_factories[f_name] = detail
             @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
           else
-            if f_name == :valid_taxon_name
-              test_factory.parent.project_id = @p.id
-            end
-
             if test_factory.valid?
               begin
                 test_factory.save
@@ -148,7 +142,6 @@ describe Project, :type => :model do
               @failed_factories[f_name] = test_factory.errors
               @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
-
           end
         end
       }
