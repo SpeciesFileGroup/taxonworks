@@ -11,7 +11,7 @@
   <div class="item item2">
     <%= render object_attributes_partial_path(object.becomes(object.class.base_class)) %>
     <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
-    <%= render partial: '/shared/data/show/soft_validation', locals: {object: object} -%>
+    <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
   </div>
 
   <div class="item item3">

@@ -38,7 +38,6 @@ describe Project, :type => :model do
     end
   end
 
-
   context 'workbench_settings' do
     before(:each) {
       project.name = 'My Project'

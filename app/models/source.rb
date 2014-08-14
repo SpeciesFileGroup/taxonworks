@@ -4,6 +4,7 @@
 # 
 class Source < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::SharedAcrossProjects
   include Shared::Identifiable
   include Shared::HasRoles
   include Shared::Notable

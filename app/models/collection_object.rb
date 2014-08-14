@@ -57,6 +57,7 @@ class CollectionObject < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Taggable
   include SoftValidation
+  include Shared::HasRoles
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -109,7 +110,7 @@ class CollectionObject < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     # add identifiers
     # add determinations
-    where('type LIKE ?', "#{params[:term]}%") # TODO: Is "type"
+    where('type LIKE ?', "#{params[:term]}%") 
   end
 
   #endregion
