@@ -16,4 +16,8 @@ module CollectionObjectsHelper
     link_to(collection_object_tag(collection_object).html_safe, collection_object)
   end
 
+  def collection_objects_search_form
+    render('/collection_objects/quick_search_form')
+  end
+
 end

@@ -1,5 +1,5 @@
 TaxonWorks::Application.routes.draw do
-  
+
   # Vetted / tested
 
   # All models that use data controllers should include this concern. 
@@ -96,7 +96,7 @@ TaxonWorks::Application.routes.draw do
   resources :public_contents
   resources :ranged_lot_categories
   resources :repositories do
-    collection do 
+    collection do
       get 'autocomplete'
     end
   end

@@ -15,7 +15,7 @@ module CollectingEventsHelper
     link_to(collecting_event_tag(collecting_event).html_safe, collecting_event)
   end
 
-  def collecting_event_search_form
+  def collecting_events_search_form
     render('/collecting_events/quick_search_form')
   end
 

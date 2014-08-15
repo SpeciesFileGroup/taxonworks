@@ -336,7 +336,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
+    where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     # changed from 'cached' to 'verbatim_locality':
   end
 

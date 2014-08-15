@@ -11,10 +11,10 @@ module LoansHelper
 
   def loan_link(loan)
     return nil if loan.nil?
-    link_to(ContentsHelper.loan_tag(loan).html_safe, loan)
+    link_to(LoansHelper.loan_tag(loan).html_safe, loan)
   end
 
-  def loan_search_form
+  def loans_search_form
     render('/loans/quick_search_form')
   end
 

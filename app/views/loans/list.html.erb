@@ -37,12 +37,12 @@
         <td><%= loan.date_sent %></td>
         <td><%= loan.date_received %></td>
         <td><%= loan.date_return_expected %></td>
-        <td><%= person_tag(loan.recipient_person) %></td>
+        <td><%= object_tag(loan.recipient_person) %></td>
         <td><%= loan.recipient_address %></td>
         <td><%= loan.recipient_email %></td>
         <td><%= loan.recipient_phone %></td>
         <td><%= loan.recipient_country %></td>
-        <td><%= person_tag(loan.supervisor_person) %></td>
+        <td><%= object_tag(loan.supervisor_person) %></td>
         <td><%= loan.supervisor_email %></td>
         <td><%= loan.supervisor_phone %></td>
         <td><%= loan.date_closed %></td>

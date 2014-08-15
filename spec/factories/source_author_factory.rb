@@ -5,6 +5,5 @@ FactoryGirl.define do
       association :person, factory: :valid_person
       association :role_object, factory: :valid_source_bibtex
     end
-
   end
 end

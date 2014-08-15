@@ -3,7 +3,6 @@
 class Role < ActiveRecord::Base
   include Housekeeping::Users
 
-
   acts_as_list scope: [ :type, :role_object_type, :role_object_id  ]
 
   belongs_to :role_object, polymorphic: :true

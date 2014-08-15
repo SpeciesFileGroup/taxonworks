@@ -1,5 +1,6 @@
 class Person < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::SharedAcrossProjects
   include Shared::Identifiable
   include Shared::Notable
 

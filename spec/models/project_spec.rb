@@ -8,6 +8,12 @@ describe Project, :type => :model do
 
   let(:project) { FactoryGirl.build(:project) }
 
+  before(:all) {
+    Rails.application.eager_load!
+  }
+
+  let(:project) { FactoryGirl.build(:project) }
+
   context 'associations' do
     context 'has_many' do
       specify 'project_members' do
@@ -16,6 +22,18 @@ describe Project, :type => :model do
 
       specify 'users' do
         expect(project.users << User.new).to be_truthy
+      end
+    end
+
+    context 'initiated from Rails.application.eager_load!' do
+      specify { expect(Project.reflect_on_all_associations(:has_many).size).to be >= 20 }
+
+      specify 'should not include subclasses' do
+        expect(Project.reflect_on_all_associations(:has_many).map(&:name).include?(:protonym)).to be_falsey
+      end
+
+      specify 'should include superclasses' do
+        expect(Project.reflect_on_all_associations(:has_many).map(&:name).include?(:taxon_name)).to be_falsey
       end
     end
   end
@@ -67,64 +85,72 @@ describe Project, :type => :model do
     end
   end
 
-  context 'destroy' do
+  context '#destroy sanity test' do
+    before(:each) {
+      project.name = 'test'
+      project.save!
 
-    before(:all) {
-      @p                    = Project.create(name: 'a little bit of everything')
-      $project_id           = @p.id
-      $user_id              = 1
+      project.asserted_distributions << AssertedDistribution.new(
+        otu:             FactoryGirl.create(:valid_otu),
+        geographic_area: FactoryGirl.create(:valid_geographic_area),
+        source:          FactoryGirl.create(:valid_source)
+      )
+      project.save!
+    }
+
+    specify { expect(project.asserted_distributions.size).to eq(1) }
+    specify "#destroy won't work" do
+      expect(AssertedDistribution.count).to eq(1)
+      expect(project.destroy).to be_falsey
+      expect(AssertedDistribution.count).to eq(1)
+    end
+  end
+
+  context 'destroying (nuking) a project' do
+    before(:each) {
+      @p                     = Project.create(name: 'a little bit of everything')
+      $project_id            = @p.id
+      $user_id               = 1
 
       # Generate 1 of ever valid_ factory
       #    loop through all factories
       #       if a valid_ factory build one setting the project_id to @p.id when present
 
-      @factories_under_test = {}
-      @failed_factories     = {}
+      @factories_under_test  = {}
+      @failed_factories      = {}
       @project_build_err_msg = ''
       FactoryGirl.factories.each { |factory|
         f_name = factory.name
         if f_name =~ /^valid_/
-#          next if f_name.to_s == 'valid_biological_relationship_type'
-          next if f_name.to_s == 'valid_taxon_name'
           begin
-            if factory.definition.attributes.names.include?(:project_id)
-              test_factory = FactoryGirl.build(f_name, project_id: @p.id)
-            else
-              test_factory = FactoryGirl.build(f_name)
-            end
+            test_factory = FactoryGirl.build(f_name)
           rescue => detail
             @failed_factories[f_name] = detail
-            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
           else
-            unless test_factory.attributes['project_id'].nil?
-              test_factory.project = @p
-            end
-            if f_name == :valid_taxon_name
-              test_factory.parent.project_id = @p.id
-            end
             if test_factory.valid?
               begin
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                @project_build_err_msg +=  "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg    += "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              @project_build_err_msg +=  "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
         end
       }
       length = @failed_factories.length
       if length > 0
-        @project_build_err_msg +=  "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
+        @project_build_err_msg += "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
       end
     }
 
-    after(:all) {
+    after(:each) {
       FactoryGirl.factories.each { |factory|
         f_name = factory.name
         if f_name =~ /^valid_/
@@ -132,7 +158,7 @@ describe Project, :type => :model do
           model      = this_class.constantize
           case this_class
             when 'User', 'Project'
-              # todo: figure out how to delete all with id greater than 1
+              model.where('id > 1').delete_all
             else
               model.delete_all
           end
@@ -140,35 +166,41 @@ describe Project, :type => :model do
       }
     }
 
+    after(:all) {
+      $user_id    = 1
+      $project_id = 1
+    }
+
     specify 'project build goes well' do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
 
-    specify '#destroy' do
-      expect(@p.destroy).to be_truthy # confirm this is a really what we want
-      expect(@p.destroyed?).to be(true)
+    # You can never use #destroy
+    specify '#destroy is impossible with data' do
+      expect(@p.destroy).to be(false)
+      expect(@p.destroyed?).to be(false)
     end
 
-    context '#destroy' do
-      before(:all) {
-        @p.destroy
+    context '#nuke' do
+      before(:each) {
+        @p.nuke
       }
 
-      specify '#destroy nukes "everything"' do
+      specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build
         #    expect(class_that_was_built.all.reload.count).to eq(0)
-        orphans = {}
-        project_destroy_err_msg = ''
+        orphans                 = {}
+        project_destroy_err_msg = "Project id should be #{@p.id}"
         FactoryGirl.factories.each { |factory|
           f_name = factory.name
           if f_name =~ /^valid/
             this_class = factory.build_class
             model      = this_class.to_s.constantize
             if model.column_names.include?('project_id')
-              count = model.all.reload.count
+              count = model.where(project_id: @p.id).all.reload.count
               if count > 0
-                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}."
-                orphans[model] = count
+                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{model.all.pluck(:project_id).uniq.join(',')}."
+                orphans[model]          = count
               end
             end
           end
@@ -179,7 +211,7 @@ describe Project, :type => :model do
         expect(orphans.length).to eq(0), project_destroy_err_msg
       end
 
-      specify "#destroy doesn't nuke shared data" do
+      specify "#nuke doesn't nuke shared data" do
         # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
         # We may need a constant that stores a *string* representative of the shared classes to loop through,
         #   but for now just enumerate a number of them

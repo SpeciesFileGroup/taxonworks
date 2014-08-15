@@ -66,7 +66,7 @@ class LoansController < ApplicationController
   end
 
   def list
-    @contents = Loan.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @loans = Loan.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -74,7 +74,7 @@ class LoansController < ApplicationController
   end
 
   def autocomplete
-    @contents = Loan.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @loans = Loan.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @loans.collect do |t|
       {id:              t.id,

@@ -250,6 +250,10 @@ module SoftValidation
       end
       true
     end
+
+    def soft_validates?
+      true
+    end
   end
 
   def soft_validations    
