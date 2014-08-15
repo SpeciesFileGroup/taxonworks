@@ -21,15 +21,16 @@ describe OtusHelper, :type => :helper do
     end
 
     specify '#otu_tag' do
-      expect(@otu.otu_tag(@otu)).to eq('Adidae')
+      expect(otu_tag(@otu)).to eq('voluptas')
     end
 
     specify '#otu_link' do
-      expect(@otu.otu_link(@otu)).to eq('Adidae')
+      expect(otu_link(@otu)).to have_link('voluptas')
     end
 
     specify "#otu_search_form" do
-      expect(@otu.otus_search_form).to respond_to(:otus_search_form)
+      expect(otus_search_form).to have_button('Show')
+      expect(otus_search_form).to have_field('otu_id_for_quick_search_form')
     end
 
   end

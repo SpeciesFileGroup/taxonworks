@@ -17,11 +17,11 @@ describe TaxonNamesHelper, :type => :helper do
     }
 
     specify '#taxon_name_for_select' do
-      expect(@taxon_name.taxon_name_for_select(@taxon_name)).to eq('Adidae')
+      expect(taxon_name_for_select(@taxon_name)).to eq('Adidae')
     end
 
     specify '#parent_taxon_name_for_select' do
-      expect(@taxon_name.parent.taxon_name_for_select(@taxon_name)).to eq('Root')
+      expect(parent_taxon_name_for_select(@taxon_name)).to eq('Root')
     end
 
     specify '::taxon_name_tag' do
@@ -29,15 +29,15 @@ describe TaxonNamesHelper, :type => :helper do
     end
 
     specify '#taxon_name_tag' do
-      expect(@taxon_name.taxon_name_tag(@taxon_name)).to eq('Adidae')
+      expect(taxon_name_tag(@taxon_name)).to eq('Adidae')
     end
 
     specify '#taxon_name_link' do
-      expect(@taxon_name.taxon_name_link(@taxon_name)).to eq('Adidae')
+      expect(taxon_name_link(@taxon_name)).to have_link('Adidae')
     end
 
     specify "#taxon_name_rank_select_tag" do
-      expect(@taxon_name.taxon_name_rank_select_tag(@taxon_name)).to eq('Family')
+      expect(taxon_name_rank_select_tag(@taxon_name)).to have_select('taxon_name_rank_class')
     end
 
   end
