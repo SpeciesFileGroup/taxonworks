@@ -1,2 +1,2 @@
-class ContainerLabel < ActiveRecord::Base
+class ContainerItem < ActiveRecord::Base
 end
