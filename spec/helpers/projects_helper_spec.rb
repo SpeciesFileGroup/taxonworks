@@ -12,5 +12,28 @@ require 'rails_helper'
 # end
 
 describe ProjectsHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+  context 'a project needs some helpers' do
+    before(:all) {
+      @project     = FactoryGirl.create(:valid_project)
+      @cvt_name = @project.name
+    }
+
+    specify '::project_tag' do
+      expect(ProjectsHelper.project_tag(@project)).to eq(@cvt_name)
+    end
+
+    specify '#project_tag' do
+      expect(project_tag(@project)).to eq(@cvt_name)
+    end
+
+    specify '#project_link' do
+      expect(project_link(@project)).to have_link(@cvt_name)
+    end
+
+    specify "#project_search_form" do
+      expect(projects_search_form).to have_button('Show')
+      expect(projects_search_form).to have_field('project_id_for_quick_search_form')
+    end
+
+  end
 end
