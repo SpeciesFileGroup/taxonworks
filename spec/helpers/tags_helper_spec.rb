@@ -11,5 +11,28 @@ require 'rails_helper'
 #   end
 # end
 describe TagsHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+  context 'a tag needs some helpers' do
+    before(:all) {
+      @tag = FactoryGirl.create(:valid_tag)
+      @cvt_name = @tag.keyword.name
+    }
+
+    specify '::tag_tag' do
+      expect(TagsHelper.tag_tag(@tag)).to eq(@cvt_name)
+    end
+
+    specify '#tag_tag' do
+      expect(tag_tag(@tag)).to eq(@cvt_name)
+    end
+
+    specify '#tag_link' do
+      expect(tag_link(@tag)).to have_link(@cvt_name)
+    end
+
+    specify "#tag_search_form" do
+      expect(tags_search_form).to have_button('Show')
+      expect(tags_search_form).to have_field('tag_id_for_quick_search_form')
+    end
+
+  end
 end

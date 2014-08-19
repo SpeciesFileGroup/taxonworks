@@ -7,6 +7,7 @@ class PeopleController < ApplicationController
   # GET /people.json
   def index
     @people = Person.all.includes(:creator, :updater)
+    @recent_objects = Person.order(updated_at: :desc).limit(10)
   end
 
   # GET /people/1
@@ -61,6 +62,30 @@ class PeopleController < ApplicationController
       format.html { redirect_to people_url }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @people =  People.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to person_path(params[:person][:id])
+  end
+
+  def autocomplete
+    @people = Person.find_for_autocomplete(params)
+
+    data = @people.collect do |t|
+      {id:              t.id,
+       label:           PeopleHelper.collection_object_tag(t), # in helper
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html:      PeopleHelper.collection_object_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private

@@ -96,9 +96,7 @@ TaxonWorks::Application.routes.draw do
   resources :public_contents
   resources :ranged_lot_categories
   resources :repositories do
-    collection do
-      get 'autocomplete'
-    end
+    concerns [:data_routes]
   end
   resources :serial_chronologies
   resources :serials

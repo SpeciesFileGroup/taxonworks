@@ -11,7 +11,7 @@ module ProjectsHelper
     ProjectsHelper.project_tag(project)
   end
 
-  def project_search_form
+  def projects_search_form
     render('/projects/quick_search_form')
   end
 
@@ -20,11 +20,11 @@ module ProjectsHelper
     l = link_to(project.name, select_project_path(project))
     project.id == sessions_current_project_id ?
       content_tag(:mark, l) :
-      l 
+      l
   end
 
   def projects_list(projects)
-    projects.collect{|p| content_tag(:li, project_link(p)) }.join.html_safe
+    projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
   end
 
 end

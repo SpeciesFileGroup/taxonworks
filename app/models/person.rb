@@ -85,5 +85,10 @@ class Person < ActiveRecord::Base
   def set_type_if_blank
     self.type = 'Person::Unvetted' if self.type.blank?
   end
+
+  def self.find_for_autocomplete(params)
+    where('last_name LIKE ?', "#{params[:term]}%")  # todo: Is last_name correct?
+  end
+
 end
 
