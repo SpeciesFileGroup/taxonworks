@@ -6,7 +6,7 @@ module PeopleHelper
   end
 
   def person_tag(person)
-    PeopleHelperHelper.person_tag(person)
+    PeopleHelper.person_tag(person)
   end
 
   def person_search_form

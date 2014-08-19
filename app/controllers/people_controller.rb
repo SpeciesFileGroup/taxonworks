@@ -65,7 +65,7 @@ class PeopleController < ApplicationController
   end
 
   def list
-    @people =  People.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @people =  Person.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
