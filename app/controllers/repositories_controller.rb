@@ -65,7 +65,7 @@ class RepositoriesController < ApplicationController
   end
 
   def list
-    @repositorys = Loan.order(:id).page(params[:page]) #.per(10) #.per(3)
+    @repositories = Repository.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
