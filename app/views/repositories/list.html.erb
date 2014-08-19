@@ -1,6 +1,6 @@
 <h1>Listing Repositories</h1>
 
-<%#= paginate @repositories %> <%#= page_entries_info @repositories %>
+<%= paginate @repositories %> <%= page_entries_info @repositories %>
 
 <table>
   <thead>
@@ -40,4 +40,4 @@
 
 <br>
 
-<%#= link_to 'New Repository', new_repository_path %>
+<%= link_to 'New Repository', new_repository_path %>
