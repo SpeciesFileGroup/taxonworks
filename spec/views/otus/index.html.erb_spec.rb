@@ -5,7 +5,7 @@ describe 'otus/index', :type => :view do
     @data_model = Otu
     assign(:recent_objects, [
       stub_model(Otu,
-                 :name          => 'Name',
+                 :name          => 'Bobby',
                  :created_by_id => 1,
                  :updated_by_id => 2,
                  :project_id    => 3,
@@ -13,7 +13,7 @@ describe 'otus/index', :type => :view do
                  :updated_at    => Time.now,
       ),
       stub_model(Otu,
-                 :name          => 'Name',
+                 :name          => 'Joey',
                  :created_by_id => 1,
                  :updated_by_id => 2,
                  :project_id    => 3,

@@ -15,8 +15,8 @@ module PeopleHelper
 
   def person_link(person)
     return nil if person.nil?
-    # todo: @mjy This causes test to fail, no 'select_person_path'
     link_to(PeopleHelper.person_tag(person).html_safe, person)
+    # todo: @mjy This causes test to fail, no 'select_person_path'
     # l = link_to(person.name, select_person_path(person))
     # person.id == sessions_current_person_id ?
     #     content_tag(:mark, l) :
