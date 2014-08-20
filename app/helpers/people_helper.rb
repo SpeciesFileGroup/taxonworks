@@ -9,16 +9,18 @@ module PeopleHelper
     PeopleHelper.person_tag(person)
   end
 
-  def person_search_form
-    render('/projects/quick_search_form')
+  def people_search_form
+    render('/people/quick_search_form')
   end
 
   def person_link(person)
     return nil if person.nil?
-    l = link_to(person.name, select_person_path(person))
-    person.id == sessions_current_person_id ?
-        content_tag(:mark, l) :
-        l
+    # todo: @mjy This causes test to fail, no 'select_person_path'
+    link_to(PeopleHelper.person_tag(person).html_safe, person)
+    # l = link_to(person.name, select_person_path(person))
+    # person.id == sessions_current_person_id ?
+    #     content_tag(:mark, l) :
+    #     l
   end
 
 end

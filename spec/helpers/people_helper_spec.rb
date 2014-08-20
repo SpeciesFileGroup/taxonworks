@@ -11,7 +11,7 @@ require 'rails_helper'
 #   end
 # end
 describe PeopleHelper, :type => :helper do
-  context 'a controlled_vocabulary_term needs some helpers' do
+  context 'a person needs some helpers' do
     before(:all) {
       @person = FactoryGirl.create(:valid_person)
       @person_name = @person.name
@@ -29,7 +29,7 @@ describe PeopleHelper, :type => :helper do
       expect(person_link(@person)).to have_link(@person_name)
     end
 
-    specify "#person_search_form" do
+    specify "#people_search_form" do
       expect(people_search_form).to have_button('Show')
       expect(people_search_form).to have_field('person_id_for_quick_search_form')
     end
