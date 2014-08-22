@@ -25,7 +25,7 @@ describe 'Otus', :type => :feature do
   describe 'GET /otus/list' do
     before do
       sign_in_user_and_select_project
-      $user_id = 1 ; $project_id = 1
+      $user_id = 1; $project_id = 1
       # this is so that there are more than one page of otus
       30.times { FactoryGirl.create(:valid_otu) }
       visit '/otus/list'
@@ -34,17 +34,19 @@ describe 'Otus', :type => :feature do
     specify 'that it renders without error' do
       expect(page).to have_content 'Listing Otus'
     end
+
   end
 
   describe 'GET /otus/n' do
     before {
       sign_in_user_and_select_project
-      $user_id = 1 ; $project_id = 1
+      $user_id = 1; $project_id = 1
       3.times { FactoryGirl.create(:valid_otu) }
       all_otus = Otu.all.map(&:id)
       # there *may* be a better way to do this, but this version *does* work
       visit "/otus/#{all_otus[1]}"
     }
+
     specify 'there is a \'previous\' link' do
       expect(page).to have_link('Previous')
     end
