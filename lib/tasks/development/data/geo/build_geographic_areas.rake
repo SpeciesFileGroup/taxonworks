@@ -441,7 +441,6 @@ namespace :tw do
           source_table = 'ne_countries'
 
           all_records(source_table).each do |r|
-            # byebug if r['name'].blank?
             @data_index.add_item(
               name: r['name'],
               lvl0: r['name'],

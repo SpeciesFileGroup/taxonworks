@@ -1,52 +1,67 @@
 <%= form_for(@taxon_name.becomes(TaxonName)) do |f| %>
-  <% if @taxon_name.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@taxon_name.errors.count, "error") %> prohibited this taxon_name from being saved:</h2>
+    <% if @taxon_name.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@taxon_name.errors.count, "error") %> prohibited this taxon_name from being saved:</h2>
 
-      <ul>
-      <% @taxon_name.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @taxon_name.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_field :name %>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
-  </div>
+    <div class="field">
+      <%= f.label :parent %>
+      <br>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 locals:  {controller: 'taxon_names',
+                           object:     'taxon_name',
+                           method:     'parent_id',
+                           tag_id:     'parent_id_for_name',
+                           display:    taxon_name_tag(@taxon_name)} %>
+    </div>
 
-  <div class="field">
-    <%= f.label :parent %><br>
-    <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
-                                                                     :object => 'taxon_name', 
-                                                                     :method => 'parent_id', 
-                                                                     :tag_id => "parent_id_for_new_name", 
-                                                                     :display => parent_taxon_name_for_select(@taxon_name)  } %>
-  </div>
+    <div class="field">
+      <%= f.label :year_of_publication %>
+      <br>
+      <%= f.number_field :year_of_publication %>
+    </div>
+    <div class="field">
+      <%= f.label :verbatim_author %>
+      <br>
+      <%= f.text_field :verbatim_author %>
+    </div>
 
-  <div class="field">
-    <%= f.label :year_of_publication %><br>
-    <%= f.number_field :year_of_publication %>
-  </div>
-  <div class="field">
-    <%= f.label :verbatim_author %><br>
-    <%= f.text_field :verbatim_author %>
-  </div>
-  
-  <div class="field">
-    <%= f.label :rank %><br>
-    <%= taxon_name_rank_select_tag(@taxon_name) %>
-  </div>
+    <div class="field">
+      <%= f.label :rank %>
+      <br>
+      <%= taxon_name_rank_select_tag(@taxon_name) %>
+    </div>
 
-  <div class="field">
-    <%= f.label :source_id %><br>
-    <%= f.number_field :source_id %>
-  </div>
+    <div class="field">
+      <!--<%#= f.label :source_id %>-->
+      <!--<br>-->
+      <!--<%#= f.number_field :source_id %>-->
+      <%= f.label :source %>
+      <br>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 locals:  {controller: 'sources',
+                           object:     'source',
+                           method:     'source_id',
+                           tag_id:     'source_id_for_taxon_name',
+                           display:    source_tag(@taxon_name.source)} %>
+    </div>
 
-  <%= f.hidden_field :type %>
+    <%= f.hidden_field :type %>
 
- <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

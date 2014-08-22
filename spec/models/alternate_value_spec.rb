@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AlternateValue, :type => :model do
+describe AlternateValue do
   let (:alternate_value) { FactoryGirl.build(:alternate_value)}
 
   context 'associations' do
@@ -88,13 +88,13 @@ describe AlternateValue, :type => :model do
       o.save!
 
       expect(Otu.with_alternate_value_on(:name, 'foo').count).to eq(1)
-      expect(Otu.with_alternate_value_on(:name, 'foo').first.name).to eq('my concept') # see the otu_factory
+      expect(Otu.with_alternate_value_on(:name, 'foo').first.id).to eq(o.id) # see the otu_factory
     end
   end
 
   context 'use' do
     specify 'adding an alternate value' do 
-      o = FactoryGirl.build(:valid_otu)
+      o = FactoryGirl.build(:valid_otu, name: 'my concept')
       o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_object: o, value: 'foo') 
       expect(o.save).to be_truthy
       expect(o.alternate_values.count).to eq(1)
@@ -102,7 +102,9 @@ describe AlternateValue, :type => :model do
 
     specify 'original_value' do
       expect(alternate_value).to respond_to(:original_value)
-      v = FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'foo', alternate_object_attribute: 'name') 
+
+      o = FactoryGirl.build(:valid_otu, name: 'my concept')
+      v = FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'foo', alternate_object_attribute: 'name', alternate_object: o ) 
       expect(v.original_value).to eq('my concept') # see the otu_factory
     end
   end

@@ -4,11 +4,17 @@ class Note < ActiveRecord::Base
 
   belongs_to :note_object, polymorphic: true
   validates :note_object, presence: true
-  validates_presence_of :note_object_id
+  validates_presence_of :note_object_id, :note_object_type
   validates_presence_of :text
 
   before_validation :not_a_housekeeping_field, :is_valid_attribute
-  
+
+  # TODO: Move to Draper
+  # Format a note
+  def note_string
+    "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? "" : "[on: #{note_object_attribute}]")
+  end
+
   protected
   def not_a_housekeeping_field
     if !(self.note_object_attribute.blank?)

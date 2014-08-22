@@ -1,5 +1,6 @@
 class Person < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::SharedAcrossProjects
   include Shared::Identifiable
   include Shared::Notable
 
@@ -11,7 +12,7 @@ class Person < ActiveRecord::Base
   validates :type, inclusion: { in: ['Person::Vetted', 'Person::Unvetted'],
                                 message: "%{value} is not a validly_published type" }
 
-  has_many :roles, dependent: :destroy
+  has_many :roles, dependent: :destroy, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
   has_many :editor_roles, class_name: 'SourceEditor'
   has_many :source_source_roles, class_name: 'SourceSource'
@@ -20,7 +21,8 @@ class Person < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor'
   has_many :type_designator_roles, class_name: 'TypeDesignator' 
 
-  has_many :sources, through: :roles, dependent: :nullify   # TODO: test and confirm dependent
+  # has_many :sources, through: :roles   # TODO: test and confirm dependent
+
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :human_sources, through: :source_source_role, source: :role_object, source_type: 'Source::Human'
@@ -83,5 +85,10 @@ class Person < ActiveRecord::Base
   def set_type_if_blank
     self.type = 'Person::Unvetted' if self.type.blank?
   end
+
+  def self.find_for_autocomplete(params)
+    where('last_name LIKE ?', "#{params[:term]}%")  # todo: Is last_name correct?
+  end
+
 end
 

@@ -1,0 +1,11 @@
+<%= form_tag(search_repositories_path) do %>
+    <%= render partial: 'elements/forms/ajax_select',
+               locals:  {controller: 'repositories',
+                         object:     'repository',
+                         method:     'id',
+                         tag_id:     'repository_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

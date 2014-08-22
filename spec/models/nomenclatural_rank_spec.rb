@@ -2,59 +2,48 @@ require 'rails_helper'
 
 describe NomenclaturalRank, :type => :model do
 
-  context 'David' do
-    specify 'ranks should have an integer index' do
-        rank_class = Ranks.lookup(:iczn, 'family')
-        rank_class2 = Ranks.lookup(:iczn, 'genus')
-        expect(RANKS.index(rank_class).class).to eq(Fixnum)
-        expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_truthy
-    end
+  specify 'ranks should have an integer index' do
+    rank_class = Ranks.lookup(:iczn, 'family')
+    rank_class2 = Ranks.lookup(:iczn, 'genus')
+    expect(RANKS.index(rank_class).class).to eq(Fixnum)
+    expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_truthy
   end
 
   context 'base methods' do
-    specify "rank_name" do
-      expect(NomenclaturalRank).to respond_to(:rank_name)
-    end
-
-    # TODO: can NomenclaturalRank be abstracted out as "subject" or similar
-    specify "abbreviation" do
+    specify "#abbreviation" do
       expect(NomenclaturalRank).to respond_to(:abbreviation)
-      expect(Ranks.lookup(:iczn, 'genus').abbreviation).to eq("gen.")
+      expect(Ranks.lookup(:iczn, 'genus').constantize.abbreviation).to eq("gen.")
     end
 
-    specify "common?" do
-      expect(NomenclaturalRank).to respond_to(:typical_use)
+    specify { expect(NomenclaturalRank).to respond_to(:rank_name) }
+    specify { expect(NomenclaturalRank).to respond_to(:typical_use) }
+    specify { expect(NomenclaturalRank).to respond_to(:parent_rank) }
+
+    context "#top_rank" do
+      specify { expect(NomenclaturalRank).to respond_to(:top_rank) }
+
+      specify "returns the 'top' assignable rank" do
+        # The top two levels 
+        expect(NomenclaturalRank::Iczn.top_rank).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
+        expect(NomenclaturalRank::Icn.top_rank).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
+
+        # Behaviour is a little different for group levels
+        expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup)
+      end
     end
 
-    specify "parent_rank" do
-      expect(NomenclaturalRank).to respond_to(:parent_rank)
-    end
-    
-    specify "top_rank" do
-      expect(NomenclaturalRank).to respond_to(:top_rank)
-    end
+    skip "#bottom_rank"
 
-    specify "nomenclatural_code" do
-      expect(Ranks.lookup(:iczn, 'Family').nomenclatural_code).to eq(:iczn)
-      expect(Ranks.lookup(:icn, 'Class').nomenclatural_code).to eq(:icn)
-
+    specify "#nomenclatural_code" do
+      expect(Ranks.lookup(:iczn, 'Family').constantize.nomenclatural_code).to eq(:iczn)
+      expect(Ranks.lookup(:icn, 'Class').constantize.nomenclatural_code).to eq(:icn)
     end
 
-    specify "nomenclatural_code_class" do
-      expect(Ranks.lookup(:iczn, "Family").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
-      expect(Ranks.lookup(:iczn, "Class").nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+    specify "#nomenclatural_code_class" do
+      expect(Ranks.lookup(:iczn, "Family").constantize.nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
+      expect(Ranks.lookup(:iczn, "Class").constantize.nomenclatural_code_class).to eq(NomenclaturalRank::Iczn)
     end
 
-    # TODO: This functionality was first specified in spec/lib/ranks_spec.rb. 
-    #       We need to decide which one should be implementing this method.
-    specify "top_rank returns top assignable rank" do
-      # The top two levels 
-      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn)).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
-      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
-
-      # Behaviour is a little different
-      expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn::FamilyGroup)).to eq(NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup)
-    end    
   end
   
   context 'relation properties' do
@@ -73,7 +62,7 @@ describe NomenclaturalRank, :type => :model do
       end     
     end
     
-    specify "there is one top_rank candidate at most" do
+    specify "there is at most on top_rank candidate" do
       NomenclaturalRank.descendants.each do |rank|
         all = rank.descendants
         candidates = all.reject { |r| r.parent_rank.nil? or all.include?(r.parent_rank) }

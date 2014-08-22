@@ -4,6 +4,7 @@
 # 
 class Source < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::SharedAcrossProjects
   include Shared::Identifiable
   include Shared::HasRoles
   include Shared::Notable
@@ -12,9 +13,15 @@ class Source < ActiveRecord::Base
   include Shared::Taggable
 
   has_many :citations, inverse_of: :source, dependent: :destroy
-  has_many :cited_objects, through: :citations, source: :citation_object, dependent: :destroy # not ordered
+  has_many :cited_objects, through: :citations, source_type: 'CitedObject'
+  has_many :projects, through: :project_sources
+  has_many :project_sources, dependent: :destroy
 
   #validate :not_empty
+
+  def self.find_for_autocomplete(params)
+    where('cached LIKE ?', "%#{params[:term]}%") 
+  end
 
   protected
   

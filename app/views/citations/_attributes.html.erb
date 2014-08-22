@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Citation object:</strong>
+  <%= object_link(@citation.citation_object) %>
+</p>
+
+<p>
+  <strong>Citation object type:</strong>
+  <%= @citation.citation_object_type %>
+</p>
+
+<p>
+  <strong>Source:</strong>
+  <%= object_link(@citation.source) %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @citation.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @citation.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @citation.project_id %>
+</p>
+
+<%= link_to 'Edit', edit_citation_path(@citation) %> |
+<%= link_to 'Back', citations_path %>

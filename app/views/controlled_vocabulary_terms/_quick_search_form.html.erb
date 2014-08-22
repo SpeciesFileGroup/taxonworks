@@ -1,0 +1,11 @@
+<%= form_tag(search_controlled_vocabulary_terms_path) do %>
+    <%= render partial: 'elements/forms/ajax_select',
+               locals:  {controller: 'controlled_vocabulary_terms',
+                         object:     'controlled_vocabulary_term',
+                         method:     'id',
+                         tag_id:     'controlled_vocabulary_term_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

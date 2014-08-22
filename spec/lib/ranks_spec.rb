@@ -39,8 +39,8 @@ describe 'Ranks' do
         expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn::FamilyGroup)).to eq(NomenclaturalRank::Iczn::FamilyGroup::SuperfamilyGroup)
       end
 
-      specify "ordered_ranks_for returns descendant classes" do
-        expect(Ranks.ordered_ranks_for(NomenclaturalRank::Icn::FamilyGroup)).to eq(
+      specify "Class#ordered_ranks returns descendant classes" do
+        expect(NomenclaturalRank::Icn::FamilyGroup.ordered_ranks).to eq(
           [NomenclaturalRank::Icn::FamilyGroup::Family,
            NomenclaturalRank::Icn::FamilyGroup::Subfamily,
            NomenclaturalRank::Icn::FamilyGroup::Tribe,

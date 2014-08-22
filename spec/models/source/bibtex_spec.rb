@@ -5,18 +5,27 @@ describe Source::Bibtex, :type => :model do
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
   before(:each) do
+
     @gem_bibtex_bibliography = BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
     @simple1_gem_bibtex      = BibTeX::Entry.new()
     @simple2_gem_bibtex      = BibTeX::Entry.new()
-    @gem_bibtex_entry1       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+
+    # Beth - type: needs to be bibtex_type
+    @gem_bibtex_entry1       = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James',
                                                  year: 1921)
-    @gem_bibtex_entry2       = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
+    @gem_bibtex_entry2       = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James',
                                                  year: '1921')
-    @valid_gem_bibtex_book   = BibTeX::Entry.new(type: :book, title: 'Valid Bibtex of America', author: 'Smith, James',
+
+    # Beth, chaing the bibtex_type above causes all but 2 tests to pass, but below adds another 6 failing test. passing via hash is correct here.
+    @valid_gem_bibtex_book   = BibTeX::Entry.new(bibtex_type: 'book', title: 'Valid Bibtex of America', author: 'Smith, James',
                                                  year: 1921, publisher: 'Test Books Inc.')
-    @invalid_gem_bibtex_book = BibTeX::Entry.new(type:   :book, title: 'InValid Bibtex of America',
+    @invalid_gem_bibtex_book = BibTeX::Entry.new(bibtex_type:   'book', title: 'InValid Bibtex of America',
                                                  author: 'Smith, James', year: 1921)
   end
+
+  after(:all) {
+    Source.destroy_all
+  }
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
 
@@ -114,12 +123,48 @@ describe Source::Bibtex, :type => :model do
       @s = Source::Bibtex.new_from_bibtex(@gem_bibtex_entry1)
     end
 
-    specify 'to_bibtex' do
-      expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
-      expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1['type'].to_s)
-      skip 'test that notes gets converted properly to a bibtex note'
-      # TODO test serial gets converted properly to bibtex journal
+    context 'to_bibtex' do
+      specify 'basic features' do
+        expect(@s.bibtex_type.to_s).to eq(@gem_bibtex_entry1.type.to_s)
+        expect(@s.to_bibtex.fields).to eq(@gem_bibtex_entry1.fields)
+      end
+
+      specify 'a single object note gets converted properly to a bibtex note'   do
+        n = 'I am a test note'
+        expect(@s.notes.size).to eq(0) # @s has no notes
+        expect(@s.save).to be_truthy # object has to be saved before adding a note
+        expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
+        expect(@s.save).to be_truthy
+        expect(@s.notes.size).to eq(1)
+        b = @s.to_bibtex
+        
+        #TODO: test formatting in notes 
+        expect(b[:note].to_s =~ /#{n}/).to be_truthy
+        expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
+      end
+      specify 'multiple object notes get converted properly' do
+        n1 = 'test note1'
+        n2 = 'test note2'
+        expect(@s.notes.count).to eq(0) # @s has no notes
+        expect(@s.save).to be_truthy # object has to be saved before adding a note
+        expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
+        expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
+        expect(@s.save).to be_truthy
+        expect(@s.notes.count).to eq(2)
+        b = @s.to_bibtex
+
+        #TODO: test formatting in notes 
+        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+      end
+
+      skip 'a single attribute note gets converted properly'
+      skip 'multiple attribute notes get converted properly'
+      skip 'serial gets converted properly to bibtex journal' do
+
+      end
     end
+
 
     context 'validate bibtex' do
       specify 'check that valid_bibtex? works (relies on BibTeX::Entry.valid? which is not currently working)' do
@@ -344,7 +389,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached.blank?).to be_falsey
         end
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(@l_src.cached).to eq('Person, T. (1000). I am a soft valid article. Journal of Test Articles.')
+          expect(@l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles. ')
         end
         specify 'cached author should be set' do
           expect(@l_src.cached_author_string.blank?).to be_falsey
@@ -394,7 +439,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached_author_string).to eq('Thomas, Dave and Fowler, Chad and Hunt, Andy')
         end
         specify 'cached string should be correct' do
-          expect(@l_src.cached).to eq('Thomas, D., Fowler, C., & Hunt, A. (1920). Article with multiple authors. Journal of Test Articles.')
+          expect(@l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles. ')
         end
       end
       specify 'should be able to build & save related people' do

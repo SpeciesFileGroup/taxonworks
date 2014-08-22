@@ -6,16 +6,16 @@ describe TaxonName, :type => :model do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     @subspecies = FactoryGirl.create(:iczn_subspecies)
-    @species = @subspecies.ancestor_at_rank('species')
-    @subgenus = @subspecies.ancestor_at_rank('subgenus')
-    @genus = @subspecies.ancestor_at_rank('genus')
-    @tribe = @subspecies.ancestor_at_rank('tribe')
-    @family = @subspecies.ancestor_at_rank('family')
-    @root = @subspecies.root
+    @species    = @subspecies.ancestor_at_rank('species')
+    @subgenus   = @subspecies.ancestor_at_rank('subgenus')
+    @genus      = @subspecies.ancestor_at_rank('genus')
+    @tribe      = @subspecies.ancestor_at_rank('tribe')
+    @family     = @subspecies.ancestor_at_rank('family')
+    @root       = @subspecies.root
   end
 
   after(:all) do
-   # TestDbCleanup.cleanup_taxon_name_and_related
+    # TestDbCleanup.cleanup_taxon_name_and_related
     TaxonNameRelationship.delete_all
   end
 
@@ -41,7 +41,7 @@ describe TaxonName, :type => :model do
     end
   end
 
-  context 'associations' do 
+  context 'associations' do
     specify 'responses to source' do
       expect(taxon_name).to respond_to(:source)
     end
@@ -49,28 +49,28 @@ describe TaxonName, :type => :model do
     context 'taxon_name_relationships' do
 
       before(:all) do
-        @type_of_genus = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: @family)
+        @type_of_genus  = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: @family)
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
-        @taxon_name = FactoryGirl.create(:iczn_species, name: 'aus', parent: @type_of_genus)
-        @relationship1 = FactoryGirl.create(:type_species_relationship, subject_taxon_name: @taxon_name, object_taxon_name: @type_of_genus )
-        @relationship2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        @taxon_name     = FactoryGirl.create(:iczn_species, name: 'aus', parent: @type_of_genus)
+        @relationship1  = FactoryGirl.create(:type_species_relationship, subject_taxon_name: @taxon_name, object_taxon_name: @type_of_genus)
+        @relationship2  = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @taxon_name, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       end
 
       specify 'respond to taxon_name_relationships' do
         expect(taxon_name).to respond_to(:taxon_name_relationships)
-      end 
+      end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
         # TaxonNameRelationships in which the taxon name is the subject
         specify 'respond to taxon_name_relationships' do
           expect(@taxon_name).to respond_to (:taxon_name_relationships)
-          expect(@taxon_name.taxon_name_relationships.map{|i| i.type_name}).to eq([@relationship1.type_name])
+          expect(@taxon_name.taxon_name_relationships.map { |i| i.type_name }).to eq([@relationship1.type_name])
         end
 
         # TaxonNameRelationships in which the taxon name is the subject OR object
         specify 'respond to all_taxon_name_relationships' do
           expect(@taxon_name).to respond_to (:all_taxon_name_relationships)
-          expect(@taxon_name.all_taxon_name_relationships.map{|i| i.type_name}).to eq([@relationship1.type_name, @relationship2.type_name])
+          expect(@taxon_name.all_taxon_name_relationships.map { |i| i.type_name }).to eq([@relationship1.type_name, @relationship2.type_name])
         end
 
         # TaxonNames related by all_taxon_name_relationships
@@ -89,18 +89,18 @@ describe TaxonName, :type => :model do
   end
 
   context 'methods' do
-    context 'verbatim_author' do 
+    context 'verbatim_author' do
       specify 'parens are allowed' do
-        taxon_name.verbatim_author = '(Smith)' 
+        taxon_name.verbatim_author = '(Smith)'
         taxon_name.valid?
         expect(taxon_name.errors.include?(:verbatim_author)).to be_falsey
       end
     end
 
-    context 'rank_class' do 
+    context 'rank_class' do
       specify 'returns the passed value when not yet validated and not a NomenclaturalRank' do
         taxon_name.rank_class = 'foo'
-        expect(taxon_name.rank_class).to eq('foo') 
+        expect(taxon_name.rank_class).to eq('foo')
       end
       specify 'returns a NomenclaturalRank when available' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
@@ -157,9 +157,19 @@ describe TaxonName, :type => :model do
     end
 
     context 'class methods from awesome_nested_set' do
-      specify 'permit one root per project'
-      specify 'permit multiple roots across the database' do
+      before {
+        @p = Project.create(name: 'Taxon-name root test.')
+      }
+
+      specify 'permit one root per project' do
         root2 = FactoryGirl.build(:root_taxon_name)
+        expect(root2.parent).to be_nil
+        expect(root2.valid?).to be_falsey
+        expect(root2.errors.include?(:parent_id)).to be_truthy
+      end
+
+      specify 'permit multiple roots in different projects' do
+        root2 = FactoryGirl.build(:root_taxon_name, project_id: @p.id)
         expect(root2.parent).to be_nil
         expect(root2.valid?).to be_truthy
       end
@@ -167,9 +177,9 @@ describe TaxonName, :type => :model do
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
       context 'handle a simple hierarchy with awesome_nested_set' do
         before(:all) do
-          @family1 = FactoryGirl.create(:iczn_family, parent: @root)
-          @genus1 = FactoryGirl.create(:iczn_genus, parent: @family1)
-          @genus2 = FactoryGirl.create(:iczn_genus, parent: @family1)
+          @family1  = FactoryGirl.create(:iczn_family, parent: @root)
+          @genus1   = FactoryGirl.create(:iczn_genus, parent: @family1)
+          @genus2   = FactoryGirl.create(:iczn_genus, parent: @family1)
           @species1 = FactoryGirl.create(:iczn_species, parent: @genus1)
           @species2 = FactoryGirl.create(:iczn_species, parent: @genus2)
           @root.reload
@@ -194,7 +204,7 @@ describe TaxonName, :type => :model do
         specify 'move_to_child_of' do
           @species2.move_to_child_of(@genus1)
           expect(@genus2.children).to eq([])
-          expect(@genus1.children).to eq([@species1,@species2])
+          expect(@genus1.children).to eq([@species1, @species2])
         end
       end
     end
@@ -231,14 +241,14 @@ describe TaxonName, :type => :model do
         expect(taxon_name.errors.include?(:parent_id)).to be_truthy
       end
       specify 'child rank is lower' do
-        phylum = FactoryGirl.create(:iczn_phylum)
-        kingdom = phylum.ancestor_at_rank('kingdom')
+        phylum             = FactoryGirl.create(:iczn_phylum)
+        kingdom            = phylum.ancestor_at_rank('kingdom')
         kingdom.rank_class = Ranks.lookup(:iczn, 'subphylum')
         kingdom.valid?
         expect(kingdom.errors.include?(:rank_class)).to be_truthy
       end
       specify 'a new taxon rank in the same group' do
-        t = FactoryGirl.create(:iczn_kingdom)
+        t            = FactoryGirl.create(:iczn_kingdom)
         t.rank_class = Ranks.lookup(:iczn, 'genus')
         t.valid?
         expect(t.errors.include?(:rank_class)).to be_truthy
@@ -247,11 +257,11 @@ describe TaxonName, :type => :model do
 
     context 'source' do
       specify 'when provided, is type Source::Bibtex' do
-        h = FactoryGirl.build(:human_source)
+        h                 = FactoryGirl.build(:source_human)
         taxon_name.source = h
         taxon_name.valid?
         expect(taxon_name.errors.include?(:source_id)).to be_truthy
-        b = FactoryGirl.build(:source_bibtex)
+        b                 = FactoryGirl.build(:source_bibtex)
         taxon_name.source = b
         taxon_name.valid?
         expect(taxon_name.errors.include?(:source_id)).to be_falsey
@@ -261,7 +271,7 @@ describe TaxonName, :type => :model do
     context 'rank_class' do
       specify 'is validly_published when a NomenclaturalRank subclass' do
         taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-        taxon_name.name = 'Aaa'
+        taxon_name.name       = 'Aaa'
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_falsey
       end
@@ -281,7 +291,7 @@ describe TaxonName, :type => :model do
           expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
         specify 'ICZN species misspelling' do
-          sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+          sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
           sp.iczn_set_as_misapplication_of = @species
           expect(sp.save).to be_truthy
           expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
@@ -314,7 +324,7 @@ describe TaxonName, :type => :model do
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
         specify 'source_classified_as' do
-          c = FactoryGirl.create(:combination, parent: @species)
+          c                      = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
           expect(c.save).to be_truthy
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
@@ -322,8 +332,8 @@ describe TaxonName, :type => :model do
         specify 'different gender' do
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
           @species.masculine_name = 'vitus'
-          @species.feminine_name = 'vita'
-          @species.neuter_name = 'vitum'
+          @species.feminine_name  = 'vita'
+          @species.neuter_name    = 'vitum'
           expect(@species.save).to be_truthy
           gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
@@ -335,7 +345,7 @@ describe TaxonName, :type => :model do
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
         specify 'misspelled original combination' do
-          g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+          g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
           g.iczn_set_as_misspelling_of = @genus
           expect(g.save).to be_truthy
           @subspecies.original_genus = g
@@ -344,8 +354,8 @@ describe TaxonName, :type => :model do
           expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
         end
         specify 'moving nominotypical taxon' do
-          sp = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
-          subsp = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
+          sp           = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
+          subsp        = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
           subsp.parent = @species
           subsp.valid?
           expect(subsp.errors.include?(:parent_id)).to be_truthy
@@ -417,19 +427,19 @@ describe TaxonName, :type => :model do
           expect(@family.errors.include?(:name)).to be_falsey
         end
         specify "is invalidly_published when not ending in '-idae'" do
-          taxon_name.name = 'Aus'
+          taxon_name.name       = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_truthy
         end
         specify 'is invalidly_published when not capitalized' do
-          taxon_name.name = 'fooidae'
+          taxon_name.name       = 'fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_truthy
         end
         specify 'species name starting with apper case' do
-          taxon_name.name = 'Aus'
+          taxon_name.name       = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
           taxon_name.soft_validate(:validate_name)
           expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
@@ -438,13 +448,13 @@ describe TaxonName, :type => :model do
 
       context 'when rank ICN family' do
         specify "is validly_published when ending in '-aceae'" do
-          taxon_name.name = 'Aaceae'
+          taxon_name.name       = 'Aaceae'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_falsey
         end
         specify "is invalidly_published when not ending in '-aceae'" do
-          taxon_name.name = 'Aus'
+          taxon_name.name       = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:icn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_truthy
@@ -454,8 +464,8 @@ describe TaxonName, :type => :model do
 
     context 'relationships' do
       specify 'invalid parent' do
-        g = FactoryGirl.create(:iczn_genus, parent: @family)
-        s = FactoryGirl.create(:iczn_species, parent: g)
+        g  = FactoryGirl.create(:iczn_genus, parent: @family)
+        s  = FactoryGirl.create(:iczn_species, parent: g)
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         s.soft_validate(:parent_is_valid_name)

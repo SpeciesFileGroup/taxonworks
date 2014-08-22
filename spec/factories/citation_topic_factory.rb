@@ -8,7 +8,7 @@ FactoryGirl.define do
 
     factory :valid_citation_topic do
       association :topic, factory: :valid_topic
-      association :citation, factory: :valid_citation  
+      association :citation, factory: :valid_citation
     end
   end
 end

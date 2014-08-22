@@ -1,3 +1,34 @@
+# A User is a TaxonWorks user, at present someone who can logon to the private workebench.
+#   All Data Models contain created_by_id and updated_by_id that references a User.  
+#
+# A user may have a number of *attributes* that define roles/subclasses of a sort:
+#
+# 1) Administrators (User#is_administrator = true).  An administrator can do absolutely everything, in any
+# project, and across any project, *except* set User#is_administrator = false.  It is intended that there
+# be only 1-2 administrators per instance of TaxonWorks.
+#
+# 2) Project Administrators (ProjectMember#is_project_administrator). 
+# A project administrator can set Project settings and preferences, including the views that a Worker can see.
+#
+# 3) Superuser. A super_user (code only) is a User that is a project administrator OR administrator.
+#
+# 4) Worker. A worker is a User that can only see parts of the workbench allowed by a ProjectAdministrator.
+#
+# Data models in TaxonWorks reference People, who may have roles as Sources (or others), i.e. Users are not "data" and
+# not linked directly to People records.
+#
+# Users must never be shared by real-life humans. 
+#
+#
+# @!attribute name 
+#   @return [String]
+#   A users name.  Not intended to be a nickname, but this is loosely enforced.  Attribute is 
+#   intended to identify a human who owns this account.
+#
+# @!attribute email 
+#   @return [String]
+#   The users email, and login. 
+#
 class User < ActiveRecord::Base
 
   before_create :set_remember_token
@@ -20,8 +51,11 @@ class User < ActiveRecord::Base
     length: { minimum: 8, :if => :validate_password? }, 
     :confirmation => { :if => :validate_password? }
 
+  validates :name, presence: true, length: { minimum: 3 }
+
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
+  has_many :pinboard_items, dependent: :destroy
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64
@@ -65,6 +99,10 @@ class User < ActiveRecord::Base
   
   def password_reset_token_matches?(token)
     self.password_reset_token == User.encrypt(token)
+  end
+
+  def pinboard_hash(project_id)
+    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by{|a| a.pinned_object_type}
   end
 
   private

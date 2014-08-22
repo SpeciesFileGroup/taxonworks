@@ -63,6 +63,10 @@ class GeographicAreasGeographicItemsController < ApplicationController
     end
   end
 
+  def list
+    @geographic_areas_geographic_item = GeographicAreasGeographicItem.order(:id).page(params[:page])
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_geographic_areas_geographic_item

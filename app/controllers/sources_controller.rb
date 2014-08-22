@@ -64,6 +64,23 @@ class SourcesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @sources = Source.find_for_autocomplete(params)
+
+    data = @sources.collect do |t|
+      {id: t.id,
+       label: SourcesHelper.otu_tag(t), 
+       response_values: {
+         params[:method] => t.id  
+       },
+       label_html: SourcesHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data 
+ 
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_source
@@ -72,6 +89,6 @@ class SourcesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def source_params
-      params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim, :cached, :cached_author_string, :bibtex_type, :created_by_id, :updated_by_id, :nomenclature_date, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
+      params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim,  :bibtex_type, :nomenclature_date, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
     end
 end

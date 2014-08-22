@@ -16,14 +16,23 @@ module NavigationHelper
   # A previous record link.  Assumes the instance has a project_id! 
   def previous_link(instance)
     text = 'Previous'
-    link_object = instance.class.base_class.order(id: :desc).with_project_id(instance.project_id).where(['id < ?', instance.id]).limit(1).first
+    if instance.respond_to?(:project_id)
+      link_object = instance.class.base_class.order(id: :desc).with_project_id(instance.project_id).where(['id < ?', instance.id]).limit(1).first
+    else
+      link_object = instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
+    end
+
     link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 
   # A next record link.  Assumes the instance has a project_id! 
   def next_link(instance)
     text = 'Next'
-    link_object = instance.class.base_class.order(id: :asc).with_project_id(instance.project_id).where(['id > ?', instance.id]).limit(1).first
+    if instance.respond_to?(:project_id)
+      link_object = instance.class.base_class.order(id: :asc).with_project_id(instance.project_id).where(['id > ?', instance.id]).limit(1).first
+    else
+      link_object = instance.class.base_class.order(id: :asc).where(['id > ?', instance.id]).limit(1).first
+    end
     link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 

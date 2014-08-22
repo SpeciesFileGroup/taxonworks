@@ -25,7 +25,15 @@ FactoryGirl.define do
       end
       name 
     }
-  end
+    # ignore do
+    #   associated_attributes nil
+    # end
+    #
+    # after_create do |object, evaluator|
+    #   # Use the ignored associated_attributes when creating the associated object
+    #   associated_object = AssociatedModel.new(evaluator.associated_attributes)
+    #   end
+    end
 
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 

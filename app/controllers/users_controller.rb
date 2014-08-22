@@ -60,11 +60,16 @@ class UsersController < ApplicationController
     flash[:success] = "Account has been deleted."
     redirect_to root_url
   end
+  
+  # GET /forgot_password
+  def forgot_password
+    
+  end
 
   private
 
     def user_params
-      # TODO: revist authorization of specific field settings
+      # TODO: revisit authorization of specific field settings
       basic = [:name,
       :email,
       :password,

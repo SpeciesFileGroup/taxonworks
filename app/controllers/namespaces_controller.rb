@@ -1,7 +1,5 @@
 class NamespacesController < ApplicationController
-
   before_action :require_administrator_sign_in
-
 
   # TODO: scope this to administrators?
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
@@ -9,7 +7,8 @@ class NamespacesController < ApplicationController
   # GET /namespaces
   # GET /namespaces.json
   def index
-    @namespaces = Namespace.all
+    @namespaces     = Namespace.all
+    @recent_objects = Namespace.order(updated_at: :desc).limit(10)
   end
 
   # GET /namespaces/1
@@ -30,6 +29,7 @@ class NamespacesController < ApplicationController
   # POST /namespaces.json
   def create
     @namespace = Namespace.new(namespace_params)
+
 
     respond_to do |format|
       if @namespace.save
@@ -66,14 +66,38 @@ class NamespacesController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_namespace
-      @namespace = Namespace.find(params[:id])
+  def list
+    @namespaces = Namespace.order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to namespace_path(params[:namespace][:id])
+  end
+
+  def autocomplete
+    @namespaces = Namespace.find_for_autocomplete(params)
+
+    data = @namespaces.collect do |t|
+      {id:              t.id,
+       label:           NamespacesHelper.namespace_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      NamespacesHelper.namespace_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def namespace_params
-      params.require(:namespace).permit(:institution, :name, :short_name, :created_by_id, :updated_by_id)
-    end
+    render :json => data
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_namespace
+    @namespace = Namespace.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def namespace_params
+    params.require(:namespace).permit(:institution, :name, :short_name, :created_by_id, :updated_by_id)
+  end
 end

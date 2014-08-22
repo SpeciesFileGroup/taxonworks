@@ -1,7 +1,4 @@
 module OtusHelper
-  def otu_tag(otu)
-    otu.name
-  end
 
   def self.otu_tag(otu)
     return nil if otu.nil?
@@ -12,12 +9,17 @@ module OtusHelper
     OtusHelper.otu_tag(otu)
   end
 
+  def otu_link(otu)
+    return nil if otu.nil?
+    link_to(otu_tag(otu).html_safe, otu)
+  end
+
   def otus_search_form
     render('/otus/quick_search_form')
   end
 
   def otus_link_list_tag(otus)
-    otus.collect{|o| link_to(o.name, o)}.join(",")
+    otus.collect { |o| link_to(o.name, o) }.join(",")
   end
 
 end

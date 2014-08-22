@@ -1,31 +1,34 @@
 <%= form_for(@otu) do |f| %>
-  <% if @otu.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@otu.errors.count, "error") %> prohibited this otu from being saved:</h2>
+    <% if @otu.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@otu.errors.count, 'error') %> prohibited this otu from being saved:</h2>
 
-      <ul>
-      <% @otu.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @otu.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_field :name %>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
-  </div>
+    <div class="field">
+      <%= f.label :taxon_name %>
+      <br>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'taxon_names',
+                              :object     => 'taxon_name',
+                              :method     => 'taxon_name_id',
+                              :tag_id     => 'taxon_name_id_for_otu',
+                              :display    => object_tag(@otu.taxon_name)} %>
+    </div>
 
-  <div class="field">
-    <%= f.label :taxon_name %><br>
-    <%= render :partial => "elements/forms/ajax_select", :locals => {:controller => 'taxon_names',
-                                                                     :object => 'taxon_name', 
-                                                                     :method => 'taxon_name_id_id', 
-                                                                     :tag_id => "taxon_name_id_for_new_otu", 
-                                                                     :display => object_tag(@taxon_name)  } %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

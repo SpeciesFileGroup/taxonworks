@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe "collection_objects/new", :type => :view do
   before(:each) do
+    @data_model = CollectionObject
     assign(:collection_object, stub_model(CollectionObject,
       :total => 1,
-      :type => "",
       :preparation_type_id => 1,
       :repository_id => 1,
       :created_by_id => 1,
@@ -19,9 +19,8 @@ describe "collection_objects/new", :type => :view do
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     assert_select "form[action=?][method=?]", collection_objects_path, "post" do
       assert_select "input#collection_object_total[name=?]", "collection_object[total]"
-      assert_select "input#collection_object_type[name=?]", "collection_object[type]"
-      assert_select "input#collection_object_preparation_type_id[name=?]", "collection_object[preparation_type_id]"
-      assert_select "input#collection_object_repository_id[name=?]", "collection_object[repository_id]"
+      assert_select "select#collection_object_preparation_type_id[name=?]", "collection_object[preparation_type_id]"
+      assert_select "select#collection_object_repository_id[name=?]", "collection_object[repository_id]"
      end
   end
 end

@@ -39,7 +39,12 @@
     <div class="field">
       <%= f.label :recipient_person_id %>
       <br>
-      <%= f.number_field :recipient_person_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'people',
+                              :object     => 'person',
+                              :method     => 'recipient_person_id',
+                              :tag_id     => 'recipient_person_id_for_loan',
+                              :display    => object_tag(@loan.recipient_person)} %>
     </div>
     <div class="field">
       <%= f.label :recipient_address %>
@@ -64,7 +69,12 @@
     <div class="field">
       <%= f.label :supervisor_person_id %>
       <br>
-      <%= f.text_field :supervisor_person_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'people',
+                              :object     => 'person',
+                              :method     => 'supervisor_person_id',
+                              :tag_id     => 'supervisor_person_id_for_loan',
+                              :display    => object_tag(@loan.supervisor_person)} %>
     </div>
     <div class="field">
       <%= f.label :supervisor_email %>

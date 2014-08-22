@@ -1,5 +1,3 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
 FactoryGirl.define do
   factory :tagged_section_keyword, traits: [:housekeeping] do
     factory :valid_tagged_section_keyword do

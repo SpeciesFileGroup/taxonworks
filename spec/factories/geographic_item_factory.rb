@@ -1,5 +1,4 @@
-require_relative '../support/geo'
-# TODO: Jim, use constants instead of instantiating factories again? 
+require_relative '../support/geo/geo'
 FactoryGirl.define do
 
   minLat = -85
@@ -15,7 +14,7 @@ FactoryGirl.define do
 
   factory :geographic_item, traits: [:creator_and_updater] do
     factory :valid_geographic_item, aliases: [:geographic_item_with_point_a] do
-      point { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655) }
+      point { GI_POINT_A }
     end
 
     factory :random_point_geographic_item do
@@ -23,30 +22,23 @@ FactoryGirl.define do
     end
 
     factory :geographic_item_with_point_m do
-      point { RSPEC_GEO_FACTORY.point(-88.196736, 40.090091) }
+      point { GI_POINT_M }
     end
 
     factory :geographic_item_with_point_u do
-      point { RSPEC_GEO_FACTORY.point(-88.204517, 40.110037) }
+      point { GI_POINT_U }
     end
 
     factory :geographic_item_with_point_c do
-      point { RSPEC_GEO_FACTORY.point(-88.243386, 40.116402) }
+      point { GI_POINT_C }
     end
 
     factory :geographic_item_with_line_string do
-      line_string { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                                   RSPEC_GEO_FACTORY.point(-25, 21),
-                                                   RSPEC_GEO_FACTORY.point(-25, 16),
-                                                   RSPEC_GEO_FACTORY.point(-21, 20)]) }
+      line_string { GI_LS01 }
     end
 
     factory :geographic_item_with_polygon do
-      shape = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                             RSPEC_GEO_FACTORY.point(-25, 21),
-                                             RSPEC_GEO_FACTORY.point(-25, 16),
-                                             RSPEC_GEO_FACTORY.point(-21, 20)])
-      polygon { RSPEC_GEO_FACTORY.polygon(shape) }
+      polygon { GI_POLYGON }
     end
 
 =begin
@@ -54,84 +46,7 @@ FactoryGirl.define do
 =end
 
     factory :geographic_item_with_multi_polygon do
-      multi_polygon { RSPEC_GEO_FACTORY.multi_polygon(
-        [RSPEC_GEO_FACTORY.polygon(
-           RSPEC_GEO_FACTORY.line_string(
-             [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
-              RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
-              RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
-              RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
-              RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
-
-         RSPEC_GEO_FACTORY.polygon(
-           RSPEC_GEO_FACTORY.line_string(
-             [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868),
-              RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885),
-              RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927),
-              RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851),
-              RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988),
-              RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999),
-              RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909),
-              RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995),
-              RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892),
-              RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883),
-              RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873),
-              RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912),
-              RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907),
-              RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956),
-              RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944),
-              RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918),
-              RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929),
-              RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887),
-              RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936),
-              RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894),
-              RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872),
-              RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868)])),
-
-         RSPEC_GEO_FACTORY.polygon(
-           RSPEC_GEO_FACTORY.line_string(
-             [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913),
-              RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917),
-              RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914),
-              RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906),
-              RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853),
-              RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848),
-              RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937),
-              RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999),
-              RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944),
-              RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891),
-              RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988),
-              RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941),
-              RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894),
-              RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878),
-              RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886),
-              RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988),
-              RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932),
-              RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913),
-              RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893),
-              RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913)])),
-
-         RSPEC_GEO_FACTORY.polygon(
-           RSPEC_GEO_FACTORY.line_string(
-             [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991),
-              RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901),
-              RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886),
-              RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901),
-              RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901),
-              RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927),
-              RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892),
-              RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848),
-              RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991)])),
-
-         RSPEC_GEO_FACTORY.polygon(
-           RSPEC_GEO_FACTORY.line_string(
-             [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876),
-              RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859),
-              RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888),
-              RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987),
-              RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903),
-              RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876)]))])
-      }
+      multi_polygon { GI_MULTI_POLYGON }
     end
   end
 end

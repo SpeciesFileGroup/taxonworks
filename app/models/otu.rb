@@ -13,7 +13,7 @@ class Otu < ActiveRecord::Base
   include Housekeeping
   include SoftValidation
   include Shared::Identifiable
-  include Shared::Citable        # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
   include Shared::Notable
   include Shared::DataAttributes
   include Shared::Taggable
@@ -23,13 +23,13 @@ class Otu < ActiveRecord::Base
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object 
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :collection_profiles # @proceps dependent: what?
   has_many :topics, through: :contents, source: :topic
 
-  scope :with_taxon_name_id, -> (taxon_name_id) {where(taxon_name_id: taxon_name_id)}
-  scope :with_name, -> (name) {where(name: name)}
-  scope :not_self, -> (id) {where('otus.id <> ?', id )}
+  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
+  scope :with_name, -> (name) { where(name: name) }
+  scope :not_self, -> (id) { where('otus.id <> ?', id) }
 
   #  validates_uniqueness_of :name, scope: :taxon_name_id
 
@@ -70,7 +70,12 @@ class Otu < ActiveRecord::Base
       soft_validations.add(:name, 'Duplicate Taxon and Name combination')
     end
   end
+
   #endregion
+
+  def self.find_for_autocomplete(params)
+    where('name LIKE ?', "#{params[:term]}%")
+  end
 
   # Generate a CSV version of the raw Otus table for the given project_id
   # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
@@ -83,29 +88,29 @@ class Otu < ActiveRecord::Base
     end
   end
 
-  def self.batch_preview(file: nil, **args)
-    f = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
+  def self.batch_preview(file: nil, ** args)
+    f     = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
     @otus = []
-    f.each do |row| 
+    f.each do |row|
       @otus.push(Otu.new(name: row[:name]))
     end
     @otus
   end
 
-  def self.batch_create(otus: {}, **args)
+  def self.batch_create(otus: {}, ** args)
     new_otus = []
     begin
       Otu.transaction do
         otus.keys.each do |k|
           o = Otu.new(otus[k])
           o.save!
-          new_otus.push(o) 
-        end 
+          new_otus.push(o)
+        end
       end
     rescue
       return false
     end
-   new_otus 
+    new_otus
   end
 
 end

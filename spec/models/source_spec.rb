@@ -3,6 +3,9 @@ require 'rails_helper'
 describe Source, :type => :model do
   let(:source) { Source.new }
 
+  after(:all) {
+    Source.delete_all
+  }
 
   context 'associtations' do
     specify 'sources have citations' do

@@ -6,7 +6,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /controlled_vocabulary_terms/1
@@ -71,10 +71,29 @@ class ControlledVocabularyTermsController < ApplicationController
     end
   end
 
+  def search
+    redirect_to controlled_vocabulary_term_path_path(params[:controlled_vocabulary_term][:id])
+  end
+
   def list
     @controlled_vocabulary_terms =  ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def autocomplete
+    @controlled_vocabulary_terms = ControlledVocabularyTerm.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @controlled_vocabulary_terms.collect do |t|
+      {id:              t.id,
+       label:           ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

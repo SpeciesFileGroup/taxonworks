@@ -5,11 +5,41 @@ require 'rails_helper'
 #
 # describe TaxonNamesHelper do
 #   describe "string concat" do
-#     it "concats two strings with spaces" do
-#       expect(helper.concat_strings("this","that")).to eq("this that")
+#     it "concatenates two strings with spaces" do
+#       expect(helper.concat_strings("this", "that")).to eq("this that")
 #     end
 #   end
 # end
 describe TaxonNamesHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+  context 'a taxon_name needs some helpers' do
+    before(:all) {
+      @taxon_name = FactoryGirl.create(:valid_taxon_name)
+    }
+
+    specify '#taxon_name_for_select' do
+      expect(taxon_name_for_select(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#parent_taxon_name_for_select' do
+      expect(parent_taxon_name_for_select(@taxon_name)).to eq('Root')
+    end
+
+    specify '::taxon_name_tag' do
+      expect(TaxonNamesHelper.taxon_name_tag(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#taxon_name_tag' do
+      expect(taxon_name_tag(@taxon_name)).to eq('Adidae')
+    end
+
+    specify '#taxon_name_link' do
+      expect(taxon_name_link(@taxon_name)).to have_link('Adidae')
+    end
+
+    specify "#taxon_name_rank_select_tag" do
+      expect(taxon_name_rank_select_tag(@taxon_name)).to have_select('taxon_name_rank_class')
+    end
+
+  end
+
 end

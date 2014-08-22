@@ -1,0 +1,41 @@
+<h1>Listing People</h1>
+
+<%= paginate @repositories %> <%= page_entries_info @repositories %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Type</th>
+    <th>Last name</th>
+    <th>First name</th>
+    <th>Suffix</th>
+    <th>Prefix</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @people.each do |person| %>
+      <tr>
+        <td><%= person.type %></td>
+        <td><%= person.last_name %></td>
+        <td><%= person.first_name %></td>
+        <td><%= person.suffix %></td>
+        <td><%= person.prefix %></td>
+        <td><%= person.creator.email %></td>
+        <td><%= person.updater.email %></td>
+        <td><%= link_to 'Show', person.becomes(Person) %></td>
+        <td><%= link_to 'Edit', edit_person_path(person.becomes(Person)) %></td>
+        <td><%= link_to 'Destroy', person.becomes(Person), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Person', new_person_path %>

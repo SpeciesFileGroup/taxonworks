@@ -2,6 +2,7 @@
 module Features
   module AuthenticationHelpers
 
+  # Likely not used anywhere anymore
     def sign_up_with(email, password, password_confirmation)
       visit signup_path
       fill_in 'Email',                 with: email
@@ -68,9 +69,11 @@ module Features
 
     def spin_up_project_and_users
       @password = 'abcD123!'
-      @user = User.create(email: 'user@test.com', password: @password , password_confirmation: @password)
-      @project_administrator = User.create(email: 'project_administrator@test.com', password: @password, password_confirmation: @password)
-      @administrator = User.create(email: 'administrator@test.com', password: @password, password_confirmation: @password, is_administrator: true)
+
+      @user = User.create(name: 'Pat User', email: 'user@test.com', password: @password , password_confirmation: @password)
+      @project_administrator = User.create(name: 'Pat Project Administrator', email: 'project_administrator@test.com', password: @password, password_confirmation: @password)
+      @administrator = User.create(name: 'Pat the Administrator', email: 'administrator@test.com', password: @password, password_confirmation: @password, is_administrator: true)
+
       @project = Project.create(name: 'My Project', creator: @administrator, updater: @administrator)
       @project.project_members.build(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
       @project.project_members.build(creator: @administrator, updater: @administrator, user: @user) # build

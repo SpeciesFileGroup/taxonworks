@@ -290,7 +290,6 @@ class GeographicItem < ActiveRecord::Base
   #  g3 = g2[column]
 
   #    a = Arel::Nodes::NamedFunction.new("st_distance", [ geographic_items[column.to_sym], g2 ] ) 
-  #    byebug
   #    conditions.push(where(a.lt(distance)))
   #  end 
 

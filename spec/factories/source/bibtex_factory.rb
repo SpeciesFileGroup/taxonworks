@@ -9,7 +9,7 @@ FactoryGirl.define do
       bibtex_type 'article'
       title 'I am a soft valid article'
       author 'Person, Test'
-      journal 'Journal of test articles'
+      journal 'Journal of Test Articles'
       year 1000
     end
 
@@ -38,7 +38,7 @@ FactoryGirl.define do
       bibtex_type 'article'
       title 'Article with multiple authors'
       author 'Thomas, Dave and Fowler, Chad and Hunt, Andy'
-      journal 'Journal of test articles'
+      journal 'Journal of Test Articles'
       year 1920
     end
 

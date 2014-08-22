@@ -5,8 +5,8 @@ describe Georeference::GeoLocate, :type => :model do
   let(:geo_locate) { FactoryGirl.build(:georeference_geo_locate) }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
   let(:request) { Georeference::GeoLocate::Request.new(request_params) }
-  let(:response) { request.response }
-  let(:georeference_from_build) { Georeference::GeoLocate.build(request_params) }
+  let(:response) { VCR.use_cassette('geo-locate-with-request') { request.response } }
+  let(:georeference_from_build) { VCR.use_cassette('geo-locate-with-build') { Georeference::GeoLocate.build(request_params) } }
 
   context 'building a Georeference::GeoLocate with #build_from_embedded_result(response_string)' do
     before(:each) {
@@ -22,7 +22,7 @@ describe Georeference::GeoLocate, :type => :model do
 
   context 'building a Georeference::GeoLocate with #build' do
     before(:each) {
-      @a = Georeference::GeoLocate.build(request_params)
+      @a = georeference_from_build
     }
 
     specify '#build builds a Georeference::GeoLocate instance' do
@@ -30,7 +30,9 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify '#build(request_params) passes' do
-      expect(Georeference::GeoLocate.build(request_params)).to be_truthy
+      VCR.use_cassette('geo-locate-with-build') do
+        expect(Georeference::GeoLocate.build(request_params)).to be_truthy
+      end
     end
 
     specify 'with a collecting event #build produces a valid instance' do
@@ -45,20 +47,26 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify 'with invalid parameters returns a Georeference::GeoLocate instance with errors on :base' do
-      @a =  Georeference::GeoLocate.build(country: '')
-      expect(@a.errors.include?(:api_request)).to be_truthy
+      VCR.use_cassette('geo-locate-with-build-using-empty-country-param') do
+        @a =  Georeference::GeoLocate.build(country: '')
+        expect(@a.errors.include?(:api_request)).to be_truthy\
+      end
     end
 
     specify '#with doPoly false instance should have no error polygon' do
-      @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
-      expect(@a.error_geographic_item.nil?).to be_truthy
+      VCR.use_cassette('geo-locate-with-build-using-false-doPoly-param') do
+        @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
+        expect(@a.error_geographic_item.nil?).to be_truthy
+      end
     end
 
     # TODO: what was the 3 reason again?
     # TODO: @mjy three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
-      @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'true', locality: 'Urbana', doUncert: 'false'})
-      expect(@a.error_radius).to eq(3)
+      VCR.use_cassette('geo-locate-with-build-using-false-doUncert-param') do
+        @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'true', locality: 'Urbana', doUncert: 'false'})
+        expect(@a.error_radius).to eq(3)
+      end
     end
   end
 
@@ -101,26 +109,31 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify '.locate' do
-      expect(request.locate).to be_truthy
+       VCR.use_cassette('geo-locate-with-locate') { expect(request.locate).to be_truthy }
     end
 
     specify '.locate populates @response' do
-      expect(request.locate).to be_truthy
-      expect(request.response).to_not be_nil
-      expect(request.response.class).to eq(Georeference::GeoLocate::Response)
+      VCR.use_cassette('geo-locate-with-locate') do
+        expect(request.locate).to be_truthy
+        expect(request.response).to_not be_nil
+        expect(request.response.class).to eq(Georeference::GeoLocate::Response)
+      end
     end
 
     specify '.succeeded?' do
-      expect(request.locate).to be_truthy
-      expect(request.succeeded?).to be_truthy
+      VCR.use_cassette('geo-locate-with-locate') do
+        expect(request.locate).to be_truthy
+        expect(request.succeeded?).to be_truthy
+      end
     end
   end
 
-
   context 'Response' do
     specify 'contains some @result (in json)' do
-      request.locate
-      expect(response.result.keys.include?('numResults')).to be_truthy
+      VCR.use_cassette('geo-locate-with-locate') do
+        request.locate
+        expect(response.result.keys.include?('numResults')).to be_truthy
+      end
     end
   end
 

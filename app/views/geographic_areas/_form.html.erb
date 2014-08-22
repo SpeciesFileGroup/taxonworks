@@ -18,9 +18,14 @@
       <%= f.text_field :name %>
     </div>
     <div class="field">
-      <%= f.label :parent_id %>
+      <%= f.label :parent %>
       <br>
-      <%= f.number_field :parent_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'geographic_areas',
+                              :object     => 'geographic_area',
+                              :method     => 'parent_id',
+                              :tag_id     => 'parent_id_for_geographic_area',
+                              :display    => object_tag(@geographic_area.parent)} %>
     </div>
     <div class="field">
       <%= f.label :geographic_area_type_id %>
@@ -44,19 +49,34 @@
     </div>
 
     <div class="field">
-      <%= f.label :level0_id %>
+      <%= f.label :level0 %>
       <br>
-      <%= f.number_field :level0_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'geographic_areas',
+                              :object     => 'geographic_area',
+                              :method     => 'level0_id',
+                              :tag_id     => 'level0_id_for_geographic_area',
+                              :display    => object_tag(@geographic_area.level0)} %>
     </div>
     <div class="field">
-      <%= f.label :level1_id %>
+      <%= f.label :level1 %>
       <br>
-      <%= f.number_field :level1_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'geographic_areas',
+                              :object     => 'geographic_area',
+                              :method     => 'level1_id',
+                              :tag_id     => 'level1_id_for_geographic_area',
+                              :display    => object_tag(@geographic_area.level1)} %>
     </div>
     <div class="field">
-      <%= f.label :level2_id %>
+      <%= f.label :level2 %>
       <br>
-      <%= f.number_field :level2_id %>
+      <%= render :partial => 'elements/forms/ajax_select',
+                 :locals  => {:controller => 'geographic_areas',
+                              :object     => 'geographic_area',
+                              :method     => 'level2_id',
+                              :tag_id     => 'level2_id_for_geographic_area',
+                              :display    => object_tag(@geographic_area.level2)} %>
     </div>
     <div class="field">
       <%= f.label :created_by_id %>

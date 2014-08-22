@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../support/geo'
+require_relative '../support/geo/geo'
 
 describe GeographicItem, :type => :model do
   before(:all) {

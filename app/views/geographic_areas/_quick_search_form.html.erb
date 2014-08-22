@@ -1,0 +1,11 @@
+<%= form_tag(search_geographic_areas_path) do %>
+    <%= render partial: 'elements/forms/ajax_select',
+               locals:  {controller: 'geographic_areas',
+                         object:     'geographic_area',
+                         method:     'id',
+                         tag_id:     'geographic_area_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

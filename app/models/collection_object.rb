@@ -42,14 +42,6 @@
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-# @!attribute accession_provider_id
-#   @return [Integer]
-#   The person (Person::Vetted) that provided the specimen as an accession to the Repository.  If present Repository must be present.
-#
-# @!attribute deaccession_recipient_id
-#   @return [Integer]
-#   The person (Person::Vetted) that revieved the object  If present Repository must be absent.
-#
 # @!attribute deaccession_reason
 #   @return [String]
 #   A free text explanation of why the object was removed from tracking. 
@@ -65,11 +57,17 @@ class CollectionObject < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Taggable
   include SoftValidation
+  include Shared::HasRoles
 
-  belongs_to :preparation_type, inverse_of: :collection_objects
-  belongs_to :repository, inverse_of: :collection_objects
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
+  has_one :accession_provider, through: :accession_provider_role, source: :person
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
+  has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
+
   belongs_to :collecting_event, inverse_of: :collection_objects
+  belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
+  belongs_to :repository, inverse_of: :collection_objects
 
   validates_presence_of :type
   before_validation :default_to_biological_collection_object_if_type_not_provided
@@ -83,23 +81,14 @@ class CollectionObject < ActiveRecord::Base
   #region Soft Validation
 
   def sv_missing_accession_fields
-    if self.accessioned_at.nil? and !self.accession_provider_id.nil?
-      soft_validations.add(:accessioned_at, 'Date is not selected')
-    elsif !self.accessioned_at.nil? and self.accession_provider_id.nil?
-      soft_validations.add(:accession_provider_id, 'Provider is not selected')
-    end
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
   end
 
   def sv_missing_deaccession_fields
-    if self.deaccession_at.nil?
-      soft_validations.add(:deaccession_at, 'Date is not selected') unless self.deaccession_reason.blank? && self.deaccession_recipient_id.nil?
-    end
-    if self.deaccession_recipient_id.nil?
-      soft_validations.add(:deaccession_recipient_id, 'Recipient is not selected') unless self.deaccession_reason.blank? && self.deaccessioned_at.nil?
-    end
-    if self.deaccession_reason.blank?
-      soft_validations.add(:deaccession_reason, 'Reason is is not defined') unless self.deaccession_recipient_id.nil? && self.deaccessioned_at.nil?
-    end
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank? 
+    soft_validations.add(:base, 'Recipient is not selected')  if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
   def missing_determination
@@ -116,6 +105,12 @@ class CollectionObject < ActiveRecord::Base
 
   def sv_missing_repository
     # see biological_collection_object
+  end
+
+  def self.find_for_autocomplete(params)
+    # add identifiers
+    # add determinations
+    where('type LIKE ?', "#{params[:term]}%") 
   end
 
   #endregion

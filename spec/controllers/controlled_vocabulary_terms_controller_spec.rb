@@ -36,10 +36,10 @@ describe ControlledVocabularyTermsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all controlled_vocabulary_terms as @controlled_vocabulary_terms" do
+    it "assigns all controlled_vocabulary_terms as @recent_objects" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:controlled_vocabulary_terms)).to eq([controlled_vocabulary_term])
+      expect(assigns(:recent_objects)).to eq([controlled_vocabulary_term])
     end
   end
 

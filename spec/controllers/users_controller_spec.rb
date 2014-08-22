@@ -24,7 +24,7 @@ describe UsersController, :type => :controller do
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
 
-  let(:valid_attributes) { {password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
+  let(:valid_attributes) { {name: 'uzer', password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
 
   let(:invalid_attributes) {{  "email" => "invalid value" }  } 
 
@@ -174,6 +174,15 @@ describe UsersController, :type => :controller do
       delete :destroy, {:id => user.to_param}, valid_session
       expect(response).to redirect_to(root_path)
     end
+  end
+  
+  describe "GET forgot_password" do
+    
+    it "renders password reset form" do
+      get :forgot_password
+      expect(response).to render_template(:forgot_password)
+    end
+    
   end
 
 end

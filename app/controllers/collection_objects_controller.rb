@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(5)
+    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /collection_objects/1
@@ -65,6 +65,26 @@ class CollectionObjectsController < ApplicationController
 
   def list
     @collection_objects =  CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to collection_object_path(params[:collection_object][:id])
+  end
+
+  def autocomplete
+    @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
+
+    data = @collection_objects.collect do |t|
+      {id:              t.id,
+       label:           CollectionObjectsHelper.collection_object_tag(t), # in helper
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html:      CollectionObjectsHelper.collection_object_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private

@@ -11,5 +11,28 @@ require 'rails_helper'
 #   end
 # end
 describe LoansHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+  context 'a loan needs some helpers' do
+    before(:all) {
+      @loan  = FactoryGirl.create(:valid_loan)
+      @cvt_name = @loan.recipient_email
+    }
+
+    specify '::loan_tag' do
+      expect(LoansHelper.loan_tag(@loan)).to eq(@cvt_name)
+    end
+
+    specify '#loan_tag' do
+      expect(loan_tag(@loan)).to eq(@cvt_name)
+    end
+
+    specify '#loan_link' do
+      expect(loan_link(@loan)).to have_link(@cvt_name)
+    end
+
+    specify "#loan_search_form" do
+      expect(loans_search_form).to have_button('Show')
+      expect(loans_search_form).to have_field('loan_id_for_quick_search_form')
+    end
+
+  end
 end

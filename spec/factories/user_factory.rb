@@ -18,6 +18,7 @@ FactoryGirl.define do
   factory :user do
     factory :valid_user, aliases: [:creator, :updater], traits: [:user_password] do
       email
+      name 'Joe Blow'
 
       factory :administrator do
         is_administrator true

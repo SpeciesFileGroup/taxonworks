@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AlternateValue::Translation, :type => :model do
+describe AlternateValue::Translation do
 
   let (:translation) { AlternateValue::Translation.new }
 

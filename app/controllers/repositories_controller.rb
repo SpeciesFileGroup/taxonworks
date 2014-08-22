@@ -6,7 +6,8 @@ class RepositoriesController < ApplicationController
   # GET /repositories
   # GET /repositories.json
   def index
-    @repositories = Repository.limit(20)
+    @repositories   = Repository.limit(20)
+    @recent_objects = Repository.order(updated_at: :desc).limit(10)
   end
 
   # GET /repositories/1
@@ -63,14 +64,40 @@ class RepositoriesController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_repository
-      @repository = Repository.find(params[:id])
+  def list
+    @repositories = Repository.order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def search
+    redirect_to repository_path(params[:repository][:id])
+  end
+
+  def autocomplete
+    @repositories = Repository.find_for_autocomplete(params)
+
+    data = @repositories.collect do |t|
+      {id:              t.id,
+       label:           RepositoriesHelper.repository_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      RepositoriesHelper.repository_tag(t)
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def repository_params
-      params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record, :created_by_id, :updated_by_id)
-    end
+    render :json => data
+
+  end
+
+  private
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_repository
+    @repository = Repository.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def repository_params
+    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record, :created_by_id, :updated_by_id)
+  end
 end

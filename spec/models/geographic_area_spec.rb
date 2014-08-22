@@ -118,6 +118,9 @@ describe GeographicArea, :type => :model do
   context 'search functions' do
     before(:each) {
       @champaign = FactoryGirl.create(:level2_geographic_area)
+      @illinois = @champaign.parent
+      @usa = @illinois.parent
+      @earth = @usa.parent
     }
 
     specify 'should be able to find a country by ISO_A2' do
@@ -165,6 +168,34 @@ describe GeographicArea, :type => :model do
 
       specify 'descendants_of_geographic_area_types' do
         expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign.parent, @champaign])
+      end
+
+      specify '::with_name_and_parent_name' do
+        # single immediate parent name
+        expect(GeographicArea.with_name_and_parent_name(%w(Champaign Illinois)).to_a).to eq([@champaign])
+        # single immediate parent name not in list
+        expect(GeographicArea.with_name_and_parent_name(%w(Champaign Ohio)).to_a).to eq([])
+      end
+
+      specify '::with_name_and_parent_names' do
+        # multiple parent name
+        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Illinois United\ States\ of\ America)).to_a).to eq([@champaign])
+        # multiple parent name not in list
+        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Ohio United\ States\ of\ America)).to_a).to eq([])
+      end
+
+      specify '::find_by_self_and_parents' do
+        # one name
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign)).to_a).to eq([@champaign])
+        # two names
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Illinois)).to_a).to eq([@champaign])
+        # three names
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Illinois United\ States\ of\ America)).to_a).to eq([@champaign])
+        # two names not in list
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Ohio)).to_a).to eq([])
+        # three names not in list
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Ohio United\ States\ of\ America)).to_a).to eq([])
+
       end
     end
   end

@@ -82,37 +82,60 @@ describe CollectionObject, :type => :model do
     specify "disposition ()"  # was boolean lost or not
     specify "destroyed? (gone, for real, never ever EVER coming back)"
     specify "condition (damaged/level)"
-    specify "accession source (from whom the biological_collection_object came)"
-    specify "deaccession recipient (to whom the biological_collection_object went)"
     specify "depository (where the)"  
+
+    specify '#accession_provider' do
+      expect(collection_object.accession_provider = FactoryGirl.build(:valid_person)).to be_truthy
+    end
+    
+    specify '#deaccession_recipient' do
+      expect(collection_object.deaccession_recipient = FactoryGirl.build(:valid_person)).to be_truthy
+    end
+
+
   end
 
   context 'soft validation' do
+
+    let(:o) {Specimen.new}
+    let(:p) {Person.new}
+ 
     context 'accession fields are missing' do
       specify 'accessioned_at is missing' do
-        o = Specimen.new(accession_provider_id: 1)
+        o.accession_provider = p
         o.soft_validate(:missing_accession_fields)
         expect(o.soft_validations.messages_on(:accessioned_at).count).to eq(1)
       end
-      specify 'accession_recipient_id is missing' do
-        o = Specimen.new(accessioned_at: '2014-06-02')
+
+      specify 'accession_recipient is missing' do
+        o.accessioned_at = '12/12/2014'
         o.soft_validate(:missing_accession_fields)
-        expect(o.soft_validations.messages_on(:accession_provider_id).count).to eq(1)
+        expect(o.soft_validations.messages_on(:base).count).to eq(1)
       end
+
     end
+
     context 'deaccession fields are missing' do
-      specify 'deaccessioned_at and deaccession_reason are missing' do
-        o = Specimen.new(deaccession_recipient_id: 1)
+      specify 'deaccession_reason is missing' do
+        o.deaccessioned_at = '12/12/2014'
+        o.deaccession_recipient = p
         o.soft_validate(:missing_deaccession_fields)
-        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
         expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
+
       end
-      specify 'deaccessioned_at and deaccession_reason are missing' do
-        o = Specimen.new(deaccession_reason: 'gift')
+      specify 'deaccessioned_at is missing' do
+        o.deaccession_reason = 'Because.'
         o.soft_validate(:missing_deaccession_fields)
-        expect(o.soft_validations.messages_on(:deaccession_at).count).to eq(1)
-        expect(o.soft_validations.messages_on(:deaccession_recipient_id).count).to eq(1)
+        expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
       end
+
+      specify 'deaccessioned_at is missing' do
+        o.deaccession_reason = 'Because.'
+        o.deaccessioned_at = '12/12/2014'
+        o.soft_validate(:missing_deaccession_fields)
+        expect(o.soft_validations.messages_on(:base).count).to eq(1)
+      end
+    
     end
   end
 

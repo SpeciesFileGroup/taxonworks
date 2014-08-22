@@ -10,7 +10,7 @@ class Container < ActiveRecord::Base
   # TODO: rethinking this 
   # belongs_to :otu
 
-  has_many :container_items, validate: false 
+  has_many :container_items, inverse_of: :container # , validate: false 
   # has_many :contained_objects, through: :container_items, source: :contained_object, validate: false, source_type: true
   has_many :collection_objects, through: :container_items, source: :contained_object,  source_type: 'CollectionObject', validate: false 
   has_many :collection_profiles
