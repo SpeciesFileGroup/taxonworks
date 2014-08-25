@@ -15,7 +15,7 @@ class Person < ActiveRecord::Base
   has_many :roles, dependent: :destroy, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
   has_many :editor_roles, class_name: 'SourceEditor'
-  has_many :source_source_roles, class_name: 'SourceSource'
+  has_many :source_roles, class_name: 'SourceSource'
   has_many :collector_roles, class_name: 'Collector'
   has_many :determiner_roles, class_name: 'Determiner'
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor'
