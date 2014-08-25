@@ -136,5 +136,41 @@ describe 'Project Handling', :type => :feature do
     end
 
   end
+
+  describe 'GET /projects/list' do
+    before do
+      sign_in_user
+      $user_id = 1
+      # this is so that there are more than one page of projects
+      30.times { FactoryGirl.create(:valid_project) }
+      visit '/projects/list'
+    end
+
+    specify 'that it renders without error' do
+      expect(page).to have_content 'Listing Projects'
+    end
+
+  end
+
+  describe 'GET /projects/n' do
+    before {
+      sign_in_user
+      $user_id = 1
+      3.times { FactoryGirl.create(:valid_project) }
+      all_projects = Project.all.map(&:id)
+      # there *may* be a better way to do this, but this version *does* work
+      visit "/projects/#{all_projects[1]}"
+    }
+
+    specify 'there is a \'previous\' link' do
+      expect(page).to have_link('Previous')
+    end
+
+    specify 'there is a \'next\' link' do
+      expect(page).to have_link('Next')
+    end
+
+  end
+
 end
 
