@@ -37,7 +37,7 @@ describe TagsController, :type => :controller do
     it "assigns all tags as @tags" do
       tag = Tag.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:tags)).to eq([tag])
+      expect(assigns(:tags)).to include(tag)
     end
   end
 

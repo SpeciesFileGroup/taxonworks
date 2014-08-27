@@ -23,7 +23,7 @@ describe 'CollectionObjects', :type => :feature do
       $user_id = 1; $project_id = 1
       # this is so that there is more than one page
       30.times { FactoryGirl.create(:valid_collection_object) }
-      visit '/collecting_events/list'
+      visit '/collection_objects/list'
     end
 
     specify 'that it renders without error' do
