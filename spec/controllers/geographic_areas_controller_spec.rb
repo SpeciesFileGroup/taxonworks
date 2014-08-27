@@ -24,6 +24,7 @@ describe GeographicAreasController, :type => :controller do
   }
 
   before(:all) {
+    $user_id = 1 ; $project_id = 1
     FactoryGirl.create(:earth_geographic_area)
   }
 
