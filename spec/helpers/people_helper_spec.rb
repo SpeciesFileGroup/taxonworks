@@ -13,7 +13,8 @@ require 'rails_helper'
 describe PeopleHelper, :type => :helper do
   context 'a person needs some helpers' do
     before(:all) {
-      @person = FactoryGirl.create(:valid_person)
+      $user_id     = 1; $project_id = 1
+      @person      = FactoryGirl.create(:valid_person)
       @person_name = @person.name
     }
 

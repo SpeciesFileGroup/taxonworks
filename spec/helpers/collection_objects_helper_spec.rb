@@ -13,8 +13,9 @@ require 'rails_helper'
 describe CollectionObjectsHelper, :type => :helper do
   context 'a collection_object needs some helpers' do
     before(:all) {
+      $user_id           = 1; $project_id = 1
       @collection_object = FactoryGirl.create(:valid_collection_object)
-      @cvt_name = @collection_object.type
+      @cvt_name          = @collection_object.type
     }
 
     specify '::collection_object_tag' do

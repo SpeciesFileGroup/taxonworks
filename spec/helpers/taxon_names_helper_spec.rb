@@ -13,6 +13,7 @@ require 'rails_helper'
 describe TaxonNamesHelper, :type => :helper do
   context 'a taxon_name needs some helpers' do
     before(:all) {
+      $user_id    = 1; $project_id = 1
       @taxon_name = FactoryGirl.create(:valid_taxon_name)
     }
 

@@ -20,7 +20,7 @@ describe 'Namespaces', :type => :feature do
   
   describe 'GET /namespaces/list' do
     before do
-      sign_in_user_and_select_project
+      sign_in_administrator_and_select_project
       $user_id = 1; $project_id = 1
       # this is so that there are more than one page of namespaces
       5.times { FactoryGirl.create(:valid_namespace) }

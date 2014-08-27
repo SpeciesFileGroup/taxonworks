@@ -13,6 +13,7 @@ require 'rails_helper'
 describe CollectingEventsHelper, :type => :helper do
   context 'a collecting event needs some helpers' do
     before(:all) {
+      $user_id          = 1; $project_id = 1
       @collecting_event = FactoryGirl.create(:valid_collecting_event)
     }
 

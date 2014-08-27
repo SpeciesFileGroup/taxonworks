@@ -13,7 +13,8 @@ require 'rails_helper'
 describe OtusHelper, :type => :helper do
   context 'an otu needs some helpers' do
     before(:all) {
-      @otu = FactoryGirl.create(:valid_otu, name: 'voluptas')
+      $user_id = 1; $project_id = 1
+      @otu     = FactoryGirl.create(:valid_otu, name: 'voluptas')
     }
 
     specify '::otu_tag' do

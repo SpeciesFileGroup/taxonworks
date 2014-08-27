@@ -23,9 +23,11 @@ describe 'Tags', :type => :feature do
     before do
       sign_in_user_and_select_project
       $user_id = 1; $project_id = 1
+      # make sure all the tags are removed
+      Tag.delete_all
       # this is so that there are more than one page of tags
-      # problem with Faker::Lorem.word forces this to 15, ATM
-      15.times { FactoryGirl.create(:valid_tag) }
+      # problem with Faker::Lorem.word forces this to 2, ATM
+      2.times { FactoryGirl.create(:valid_tag) }
       visit '/tags/list'
     end
 
