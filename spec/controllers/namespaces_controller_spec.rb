@@ -39,7 +39,7 @@ describe NamespacesController, :type => :controller do
     it "assigns all namespaces as @namespaces" do
       namespace = Namespace.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:namespaces)).to eq([namespace])
+      expect(assigns(:namespaces)).to include(namespace)
     end
   end
 

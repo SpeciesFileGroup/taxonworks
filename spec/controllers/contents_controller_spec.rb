@@ -37,7 +37,7 @@ describe ContentsController, :type => :controller do
     it "assigns all contents as @contents" do
       content = Content.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:contents)).to eq([content])
+      expect(assigns(:contents)).to include(content)
     end
   end
 

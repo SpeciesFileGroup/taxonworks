@@ -23,8 +23,8 @@ describe 'Contents', :type => :feature do
       sign_in_user_and_select_project
       $user_id = 1; $project_id = 1
       # this is so that there are more than one page of contents
-      # problem with Faker::Lorem.word forces this to 15, ATM
-      5.times { FactoryGirl.create(:valid_content) }
+      # problem with Faker::Lorem.word forces this to 2, ATM
+      30.times { FactoryGirl.create(:valid_content) }
       visit '/contents/list'
     end
 

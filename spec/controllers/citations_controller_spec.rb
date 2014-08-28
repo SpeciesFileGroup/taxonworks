@@ -37,7 +37,7 @@ describe CitationsController, :type => :controller do
     it "assigns all citations as @citations" do
       citation = Citation.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:citations)).to eq([citation])
+      expect(assigns(:citations)).to include(citation)
     end
   end
 

@@ -39,7 +39,7 @@ describe CollectingEventsController, :type => :controller do
     it "assigns all collecting_events as @collecting_events" do
       collecting_event = CollectingEvent.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:recent_objects)).to eq([collecting_event])
+      expect(assigns(:recent_objects)).to include(collecting_event)
     end
   end
 
