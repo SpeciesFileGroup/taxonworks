@@ -39,7 +39,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
     it "assigns all controlled_vocabulary_terms as @recent_objects" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:recent_objects)).to eq([controlled_vocabulary_term])
+      expect(assigns(:recent_objects)).to include(controlled_vocabulary_term)
     end
   end
 

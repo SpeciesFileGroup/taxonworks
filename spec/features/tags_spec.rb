@@ -27,7 +27,7 @@ describe 'Tags', :type => :feature do
       Tag.delete_all
       # this is so that there are more than one page of tags
       # problem with Faker::Lorem.word forces this to 2, ATM
-      2.times { FactoryGirl.create(:valid_tag) }
+      30.times { FactoryGirl.create(:valid_tag) }
       visit '/tags/list'
     end
 

@@ -39,7 +39,7 @@ describe OtusController, :type => :controller do
       otu = Otu.create!(valid_attributes)
       get :index, {}, valid_session
       # The following means that @otus = Otu.all in the controller.
-      expect(assigns(:recent_objects)).to eq([otu])
+      expect(assigns(:recent_objects)).to include(otu)
     end
   end
 
