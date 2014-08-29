@@ -108,17 +108,19 @@ module SessionsHelper
   # TODO: make this a non-controller method
   def session_header_links
     [
-      link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post),
-      content_tag(:span, ('Signed in as ' + content_tag(:mark, sessions_current_user.email)).html_safe),
-      link_to('Account', sessions_current_user),
       project_settings_link, 
       administration_link,
+      link_to('Account', sessions_current_user),
       link_to('Sign out', signout_path, method: :delete)
     ]
   end
 
+  def favorite_page_link
+    link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post)
+  end
+
   def project_settings_link
-    sessions_project_selected? ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil
+    (sessions_project_selected? && is_superuser?) ? link_to('Project', settings_for_project_path(sessions_current_project)) : nil
   end
 
   def administration_link

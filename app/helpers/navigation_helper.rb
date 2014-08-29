@@ -8,12 +8,11 @@ module NavigationHelper
     render(partial: '/navigation/task_bar') if is_task_controller?
   end
 
-
   def forward_back_links(instance)
     content_tag(:span,  (previous_link(instance) + ' | ' + next_link(instance)).html_safe )
   end
 
-  # A previous record link.  Assumes the instance has a project_id! 
+  # A previous record link. 
   def previous_link(instance)
     text = 'Previous'
     if instance.respond_to?(:project_id)
@@ -25,7 +24,7 @@ module NavigationHelper
     link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
   end
 
-  # A next record link.  Assumes the instance has a project_id! 
+  # A next record link.
   def next_link(instance)
     text = 'Next'
     if instance.respond_to?(:project_id)
