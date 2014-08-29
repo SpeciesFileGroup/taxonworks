@@ -36,6 +36,7 @@ describe 'Users' do
           expect(page).to have_link('Edit account')
         end
 
+        # todo @mjy It seems like overkill for user to click Account, then click link Edit account.  If there is only one option available to the user (e.g., Edit account), why not go there directly upon clicking Account?
         context 'editing self' do
           before {
             # visit edit_user_path(@user)
@@ -109,6 +110,19 @@ describe 'Users' do
         expect(page).to have_css('h1', 'Dashboard')
         # expect(page).to have_css('h2', 'Projects')
         # expect(page).to have_link('My Project')
+      end
+
+      before { click_link 'Administration' }
+
+      it 'should have information and actions' do
+        expect(page).to have_css('h1', 'Projects')
+        expect(page).to have_css('a', 'New')   # todo @mjy why doesn't 'have_link' work here but right above expect(page).to have_link 'Administration' works?
+        expect(page).to have_css('a', 'Projects overview')
+        expect(page).to have_css('h1', 'Project Membership')
+        expect(page).to have_css('a', 'Add a user to a project')
+        expect(page).to have_css('h1', 'Users')
+        expect(page).to have_css('a', 'New')    # todo @mjy Is there a way to say the page has two links called "New?"
+        expect(page).to have_css('a', "Update a user's authorization")
       end
 
 
