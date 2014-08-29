@@ -44,8 +44,8 @@ RSpec.describe UserMailer, :type => :mailer do
        expect(mail.body.encoded).to match(user.email)
     end
     
-    it 'provides a password reset link in the e-mail body', skip: 'Cannot test URLs right yet' do
-      expect(mail.body.encoded).to match(url_for(controller: 'users', action: 'password_reset', token: 'PASSWORD_TOKEN'))
+    it 'provides a password reset link in the e-mail body' do
+      expect(mail.body.encoded).to match(password_reset_url(token: 'PASSWORD_TOKEN'))
     end
   end
   
