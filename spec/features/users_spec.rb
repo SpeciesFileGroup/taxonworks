@@ -9,7 +9,6 @@ describe 'Users' do
   # When an administrator signs in, what does he see, what can he do?
   # # When an admin creates new user, how does he initialize user password?
 
-
   # new start
 
   describe 'when user is signed in' do # before user signs in, s/he is on /signin page
@@ -45,6 +44,7 @@ describe 'Users' do
 
           it 'should have information and links' do
             # How to say what path this is edit_users_path(@user)?
+            #   You can't really, you use a proxy, looking for content that is unique to that path
             # URI.parse(current_url).should == "users/#{@user}/edit"
             # expect(current_url).to eq "/users/#{@user}/edit"
 
