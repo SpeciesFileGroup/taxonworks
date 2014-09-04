@@ -5,7 +5,7 @@ require 'benchmark'
 # When first starting development, use a blank database with:
 #    rake db:drop && rake db:create && rake db:migrate
 #
-#    rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/ no_transaction=true
+#    rake tw:project_import:insects:import_insects data_directory=/Users/proceps/src/sf/import/inhs-insect-collection-data/ no_transaction=true
 # Only data upto the handle_taxa can be loaded from the database or restored from 
 # a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
@@ -74,7 +74,7 @@ namespace :tw do
         "WisconsinGlaciated",
 
         "PrecisionCode",    # tag on Georeference
-        "GBIF_precission",  # tag
+        "GBIF_precission"  # tag
       ]
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -84,12 +84,12 @@ namespace :tw do
         'Quebec' => 'Québec',
         'U.S.A' => 'United States',
         'MEXICO' => 'Mexico',
-        'U. S. A. ' => 'United States',
+        'U. S. A. ' => 'United States'
       }
 
       CONTAINER_TYPE = {
         '' => 'Container::Virtual',            # TODO: update with propper class
-        'amber' => 'Container::PillBox',       # remove
+        'amber' => 'Container::Box',       # remove
         'bulk dry' => 'Container::PillBox',
         'envelope' => 'Container::Envelope',
         'jar' => 'Container::Jar',
@@ -162,19 +162,26 @@ namespace :tw do
       #  specimens_new.txt
       #  specimens_new_partially_resolved.txt
       #  types.txt
+
+
+      $project_id = nil
+      $user_id = nil
+
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
-        handle_projects_and_users(@data, @import)    
+        handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
         handle_controlled_vocabulary(@data, @import)
+
+        handle_people(@data, @import) ## !created as new
+
         handle_taxa(@data, @import)
 
         checkpoint_save(@import) if ENV['no_transaction']
 
         # !! The following can not be loaded from the database they are always created anew. 
-        handle_people(@data, @import)
         handle_collecting_events(@data, @import)
         handle_specimens(@data, @import)
 
@@ -188,14 +195,17 @@ namespace :tw do
         print "Handling projects and users "
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
+        user_name = 'INHS Insect Collection Import'
         user, project = nil, nil
         if import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
           user = User.where(email: email).first
+          $project_id = project.id
+          $user_id = user.id
         else
           print "as newly parsed.\n"
-          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas')
+          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
           $user_id = user.id # set for project line below
 
           project = Project.create(name: project_name) 
@@ -203,10 +213,9 @@ namespace :tw do
           ProjectMember.create(user: user, project: project, is_project_administrator: true)
 
           import.metadata['project_and_users'] = true
+          $project_id = project.id
         end
 
-        $project_id = project.id
-        $user_id = user.id 
         data.users.merge!(user.email => user)
       end
 
@@ -253,20 +262,57 @@ namespace :tw do
                                'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'), 
                                'Immature' => BiocurationClass.create(name: 'Immature', definition: 'The collection object is comprised of immature(s).'), 
                                'Pupa' => BiocurationClass.create(name: 'Pupa', definition: 'The collection object is comprised of pupa.'), 
-                               'Exuvium' => BiocurationClass.create(name: 'Exuvium', definition: 'The collection object is comprised of exuviae.'), 
+                               'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuviae.'),
                                'AdultUnsexed' => BiocurationClass.create(name: 'AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
                                'AgeUnknown' => BiocurationClass.create(name: 'AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'), 
                                'OtherSpecimens' => BiocurationClass.create(name: 'OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
                                'ZeroTotal' => Keyword.create(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in the FM database.'),
                                'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'The verbatim value in the identified by field.'),
                                'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'The verbatim value in the year identified field.'),
-                               'OldIdentifiedBy' => Predicate.create(name: 'OldIdentifiedBy', definition: 'The verbatim value in the old identified by.'),
+                               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'The verbatim value in the old identified by.'),
                               )     
 
           import.metadata['controlled_vocabulary'] = true
         end
       end
 
+      #- 0 PeopleID          Import Identifier
+      #  1 SupervisorID      Loan#supervisor_person_id  ?
+      #
+      #- 2 LastName
+      #- 3 FirstName
+      #
+      #  4 Honorarium        Loan#recipient_honorarium
+      #  5 Address           Loan#recipient_address
+      #  6 Country           Loan#recipient_country
+      #  7 Email             Loan#recipient_email
+      #  8 Phone             Loan#recipent_phone
+
+      # - 9 Comments          Note.new
+      #
+      # # TODO: User conversion, other handling.
+      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
+      #
+      def handle_people(data, import)
+        path = @args[:data_directory] + 'TXT/people.txt'
+        raise 'file not found' if not File.exists?(path)
+        f = CSV.open(path, col_sep: "\t", :headers => true)
+
+        puts 'Handling people.'
+
+        f.each do |row|
+          puts "\tNo last name: #{row}" if row['LastName'].blank?
+          p = Person::Vetted.new(
+              last_name: row['LastName'] || 'Not Provided',
+              first_name: row['FirstName']
+              #identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
+          )
+          p.notes.build(text: row['Comments']) if !row['Comments'].blank?
+          p.save!
+          data.people.merge!(row => p)
+          data.people_id.merge!(row['ID'] => p)
+        end
+      end
 
       #   ID             Not Included (parent use only)
       #
@@ -305,11 +351,14 @@ namespace :tw do
           parent_index = {}
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
+
+          code = :iczn
           f.each_with_index do |row, i|
             name = row['Name']
-            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
+            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
-            rank = Ranks.lookup((row['Name'] == 'Plantae' ? :icn : :iczn), row['Rank'])
+            code = :icn if code == :iczn && row['Name'] == 'Plantae'
+            rank = Ranks.lookup(code, row['Rank'])
             rank ||= NomenclaturalRank
 
             p = Protonym.new(
@@ -317,16 +366,18 @@ namespace :tw do
               verbatim_author: author,
               year_of_publication: row['Year'],
               rank_class: rank,
-              creator: find_or_create_user(row['CreatedBy'], data),
-              updater: find_or_create_user(row['ModifiedBy'], data),
+              creator: data.people_id[row['CreatedBy']],
+              updater: data.people_id[row['ModifiedBy']],
+              #creator: find_or_create_user(row['CreatedBy'], data),
+              #updater: find_or_create_user(row['ModifiedBy'], data),
               parent: parent_index[row['Parent']]
             )
 
             p.created_at = time_from_field(row['CreatedOn'])
             p.updated_at = time_from_field(row['ModifiedOn'])
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     if !row['Synonyms'].blank?
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) if !row['References'].blank?
-            p.notes.build(text: row['Remarks'])                                                                                       if !row['Remarks'].blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
+            p.notes.build(text: row['Remarks'])                                                                                       unless row['Remarks'].blank?
             p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
             if rank == NomenclaturalRank || !p.parent_id.blank?
@@ -365,44 +416,6 @@ namespace :tw do
         data.otus.merge!(row['TaxonCode'] => o)
         o
       end
-
-      #- 0 PeopleID          Import Identifier
-      #  1 SupervisorID      Loan#supervisor_person_id  ?
-      #
-      #- 2 LastName           
-      #- 3 FirstName
-      # 
-      #  4 Honorarium        Loan#recipient_honorarium 
-      #  5 Address           Loan#recipient_address
-      #  6 Country           Loan#recipient_country 
-      #  7 Email             Loan#recipient_email 
-      #  8 Phone             Loan#recipent_phone
-
-      # - 9 Comments          Note.new 
-      #
-      # # TODO: User conversion, other handling.
-      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
-      #
-      def handle_people(data, import)
-        path = @args[:data_directory] + 'TXT/people.txt'
-        raise 'file not found' if not File.exists?(path)
-        f = CSV.open(path, col_sep: "\t", :headers => true)
-
-        puts 'Handling people.'
-
-        f.each do |row|
-          puts "\tNo last name: #{row}" if row['LastName'].blank?
-          p = Person::Vetted.new(
-            last_name: row['LastName'] || 'Not Provided',
-            first_name: row['FirstName'],
-            identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
-          )
-          p.notes.build(text: row['Comments']) if !row['Comments'].blank?
-          p.save!
-          data.people.merge!(p => row)
-        end
-      end
-
 
       def handle_collecting_events(data, import)
         matchless_for_geographic_area = []
