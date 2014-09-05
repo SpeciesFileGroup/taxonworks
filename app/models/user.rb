@@ -31,6 +31,9 @@
 #
 class User < ActiveRecord::Base
 
+#  include Housekeeping
+  include Shared::Notable
+
   before_create :set_remember_token
 
   # TODO: downcase does not work for non-ascii characters which means our

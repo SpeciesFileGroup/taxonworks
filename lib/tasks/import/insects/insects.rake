@@ -23,10 +23,11 @@ namespace :tw do
 
       # A utility class to index data.
       class ImportedData
-        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
+        attr_accessor :people, :people_id, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
           @namespaces = {}
           @people = {}
+          @people_id = {}
           @users = {}
           @keywords = {}
           @collecting_events = {}
@@ -166,7 +167,7 @@ namespace :tw do
 
       $project_id = nil
       $user_id = nil
-
+      $user_index = {}
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
@@ -216,7 +217,8 @@ namespace :tw do
           $project_id = project.id
         end
 
-        data.users.merge!(user.email => user)
+        $user_index.merge!(0 => user)
+        #data.users.merge!(user.email => user)
       end
 
       def handle_namespaces(data, import)
@@ -276,6 +278,32 @@ namespace :tw do
         end
       end
 
+
+      def find_or_create_collection_user(id, data)
+        if data.users[id]
+          data.users[id]
+        elsif data.people_id[id]
+          p = data.people_id[id]
+          email = p['Email']
+          if email.blank?
+            puts 'PeopleID = ' + p.id.to_s + ' does not have e-mail' if email.blank?
+            $user_id
+          else
+            user_name = p['LastName'] + ', ' + p['FirstName'] + ' imported'
+
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
+            unless p['SupervisorID'].blank?
+              s = data.people_id[p['SupervisorID']]
+              user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+            end
+            $user_index.merge!(id => user)
+            user
+          end
+        else
+          $user_id
+        end
+      end
+
       #- 0 PeopleID          Import Identifier
       #  1 SupervisorID      Loan#supervisor_person_id  ?
       #
@@ -304,8 +332,8 @@ namespace :tw do
           puts "\tNo last name: #{row}" if row['LastName'].blank?
           p = Person::Vetted.new(
               last_name: row['LastName'] || 'Not Provided',
-              first_name: row['FirstName']
-              #identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
+              first_name: row['FirstName'],
+              identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
           )
           p.notes.build(text: row['Comments']) if !row['Comments'].blank?
           p.save!
@@ -366,19 +394,19 @@ namespace :tw do
               verbatim_author: author,
               year_of_publication: row['Year'],
               rank_class: rank,
-              creator: data.people_id[row['CreatedBy']],
-              updater: data.people_id[row['ModifiedBy']],
+              created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+              updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
               #creator: find_or_create_user(row['CreatedBy'], data),
               #updater: find_or_create_user(row['ModifiedBy'], data),
-              parent: parent_index[row['Parent']]
+              created_at: time_from_field(row['CreatedOn']),
+              updated_at: time_from_field(row['ModifiedOn'])
             )
 
-            p.created_at = time_from_field(row['CreatedOn'])
-            p.updated_at = time_from_field(row['ModifiedOn'])
             p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
             p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
-            p.notes.build(text: row['Remarks'])                                                                                       unless row['Remarks'].blank?
-            p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
+            p.notes.build(text: row['Remarks']) unless row['Remarks'].blank?
+            p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank?
+            #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
             if rank == NomenclaturalRank || !p.parent_id.blank?
               bench = Benchmark.measure {
@@ -626,7 +654,7 @@ namespace :tw do
       # --- not used 
       #     LocalityCompare     # related to hash md5
       def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
-        puts "  from specimens"
+        puts " from specimens"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
