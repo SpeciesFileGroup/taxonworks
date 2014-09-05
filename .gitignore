@@ -11,11 +11,9 @@
 *~
 *.bak
 *.swp
-*.wkt
 
 /db/schema.rb
 database.yml
-/coverage
 /tags
 
 # Temporarily
@@ -32,7 +30,6 @@ database.yml
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
-/.idea
 index.html
 
 # Ignore rdoc folder
@@ -42,7 +39,6 @@ index.html
 
 coverage/
 
-*.wkt
 *.sql
 
 .ruby-version
