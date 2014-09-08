@@ -39,7 +39,7 @@ describe PeopleController, :type => :controller do
     it "assigns all people as @people" do
       person = Person.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:people).to_a).to eq([person.becomes(Person::Unvetted)])
+      expect(assigns(:people).to_a).to include(person.becomes(Person::Unvetted))
     end
   end
 

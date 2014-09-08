@@ -14,7 +14,8 @@ require 'rails_helper'
 describe ProjectsHelper, :type => :helper do
   context 'a project needs some helpers' do
     before(:all) {
-      @project     = FactoryGirl.create(:valid_project)
+      $user_id  = 1 ; $project_id = 1
+      @project  = FactoryGirl.create(:valid_project)
       @cvt_name = @project.name
     }
 

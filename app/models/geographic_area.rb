@@ -100,8 +100,8 @@ class GeographicArea < ActiveRecord::Base
   # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
     joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-    where(name: names[0]).
-    where(['ga.name = ?', names[1] ])
+      where(name: names[0]).
+      where(['ga.name = ?', names[1]])
   }
 
   # TODO: Test, or extend a general method
@@ -109,12 +109,12 @@ class GeographicArea < ActiveRecord::Base
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
   scope :with_name_and_parent_names, -> (names) {
     joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-    joins('join geographic_areas gb on gb.id = ga.parent_id').
-    where(name: names[0]).
-    where(['ga.name = ?', names[1] ]).
-    where(['gb.name = ?', names[2] ])
+      joins('join geographic_areas gb on gb.id = ga.parent_id').
+      where(name: names[0]).
+      where(['ga.name = ?', names[1]]).
+      where(['gb.name = ?', names[2]])
   }
- 
+
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually

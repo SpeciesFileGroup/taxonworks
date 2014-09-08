@@ -31,6 +31,9 @@
 #
 class User < ActiveRecord::Base
 
+#  include Housekeeping
+  include Shared::Notable
+
   before_create :set_remember_token
 
   # TODO: downcase does not work for non-ascii characters which means our
@@ -51,11 +54,16 @@ class User < ActiveRecord::Base
     length: { minimum: 8, :if => :validate_password? }, 
     :confirmation => { :if => :validate_password? }
 
-  validates :name, presence: true, length: { minimum: 3 }
+  validates :name, presence: true
+  validates :name, length: { minimum: 3 }, unless: :name_is_empty
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
+
+  def  name_is_empty
+    self.name.blank?
+  end
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64

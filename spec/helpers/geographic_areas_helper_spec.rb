@@ -13,7 +13,8 @@ require 'rails_helper'
 describe GeographicAreasHelper, :type => :helper do
   context 'a geographic_area needs some helpers' do
     before(:all) {
-      @geographic_area  = FactoryGirl.create(:valid_geographic_area)
+      $user_id              = 1; $project_id = 1
+      @geographic_area      = FactoryGirl.create(:valid_geographic_area)
       @geographic_area_name = @geographic_area.name
     }
 

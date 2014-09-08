@@ -40,7 +40,7 @@ describe SourcesController, :type => :controller do
     it "assigns all sources as @sources" do
       source = Source.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:sources)).to eq([source])
+      expect(assigns(:sources)).to include(source)
     end
   end
 

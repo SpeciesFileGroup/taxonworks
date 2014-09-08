@@ -13,6 +13,7 @@ require 'rails_helper'
 describe CitationsHelper, :type => :helper do
   context 'a citation needs some helpers' do
     before(:all) {
+      $user_id  = 1; $project_id = 1
       @citation = FactoryGirl.create(:valid_citation)
       @cvt_name = @citation.citation_object_type
     }

@@ -13,19 +13,20 @@ require 'rails_helper'
 describe CollectingEventsHelper, :type => :helper do
   context 'a collecting event needs some helpers' do
     before(:all) {
+      $user_id = 1; $project_id = 1
       @collecting_event = FactoryGirl.create(:valid_collecting_event)
     }
 
     specify '::collecting_event_tag' do
-      expect(CollectingEventsHelper.collecting_event_tag(@collecting_event)).to eq('Locality 1 for testing...')
+      expect(CollectingEventsHelper.collecting_event_tag(@collecting_event)).to eq("Locality #{@collecting_event.id} for testing...")
     end
 
     specify '#collecting_event_tag' do
-      expect(collecting_event_tag(@collecting_event)).to eq('Locality 1 for testing...')
+      expect(collecting_event_tag(@collecting_event)).to eq("Locality #{@collecting_event.id} for testing...")
     end
 
     specify '#collecting_event_link' do
-      expect(collecting_event_link(@collecting_event)).to have_link('Locality 1 for testing...')
+      expect(collecting_event_link(@collecting_event)).to have_link("Locality #{@collecting_event.id} for testing...")
     end
 
     specify "#collecting_event_search_form" do

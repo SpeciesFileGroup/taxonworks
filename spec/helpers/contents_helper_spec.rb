@@ -13,7 +13,8 @@ require 'rails_helper'
 describe ContentsHelper, :type => :helper do
   context 'a content needs some helpers' do
     before(:all) {
-      @content = FactoryGirl.create(:valid_content)
+      $user_id  = 1; $project_id = 1
+      @content  = FactoryGirl.create(:valid_content)
       @cvt_name = @content.text
     }
 

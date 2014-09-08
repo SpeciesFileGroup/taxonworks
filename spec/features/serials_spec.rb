@@ -19,6 +19,7 @@ describe 'Serials', :type => :feature do
   describe 'GET /serials/:id'  do # display a particular serial <serials#show>
     before {
       sign_in_user
+      $user_id = 1
       @serial = FactoryGirl.create(:valid_serial) #create auto saves
       visit serial_path(@serial)
     }

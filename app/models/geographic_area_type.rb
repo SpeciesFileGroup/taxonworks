@@ -13,6 +13,7 @@ class GeographicAreaType < ActiveRecord::Base
   validates :name, uniqueness: true, presence: true
 
   COUNTRY_LEVEL_TYPES = ['Country', 'Governorate']
-  STATE_LEVEL_TYPES = ['State', 'Province', 'District', 'Prefecture', 'Region']
-  COUNTY_LEVEL_TYPES = ['County', 'Parish', 'Borough', 'Canton', 'Department']
+  STATE_LEVEL_TYPES   = ['State', 'Province', 'District', 'Prefecture', 'Region',
+                         'Territory', 'Republic', 'Area', 'Oblast', 'Krai']
+  COUNTY_LEVEL_TYPES  = ['County', 'Parish', 'Borough', 'Canton', 'Department', 'Raion']
 end

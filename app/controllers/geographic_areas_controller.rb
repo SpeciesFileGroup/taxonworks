@@ -6,6 +6,7 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
+    # @@all_the_stuff = GeographicArea.all.pain
     @geographic_areas = GeographicArea.limit(30).offset(@geo_area_offset)
     # @recent_objects   = GeographicArea.recent_in_time(1.year).order(updated_at: :desc).limit(10)
     @recent_objects   = GeographicArea.order(updated_at: :desc).limit(10)
@@ -102,6 +103,8 @@ class GeographicAreasController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def geographic_area_params
-    params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id, :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID, :data_origin, :created_by_id, :updated_by_id)
+    params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id,
+                                            :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID,
+                                            :data_origin, :created_by_id, :updated_by_id)
   end
 end

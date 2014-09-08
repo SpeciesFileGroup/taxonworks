@@ -37,7 +37,7 @@ describe LoansController, :type => :controller do
     it "assigns all loans as @loans" do
       loan = Loan.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:loans)).to eq([loan])
+      expect(assigns(:loans).to_a).to include(loan)
     end
   end
 

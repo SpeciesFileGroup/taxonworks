@@ -65,6 +65,21 @@ class UsersController < ApplicationController
   def forgot_password
     
   end
+  
+  # POST /send_password_reset
+  def send_password_reset
+    user = User.find_by_email(params[:email])
+    
+    if user.nil? 
+      redirect_to :forgot_password
+    
+      if params[:email].blank?
+        flash[:notice] = "No e-mail was given"
+      else
+        flash[:notice] = "The supplied e-mail does not belong to a registered user"
+      end
+    end    
+  end
 
   private
 

@@ -44,8 +44,9 @@ TaxonWorks::Application.routes.draw do
   # Unvetted/not fully tested Stubbed
   # 
 
-  match '/forgot_password', to: 'users#forgot_password', via: 'get'
-  match '/send_password_reset', to: 'users#send_password_reset', via: 'post'
+  get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
+  post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
+  match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
   resources :alternate_values
   resources :biocuration_classifications

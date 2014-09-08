@@ -43,7 +43,7 @@ describe User, :type => :model do
     end
 
     context 'when administator' do
-      before { user.is_administrator = true  }
+      before { user.is_administrator = true }
       specify '#is superuser?' do
         expect(user.is_superuser?).to be true
       end

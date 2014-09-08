@@ -13,8 +13,9 @@ require 'rails_helper'
 describe ControlledVocabularyTermsHelper, :type => :helper do
   context 'a controlled_vocabulary_term needs some helpers' do
     before(:all) {
+      $user_id                    = 1; $project_id = 1
       @controlled_vocabulary_term = FactoryGirl.create(:valid_controlled_vocabulary_term)
-      @cvt_name = @controlled_vocabulary_term.name
+      @cvt_name                   = @controlled_vocabulary_term.name
     }
 
     specify '::controlled_vocabulary_term_tag' do
