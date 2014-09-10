@@ -14,4 +14,9 @@ module GeographicAreaTypesHelper
     link_to(geographic_area_type.name, geographic_area_type)
   end
 
+  def geographic_area_type_name_select_options
+    # an array of the names of GeographicAreaType
+    GeographicAreaType.all.map(&:name)
+  end
+
 end

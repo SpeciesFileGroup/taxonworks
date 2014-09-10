@@ -29,9 +29,10 @@
                               :size       => 20} %>
     </div>
     <div class="field">
-      <%= f.label :geographic_area_type_id %>
+      <%= f.label :geographic_area_type_name %>
       <br>
-      <%= f.number_field :geographic_area_type_id %>
+      <%#= f.number_field :geographic_area_type_id %>
+      <%= f.select :name, options_for_select(geographic_area_type_name_select_options, @geographic_area.geographic_area_type.name) %>
     </div>
     <div class="field">
       <%= f.label :iso_3166_a2 %>

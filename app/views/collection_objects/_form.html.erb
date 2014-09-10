@@ -45,7 +45,8 @@
                            object:     'repository',
                            method:     'repository',
                            tag_id:     'repository_id_for_collection_object',
-                           display:    object_tag(@collection_object.repository)} %>
+                           display:    object_tag(@collection_object.repository),
+                           size:       20} %>
     </div>
 
     <div class="field">
@@ -57,7 +58,8 @@
                            object:     'collection_object',
                            method:     'collecting_event_id',
                            tag_id:     'collecting_event_id_for_collection_object',
-                           display:    object_tag(@collection_object.collecting_event)} %>
+                           display:    object_tag(@collection_object.collecting_event),
+                           size:       20} %>
 
     </div>
 
@@ -92,7 +94,7 @@
     </div>
 
     <div class="field">
-      <%= f.label :accession_provider  %> <!-- was _id You can't add comments in line on ERB tags like this -->
+      <%= f.label :accession_provider %> <!-- was _id You can't add comments in line on ERB tags like this -->
       <br>
       <%#= f.select :accession_provider_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
       <%= render(partial: 'elements/forms/ajax_select',
@@ -100,20 +102,22 @@
                            object:     'person',
                            method:     'accession_provider_id',
                            tag_id:     'accession_provider_id_for_collection_object',
-                           display:    object_tag(@collection_object.accession_provider)}) %>
+                           display:    object_tag(@collection_object.accession_provider),
+                           size:       20}) %>
     </div>
 
     <div class="field">
       <%= f.label :deaccession_recipient %>
       <br>
       <%#= f.select :deaccession_recipient_id, options_from_collection_for_select(Person.all, :id, :last_name) -%>
-  
+
       <%= render partial: 'elements/forms/ajax_select',
                  locals:  {controller: 'people',
                            object:     'person',
                            method:     'deaccession_recipient_id',
                            tag_id:     'deaccession_recipient_id_for_collection_object',
-                           display:    object_tag(@collection_object.deaccession_recipient)} %>
+                           display:    object_tag(@collection_object.deaccession_recipient),
+                           size:       20} %>
     </div>
 
     <div class="field">
