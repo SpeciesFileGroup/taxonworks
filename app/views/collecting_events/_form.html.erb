@@ -64,7 +64,8 @@
                                 :object     => 'geographic_area',
                                 :method     => 'geographic_area_id',
                                 :tag_id     => 'geographic_area_id_for_collecting_event',
-                                :display    => object_tag(@collecting_event.geographic_area)} %>
+                                :display    => geographic_area_tag(@collecting_event.geographic_area),
+                                :size       => 20} %>
         <%#	 Also: :display    => object_tag(@collecting_event.geographic_area) %>
       </div>
       <div class="field">

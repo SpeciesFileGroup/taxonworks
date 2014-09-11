@@ -1,4 +1,4 @@
-<% %w[tasks data shared].each do |l| %>
+<% %w[favorite recent data shared tasks worker icons related].each do |l| %>
   <%= content_tag(:h2, l) -%>
   <%= render(partial: "hub/navigation_lists/#{l}") -%>
   <br />

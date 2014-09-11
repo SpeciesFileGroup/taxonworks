@@ -11,7 +11,7 @@
 
 <p>
   <strong>Geographic area type:</strong>
-  <%= @geographic_area.geographic_area_type.name %>
+  <%= object_tag(@geographic_area.geographic_area_type) %>
 </p>
 
 <p>
@@ -49,16 +49,6 @@
   <%= geographic_area_link(@geographic_area.level2) %>
 </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @geographic_area.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @geographic_area.updated_by_id %>
-</p>
-
 <p><%= similarly_named_records_list(@geographic_area) -%> </p>
 <p><strong> Children: </strong>
   <%= geographic_area_link_list(@geographic_area.children) -%>
@@ -70,5 +60,3 @@
 </p>
 
 
-<%= link_to 'Edit', edit_geographic_area_path(@geographic_area) %> |
-<%= link_to 'Back', geographic_areas_path %>

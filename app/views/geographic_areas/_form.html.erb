@@ -1,7 +1,7 @@
 <%= form_for(@geographic_area) do |f| %>
     <% if @geographic_area.errors.any? %>
         <div id="error_explanation">
-          <h2><%= pluralize(@geographic_area.errors.count, "error") %> prohibited this geographic_area from being
+          <h2><%= pluralize(@geographic_area.errors.count, 'error') %> prohibited this geographic_area from being
             saved:</h2>
 
           <ul>
@@ -25,12 +25,13 @@
                               :object     => 'geographic_area',
                               :method     => 'parent_id',
                               :tag_id     => 'parent_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.parent)} %>
+                              :display    => geographic_area_tag(@geographic_area.parent),
+                              :size       => 20} %>
     </div>
     <div class="field">
-      <%= f.label :geographic_area_type_id %>
+      <%= f.label :geographic_area_type %>
       <br>
-      <%= f.number_field :geographic_area_type_id %>
+      <%= f.select( :name, geographic_area_type_name_select_options(@geographic_area.geographic_area_type.try(:id) )) %>
     </div>
     <div class="field">
       <%= f.label :iso_3166_a2 %>
@@ -56,7 +57,8 @@
                               :object     => 'geographic_area',
                               :method     => 'level0_id',
                               :tag_id     => 'level0_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level0)} %>
+                              :display    => geographic_area_tag(@geographic_area.level0),
+                              :size       => 20} %>
     </div>
     <div class="field">
       <%= f.label :level1 %>
@@ -66,7 +68,8 @@
                               :object     => 'geographic_area',
                               :method     => 'level1_id',
                               :tag_id     => 'level1_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level1)} %>
+                              :display    => geographic_area_tag(@geographic_area.level1),
+                              :size       => 20} %>
     </div>
     <div class="field">
       <%= f.label :level2 %>
@@ -76,7 +79,8 @@
                               :object     => 'geographic_area',
                               :method     => 'level2_id',
                               :tag_id     => 'level2_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level2)} %>
+                              :display    => geographic_area_tag(@geographic_area.level2),
+                              :size       => 20} %>
     </div>
     <div class="actions">
       <%= f.submit %>
