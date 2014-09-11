@@ -16,38 +16,37 @@
 
   <div class="item item3">
     <h2> Related data </h2>
+
     <h3> Has many </h3>
-    <% object.class.reflect_on_all_associations(:has_many).sort{|a,b| a.name <=> b.name}.each do |r|  -%>
+    <% object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
         <%= r.name.to_s.humanize -%>
         <% if object.respond_to?(r.name) -%>
             <%= object.send(r.name.to_s).count -%>
         <% else %>
-            <mark> requires method rename! </mark>
+            <mark> requires method rename!</mark>
         <% end %>
         <br>
     <% end %>
     <h3> Has one </h3>
-    <% object.class.reflect_on_all_associations(:has_one).sort{|a,b| a.name <=> b.name}.each do |r|  -%>
+    <% object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
         <%= r.name.to_s.humanize -%>
         <% if object.respond_to?(r.name) -%>
             <%= object_tag(object) -%>
         <% else %>
-            <mark> requires method rename! </mark>
+            <mark> requires method rename!</mark>
         <% end %>
         <br>
     <% end %>
     <h3> Belongs to </h3>
-    <% object.class.reflect_on_all_associations(:belongs_to).sort{|a,b| a.name <=> b.name}.each do |r|  -%>
+    <% object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
         <%= r.name.to_s.humanize -%>
         <% if object.respond_to?(r.name) -%>
             <%= object_tag(object) -%>
         <% else %>
-            <mark> requires method rename! </mark>
+            <mark> requires method rename!</mark>
         <% end %>
         <br>
     <% end %>
- 
-
 
 
   </div>
