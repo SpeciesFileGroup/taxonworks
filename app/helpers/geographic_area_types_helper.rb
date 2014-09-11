@@ -15,8 +15,8 @@ module GeographicAreaTypesHelper
   end
 
   def geographic_area_type_name_select_options
-    # an array of the names of GeographicAreaType
-    GeographicAreaType.all.map(&:name)
+    # You could just render this as is, instead of wrapping it in a helper:
+    options_from_collection_for_select(GeographicAreaType.all.order(:name), :id, :name) 
   end
 
 end

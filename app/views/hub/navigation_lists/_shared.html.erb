@@ -1,19 +1,20 @@
-<h2> Shared </h2>
-<h3> Cross project considerations </h3>
+<div class="flexbox">
 
-<%= content_tag :li, link_to('People', people_path) %>
+  <div class="item item1">
+    <h3>user definable</h3>
+    <%= content_tag :li, link_to('People', people_path) %>
+    <%= content_tag :li, link_to('Serials', serials_path) %>
+    <%= content_tag :li, link_to('Sources', sources_path) %>
+  </div>
 
-<%= content_tag :li, link_to('Serials', serials_path) %>
-<%= content_tag :li, link_to('Sources', sources_path) %>
 
-<h4> annotated but not updated by non-superuser (e.g. add alternate spelling) </h4>
-<%= content_tag :li, link_to('Geographic areas', geographic_areas_path) %>
-<!-- todo: Add language view -->
-<%= content_tag :li, link_to('Languages', 'no_path') %>
+  <div class="item item2">
+    <h3>application provided</h3>
+    <%= content_tag :li, link_to('Geographic areas', geographic_areas_path) %>
+    <%= content_tag :li, link_to('Languages', 'no_path') %>
+    <%= content_tag :li, link_to('(? Keep here ?) Repositories', repositories_path) %> 
+  </div>
 
-<h4> admin only </h4>
-<%= content_tag :li, link_to('Geographic area types', geographic_area_types_path) %>
+</div>
 
-<h4> have to decide how rigorous we are to only using the repos provided by biorep </h4>
-<%= content_tag :li, link_to('Repositories', repositories_path) %>
 

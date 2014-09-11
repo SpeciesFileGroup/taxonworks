@@ -17,7 +17,7 @@ class HubController < ApplicationController
 
   def set_links_to_render
     @links_to_render = params[:list]
-    @links_to_render ||= 'all' # TODO: Change to recent 
+    @links_to_render ||= 'favorite' # TODO: Change to recent 
   end
 
 end
