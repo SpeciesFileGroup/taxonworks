@@ -14,9 +14,9 @@ module GeographicAreaTypesHelper
     link_to(geographic_area_type.name, geographic_area_type)
   end
 
-  def geographic_area_type_name_select_options
+  def geographic_area_type_name_select_options(selected)
     # You could just render this as is, instead of wrapping it in a helper:
-    options_from_collection_for_select(GeographicAreaType.all.order(:name), :id, :name) 
+    options_from_collection_for_select(GeographicAreaType.all.order(:name), :id, :name, (selected.nil? ? GeographicAreaType.where(name: 'Unknown').first.id : selected )) 
   end
 
 end

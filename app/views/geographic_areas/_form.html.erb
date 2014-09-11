@@ -31,7 +31,7 @@
     <div class="field">
       <%= f.label :geographic_area_type %>
       <br>
-      <%= f.select :name, geographic_area_type_name_select_options %>
+      <%= f.select( :name, geographic_area_type_name_select_options(@geographic_area.geographic_area_type.try(:id) )) %>
     </div>
     <div class="field">
       <%= f.label :iso_3166_a2 %>
