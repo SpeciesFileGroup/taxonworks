@@ -3,6 +3,7 @@ class Person < ActiveRecord::Base
   include Shared::SharedAcrossProjects
   include Shared::Identifiable
   include Shared::Notable
+  include Shared::DataAttributes
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank

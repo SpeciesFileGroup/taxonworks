@@ -42,7 +42,7 @@ namespace :tw do
       end
 
       # These are largely collecting event related
-      PREDICATES = [ 
+      PREDICATES = [
         "Country",
         "County",
         "State",
@@ -217,7 +217,7 @@ namespace :tw do
           $project_id = project.id
         end
 
-        $user_index.merge!(0 => user)
+        $user_index.merge!('0' => user.id)
         #data.users.merge!(user.email => user)
       end
 
@@ -254,9 +254,9 @@ namespace :tw do
 
           # from handle taxa
           data.keywords.merge!(  
-                               'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'), 
-                               'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.') 
-                              )
+              'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'),
+              'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.')
+          )
 
           # from handle specimens
           data.keywords.merge!(  
@@ -280,23 +280,27 @@ namespace :tw do
 
 
       def find_or_create_collection_user(id, data)
-        if data.users[id]
-          data.users[id]
+        if id.blank?
+          $user_id
+        elsif $user_index[id]
+          $user_index[id]
         elsif data.people_id[id]
           p = data.people_id[id]
           email = p['Email']
           if email.blank?
-            puts 'PeopleID = ' + p.id.to_s + ' does not have e-mail' if email.blank?
+            puts 'PeopleID = ' + id.to_s + ' does not have e-mail' if email.blank?
             $user_id
           else
-            user_name = p['LastName'] + ', ' + p['FirstName'] + ' imported'
+            user_name = p['LastName'] + ', ' + p['FirstName'] + ' - imported'
 
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ] )
+
             unless p['SupervisorID'].blank?
               s = data.people_id[p['SupervisorID']]
               user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
             end
-            $user_index.merge!(id => user)
+            $user_index.merge!(id => user.id)
             user
           end
         else
@@ -326,19 +330,33 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         f = CSV.open(path, col_sep: "\t", :headers => true)
 
-        puts 'Handling people.'
+        print 'Handling people '
+        if import.metadata['people']
+          print "from database.  Indexing People by PeopleID..."
+          f.each do |row|
+            data.people_id.merge!(row['PeopleID'] => row)
+          end
 
-        f.each do |row|
-          puts "\tNo last name: #{row}" if row['LastName'].blank?
-          p = Person::Vetted.new(
-              last_name: row['LastName'] || 'Not Provided',
-              first_name: row['FirstName'],
-              identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
-          )
-          p.notes.build(text: row['Comments']) if !row['Comments'].blank?
-          p.save!
-          data.people.merge!(row => p)
-          data.people_id.merge!(row['ID'] => p)
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
+            $user_index.merge!(u.value => u.attribute_subject_id)
+          end
+
+          print "done.\n"
+        else
+          print "as newly parsed.\n"
+          f.each do |row|
+            puts "\tNo last name: #{row}" if row['LastName'].blank?
+            p = Person::Vetted.new(
+                last_name: row['LastName'] || 'Not Provided',
+                first_name: row['FirstName'],
+                data_attributes_attributes: [ {value: row['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ]
+            )
+            p.notes.build(text: row['Comments']) if !row['Comments'].blank?
+            p.save!
+            #data.people.merge!(row => p)
+            data.people_id.merge!(row['PeopleID'] => row)
+          end
+          import.metadata['people'] = true
         end
       end
 
@@ -381,7 +399,8 @@ namespace :tw do
 
 
           code = :iczn
-          f.each_with_index do |row, i|
+
+          f.each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
@@ -405,7 +424,7 @@ namespace :tw do
             p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
             p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
             p.notes.build(text: row['Remarks']) unless row['Remarks'].blank?
-            p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank?
+            p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
             if rank == NomenclaturalRank || !p.parent_id.blank?

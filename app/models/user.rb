@@ -33,6 +33,8 @@ class User < ActiveRecord::Base
 
 #  include Housekeeping
   include Shared::Notable
+  include Shared::DataAttributes
+
 
   before_create :set_remember_token
 
