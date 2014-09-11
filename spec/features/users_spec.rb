@@ -18,7 +18,7 @@ describe 'Users' do
         visit root_path
       }
 
-      it 'should have information and links' do
+      it 'on Dashboard, should have information and links' do
         expect(page).to have_content("#{@user.email}")
         expect(page).to have_link('Account')
         expect(page).to have_link('Sign out')
@@ -96,6 +96,7 @@ describe 'Users' do
       }
 
       it 'should have information and actions' do
+
       end
     end
 
