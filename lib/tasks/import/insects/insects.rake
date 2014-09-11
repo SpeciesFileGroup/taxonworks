@@ -106,7 +106,7 @@ namespace :tw do
       SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat} 
 
       # Attributes to strip on CollectingEvent creation 
-      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy ModifiedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/  \n
@@ -473,6 +473,7 @@ namespace :tw do
 
         puts "Indexing collecting events." 
         index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+        index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         index_collecting_events_from_ledgers(collecting_events_index)
         index_collecting_events_from_accessions_new(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}." 
@@ -649,6 +650,7 @@ namespace :tw do
       #  Genus
       #  Species
       #  Sex
+
       def index_collecting_events_from_ledgers(collecting_events_index)
         path = @args[:data_directory] + 'TXT/ledgers.txt'
         raise 'file not found' if not File.exists?(path)
@@ -672,6 +674,10 @@ namespace :tw do
       # -    OldCollector       # tags on CE
       # --- not used 
       #     LocalityCompare     # related to hash md5
+
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+      #STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+
       def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
         puts " from specimens"
         path = @args[:data_directory] + 'TXT/specimens.txt'
@@ -685,20 +691,49 @@ namespace :tw do
           locality_code = row['LocalityCode']
           tmp_ce = { }   
           SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) if !row[c].blank?
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
 
           if LOCALITIES[locality_code]
-            Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
             tmp_ce.merge!(LOCALITIES[locality_code]) 
           else
-            unmatched_localities.merge!(row['LocalityCode'] => nil) if !locality_code.blank?
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
           end
 
           collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
         end
 
         puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ") 
+      end
+
+      def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
+        puts " from specimens_new"
+        path = @args[:data_directory] + 'TXT/specimens_new.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
+
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
+
+          locality_code = row['LocalityCode']
+          tmp_ce = { }
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            tmp_ce.merge!(LOCALITIES[locality_code])
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+          end
+
+          collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+        end
+
+        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
       end
 
       def parse_geographic_area(ce, found, matchless_for_geographic_area)
