@@ -8,7 +8,7 @@ module ApplicationHelper
   def similarly_named_records_list(instance)
     model = instance.class
     name = instance.name
-    records = model.where(['name like ? OR name like ?', "#{name}%", "%#{name}%"]).limit(5)
+    records = model.where(['(name LIKE ? OR NAME like ?) AND id != ?', "#{name}%", "%#{name}%", instance]).limit(5)
     content_tag(:span) do
       content_tag(:em, 'Similarly named records: ' ) +
         content_tag(:span) do
