@@ -70,7 +70,7 @@ module NavigationHelper
 
   # TODO: Move somewhere-else, all object methods are likely borked for subclasses.
   def object_tag(object)
-    return content_tag(:em, 'None') if object.nil?
+    return nil if object.nil?  # was content_tag(:em, 'None'), but this doesn't work for search box use etc.
     send("#{object.class.base_class.name.underscore}_tag", object)
   end
 

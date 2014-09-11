@@ -25,7 +25,7 @@
                               :object     => 'geographic_area',
                               :method     => 'parent_id',
                               :tag_id     => 'parent_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.parent),
+                              :display    => geographic_area_tag(@geographic_area.parent),
                               :size       => 20} %>
     </div>
     <div class="field">
@@ -57,7 +57,7 @@
                               :object     => 'geographic_area',
                               :method     => 'level0_id',
                               :tag_id     => 'level0_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level0),
+                              :display    => geographic_area_tag(@geographic_area.level0),
                               :size       => 20} %>
     </div>
     <div class="field">
@@ -68,7 +68,7 @@
                               :object     => 'geographic_area',
                               :method     => 'level1_id',
                               :tag_id     => 'level1_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level1),
+                              :display    => geographic_area_tag(@geographic_area.level1),
                               :size       => 20} %>
     </div>
     <div class="field">
@@ -79,7 +79,7 @@
                               :object     => 'geographic_area',
                               :method     => 'level2_id',
                               :tag_id     => 'level2_id_for_geographic_area',
-                              :display    => object_tag(@geographic_area.level2),
+                              :display    => geographic_area_tag(@geographic_area.level2),
                               :size       => 20} %>
     </div>
     <div class="actions">

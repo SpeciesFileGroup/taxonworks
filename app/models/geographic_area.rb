@@ -184,7 +184,6 @@ class GeographicArea < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     where('name LIKE ?', "#{params[:term]}%")
-    # where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
   end
 
 end
