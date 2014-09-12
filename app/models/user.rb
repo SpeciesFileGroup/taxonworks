@@ -42,28 +42,28 @@ class User < ActiveRecord::Base
   #       validation for uniqueness will fail ... why?
   # SEE: http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # SEE: http://unicode-utils.rubyforge.org/
-  
+
   before_save { self.email = email.to_s.downcase }
   before_validation { self.email = email.to_s.downcase }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-  validates :email, presence:   true,
-                    format:     { with: VALID_EMAIL_REGEX },
-                    uniqueness: true
+  validates :email, presence: true,
+            format:           {with: VALID_EMAIL_REGEX},
+            uniqueness:       true
 
   has_secure_password
- 
-  validates :password, 
-    length: { minimum: 8, :if => :validate_password? }, 
-    :confirmation => { :if => :validate_password? }
+
+  validates :password,
+            length:       {minimum: 8, :if => :validate_password?},
+            :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
-  validates :name, length: { minimum: 3 }, unless: :name_is_empty
+  validates :name, length: {minimum: 3}, unless: :name_is_empty
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
-  def  name_is_empty
+  def name_is_empty
     self.name.blank?
   end
 
@@ -88,31 +88,35 @@ class User < ActiveRecord::Base
     project.project_members.where(user_id: id).first.is_project_administrator
   end
 
-  def add_page_to_favorites(favourite_route) 
-    update_attributes(favorite_routes: ([favourite_route] + favorite_routes).uniq[0..19] )
+  def add_page_to_favorites(favourite_route)
+    update_attributes(favorite_routes: ([favourite_route] + favorite_routes).uniq[0..19])
     true
   end
 
   def add_page_to_recent(recent_route)
-    if !(recent_route =~ /hub/)
-      update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9] )
+    case recent_route
+      when /^\/$/
+      when /hub/
+      when /\/autocomplete\?/
+      else
+        update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9])
     end
     true
   end
-  
+
   def generate_password_reset_token()
-    token = User.secure_random_token
-    self.password_reset_token = User.encrypt(token)
+    token                          = User.secure_random_token
+    self.password_reset_token      = User.encrypt(token)
     self.password_reset_token_date = DateTime.now
     token
   end
-  
+
   def password_reset_token_matches?(token)
     self.password_reset_token == User.encrypt(token)
   end
 
   def pinboard_hash(project_id)
-    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by{|a| a.pinned_object_type}
+    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by { |a| a.pinned_object_type }
   end
 
   private
