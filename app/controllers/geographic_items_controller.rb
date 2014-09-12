@@ -3,40 +3,13 @@ class GeographicItemsController < ApplicationController
 
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 
-  # GET /geographic_items
-  # GET /geographic_items.json
-  def index
-    @geographic_items = GeographicItem.all.limit(3)
-  end
-
   # GET /geographic_items/1
   # GET /geographic_items/1.json
   def show
   end
 
-  # GET /geographic_items/new
-  def new
-    @geographic_item = GeographicItem.new
-  end
-
   # GET /geographic_items/1/edit
   def edit
-  end
-
-  # POST /geographic_items
-  # POST /geographic_items.json
-  def create
-    @geographic_item = GeographicItem.new(geographic_item_params)
-
-    respond_to do |format|
-      if @geographic_item.save
-        format.html { redirect_to @geographic_item, notice: 'Geographic item was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @geographic_item }
-      else
-        format.html { render action: 'new' }
-        format.json { render json: @geographic_item.errors, status: :unprocessable_entity }
-      end
-    end
   end
 
   # PATCH/PUT /geographic_items/1
@@ -61,10 +34,6 @@ class GeographicItemsController < ApplicationController
       format.html { redirect_to geographic_items_url }
       format.json { head :no_content }
     end
-  end
-
-  def list
-    @geographic_items = GeographicItem.order(:id).page(params[:page])
   end
 
   private
