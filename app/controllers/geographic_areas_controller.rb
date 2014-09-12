@@ -2,6 +2,7 @@ class GeographicAreasController < ApplicationController
   include DataControllerConfiguration
 
   before_action :set_geographic_area, only: [:show, :edit, :update, :destroy]
+  before_action :disable_turbolinks, only: [:show]
 
   # GET /geographic_areas
   # GET /geographic_areas.json
@@ -83,7 +84,7 @@ class GeographicAreasController < ApplicationController
     @geographic_areas = GeographicArea.find_for_autocomplete(params)
 
     data = @geographic_areas.collect do |t|
-      show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t)
+      show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t, params[:term])
       {id:              t.id,
        label:           GeographicAreasHelper.geographic_area_tag(t),
        response_values: {
@@ -97,6 +98,13 @@ class GeographicAreasController < ApplicationController
   end
 
   private
+
+  # TODO: move to a concern?
+  def disable_turbolinks 
+    @no_turbolinks = true
+  end
+
+
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area
     @geographic_area = GeographicArea.find(params[:id])

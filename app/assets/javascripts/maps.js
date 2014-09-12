@@ -27,9 +27,11 @@ var center_lat_long;
 // zoom level
 var gzoom = 4;
 
-function initialize() {
+var initialize;
+
+initialize = function() {
   // bounds = new google.maps.LatLngBounds();
-  getdata(); 
+  get_data(); 
   get_window_center();
 
   var myOptions = {
@@ -44,7 +46,6 @@ function initialize() {
   initialize_map(myOptions);
   add_shapes_to_map();
 };
-
 
 function initialize_map(options) {
   map = new google.maps.Map(document.getElementById("map_canvas"), options);
@@ -90,11 +91,10 @@ function add_shapes_to_map() {
       gPoly.setMap(map);
     };
   };
-
   //    map.fitBounds(bounds);
 };	
 
-function getdata() {
+function get_data() {
   /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
         Assumptions:
         data is a hash

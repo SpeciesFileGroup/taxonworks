@@ -1,18 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<%= content_for :head do %>
-  <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
-
-  <script language="javascript">
-      var data = <%= json_tag(@geographic_item) %>;
-  </script>
-  <%= javascript_include_tag "maps" %>
-
-  <script language="javascript">
-    google.maps.event.addDomListener(window, 'load', initialize);
-  </script>
-<% end %>
-
+<%= render(partial: 'map_header', locals: { geographic_item: @geographic_item }) -%>
 
 <div>
   <div class='left_floater right_vertical_separator right_column_whitespace nav_column' >
@@ -39,11 +27,10 @@
   </div>
 </div>
 
-  <div class='left_floater' >
-    <form id="form1">
-      <div id="map_canvas" style="width:768px; height: 512px;"></div>
-    </form>
-  </div>
+<div class='left_floater' >
+  <div id="map_canvas" style="width:340px; height: 520px;"></div>
+</div>
+
   <br class='clear_both'>
 
 <!--

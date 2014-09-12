@@ -183,7 +183,9 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    terms = params[:term].split
+    search_term = terms.collect{|t| "name LIKE '#{t}%'"}.join(" OR ") 
+    where(search_term).includes(:parent, :geographic_area_type).order(:name)
   end
 
 end

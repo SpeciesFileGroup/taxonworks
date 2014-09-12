@@ -5,6 +5,7 @@ module ApplicationHelper
     content_tag(:div, text, class: :scrollable_div)
   end
 
+  # TODO: Move
   def similarly_named_records_list(instance)
     model   = instance.class
     name    = instance.name
@@ -19,6 +20,10 @@ module ApplicationHelper
     end
   end
 
+  # Set @no_turbolinks in a before_action, then use the method in, say a layout.
+  def turbolinks_off_tag
+    'data-no-turbolink="true"'.html_safe if @no_turbolinks
+  end
 
   def model_name_title
     controller_name.humanize.titleize
