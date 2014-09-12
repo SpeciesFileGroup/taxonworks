@@ -6,16 +6,16 @@ module ApplicationHelper
   end
 
   def similarly_named_records_list(instance)
-    model = instance.class
-    name = instance.name
+    model   = instance.class
+    name    = instance.name
     records = model.where(['(name LIKE ? OR NAME like ?) AND id != ?', "#{name}%", "%#{name}%", instance]).limit(5)
     content_tag(:span) do
-      content_tag(:em, 'Similarly named records: ' ) +
+      content_tag(:em, 'Similarly named records: ') +
         content_tag(:span) do
-        (records.count == 0 ?
-         'none' :
-         records.collect{|r| link_to(r.name, r) }.join(', ').html_safe)
-      end
+          (records.count == 0 ?
+            'none' :
+            records.collect { |r| link_to(r.name, r) }.join(', ').html_safe)
+        end
     end
   end
 
@@ -29,7 +29,7 @@ module ApplicationHelper
   end
 
   def batch_preview_model_path
-    send("batch_preview_#{controller_name.to_s.pluralize}_path") 
+    send("batch_preview_#{controller_name.to_s.pluralize}_path")
   end
 
   def hidden_css_property_if(tru)

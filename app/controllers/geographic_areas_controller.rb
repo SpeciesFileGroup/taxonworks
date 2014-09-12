@@ -83,12 +83,13 @@ class GeographicAreasController < ApplicationController
     @geographic_areas = GeographicArea.find_for_autocomplete(params)
 
     data = @geographic_areas.collect do |t|
+      show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t)
       {id:              t.id,
        label:           GeographicAreasHelper.geographic_area_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      GeographicAreasHelper.geographic_area_tag(t)
+       label_html:      show_this
       }
     end
 
