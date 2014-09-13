@@ -35,14 +35,6 @@ describe GeographicItemsController, :type => :controller do
   # GeographicItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns some geographic_items as @geographic_items" do
-      geographic_item = GeographicItem.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:geographic_items)).to eq([geographic_item])
-    end
-  end
-
   describe "GET show" do
     it "assigns the requested geographic_item as @geographic_item" do
       geographic_item = GeographicItem.create! valid_attributes
@@ -51,55 +43,11 @@ describe GeographicItemsController, :type => :controller do
     end
   end
 
-  describe "GET new" do
-    it "assigns a new geographic_item as @geographic_item" do
-      get :new, {}, valid_session
-      expect(assigns(:geographic_item)).to be_a_new(GeographicItem)
-    end
-  end
-
   describe "GET edit" do
     it "assigns the requested geographic_item as @geographic_item" do
       geographic_item = GeographicItem.create! valid_attributes
       get :edit, {:id => geographic_item.to_param}, valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item)
-    end
-  end
-
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new GeographicItem" do
-        expect {
-          post :create, {:geographic_item => valid_attributes}, valid_session
-        }.to change(GeographicItem, :count).by(1)
-      end
-
-      it "assigns a newly created geographic_item as @geographic_item" do
-        post :create, {:geographic_item => valid_attributes}, valid_session
-        expect(assigns(:geographic_item)).to be_a(GeographicItem)
-        expect(assigns(:geographic_item)).to be_persisted
-      end
-
-      it "redirects to the created geographic_item" do
-        post :create, {:geographic_item => valid_attributes}, valid_session
-        expect(response).to redirect_to(GeographicItem.last)
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved geographic_item as @geographic_item" do
-        # Trigger the behavior that occurs when invalid params are submitted
-        allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-        post :create, {:geographic_item => { "point" => "invalid value" }}, valid_session
-        expect(assigns(:geographic_item)).to be_a_new(GeographicItem)
-      end
-
-      it "re-renders the 'new' template" do
-        # Trigger the behavior that occurs when invalid params are submitted
-        allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-        post :create, {:geographic_item => { "point" => "invalid value" }}, valid_session
-        expect(response).to render_template("new")
-      end
     end
   end
 
