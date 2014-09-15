@@ -135,7 +135,7 @@ class TaxonName < ActiveRecord::Base
                     :set_cached_names
 
   belongs_to :source
-  has_many :taxon_name_classifications, dependent: :destroy
+  has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
 
   #relationships as a subject
