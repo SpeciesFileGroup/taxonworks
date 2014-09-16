@@ -1,18 +1,18 @@
 class OtuPageLayoutSectionsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_otu_page_layout_section, only: [:show, :edit, :update, :destroy]
+  before_action :set_otu_page_layout_section, only: [:edit, :update, :destroy]
 
   # GET /otu_page_layout_sections
   # GET /otu_page_layout_sections.json
-  def index
-    @otu_page_layout_sections = OtuPageLayoutSection.all
-  end
+  # def index
+  #   @otu_page_layout_sections = OtuPageLayoutSection.all
+  # end
 
   # GET /otu_page_layout_sections/1
   # GET /otu_page_layout_sections/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /otu_page_layout_sections/new
   def new

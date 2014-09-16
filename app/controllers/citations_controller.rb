@@ -2,7 +2,7 @@ class CitationsController < ApplicationController
   include DataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_citation, only: [:show, :edit, :update, :destroy]
+  before_action :set_citation, only: [:edit, :update, :destroy]
 
   # GET /citations
   # GET /citations.json
@@ -13,8 +13,8 @@ class CitationsController < ApplicationController
 
   # GET /citations/1
   # GET /citations/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /citations/new
   def new

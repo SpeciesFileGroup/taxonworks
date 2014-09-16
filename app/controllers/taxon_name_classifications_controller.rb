@@ -1,13 +1,13 @@
 class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_taxon_name_classification, only: [:show, :edit, :update, :destroy]
+  before_action :set_taxon_name_classification, only: [:update, :destroy]
 
   # GET /taxon_name_classifications
   # GET /taxon_name_classifications.json
-  def index
-    @taxon_name_classifications = TaxonNameClassification.all
-  end
+  # def index
+  #   @taxon_name_classifications = TaxonNameClassification.all
+  # end
 
   # GET /taxon_name_classifications/1
   # GET /taxon_name_classifications/1.json
@@ -20,8 +20,8 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   # GET /taxon_name_classifications/1/edit
-  def edit
-  end
+  # def edit
+  # end
 
   # POST /taxon_name_classifications
   # POST /taxon_name_classifications.json

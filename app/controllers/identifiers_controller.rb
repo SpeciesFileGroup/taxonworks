@@ -1,7 +1,7 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_identifier, only: [:show, :edit, :update, :destroy]
+  before_action :set_identifier, only: [:edit, :update, :destroy]
 
   # GET /identifiers
   # GET /identifiers.json
@@ -11,8 +11,8 @@ class IdentifiersController < ApplicationController
 
   # GET /identifiers/1
   # GET /identifiers/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /identifiers/new
   def new

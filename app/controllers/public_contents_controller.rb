@@ -1,27 +1,27 @@
 class PublicContentsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_public_content, only: [:show, :edit, :update, :destroy]
+  before_action :set_public_content, only: [:edit, :update, :destroy]
 
   # GET /public_contents
   # GET /public_contents.json
-  def index
-    @public_contents = PublicContent.all
-  end
+  # def index
+  #   @public_contents = PublicContent.all
+  # end
 
   # GET /public_contents/1
   # GET /public_contents/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /public_contents/new
-  def new
-    @public_content = PublicContent.new
-  end
+  # def new
+  #   @public_content = PublicContent.new
+  # end
 
   # GET /public_contents/1/edit
-  def edit
-  end
+  # def edit
+  # end
 
   # POST /public_contents
   # POST /public_contents.json

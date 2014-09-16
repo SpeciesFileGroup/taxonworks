@@ -1,7 +1,7 @@
 class DataAttributesController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_data_attribute, only: [:show, :edit, :update, :destroy]
+  before_action :set_data_attribute, only: [:edit, :update, :destroy]
 
   # GET /data_attributes
   # GET /data_attributes.json
@@ -11,8 +11,8 @@ class DataAttributesController < ApplicationController
 
   # GET /data_attributes/1
   # GET /data_attributes/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /data_attributes/new
   def new

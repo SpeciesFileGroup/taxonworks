@@ -1,18 +1,18 @@
 class LoanItemsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_loan_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_loan_item, only: [:edit, :update, :destroy]
 
   # GET /loan_items
   # GET /loan_items.json
-  def index
-    @loan_items = LoanItem.all
-  end
+  # def index
+  #   @loan_items = LoanItem.all
+  # end
 
   # GET /loan_items/1
   # GET /loan_items/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /loan_items/new
   def new
