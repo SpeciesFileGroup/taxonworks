@@ -1,18 +1,19 @@
 class AlternateValuesController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_alternate_value, only: [:show, :edit, :update, :destroy]
+  before_action :set_alternate_value, only: [:edit, :update, :destroy]
+  # before_action :set_alternate_value, only: [:show, :edit, :update, :destroy]
 
   # GET /alternate_values
   # GET /alternate_values.json
-  def index
-    @alternate_values = AlternateValue.all
-  end
+  # def index
+  #   @alternate_values = AlternateValue.all
+  # end
 
   # GET /alternate_values/1
   # GET /alternate_values/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /alternate_values/new
   def new

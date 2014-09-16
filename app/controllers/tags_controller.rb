@@ -1,7 +1,7 @@
 class TagsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_tag, only: [:show, :edit, :update, :destroy]
+  before_action :set_tag, only: [:update, :destroy]
 
   # GET /tags
   # GET /tags.json
@@ -13,8 +13,8 @@ class TagsController < ApplicationController
 
   # GET /tags/1
   # GET /tags/1.json
-  def show
-  end
+  # def show
+  # end
 
   # GET /tags/new
   def new
@@ -22,13 +22,13 @@ class TagsController < ApplicationController
   end
 
   # GET /tags/1/edit
-  def edit
-  end
+  # def edit
+  # end
 
   # triggered by "list" link on index page
-  def list
-    @tags = Tag.order(:id).page(params[:page])
-  end
+  # def list
+  #   @tags = Tag.order(:id).page(params[:page])
+  # end
 
 # POST /tags
   # POST /tags.json
@@ -83,7 +83,7 @@ class TagsController < ApplicationController
   end
 
   def autocomplete
-    @otus = Tag.find_for_autocomplete(params)
+    @tags = Tag.find_for_autocomplete(params)
 
     data = @tags.collect do |t|
       {id:              t.id,
