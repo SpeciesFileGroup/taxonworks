@@ -28,7 +28,7 @@ class Protonym < TaxonName
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name_classification, -> {
     where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
-  }, class_name: 'TaxonNameClassification'
+  }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
