@@ -1,10 +1,9 @@
-
-<h2>  Geographic Item (shape) <%= @geographic_item.to_param -%> detail. </h2>
+<h2> Geographic Item (shape) <%= @geographic_item.to_param -%> detail. </h2>
 
 <p id="notice"><%= notice %></p>
 
 
-<%= render(partial: 'map_header', locals: { geographic_item: @geographic_item }) -%>
+<%= render(partial: 'map_header', locals: {geographic_item: @geographic_item}) -%>
 
 <div class="flexbox">
   <div class="item item1">
@@ -18,31 +17,34 @@
     </div>
 
     <p>
-    <strong>Created by:</strong>
-    <%= user_tag( @geographic_item.creator) %>
+      <strong>Created by:</strong>
+      <%= user_tag(@geographic_item.creator) %>
     </p>
 
     <p>
-    <strong>Updated by:</strong>
-    <%= user_tag( @geographic_item.updater) %>
+      <strong>Updated by:</strong>
+      <%= user_tag(@geographic_item.updater) %>
     </p>
 
     <p> Edit Link [TODO] </p>
-  </div>  
+  </div>
 
   <div class="item item3">
     <h3> Geographic Areas </h3>
     <nav>
       <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
-      <p>Parents through geographic areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
+
+      <p>Parents through geographic
+        areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
     </nav>
 
     <h3> Geographic Items </h3>
     <nav>
       <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
-      <div class="one_third"> Children through geographic areas: 
-        <%= @geographic_item.children_through_geographic_areas.collect{|k, v| 
-          v.collect{|i| geographic_item_link(i, k.name)}.join.html_safe 
+
+      <div class="one_third"> Children through geographic areas:
+        <%= @geographic_item.children_through_geographic_areas.collect { |k, v|
+          v.collect { |i| geographic_item_link(i, k.name) }.join.html_safe
         }.join(', ').html_safe -%>
       </div>
     </nav>

@@ -95,9 +95,9 @@ class User < ActiveRecord::Base
 
   def add_page_to_recent(recent_route)
     case recent_route
-      when /^\/$/
-      when /hub/
-      when /\/autocomplete\?/
+      when /\A\/\Z/ # the root path '/'
+      when /\A\/hub/ # any path which starts with '/hub'
+      when /\/autocomplete\?/ # any path used for AJAX autocomplete
       else
         update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9])
     end
