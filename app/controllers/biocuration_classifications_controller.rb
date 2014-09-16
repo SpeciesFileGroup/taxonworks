@@ -3,26 +3,6 @@ class BiocurationClassificationsController < ApplicationController
 
   before_action :set_biocuration_classification, only: [:update, :destroy]
 
-  # GET /biocuration_classifications
-  # GET /biocuration_classifications.json
-  # def index
-  #   @biocuration_classifications = BiocurationClassification.all
-  # end
-
-  # GET /biocuration_classifications/1
-  # GET /biocuration_classifications/1.json
-  # def show
-  # end
-
-  # GET /biocuration_classifications/new
-  # def new
-  #   @biocuration_classification = BiocurationClassification.new
-  # end
-
-  # GET /biocuration_classifications/1/edit
-  # def edit
-  # end
-
   # POST /biocuration_classifications
   # POST /biocuration_classifications.json
   def create

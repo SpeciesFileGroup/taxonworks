@@ -1,18 +1,7 @@
 class CitationTopicsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_citation_topic, only: [:show, :edit, :update, :destroy]
-
-  # GET /citation_topics
-  # GET /citation_topics.json
-  def index
-    @citation_topics = CitationTopic.all
-  end
-
-  # GET /citation_topics/1
-  # GET /citation_topics/1.json
-  def show
-  end
+  before_action :set_citation_topic, only: [:edit, :update, :destroy]
 
   # GET /citation_topics/new
   def new

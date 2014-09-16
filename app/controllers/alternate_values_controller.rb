@@ -2,18 +2,6 @@ class AlternateValuesController < ApplicationController
   include DataControllerConfiguration
 
   before_action :set_alternate_value, only: [:edit, :update, :destroy]
-  # before_action :set_alternate_value, only: [:show, :edit, :update, :destroy]
-
-  # GET /alternate_values
-  # GET /alternate_values.json
-  # def index
-  #   @alternate_values = AlternateValue.all
-  # end
-
-  # GET /alternate_values/1
-  # GET /alternate_values/1.json
-  # def show
-  # end
 
   # GET /alternate_values/new
   def new
@@ -32,11 +20,12 @@ class AlternateValuesController < ApplicationController
     respond_to do |format|
       if @alternate_value.save
         format.html { redirect_to @alternate_value.becomes(AlternateValue), notice: 'Alternate value was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @alternate_value }
+        # format.json { render action: 'show', status: :created, location: @alternate_value }
       else
         format.html { render action: 'new' }
-        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        # format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
+      redirect_to :back  # todo @mjy not sure if this is correct (mb)
     end
   end
 

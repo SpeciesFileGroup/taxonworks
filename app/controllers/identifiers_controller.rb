@@ -9,11 +9,6 @@ class IdentifiersController < ApplicationController
     @identifiers = Identifier.all
   end
 
-  # GET /identifiers/1
-  # GET /identifiers/1.json
-  # def show
-  # end
-
   # GET /identifiers/new
   def new
     @identifier = Identifier.new

@@ -11,11 +11,6 @@ class CitationsController < ApplicationController
     @recent_objects = Citation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
-  # GET /citations/1
-  # GET /citations/1.json
-  # def show
-  # end
-
   # GET /citations/new
   def new
     @citation = Citation.new

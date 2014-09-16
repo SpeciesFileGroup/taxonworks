@@ -9,11 +9,6 @@ class DataAttributesController < ApplicationController
     @data_attributes = DataAttribute.all
   end
 
-  # GET /data_attributes/1
-  # GET /data_attributes/1.json
-  # def show
-  # end
-
   # GET /data_attributes/new
   def new
     @data_attribute = DataAttribute.new
