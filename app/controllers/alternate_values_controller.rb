@@ -19,13 +19,12 @@ class AlternateValuesController < ApplicationController
 
     respond_to do |format|
       if @alternate_value.save
-        format.html { redirect_to @alternate_value.becomes(AlternateValue), notice: 'Alternate value was successfully created.' }
-        # format.json { render action: 'show', status: :created, location: @alternate_value }
+        format.html { redirect_to :back, notice: 'Alternate value was successfully created.' }
+        format.json { render action: 'show', status: :created, location: @alternate_value }
       else
-        format.html { render action: 'new' }
-        # format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.'}
+        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
-      redirect_to :back  # todo @mjy not sure if this is correct (mb)
     end
   end
 
