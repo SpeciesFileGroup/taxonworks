@@ -3,26 +3,6 @@ class TaggedSectionKeywordsController < ApplicationController
 
   before_action :set_tagged_section_keyword, only: [:update, :destroy]
 
-  # GET /tagged_section_keywords
-  # GET /tagged_section_keywords.json
-  def index
-    @tagged_section_keywords = TaggedSectionKeyword.all
-  end
-
-  # GET /tagged_section_keywords/1
-  # GET /tagged_section_keywords/1.json
-  def show
-  end
-
-  # GET /tagged_section_keywords/new
-  def new
-    @tagged_section_keyword = TaggedSectionKeyword.new
-  end
-
-  # GET /tagged_section_keywords/1/edit
-  def edit
-  end
-
   # POST /tagged_section_keywords
   # POST /tagged_section_keywords.json
   def create

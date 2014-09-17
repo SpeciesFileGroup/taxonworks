@@ -15,14 +15,6 @@ class OtuPageLayoutSectionsController < ApplicationController
   # end
 
   # GET /otu_page_layout_sections/new
-  def new
-    @otu_page_layout_section = OtuPageLayoutSection.new
-  end
-
-  # GET /otu_page_layout_sections/1/edit
-  def edit
-  end
-
   # POST /otu_page_layout_sections
   # POST /otu_page_layout_sections.json
   def create

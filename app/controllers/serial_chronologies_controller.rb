@@ -4,26 +4,6 @@ class SerialChronologiesController < ApplicationController
   before_action :require_sign_in
   before_action :set_serial_chronology, only: [:edit, :update, :destroy]
 
-  # GET /serial_chronologies
-  # GET /serial_chronologies.json
-  # def index
-  #   @serial_chronologies = SerialChronology.all
-  # end
-
-  # GET /serial_chronologies/1
-  # GET /serial_chronologies/1.json
-  # def show
-  # end
-
-  # GET /serial_chronologies/new
-  # def new
-  #   @serial_chronology = SerialChronology.new
-  # end
-
-  # GET /serial_chronologies/1/edit
-  # def edit
-  # end
-
   # POST /serial_chronologies
   # POST /serial_chronologies.json
   def create

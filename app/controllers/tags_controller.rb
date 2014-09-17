@@ -11,24 +11,10 @@ class TagsController < ApplicationController
 
   end
 
-  # GET /tags/1
-  # GET /tags/1.json
-  # def show
-  # end
-
   # GET /tags/new
   def new
     @tag = Tag.new
   end
-
-  # GET /tags/1/edit
-  # def edit
-  # end
-
-  # triggered by "list" link on index page
-  # def list
-  #   @tags = Tag.order(:id).page(params[:page])
-  # end
 
 # POST /tags
   # POST /tags.json
