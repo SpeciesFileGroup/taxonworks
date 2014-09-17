@@ -10,10 +10,10 @@ class BiocurationClassificationsController < ApplicationController
 
     respond_to do |format|
       if @biocuration_classification.save
-        format.html { redirect_to @biocuration_classification, notice: 'Biocuration classification was successfully created.' }
+        format.html { redirect_to :back, notice: 'Biocuration classification was successfully created.' }
         format.json { render action: 'show', status: :created, location: @biocuration_classification }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Biocuration classification was NOT successfully created.' }
         format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
       end
     end
