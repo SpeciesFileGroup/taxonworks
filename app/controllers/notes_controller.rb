@@ -44,10 +44,10 @@ class NotesController < ApplicationController
   def update
     respond_to do |format|
       if @note.update(note_params)
-        format.html { redirect_to @note, notice: 'Note was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Note was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Note was NOT successfully updated.' }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end

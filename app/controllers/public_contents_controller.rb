@@ -24,10 +24,10 @@ class PublicContentsController < ApplicationController
   def update
     respond_to do |format|
       if @public_content.update(public_content_params)
-        format.html { redirect_to @public_content, notice: 'Public content was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Public content was successfully updated.' }
         format.json { render :show, status: :ok, location: @public_content }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Public content was NOT successfully updated.' }
         format.json { render json: @public_content.errors, status: :unprocessable_entity }
       end
     end

@@ -24,10 +24,10 @@ class OtuPageLayoutSectionsController < ApplicationController
   def update
     respond_to do |format|
       if @otu_page_layout_section.update(otu_page_layout_section_params)
-        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Otu page layout section was successfully updated.' }
         format.json { render :show, status: :ok, location: @otu_page_layout_section }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully updated.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end

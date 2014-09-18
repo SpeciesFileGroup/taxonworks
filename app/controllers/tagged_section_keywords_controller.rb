@@ -24,10 +24,10 @@ class TaggedSectionKeywordsController < ApplicationController
   def update
     respond_to do |format|
       if @tagged_section_keyword.update(tagged_section_keyword_params)
-        format.html { redirect_to @tagged_section_keyword, notice: 'Tagged section keyword was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was successfully updated.' }
         format.json { render :show, status: :ok, location: @tagged_section_keyword }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was NOT successfully updated.' }
         format.json { render json: @tagged_section_keyword.errors, status: :unprocessable_entity }
       end
     end

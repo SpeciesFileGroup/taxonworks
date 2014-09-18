@@ -33,10 +33,10 @@ class CitationTopicsController < ApplicationController
   def update
     respond_to do |format|
       if @citation_topic.update(citation_topic_params)
-        format.html { redirect_to @citation_topic, notice: 'Citation topic was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Citation topic was successfully updated.' }
         format.json { render :show, status: :ok, location: @citation_topic }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully updated.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end

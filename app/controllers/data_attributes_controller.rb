@@ -39,10 +39,10 @@ class DataAttributesController < ApplicationController
   def update
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
-        format.html { redirect_to @data_attribute.becomes(DataAttribute), notice: 'Data attribute was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Data attribute was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Data attribute was NOT successfully updated.' }
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end

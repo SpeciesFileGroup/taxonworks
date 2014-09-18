@@ -25,10 +25,10 @@ class SerialChronologiesController < ApplicationController
   def update
     respond_to do |format|
       if @serial_chronology.update(serial_chronology_params)
-        format.html { redirect_to @serial_chronology, notice: 'Serial chronology was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Serial chronology was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully updated.' }
         format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
       end
     end
