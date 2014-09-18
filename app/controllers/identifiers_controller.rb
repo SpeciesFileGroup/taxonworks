@@ -53,7 +53,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html { redirect_to identifiers_url }
+      format.html { redirect_to :back, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

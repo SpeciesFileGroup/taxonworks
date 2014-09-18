@@ -47,7 +47,7 @@ class LoanItemsController < ApplicationController
   def destroy
     @loan_item.destroy
     respond_to do |format|
-      format.html { redirect_to loan_items_url }
+      format.html { redirect_to :back, notice: 'Loan item was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

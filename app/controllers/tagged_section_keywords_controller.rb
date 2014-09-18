@@ -38,7 +38,7 @@ class TaggedSectionKeywordsController < ApplicationController
   def destroy
     @tagged_section_keyword.destroy
     respond_to do |format|
-      format.html { redirect_to tagged_section_keywords_url }
+      format.html { redirect_to :back, notice: 'Tagged section keyword was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

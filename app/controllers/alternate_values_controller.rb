@@ -47,7 +47,7 @@ class AlternateValuesController < ApplicationController
   def destroy
     @alternate_value.destroy
     respond_to do |format|
-      format.html { redirect_to alternate_values_url }
+      format.html { redirect_to :back, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

@@ -53,7 +53,7 @@ class DataAttributesController < ApplicationController
   def destroy
     @data_attribute.destroy
     respond_to do |format|
-      format.html { redirect_to data_attributes_url }
+      format.html { redirect_to :back, notice: 'Data attribute was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

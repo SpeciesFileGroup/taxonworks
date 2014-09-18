@@ -39,7 +39,7 @@ class SerialChronologiesController < ApplicationController
   def destroy
     @serial_chronology.destroy
     respond_to do |format|
-      format.html { redirect_to serial_chronologies_url }
+      format.html { redirect_to :back, notice: 'Serial chronology was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
