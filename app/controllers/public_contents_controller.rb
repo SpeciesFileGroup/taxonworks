@@ -10,10 +10,10 @@ class PublicContentsController < ApplicationController
 
     respond_to do |format|
       if @public_content.save
-        format.html { redirect_to @public_content, notice: 'Public content was successfully created.' }
+        format.html { redirect_to :back, notice: 'Public content was successfully created.' }
         format.json { render :show, status: :created, location: @public_content }
       else
-        format.html { render :new }
+        format.html { rredirect_to :back, notice: 'Public content was NOT successfully created.' }
         format.json { render json: @public_content.errors, status: :unprocessable_entity }
       end
     end

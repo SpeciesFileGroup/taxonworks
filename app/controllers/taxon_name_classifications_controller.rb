@@ -15,10 +15,10 @@ class TaxonNameClassificationsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_classification.save
-        format.html { redirect_to @taxon_name_classification.becomes(TaxonNameClassification), notice: 'Taxon name classification was successfully created.' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name_classification.becomes(TaxonNameClassification) }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully created.' }
         format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end

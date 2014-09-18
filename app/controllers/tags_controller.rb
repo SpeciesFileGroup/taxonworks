@@ -20,18 +20,18 @@ class TagsController < ApplicationController
   # POST /tags.json
   def create
     @tag         = Tag.new(tag_params)
-    redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
+    # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to redirect_url, notice: 'Tag was successfully created.' }
+        format.html { redirect_to :back, notice: 'Tag was successfully created.' }
         format.json { render :show, status: :created, location: @tag }
       else
         format.html {
-          if redirect_url == :back
-            redirect_to redirect_url
-          else
-            render :new
-          end
+          # if redirect_url == :back
+            redirect_to :back, notice: 'Tag was NOT successfully created.'
+          # else
+          #   render :new
+          # end
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end

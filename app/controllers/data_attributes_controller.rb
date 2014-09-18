@@ -25,10 +25,10 @@ class DataAttributesController < ApplicationController
 
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to @data_attribute.becomes(DataAttribute), notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to ":back", notice: 'Data attribute was successfully created.' }
         format.json { render action: 'show', status: :created, location: @data_attribute }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Data attribute was NOT successfully created.' }
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end

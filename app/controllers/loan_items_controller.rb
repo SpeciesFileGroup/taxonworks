@@ -19,10 +19,10 @@ class LoanItemsController < ApplicationController
 
     respond_to do |format|
       if @loan_item.save
-        format.html { redirect_to @loan_item, notice: 'Loan item was successfully created.' }
+        format.html { redirect_to :back, notice: 'Loan item was successfully created.' }
         format.json { render :show, status: :created, location: @loan_item }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Loan item was NOT successfully created.' }
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end

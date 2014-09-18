@@ -11,10 +11,10 @@ class SerialChronologiesController < ApplicationController
 
     respond_to do |format|
       if @serial_chronology.save
-        format.html { redirect_to @serial_chronology, notice: 'Serial chronology was successfully created.' }
+        format.html { redirect_to :back, notice: 'Serial chronology was successfully created.' }
         format.json { render action: 'show', status: :created, location: @serial_chronology }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully created.' }
         format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
       end
     end

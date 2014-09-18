@@ -22,7 +22,7 @@ class AlternateValuesController < ApplicationController
         format.html { redirect_to :back, notice: 'Alternate value was successfully created.' }
         format.json { render action: 'show', status: :created, location: @alternate_value }
       else
-        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.'}
+        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
     end

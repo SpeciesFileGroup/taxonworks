@@ -3,18 +3,6 @@ class OtuPageLayoutSectionsController < ApplicationController
 
   before_action :set_otu_page_layout_section, only: [:edit, :update, :destroy]
 
-  # GET /otu_page_layout_sections
-  # GET /otu_page_layout_sections.json
-  # def index
-  #   @otu_page_layout_sections = OtuPageLayoutSection.all
-  # end
-
-  # GET /otu_page_layout_sections/1
-  # GET /otu_page_layout_sections/1.json
-  # def show
-  # end
-
-  # GET /otu_page_layout_sections/new
   # POST /otu_page_layout_sections
   # POST /otu_page_layout_sections.json
   def create
@@ -22,10 +10,10 @@ class OtuPageLayoutSectionsController < ApplicationController
 
     respond_to do |format|
       if @otu_page_layout_section.save
-        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully created.' }
+        format.html { redirect_to :back, notice: 'Otu page layout section was successfully created.' }
         format.json { render :show, status: :created, location: @otu_page_layout_section }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully created.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end

@@ -19,10 +19,10 @@ class CitationTopicsController < ApplicationController
 
     respond_to do |format|
       if @citation_topic.save
-        format.html { redirect_to @citation_topic, notice: 'Citation topic was successfully created.' }
+        format.html { redirect_to :back, notice: 'Citation topic was successfully created.' }
         format.json { render :show, status: :created, location: @citation_topic }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully created.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end
