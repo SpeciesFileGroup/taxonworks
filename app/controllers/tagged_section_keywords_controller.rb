@@ -10,10 +10,10 @@ class TaggedSectionKeywordsController < ApplicationController
 
     respond_to do |format|
       if @tagged_section_keyword.save
-        format.html { redirect_to @tagged_section_keyword, notice: 'Tagged section keyword was successfully created.' }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was successfully created.' }
         format.json { render :show, status: :created, location: @tagged_section_keyword }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was NOT successfully created.' }
         format.json { render json: @tagged_section_keyword.errors, status: :unprocessable_entity }
       end
     end
@@ -24,10 +24,10 @@ class TaggedSectionKeywordsController < ApplicationController
   def update
     respond_to do |format|
       if @tagged_section_keyword.update(tagged_section_keyword_params)
-        format.html { redirect_to @tagged_section_keyword, notice: 'Tagged section keyword was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was successfully updated.' }
         format.json { render :show, status: :ok, location: @tagged_section_keyword }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Tagged section keyword was NOT successfully updated.' }
         format.json { render json: @tagged_section_keyword.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class TaggedSectionKeywordsController < ApplicationController
   def destroy
     @tagged_section_keyword.destroy
     respond_to do |format|
-      format.html { redirect_to tagged_section_keywords_url }
+      format.html { redirect_to :back, notice: 'Tagged section keyword was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

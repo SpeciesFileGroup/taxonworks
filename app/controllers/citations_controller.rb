@@ -27,10 +27,10 @@ class CitationsController < ApplicationController
 
     respond_to do |format|
       if @citation.save
-        format.html { redirect_to @citation, notice: 'Citation was successfully created.' }
+        format.html { redirect_to :back, notice: 'Citation was successfully created.' }
         format.json { render action: 'show', status: :created, location: @citation }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
@@ -41,10 +41,10 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to @citation, notice: 'Citation was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Citation was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
@@ -55,7 +55,7 @@ class CitationsController < ApplicationController
   def destroy
     @citation.destroy
     respond_to do |format|
-      format.html { redirect_to citations_url }
+      format.html { redirect_to :back, notice: 'Citation was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

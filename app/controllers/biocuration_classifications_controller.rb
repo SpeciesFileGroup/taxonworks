@@ -24,10 +24,10 @@ class BiocurationClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @biocuration_classification.update(biocuration_classification_params)
-        format.html { redirect_to @biocuration_classification, notice: 'Biocuration classification was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Biocuration classification was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Biocuration classification was NOT successfully updated.' }
         format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class BiocurationClassificationsController < ApplicationController
   def destroy
     @biocuration_classification.destroy
     respond_to do |format|
-      format.html { redirect_to biocuration_classifications_url }
+      format.html { redirect_to :back, notice: 'Biocuration classification was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

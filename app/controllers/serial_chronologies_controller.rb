@@ -11,10 +11,10 @@ class SerialChronologiesController < ApplicationController
 
     respond_to do |format|
       if @serial_chronology.save
-        format.html { redirect_to @serial_chronology, notice: 'Serial chronology was successfully created.' }
+        format.html { redirect_to :back, notice: 'Serial chronology was successfully created.' }
         format.json { render action: 'show', status: :created, location: @serial_chronology }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully created.' }
         format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
       end
     end
@@ -25,10 +25,10 @@ class SerialChronologiesController < ApplicationController
   def update
     respond_to do |format|
       if @serial_chronology.update(serial_chronology_params)
-        format.html { redirect_to @serial_chronology, notice: 'Serial chronology was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Serial chronology was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully updated.' }
         format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
       end
     end
@@ -39,7 +39,7 @@ class SerialChronologiesController < ApplicationController
   def destroy
     @serial_chronology.destroy
     respond_to do |format|
-      format.html { redirect_to serial_chronologies_url }
+      format.html { redirect_to :back, notice: 'Serial chronology was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

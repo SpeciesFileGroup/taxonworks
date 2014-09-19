@@ -15,10 +15,10 @@ class TaxonNameClassificationsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_classification.save
-        format.html { redirect_to @taxon_name_classification.becomes(TaxonNameClassification), notice: 'Taxon name classification was successfully created.' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name_classification.becomes(TaxonNameClassification) }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully created.' }
         format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end
@@ -29,10 +29,10 @@ class TaxonNameClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_classification.update(taxon_name_classification_params)
-        format.html { redirect_to @taxon_name_classification.becomes(TaxonNameClassification), notice: 'Taxon name classification was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully updated.' }
         format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end
@@ -43,7 +43,7 @@ class TaxonNameClassificationsController < ApplicationController
   def destroy
     @taxon_name_classification.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_name_classifications_url }
+      format.html { redirect_to :back, notice: 'Taxon name classification was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

@@ -22,7 +22,7 @@ class AlternateValuesController < ApplicationController
         format.html { redirect_to :back, notice: 'Alternate value was successfully created.' }
         format.json { render action: 'show', status: :created, location: @alternate_value }
       else
-        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.'}
+        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
     end
@@ -33,10 +33,10 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to @alternate_value.becomes(AlternateValue), notice: 'Alternate value was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Alternate value was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully updated.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
     end
@@ -47,7 +47,7 @@ class AlternateValuesController < ApplicationController
   def destroy
     @alternate_value.destroy
     respond_to do |format|
-      format.html { redirect_to alternate_values_url }
+      format.html { redirect_to :back, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

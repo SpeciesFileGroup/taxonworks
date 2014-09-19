@@ -25,10 +25,10 @@ class DataAttributesController < ApplicationController
 
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to @data_attribute.becomes(DataAttribute), notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to ":back", notice: 'Data attribute was successfully created.' }
         format.json { render action: 'show', status: :created, location: @data_attribute }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Data attribute was NOT successfully created.' }
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end
@@ -39,10 +39,10 @@ class DataAttributesController < ApplicationController
   def update
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
-        format.html { redirect_to @data_attribute.becomes(DataAttribute), notice: 'Data attribute was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Data attribute was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Data attribute was NOT successfully updated.' }
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end
@@ -53,7 +53,7 @@ class DataAttributesController < ApplicationController
   def destroy
     @data_attribute.destroy
     respond_to do |format|
-      format.html { redirect_to data_attributes_url }
+      format.html { redirect_to :back, notice: 'Data attribute was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

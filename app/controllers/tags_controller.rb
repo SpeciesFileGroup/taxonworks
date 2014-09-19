@@ -20,18 +20,18 @@ class TagsController < ApplicationController
   # POST /tags.json
   def create
     @tag         = Tag.new(tag_params)
-    redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
+    # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to redirect_url, notice: 'Tag was successfully created.' }
+        format.html { redirect_to :back, notice: 'Tag was successfully created.' }
         format.json { render :show, status: :created, location: @tag }
       else
         format.html {
-          if redirect_url == :back
-            redirect_to redirect_url
-          else
-            render :new
-          end
+          # if redirect_url == :back
+            redirect_to :back, notice: 'Tag was NOT successfully created.'
+          # else
+          #   render :new
+          # end
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -43,10 +43,10 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to @tag, notice: 'Tag was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Tag was successfully updated.' }
         format.json { render :show, status: :ok, location: @tag }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Tag was NOT successfully updated.' }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
     end
@@ -59,7 +59,7 @@ class TagsController < ApplicationController
     @tag.destroy
 
     respond_to do |format|
-      format.html { redirect_to redirect_url, notice: 'Tag was successfully destroyed.' }
+      format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
