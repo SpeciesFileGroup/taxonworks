@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.1'
 
-gem 'rails', '4.1.4'
+gem 'rails', '4.1.6'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
@@ -39,9 +39,7 @@ gem 'jquery-turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set',
-    git: 'https://github.com/collectiveidea/awesome_nested_set.git'
-#  tag: 'v3.0.0.rc.5', 
+gem 'awesome_nested_set', '~> 3.0.1' 
 
 # BibTex handling
 gem 'bibtex-ruby', '~> 4.0.3'
@@ -63,7 +61,7 @@ gem 'paper_trail', '~> 3.0.0'
 
 # DwC-A archive handling 
 gem 'dwc-archive', '~> 0.9.11'
-gem 'biodiversity', '3.1.4' # Workaround rails' treetop dependency incompatibility with dwc-archive
+gem 'biodiversity', '3.1.5' # Workaround rails' treetop dependency incompatibility with dwc-archive
 
 gem 'validates_timeliness', '~> 3.0.14'
 
