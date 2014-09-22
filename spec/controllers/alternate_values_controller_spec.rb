@@ -33,38 +33,11 @@ describe AlternateValuesController, :type => :controller do
   # AlternateValuesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all alternate_values as @alternate_values" do
-      alternate_value = AlternateValue.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:alternate_values)).to eq([alternate_value])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested alternate_value as @alternate_value" do
-      alternate_value = AlternateValue.create! valid_attributes
-      get :show, {:id => alternate_value.to_param}, valid_session
-      expect(assigns(:alternate_value)).to eq(alternate_value)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new alternate_value as @alternate_value" do
-      get :new, {}, valid_session
-      expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested alternate_value as @alternate_value" do
-      alternate_value = AlternateValue.create! valid_attributes
-      get :edit, {:id => alternate_value.to_param}, valid_session
-      expect(assigns(:alternate_value)).to eq(alternate_value)
-    end
-  end
-
   describe "POST create" do
+    before {
+      request.env["HTTP_REFERER"] = list_otus_path # logical example
+    }
+
     describe "with valid params" do
       it "creates a new AlternateValue" do
         expect {
@@ -78,9 +51,10 @@ describe AlternateValuesController, :type => :controller do
         expect(assigns(:alternate_value)).to be_persisted
       end
 
-      it "redirects to the created alternate_value" do
+      it "redirects to :back" do
         post :create, {:alternate_value => valid_attributes}, valid_session
-        expect(response).to redirect_to(AlternateValue.last.becomes(AlternateValue))
+        # expect(response).to redirect_to(AlternateValue.last.becomes(AlternateValue))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,16 +66,20 @@ describe AlternateValuesController, :type => :controller do
         expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         post :create, {:alternate_value => {value: 'Foo'  }}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
   describe "PUT update" do
+    before {
+      request.env["HTTP_REFERER"] = list_otus_path
+    }
+
     describe "with valid params" do
       it "updates the requested alternate_value" do
         alternate_value = AlternateValue.create! valid_attributes
@@ -119,10 +97,10 @@ describe AlternateValuesController, :type => :controller do
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
-      it "redirects to the alternate_value" do
+      it "redirects to :back" do
         alternate_value = AlternateValue.create! valid_attributes
         put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
-        expect(response).to redirect_to(alternate_value.becomes(AlternateValue))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -135,17 +113,21 @@ describe AlternateValuesController, :type => :controller do
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         alternate_value = AlternateValue.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         put :update, {:id => alternate_value.to_param, :alternate_value => { value: "Smorf"  }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
   describe "DELETE destroy" do
+    before {
+      request.env["HTTP_REFERER"] = list_otus_path
+    }
+
     it "destroys the requested alternate_value" do
       alternate_value = AlternateValue.create! valid_attributes
       expect {
@@ -153,10 +135,10 @@ describe AlternateValuesController, :type => :controller do
       }.to change(AlternateValue, :count).by(-1)
     end
 
-    it "redirects to the alternate_values list" do
+    it "redirects to :back" do
       alternate_value = AlternateValue.create! valid_attributes
       delete :destroy, {:id => alternate_value.to_param}, valid_session
-      expect(response).to redirect_to(alternate_values_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 
