@@ -15,11 +15,6 @@
   <%= @serial.updated_by_id %>
 </p>
 
-<!--<p>-->
-  <!--<strong>Project:</strong>-->
-  <!--<%#= @serial.project_id %>-->
-<!--</p>-->
-
 <p>
   <strong>Publisher:</strong>
   <%= @serial.publisher %>
@@ -44,6 +39,8 @@
   <strong>Last year of issue:</strong>
   <%= @serial.last_year_of_issue %>
 </p>
+
+
 
 <%= link_to 'Edit', edit_serial_path(@serial) %> |
 <%= link_to 'Back', serials_path %>

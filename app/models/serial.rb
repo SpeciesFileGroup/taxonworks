@@ -34,6 +34,8 @@ class Serial < ActiveRecord::Base
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
+  accepts_nested_attributes_for :alternate_values
+
   # TODO handle translations (which are simultaneous)
 
   # Scopes, clustered by function
