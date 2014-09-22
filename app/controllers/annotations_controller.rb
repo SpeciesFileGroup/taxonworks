@@ -1,6 +1,5 @@
 class AnnotationsController < ApplicationController
-  # todo: @mjyis this required? Some of what it does would be redundant, if this controller is
-  # used only for a partial
+  # todo: @mjy is this required? Some of what it does would be redundant, if this controller is used only for a partial
   # include DataControllerConfiguration
 
   def new_alternate_values
