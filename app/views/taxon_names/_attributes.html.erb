@@ -25,7 +25,7 @@
 
 <p>
   <strong>Rank:</strong>
-  <%= @taxon_name.rank %> (<%= (@taxon_name.rank_class.nomenclatural_code.upcase) -%>)
+  <%= @taxon_name.rank %> (<%= @taxon_name.rank_class ? (@taxon_name.rank_class.nomenclatural_code.upcase) : content_tag(:em, 'ERROR') -%>)
 </p>
 
 <p>
@@ -71,12 +71,12 @@
 
 <p>
   <strong>Cached secondary homonym alt:</strong>
-  <%= @taxon_name.cached_secondary_homonym_alt %>
+  <%= @taxon_name.cached_secondary_homonym_alternative_spelling %>
 </p>
 
 <p>
   <strong>Cached primary homonym alt:</strong>
-  <%= @taxon_name.cached_primary_homonym_alt %>
+  <%= @taxon_name.cached_primary_homonym_alternative_spelling %>
 </p>
 
 <!--<p>-->
