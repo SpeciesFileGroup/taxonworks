@@ -7,7 +7,10 @@ class PinboardItem < ActiveRecord::Base
   belongs_to :pinned_object, polymorphic: true
 
   before_validation :validate_is_inserted, :validate_is_cross_project
-  validates_presence_of :pinned_object 
+  validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
+  validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type ]
+
+  scope :for_object, -> (object) {where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
 
   def is_inserted?
     !is_inserted.blank?

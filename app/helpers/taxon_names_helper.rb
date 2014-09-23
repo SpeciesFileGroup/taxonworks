@@ -28,8 +28,8 @@ module TaxonNamesHelper
   end
 
   # TODO: Scope to code
-  def taxon_name_rank_select_tag(taxon_name = TaxonName.new, code = nil)
-    select(:taxon_name, :rank_class, options_for_select(ICZN_LOOKUP.collect { |k, v| ["#{k} (ICZN)", v] } + ICN_LOOKUP.collect { |k, v| ["#{k} (ICN)", v] }), default: taxon_name.rank_class)
+  def taxon_name_rank_select_tag(taxon_name: TaxonName.new, code:  nil)
+    select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS), selected: taxon_name.rank_string ) 
   end
 
 end

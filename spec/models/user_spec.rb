@@ -14,6 +14,10 @@ describe User, :type => :model do
       specify 'projects' do
         expect(user.projects << Project.new()).to be_truthy
       end
+
+      specify 'pinbaord_items' do
+        expect(user.pinboard_items << PinboardItem.new()).to be_truthy
+      end
     end
   end
 

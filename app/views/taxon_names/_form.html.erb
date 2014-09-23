@@ -25,7 +25,7 @@
                            object:     'taxon_name',
                            method:     'parent_id',
                            tag_id:     'parent_id_for_name',
-                           display:    taxon_name_tag(@taxon_name)} %>
+                           display:    taxon_name_tag(@taxon_name.parent)} %>
     </div>
 
     <div class="field">
@@ -42,7 +42,7 @@
     <div class="field">
       <%= f.label :rank %>
       <br>
-      <%= taxon_name_rank_select_tag(@taxon_name) %>
+      <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
     </div>
 
     <div class="field">
