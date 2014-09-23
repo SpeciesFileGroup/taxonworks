@@ -60,6 +60,6 @@ class AlternateValuesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_object_type, :alternate_object_id, :alternate_object_attribute) 
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_object_type, :alternate_object_id, :alternate_object_attribute)
   end
 end
