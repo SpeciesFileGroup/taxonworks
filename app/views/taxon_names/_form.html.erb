@@ -21,11 +21,11 @@
       <%= f.label :parent %>
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
-                 locals:  {controller: 'taxon_names',
-                           object:     'taxon_name',
-                           method:     'parent_id',
-                           tag_id:     'parent_id_for_name',
-                           display:    taxon_name_tag(@taxon_name.parent)} %>
+        locals: {controller: 'taxon_names',
+                 object:     'taxon_name',
+                 method:     'parent_id',
+                 tag_id:     'parent_id_for_name',
+                 display:    taxon_name_tag(@taxon_name.parent)} %>
     </div>
 
     <div class="field">
@@ -41,14 +41,12 @@
 
     <div class="field">
       <%= f.label :rank %>
+      <%= @taxon_name.rank_string -%>
       <br>
       <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
     </div>
 
     <div class="field">
-      <!--<%#= f.label :source_id %>-->
-      <!--<br>-->
-      <!--<%#= f.number_field :source_id %>-->
       <%= f.label :source %>
       <br>
       <%= render :partial => 'elements/forms/ajax_select',

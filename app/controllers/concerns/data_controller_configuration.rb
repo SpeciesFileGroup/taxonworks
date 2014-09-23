@@ -18,6 +18,4 @@ module DataControllerConfiguration
 
   # instance_variable_set("@#{controller_name}", objects)
 
-
-
 end

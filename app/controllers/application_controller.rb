@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   after_filter :log_user_recent_route 
   after_filter :clear_project_and_user_variables
 
+  # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
     @sessions_current_user.add_page_to_recent(request.fullpath) if @sessions_current_user
   end
