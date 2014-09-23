@@ -31,13 +31,13 @@ class PinboardItemsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_pinboard_item
-      @pinboard_item = PinboardItem.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_pinboard_item
+    @pinboard_item = PinboardItem.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def pinboard_item_params
-      params.require(:pinboard_item).permit(:pinned_object_id, :pinned_object_type, :user_id,  :is_inserted, :is_cross_project, :inserted_count)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def pinboard_item_params
+    params.require(:pinboard_item).permit(:pinned_object_id, :pinned_object_type, :user_id, :is_inserted, :is_cross_project, :inserted_count)
+  end
 end
