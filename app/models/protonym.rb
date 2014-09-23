@@ -87,9 +87,9 @@ class Protonym < TaxonName
   scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
   scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
   scope :with_primary_homonym, -> (primary_homonym) {where(cached_primary_homonym: primary_homonym)}
-  scope :with_primary_homonym_alt, -> (primary_homonym_alt) {where(cached_primary_homonym_alt: primary_homonym_alt)}
+  scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
-  scope :with_secondary_homonym_alt, -> (secondary_homonym_alt) {where(cached_secondary_homonym_alt: secondary_homonym_alt)}
+  scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :that_is_valid, -> {
@@ -605,9 +605,9 @@ class Protonym < TaxonName
             end
           end
         else
-          name2 = self.cached_primary_homonym_alt ? self.cached_primary_homonym_alt : nil
-          possible_primary_homonyms_alt = name2 ? Protonym.with_primary_homonym_alt(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-          list2 = reduce_list_of_synonyms(possible_primary_homonyms_alt)
+          name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
+          possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
           if !list2.empty?
             list2.each do |s|
               if rank_base =~ /Species/
@@ -625,9 +625,9 @@ class Protonym < TaxonName
                 soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
               end
             else
-              name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alt : nil
-              possible_secondary_homonyms_alt = name4 ? Protonym.with_secondary_homonym_alt(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-              list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alt)
+              name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alternative_spelling : nil
+              possible_secondary_homonyms_alternative_spelling = name4 ? Protonym.with_secondary_homonym_alternative_spelling(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alternative_spelling)
               if !list4.empty?
                 list4.each do |s|
                   soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
@@ -644,11 +644,11 @@ class Protonym < TaxonName
     super
     set_cached_higher_classification
     set_primary_homonym
-    set_primary_homonym_alt
+    set_primary_homonym_alternative_spelling
 
     if self.rank_class.to_s =~ /Species/
       set_secondary_homonym
-      set_secondary_homonym_alt
+      set_secondary_homonym_alternative_spelling
     end
      set_cached_misspelling
   end
@@ -669,16 +669,16 @@ class Protonym < TaxonName
     self.cached_primary_homonym = get_genus_species(:original, :self)
   end
 
-  def set_primary_homonym_alt
-    self.cached_primary_homonym_alt = get_genus_species(:original, :alternative)
+  def set_primary_homonym_alternative_spelling
+    self.cached_primary_homonym_alternative_spelling = get_genus_species(:original, :alternative)
   end
 
   def set_secondary_homonym
     self.cached_secondary_homonym = get_genus_species(:curent, :self)
   end
 
-  def set_secondary_homonym_alt
-    self.cached_secondary_homonym_alt = get_genus_species(:curent, :alternative)
+  def set_secondary_homonym_alternative_spelling
+    self.cached_secondary_homonym_alternative_spelling = get_genus_species(:curent, :alternative)
   end
 
   def set_cached_original_combination

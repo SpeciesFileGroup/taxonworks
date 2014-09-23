@@ -24,6 +24,16 @@
 </p>
 
 <p>
+  <strong>Rank:</strong>
+  <%= @taxon_name.rank %> (<%= (@taxon_name.rank_class.nomenclatural_code.upcase) -%>)
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @taxon_name.type %>
+</p>
+
+<p>
   <strong>Cached name:</strong>
   <%= @taxon_name.cached_name ? @taxon_name.cached_name.html_safe : nil %>
 </p>
@@ -39,19 +49,15 @@
 </p>
 
 <p>
-  <strong>Rank class:</strong>
-  <%= @taxon_name.rank_class %>
-</p>
-
-<p>
-  <strong>Type:</strong>
-  <%= @taxon_name.type %>
+  <strong>Cached classified as:</strong>
+  <%= @taxon_name.cached_classified_as %>
 </p>
 
 <p>
   <strong>Cached original combination:</strong>
   <%= @taxon_name.cached_original_combination %>
 </p>
+
 
 <p>
   <strong>Cached secondary homonym:</strong>

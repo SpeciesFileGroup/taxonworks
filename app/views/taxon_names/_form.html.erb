@@ -18,6 +18,12 @@
     </div>
 
     <div class="field">
+      <%= f.label :rank %>
+      <br>
+      <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
+    </div>
+
+    <div class="field">
       <%= f.label :parent %>
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
@@ -25,6 +31,7 @@
                  object:     'taxon_name',
                  method:     'parent_id',
                  tag_id:     'parent_id_for_name',
+                 size: '50%',
                  display:    taxon_name_tag(@taxon_name.parent)} %>
     </div>
 
@@ -39,12 +46,6 @@
       <%= f.text_field :verbatim_author %>
     </div>
 
-    <div class="field">
-      <%= f.label :rank %>
-      <%= @taxon_name.rank_string -%>
-      <br>
-      <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
-    </div>
 
     <div class="field">
       <%= f.label :source %>
@@ -54,8 +55,10 @@
                            object:     'source',
                            method:     'source_id',
                            tag_id:     'source_id_for_taxon_name',
+                           size: '50%',
                            display:    source_tag(@taxon_name.source)} %>
     </div>
+
 
     <%= f.hidden_field :type %>
 

@@ -44,9 +44,8 @@ FactoryGirl.define do
       parent_id nil
     end
 
-
     # Relationship provided factories with short hierarchy
-    factory :relationship_family, class: Protonym do
+    factory :relationship_family do
       name 'Erythroneuridae'
       association :parent, factory: :iczn_kingdom
       year_of_publication 1850

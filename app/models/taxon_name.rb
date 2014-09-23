@@ -10,15 +10,11 @@
 #
 # @!attribute cached_higher_classification:
 #   @return [String]
-#   Returns concatenated list of higher rank taxa.
-#
-# @!attribute cached_higher_classification:
-#   @return [String]
-#   Returns concatenated list of higher rank taxa.
+#   A concatenated list of higher rank taxa.
 #
 # @!attribute cached_original_combination:
 #   @return [String]
-#   Returns original combination.
+#   The name as formed in original combination.
 #
 # @!attribute cached_classified_as:
 #   @return [String]
@@ -32,11 +28,11 @@
 #   @return [String]
 #   Current genus and species name. Used to find and validate secondary homonyms.
 #
-# @!attribute cached_primary_homonym_alt
+# @!attribute cached_primary_homonym_alternative_spelling
 #   @return [String]
 #   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
 #
-# @!attribute cached_secondary_homonym_alt
+# @!attribute cached_secondary_homonym_alternative_spelling
 #   @return [String]
 #   Current genus and species name in alternative spelling. Used to find and validate secondary homonyms.
 #
@@ -854,8 +850,8 @@ class TaxonName < ActiveRecord::Base
         self.cached_original_combination != get_original_combination ||
         self.cached_higher_classification != get_higher_classification ||
         self.cached_primary_homonym != get_genus_species(:original, :self) ||
-        self.cached_primary_homonym_alt != get_genus_species(:original, :alternative) ||
-        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alt != get_genus_species(:curent, :alternative))
+        self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:curent, :alternative))
         cached = false
       end
     end

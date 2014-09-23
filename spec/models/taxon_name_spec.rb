@@ -376,7 +376,7 @@ describe TaxonName, :type => :model do
           specify 'primary homonym' do
             expect(@family.cached_primary_homonym).to eq('Cicadellidae')
             expect(@tribe.cached_primary_homonym).to eq('Erythroneurini')
-            expect(@tribe.cached_primary_homonym_alt).to eq('Erythroneuridae')
+            expect(@tribe.cached_primary_homonym_alternative_spelling).to eq('Erythroneuridae')
             expect(@g1.cached_primary_homonym).to eq('Aus')
             expect(@g2.cached_primary_homonym).to eq('Bus')
             expect(@s1.cached_primary_homonym.blank?).to be_truthy
@@ -400,10 +400,10 @@ describe TaxonName, :type => :model do
             expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
-            expect(@s1.cached_primary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.cached_primary_homonym_alt).to eq('Aus uitata')
-            expect(@s1.cached_secondary_homonym_alt).to eq('Aus uitata')
-            expect(@s2.cached_secondary_homonym_alt).to eq('Bus uitata')
+            expect(@s1.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
+            expect(@s2.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
+            expect(@s1.cached_secondary_homonym_alternative_spelling).to eq('Aus uitata')
+            expect(@s2.cached_secondary_homonym_alternative_spelling).to eq('Bus uitata')
           end
         end
         context 'mismatching cached values' do
