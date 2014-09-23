@@ -1,16 +1,16 @@
 class AlternateValuesController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_alternate_value, only: [:edit, :update, :destroy]
+  before_action :set_alternate_value, only: [:update, :destroy] # :edit removed from this list
 
-  # GET /alternate_values/new
-  def new
-    @alternate_value = AlternateValue.new
-  end
+  # # GET /alternate_values/new
+  # def new
+  #   @alternate_value = AlternateValue.new
+  # end
 
-  # GET /alternate_values/1/edit
-  def edit
-  end
+  # # GET /alternate_values/1/edit
+  # def edit
+  # end
 
   # POST /alternate_values
   # POST /alternate_values.json

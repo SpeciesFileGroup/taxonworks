@@ -16,6 +16,8 @@ class PinboardItemsController < ApplicationController
     end
   end
 
+  # Need update to order
+
   # DELETE /pinboard_items/1
   # DELETE /pinboard_items/1.json
   def destroy
