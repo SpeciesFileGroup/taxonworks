@@ -57,7 +57,7 @@ gem 'paperclip', '~> 4.2'
 gem 'acts_as_list'
 
 # Versioning
-gem 'paper_trail', '~> 3.0.0'
+gem 'paper_trail', '~> 3.0.5'
 
 # DwC-A archive handling 
 gem 'dwc-archive', '~> 0.9.11'

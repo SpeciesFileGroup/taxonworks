@@ -109,7 +109,6 @@
 # @!all_generic_placements #array of genera where the species was placed
 #
 class TaxonName < ActiveRecord::Base
-
   include Housekeeping
   include Shared::Identifiable
   include Shared::DataAttributes
@@ -142,6 +141,9 @@ class TaxonName < ActiveRecord::Base
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+
+  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
+  has_paper_trail
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }

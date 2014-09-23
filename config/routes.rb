@@ -23,6 +23,8 @@ TaxonWorks::Application.routes.draw do
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
 
+  match '/papertrail', to: 'papertrail#papertrail', via: :get
+
   resources :projects do
     concerns [:data_routes]
     member do

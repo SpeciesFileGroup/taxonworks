@@ -6,6 +6,8 @@
     <%= forward_back_links(object) -%> <br>
     <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
     <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+    <br>
+    <%= papertrail_link(object) -%>
   </div>
 
   <div class="item item2">
