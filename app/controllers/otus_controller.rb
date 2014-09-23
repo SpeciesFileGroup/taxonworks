@@ -68,7 +68,11 @@ class OtusController < ApplicationController
   end
 
   def search
-    redirect_to otu_path(params[:otu][:id])
+    if params[:otu] && params[:otu][:id]
+      redirect_to otu_path(params[:otu][:id])
+    else
+      redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

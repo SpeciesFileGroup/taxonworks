@@ -66,8 +66,6 @@ class Protonym < TaxonName
 
   end
 
-
-
   scope :named, -> (name) {where(name: name)}
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 

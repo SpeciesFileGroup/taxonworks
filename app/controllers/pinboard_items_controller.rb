@@ -4,9 +4,7 @@ class PinboardItemsController < ApplicationController
   # POST /pinboard_items
   # POST /pinboard_items.json
   def create
-    # .merge(user_id: @sessions_current_user.id)
-    @pinboard_item = PinboardItem.new(pinboard_item_params)
-
+    @pinboard_item = PinboardItem.new(pinboard_item_params.merge(user_id: sessions_current_user_id))
     respond_to do |format|
       if @pinboard_item.save
         format.html { redirect_to :back, notice: 'Pinboard item was successfully created.' }

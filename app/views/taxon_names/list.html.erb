@@ -12,7 +12,7 @@
     <th>Source</th>
     <th>Year of publication</th>
     <th>Verbatim author</th>
-    <th>Rank class</th>
+    <th>Rank</th>
     <th>Type</th>
     <th>Updated by</th>
     <th>Last updated</th>
@@ -27,11 +27,11 @@
       <tr>
         <td><%= taxon_name.name %></td>
         <td><%= object_tag(taxon_name.parent) %></td>
-        <td><%= taxon_name.cached_name %></td>
+        <td><%= taxon_name.cached_name ? taxon_name.cached_name.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
         <td><%= object_tag(taxon_name.source) %></td>
         <td><%= taxon_name.year_of_publication %></td>
         <td><%= taxon_name.verbatim_author %></td>
-        <td><%= taxon_name.rank_class %></td>
+        <td><%= taxon_name.rank %></td>
         <td><%= taxon_name.type %></td>
         <td><%= object_tag(taxon_name.updater) %></td>
         <td><%= object_time_since_update_tag(taxon_name) %></td>
