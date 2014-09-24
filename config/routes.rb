@@ -53,7 +53,7 @@ TaxonWorks::Application.routes.draw do
   resources :alternate_values, except: [:index, :show, :list]
   resources :biocuration_classifications
   resources :citation_topics
-  resources :citations do
+  resources :citations, except: :show  do
     concerns [:data_routes]
   end
   resources :collecting_events do
@@ -72,7 +72,7 @@ TaxonWorks::Application.routes.draw do
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
-  resources :data_attributes
+  resources :data_attributes, except: [:show, :list]
   resources :geographic_area_types
   resources :geographic_areas do
     concerns [:data_routes]

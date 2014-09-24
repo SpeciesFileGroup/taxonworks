@@ -26,7 +26,7 @@ describe CitationsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Citation. As you add validations to Citation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes( FactoryGirl.build(:valid_citation).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_citation).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -41,28 +41,9 @@ describe CitationsController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested citation as @citation" do
-      citation = Citation.create! valid_attributes
-      get :show, {:id => citation.to_param}, valid_session
-      expect(assigns(:citation)).to eq(citation)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new citation as @citation" do
-      get :new, {}, valid_session
-      expect(assigns(:citation)).to be_a_new(Citation)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested citation as @citation" do
-      citation = Citation.create! valid_attributes
-      get :edit, {:id => citation.to_param}, valid_session
-      expect(assigns(:citation)).to eq(citation)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +59,9 @@ describe CitationsController, :type => :controller do
         expect(assigns(:citation)).to be_persisted
       end
 
-      it "redirects to the created citation" do
+      it "redirects to :back" do
         post :create, {:citation => valid_attributes}, valid_session
-        expect(response).to redirect_to(Citation.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -88,15 +69,15 @@ describe CitationsController, :type => :controller do
       it "assigns a newly created but unsaved citation as @citation" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        post :create, {:citation => { bar: 'foo'  }}, valid_session
+        post :create, {:citation => {bar: 'foo'}}, valid_session
         expect(assigns(:citation)).to be_a_new(Citation)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        post :create, {:citation => { bar: 'foo'  }}, valid_session
-        expect(response).to render_template("new")
+        post :create, {:citation => {bar: 'foo'}}, valid_session
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -110,8 +91,8 @@ describe CitationsController, :type => :controller do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         o = Otu.create(name: 'bar')
-        expect_any_instance_of(Citation).to receive(:update).with({ 'citation_object_type' => 'Otu', 'citation_object_id' => o.id.to_s })
-        put :update, {:id => citation.to_param, :citation => { citation_object_type: 'Otu', citation_object_id:  o.id  }}, valid_session
+        expect_any_instance_of(Citation).to receive(:update).with({'citation_object_type' => 'Otu', 'citation_object_id' => o.id.to_s})
+        put :update, {:id => citation.to_param, :citation => {citation_object_type: 'Otu', citation_object_id: o.id}}, valid_session
       end
 
       it "assigns the requested citation as @citation" do
@@ -120,10 +101,10 @@ describe CitationsController, :type => :controller do
         expect(assigns(:citation)).to eq(citation)
       end
 
-      it "redirects to the citation" do
+      it "redirects to :back" do
         citation = Citation.create! valid_attributes
         put :update, {:id => citation.to_param, :citation => valid_attributes}, valid_session
-        expect(response).to redirect_to(citation)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -132,16 +113,16 @@ describe CitationsController, :type => :controller do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => { bar: 'Foo' }}, valid_session
+        put :update, {:id => citation.to_param, :citation => {bar: 'Foo'}}, valid_session
         expect(assigns(:citation)).to eq(citation)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => { bar: 'Foo'  }}, valid_session
-        expect(response).to render_template("edit")
+        put :update, {:id => citation.to_param, :citation => {bar: 'Foo'}}, valid_session
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -154,10 +135,10 @@ describe CitationsController, :type => :controller do
       }.to change(Citation, :count).by(-1)
     end
 
-    it "redirects to the citations list" do
+    it "redirects to :back" do
       citation = Citation.create! valid_attributes
       delete :destroy, {:id => citation.to_param}, valid_session
-      expect(response).to redirect_to(citations_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

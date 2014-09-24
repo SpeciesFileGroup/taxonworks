@@ -2,22 +2,13 @@ class CitationsController < ApplicationController
   include DataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_citation, only: [:edit, :update, :destroy]
+  before_action :set_citation, only: [:update, :destroy]
 
   # GET /citations
   # GET /citations.json
   def index
     @citations = Citation.all
     @recent_objects = Citation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-  end
-
-  # GET /citations/new
-  def new
-    @citation = Citation.new
-  end
-
-  # GET /citations/1/edit
-  def edit
   end
 
   # POST /citations

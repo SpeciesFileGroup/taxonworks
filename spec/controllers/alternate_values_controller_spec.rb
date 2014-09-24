@@ -33,11 +33,11 @@ describe AlternateValuesController, :type => :controller do
   # AlternateValuesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe 'POST create' do
-    before {
-      request.env['HTTP_REFERER'] = list_otus_path # logical example
-    }
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
+  describe 'POST create' do
     describe 'with valid params' do
       it 'creates a new AlternateValue' do
         expect {
@@ -53,7 +53,6 @@ describe AlternateValuesController, :type => :controller do
 
       it 'redirects to :back' do
         post :create, {:alternate_value => valid_attributes}, valid_session
-        # expect(response).to redirect_to(AlternateValue.last.becomes(AlternateValue))
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -76,10 +75,6 @@ describe AlternateValuesController, :type => :controller do
   end
 
   describe 'PUT update' do
-    before {
-      request.env['HTTP_REFERER'] = list_otus_path
-    }
-
     describe 'with valid params' do
       it 'updates the requested alternate_value' do
         alternate_value = AlternateValue.create! valid_attributes
@@ -124,10 +119,6 @@ describe AlternateValuesController, :type => :controller do
   end
 
   describe 'DELETE destroy' do
-    before {
-      request.env['HTTP_REFERER'] = list_otus_path
-    }
-
     it 'destroys the requested alternate_value' do
       alternate_value = AlternateValue.create! valid_attributes
       expect {

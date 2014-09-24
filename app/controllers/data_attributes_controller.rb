@@ -1,7 +1,7 @@
 class DataAttributesController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_data_attribute, only: [:edit, :update, :destroy]
+  before_action :set_data_attribute, only: [:update, :destroy]
 
   # GET /data_attributes
   # GET /data_attributes.json
@@ -9,14 +9,14 @@ class DataAttributesController < ApplicationController
     @data_attributes = DataAttribute.all
   end
 
-  # GET /data_attributes/new
-  def new
-    @data_attribute = DataAttribute.new
-  end
-
-  # GET /data_attributes/1/edit
-  def edit
-  end
+  # # GET /data_attributes/new
+  # def new
+  #   @data_attribute = DataAttribute.new
+  # end
+  #
+  # # GET /data_attributes/1/edit
+  # def edit
+  # end
 
   # POST /data_attributes
   # POST /data_attributes.json
@@ -25,7 +25,7 @@ class DataAttributesController < ApplicationController
 
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to ":back", notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to :back, notice: 'Data attribute was successfully created.' }
         format.json { render action: 'show', status: :created, location: @data_attribute }
       else
         format.html { redirect_to :back, notice: 'Data attribute was NOT successfully created.' }
