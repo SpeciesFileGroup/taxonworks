@@ -8,7 +8,7 @@ class PinboardItemsController < ApplicationController
     respond_to do |format|
       if @pinboard_item.save
         format.html { redirect_to :back, notice: 'Pinboard item was successfully created.' }
-        format.json { render :show, status: :created, location: @pinboard_item }
+        format.json { render json: @pinboard_item, status: :created, location: @pinboard_item }
       else
         format.html { redirect_to :back, notice: "Couldn't pin this item! Is it already there?" }
         format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }

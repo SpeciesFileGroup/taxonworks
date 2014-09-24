@@ -8,12 +8,6 @@ class TagsController < ApplicationController
   def index
     @tags           = Tag.all
     @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-
-  end
-
-  # GET /tags/new
-  def new
-    @tag = Tag.new
   end
 
 # POST /tags
@@ -24,7 +18,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to :back, notice: 'Tag was successfully created.' }
-        format.json { render :show, status: :created, location: @tag }
+        format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
           # if redirect_url == :back
@@ -44,7 +38,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.update(tag_params)
         format.html { redirect_to :back, notice: 'Tag was successfully updated.' }
-        format.json { render :show, status: :ok, location: @tag }
+        format.json { render json: @tag, status: :ok, location: @tag }
       else
         format.html { redirect_to :back, notice: 'Tag was NOT successfully updated.' }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
@@ -55,9 +49,8 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
+    # redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
     @tag.destroy
-
     respond_to do |format|
       format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }

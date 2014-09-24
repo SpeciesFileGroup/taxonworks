@@ -41,34 +41,38 @@ describe TagsController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested tag as @tag" do
-      tag = Tag.create! valid_attributes
-      get :show, {:id => tag.to_param}, valid_session
-      expect(assigns(:tag)).to eq(tag)
-    end
-  end
+  # describe "GET show" do
+  #   it "assigns the requested tag as @tag" do
+  #     tag = Tag.create! valid_attributes
+  #     get :show, {:id => tag.to_param}, valid_session
+  #     expect(assigns(:tag)).to eq(tag)
+  #   end
+  # end
+  #
+  # describe "GET new" do
+  #   it "assigns a new tag as @tag" do
+  #     get :new, {}, valid_session
+  #     expect(assigns(:tag)).to be_a_new(Tag)
+  #   end
+  # end
+  #
+  # describe "GET edit" do
+  #   it "assigns the requested tag as @tag" do
+  #     tag = Tag.create! valid_attributes
+  #     get :edit, {:id => tag.to_param}, valid_session
+  #     expect(assigns(:tag)).to eq(tag)
+  #   end
+  # end
 
-  describe "GET new" do
-    it "assigns a new tag as @tag" do
-      get :new, {}, valid_session
-      expect(assigns(:tag)).to be_a_new(Tag)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
-  describe "GET edit" do
-    it "assigns the requested tag as @tag" do
-      tag = Tag.create! valid_attributes
-      get :edit, {:id => tag.to_param}, valid_session
-      expect(assigns(:tag)).to eq(tag)
-    end
-  end
-
-  describe "POST create" do
-    context 'originating from new_tag_path()' do
-      before {
-        request.env["HTTP_REFERER"] = new_tag_path
-      }
+  describe "POST create" do  # todo @mjy since there is no new_tag_path anymore, can this structure be simplified? Not really different from some of the other ones.
+    # context 'originating from new_tag_path()' do
+    #   before {
+    #     request.env["HTTP_REFERER"] = new_tag_path
+    #   }
 
       describe "with valid params" do
         it "creates a new Tag" do
@@ -83,9 +87,9 @@ describe TagsController, :type => :controller do
           expect(assigns(:tag)).to be_persisted
         end
 
-        it "redirects to the created tag" do
+        it "redirects to :back" do
           post :create, {:tag => valid_attributes}, valid_session
-          expect(response).to redirect_to(Tag.last)
+          expect(response).to redirect_to(list_otus_path)
         end
       end
 
@@ -97,31 +101,31 @@ describe TagsController, :type => :controller do
           expect(assigns(:tag)).to be_a_new(Tag)
         end
 
-        it "re-renders the 'new' template" do
+        it "re-renders the :back template" do
           # Trigger the behavior that occurs when invalid params are submitted
           allow_any_instance_of(Tag).to receive(:save).and_return(false)
           post :create, {:tag => { "keyword_id" => "invalid value" }}, valid_session
-          expect(response).to render_template("new")
+          expect(response).to redirect_to(list_otus_path)
         end
       end
-    end
+    # end
 
-    context 'NOT originating from new_tag_path()' do
-      before {
-        @referer = hub_path
-        request.env["HTTP_REFERER"] = @referer # just picking a non-new path
-      }
-
-      it 'redirects to :back on successfull create' do
-        post :create, {:tag => valid_attributes}, valid_session
-        expect(response).to redirect_to(@referer)
-      end
-
-      it 'redirects to :back on unsuccessfull create' do
-        post :create, {:tag => { "keyword_id" => "invalid value" } }, valid_session
-        expect(response).to redirect_to(@referer)
-      end
-    end
+    # context 'NOT originating from new_tag_path()' do
+    #   before {
+    #     @referer = hub_path
+    #     request.env["HTTP_REFERER"] = @referer # just picking a non-new path
+    #   }
+    #
+    #   it 'redirects to :back on successful create' do
+    #     post :create, {:tag => valid_attributes}, valid_session
+    #     expect(response).to redirect_to(@referer)
+    #   end
+    #
+    #   it 'redirects to :back on unsuccessful create' do
+    #     post :create, {:tag => { "keyword_id" => "invalid value" } }, valid_session
+    #     expect(response).to redirect_to(@referer)
+    #   end
+    # end
 
   end
 
@@ -143,10 +147,10 @@ describe TagsController, :type => :controller do
         expect(assigns(:tag)).to eq(tag)
       end
 
-      it "redirects to the tag" do
+      it "redirects to :back" do
         tag = Tag.create! valid_attributes
         put :update, {:id => tag.to_param, :tag => valid_attributes}, valid_session
-        expect(response).to redirect_to(tag)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -159,18 +163,18 @@ describe TagsController, :type => :controller do
         expect(assigns(:tag)).to eq(tag)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         tag = Tag.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Tag).to receive(:save).and_return(false)
         put :update, {:id => tag.to_param, :tag => { "keyword_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
   describe "DELETE destroy" do
-    context 'originating from tag_path()' do
+    # context 'originating from tag_path()' do
       before {
         @tag = Tag.create! valid_attributes
         request.env["HTTP_REFERER"] = tag_path(@tag)
@@ -182,21 +186,22 @@ describe TagsController, :type => :controller do
         }.to change(Tag, :count).by(-1)
       end
 
-      it "redirects to the tags list if arriving from tag_path" do
+      it "redirects to :back" do
+      #   it "redirects to the tags list if arriving from tag_path" do
         delete :destroy, {:id => @tag.to_param}, valid_session
-        expect(response).to redirect_to(tags_url)
-      end
+        expect(response).to redirect_to(list_otus_path)
+      # end
     end
 
-    context 'originating from somewhere else' do
-      it "redirects to :back tags list if not arriving from tag_path" do
-        p = hub_path
-        request.env["HTTP_REFERER"] = p
-        tag = Tag.create! valid_attributes
-        delete :destroy, {:id => tag.to_param}, valid_session
-        expect(response).to redirect_to(p)
-      end
-    end
+    # context 'originating from somewhere else' do
+    #   it "redirects to :back tags list if not arriving from tag_path" do
+    #     p = hub_path
+    #     request.env["HTTP_REFERER"] = p
+    #     tag = Tag.create! valid_attributes
+    #     delete :destroy, {:id => tag.to_param}, valid_session
+    #     expect(response).to redirect_to(p)
+    #   end
+    # end
 
 
   end

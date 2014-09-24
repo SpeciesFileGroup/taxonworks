@@ -1,21 +1,12 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_identifier, only: [:edit, :update, :destroy]
+  before_action :set_identifier, only: [:update, :destroy]
 
   # GET /identifiers
   # GET /identifiers.json
   def index
     @identifiers = Identifier.all
-  end
-
-  # GET /identifiers/new
-  def new
-    @identifier = Identifier.new
-  end
-
-  # GET /identifiers/1/edit
-  def edit
   end
 
   # POST /identifiers

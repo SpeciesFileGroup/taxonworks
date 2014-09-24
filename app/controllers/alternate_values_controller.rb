@@ -11,7 +11,7 @@ class AlternateValuesController < ApplicationController
     respond_to do |format|
       if @alternate_value.save
         format.html { redirect_to :back, notice: 'Alternate value was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @alternate_value }
+        format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }

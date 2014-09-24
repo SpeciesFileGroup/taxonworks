@@ -2,7 +2,7 @@ class SerialChronologiesController < ApplicationController
   include DataControllerConfiguration
 
   before_action :require_sign_in
-  before_action :set_serial_chronology, only: [:edit, :update, :destroy]
+  before_action :set_serial_chronology, only: [:update, :destroy]
 
   # POST /serial_chronologies
   # POST /serial_chronologies.json
@@ -12,7 +12,7 @@ class SerialChronologiesController < ApplicationController
     respond_to do |format|
       if @serial_chronology.save
         format.html { redirect_to :back, notice: 'Serial chronology was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @serial_chronology }
+        format.json { render json: @serial_chronology, status: :created, location: @serial_chronology }
       else
         format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully created.' }
         format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }

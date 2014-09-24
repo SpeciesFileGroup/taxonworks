@@ -40,7 +40,7 @@ TaxonWorks::Application.routes.draw do
   match '/hub', to: 'hub#index', via: 'get'
   match '/administration', to: 'administration#index', via: 'get'
 
-  resources :pinboard_items
+  resources :pinboard_items, only: [:create, :destroy]
 
   #
   # Unvetted/not fully tested Stubbed
@@ -80,7 +80,7 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas_geographic_items
   resources :geographic_items
   resources :georeferences
-  resources :identifiers
+  resources :identifiers, except: [:show, :list]
   resources :loan_items
   resources :loans do
     concerns [:data_routes]
@@ -102,13 +102,13 @@ TaxonWorks::Application.routes.draw do
   resources :repositories do
     concerns [:data_routes]
   end
-  resources :serial_chronologies
+  resources :serial_chronologies, only: [:create, :update, :destroy]
   resources :serials
   resources :sources do
     concerns [:data_routes]
   end
   resources :tagged_section_keywords
-  resources :tags do
+  resources :tags, only: [:create, :update, :destroy, :index] do
     concerns [:data_routes]
   end
   resources :taxon_determinations
