@@ -1,16 +1,7 @@
 class CitationTopicsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_citation_topic, only: [:edit, :update, :destroy]
-
-  # GET /citation_topics/new
-  def new
-    @citation_topic = CitationTopic.new
-  end
-
-  # GET /citation_topics/1/edit
-  def edit
-  end
+  before_action :set_citation_topic, only: [:update, :destroy]
 
   # POST /citation_topics
   # POST /citation_topics.json
@@ -20,7 +11,7 @@ class CitationTopicsController < ApplicationController
     respond_to do |format|
       if @citation_topic.save
         format.html { redirect_to :back, notice: 'Citation topic was successfully created.' }
-        format.json { render :show, status: :created, location: @citation_topic }
+        format.json { render json: @citation_topic, status: :created, location: @citation_topic }
       else
         format.html { redirect_to :back, notice: 'Citation topic was NOT successfully created.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
@@ -34,7 +25,7 @@ class CitationTopicsController < ApplicationController
     respond_to do |format|
       if @citation_topic.update(citation_topic_params)
         format.html { redirect_to :back, notice: 'Citation topic was successfully updated.' }
-        format.json { render :show, status: :ok, location: @citation_topic }
+        format.json { render json: @citation_topic, status: :ok, location: @citation_topic }
       else
         format.html { redirect_to :back, notice: 'Citation topic was NOT successfully updated.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
@@ -47,7 +38,7 @@ class CitationTopicsController < ApplicationController
   def destroy
     @citation_topic.destroy
     respond_to do |format|
-      format.html { rredirect_to :back, notice: 'Citation topic was successfully destroyed.' }
+      format.html { redirect_to :back, notice: 'Citation topic was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

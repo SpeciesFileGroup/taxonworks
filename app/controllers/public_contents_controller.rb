@@ -1,7 +1,7 @@
 class PublicContentsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_public_content, only: [:edit, :update, :destroy]
+  before_action :set_public_content, only: [:update, :destroy]
 
   # POST /public_contents
   # POST /public_contents.json
@@ -11,9 +11,9 @@ class PublicContentsController < ApplicationController
     respond_to do |format|
       if @public_content.save
         format.html { redirect_to :back, notice: 'Public content was successfully created.' }
-        format.json { render :show, status: :created, location: @public_content }
+        format.json { render json: @public_content, status: :created, location: @public_content }
       else
-        format.html { rredirect_to :back, notice: 'Public content was NOT successfully created.' }
+        format.html { redirect_to :back, notice: 'Public content was NOT successfully created.' }
         format.json { render json: @public_content.errors, status: :unprocessable_entity }
       end
     end
@@ -25,7 +25,7 @@ class PublicContentsController < ApplicationController
     respond_to do |format|
       if @public_content.update(public_content_params)
         format.html { redirect_to :back, notice: 'Public content was successfully updated.' }
-        format.json { render :show, status: :ok, location: @public_content }
+        format.json { render @public_content, status: :ok, location: @public_content }
       else
         format.html { redirect_to :back, notice: 'Public content was NOT successfully updated.' }
         format.json { render json: @public_content.errors, status: :unprocessable_entity }

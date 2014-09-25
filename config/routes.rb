@@ -50,10 +50,10 @@ TaxonWorks::Application.routes.draw do
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
-  resources :alternate_values, except: [:index, :show, :list]
-  resources :biocuration_classifications
-  resources :citation_topics
-  resources :citations, except: :show  do
+  resources :alternate_values, only: [:create, :update, :destroy]
+  resources :biocuration_classifications, only: [:create, :update, :destroy]
+  resources :citation_topics, only: [:create, :update, :destroy]
+  resources :citations, except: [:new, :edit, :show]  do
     concerns [:data_routes]
   end
   resources :collecting_events do
@@ -72,7 +72,7 @@ TaxonWorks::Application.routes.draw do
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
-  resources :data_attributes, except: [:show, :list]
+  resources :data_attributes, only: [:create, :update, :destroy, :index]
   resources :geographic_area_types
   resources :geographic_areas do
     concerns [:data_routes]
@@ -80,16 +80,16 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas_geographic_items
   resources :geographic_items
   resources :georeferences
-  resources :identifiers, except: [:show, :list]
-  resources :loan_items
+  resources :identifiers, only: [:create, :update, :destroy, :index]
+  resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
     concerns [:data_routes]
   end
   resources :namespaces do
     concerns [:data_routes]
   end
-  resources :notes
-  resources :otu_page_layout_sections
+  resources :notes, except: [:new, :edit, :show]
+  resources :otu_page_layout_sections, only: [:create, :update, :destroy]
   resources :otu_page_layouts
   resources :otus do
     concerns [:data_routes]
@@ -97,7 +97,7 @@ TaxonWorks::Application.routes.draw do
   resources :people do
     concerns [:data_routes]
   end
-  resources :public_contents
+  resources :public_contents, only: [:create, :update, :destroy]
   resources :ranged_lot_categories
   resources :repositories do
     concerns [:data_routes]
@@ -107,7 +107,7 @@ TaxonWorks::Application.routes.draw do
   resources :sources do
     concerns [:data_routes]
   end
-  resources :tagged_section_keywords
+  resources :tagged_section_keywords, only: [:create, :update, :destroy]
   resources :tags, only: [:create, :update, :destroy, :index] do
     concerns [:data_routes]
   end
@@ -115,7 +115,7 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_names do
     concerns [:data_routes]
   end
-  resources :taxon_name_classifications
+  resources :taxon_name_classifications, only: [:create, :update, :destroy]
   resources :taxon_name_relationships
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'

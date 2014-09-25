@@ -3,11 +3,6 @@ class TaxonNameClassificationsController < ApplicationController
 
   before_action :set_taxon_name_classification, only: [:update, :destroy]
 
-  # GET /taxon_name_classifications/new
-  def new
-    @taxon_name_classification = TaxonNameClassification.new
-  end
-
   # POST /taxon_name_classifications
   # POST /taxon_name_classifications.json
   def create
@@ -16,7 +11,7 @@ class TaxonNameClassificationsController < ApplicationController
     respond_to do |format|
       if @taxon_name_classification.save
         format.html { redirect_to :back, notice: 'Taxon name classification was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @taxon_name_classification.becomes(TaxonNameClassification) }
+        format.json { render json: @taxon_name_classification, status: :created, location: @taxon_name_classification.becomes(TaxonNameClassification) }
       else
         format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully created.' }
         format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }

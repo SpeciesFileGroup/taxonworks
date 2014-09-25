@@ -35,6 +35,19 @@ describe CollectionObjectsController, :type => :controller do
   # CollectionObjectsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page collection_objects as @collection_objects" do
+      collection_object = CollectionObject.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:collection_objects)).to include(collection_object)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all collection_objects as @recent_objects" do
       collection_object = CollectionObject.create! valid_attributes

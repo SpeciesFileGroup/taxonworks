@@ -1,16 +1,7 @@
 class LoanItemsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_loan_item, only: [:edit, :update, :destroy]  # todo @mjy edit is action no view
-
-  # GET /loan_items/new
-  def new
-    @loan_item = LoanItem.new
-  end
-
-  # GET /loan_items/1/edit
-  def edit
-  end
+  before_action :set_loan_item, only: [:update, :destroy]
 
   # POST /loan_items
   # POST /loan_items.json
@@ -20,7 +11,7 @@ class LoanItemsController < ApplicationController
     respond_to do |format|
       if @loan_item.save
         format.html { redirect_to :back, notice: 'Loan item was successfully created.' }
-        format.json { render :show, status: :created, location: @loan_item }
+        format.json { render json: @loan_item, status: :created, location: @loan_item }
       else
         format.html { redirect_to :back, notice: 'Loan item was NOT successfully created.' }
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }

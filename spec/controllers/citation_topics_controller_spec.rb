@@ -33,36 +33,9 @@ describe CitationTopicsController, :type => :controller do
   # CitationTopicsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all citation_topics as @citation_topics" do
-      citation_topic = CitationTopic.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:citation_topics)).to eq([citation_topic])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested citation_topic as @citation_topic" do
-      citation_topic = CitationTopic.create! valid_attributes
-      get :show, {:id => citation_topic.to_param}, valid_session
-      expect(assigns(:citation_topic)).to eq(citation_topic)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new citation_topic as @citation_topic" do
-      get :new, {}, valid_session
-      expect(assigns(:citation_topic)).to be_a_new(CitationTopic)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested citation_topic as @citation_topic" do
-      citation_topic = CitationTopic.create! valid_attributes
-      get :edit, {:id => citation_topic.to_param}, valid_session
-      expect(assigns(:citation_topic)).to eq(citation_topic)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +51,9 @@ describe CitationTopicsController, :type => :controller do
         expect(assigns(:citation_topic)).to be_persisted
       end
 
-      it "redirects to the created citation_topic" do
+      it "redirects to :back" do
         post :create, {:citation_topic => valid_attributes}, valid_session
-        expect(response).to redirect_to(CitationTopic.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,11 +65,11 @@ describe CitationTopicsController, :type => :controller do
         expect(assigns(:citation_topic)).to be_a_new(CitationTopic)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         post :create, {:citation_topic => {bar: 'Foo'  }}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -120,10 +93,10 @@ describe CitationTopicsController, :type => :controller do
         expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
-      it "redirects to the citation_topic" do
+      it "redirects to :back" do
         citation_topic = CitationTopic.create! valid_attributes
         put :update, {:id => citation_topic.to_param, :citation_topic => valid_attributes}, valid_session
-        expect(response).to redirect_to(citation_topic)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -136,12 +109,12 @@ describe CitationTopicsController, :type => :controller do
         expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         put :update, {:id => citation_topic.to_param, :citation_topic => { foo: 'bar'  }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -154,10 +127,10 @@ describe CitationTopicsController, :type => :controller do
       }.to change(CitationTopic, :count).by(-1)
     end
 
-    it "redirects to the citation_topics list" do
+    it "redirects to :back" do
       citation_topic = CitationTopic.create! valid_attributes
       delete :destroy, {:id => citation_topic.to_param}, valid_session
-      expect(response).to redirect_to(citation_topics_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

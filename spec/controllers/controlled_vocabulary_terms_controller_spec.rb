@@ -48,8 +48,6 @@ describe ControlledVocabularyTermsController, :type => :controller do
     end
   end
 
-
-
   describe "GET index" do
     it "assigns all controlled_vocabulary_terms as @recent_objects" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes

@@ -33,6 +33,19 @@ describe ContentsController, :type => :controller do
   # ContentsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page contents as @contents" do
+      content = Content.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:contents)).to include(content)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all contents as @contents" do
       content = Content.create! valid_attributes

@@ -33,6 +33,19 @@ describe RangedLotCategoriesController, :type => :controller do
   # RangedLotCategoriesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page ranged_lot_categories as @ranged_lot_categories" do
+      ranged_lot_category = RangedLotCategory.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:ranged_lot_categories)).to include(ranged_lot_category)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all ranged_lot_categories as @ranged_lot_categories" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes

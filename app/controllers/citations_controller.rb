@@ -19,7 +19,7 @@ class CitationsController < ApplicationController
     respond_to do |format|
       if @citation.save
         format.html { redirect_to :back, notice: 'Citation was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @citation }
+        format.json { render json: @citation, status: :created, location: @citation }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }

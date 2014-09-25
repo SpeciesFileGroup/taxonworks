@@ -1,7 +1,7 @@
 class OtuPageLayoutSectionsController < ApplicationController
   include DataControllerConfiguration
 
-  before_action :set_otu_page_layout_section, only: [:edit, :update, :destroy]
+  before_action :set_otu_page_layout_section, only: [:update, :destroy]
 
   # POST /otu_page_layout_sections
   # POST /otu_page_layout_sections.json
@@ -11,7 +11,7 @@ class OtuPageLayoutSectionsController < ApplicationController
     respond_to do |format|
       if @otu_page_layout_section.save
         format.html { redirect_to :back, notice: 'Otu page layout section was successfully created.' }
-        format.json { render :show, status: :created, location: @otu_page_layout_section }
+        format.json { render json: @otu_page_layout_section, status: :created, location: @otu_page_layout_section }
       else
         format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully created.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
@@ -25,7 +25,7 @@ class OtuPageLayoutSectionsController < ApplicationController
     respond_to do |format|
       if @otu_page_layout_section.update(otu_page_layout_section_params)
         format.html { redirect_to :back, notice: 'Otu page layout section was successfully updated.' }
-        format.json { render :show, status: :ok, location: @otu_page_layout_section }
+        format.json { render json @otu_page_layout_section, status: :ok, location: @otu_page_layout_section }
       else
         format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully updated.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }

@@ -17,7 +17,7 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       if @identifier.save
         format.html { redirect_to :back, notice: 'Identifier was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
+        format.json { render json: @identifier, status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { redirect_to :back, notice: 'Identifier was NOT successfully created.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
