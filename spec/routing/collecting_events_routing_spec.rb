@@ -7,6 +7,10 @@ describe CollectingEventsController, :type => :routing do
       expect(get("/collecting_events")).to route_to("collecting_events#index")
     end
 
+    it "routes to #list" do
+      expect(get("/collecting_events/list")).to route_to("collecting_events#list")
+    end
+
     it "routes to #new" do
       expect(get("/collecting_events/new")).to route_to("collecting_events#new")
     end
