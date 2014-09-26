@@ -61,7 +61,6 @@ gem 'paper_trail', '~> 3.0.5'
 
 # DwC-A archive handling 
 gem 'dwc-archive', '~> 0.9.11'
-gem 'biodiversity', '3.1.5' # Workaround rails' treetop dependency incompatibility with dwc-archive
 
 gem 'validates_timeliness', '~> 3.0.14'
 
