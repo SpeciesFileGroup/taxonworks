@@ -7,6 +7,10 @@ describe OtusController, :type => :routing do
       expect(get("/otus")).to route_to("otus#index")
     end
 
+    it "routes to #list" do
+      expect(get("/otus/list")).to route_to("otus#list")
+    end
+
     it "routes to #new" do
       expect(get("/otus/new")).to route_to("otus#new")
     end

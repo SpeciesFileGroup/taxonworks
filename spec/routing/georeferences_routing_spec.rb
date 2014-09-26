@@ -7,6 +7,10 @@ describe GeoreferencesController, :type => :routing do
       expect(get("/georeferences")).to route_to("georeferences#index")
     end
 
+    it "routes to #list" do
+      expect(get("/georeferences/list")).to route_to("georeferences#list")
+    end
+
     it "routes to #new" do
       expect(get("/georeferences/new")).to route_to("georeferences#new")
     end

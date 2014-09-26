@@ -7,16 +7,8 @@ describe NotesController, :type => :routing do
       expect(get("/notes")).to route_to("notes#index")
     end
 
-    it "routes to #new" do
-      expect(get("/notes/new")).to route_to("notes#new")
-    end
-
-    it "routes to #show" do
-      expect(get("/notes/1")).to route_to("notes#show", :id => "1")
-    end
-
-    it "routes to #edit" do
-      expect(get("/notes/1/edit")).to route_to("notes#edit", :id => "1")
+    it "routes to #list" do
+      expect(get("/notes/list")).to route_to("notes#list")
     end
 
     it "routes to #create" do

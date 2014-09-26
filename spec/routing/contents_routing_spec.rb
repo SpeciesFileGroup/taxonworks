@@ -7,6 +7,10 @@ describe ContentsController, :type => :routing do
       expect(get("/contents")).to route_to("contents#index")
     end
 
+    it "routes to #list" do
+      expect(get("/contents/list")).to route_to("contents#list")
+    end
+
     it "routes to #new" do
       expect(get("/contents/new")).to route_to("contents#new")
     end

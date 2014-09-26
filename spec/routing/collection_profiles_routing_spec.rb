@@ -7,6 +7,10 @@ describe CollectionProfilesController, :type => :routing do
       expect(get("/collection_profiles")).to route_to("collection_profiles#index")
     end
 
+    it "routes to #list" do
+      expect(get("/collection_profiles/list")).to route_to("collection_profiles#list")
+    end
+
     it "routes to #new" do
       expect(get("/collection_profiles/new")).to route_to("collection_profiles#new")
     end
