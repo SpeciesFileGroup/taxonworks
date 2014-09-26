@@ -1,34 +1,32 @@
 <h1>Collection Profiles</h1>
-<!-- todo @mjy Where should the link to list be placed? Please finish this as a template for the other new list views -->
-<%= link_to 'List', '/collection_profiles/list' %>
 
 <table>
   <thead>
-    <tr>
-      <th>Container</th>
-      <th>Otu</th>
-      <th>Conservation status</th>
-      <th>Processing state</th>
-      <th>Container condition</th>
-      <th>Condition of labels</th>
-      <th>Identification level</th>
-      <th>Arrangement level</th>
-      <th>Data quality</th>
-      <th>Computerization level</th>
-      <th>Number of collection objects</th>
-      <th>Number of containers</th>
-      <th>Created by</th>
-      <th>Updated by</th>
-      <th>Project</th>
-      <th>Collection type</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
+  <tr>
+    <th>Container</th>
+    <th>Otu</th>
+    <th>Conservation status</th>
+    <th>Processing state</th>
+    <th>Container condition</th>
+    <th>Condition of labels</th>
+    <th>Identification level</th>
+    <th>Arrangement level</th>
+    <th>Data quality</th>
+    <th>Computerization level</th>
+    <th>Number of collection objects</th>
+    <th>Number of containers</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th>Project</th>
+    <th>Collection type</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @collection_profiles.each do |collection_profile| %>
+  <% @collection_profiles.each do |collection_profile| %>
       <tr>
         <td><%= collection_profile.container_id %></td>
         <td><%= collection_profile.otu_id %></td>
@@ -50,10 +48,11 @@
         <td><%= link_to 'Edit', edit_collection_profile_path(collection_profile) %></td>
         <td><%= link_to 'Destroy', collection_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 
 <br>
 
 <%= link_to 'New Collection profile', new_collection_profile_path %>
+

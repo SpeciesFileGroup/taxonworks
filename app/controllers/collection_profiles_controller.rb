@@ -63,6 +63,10 @@ class CollectionProfilesController < ApplicationController
     end
   end
 
+  def list
+    @collection_profile = CollectionProfile.order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_collection_profile
