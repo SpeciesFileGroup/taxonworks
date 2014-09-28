@@ -33,23 +33,8 @@ describe 'Citations', :type => :feature do
 
   end
 
-  describe 'GET /citations/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_citation) }
-      all_citations = Citation.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/citations/#{all_citations[1]}"
-    }
-
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
-    end
-
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
-
+  context 'citations list' do
+    pending 'when a user clicks a citation record, they are taken to the cited data instance'
   end
+ 
 end
