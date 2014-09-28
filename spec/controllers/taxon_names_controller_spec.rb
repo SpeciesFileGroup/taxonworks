@@ -38,7 +38,7 @@ describe TaxonNamesController, :type => :controller do
     it "with no other parameters, assigns 20/page taxon_names as @taxon_names" do
       taxon_name = TaxonName.create! valid_attributes
       get :list, {}, valid_session
-      expect(assigns(:taxon_names)).to include(taxon_name)
+      expect(assigns(:taxon_names)).to include(taxon_name.becomes(taxon_name.type.constantize))
     end
 
     it "renders the list template" do
@@ -53,7 +53,7 @@ describe TaxonNamesController, :type => :controller do
       get :index, {}, valid_session
       # The following means that @taxon_names = TaxonName.all in the controller.
       # todo @mjy following line (coming from Otu) is slightly different than others, i.e. others eq(taxon_name)
-      expect(assigns(:recent_objects)).to include(taxon_name)
+      expect(assigns(:recent_objects)).to include(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
@@ -61,7 +61,7 @@ describe TaxonNamesController, :type => :controller do
     it "assigns the requested taxon_name as @taxon_name" do
       taxon_name = TaxonName.create! valid_attributes
       get :show, {:id => taxon_name.to_param}, valid_session
-      expect(assigns(:taxon_name)).to eq(taxon_name)
+      expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
@@ -76,7 +76,7 @@ describe TaxonNamesController, :type => :controller do
     it "assigns the requested taxon_name as @taxon_name" do
       taxon_name = TaxonName.create! valid_attributes
       get :edit, {:id => taxon_name.to_param}, valid_session
-      expect(assigns(:taxon_name)).to eq(taxon_name)
+      expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
@@ -85,7 +85,7 @@ describe TaxonNamesController, :type => :controller do
       it "creates a new TaxonName" do
         expect {
           post :create, {:taxon_name => valid_attributes}, valid_session
-        }.to change(TaxonName, :count).by(1)
+        }.to change(TaxonName, :count).by(2) # both root and a name are created
       end
 
       it "assigns a newly created taxon_name as @taxon_name" do
@@ -96,7 +96,7 @@ describe TaxonNamesController, :type => :controller do
 
       it "redirects to the created taxon_name" do
         post :create, {:taxon_name => valid_attributes}, valid_session
-        expect(response).to redirect_to(TaxonName.last)
+        expect(response).to redirect_to(TaxonName.last.becomes(TaxonName))
       end
     end
 
@@ -132,13 +132,13 @@ describe TaxonNamesController, :type => :controller do
       it "assigns the requested taxon_name as @taxon_name" do
         taxon_name = TaxonName.create! valid_attributes
         put :update, {:id => taxon_name.to_param, :taxon_name => valid_attributes}, valid_session
-        expect(assigns(:taxon_name)).to eq(taxon_name)
+        expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
       end
 
       it "redirects to the taxon_name" do
-        otu = Otu.create! valid_attributes
-        put :update, {:id => otu.to_param, :otu => valid_attributes}, valid_session
-        expect(response).to redirect_to(otu)
+        taxon_name = TaxonName.create! valid_attributes
+        put :update, {:id => taxon_name.to_param, :taxon_name => valid_attributes}, valid_session
+        expect(response).to redirect_to(taxon_name.becomes(TaxonName))
       end
     end
 
@@ -148,7 +148,7 @@ describe TaxonNamesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonName).to receive(:save).and_return(false)
         put :update, {:id => taxon_name.to_param, :taxon_name => {"name" => "invalid value"}}, valid_session
-        expect(assigns(:taxon_name)).to eq(taxon_name)
+        expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
       end
 
       it "re-renders the 'edit' template" do
