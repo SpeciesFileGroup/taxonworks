@@ -177,7 +177,7 @@ describe TagsController, :type => :controller do
     # context 'originating from tag_path()' do
       before {
         @tag = Tag.create! valid_attributes
-        request.env["HTTP_REFERER"] = tag_path(@tag)
+        request.env["HTTP_REFERER"] = list_otus_path
       }
 
       it "destroys the requested tag" do
