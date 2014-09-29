@@ -126,7 +126,7 @@ describe LoanItemsController, :type => :controller do
       }.to change(LoanItem, :count).by(-1)
     end
 
-    it "redirects to ::back" do
+    it "redirects to :back" do
       loan_item = LoanItem.create! valid_attributes
       delete :destroy, {:id => loan_item.to_param}, valid_session
       expect(response).to redirect_to(list_otus_path)
