@@ -1,5 +1,7 @@
 <h1>Collection Profiles</h1>
 
+<%= paginate @collection_profiles %> <%= page_entries_info @collection_profiles %>
+
 <table>
   <thead>
   <tr>
@@ -51,8 +53,3 @@
   <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Collection profile', new_collection_profile_path %>
-

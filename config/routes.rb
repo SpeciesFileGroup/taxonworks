@@ -71,7 +71,11 @@ TaxonWorks::Application.routes.draw do
   resources :collection_objects do
     concerns [:data_routes]
   end
-  resources :collection_profiles
+  resources :collection_profiles do
+    collection do
+      get 'list'
+    end
+  end
   resources :contents do
     concerns [:data_routes]
   end
@@ -85,7 +89,11 @@ TaxonWorks::Application.routes.draw do
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items
-  resources :georeferences
+  resources :georeferences do
+    collection do
+      get 'list'
+    end
+  end
   resources :identifiers, only: [:create, :update, :destroy, :index]
   resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
@@ -94,7 +102,11 @@ TaxonWorks::Application.routes.draw do
   resources :namespaces do
     concerns [:data_routes]
   end
-  resources :notes, except: [:new, :edit, :show]
+  resources :notes, except: [:new, :edit, :show] do
+    collection do
+      get 'list'
+    end
+  end
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
   resources :otu_page_layouts
   resources :otus do
@@ -117,12 +129,20 @@ TaxonWorks::Application.routes.draw do
   resources :tags, only: [:create, :update, :destroy, :index] do
     concerns [:data_routes]
   end
-  resources :taxon_determinations
+  resources :taxon_determinations do
+    collection do
+      get 'list'
+    end
+  end
   resources :taxon_names do
     concerns [:data_routes]
   end
   resources :taxon_name_classifications, only: [:create, :update, :destroy]
-  resources :taxon_name_relationships
+  resources :taxon_name_relationships do
+    collection do
+      get 'list'
+    end
+  end
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'
