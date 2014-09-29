@@ -35,7 +35,6 @@ class User < ActiveRecord::Base
   include Shared::Notable
   include Shared::DataAttributes
 
-
   before_create :set_remember_token
 
   # TODO: downcase does not work for non-ascii characters which means our
@@ -44,6 +43,7 @@ class User < ActiveRecord::Base
   # SEE: http://unicode-utils.rubyforge.org/
 
   before_save { self.email = email.to_s.downcase }
+  before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER } 
   before_validation { self.email = email.to_s.downcase }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true,

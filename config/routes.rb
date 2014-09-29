@@ -19,6 +19,7 @@ TaxonWorks::Application.routes.draw do
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
+
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
@@ -33,12 +34,17 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  # Note singular 'resource' 
+  resource :hub, controller: 'hub', only: [:index] do
+    get '/', action: :index
+    get 'order_tabs'
+    post 'update_tab_order'
+  end
+
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+  match '/administration', to: 'administration#index', via: 'get'
 
   resources :project_members
-
-  match '/hub', to: 'hub#index', via: 'get'
-  match '/administration', to: 'administration#index', via: 'get'
 
   resources :pinboard_items, only: [:create, :destroy]
 
