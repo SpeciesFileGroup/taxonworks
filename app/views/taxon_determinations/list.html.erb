@@ -1,0 +1,41 @@
+<h1>Taxon Determinations</h1>
+
+<%= paginate @taxon_determinations%> <%= page_entries_info @taxon_determinations %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Biological collection object</th>
+    <th>Otu</th>
+    <th>Position</th>
+    <th>Year made</th>
+    <th>Month made</th>
+    <th>Day made</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th>Project</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @taxon_determinations.each do |taxon_determination| %>
+      <tr>
+        <td><%= taxon_determination.biological_collection_object_id %></td>
+        <td><%= taxon_determination.otu_id %></td>
+        <td><%= taxon_determination.position %></td>
+        <td><%= taxon_determination.year_made %></td>
+        <td><%= taxon_determination.month_made %></td>
+        <td><%= taxon_determination.day_made %></td>
+        <td><%= taxon_determination.created_by_id %></td>
+        <td><%= taxon_determination.updated_by_id %></td>
+        <td><%= taxon_determination.project_id %></td>
+        <td><%= link_to 'Show', taxon_determination %></td>
+        <td><%= link_to 'Edit', edit_taxon_determination_path(taxon_determination) %></td>
+        <td><%= link_to 'Destroy', taxon_determination, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
