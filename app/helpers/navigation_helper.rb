@@ -1,3 +1,4 @@
+# Methods for 1) generating paths; or 2) generating links.
 module NavigationHelper
 
   def quick_bar
@@ -60,18 +61,12 @@ module NavigationHelper
   end
 
   def download_path_for_model(model)
-      send("download_#{model.name.tableize}_path")
+    send("download_#{model.name.tableize}_path")
   end
 
   def object_link(object)
     return nil if object.nil?
     link_to(object_tag(object).html_safe, object.becomes(object.class.base_class))
-  end
-
-  # TODO: Move somewhere-else, all object methods are likely borked for subclasses.
-  def object_tag(object)
-    return nil if object.nil?  # was content_tag(:em, 'None'), but this doesn't work for search box use etc.
-    send("#{object.class.base_class.name.underscore}_tag", object).html_safe
   end
 
   def edit_object_path(object)
@@ -84,6 +79,11 @@ module NavigationHelper
 
   def destroy_object_link(object)
     link_to('Destroy', object.becomes(object.class.base_class), method: :delete, data: { confirm: 'Are you sure?' })
+  end
+
+
+ def batch_preview_model_path
+    send("batch_preview_#{controller_name.to_s.pluralize}_path")
   end
 
 end
