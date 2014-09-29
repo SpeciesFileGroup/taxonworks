@@ -7,7 +7,6 @@ class CitationsController < ApplicationController
   # GET /citations
   # GET /citations.json
   def index
-    @citations = Citation.all
     @recent_objects = Citation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 

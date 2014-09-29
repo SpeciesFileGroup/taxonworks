@@ -4,6 +4,7 @@
   </div>
 
   <div class="item item2">
+    <%= list_for_model_link(@data_model) %><br>
     <%= search_form_for_model(@data_model) %><br>
     <%= download_for_model_link(@data_model) %><br>
     <%= render '/shared/data/recent_objects_list' %>
@@ -17,4 +18,3 @@
     <em> Comprehensive task list goes here </em>
   </div>
 </div>
-
