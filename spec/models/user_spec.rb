@@ -29,6 +29,18 @@ describe User, :type => :model do
     specify '#recent_routes' do
       expect(user.recent_routes).to eq([])
     end
+
+    context '#hub_tab_order' do
+      specify 'is an array' do
+        expect(user.hub_tab_order).to eq([])
+      end
+
+      specify 'is set to DEFAULT_HUB_TAB_ORDER after_create' do
+        expect(user.save!).to be_truthy
+        expect(user.hub_tab_order).to eq(DEFAULT_HUB_TAB_ORDER)
+      end
+    end
+
   end
 
   context 'authorization' do

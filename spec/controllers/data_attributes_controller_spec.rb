@@ -41,29 +41,6 @@ describe DataAttributesController, :type => :controller do
     end
   end
 
-  # describe "GET show" do
-  #   it "assigns the requested data_attribute as @data_attribute" do
-  #     data_attribute = DataAttribute.create! valid_attributes
-  #     get :show, {:id => data_attribute.to_param}, valid_session
-  #     expect(assigns(:data_attribute)).to eq(data_attribute)
-  #   end
-  # end
-  #
-  # describe "GET new" do
-  #   it "assigns a new data_attribute as @data_attribute" do
-  #     get :new, {}, valid_session
-  #     expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
-  #   end
-  # end
-  #
-  # describe "GET edit" do
-  #   it "assigns the requested data_attribute as @data_attribute" do
-  #     data_attribute = DataAttribute.create! valid_attributes
-  #     get :edit, {:id => data_attribute.to_param}, valid_session
-  #     expect(assigns(:data_attribute)).to eq(data_attribute)
-  #   end
-  # end
-
   before {
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
