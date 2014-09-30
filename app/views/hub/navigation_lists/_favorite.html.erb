@@ -6,7 +6,7 @@
 </ul>
 
 <% if @sessions_current_user.favorite_routes.length == 0 %>
-  <div> Welcome <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
+  <div> Welcome, <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
 <% end %>
 
 

@@ -27,12 +27,12 @@
       <%= f.label :parent %>
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
-        locals: {controller: 'taxon_names',
-                 object:     'taxon_name',
-                 method:     'parent_id',
-                 tag_id:     'parent_id_for_name',
-                 size: '50%',
-                 display:    taxon_name_tag(@taxon_name.parent)} %>
+                 locals:  {controller: 'taxon_names',
+                           object:     'taxon_name',
+                           method:     'parent_id',
+                           tag_id:     'parent_id_for_name',
+                           size:       '50%',
+                           display:    taxon_name_tag(@taxon_name.parent)} %>
     </div>
 
     <div class="field">
@@ -55,7 +55,7 @@
                            object:     'source',
                            method:     'source_id',
                            tag_id:     'source_id_for_taxon_name',
-                           size: '50%',
+                           size:       '50%',
                            display:    source_tag(@taxon_name.source)} %>
     </div>
 
