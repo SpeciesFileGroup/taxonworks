@@ -2,7 +2,8 @@ require 'citeproc'
 require 'csl/styles'
 
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
-#
+# @author Matt Yoder 
+# 
 # Bibtex - Subclass of Source that represents most references.
 #   Cached values are formatted using the 'zootaxa' style from 'csl/styles'
 #
@@ -312,7 +313,7 @@ class Source::Bibtex < Source
 
 #endregion validations
 
-# includes nil last, exclude it explicitly with another condition if need be
+  # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
 #region soft_validate setup calls

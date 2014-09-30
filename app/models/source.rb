@@ -23,6 +23,24 @@ class Source < ActiveRecord::Base
     where('cached LIKE ?', "%#{params[:term]}%") 
   end
 
+
+  # TODO: Test
+  # Create a new instance from a full text citatation.  By default 
+  # try to resolve the citation against Crossref, use the returned
+  # bibtex to populate the object if it successfully resolves. 
+  # @return[Source::Bibtex.new()] 
+  # returns false  if citation length < 4
+  def self.new_from_citation(citation: nil, resolve: true)
+    if citation.length > 3
+      if resolve
+        if bibtext_string = Ref2bibtex.get(citation)
+          return Source::Bibtex.new_from_bibtex(bibtex_string)
+        end
+      end
+      return Source::Verbatim.new(verbatim: citation )
+    end
+  end
+
   protected
   
   # def not_empty
