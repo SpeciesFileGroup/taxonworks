@@ -16,7 +16,9 @@ class PinboardItemsController < ApplicationController
     end
   end
 
-  # Need update to order
+  # Stub a "reorder" method
+  def reorder
+  end
 
   # DELETE /pinboard_items/1
   # DELETE /pinboard_items/1.json

@@ -77,6 +77,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
   resources :containers, only: [:create, :update, :destroy]
+  resources :container_items, only: [:create, :update, :destroy]
   resources :contents do
     concerns [:data_routes]
   end
