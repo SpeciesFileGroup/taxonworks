@@ -18,7 +18,7 @@
       $this.sortable({items:items, handle: handle}).bind( "sortupdate", function(event, ui) {
         var url = $this.data('sortableOnChangeUrl');
         if (url) {
-        //  $this.mx_spinner('show');
+          $this.mx_spinner('show');
           var serialized_data = $this.sortable("serialize");
           if (serialized_data) {
             $.ajax({
@@ -26,7 +26,7 @@
               url: url,
               data: serialized_data,
               complete: function() {
-               // $this.mx_spinner('hide');
+               $this.mx_spinner('hide');
               }
             });
           }
