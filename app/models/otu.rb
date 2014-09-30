@@ -6,7 +6,6 @@
 #
 # OTU is labeled with a name, either arbitrarily given or specificly linked to a taxon_name_id.
 #
-#
 # TODO: Add simple semantics (same_as etc.) describing taxon_name_id
 #
 class Otu < ActiveRecord::Base
@@ -58,6 +57,25 @@ class Otu < ActiveRecord::Base
   end
 
   #end region
+
+  # Hernán - this is extremely hacky, I'd like to
+  # map core keys to procs, use yield:, use cached values,
+  # add logic for has_many handling (e.g. identifiers) etc.
+  # ultmately, each key maps to a proc that returns a value
+  #
+  def dwca_core
+    core = {}
+    core.merge!(taxonomicStatus: ( taxon_name.unavailable_or_invalid? ? nil : 'accepted'  ))
+    core.merge!(nomenclaturalStatus: ( taxon_name.unavailable? ? nil : 'available'  ))
+    core.merge!(scientificName:  taxon_name.get_full_name)                           
+    core.merge!(scientificNameAuthorship: taxon_name.get_author_and_year)       
+    core.merge!(scientificNameID: taxon_name.identifiers.first.identifier  )    
+    core.merge!(taxonRank: taxon_name.rank  )
+    core.merge!(namePublishedIn: taxon_name.source.cached  )
+    core 
+  end
+
+
 
   #region Soft validation
   def sv_taxon_name
