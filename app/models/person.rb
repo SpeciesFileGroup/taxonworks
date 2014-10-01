@@ -26,7 +26,7 @@ class Person < ActiveRecord::Base
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
-  has_many :human_sources, through: :source_role, source: :role_object, source_type: 'Source::Human'
+  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human'
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'

@@ -19,7 +19,7 @@ describe 'Users' do
       }
 
       it 'on Dashboard, should have information and links' do
-        expect(page).to have_content("#{@user.email}")
+        expect(page).to have_content("#{@user.name}")
         expect(page).to have_link('Account')
         expect(page).to have_link('Sign out')
         expect(page).to_not have_link('Administration')

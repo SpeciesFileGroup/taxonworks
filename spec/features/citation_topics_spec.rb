@@ -2,17 +2,29 @@ require 'rails_helper'
 
 describe 'CitationTopics', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { citation_topics_path }
-    let(:page_index_name) { 'Citation Topics' }
+   # !! See related patterns in AlternateValues and BiocurationClassifcations
+  
+   #  before { 
+   #    sign_in_user_and_select_project
+   #  }
+
+  context 'resource routes' do
+
+    # The scenario for creating citation topics has not been developed. 
+    # It must handle these three calls for logged in/not logged in users.
+    # It may be that these features are ultimately tested in a task.
+    describe 'POST /create' do
+    end
+
+    describe 'PATCH /update' do
+    end
+
+    describe 'DELETE /destroy' do
+    end
+
+    describe 'the partial form rendered in context of NEW/EDIT on some other page' do
+    end
+
   end
 
-  describe 'GET /citation_topics' do
-    before { 
-      sign_in_valid_user_and_select_project
-      visit citation_topics_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('Citation Topics')
-    end
-  end
 end

@@ -67,7 +67,7 @@ describe 'Authentication', :type => :feature do
 
   describe '/signout' do
     before do
-      sign_in_valid_user
+      sign_in_user
     end
 
     it 'should log user out' do

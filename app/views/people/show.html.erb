@@ -1,42 +1,30 @@
-<%#= render(partial: 'shared/data/show', locals: {object: @person}) -%>
+
+<!- hardcoded for now -%>
+<div class="flexbox">
+  <div class="item item1">
+    <h2> <%= model_name_title -%></h2>
+
+    <div>id: <%= @person.id -%></div>
+    <%= forward_back_links(@person) -%> <br>
+    <%= edit_object_link(@person) -%> | <%= destroy_object_link(@person) -%> <br>
+    <%= pin_item_to_pinboard_link(@person, sessions_current_user) -%>
+    <br>
+    <%= papertrail_link(@person) -%>
+  </div>
+
+  <div class="item item2">
+    <h2> <%= person_tag(@person) -%> </h2>
+    <%= render object_attributes_partial_path(@person.becomes(@person.class.base_class)) %>
+    <%= render partial: '/shared/data/show/housekeeping', locals: {object: @person} -%>
+    <%= render(partial: '/shared/data/show/soft_validation', locals: {object: @person}) if @person.class.respond_to?(:soft_validates?) -%>
+  </div>
+
+  <div class="item item3">
+
+  </div>
+</div>
 
 
-<p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Type:</strong>
-  <%= @person.type %>
-</p>
 
-<p>
-  <strong>Last name:</strong>
-  <%= @person.last_name %>
-</p>
 
-<p>
-  <strong>First name:</strong>
-  <%= @person.first_name %>
-</p>
-
-<p>
-  <strong>Suffix:</strong>
-  <%= @person.suffix %>
-</p>
-
-<p>
-  <strong>Prefix:</strong>
-  <%= @person.prefix %>
-</p>
-
-<!--<p>
-  <strong>Created by:</strong>
-  <%= @person.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @person.updated_by_id %>
-</p>-->
-
-<%= link_to 'Edit', edit_person_path(@person) %> |
-<%= link_to 'Back', people_path %>

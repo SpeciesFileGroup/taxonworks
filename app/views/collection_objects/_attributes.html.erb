@@ -1,4 +1,3 @@
-
 <p>
   <strong>Total:</strong>
   <%= @collection_object.total %>
@@ -11,28 +10,12 @@
 
 <p>
   <strong>Preparation type:</strong>
-  <%#= @collection_object.preparation_type_id %>
   <%= object_link(@collection_object.preparation_type) %>
 </p>
 
 <p>
   <strong>Repository:</strong>
-  <%#= @collection_object.repository_id %>
   <%= object_link(@collection_object.repository) %>
 </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @collection_object.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @collection_object.updated_by_id %>
-</p>
-
-<p>
-  <strong>Project:</strong>
-  <%= @collection_object.project_id %>
-</p>
 

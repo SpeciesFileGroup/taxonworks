@@ -10,7 +10,6 @@
         var target = $(this);
         var overlay =  target.data('mx_spinner');
 
-        var foo = 1;
 
         target.data('mx_spinner', null);
         if (action == 'hide') {

@@ -34,10 +34,10 @@ describe TagsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all tags as @tags" do
+    it "assigns recent tags as @recent_objects" do
       tag = Tag.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:tags)).to include(tag)
+      expect(assigns(:recent_objects)).to include(tag)
     end
   end
 

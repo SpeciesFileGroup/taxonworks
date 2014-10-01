@@ -16,6 +16,4 @@ module DataControllerConfiguration
     @data_model = controller_name.classify.constantize
   end 
 
-  # instance_variable_set("@#{controller_name}", objects)
-
 end

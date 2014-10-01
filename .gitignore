@@ -11,6 +11,7 @@
 *~
 *.bak
 *.swp
+*.swo
 
 /db/schema.rb
 database.yml
@@ -48,3 +49,5 @@ public/system
 
 # temp until we decide how will we deal with repeatability in integration tests with external APIs
 /spec/fixtures/vcr_cassettes
+
+

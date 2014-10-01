@@ -43,7 +43,7 @@ end
 shared_examples 'a_login_required_controller' do
   describe 'authorization' do
     describe "submitting request without sign_in redirects to root_path" do
-      before { visit index_path  }
+      before { visit index_path  } # index_path should be tests path
       specify { 
         expect(page).to have_button 'Sign in'
       }

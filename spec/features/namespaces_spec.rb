@@ -17,42 +17,37 @@ describe 'Namespaces', :type => :feature do
       expect(page).to have_content('Namespaces')
     end
   end
-  
-  describe 'GET /namespaces/list' do
+ 
+  context 'as administrator, with some namespaces built' do
     before do
-      sign_in_administrator_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there are more than one page of namespaces
-      5.times { FactoryGirl.create(:valid_namespace) }
-      visit '/namespaces/list'
+      sign_in_administrator
+      5.times { factory_girl_create_for_user(:valid_namespace, @administrator) }
     end
 
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Namespaces'
+    describe 'GET /namespaces/list' do
+      before do
+        visit list_namespaces_path
+      end
+
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Namespaces'
+      end
     end
 
+    describe 'GET /namespaces/n' do
+      before do
+        visit  namespace_path(Namespace.second) # Note second!
+      end
+
+      specify 'there is a \'previous\' link' do
+        expect(page).to have_link('Previous')
+      end
+
+      specify 'there is a \'next\' link' do
+        expect(page).to have_link('Next')
+      end
+    end
   end
-
-  describe 'GET /namespaces/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_namespace) }
-      all_namespaces = Namespace.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/namespaces/#{all_namespaces[1]}"
-    }
-
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
-    end
-
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
-
-  end
-
 end
 
 

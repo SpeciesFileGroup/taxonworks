@@ -22,19 +22,6 @@ module Features
       visit select_project_path(project) 
     end
 
-    # DEPRECATED
-    # See the valid_user factory.
-    def sign_in_valid_user
-      @existing_user = User.find(1)  
-      sign_in_with(@existing_user.email, TEST_USER_PASSWORD) 
-    end
-  
-    # DEPRECATED
-    def sign_in_valid_user_and_select_project
-      sign_in_valid_user
-      select_a_project(Project.find(1))
-    end
-
     def sign_in_project_administrator_and_select_project
       sign_in_project_administrator
       select_a_project(@project)

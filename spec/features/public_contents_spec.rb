@@ -1,18 +1,23 @@
 require 'rails_helper'
 
 describe 'PublicContents', :type => :feature do
-  
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { public_contents_path }
-    let(:page_index_name) { 'Public Contents' }
-  end
+  context 'resource routes' do
+    #  before { 
+    #    sign_in_user_and_select_project
+    #  }
 
-  describe 'GET /public_contents' do
-    before {
-      sign_in_user_and_select_project 
-      visit public_contents_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('Public Contents')
+    # The scenario for creating PublicContents has not been developed. 
+    # It must handle these three calls for logged in/not logged in users.
+    # It may be that these features are ultimately tested in a task.
+    describe 'POST /create' do
+    end
+
+    describe 'PATCH /update' do
+    end
+
+    describe 'DELETE /destroy' do
     end
   end
+
+  skip 'difference b/w user and worker (latter can not generate these data)'
 end

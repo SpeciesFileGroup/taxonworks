@@ -34,7 +34,7 @@ class HubController < ApplicationController
 
   def set_links_to_render
     @links_to_render = params[:list]
-    @links_to_render ||= 'favorite' # TODO: Change to recent 
+    @links_to_render ||= @sessions_current_user.hub_tab_order.first
   end
 
 end

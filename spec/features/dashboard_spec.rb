@@ -39,7 +39,7 @@ describe 'Dashboard' do
       within(:css, 'ul.horizontal_navbar') {
         expect(page).to have_link("Account")
         expect(page).to have_link("Sign out")
-        expect(page).to have_content("#{@user.email}")
+        expect(page).to have_content("#{@user.name}")
         expect(page).not_to have_link("Project")
       }
     end
@@ -60,7 +60,7 @@ describe 'Dashboard' do
 
       it 'should have user name' do
         # expect(page).to have_content("User #{@user.id}")
-        expect(page).to have_content("#{@user.email}")
+        expect(page).to have_content("#{@user.name}")
       end
 
       it 'should have Edit account link' do

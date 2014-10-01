@@ -30,15 +30,4 @@
   <%= @repository.is_index_herbariorum %>
 </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @repository.created_by_id %>
-</p>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @repository.updated_by_id %>
-</p>
-
-<%= link_to 'Edit', edit_repository_path(@repository) %> |
-<%= link_to 'Back', repositories_path %>

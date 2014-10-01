@@ -34,10 +34,10 @@ describe CitationsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all citations as @citations" do
+    it "assigns recent citations as @recentObjects" do
       citation = Citation.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:citations)).to include(citation)
+      expect(assigns(:recent_objects)).to include(citation)
     end
   end
 

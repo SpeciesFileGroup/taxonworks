@@ -1,5 +1,38 @@
 # The information that can be use to differentiate concepts.
+# Note this definition is presently very narrow, and that an identifier
+# can in practice be used for a lot more than differentiation (i.e. 
+# it can often be resolved etc.).  
 #
+# In TW identifiers are either global, in which case they 
+# are subclassed by type, and do not include a namespace,
+# or local, in which case they have a namespace.
+#
+#
+## @!attribute identified_object_id 
+#   @return [Integer]
+#   The id of the identified object, used in a polymorphic relationship.
+#
+## @!attribute identified_object_id 
+#   @return [String]
+#   The type of the identified object, used in a polymorphic relationship.
+#
+## @!attribute identifier 
+#   @return [String]
+#  The string identifying the object.  Must be unique within the Namespace if provided. 
+#  Same as http://rs.tdwg.org/dwc/terms/catalogNumber , but brodened in scope to be used for any data.
+#
+## @!attribute namespace_id 
+#   @return [integer]
+#   The Namespace for this identifier.
+#
+## @!attribute type 
+#   @return [String]
+#   The Rails STI subclass of this identifier.   
+
+## @!attribute cached_identifier 
+#   @return [String]
+#   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
+#   
 class Identifier < ActiveRecord::Base
   include Housekeeping
 

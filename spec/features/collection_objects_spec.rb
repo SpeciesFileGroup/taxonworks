@@ -9,7 +9,7 @@ describe 'CollectionObjects', :type => :feature do
 
   describe 'GET /collection_objects' do
     before {
-      sign_in_valid_user_and_select_project
+      sign_in_user_and_select_project
       visit collection_objects_path }
 
     specify 'an index name is present' do

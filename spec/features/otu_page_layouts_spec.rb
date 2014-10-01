@@ -15,4 +15,5 @@ describe 'OtuPageLayouts', :type => :feature do
       expect(page).to have_content('Otu Page Layouts')
     end
   end
+
 end

@@ -5,7 +5,7 @@
     </div>
 
     <ul class='horizontal_navbar right_float'> 
-      <%=  session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+      <%=  session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%> <span class="subtle"> <%= @sessions_current_user.name -%> </span>
     </ul>
     <br class='clear_both'>  
   </div>

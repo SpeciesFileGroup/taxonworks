@@ -1,5 +1,3 @@
-<p id="notice"><%= notice %></p>
-
 <p>
   <strong>Institution:</strong>
   <%= @namespace.institution %>
@@ -15,15 +13,4 @@
   <%= @namespace.short_name %>
 </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @namespace.created_by_id %>
-</p>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @namespace.updated_by_id %>
-</p>
-
-<%= link_to 'Edit', edit_namespace_path(@namespace) %> |
-<%= link_to 'Back', namespaces_path %>
