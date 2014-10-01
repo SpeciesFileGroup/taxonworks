@@ -88,8 +88,8 @@ class User < ActiveRecord::Base
     project.project_members.where(user_id: id).first.is_project_administrator
   end
 
-  def add_page_to_favorites(favourite_route)
-    update_attributes(favorite_routes: ([favourite_route] + favorite_routes).uniq[0..19])
+  def add_page_to_favorites(favorite_route)
+    update_attributes(favorite_routes: ([favorite_route] + favorite_routes).uniq[0..19])
     true
   end
 

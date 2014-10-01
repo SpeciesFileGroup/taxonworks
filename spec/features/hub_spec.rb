@@ -43,7 +43,7 @@ describe 'Hub', :type => :feature do
           specify 'a notice describing how to add pages to this list is provided'
         end
 
-        context 'after a user selects some favorite pages within a project' do # SEE ___ for what pages can be favourited (essentially only those that don't reference IDs (those are pinned) 
+        context 'after a user selects some favorite pages within a project' do # SEE ___ for what pages can be favorited (essentially only those that don't reference IDs (those are pinned) 
           specify 'a list of favorite pages is rendered'
           specify 'the list of favorite pages is restricted to those for this project'
         end

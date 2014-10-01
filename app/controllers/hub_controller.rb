@@ -22,7 +22,6 @@ class HubController < ApplicationController
     render nothing: true
   end
 
-
   protected
 
   def handle_bad_tab_order
@@ -31,7 +30,6 @@ class HubController < ApplicationController
     if @sessions_current_user.hub_tab_order.empty?
       @sessions_current_user.update_attribute(:hub_tab_order, DEFAULT_HUB_TAB_ORDER)
     end 
-
   end
 
   def set_links_to_render

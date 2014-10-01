@@ -116,7 +116,11 @@ module SessionsHelper
   end
 
   def favorite_page_link
-    link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post)
+    if @sessions_current_user.favorite_routes.include?(request.fullpath)
+      content_tag(:em, 'favourited', html: {class: 'subtle'})  
+    else
+      link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post)
+    end
   end
 
   def project_settings_link
