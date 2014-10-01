@@ -7,10 +7,6 @@ describe OtuPageLayoutsController, :type => :routing do
       expect(get("/otu_page_layouts")).to route_to("otu_page_layouts#index")
     end
 
-    it "routes to #list" do
-      expect(get("/otu_page_layouts/list")).to route_to("otu_page_layouts#list")
-    end
-
     it "routes to #new" do
       expect(get("/otu_page_layouts/new")).to route_to("otu_page_layouts#new")
     end
