@@ -13,16 +13,8 @@
  *= require jquery-ui/autocomplete
  */
 
-/* form label {text-align:right; width:200px;} */
-
-/* Examples only, see geographic_items/1 (show)  */
 .scrollable_div { height: 80px; overflow: auto;  }
-br.clear_both{ clear: both; }
-.left_floater {float: left;}
-.right_floater {float: right;}
-
 .hidden {visibility:hidden;}
 .collapsed {visibility: collapse;}
-.inline {display: inline; 
-  input {display: inline} 
-}
+
+

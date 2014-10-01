@@ -6,7 +6,6 @@ describe 'Project Handling', :type => :feature do
 
   # TODO: clarify this, this is describing the root path but under Projects
   describe '/' do
-  
     before(:each) {
       $user_id = nil 
       $project_id = nil
@@ -30,13 +29,9 @@ describe 'Project Handling', :type => :feature do
         click_link 'My Project' 
       }
 
-      it 'should select that project' do
-        expect(subject).to have_link('My Project', href: select_project_path(@project) )
-        expect(subject).to have_css("mark a", text: 'My Project' )
-      end
-
-      it 'should render the default_workspace_path' do
-        expect(subject).to have_content "OTUs"
+      it 'should select that project and reference it in the hub' do
+        expect(subject).to have_content "Hub"
+        expect(subject).to have_content('My Project') 
       end
     end
 
@@ -156,20 +151,13 @@ describe 'Project Handling', :type => :feature do
     before {
       sign_in_user
       $user_id = 1
-      3.times { FactoryGirl.create(:valid_project) }
-      all_projects = Project.all.map(&:id)
+      1.times { FactoryGirl.create(:valid_project) }
       # there *may* be a better way to do this, but this version *does* work
       visit "/projects/#{all_projects[1]}"
     }
 
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
+    xspecify 'there is the projects name' do
     end
-
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
-
   end
 
 end
