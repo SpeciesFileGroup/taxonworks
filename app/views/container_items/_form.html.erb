@@ -1,0 +1,49 @@
+<%= form_for(@container_item) do |f| %>
+  <% if @container_item.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@container_item.errors.count, "error") %> prohibited this container_item from being saved:</h2>
+
+      <ul>
+      <% @container_item.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :container_id %><br>
+    <%= f.number_field :container_id %>
+  </div>
+  <div class="field">
+    <%= f.label :position %><br>
+    <%= f.number_field :position %>
+  </div>
+  <div class="field">
+    <%= f.label :contained_object_id %><br>
+    <%= f.number_field :contained_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :contained_object_type %><br>
+    <%= f.text_field :contained_object_type %>
+  </div>
+  <div class="field">
+    <%= f.label :localization %><br>
+    <%= f.text_field :localization %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,61 @@
+<%= form_for(@image) do |f| %>
+  <% if @image.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
+
+      <ul>
+      <% @image.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :user_file_name %><br>
+    <%= f.text_field :user_file_name %>
+  </div>
+  <div class="field">
+    <%= f.label :height %><br>
+    <%= f.number_field :height %>
+  </div>
+  <div class="field">
+    <%= f.label :width %><br>
+    <%= f.number_field :width %>
+  </div>
+  <div class="field">
+    <%= f.label :image_file_fingerprint %><br>
+    <%= f.text_field :image_file_fingerprint %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="field">
+    <%= f.label :image_file_file_name %><br>
+    <%= f.text_field :image_file_file_name %>
+  </div>
+  <div class="field">
+    <%= f.label :image_file_content_type %><br>
+    <%= f.text_field :image_file_content_type %>
+  </div>
+  <div class="field">
+    <%= f.label :image_file_file_size %><br>
+    <%= f.number_field :image_file_file_size %>
+  </div>
+  <div class="field">
+    <%= f.label :image_file_updated_at %><br>
+    <%= f.datetime_select :image_file_updated_at %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

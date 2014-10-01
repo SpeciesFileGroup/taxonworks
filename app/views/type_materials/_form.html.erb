@@ -1,0 +1,45 @@
+<%= form_for(@type_material) do |f| %>
+  <% if @type_material.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@type_material.errors.count, "error") %> prohibited this type_material from being saved:</h2>
+
+      <ul>
+      <% @type_material.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :protonym_id %><br>
+    <%= f.number_field :protonym_id %>
+  </div>
+  <div class="field">
+    <%= f.label :biological_object_id %><br>
+    <%= f.number_field :biological_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :type_type %><br>
+    <%= f.text_field :type_type %>
+  </div>
+  <div class="field">
+    <%= f.label :source_id %><br>
+    <%= f.number_field :source_id %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
