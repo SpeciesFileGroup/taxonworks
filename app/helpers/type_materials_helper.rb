@@ -1,0 +1,2 @@
+module TypeMaterialsHelper
+end
