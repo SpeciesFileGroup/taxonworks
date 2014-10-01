@@ -57,6 +57,7 @@ TaxonWorks::Application.routes.draw do
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
   resources :alternate_values, only: [:create, :update, :destroy]
+  resources :asserted_distributions
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
   resources :citations, except: [:new, :edit, :show]  do
@@ -97,6 +98,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
   resources :identifiers, only: [:create, :update, :destroy, :index]
+  resources :images
   resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
     concerns [:data_routes]
@@ -145,6 +147,7 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
+  resources :type_materials
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'
