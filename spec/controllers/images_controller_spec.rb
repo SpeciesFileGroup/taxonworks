@@ -18,17 +18,19 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe ImagesController, :type => :controller do
+describe ImagesController, :type => :controller do
+  before(:each) {
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # Image. As you add validations to Image, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_image).attributes)
   }
-
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:weird_image).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -36,11 +38,25 @@ RSpec.describe ImagesController, :type => :controller do
   # ImagesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page images as @controlled_vocabulary_terms" do
+      image = Image.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:images)).to include(image)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all images as @images" do
       image = Image.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:images)).to eq([image])
+      # expect(assigns(:images)).to eq([image])
+      expect(assigns(:recent_objects)).to include(image)
     end
   end
 
@@ -102,15 +118,15 @@ RSpec.describe ImagesController, :type => :controller do
 
   describe "PUT update" do
     describe "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
+      # let(:new_attributes) {
+      #   skip("Add a hash of attributes valid for your model")
+      # }
 
       it "updates the requested image" do
         image = Image.create! valid_attributes
-        put :update, {:id => image.to_param, :image => new_attributes}, valid_session
+        put :update, {:id => image.to_param, image: {:image_file => fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, valid_session
         image.reload
-        skip("Add assertions for updated state")
+        expect(image.user_file_name).to eq('Samsung_Phone.jpg')
       end
 
       it "assigns the requested image as @image" do
@@ -129,12 +145,14 @@ RSpec.describe ImagesController, :type => :controller do
     describe "with invalid params" do
       it "assigns the image as @image" do
         image = Image.create! valid_attributes
+        allow_any_instance_of(Image).to receive(:save).and_return(false)
         put :update, {:id => image.to_param, :image => invalid_attributes}, valid_session
         expect(assigns(:image)).to eq(image)
       end
 
       it "re-renders the 'edit' template" do
         image = Image.create! valid_attributes
+        allow_any_instance_of(Image).to receive(:save).and_return(false)
         put :update, {:id => image.to_param, :image => invalid_attributes}, valid_session
         expect(response).to render_template("edit")
       end
