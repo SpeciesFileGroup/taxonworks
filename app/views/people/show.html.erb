@@ -7,7 +7,7 @@
     <div>id: <%= @person.id -%></div>
     <%= forward_back_links(@person) -%> <br>
     <%= edit_object_link(@person) -%> | <%= destroy_object_link(@person) -%> <br>
-    <%= pin_item_to_pinboard_link(@person, sessions_current_user) -%>
+    <%= pin_item_to_pinboard_link(@person, @sessions_current_user) -%>
     <br>
     <%= papertrail_link(@person) -%>
   </div>

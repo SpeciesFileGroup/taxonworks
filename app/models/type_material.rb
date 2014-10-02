@@ -1,7 +1,6 @@
 class TypeMaterial < ActiveRecord::Base
-  belongs_to :source
-
   include Housekeeping
+  include Shared::IsData 
   include Shared::Citable
   include SoftValidation
 
@@ -35,6 +34,7 @@ class TypeMaterial < ActiveRecord::Base
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject'
   belongs_to :protonym
+  belongs_to :source
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person
 

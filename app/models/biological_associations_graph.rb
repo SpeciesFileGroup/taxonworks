@@ -1,6 +1,7 @@
 class BiologicalAssociationsGraph < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
+  include Shared::IsData 
 
   belongs_to :source
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_associations_graph

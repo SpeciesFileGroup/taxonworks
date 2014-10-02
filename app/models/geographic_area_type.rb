@@ -7,6 +7,9 @@
 #
 class GeographicAreaType < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
+
+
 
   has_many :geographic_areas, inverse_of: :geographic_area_type
 

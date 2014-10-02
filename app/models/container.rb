@@ -2,6 +2,7 @@ class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
   include Housekeeping
+  include Shared::IsData 
   include Shared::Identifiable
   include Shared::Containable
   include Shared::Taggable

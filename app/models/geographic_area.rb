@@ -38,6 +38,7 @@
 #
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
 
   # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
   if ENV['NO_GEO_NESTING']

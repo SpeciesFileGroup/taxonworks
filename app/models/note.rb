@@ -1,6 +1,7 @@
 # Notes are text only notes on instances that belong to some project.
 class Note < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   belongs_to :note_object, polymorphic: true
   validates :note_object, presence: true

@@ -1,6 +1,4 @@
-# These are *controller* methods. 
-#
-#
+# These are *controller* methods.
 module SessionsHelper
 
   # User methods

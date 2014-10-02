@@ -1,5 +1,6 @@
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
   include Shared::Notable
 

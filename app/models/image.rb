@@ -19,6 +19,7 @@
 #
 class Image < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable

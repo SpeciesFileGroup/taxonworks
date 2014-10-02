@@ -21,6 +21,8 @@
 #   @return [String]
 #     The verbatim data value taken from the source data as to when this shape was last valid for the associated GeographicArea (name)
 class GeographicAreasGeographicItem < ActiveRecord::Base
+  include Shared::IsData 
+
   belongs_to :geographic_area, inverse_of: :geographic_areas_geographic_items
   belongs_to :geographic_item, inverse_of: :geographic_areas_geographic_items
 

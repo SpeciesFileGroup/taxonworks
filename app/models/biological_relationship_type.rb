@@ -1,5 +1,6 @@
 class BiologicalRelationshipType < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   belongs_to :biological_property, inverse_of: :biological_relationship_types
   belongs_to :biological_relationship, inverse_of: :biological_relationship_types

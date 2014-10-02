@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_project_and_user_variables
-    $project_id = sessions_current_project_id 
+    $project_id = sessions_current_project_id  # This also sets @sessions_current_project_id
     $user_id = sessions_current_user_id 
   end
 

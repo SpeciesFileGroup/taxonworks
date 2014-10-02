@@ -1,6 +1,5 @@
 class PeopleController < ApplicationController
   include DataControllerConfiguration
-
   before_action :set_person, only: [:show, :edit, :update, :destroy]
 
   # GET /people

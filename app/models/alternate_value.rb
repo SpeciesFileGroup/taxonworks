@@ -1,6 +1,7 @@
 class AlternateValue < ActiveRecord::Base
 
   include Housekeeping::Users
+  include Shared::IsData 
 
   belongs_to :language
   belongs_to :alternate_object, polymorphic: true

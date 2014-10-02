@@ -1,6 +1,7 @@
 class Content < ActiveRecord::Base
   include Housekeeping
-  has_paper_trail
+  include Shared::IsData 
+  has_paper_trail 
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents

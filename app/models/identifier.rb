@@ -35,6 +35,7 @@
 #   
 class Identifier < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identified_object, polymorphic: :true

@@ -10,6 +10,7 @@
 #
 class Otu < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
   include Shared::Identifiable
   include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework

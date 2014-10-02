@@ -1,5 +1,6 @@
 class ControlledVocabularyTerm < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include Shared::AlternateValues
   # include Shared::Taggable <- !! NO
 

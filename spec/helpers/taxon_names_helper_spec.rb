@@ -38,7 +38,7 @@ describe TaxonNamesHelper, :type => :helper do
     end
 
     specify "#taxon_name_rank_select_tag" do
-      expect(taxon_name_rank_select_tag(@taxon_name)).to have_select('taxon_name_rank_class')
+      expect(taxon_name_rank_select_tag(taxon_name: @taxon_name, code: :iczn)).to have_select('taxon_name_rank_class')
     end
 
   end

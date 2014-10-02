@@ -4,6 +4,7 @@ NON_ANNOTATABLE_COLUMNS = [
     :type,
     :lft,
     :rgt,
+    :depth,
     :position,
     :created_at,
     :updated_at,

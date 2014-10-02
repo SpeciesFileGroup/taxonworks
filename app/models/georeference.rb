@@ -50,6 +50,7 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   # This should probably be moved out to config/initializers/gis
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,

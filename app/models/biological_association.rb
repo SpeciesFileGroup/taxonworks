@@ -1,6 +1,7 @@
 class BiologicalAssociation < ActiveRecord::Base
-  include Shared::Citable
   include Housekeeping
+  include Shared::IsData 
+  include Shared::Citable
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
   belongs_to :biological_association_subject, polymorphic: true

@@ -110,6 +110,7 @@
 #
 class TaxonName < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include Shared::Identifiable
   include Shared::DataAttributes
   include Shared::Citable

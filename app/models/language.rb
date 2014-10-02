@@ -6,8 +6,9 @@
 # (e.g. 'English, Middle (1100-1500)', 'Filipino; Pilipino','Finno-Ugrian languages')
 # and many of the languages have multiple version (e.g. there are 4 variations of German)
 class Language < ActiveRecord::Base
-
   include Housekeeping::Users
+  include Shared::IsData 
+
 
   # Scopes
   scope :eng_name_contains, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
