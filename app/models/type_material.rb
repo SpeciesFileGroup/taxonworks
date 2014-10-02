@@ -71,6 +71,12 @@ class TypeMaterial < ActiveRecord::Base
     end
   end
 
+  def self.find_for_autocomplete(params)
+    term = params[:term]
+    include(:protonym, :biological_object, :source).
+        where(protonyms: {name: term}, biological_objects: {name: term}, sources: {cached: term})
+  end
+
   protected
 
   #region Validation

@@ -96,6 +96,10 @@ class Image < ActiveRecord::Base
 
   end
 
+  def self.find_for_autocomplete(params)
+    where(id: params[:term])
+  end
+
   protected
 
   def extract_tw_attributes

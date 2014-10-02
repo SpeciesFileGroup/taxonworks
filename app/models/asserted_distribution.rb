@@ -24,6 +24,13 @@ class AssertedDistribution < ActiveRecord::Base
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
 
+  def self.find_for_autocomplete(params)
+    # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+    term = params[:term]
+    include(:geographic_area, :otu, :source).
+        where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term})
+  end
+
   #region Soft validation
 
   def sv_conflicting_geographic_area

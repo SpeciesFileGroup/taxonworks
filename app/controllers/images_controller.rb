@@ -1,10 +1,12 @@
 class ImagesController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_image, only: [:show, :edit, :update, :destroy]
 
   # GET /images
   # GET /images.json
   def index
-    @images = Image.all
+    @recent_objects = Image.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /images/1
@@ -59,6 +61,26 @@ class ImagesController < ApplicationController
       format.html { redirect_to images_url, notice: 'Image was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @images = Image.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def autocomplete
+    @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
+
+    data = @images.collect do |t|
+      {id:              t.id,
+       label:           ImagesHelper.image_tag(t), # in helper
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private

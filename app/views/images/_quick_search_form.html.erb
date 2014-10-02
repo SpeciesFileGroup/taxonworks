@@ -1,0 +1,10 @@
+<%= form_tag(search_images_path) do %>
+    <%= render partial: 'elements/forms/ajax_select',
+               locals:  {controller: 'images',
+                         object:     'image',
+                         method:     'id',
+                         tag_id:     'image_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%= submit_tag 'Show' %>
+<% end %>

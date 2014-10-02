@@ -4,7 +4,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions
   # GET /asserted_distributions.json
   def index
-    @asserted_distributions = AssertedDistribution.all
+    @recent_objects = AssertedDistribution.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /asserted_distributions/1

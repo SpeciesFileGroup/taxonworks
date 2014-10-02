@@ -1,10 +1,12 @@
 class TypeMaterialsController < ApplicationController
+  include DataControllerConfiguration
+
   before_action :set_type_material, only: [:show, :edit, :update, :destroy]
 
   # GET /type_materials
   # GET /type_materials.json
   def index
-    @type_materials = TypeMaterial.all
+    @recent_objects = TypeMaterial.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /type_materials/1
@@ -59,6 +61,26 @@ class TypeMaterialsController < ApplicationController
       format.html { redirect_to type_materials_url, notice: 'Type material was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @type_materials = TypeMaterial.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def autocomplete
+    @type_materials = TypeMaterial.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
+
+    data = @type_materials.collect do |t|
+      {id:              t.id,
+       label:           TypeMaterialsHelper.type_material_tag(t), # in helper
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html:      TypeMaterialsHelper.type_material_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
   end
 
   private
