@@ -99,11 +99,11 @@ class Serial < ActiveRecord::Base
     lang = Language.where(id: self.primary_language_id).to_a[0].english_name
   end
 
-  # Class methods
-
   # Instance methods
+
+
+  # Boolean is there another serial with the same name?
   def duplicate?
-    # Boolean is there another serial with the same name?
     ret_val = false
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
@@ -122,7 +122,6 @@ class Serial < ActiveRecord::Base
 
     ret_val # return
   end
-
 
 =begin
   def full_chronology

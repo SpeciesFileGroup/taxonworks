@@ -11,23 +11,27 @@ describe Serial, :type => :model do
   end
 
   it 'should soft validate duplicate serials' do
-    s = FactoryGirl.build(:valid_serial)
+    name = 'Fixed name'
+    s = FactoryGirl.build(:valid_serial, name: name)
     s.soft_validate()
+
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
     expect(s.save).to be_truthy
+    
     s.soft_validate()
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
 
-    j = FactoryGirl.build(:valid_serial)
+    j = FactoryGirl.build(:valid_serial, name: name)
     expect(j.valid?).to be_truthy
 
     # soft validate new record
     j.soft_validate()
     expect(j.soft_validations.messages_on(:name).empty?).to be_falsey
+    
     expect(j.soft_validations.messages).to include 'There is another serial with this name in the database.'
     expect(j.save).to be_truthy
 
-    # soft validate edited record
+    # Soft validate edited record
     k = FactoryGirl.build(:preceding_serial)
     expect(k.save).to be_truthy
     k.soft_validate()
@@ -43,6 +47,7 @@ describe Serial, :type => :model do
     # add an alternate value/translations
     # add an alternate value/abbreviation
   end
+
   context 'should set the language based on valid languages' do
     before(:each) do
       @eng = FactoryGirl.build(:english)
