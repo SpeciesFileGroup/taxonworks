@@ -18,17 +18,20 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe TypeMaterialsController, :type => :controller do
+describe TypeMaterialsController, :type => :controller do
+  before(:each) {
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # TypeMaterial. As you add validations to TypeMaterial, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_type_material).attributes)
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:invalid_type_material).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -36,11 +39,24 @@ RSpec.describe TypeMaterialsController, :type => :controller do
   # TypeMaterialsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page type_materials as @controlled_vocabulary_terms" do
+      type_material = TypeMaterial.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:type_materials)).to include(type_material)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all type_materials as @type_materials" do
       type_material = TypeMaterial.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:type_materials)).to eq([type_material])
+      expect(assigns(:recent_objects)).to eq([type_material])
     end
   end
 
@@ -89,11 +105,13 @@ RSpec.describe TypeMaterialsController, :type => :controller do
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved type_material as @type_material" do
+        allow_any_instance_of(TypeMaterial).to receive(:save).and_return(false)
         post :create, {:type_material => invalid_attributes}, valid_session
         expect(assigns(:type_material)).to be_a_new(TypeMaterial)
       end
 
       it "re-renders the 'new' template" do
+        allow_any_instance_of(TypeMaterial).to receive(:save).and_return(false)
         post :create, {:type_material => invalid_attributes}, valid_session
         expect(response).to render_template("new")
       end
@@ -103,14 +121,15 @@ RSpec.describe TypeMaterialsController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        strip_housekeeping_attributes(FactoryGirl.build(:new_valid_type_material).attributes)
       }
 
       it "updates the requested type_material" do
         type_material = TypeMaterial.create! valid_attributes
         put :update, {:id => type_material.to_param, :type_material => new_attributes}, valid_session
         type_material.reload
-        skip("Add assertions for updated state")
+        # skip("Add assertions for updated state")
+        expect(assigns(:type_material)).to eq(type_material)
       end
 
       it "assigns the requested type_material as @type_material" do
