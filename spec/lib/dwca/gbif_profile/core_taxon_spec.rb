@@ -3,7 +3,7 @@ require 'rails_helper'
  # Some co
 
 describe 'TaxonWorks to DwC-A core mapping' do
-  let (:citation) { 'Defaut. 2006. Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). Matériaux Orthoptériques et Entomocénotiques 11:23-48' }
+  let (:citation) { 'Defaut (2006) Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). Matériaux Orthoptériques et Entomocénotiques 11, 23–48.' }
 
   let(:core) {
     

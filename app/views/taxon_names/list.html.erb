@@ -27,7 +27,7 @@
       <tr>
         <td><%= taxon_name.name %></td>
         <td><%= object_tag(taxon_name.parent) %></td>
-        <td><%= taxon_name.cached_name ? taxon_name.cached_name.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
+        <td><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
         <td><%= object_tag(taxon_name.source) %></td>
         <td><%= taxon_name.year_of_publication %></td>
         <td><%= taxon_name.verbatim_author %></td>

@@ -20,6 +20,8 @@ class Serial < ActiveRecord::Base
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
+ 
+  has_many :sources 
 
   has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
 

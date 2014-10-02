@@ -34,8 +34,13 @@
 </p>
 
 <p>
+  <strong>Cached:</strong>
+  <%= @taxon_name.cached %>
+</p>
+
+<p>
   <strong>Cached name:</strong>
-  <%= @taxon_name.cached_name ? @taxon_name.cached_name.html_safe : nil %>
+  <%= @taxon_name.cached_html ? @taxon_name.cached_html.html_safe : nil %>
 </p>
 
 <p>

@@ -2,7 +2,7 @@ module TaxonNamesHelper
 
   def self.taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_name || taxon_name.name # TODO: fix cached name generation
+    taxon_name.cached_html || taxon_name.name # TODO: fix cached name generation
   end
 
   def taxon_name_tag(taxon_name)

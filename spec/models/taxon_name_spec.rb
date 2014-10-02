@@ -1,10 +1,13 @@
 require 'rails_helper'
+
 describe TaxonName, :type => :model do
+
 
   let(:taxon_name) { TaxonName.new }
   before(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species    = @subspecies.ancestor_at_rank('species')
     @subgenus   = @subspecies.ancestor_at_rank('subgenus')
@@ -15,7 +18,7 @@ describe TaxonName, :type => :model do
   end
 
   after(:all) do
-    # TestDbCleanup.cleanup_taxon_name_and_related
+    TaxonName.delete_all
     TaxonNameRelationship.delete_all
   end
 
@@ -23,23 +26,27 @@ describe TaxonName, :type => :model do
     specify 'is building all related names for respective models' do
       expect(@subspecies.ancestors.length).to be >= 10
       (@subspecies.ancestors + [@subspecies]).each do |i|
-        expect(i.valid?).to be_truthy
+        if i.name != 'Root'
+          expect(i.valid?).to be_truthy, "#{i.name} is not valid [#{i.errors.messages}], and is expected to be so- was your test db reset properly?"
+        end
       end
     end
+
     specify 'ICN' do
       variety = FactoryGirl.create(:icn_variety)
       expect(variety.ancestors.length).to be >= 17
       (variety.ancestors + [variety]).each do |i|
-        expect(i.valid?).to be_truthy
+        if i.name != 'Root'
+          expect(i.valid?).to be_truthy, "#{i.name} is not valid [#{i.errors.messages}], and is expected to be so- was your test db reset properly?"
+        end
       end
       expect(variety.root.id).to eq(@species.root.id)
-      #variety.save
-
       expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
       expect(variety.cached_author_year).to eq('McAtee (1900)')
-      expect(variety.cached_name).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
+      expect(variety.cached_html).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
     end
   end
+ 
 
   context 'associations' do
     specify 'responses to source' do
@@ -47,7 +54,6 @@ describe TaxonName, :type => :model do
     end
 
     context 'taxon_name_relationships' do
-
       before(:all) do
         @type_of_genus  = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: @family)
         @original_genus = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
@@ -88,7 +94,7 @@ describe TaxonName, :type => :model do
     end
   end
 
-  context 'methods' do
+  context 'instance methods' do
     context 'verbatim_author' do
       specify 'parens are allowed' do
         taxon_name.verbatim_author = '(Smith)'
@@ -161,7 +167,7 @@ describe TaxonName, :type => :model do
         @p = Project.create(name: 'Taxon-name root test.')
       }
 
-      specify 'permit one root per project' do
+      specify 'a second root (parent is nul) in a given project is not allowed' do
         root2 = FactoryGirl.build(:root_taxon_name)
         expect(root2.parent).to be_nil
         expect(root2.valid?).to be_falsey
@@ -288,7 +294,7 @@ describe TaxonName, :type => :model do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-          expect(@subspecies.cached_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+          expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
         specify 'ICZN species misspelling' do
           sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
@@ -300,7 +306,7 @@ describe TaxonName, :type => :model do
           expect(@family.valid?).to be_truthy
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
           expect(@family.cached_author_year).to eq('Say, 1800')
-          expect(@family.cached_name.nil?).to be_truthy
+          expect(@family.cached_html.nil?).to be_truthy
         end
         specify 'nil author and year - cashed value should be empty' do
           t = @subspecies.ancestor_at_rank('kingdom')
@@ -490,6 +496,7 @@ describe TaxonName, :type => :model do
         s.soft_validate(:validate_name)
         expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
       end
+
       specify 'valid icn names' do
         s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus')
         s.soft_validate(:validate_name)

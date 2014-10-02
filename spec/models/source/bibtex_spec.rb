@@ -389,7 +389,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached.blank?).to be_falsey
         end
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(@l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles. ')
+          expect(@l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
         end
         specify 'cached author should be set' do
           expect(@l_src.cached_author_string.blank?).to be_falsey
@@ -439,7 +439,7 @@ describe Source::Bibtex, :type => :model do
           expect(@l_src.cached_author_string).to eq('Thomas, Dave and Fowler, Chad and Hunt, Andy')
         end
         specify 'cached string should be correct' do
-          expect(@l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles. ')
+          expect(@l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles.')
         end
       end
       specify 'should be able to build & save related people' do

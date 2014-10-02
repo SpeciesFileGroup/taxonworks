@@ -5,7 +5,7 @@ class Combination < TaxonName
   end
 
   def set_cached_full_name
-    self.cached_name = get_combination
+    self.cached_html = get_combination
   end
 
 

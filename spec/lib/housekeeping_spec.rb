@@ -62,13 +62,18 @@ describe 'Housekeeping::User' do
     context 'class method' do
       specify 'all creators' do
         expect(HousekeepingTestClass::WithUser).to respond_to(:all_creators)
-        # expect(HousekeepingTestClass::WithUser.all_creators).to eq([])
+      end
+    
+      specify 'all updaters' do
+        expect(HousekeepingTestClass::WithUser).to respond_to(:all_creators)
       end
     end
+
     context 'instance methods' do
-      specify 'alive?' do
-        expect(instance).to respond_to(:alive?)
-      end
+    
+    # specify 'alive?' do
+    #   expect(instance).to respond_to(:alive?)
+    # end
     end
   end
   

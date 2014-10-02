@@ -25,12 +25,20 @@ module Housekeeping::Users
     end
   end
 
+  
   module ClassMethods
-   #def all_creators
-   #  #User
-   #end
+    # Returns a scope for all uniq Users that created this class
+    def all_creators
+     User.joins("created_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
+   end
+
+    # Returns a scope for all uniq Users that updated this class (as currently recorded, does not include Papertrail)
+    def all_creators
+     User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
+   end
   end
 
+  # What was intent? recent touch?
   # def alive?
   # end
 

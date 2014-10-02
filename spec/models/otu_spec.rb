@@ -55,7 +55,7 @@ describe Otu, :type => :model do
 
   context 'when I create a new OTU' do
     context 'and it only has taxon_name_id populated' do
-      specify 'its otu_name should be the taxon name cached_name' do
+      specify 'its otu_name should be the taxon name cached_html' do
         expect(otu.otu_name).to eq(nil)
 
         t = FactoryGirl.create(:relationship_species)

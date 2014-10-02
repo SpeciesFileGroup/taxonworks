@@ -568,7 +568,7 @@ class Protonym < TaxonName
         end
         reduce_list_of_synonyms(possible_synonyms)
         possible_synonyms.each do |s|
-          soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_name + ' ' + s.cached_author_year} since they share the same type")
+          soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_html + ' ' + s.cached_author_year} since they share the same type")
         end
       end
     end
@@ -658,7 +658,7 @@ class Protonym < TaxonName
   end
 
   def set_cached_full_name
-    self.cached_name = get_full_name
+    self.cached_html = get_full_name
   end
 
   def set_cached_higher_classification

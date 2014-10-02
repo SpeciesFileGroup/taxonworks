@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   trait :mostly_empty_protonym do
-    cached_name nil
+    cached_html nil
     cached_author_year nil
     source_id nil
     year_of_publication nil

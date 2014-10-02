@@ -207,8 +207,6 @@ require 'csl/styles'
 class Source::Bibtex < Source
   include SoftValidation
 
-#  include Shared::Notable in source.rb
-#
 # @!attribute publisher
 # @!attribute school
 # @!attribute series
@@ -254,8 +252,10 @@ class Source::Bibtex < Source
 # @!group identifiers
 # @!endgroup
 # 
-# TODO add linkage to serials ==> belongs_to serial
-# TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+
+ belongs_to :source
+
+  # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
 #region constants
 # TW required fields (must have one of these fields filled in)
@@ -327,10 +327,6 @@ class Source::Bibtex < Source
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
 
 #endregion
-
-
-# TODO: This should be moved out to notable likely, and inherited at Source
-  accepts_nested_attributes_for :notes
 
   #region ruby-bibtex related
 
@@ -435,7 +431,6 @@ class Source::Bibtex < Source
         p_array.to_sentence(:last_word_connector => ' & ')
     end
   end
-
 
   def year=(value)
     if value.class == String
@@ -571,7 +566,7 @@ class Source::Bibtex < Source
     cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
     cp.import bx_bibliography.to_citeproc
 
-    self.cached               = cp.render(:bibliography, id: key).first
+    self.cached               = cp.render(:bibliography, id: key).first.strip
     self.cached_author_string = authority_name
   end
 
