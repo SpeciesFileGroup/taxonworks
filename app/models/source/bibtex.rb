@@ -309,7 +309,8 @@ class Source::Bibtex < Source
                               message: "[%{value}] is not a valid URL"}, allow_nil: true
 
   before_validation :check_has_field
-  before_save :set_nomenclature_date, :set_cached_values
+  after_validation :set_cached_values
+  before_save :set_nomenclature_date
 
 #endregion validations
 
@@ -555,19 +556,21 @@ class Source::Bibtex < Source
   protected
 
   def set_cached_values
-    bx_entry = self.to_bibtex
-    if bx_entry.key.blank? then
-      bx_entry.key = 'tmpID'
+    if self.errors.empty?
+      bx_entry = self.to_bibtex
+      if bx_entry.key.blank? then
+        bx_entry.key = 'tmpID'
+      end
+      key             = bx_entry.key
+      bx_bibliography = BibTeX::Bibliography.new()
+      bx_bibliography.add(bx_entry)
+
+      cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+      cp.import bx_bibliography.to_citeproc
+
+      self.cached               = cp.render(:bibliography, id: key).first.strip
+      self.cached_author_string = authority_name
     end
-    key             = bx_entry.key
-    bx_bibliography = BibTeX::Bibliography.new()
-    bx_bibliography.add(bx_entry)
-
-    cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-    cp.import bx_bibliography.to_citeproc
-
-    self.cached               = cp.render(:bibliography, id: key).first.strip
-    self.cached_author_string = authority_name
   end
 
 

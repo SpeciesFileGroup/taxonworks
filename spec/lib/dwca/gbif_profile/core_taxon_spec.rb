@@ -1,9 +1,8 @@
 require 'rails_helper'
+require 'dwca/gbif_profile/core_taxon'
 
- # Some co
-
-describe 'TaxonWorks to DwC-A core mapping' do
-  let (:citation) { 'Defaut (2006) Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). Matériaux Orthoptériques et Entomocénotiques 11, 23–48.' }
+describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
+  let (:citation) { 'Defaut. 2006. Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). Matériaux Orthoptériques et Entomocénotiques 11:23-48' }
 
   let(:core) {
     
@@ -39,6 +38,10 @@ describe 'TaxonWorks to DwC-A core mapping' do
   }
   
   context 'When name is governed by ICZN' do
+    
+    specify 'nomenclaturalCode' do
+      expect(core.nomenclaturalCode).to eq('ICZN')
+    end
         
     context 'When taxon is validly published' do
       # Build example models here and populate the hash. Please when doing so, also
@@ -47,40 +50,39 @@ describe 'TaxonWorks to DwC-A core mapping' do
       # a citation and then just assigning its text representation to namePublishedIn
       # without showing how the name relates to the model is an incorrect example)
    
-
       specify 'taxonomicStatus' do
         # NOTE: Although SFS currently uses 'accepted' as is the preferred term in 
         # http://rs.gbif.org/vocabulary/gbif/taxonomic_status.xml, 'valid' could be used as well.
         # Decide which is best.
-        expect(core[:taxonomicStatus]).to eq('accepted')
+        expect(core.taxonomicStatus).to eq('accepted')
       end
       
       # http://rs.gbif.org/vocabulary/gbif/nomenclatural_status.xml  
       # We need to map Nomen to this, task for @proceps
       specify 'nomenclaturalStatus' do
-        expect(core[:nomenclaturalStatus]).to eq('available')
+        expect(core.nomenclaturalStatus).to eq('available')
       end
       
       specify 'scientificName' do
-        expect(core[:scientificName]).to eq('Oedipoda caerulescens sardeti')
+        expect(core.scientificName).to eq('Oedipoda caerulescens sardeti')
       end
       
       specify 'scientificNameAuthorship' do
-        expect(core[:scientificNameAuthorship]).to eq('Defaut, 2006')
+        expect(core.scientificNameAuthorship).to eq('Defaut, 2006')
       end
       
       specify 'scientificNameID' do
         # NOTE: LSID must be supported, but not necessarily should be a requirement for all projects where this term
         # could be either be built from something else or not be used at all.
-        expect(core[:scientificNameID]).to eq('urn:lsid:Orthoptera.speciesfile.org:TaxonName:67404')
+        expect(core.scientificNameID).to eq('urn:lsid:Orthoptera.speciesfile.org:TaxonName:67404')
       end
       
       specify 'taxonRank' do
-        expect(core[:taxonRank]).to eq('subspecies')
+        expect(core.taxonRank).to eq('subspecies')
       end
       
       specify 'namePublishedIn' do
-        expect(core[:namePublishedIn]).to eq(citation)
+        expect(core.namePublishedIn).to eq(citation)
       end
     end
   end
