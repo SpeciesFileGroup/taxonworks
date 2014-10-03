@@ -502,7 +502,7 @@ class TaxonName < ActiveRecord::Base
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ] : nil }  ]
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ] : nil }, ')'  ]
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
@@ -627,57 +627,54 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_original_combination
-    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
-      cached_html = nil
-    else
-      relationships = self.original_combination_relationships
-      relationships = relationships.sort_by { |r| r.type_class.order_index }
-      genus         = ''
-      subgenus      = ''
-      superspecies  = ''
-      species       = ''
-      gender        = nil
-      relationships.each do |i|
-        case i.type_class.object_relationship_name
-          when 'original genus'
-            genus  = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-            gender = i.subject_taxon_name.gender_name
-          when 'original subgenus' then
-            subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original section' then
-            subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original subsection' then
-            subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original series' then
-            subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original subseries' then
-            subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original species' then
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original subspecies' then
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original variety' then
-            species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original subvariety' then
-            species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original form' then
-            species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-        end
+    return nil if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym 
+    relationships = self.original_combination_relationships
+    relationships = relationships.sort_by { |r| r.type_class.order_index }
+    genus         = ''
+    subgenus      = ''
+    superspecies  = ''
+    species       = ''
+    gender        = nil
+    relationships.each do |i|
+      case i.type_class.object_relationship_name
+      when 'original genus'
+        genus  = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+        gender = i.subject_taxon_name.gender_name
+      when 'original subgenus' then
+        subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+      when 'original section' then
+        subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+      when 'original subsection' then
+        subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+      when 'original series' then
+        subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+      when 'original subseries' then
+        subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+      when 'original species' then
+        species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+      when 'original subspecies' then
+        species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+      when 'original variety' then
+        species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+      when 'original subvariety' then
+        species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+      when 'original form' then
+        species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
       end
-      if self.rank_string =~ /Genus/
-        if genus.blank?
-          genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
-        else
-          subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
-        end
-      elsif self.rank_string =~ /Species/
-        species += '<em>' + self.name_with_misspelling(nil) + '</em> '
-        genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
-      end
-      subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
-      cached_html.blank? ? nil : cached_html
     end
+    if self.rank_string =~ /Genus/
+      if genus.blank?
+        genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+      else
+        subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+      end
+    elsif self.rank_string =~ /Species/
+      species += '<em>' + self.name_with_misspelling(nil) + '</em> '
+      genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+    end
+    subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
+    cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+    cached_html.blank? ? nil : cached_html
   end
 
   def get_combination
