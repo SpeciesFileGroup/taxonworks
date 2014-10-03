@@ -399,17 +399,22 @@ class TaxonName < ActiveRecord::Base
       set_cached_full_name
       set_cached_author_year
       set_cached_classified_as
+
+      # @proceps this line does nothing:
       self.cached_original_combination.blank? if self.class == Protonym
+
       set_cached_original_combination
     end
   end
 
+  # override in subclasses
   def set_cached_full_name
-    true # override in subclasses
+    true
   end
 
+  # overwridden in subclasses 
   def set_cached_original_combination
-    true # overwridden in subclasses 
+    true 
   end
 
   def set_cached_author_year
@@ -425,6 +430,9 @@ class TaxonName < ActiveRecord::Base
     misspelling.empty? ? nil : true
   end
 
+  # Returns an Array of ancestors
+  #   same as self.ancestors, but also works
+  #   for new records when parents specified
   def ancestors_through_parents(result = [self], start = self)
     if start.parent.nil?
       return result.reverse
@@ -472,6 +480,7 @@ class TaxonName < ActiveRecord::Base
     data 
   end
 
+  # TODO: rename to get_full_name (when name is available)
   def get_full_name_no_html
     return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d = full_name_hash
@@ -479,10 +488,11 @@ class TaxonName < ActiveRecord::Base
     elements.push(d['genus'])
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')'] 
     elements.push ['(', d['superspecies'], ')'] 
-    elements.push(d['species'], d['subpecies'], d['variety'], d['subvariety'], d['form'], d['subform'] )
+    elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'] )
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
   end
 
+  # TODO: rename to get_full_name_html
   def get_full_name
     return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d = full_name_hash
@@ -490,12 +500,9 @@ class TaxonName < ActiveRecord::Base
     eo = '<em>'
     ec = '</em>'
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
+
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| 
-      d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ]  : nil},
-    ')' 
-    ]
-  
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ]  ]
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
@@ -714,7 +721,6 @@ class TaxonName < ActiveRecord::Base
           else
         end
       end
-
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
       cached_html.blank? ? nil : cached_html
@@ -724,18 +730,17 @@ class TaxonName < ActiveRecord::Base
   def get_genus_species(genus_option, self_option)
     genus = nil
     name1 = nil
-    if self.rank_class.nil?
-      return nil
-    elsif genus_option == :original
+    return nil if self.rank_class.nil?
+    
+    if genus_option == :original
       genus = self.original_genus
-    elsif genus_option == :curent
+    elsif genus_option == :current
       genus = self.ancestor_at_rank('genus')
     end
     genus = genus.name unless genus.blank?
 
-    if self.rank_string =~ /Species/ && genus.blank?
-      return nil
-    elsif self_option == :self
+    return nil if self.rank_string =~ /Species/ && genus.blank?
+    if self_option == :self
       name1 = self.name
     elsif self_option == :alternative
       name1 = self.name_with_alternative_spelling
@@ -743,38 +748,41 @@ class TaxonName < ActiveRecord::Base
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
+  # @proceps - this needs to use nomenclatural date, or reference the source when provided
+  # Returns a String with the author and year of the name. 
   def get_author_and_year
-    if self.rank.nil?
-      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-    else
-      rank = Object.const_get(self.rank_string)
-      if rank.nomenclatural_code == :iczn
-        misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-          with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
-        ay             = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-        obj            = misapplication.empty? ? nil : misapplication.first.object_taxon_name
-        unless (misapplication.empty? || obj.verbatim_author.blank?)
-          ay += ' nec ' + ([obj.verbatim_author] + [obj.year_of_publication]).compact.join(', ')
-        end
-        if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(self.rank_class)
-          if self.original_combination_genus.name != self.ancestor_at_rank('genus').name and !self.original_combination_genus.name.to_s.empty?
-            ay = '(' + ay + ')' unless ay.empty?
-          end
-        end
-      elsif rank.nomenclatural_code == :icn
-        t  = [self.verbatim_author]
-        t  += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
-        ay = t.compact.join(' ')
-      else
-        ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(' ')
+    return ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ') if self.rank.nil?
+    rank = self.rank_class
+
+    if rank.nomenclatural_code == :iczn
+      misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+        with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+      ay             = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
+      obj            = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+      
+      unless (misapplication.empty? || obj.verbatim_author.blank?)
+        ay += ' nec ' + ([obj.verbatim_author] + [obj.year_of_publication]).compact.join(', ')
       end
+
+      if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(rank)
+        if self.original_combination_genus.name != ( self.ancestor_at_rank('genus').name && !self.original_combination_genus.name.to_s.empty? )
+          ay = '(' + ay + ')' unless ay.empty?
+        end
+      end
+
+    elsif rank.nomenclatural_code == :icn
+      t  = [self.verbatim_author]
+      t  += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
+      ay = t.compact.join(' ')
+    else
+      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(' ')
     end
     ay
   end
 
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
-    (self.ancestors + [self]).select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
+    safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
   end
 
   def get_classified_as
@@ -994,7 +1002,7 @@ class TaxonName < ActiveRecord::Base
         self.cached_higher_classification != get_higher_classification ||
         self.cached_primary_homonym != get_genus_species(:original, :self) ||
         self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:curent, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:curent, :alternative))
+        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
         cached = false
       end
     end

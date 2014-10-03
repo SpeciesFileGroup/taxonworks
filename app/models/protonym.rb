@@ -677,11 +677,11 @@ class Protonym < TaxonName
   end
 
   def set_secondary_homonym
-    self.cached_secondary_homonym = get_genus_species(:curent, :self)
+    self.cached_secondary_homonym = get_genus_species(:current, :self)
   end
 
   def set_secondary_homonym_alternative_spelling
-    self.cached_secondary_homonym_alternative_spelling = get_genus_species(:curent, :alternative)
+    self.cached_secondary_homonym_alternative_spelling = get_genus_species(:current, :alternative)
   end
 
   def set_cached_original_combination

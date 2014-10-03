@@ -47,7 +47,6 @@ describe 'TaxonWorks to DwC-A core mapping' do
       # a citation and then just assigning its text representation to namePublishedIn
       # without showing how the name relates to the model is an incorrect example)
    
-
       specify 'taxonomicStatus' do
         # NOTE: Although SFS currently uses 'accepted' as is the preferred term in 
         # http://rs.gbif.org/vocabulary/gbif/taxonomic_status.xml, 'valid' could be used as well.

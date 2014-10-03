@@ -500,6 +500,7 @@ describe Protonym, :type => :model do
         @family.soft_validate(:missing_relationships)
         expect(@family.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'type genus in wrong subfamily' do
         other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
         gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
@@ -528,6 +529,7 @@ describe Protonym, :type => :model do
         other_subfamily.soft_validate(:type_placement)
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'mismatching' do
         @genus.type_species_by_monotypy = @species
         @subgenus.type_species_by_original_monotypy = @species
