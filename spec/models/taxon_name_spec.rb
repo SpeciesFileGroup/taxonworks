@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe TaxonName, :type => :model do
 
+
   let(:taxon_name) { TaxonName.new }
   before(:all) do
     TaxonName.delete_all
@@ -252,12 +253,14 @@ describe TaxonName, :type => :model do
         kingdom.valid?
         expect(kingdom.errors.include?(:rank_class)).to be_truthy
       end
+
       specify 'a new taxon rank in the same group' do
         t            = FactoryGirl.create(:iczn_kingdom)
         t.rank_class = Ranks.lookup(:iczn, 'genus')
         t.valid?
         expect(t.errors.include?(:rank_class)).to be_truthy
       end
+
     end
 
     context 'source' do
@@ -289,29 +292,42 @@ describe TaxonName, :type => :model do
 
     context 'name' do
       context 'validate cached values' do
+      
+        specify 'ICZN ' do
+          @subspecies.valid?
+          expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
+          expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
+          expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+        end
+      
         specify 'ICZN subspecies' do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
           expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
           expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
+
+
         specify 'ICZN species misspelling' do
           sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
           sp.iczn_set_as_misapplication_of = @species
           expect(sp.save).to be_truthy
           expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
         end
+
         specify 'ICZN family' do
           expect(@family.valid?).to be_truthy
           expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
           expect(@family.cached_author_year).to eq('Say, 1800')
           expect(@family.cached_html.nil?).to be_truthy
         end
+
         specify 'nil author and year - cashed value should be empty' do
           t = @subspecies.ancestor_at_rank('kingdom')
           t.valid?
           expect(t.cached_author_year).to eq('')
         end
+        
         specify 'original genus subgenus' do
           expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_genus = @genus
@@ -328,12 +344,14 @@ describe TaxonName, :type => :model do
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
+
         specify 'source_classified_as' do
           c                      = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
           expect(c.save).to be_truthy
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
+        
         specify 'different gender' do
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
           @species.masculine_name = 'vitus'
@@ -349,6 +367,7 @@ describe TaxonName, :type => :model do
           expect(gender.save).to be_truthy
           expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
         end
+
         specify 'misspelled original combination' do
           g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
           g.iczn_set_as_misspelling_of = @genus
@@ -358,6 +377,7 @@ describe TaxonName, :type => :model do
           expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
           expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
         end
+
         specify 'moving nominotypical taxon' do
           sp           = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
           subsp        = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)
@@ -365,6 +385,7 @@ describe TaxonName, :type => :model do
           subsp.valid?
           expect(subsp.errors.include?(:parent_id)).to be_truthy
         end
+
         context 'cached homonyms' do
           before(:all) do
             @g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @tribe, year_of_publication: 1999)

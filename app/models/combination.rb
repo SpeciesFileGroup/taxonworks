@@ -8,7 +8,6 @@ class Combination < TaxonName
     self.cached_html = get_combination
   end
 
-
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")},

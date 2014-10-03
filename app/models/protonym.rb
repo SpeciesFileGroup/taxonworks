@@ -11,7 +11,7 @@ Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {
 #
 class Protonym < TaxonName
 
-  before_validation :set_cached_names
+  after_validation :set_cached_names
 
   alias_method :original_combination_source, :source
 
@@ -641,16 +641,19 @@ class Protonym < TaxonName
   end
 
   def set_cached_names
-    super
-    set_cached_higher_classification
-    set_primary_homonym
-    set_primary_homonym_alternative_spelling
+    super 
+    if self.errors.empty?
+  
+      set_cached_higher_classification
+      set_primary_homonym
+      set_primary_homonym_alternative_spelling
 
-    if self.rank_class.to_s =~ /Species/
-      set_secondary_homonym
-      set_secondary_homonym_alternative_spelling
+      if self.rank_class.to_s =~ /Species/
+        set_secondary_homonym
+        set_secondary_homonym_alternative_spelling
+      end
+      set_cached_misspelling
     end
-     set_cached_misspelling
   end
 
   def set_cached_misspelling

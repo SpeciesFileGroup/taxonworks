@@ -131,8 +131,9 @@ class TaxonName < ActiveRecord::Base
                     :check_new_rank_class,
                     :check_new_parent_class,
                     :validate_source_type,
-                    :set_cached_names,
                     :validate_one_root_per_project
+
+  after_validation :set_cached_names
 
   belongs_to :source
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
@@ -393,12 +394,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names
-    # if updated, update also sv_cached_names
-    set_cached_full_name
-    set_cached_author_year
-    set_cached_classified_as
-    self.cached_original_combination.blank? if self.class == Protonym
-    set_cached_original_combination
+    if self.errors.empty?
+      # if updated, update also sv_cached_names
+      set_cached_full_name
+      set_cached_author_year
+      set_cached_classified_as
+      self.cached_original_combination.blank? if self.class == Protonym
+      set_cached_original_combination
+    end
   end
 
   def set_cached_full_name
@@ -422,13 +425,31 @@ class TaxonName < ActiveRecord::Base
     misspelling.empty? ? nil : true
   end
 
+  def ancestors_through_parents(result = [self], start = self)
+    if start.parent.nil?
+      return result.reverse
+    else
+      result << start.parent
+      ancestors_through_parents(result, start.parent)
+    end
+  end
+
+  # Returns an Array of ancestors, Root first.
+  # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
+  def safe_self_and_ancestors
+    if self.new_record?
+      ancestors_through_parents
+    else
+      self.self_and_ancestors
+    end
+  end
 
   # Returns an array of arrays [rank, prefix, name] for genus and below 
-  #   @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
+  #   @taxon_name.full_name_array # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
   def full_name_array
     gender = nil 
     data = [] 
-    self.self_and_ancestors.each do |i|
+    safe_self_and_ancestors.each do |i|
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
@@ -442,7 +463,7 @@ class TaxonName < ActiveRecord::Base
   def full_name_hash
     gender = nil 
     data = {} 
-    self.self_and_ancestors.each do |i|
+    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancesotrs because (this) record is not saved off.
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
@@ -462,75 +483,79 @@ class TaxonName < ActiveRecord::Base
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
   end
 
-  def get_full_name2
+  def get_full_name
     return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d = full_name_hash
     elements = []
     eo = '<em>'
     ec = '</em>'
-    byebug if rank == 'genus'
+    d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}" ]  : nil}]
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| 
+      d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ]  : nil},
+    ')' 
+    ]
+  
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
       elements.push( d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
-    # elements.push(d['species'], d['subpecies'], d['variety'], d['subvariety'], d['form'], d['subform'] )
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
   end
 
-  def get_full_name 
-    # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-      cached_html = nil
-    else
-      genus        = ''
-      subgenus     = ''
-      superspecies = ''
-      species      = ''
-      gender       = nil
-      self.self_and_ancestors.each do |i|
-        if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_string)
-          case i.rank_class.rank_name
-            when 'genus'
-              genus  = '<em>' + i.name + '</em> '
-              gender = i.gender_name
-            when 'subgenus' then
-              subgenus += '<em>' + i.name + '</em> '
-            when 'section' then
-              subgenus += 'sect. <em>' + i.name + '</em> '
-            when 'subsection' then
-              subgenus += 'subsect. <em>' + i.name + '</em> '
-            when 'series' then
-              subgenus += 'ser. <em>' + i.name + '</em> '
-            when 'subseries' then
-              subgenus += 'subser. <em>' + i.name + '</em> '
-            when 'species group' then
-              superspecies += '<em>' + i.name_in_gender(gender) + '</em> '
-            when 'species' then
-              species += '<em>' + i.name_in_gender(gender) + '</em> '
-            when 'subspecies' then
-              species += '<em>' + i.name_in_gender(gender) + '</em> '
-            when 'variety' then
-              species += 'var. <em>' + i.name_in_gender(gender) + '</em> '
-            when 'subvariety' then
-              species += 'subvar. <em>' + i.name_in_gender(gender) + '</em> '
-            when 'form' then
-              species += 'f. <em>' + i.name_in_gender(gender) + '</em> '
-            when 'subform' then
-              species += 'subf. <em>' + i.name_in_gender(gender) + '</em> '
-            else
-          end
-        end
-      end
-      subgenus     = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
-      cached_html  = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
-      cached_html.blank? ? nil : cached_html
-    end
-  end
+  # DEPRECATED.  Was not actually building full names for non-saved data.
+  # def get_full_name2
+  #   # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
+  #   unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+  #     cached_html = nil
+  #   else
+  #     genus        = ''
+  #     subgenus     = ''
+  #     superspecies = ''
+  #     species      = ''
+  #     gender       = nil
+  #     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off
+  #       if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_string)
+  #         case i.rank_class.rank_name
+  #           when 'genus'
+  #             genus  = '<em>' + i.name + '</em> '
+  #             gender = i.gender_name
+  #           when 'subgenus' then
+  #             subgenus += '<em>' + i.name + '</em> '
+  #           when 'section' then
+  #             subgenus += 'sect. <em>' + i.name + '</em> '
+  #           when 'subsection' then
+  #             subgenus += 'subsect. <em>' + i.name + '</em> '
+  #           when 'series' then
+  #             subgenus += 'ser. <em>' + i.name + '</em> '
+  #           when 'subseries' then
+  #             subgenus += 'subser. <em>' + i.name + '</em> '
+  #           when 'species group' then
+  #             superspecies += '<em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'species' then
+  #             species += '<em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'subspecies' then
+  #             species += '<em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'variety' then
+  #             species += 'var. <em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'subvariety' then
+  #             species += 'subvar. <em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'form' then
+  #             species += 'f. <em>' + i.name_in_gender(gender) + '</em> '
+  #           when 'subform' then
+  #             species += 'subf. <em>' + i.name_in_gender(gender) + '</em> '
+  #           else
+  #         end
+  #       end
+  #     end
+  #     subgenus     = '(' + subgenus.squish + ') ' unless subgenus.empty?
+  #     superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
+  #     cached_html  = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+  #     cached_html.blank? ? nil : cached_html
+  #   end
+  # end
 
   def genus_name_elements(*args)
     [nil, args[0].name]
