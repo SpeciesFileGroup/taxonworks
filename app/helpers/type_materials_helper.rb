@@ -1,9 +1,8 @@
 module TypeMaterialsHelper
 
   def self.type_material_tag(type_material)
-    # type_material.cached.blank? ? 'CACHED VALUE NOT BUILT - CONTACT ADMIN' : type_material.cached
     return nil if type_material.nil?
-    type_material.verbatim_locality
+    type_material.to_param
   end
 
   def type_material_tag(type_material)

@@ -1,9 +1,8 @@
 module ImagesHelper
 
   def self.image_tag(image)
-    # image.cached.blank? ? 'CACHED VALUE NOT BUILT - CONTACT ADMIN' : image.cached
     return nil if image.nil?
-    image.verbatim_locality
+    image.to_param
   end
 
   def image_tag(image)

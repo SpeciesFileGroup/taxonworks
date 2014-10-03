@@ -27,7 +27,7 @@ describe "AssertedDistributions", :type => :feature do
     end
 
     specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Asserted Distributions'
+      expect(page).to have_content 'Listing asserted distributions'
     end
   end
 

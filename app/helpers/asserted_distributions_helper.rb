@@ -1,9 +1,8 @@
 module AssertedDistributionsHelper
 
   def self.asserted_distribution_tag(asserted_distribution)
-    # asserted_distribution.cached.blank? ? 'CACHED VALUE NOT BUILT - CONTACT ADMIN' : asserted_distribution.cached
     return nil if asserted_distribution.nil?
-    asserted_distribution.verbatim_locality
+    asserted_distribution.to_param
   end
 
   def asserted_distribution_tag(asserted_distribution)
