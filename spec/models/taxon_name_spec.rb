@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe TaxonName, :type => :model do
 
-
   let(:taxon_name) { TaxonName.new }
   before(:all) do
     TaxonName.delete_all

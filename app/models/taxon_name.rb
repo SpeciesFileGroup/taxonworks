@@ -468,6 +468,7 @@ class TaxonName < ActiveRecord::Base
     elements = []
     eo = '<em>'
     ec = '</em>'
+    byebug if rank == 'genus'
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
     elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}" ]  : nil}]
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
