@@ -502,7 +502,7 @@ class TaxonName < ActiveRecord::Base
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ]  ]
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ] : nil }  ]
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
