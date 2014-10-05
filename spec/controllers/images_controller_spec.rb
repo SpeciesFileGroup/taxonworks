@@ -27,8 +27,9 @@ describe ImagesController, :type => :controller do
   # Image. As you add validations to Image, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_image).attributes)
+    {image_file:  fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') }
   }
+
   let(:invalid_attributes) {
     strip_housekeeping_attributes(FactoryGirl.build(:weird_image).attributes)
   }
