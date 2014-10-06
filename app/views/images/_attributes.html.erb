@@ -1,6 +1,11 @@
 <p id="notice"><%= notice %></p>
 
 <p>
+  <strong>Image:</strong>
+  <%= image_tag(@image.image_file.url) %> 
+</p>
+
+<p>
   <strong>User file name:</strong>
   <%= @image.user_file_name %>
 </p>
@@ -18,16 +23,6 @@
 <p>
   <strong>Image file fingerprint:</strong>
   <%= @image.image_file_fingerprint %>
-</p>
-
-<p>
-  <strong>Created by:</strong>
-  <%= @image.created_by_id %>
-</p>
-
-<p>
-  <strong>Project:</strong>
-  <%= @image.project_id %>
 </p>
 
 <p>
@@ -50,10 +45,3 @@
   <%= @image.image_file_updated_at %>
 </p>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @image.updated_by_id %>
-</p>
-
-<%= link_to 'Edit', edit_image_path(@image) %> |
-<%= link_to 'Back', images_path %>

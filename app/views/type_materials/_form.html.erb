@@ -14,25 +14,23 @@
   <div class="field">
     <%= f.label :protonym_id %><br>
     <br>
-    <br>
     <%= render :partial => 'elements/forms/ajax_select',
-               :locals  => {:controller => 'protonyms',
-                            :object     => 'protonym',
+               :locals  => {:controller => 'taxon_names',
+                            :object     => 'type_material',
                             :method     => 'protonym_id',
                             :tag_id     => 'protonym_id_for_type_material',
-                            :display    => protonym_tag(@type_material.protonym),
+                            :display    => object_tag(@type_material.protonym),
                             :size       => 20} %>
   </div>
   <div class="field">
     <%= f.label :biological_object_id %><br>
     <br>
-    <br>
     <%= render :partial => 'elements/forms/ajax_select',
-               :locals  => {:controller => 'biological_objects',
-                            :object     => 'biological_object',
+               :locals  => {:controller => 'collection_objects',
+                            :object     => 'type_material',
                             :method     => 'biological_object_id',
                             :tag_id     => 'biological_object_id_for_type_material',
-                            :display    => biological_object_tag(@type_material.biological_object),
+                            :display    => collection_object_tag(@type_material.material),
                             :size       => 20} %>
   </div>
   <div class="field">
