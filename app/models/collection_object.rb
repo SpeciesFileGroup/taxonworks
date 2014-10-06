@@ -111,7 +111,7 @@ class CollectionObject < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     # add identifiers
     # add determinations
-    where('type LIKE ?', "#{params[:term]}%") 
+    where(id: params[:term]) 
   end
 
   #endregion

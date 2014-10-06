@@ -33,7 +33,7 @@ module Housekeeping::Users
    end
 
     # Returns a scope for all uniq Users that updated this class (as currently recorded, does not include Papertrail)
-    def all_creators
+    def all_updaters
      User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
    end
   end

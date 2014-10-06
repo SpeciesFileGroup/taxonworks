@@ -18,4 +18,8 @@ module TypeMaterialsHelper
     render('/type_materials/quick_search_form')
   end
 
+  def options_for_type_type_select
+    options_for_select((TypeMaterial::ICZN_TYPES.keys + TypeMaterial::ICN_TYPES.keys).uniq.sort, selected: 'holotype')
+  end
+
 end

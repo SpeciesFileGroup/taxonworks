@@ -2,7 +2,6 @@
   <% if @type_material.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@type_material.errors.count, "error") %> prohibited this type_material from being saved:</h2>
-
       <ul>
       <% @type_material.errors.full_messages.each do |message| %>
         <li><%= message %></li>
@@ -13,7 +12,6 @@
 
   <div class="field">
     <%= f.label :protonym_id %><br>
-    <br>
     <%= render :partial => 'elements/forms/ajax_select',
                :locals  => {:controller => 'taxon_names',
                             :object     => 'type_material',
@@ -23,8 +21,7 @@
                             :size       => 20} %>
   </div>
   <div class="field">
-    <%= f.label :biological_object_id %><br>
-    <br>
+    <%= f.label :biological_object_id, 'Material' %><br>
     <%= render :partial => 'elements/forms/ajax_select',
                :locals  => {:controller => 'collection_objects',
                             :object     => 'type_material',
@@ -34,13 +31,11 @@
                             :size       => 20} %>
   </div>
   <div class="field">
-    <%= f.label :type_type %><br>
-    <%= f.text_field :type_type %>
+    <%= f.label :type_type, 'Type' %><br>
+    <%= f.select :type_type, options_for_type_type_select  %>
   </div>
   <div class="field">
     <%= f.label :source_id %><br>
-    <br>
-    <br>
     <%= render :partial => 'elements/forms/ajax_select',
                :locals  => {:controller => 'sources',
                             :object     => 'source',
@@ -49,19 +44,7 @@
                             :display    => source_tag(@type_material.source),
                             :size       => 20} %>
   </div>
-  <div class="field">
-    <%= f.label :created_by_id %><br>
-    <%= f.number_field :created_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :updated_by_id %><br>
-    <%= f.number_field :updated_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
-    <%= f.number_field :project_id %>
-  </div>
-  <div class="actions">
+ <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>

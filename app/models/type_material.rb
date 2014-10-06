@@ -47,7 +47,6 @@ class TypeMaterial < ActiveRecord::Base
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
-
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)
 
@@ -73,8 +72,8 @@ class TypeMaterial < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     term = params[:term]
-    include(:protonym, :biological_object, :source).
-        where(protonyms: {name: term}, biological_objects: {name: term}, sources: {cached: term})
+    include(:protonym, :material, :source).
+        where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term})
   end
 
   protected

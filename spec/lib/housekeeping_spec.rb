@@ -65,7 +65,7 @@ describe 'Housekeeping::User' do
       end
     
       specify 'all updaters' do
-        expect(HousekeepingTestClass::WithUser).to respond_to(:all_creators)
+        expect(HousekeepingTestClass::WithUser).to respond_to(:all_updaters)
       end
     end
 
