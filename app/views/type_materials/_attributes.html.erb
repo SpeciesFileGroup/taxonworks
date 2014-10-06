@@ -1,39 +1,24 @@
-<p id="notice"><%= notice %></p>
+<div class="attributes">
+  <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Protonym:</strong>
-  <%= object_link(@type_material.protonym) %>
-</p>
+  <p>
+    <strong>Protonym:</strong>
+    <%= object_link(@type_material.protonym) %>
+  </p>
 
-<p>
-  <strong>Biological object:</strong>
-  <%= object_link(@type_material.material) %>
-</p>
+  <p>
+    <strong>Biological object:</strong>
+    <%= object_link(@type_material.material) %>
+  </p>
 
-<p>
-  <strong>Type type:</strong>
-  <%= @type_material.type_type %>
-</p>
+  <p>
+    <strong>Type type:</strong>
+    <%= @type_material.type_type %>
+  </p>
 
-<p>
-  <strong>Source:</strong>
-  <%= object_link(@type_material.source) %>
-</p>
+  <p>
+    <strong>Source:</strong>
+    <%= object_link(@type_material.source) %>
+  </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @type_material.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @type_material.updated_by_id %>
-</p>
-
-<p>
-  <strong>Project:</strong>
-  <%= @type_material.project_id %>
-</p>
-
-<%= link_to 'Edit', edit_type_material_path(@type_material) %> |
-<%= link_to 'Back', type_materials_path %>
+</div>
