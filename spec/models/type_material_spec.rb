@@ -84,10 +84,10 @@ describe TypeMaterial, :type => :model do
         @type_material.protonym = FactoryGirl.build_stubbed(:relationship_species, parent: nil)
       end
 
-      specify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
+      xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
       end
 
-      specify 'collection_object is a BiologicalCollectionObject' do
+      xspecify 'collection_object is a BiologicalCollectionObject' do
       end
     end
   end
