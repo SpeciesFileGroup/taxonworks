@@ -69,11 +69,11 @@ class SourcesController < ApplicationController
 
     data = @sources.collect do |t|
       {id: t.id,
-       label: SourcesHelper.otu_tag(t), 
+       label: SourcesHelper.source_tag(t),
        response_values: {
          params[:method] => t.id  
        },
-       label_html: SourcesHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 

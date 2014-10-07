@@ -1,4 +1,7 @@
 <h1>Listing asserted distributions</h1>
+
+<p class="muted_red">These records are asserted to be absent</p>
+
 <%= paginate @asserted_distributions %> <%= page_entries_info @asserted_distributions %>
 
 <table>
@@ -7,24 +10,20 @@
     <th>Otu</th>
     <th>Geographic area</th>
     <th>Source</th>
-    <th>Project</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
-    <th>Is absent</th>
     <th colspan="3"></th>
   </tr>
   </thead>
 
   <tbody>
   <% @asserted_distributions.each do |asserted_distribution| %>
-      <tr>
+      <tr class="<%= toggle_class_css('muted_red', asserted_distribution.is_absent) %>">
         <td><%= object_tag(asserted_distribution.otu) %></td>
         <td><%= object_tag(asserted_distribution.geographic_area) %></td>
         <td><%= object_tag(asserted_distribution.source) %></td>
-        <td><%= asserted_distribution.project_id %></td>
-        <td><%= asserted_distribution.created_by_id %></td>
-        <td><%= asserted_distribution.updated_by_id %></td>
-        <td><%= asserted_distribution.is_absent %></td>
+        <td><%= asserted_distribution.updated_at %></td>
+        <td><%= object_tag(asserted_distribution.updater) %></td>
         <td><%= link_to 'Show', asserted_distribution %></td>
         <td><%= link_to 'Edit', edit_asserted_distribution_path(asserted_distribution) %></td>
         <td><%= link_to 'Destroy', asserted_distribution, method: :delete, data: { confirm: 'Are you sure?' } %></td>

@@ -18,7 +18,7 @@
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
                  :locals => {:controller => 'otus',
-                             :object => 'otu',
+                             :object => 'asserted_distribution',
                              :method => 'otu_id',
                              :tag_id => 'otu_id_for_asserted_distribution',
                              :display => otu_tag(@asserted_distribution.otu),
@@ -31,7 +31,7 @@
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
                  :locals => {:controller => 'geographic_areas',
-                             :object => 'geographic_area',
+                             :object => 'asserted_distribution',
                              :method => 'geographic_area_id',
                              :tag_id => 'geographic_area_id_for_asserted_distribution',
                              :display => geographic_area_tag(@asserted_distribution.geographic_area),
@@ -43,7 +43,7 @@
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
                  :locals => {:controller => 'sources',
-                             :object => 'source',
+                             :object => 'asserted_distribution',
                              :method => 'source_id',
                              :tag_id => 'source_id_for_asserted_distribution',
                              :display => source_tag(@asserted_distribution.source),

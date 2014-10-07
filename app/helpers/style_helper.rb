@@ -21,4 +21,19 @@ module StyleHelper
     'data-no-turbolink="true"'.html_safe if @no_turbolinks
   end
 
+  # def muted_red_css(boolean)
+  #   if boolean
+  #     ' muted_red'
+  #   else
+  #     nil
+  #   end
+  # end
+  def toggle_class_css(css_class, boolean)
+    if boolean
+      css_class
+    else
+      nil
+    end
+  end
+
 end
