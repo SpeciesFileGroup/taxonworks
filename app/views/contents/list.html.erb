@@ -5,14 +5,13 @@
 <table>
   <thead>
     <tr>
-      <th>Text</th>
       <th>Otu</th>
       <th>Topic</th>
+      <th>Text</th>
       <th>Type</th>
       <th>Revision</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -22,15 +21,14 @@
   <tbody>
     <% @contents.each do |content| %>
       <tr>
-        <td><%= content.text %></td>
         <td><%= otu_link(content.otu) %></td>
         <td><%= object_link(content.topic) %></td>
+        <td><%= content.text %></td>
         <td><%= content.type %></td>
         <!--<td><%#= revision_link(content.revision) %></td>-->
-        <td><%= content.revision_id %></td>
-        <td><%= content.created_by_id %></td>
-        <td><%= content.updated_by_id %></td>
-        <td><%= content.project_id %></td>
+        <td><%= object_tag(content.revision) %></td>
+        <td><%= content.updated_at %></td>
+        <td><%= object_tag(content.updater) %></td>
         <td><%= link_to 'Show', content %></td>
         <td><%= link_to 'Edit', edit_content_path(content) %></td>
         <td><%= link_to 'Destroy', content, method: :delete, data: { confirm: 'Are you sure?' } %></td>

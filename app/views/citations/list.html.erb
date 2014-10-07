@@ -8,9 +8,8 @@
       <th>Citation object</th>
       <th>Citation object type</th>
       <th>Source</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -23,9 +22,8 @@
         <td><%= object_tag(citation.citation_object) %></td>
         <td><%= citation.citation_object_type %></td>
         <td><%= source_tag(citation.source) %></td>
-        <td><%= citation.created_by_id %></td>
-        <td><%= citation.updated_by_id %></td>
-        <td><%= citation.project_id %></td>
+        <td><%= citation.updated_at %></td>
+        <td><%= object_tag(citation.updater) %></td>
         <td><%= link_to 'Show', citation %></td>
         <td><%#= link_to 'Edit', edit_citation_path(citation) %></td>
         <td><%= link_to 'Destroy', citation, method: :delete, data: { confirm: 'Are you sure?' } %></td>

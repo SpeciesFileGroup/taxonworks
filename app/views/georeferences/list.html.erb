@@ -15,9 +15,8 @@
     <th>Position</th>
     <th>Is public</th>
     <th>Api request</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
-    <th>Project</th>
     <th>Is undefined z</th>
     <th>Is median z</th>
     <th></th>
@@ -26,22 +25,23 @@
   </tr>
   </thead>
 
+  <!-- todo @mjy Three boolean values here; how do you want them displayed? Do you want all these fields displayed in the list? -->
+
   <tbody>
   <% @georeferences.each do |georeference| %>
       <tr>
-        <td><%= georeference.geographic_item_id %></td>
-        <td><%= georeference.collecting_event_id %></td>
+        <td><%= object_tag(georeference.geographic_item) %></td>
+        <td><%= object_tag(georeference.collecting_event) %></td>
         <td><%= georeference.error_radius %></td>
         <td><%= georeference.error_depth %></td>
-        <td><%= georeference.error_geographic_item_id %></td>
+        <td><%= object_tag(georeference.error_geographic_item) %></td>
         <td><%= georeference.type %></td>
-        <td><%= georeference.source_id %></td>
+        <td><%= object_tag(georeference.source) %></td>
         <td><%= georeference.position %></td>
         <td><%= georeference.is_public %></td>
         <td><%= georeference.api_request %></td>
-        <td><%= georeference.created_by_id %></td>
-        <td><%= georeference.updated_by_id %></td>
-        <td><%= georeference.project_id %></td>
+        <td><%= georeference.updated_at %></td>
+        <td><%= object_tag(georeference.updater) %></td>
         <td><%= georeference.is_undefined_z %></td>
         <td><%= georeference.is_median_z %></td>
         <td><%= link_to 'Show', georeference.becomes(Georeference) %></td>

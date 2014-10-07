@@ -4,12 +4,11 @@
 <table>
   <thead>
     <tr>
-      <th>Type</th>
       <th>Name</th>
+      <th>Type</th>
       <th>Definition</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -19,12 +18,11 @@
   <tbody>
     <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
       <tr>
-        <td><%= controlled_vocabulary_term.type %></td>
         <td><%= controlled_vocabulary_term.name %></td>
+        <td><%= controlled_vocabulary_term.type %></td>
         <td><%= controlled_vocabulary_term.definition %></td>
-        <td><%= controlled_vocabulary_term.created_by_id %></td>
-        <td><%= controlled_vocabulary_term.updated_by_id %></td>
-        <td><%= controlled_vocabulary_term.project_id %></td>
+        <td><%= controlled_vocabulary_term.updated_at %></td>
+        <td><%= object_tag(controlled_vocabulary_term.updater) %></td>
         <td><%= link_to 'Show', controlled_vocabulary_term.becomes(ControlledVocabularyTerm) %></td>
         <td><%= link_to 'Edit', edit_controlled_vocabulary_term_path(controlled_vocabulary_term.becomes(ControlledVocabularyTerm)) %></td>
         <td><%= link_to 'Destroy', controlled_vocabulary_term.becomes(ControlledVocabularyTerm), method: :delete, data: { confirm: 'Are you sure?' } %></td>

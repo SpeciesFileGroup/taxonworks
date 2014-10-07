@@ -4,13 +4,12 @@
 <table>
   <thead>
     <tr>
-      <th>Total</th>
       <th>Type</th>
+      <th>Total</th>
       <th>Preparation type</th>
       <th>Repository</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -20,13 +19,12 @@
   <tbody>
     <% @collection_objects.each do |collection_object| %>
       <tr>
-        <td><%= collection_object.total %></td>
         <td><%= collection_object.type %></td>
-        <td><%= collection_object.preparation_type_id %></td>
-        <td><%= collection_object.repository_id %></td>
-        <td><%= collection_object.created_by_id %></td>
-        <td><%= collection_object.updated_by_id %></td>
-        <td><%= collection_object.project_id %></td>
+        <td><%= collection_object.total %></td>
+        <td><%= object_tag(collection_object.preparation_type) %></td>
+        <td><%= object_tag(collection_object.repository) %></td>
+        <td><%= collection_object.updated_at %></td>
+        <td><%= object_tag(collection_object.updater) %></td>
         <td><%= link_to 'Show', collection_object.becomes(CollectionObject) %></td>
         <td><%= link_to 'Edit', edit_collection_object_path(collection_object.becomes(CollectionObject)) %></td>
         <td><%= link_to 'Destroy', collection_object.becomes(CollectionObject), method: :delete, data: { confirm: 'Are you sure?' } %></td>

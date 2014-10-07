@@ -1,4 +1,5 @@
 <h1>Listing images</h1>
+
 <%= paginate @images %> <%= page_entries_info @images %>
 
 <table>
@@ -8,16 +9,17 @@
     <th>Height</th>
     <th>Width</th>
     <th>Image file fingerprint</th>
-    <th>Created by</th>
-    <th>Project</th>
     <th>Image file file name</th>
     <th>Image file content type</th>
     <th>Image file file size</th>
     <th>Image file updated at</th>
+    <th>Last modified</th>
     <th>Updated by</th>
     <th colspan="3"></th>
   </tr>
   </thead>
+
+  <!-- todo @mjy Do you want all these fields displayed in the list? -->
 
   <tbody>
   <% @images.each do |image| %>
@@ -26,13 +28,12 @@
         <td><%= image.height %></td>
         <td><%= image.width %></td>
         <td><%= image.image_file_fingerprint %></td>
-        <td><%= image.created_by_id %></td>
-        <td><%= image.project_id %></td>
         <td><%= image.image_file_file_name %></td>
         <td><%= image.image_file_content_type %></td>
         <td><%= image.image_file_file_size %></td>
         <td><%= image.image_file_updated_at %></td>
-        <td><%= image.updated_by_id %></td>
+        <td><%= image.updated_at %></td>
+        <td><%= object_tag(image.updater) %></td>
         <td><%= link_to 'Show', image %></td>
         <td><%= link_to 'Edit', edit_image_path(image) %></td>
         <td><%= link_to 'Destroy', image, method: :delete, data: { confirm: 'Are you sure?' } %></td>
