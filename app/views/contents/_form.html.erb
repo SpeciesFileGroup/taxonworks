@@ -21,7 +21,7 @@
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
                  :locals  => {:controller => 'otus',
-                              :object     => 'otu',
+                              :object     => 'content',
                               :method     => 'otu_id',
                               :tag_id     => 'otu_id_for_content',
                               :display    => otu_tag(@content.otu)} %>
@@ -30,7 +30,7 @@
       <%= f.label :topic_id %>
       <br>
       <%= render :partial => 'elements/forms/ajax_select',
-                 :locals  => {:controller => 'contents',
+                 :locals  => {:controller => 'topic_ids',
                               :object     => 'content',
                               :method     => 'topic_id',
                               :tag_id     => 'topic_id_for_content',
@@ -48,7 +48,7 @@
       <%= f.number_field :revision_id %>
       <!--<%#= render :partial => 'elements/forms/ajax_select',-->
                  <!--:locals  => {:controller => 'contents',-->
-                              <!--:object     => 'content',-->
+                              <!--:object     => 'revision',-->
                               <!--:method     => 'revision_id',-->
                               <!--:tag_id     => 'revision_id_for_content',-->
                               <!--:display    => object_tag(@content.revision)} %>-->
