@@ -67,9 +67,10 @@ class Otu < ActiveRecord::Base
   def dwca_core
     core = Dwca::GbifProfile::CoreTaxon.new
     
+    core.nomenclaturalCode = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
     core.taxonomicStatus = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
     core.nomenclaturalStatus = (taxon_name.unavailable? ? nil : 'available')
-    core.scientificName =  taxon_name.get_full_name                           
+    core.scientificName =  taxon_name.get_full_name_no_html                           
     core.scientificNameAuthorship = taxon_name.get_author_and_year       
     core.scientificNameID = taxon_name.identifiers.first.identifier      
     core.taxonRank = taxon_name.rank  

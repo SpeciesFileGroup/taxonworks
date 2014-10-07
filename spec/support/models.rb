@@ -3,7 +3,6 @@
 # These methods are available throughout specs.
 module ModelHelper
 
-  # TODO: should likely move to Factory Helper
   # Returns the name of the TW factory for a class, includes 
   # the formatting for nested subclasses.
   def class_factory_name(klass)
@@ -16,14 +15,14 @@ module ModelHelper
     "valid_#{class_factory_name(klass)}"
   end
 
-
-
   # Model specific helpers
 
-
   def find_or_create_root_taxon_name
-    
-
+    if t = TaxonName.where(parent_id: nil).first
+      return t
+    else
+      return FactoryGirl.create(:root_taxon_name)
+    end
   end
 
 end
