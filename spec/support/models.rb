@@ -17,6 +17,15 @@ module ModelHelper
   end
 
 
+
+  # Model specific helpers
+
+
+  def find_or_create_root_taxon_name
+    
+
+  end
+
 end
 
 
