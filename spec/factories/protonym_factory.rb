@@ -11,11 +11,9 @@ FactoryGirl.define do
 
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
-    #valid_protonym
     factory :valid_protonym, traits: [:parent_is_root] do
-      name 'Root'
-      rank_class NomenclaturalRank
-      parent_id nil
+      name 'Aaidae'
+      rank_class Ranks.lookup(:iczn, 'family')
     end
 
     # Relationship provided factories with short hierarchy
