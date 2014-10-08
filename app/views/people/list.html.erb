@@ -10,7 +10,7 @@
     <th>First name</th>
     <th>Suffix</th>
     <th>Prefix</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
     <th></th>
     <th></th>
@@ -26,7 +26,7 @@
         <td><%= person.first_name %></td>
         <td><%= person.suffix %></td>
         <td><%= person.prefix %></td>
-        <td><%= person.creator.email %></td>
+        <td><%= person.updated_at %></td>  <!-- todo @mjy please validate updated and updater; format different -->
         <td><%= person.updater.email %></td>
         <td><%= link_to 'Show', person.becomes(Person) %></td>
         <td><%= link_to 'Edit', edit_person_path(person.becomes(Person)) %></td>
@@ -35,7 +35,3 @@
   <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Person', new_person_path %>

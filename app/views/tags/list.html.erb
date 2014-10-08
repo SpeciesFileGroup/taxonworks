@@ -10,9 +10,8 @@
     <th>Tag object type</th>
     <th>Tag object attribute</th>
     <th>Position</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
-    <th>Project</th>
     <th colspan="3"></th>
   </tr>
   </thead>
@@ -25,9 +24,8 @@
         <td><%= tag.tag_object_type %></td>
         <td><%= tag.tag_object_attribute %></td>
         <td><%= tag.position %></td>
-        <td><%= tag.created_by_id %></td>
-        <td><%= tag.updated_by_id %></td>
-        <td><%= tag.project_id %></td>
+        <td><%= tag.updated_at %></td>
+        <td><%= object_tag(tag.updater) %></td>
         <td><%= link_to 'Show', tag %></td>
         <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
         <td><%= link_to 'Destroy', tag, method: :delete, data: {confirm: 'Are you sure?'} %></td>
@@ -35,6 +33,4 @@
   <% end %>
   </tbody>
 </table>
-
-<br>
 
