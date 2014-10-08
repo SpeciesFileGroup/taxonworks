@@ -425,6 +425,8 @@ E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
 
+
+# IF you call this you have to use and after all to "unprepare"
 def prepare_test
 
   u = User.order(:id).first
@@ -441,6 +443,7 @@ def prepare_test
   $project_id = p.id
 
 end
+
 
 def generate_geo_test_objects
 
@@ -1548,6 +1551,8 @@ def clean_slate_geo
   GeographicAreasGeographicItem.delete_all
   Georeference.delete_all
   CollectingEvent.delete_all
+  $user_id = 1
+  $project_id = 1
 end
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.

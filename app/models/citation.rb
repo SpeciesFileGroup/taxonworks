@@ -14,7 +14,12 @@ class Citation < ActiveRecord::Base
 
   # TODO: @mjy What *is* the right construct for 'Citation'?
   def self.find_for_autocomplete(params)
+
+
+
+ #   includes(:source).where(sources: {cached:  })
     where('citation_object_type LIKE ?', "#{params[:term]}%")
+  
   end
 
 end

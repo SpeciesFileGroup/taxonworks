@@ -2,6 +2,13 @@ require 'rails_helper'
 
 describe Georeference, :type => :model do
 
+  after(:all) {
+    GeographicItem.destroy_all
+    Georeference.destroy_all
+    CollectingEvent.destroy_all
+    clean_slate_geo
+  }
+
   #grgl = Georeference::GeoLocate.new()
   #grvd = Georeference::VerbatimData.new()
 
@@ -16,7 +23,6 @@ describe Georeference, :type => :model do
 
   context 'validation' do
     before(:each) {
-      # the 'nothing special, not even valid' georeference
       georeference.save
     }
 
@@ -278,14 +284,7 @@ describe Georeference, :type => :model do
 
     }
 
-    after(:all) {
-      GeographicItem.destroy_all
-      Georeference.destroy_all
-      CollectingEvent.destroy_all
-      clean_slate_geo
-    }
-
-    specify '.within_radius_of(geographic_item, distance)' do
+        specify '.within_radius_of(geographic_item, distance)' do
       #skip 'determination of what is intended'
       # Return all Georeferences within some distance of a geographic_item
       # You're just going to use existing scopes in geographic item here, something like:
