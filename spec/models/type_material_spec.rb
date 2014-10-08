@@ -46,36 +46,35 @@ describe TypeMaterial, :type => :model do
   end
 
   context 'general' do
-
-    before(:all) do
-      @type_material = FactoryGirl.build_stubbed(:type_material)
-    end
-
     context 'Protonym restrictions and linkages' do
 
-      before(:all) do
-        @iczn_type = FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
-        @icn_type = FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
-      end
+
+      let(:iczn_type) { 
+        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
+      }
+
+      let(:icn_type) {
+        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
+      }
 
       specify 'type_type is one of ICZN_TYPES.keys for ICZN name' do
-        @iczn_type.type_type = 'foo'
-        @iczn_type.valid?
-        expect(@iczn_type.errors.include?(:type_type)).to be_truthy
-        expect(@iczn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
-        @iczn_type.type_type = 'holotype'
-        @iczn_type.valid?
-        expect(@iczn_type.errors.include?(:type_type)).to be_falsey
+        iczn_type.type_type = 'foo'
+        iczn_type.valid?
+        expect(iczn_type.errors.include?(:type_type)).to be_truthy
+        expect(iczn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
+        iczn_type.type_type = 'holotype'
+        iczn_type.valid?
+        expect(iczn_type.errors.include?(:type_type)).to be_falsey
       end
 
       specify 'type_type is one of ICN_TYPES.keys for ICN name' do
-        @icn_type.type_type = 'foo'
-        @icn_type.valid?
-        expect(@icn_type.errors.include?(:type_type)).to be_truthy
-        expect(@icn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
-        @icn_type.type_type = 'holotype'
-        @icn_type.valid?
-        expect(@icn_type.errors.include?(:type_type)).to be_falsey
+        icn_type.type_type = 'foo'
+        icn_type.valid?
+        expect(icn_type.errors.include?(:type_type)).to be_truthy
+        expect(icn_type.errors.messages[:type_type]).to eq(['Not a legal type for the nomenclatural code provided'])
+        icn_type.type_type = 'holotype'
+        icn_type.valid?
+        expect(icn_type.errors.include?(:type_type)).to be_falsey
       end
 
       specify 'protonym not a species' do
@@ -89,10 +88,13 @@ describe TypeMaterial, :type => :model do
     end
 
     context 'Material restrictions' do
-      before(:all) do
-        @type_material.protonym = FactoryGirl.build_stubbed(:relationship_species, parent: nil)
-      end
-
+      # @proceps, nothing was done with @type_material, so I consolidated that nothing to a let here
+      let(:type_material) {
+        a = FactoryGirl.build_stubbed(:type_material)
+        a.protonym = FactoryGirl.build_stubbed(:relationship_species, parent: nil)
+        a
+      }
+ 
       xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
       end
 
