@@ -12,7 +12,8 @@ FactoryGirl.define do
     parent {
       p =  Protonym.where(parent_id: nil) 
       if p.blank?
-        name = FactoryGirl.create(:root_taxon_name)
+        # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
+        name = FactoryGirl.build(:root_taxon_name, id: Faker::Number.number(5))  
       else
         name = p.first
       end
