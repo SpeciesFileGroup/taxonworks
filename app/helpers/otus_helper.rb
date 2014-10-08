@@ -1,8 +1,17 @@
 module OtusHelper
 
+  ## ! sigh, we can't use content_tag in self. methods.  that will likely prevent this approach
+
   def self.otu_tag(otu)
     return nil if otu.nil?
-    otu.name
+    strs = []
+    strs.push(otu.name) if !otu.name.nil?
+    strs.push(otu.taxon_name.name) if otu.taxon_name_id
+    if strs.size == 2 
+     (strs[0] + " [#{strs[1]}]").html_safe
+    else
+      strs[0]
+    end
   end
 
   def otu_tag(otu)

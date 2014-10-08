@@ -77,14 +77,13 @@ class OtusController < ApplicationController
 
   def autocomplete
     @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
     data = @otus.collect do |t|
-      {id:              t.id,
-       label:           OtusHelper.otu_tag(t),
+      {id: t.id,
+       label: OtusHelper.otu_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: OtusHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 
@@ -120,6 +119,6 @@ class OtusController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def otu_params
-    params.require(:otu).permit(:name)
+    params.require(:otu).permit(:name, :taxon_name_id)
   end
 end

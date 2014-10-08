@@ -93,7 +93,7 @@ class Otu < ActiveRecord::Base
   #endregion
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    Queries::OtuAutocompleteQuery.new(params[:term]).all
   end
 
   # Generate a CSV version of the raw Otus table for the given project_id
@@ -133,3 +133,6 @@ class Otu < ActiveRecord::Base
   end
 
 end
+
+
+

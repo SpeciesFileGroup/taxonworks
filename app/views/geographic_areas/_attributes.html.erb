@@ -3,8 +3,6 @@
       <%= render(partial: 'geographic_items/map_header', locals: {geographic_item: @geographic_area.default_geographic_item}) -%>
   <% end %>
 
-  <h2><%= geographic_area_tag(@geographic_area) -%></h2>
-
   <p>
     <strong>Parent:</strong>
     <%= geographic_area_link(@geographic_area.parent) %>

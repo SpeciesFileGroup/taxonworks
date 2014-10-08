@@ -1,3 +1,8 @@
+#  A Taxon determination is an assertion that a collection object belongs to a taxonomic *concept*.
+#
+#  If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations, 
+#  i.e. TaxonDeterminations are fully "normalized".
+#
 # @!attribute otu
 #   @return [Otu] 
 #   the OTU (concept) of the determination 

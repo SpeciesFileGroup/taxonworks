@@ -93,7 +93,6 @@ class GeographicAreasController < ApplicationController
        label_html:      show_this
       }
     end
-
     render :json => data
   end
 
