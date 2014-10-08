@@ -47,8 +47,6 @@ describe TypeMaterial, :type => :model do
 
   context 'general' do
     context 'Protonym restrictions and linkages' do
-
-
       let(:iczn_type) { 
         FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
       }
