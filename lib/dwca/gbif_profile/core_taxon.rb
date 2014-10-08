@@ -1,4 +1,5 @@
 # Core Taxon class
+# Repository URL: http://rs.gbif.org/core/dwc_taxon.xml
 
 module Dwca::GbifProfile
 
