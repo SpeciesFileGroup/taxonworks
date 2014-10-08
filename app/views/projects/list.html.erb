@@ -6,7 +6,7 @@
   <thead>
   <tr>
     <th>Name</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
     <th></th>
     <th></th>
@@ -18,8 +18,8 @@
   <% @projects.each do |project| %>
       <tr>
         <td><%= project.name %></td>
-        <td><%= project.created_by_id %></td>
-        <td><%= project.updated_by_id %></td>
+        <td><%= project.updated_at %></td>
+        <td><%= object_tag(project.updater) %></td>
         <td><%= link_to 'Show', project %></td>
         <td><%= link_to 'Edit', edit_project_path(project) %></td>
         <td><%= link_to 'Destroy', project, method: :delete, data: {confirm: 'Are you sure?'} %></td>
@@ -27,7 +27,3 @@
   <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Project', new_project_path %>

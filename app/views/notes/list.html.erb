@@ -9,9 +9,8 @@
     <th>Note object</th>
     <th>Note object type</th>
     <th>Note object attribute</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
-    <th>Project</th>
     <th></th>
     <th></th>
     <th></th>
@@ -25,9 +24,8 @@
         <td><%= note.note_object_id %></td>
         <td><%= note.note_object_type %></td>
         <td><%= note.note_object_attribute %></td>
-        <td><%= note.created_by_id %></td>
-        <td><%= note.updated_by_id %></td>
-        <td><%= note.project_id %></td>
+        <td><%= note.updated_at %></td>
+        <td><%= object_tag(note.updater) %></td>
         <td><%= link_to 'Show', note %></td>
         <td><%= link_to 'Edit', edit_note_path(note) %></td>
         <td><%= link_to 'Destroy', note, method: :delete, data: { confirm: 'Are you sure?' } %></td>
