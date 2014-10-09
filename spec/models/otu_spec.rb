@@ -12,19 +12,18 @@ describe Otu, :type => :model do
   end
 
   # foreign key relationships
-  context 'reflections / foreign keys' do
+  context 'associations' do
     context 'has many' do
       specify 'taxon determinations' do
-        expect(otu).to respond_to(:taxon_determinations)
-        expect(otu.taxon_determinations).to eq([])
+        expect(otu.taxon_determinations << TaxonDetermination.new).to be_truthy
       end
 
       specify 'contents' do
-        expect(otu).to respond_to(:contents)
+        expect(otu.otu_contents << OtuContent.new).to be_truthy
       end
 
       specify 'topics' do
-        expect(otu).to respond_to(:topics)
+        expect(otu.topics << Topic.new).to be_truthy
       end
     end
   end

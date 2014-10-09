@@ -10,10 +10,7 @@ describe Content, :type => :model do
     }
 
     context 'requires' do
-      specify 'otu' do
-        expect(content.errors.include?(:otu)).to be_truthy
-      end
-      specify 'topic' do
+     specify 'topic' do
         expect(content.errors.include?(:topic)).to be_truthy
       end
       specify 'text' do

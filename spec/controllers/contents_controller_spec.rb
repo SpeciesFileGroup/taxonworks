@@ -50,7 +50,7 @@ describe ContentsController, :type => :controller do
     it "assigns all contents as @contents" do
       content = Content.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:contents)).to include(content)
+      expect(assigns(:recent_objects)).to include(content.becomes(Content))
     end
   end
 

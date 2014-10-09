@@ -23,16 +23,15 @@ class Content < ActiveRecord::Base
   has_one :public_content
 
   validates_presence_of :text
-  validates :otu, presence: true
   validates :topic, presence: true
 
   def published?
     self.public_content
   end
 
+  # TODO: this will have to be updated in subclasses.
   def publish
     to_publish = {
-      otu:   self.otu,
       topic: self.topic,
       text:  self.text,
     }

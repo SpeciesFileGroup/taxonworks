@@ -2,25 +2,25 @@
   <p id="notice"><%= notice %></p>
 
   <% if @content.respond_to?(:otu) -%>
-  <p>
+    <p>
     <strong>Otu:</strong>
     <%= otu_link(@content.otu) %>
     </p>
   <% end %>
 
   <p>
-    <strong>Topic:</strong>
-    <%= controlled_vocabulary_term_link(@content.topic) %>
+  <strong>Topic:</strong>
+  <%= controlled_vocabulary_term_link(@content.topic) %>
   </p>
 
   <p>
-    <strong>Text:</strong>
-    <%= @content.text %>
+  <strong>Text:</strong>
+  <%= @content.text %>
   </p>
 
   <p>
-    <strong>Type:</strong>
-    <%= @content.type %>
+  <strong>Type:</strong>
+  <%= @content.type %>
   </p>
 
 </div>
