@@ -9,7 +9,6 @@
       <th>Topic</th>
       <th>Text</th>
       <th>Type</th>
-      <th>Revision</th>
       <th>Last modified</th>
       <th>Updated by</th>
       <th></th>
@@ -21,17 +20,15 @@
   <tbody>
     <% @contents.each do |content| %>
       <tr>
-        <td><%= otu_link(content.otu) %></td>
+        <td><%= otu_link(content.otu) if content.respond_to?(:otu) %></td>
         <td><%= object_link(content.topic) %></td>
         <td><%= content.text %></td>
         <td><%= content.type %></td>
-        <!--<td><%#= revision_link(content.revision) %></td>-->
-        <td><%= object_tag(content.revision) %></td>
         <td><%= content.updated_at %></td>
         <td><%= object_tag(content.updater) %></td>
-        <td><%= link_to 'Show', content %></td>
-        <td><%= link_to 'Edit', edit_content_path(content) %></td>
-        <td><%= link_to 'Destroy', content, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', content.becomes(Content) %></td>
+        <td><%= link_to 'Edit', edit_content_path(content.becomes(Content)) %></td>
+        <td><%= link_to 'Destroy', content.becomes(Content), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

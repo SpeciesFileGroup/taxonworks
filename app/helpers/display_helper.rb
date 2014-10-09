@@ -6,6 +6,7 @@ module DisplayHelper
   #   object_tag(@otu) 
   def object_tag(object)
     return nil if object.nil? 
+    return send("taxon_works_content_tag", object).html_safe if object.class.base_class.name == 'Content' # Ugh, I hate this exception
     send("#{object.class.base_class.name.underscore}_tag", object).html_safe
   end
 

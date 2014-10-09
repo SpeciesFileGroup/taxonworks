@@ -7,7 +7,6 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @contents       = Content.all
     @recent_objects = Content.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
@@ -32,8 +31,8 @@ class ContentsController < ApplicationController
 
     respond_to do |format|
       if @content.save
-        format.html { redirect_to @content, notice: 'Content was successfully created.' }
-        format.json { render :show, status: :created, location: @content }
+        format.html { redirect_to @content.becomes(Content), notice: 'Content was successfully created.' }
+        format.json { render :show, status: :created, location: @content.becomes(Content) }
       else
         format.html { render :new }
         format.json { render json: @content.errors, status: :unprocessable_entity }
@@ -46,8 +45,8 @@ class ContentsController < ApplicationController
   def update
     respond_to do |format|
       if @content.update(content_params)
-        format.html { redirect_to @content, notice: 'Content was successfully updated.' }
-        format.json { render :show, status: :ok, location: @content }
+        format.html { redirect_to @content.becomes(Content), notice: 'Content was successfully updated.' }
+        format.json { render :show, status: :ok, location: @content.becomes(Content) }
       else
         format.html { render :edit }
         format.json { render json: @content.errors, status: :unprocessable_entity }
@@ -75,14 +74,13 @@ class ContentsController < ApplicationController
 
   def autocomplete
     @contents = Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
     data = @contents.collect do |t|
       {id:              t.id,
-       label:           ContentsHelper.content_tag(t),
+       label:           ContentsHelper.taxon_works_content_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ContentsHelper.content_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      ContentsHelper.taxon_works_content_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 

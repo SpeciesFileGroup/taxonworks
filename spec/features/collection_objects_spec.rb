@@ -33,7 +33,7 @@ describe 'CollectionObjects', :type => :feature do
     before {
       sign_in_user_and_select_project
       30.times { factory_girl_create_for_user_and_project(:valid_collection_object, @user, @project) }
-      visit collection_object_path(CollectionObject.second) # Note second!
+      visit collection_object_path(CollectionObject.second) 
     }
 
     specify 'there is a \'previous\' link' do
