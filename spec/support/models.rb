@@ -1,3 +1,13 @@
+RSpec.configure do |config|
+  config.before(:all, type: :model) do
+    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
+  end 
+
+  config.after(:all, type: :model) { 
+    ProjectsAndUsers.clean_slate
+  }
+end
+
 # Helpers for Model related testing/helpers.
 #
 # These methods are available throughout specs.
@@ -24,7 +34,26 @@ module ModelHelper
       return FactoryGirl.create(:root_taxon_name)
     end
   end
-
 end
+
+# RSpec.describe "around filter" do
+#   around(:example) do |example|
+#     puts "around example before #{awesome_print(example.parameters)}"
+#     example.run
+#     puts "around example after"
+#   end
+
+#   before(:example) do
+#     puts "before example"
+#   end
+
+#   after(:example) do
+#     puts "after example"
+#   end
+
+#   it "gets run in order" do
+#     puts "in the example"
+#   end
+# end
 
 

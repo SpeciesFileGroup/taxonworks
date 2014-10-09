@@ -20,10 +20,8 @@ describe 'CollectionObjects', :type => :feature do
   describe 'GET /collection_objects/list' do
     before do
       sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there is more than one page
-      30.times { FactoryGirl.create(:valid_collection_object) }
-      visit '/collection_objects/list'
+      30.times { factory_girl_create_for_user_and_project(:valid_collection_object, @user, @project) }
+      visit list_collection_objects_path
     end
 
     specify 'that it renders without error' do
@@ -34,11 +32,8 @@ describe 'CollectionObjects', :type => :feature do
   describe 'GET /collection_objects/n' do
     before {
       sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_collection_object) }
-      all_collection_objects = CollectionObject.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/collection_objects/#{all_collection_objects[1]}"
+      30.times { factory_girl_create_for_user_and_project(:valid_collection_object, @user, @project) }
+      visit collection_object_path(CollectionObject.second) # Note second!
     }
 
     specify 'there is a \'previous\' link' do

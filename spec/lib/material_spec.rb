@@ -2,8 +2,16 @@ require 'rails_helper'
 require 'material'
 
 describe 'Material' do 
+
+  before(:all) {
+    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
+  }
+
+  after(:all) {
+    ProjectsAndUsers.clean_slate
+  }
+
   context '#create_quick_verbatim' do
-  
     before(:each) {
       @one_object_stub = {'collection_objects' => {}}
       @one_object_stub['collection_objects']['object1'] = {'total' => nil}
@@ -21,7 +29,6 @@ describe 'Material' do
       @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
 
       @namespace = FactoryGirl.create(:valid_namespace)
-      
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -136,6 +143,15 @@ describe 'Material' do
 end
 
 describe Material::QuickVerbatimResponse do
+
+  before(:all) {
+    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
+  }
+
+  after(:all) {
+    ProjectsAndUsers.clean_slate
+  }
+
   before(:each) {
     @response = Material::QuickVerbatimResponse.new()
   }
