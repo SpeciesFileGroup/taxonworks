@@ -7,48 +7,56 @@ RSpec.describe "TypeMaterials", :type => :feature do
     let(:page_index_name) { 'Type Materials' }
   end
 
-  describe 'GET /type_materials' do
+  context 'when signed in an a project is selected' do
     before {
       sign_in_user_and_select_project
-      visit type_materials_path }
-
-    specify 'a index name is present' do
-      expect(page).to have_content('Type Materials')
-    end
-  end
-
-  describe 'GET /type_materials/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there is more than one page
-      30.times { FactoryGirl.create(:valid_type_material) }
-      visit '/type_materials/list'
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing type materials'
-    end
-  end
-
-  describe 'GET /type_materials/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_type_material) }
-      all_type_materials = TypeMaterial.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/type_materials/#{all_type_materials[1]}"
     }
 
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
-    end
+    context 'with some records created' do
+      let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      let!(:s) { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) } 
+      before do
+        10.times {
+          FactoryGirl.create(:valid_type_material,
+                             otu: o, 
+                             material: s, 
+                             type: 'paratype',
+                             project: @project,
+                             creator: @user,
+                             updater: @user
+                            )
+        }
 
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
+        describe 'GET /type_materials' do
+          before {
+            visit type_materials_path }
+          specify 'a index name is present' do
+            expect(page).to have_content('Type Materials')
+          end
+        end
 
+        describe 'GET /type_materials/list' do
+          before { visit type_materials_path}
+          specify 'that it renders without error' do
+            expect(page).to have_content 'Listing type materials'
+          end
+        end
+
+        describe 'GET /type_materials/n' do
+          before {
+            visit type_material_path(TypeMaterial.second)
+          }
+
+          specify 'there is a \'previous\' link' do
+            expect(page).to have_link('Previous')
+          end
+
+          specify 'there is a \'next\' link' do
+            expect(page).to have_link('Next')
+          end
+
+        end
+      end
+    end
   end
-
 end

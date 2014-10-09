@@ -20,11 +20,11 @@ describe 'Contents', :type => :feature do
       end
     end
 
-    context 'with some content created' do
+    context 'with some records created' do
       let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
       let!(:t) { factory_girl_create_for_user_and_project(:valid_topic, @user, @project) } 
       before do
-        30.times {
+        10.times {
           FactoryGirl.create(:valid_otu_content,
                              otu: o, 
                              topic: t,
