@@ -5,6 +5,15 @@
   <%= @serial.name %>
 </p>
 
+<ol>
+  <% for alternate_value in @serial.alternate_values %>
+    <li>
+      <%= alternate_value.value %>
+      <%#= link_to_remove_alternate_value('(remove)', alternate_value) %>
+    </li>
+  <% end %>
+</ol>
+
 <p>
   <strong>Created by:</strong>
   <%= @serial.created_by_id %>
