@@ -57,13 +57,13 @@ TaxonWorks::Application.routes.draw do
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
   resources :alternate_values, only: [:new, :edit, :create, :update, :destroy]
-  
-    resources :asserted_distributions do
+
+  resources :asserted_distributions do
     concerns [:data_routes]
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
-  resources :citations, except: [:new, :edit, :show]  do
+  resources :citations, except: [:new, :edit, :show] do
     concerns [:data_routes]
   end
   resources :collecting_events do

@@ -115,9 +115,9 @@
 class TaxonName < ActiveRecord::Base
   # Notice about alternate values
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::Identifiable
-  include Shared::DataAttributes 
+  include Shared::DataAttributes
   include Shared::Citable
   include SoftValidation
   include Shared::Notable
@@ -415,7 +415,7 @@ class TaxonName < ActiveRecord::Base
 
   # overwridden in subclasses 
   def set_cached_original_combination
-    true 
+    true
   end
 
   def set_cached_author_year
@@ -456,58 +456,58 @@ class TaxonName < ActiveRecord::Base
   # Returns an array of arrays [rank, prefix, name] for genus and below 
   #   @taxon_name.full_name_array # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
   def full_name_array
-    gender = nil 
-    data = [] 
+    gender = nil
+    data   = []
     safe_self_and_ancestors.each do |i|
-      rank = i.rank
+      rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
-    data 
+    data
   end
 
   # Returns a hash of rank => [prefix, name] for genus and below 
   #   @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
   def full_name_hash
-    gender = nil 
-    data = {} 
+    gender = nil
+    data   = {}
     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancesotrs because (this) record is not saved off.
-      rank = i.rank
+      rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
-    data 
+    data
   end
 
   # TODO: rename to get_full_name (when name is available)
   def get_full_name_no_html
     return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    d = full_name_hash
+    d        = full_name_hash
     elements = []
     elements.push(d['genus'])
-    elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')'] 
-    elements.push ['(', d['superspecies'], ')'] 
-    elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'] )
+    elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
+    elements.push ['(', d['superspecies'], ')']
+    elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
   end
 
   # TODO: rename to get_full_name_html
   def get_full_name
     return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    d = full_name_hash
+    d        = full_name_hash
     elements = []
-    eo = '<em>'
-    ec = '</em>'
+    eo       = '<em>'
+    ec       = '</em>'
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect{|r| d[r] ? [ d[r][0], "#{eo}#{d[r][1]}#{ec}"  ] : nil } , ')' ]
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
     elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push( d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
+      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
@@ -568,11 +568,11 @@ class TaxonName < ActiveRecord::Base
   def genus_name_elements(*args)
     [nil, args[0].name]
   end
-  
+
   def subgenus_name_elements(*args)
     [nil, args[0].name]
   end
- 
+
   def section_name_elements(*args)
     ['sect.', args[0].name]
   end
@@ -580,7 +580,7 @@ class TaxonName < ActiveRecord::Base
   def subsection_name_elements(*args)
     ['subsect.', args[0].name]
   end
- 
+
   def series_name_elements(*args)
     ['ser.', args[0].name]
   end
@@ -592,11 +592,11 @@ class TaxonName < ActiveRecord::Base
   def species_group_name_elements(*args)
     [nil, args[0].name_in_gender(args[1])]
   end
- 
+
   def species_name_elements(*args)
     [nil, args[0].name_in_gender(args[1])]
   end
- 
+
   def subspecies_name_elements(*args)
     [nil, args[0].name_in_gender(args[1])]
   end
@@ -608,11 +608,11 @@ class TaxonName < ActiveRecord::Base
   def subvariety_name_elements(*args)
     ['subvar.', args[0].name_in_gender(args[1])]
   end
- 
+
   def form_name_elements(*args)
     ['form', args[0].name_in_gender(args[1])]
   end
- 
+
   def subform_name_elements(*args)
     ['subform', args[0].name_in_gender(args[1])]
   end
@@ -732,7 +732,7 @@ class TaxonName < ActiveRecord::Base
     genus = nil
     name1 = nil
     return nil if self.rank_class.nil?
-    
+
     if genus_option == :original
       genus = self.original_genus
     elsif genus_option == :current
@@ -760,13 +760,13 @@ class TaxonName < ActiveRecord::Base
         with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
       ay             = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
       obj            = misapplication.empty? ? nil : misapplication.first.object_taxon_name
-      
+
       unless (misapplication.empty? || obj.verbatim_author.blank?)
         ay += ' nec ' + ([obj.verbatim_author] + [obj.year_of_publication]).compact.join(', ')
       end
 
       if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(rank)
-        if self.original_combination_genus.name != ( self.ancestor_at_rank('genus').name && !self.original_combination_genus.name.to_s.empty? )
+        if self.original_combination_genus.name != (self.ancestor_at_rank('genus').name && !self.original_combination_genus.name.to_s.empty?)
           ay = '(' + ay + ')' unless ay.empty?
         end
       end
@@ -868,7 +868,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_one_root_per_project
-    errors.add(:parent_id, 'Only one root allowed per project') if parent_id.nil? &&  TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+    errors.add(:parent_id, 'Only one root allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
   end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)

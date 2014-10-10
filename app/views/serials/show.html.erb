@@ -4,12 +4,14 @@
   <strong>Name:</strong>
   <%= @serial.name %>
 </p>
-
+Enumerate by type (sorted), show value and attribute (more?)<br>
+With edit/remove links for each.
 <ol>
-  <% for alternate_value in @serial.alternate_values %>
-    <li>
-      <%= alternate_value.value %>
-      <%#= link_to_remove_alternate_value('(remove)', alternate_value) %>
+  <% for alternate_value in @serial.alternate_values.order('type') %>
+      <li>
+      <%= "Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_object_attribute}'" %>
+        <%= link_to_edit_alternate_value('(edit)', alternate_value) %>
+        <%#= link_to_remove_alternate_value('(remove)', alternate_value) %>
     </li>
   <% end %>
 </ol>

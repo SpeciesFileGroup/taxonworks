@@ -99,7 +99,7 @@ class GeographicAreasController < ApplicationController
   private
 
   # TODO: move to a concern?
-  def disable_turbolinks 
+  def disable_turbolinks
     @no_turbolinks = true
   end
 

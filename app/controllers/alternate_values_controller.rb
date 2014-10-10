@@ -56,4 +56,8 @@ class AlternateValuesController < ApplicationController
   def alternate_value_params
     params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_object_type, :alternate_object_id, :alternate_object_attribute)
   end
+
+  def breakout_types(collection)
+    collection
+  end
 end

@@ -5,7 +5,8 @@
     <div>id: <%= object.id -%></div>
     <%= forward_back_links(object) -%> <br>
     <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
-    <%= pin_item_to_pinboard_link(object, sessions_current_user) -%><br>
+    <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+    <br>
     <%= add_alternate_value_link(object: object, user: sessions_current_user) -%>
     <br>
     <%= papertrail_link(object) -%>
@@ -25,22 +26,22 @@
     <% object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
         <%= r.name.to_s.humanize -%>
         <% if object.respond_to?(r.name) -%>
-          <%= object.send(r.name.to_s).count  -%>
+            <%= object.send(r.name.to_s).count -%>
         <% else %>
             <mark> requires method rename!</mark>
         <% end %>
         <br>
-      <% end %>
+    <% end %>
     <h3> Has one </h3>
     <% object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-      <%=  r.name.to_s.humanize -%>
+        <%= r.name.to_s.humanize -%>
         <%= content_tag(:strong, object_tag(object.send(r.name.to_s))) -%>
         <br>
     <% end %>
     <h3> Belongs to </h3>
     <% object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-      <%=  r.name.to_s.humanize -%>
-    <%= content_tag(:strong, object_tag(object.send(r.name.to_s))) -%>
+        <%= r.name.to_s.humanize -%>
+        <%= content_tag(:strong, object_tag(object.send(r.name.to_s))) -%>
         <br>
     <% end %>
 
