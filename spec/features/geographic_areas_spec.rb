@@ -16,38 +16,36 @@ describe 'GeographicAreas', :type => :feature do
     end
   end
 
-  describe 'GET /geographic_areas/list' do
+  context 'visiting with some records created' do
+
     before do
       sign_in_user_and_select_project
       # this is so that there are more than one page of geographic_areas
       30.times { factory_girl_create_for_user(:valid_geographic_area, @user) }
-      visit '/geographic_areas/list'
+      visit list_geographic_areas_path
     end
 
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Geographic Areas'
+    describe 'GET /geographic_areas/list' do
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Geographic Areas'
+      end
+
     end
 
-  end
+    describe 'GET /geographic_areas/n' do
+      before {
+        visit geographic_area_path(GeographicArea.second)
+      }
 
-  describe 'GET /geographic_areas/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { factory_girl_create_for_user(:valid_geographic_area, @user) }
-      all_geographic_areas = GeographicArea.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/geographic_areas/#{all_geographic_areas[1]}"
-    }
+      specify 'there is a \'previous\' link' do
+        expect(page).to have_link('Previous')
+      end
 
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
+      specify 'there is a \'next\' link' do
+        expect(page).to have_link('Next')
+      end
+
     end
-
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
-
   end
 
 end
