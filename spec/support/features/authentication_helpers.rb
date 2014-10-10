@@ -52,6 +52,10 @@ module Features
       sign_in_with(@project_administrator.email, @password)
     end
 
+    def user_project_attributes(user, project)
+      {creator: user, updater: user, project: project} 
+    end
+
     protected
 
     def spin_up_project_and_users

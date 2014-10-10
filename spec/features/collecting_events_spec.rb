@@ -17,13 +17,15 @@ describe 'CollectingEvents', :type => :feature do
     end
   end
 
+  context 'signed in as a user, with some records created' do
+    before {
+    sign_in_user_and_select_project
+     10.times { factory_girl_create_for_user_and_project(:valid_collecting_event, @user, @project) }
+    }
+ 
   describe 'GET /collecting_events/list' do
     before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there is more than one page
-      30.times { FactoryGirl.create(:valid_collecting_event) }
-      visit '/collecting_events/list'
+      visit list_collecting_events_path
     end
 
     specify 'that it renders without error' do
@@ -33,12 +35,7 @@ describe 'CollectingEvents', :type => :feature do
 
   describe 'GET /collecting_events/n' do
     before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_collecting_event) }
-      all_collecting_events = CollectingEvent.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/collecting_events/#{all_collecting_events[1]}"
+      visit collecting_event_path(CollectingEvent.second)
     }
 
     specify 'there is a \'previous\' link' do
@@ -51,4 +48,5 @@ describe 'CollectingEvents', :type => :feature do
 
   end
 
+end
 end

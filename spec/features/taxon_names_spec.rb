@@ -15,45 +15,42 @@ describe 'TaxonNames', :type => :feature do
     specify 'an index name is present' do
       expect(page).to have_content('Taxon Names')
     end
-
-  end
-  describe 'GET /taxon_names/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there are more than one page of taxon_names
-      30.times { FactoryGirl.create(:valid_taxon_name) }
-      visit '/taxon_names/list'
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Taxon Names'
-    end
-
   end
 
-  describe 'GET /taxon_names/n' do
+  context 'signed in as a user, with some records created' do
+    let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge( source: nil) ) }
     before {
       sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_taxon_name) }
-      all_taxon_names = TaxonName.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/taxon_names/#{all_taxon_names[1]}"
+      5.times {
+          FactoryGirl.create(:iczn_family, user_project_attributes(@user, @project).merge(parent: p, source: nil) )
+      }
     }
+    
+    describe 'GET /taxon_names/list' do
+      before do
+        visit list_taxon_names_path 
+      end
 
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Taxon Names'
+      end
     end
 
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
+    describe 'GET /taxon_names/n' do
+      before {
+        visit taxon_name_path(TaxonName.second)
+      }
 
+      specify 'there is a \'previous\' link' do
+        expect(page).to have_link('Previous')
+      end
+
+      specify 'there is a \'next\' link' do
+        expect(page).to have_link('Next')
+      end
+    end
   end
-
 end
-
 
 
 
