@@ -1,5 +1,5 @@
 class ControlledVocabularyTermsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy]
 

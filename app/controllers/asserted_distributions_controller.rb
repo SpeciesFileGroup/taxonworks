@@ -1,5 +1,5 @@
 class AssertedDistributionsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy]
 

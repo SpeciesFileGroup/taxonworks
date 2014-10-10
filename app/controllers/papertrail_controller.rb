@@ -1,4 +1,5 @@
 class PapertrailController < ApplicationController
+  before_filter :require_signin_and_project_selection
 
   # GET /hub
   def papertrail

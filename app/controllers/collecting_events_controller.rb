@@ -1,5 +1,5 @@
 class CollectingEventsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy]
 

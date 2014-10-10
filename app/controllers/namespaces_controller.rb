@@ -1,5 +1,7 @@
 class NamespacesController < ApplicationController
-  before_action :require_administrator_sign_in
+  include DataControllerConfiguration::SharedDataControllerConfiguration
+
+  before_action :require_administrator_sign_in, only: [:edit, :update, :destroy]
 
   # TODO: scope this to administrators?
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
@@ -7,7 +9,6 @@ class NamespacesController < ApplicationController
   # GET /namespaces
   # GET /namespaces.json
   def index
-  
     @namespaces     = Namespace.all
     @recent_objects = Namespace.order(updated_at: :desc).limit(10)
   end

@@ -1,5 +1,5 @@
 class GeoreferencesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_georeference, only: [:show, :edit, :update, :destroy]
 

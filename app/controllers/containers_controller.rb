@@ -1,5 +1,5 @@
 class ContainersController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_container, only: [:update, :destroy]
 

@@ -2,7 +2,6 @@ module DataControllerConfiguration
   extend ActiveSupport::Concern
 
   included do
-    before_action :require_sign_in_and_project_selection
     before_filter :set_is_data_controller, :set_data_model
   end
 

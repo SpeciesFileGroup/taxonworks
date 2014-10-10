@@ -1,5 +1,5 @@
 class IdentifiersController < ApplicationController
-  include DataControllerConfiguration
+ include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_identifier, only: [:update, :destroy]
 

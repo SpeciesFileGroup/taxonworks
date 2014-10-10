@@ -8,7 +8,7 @@ describe 'Otus', :type => :feature do
     let(:page_index_name) { 'Otus' }
   end
 
-  context 'with some records created' do
+  context 'signed in as a user, with some records created' do
     before {
     sign_in_user_and_select_project
      10.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
@@ -36,7 +36,6 @@ describe 'Otus', :type => :feature do
     specify 'that it renders without error' do
       expect(page).to have_content 'Listing Otus'
     end
-
   end
 
   describe 'GET /otus/n' do

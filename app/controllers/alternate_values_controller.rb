@@ -1,5 +1,5 @@
 class AlternateValuesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_alternate_value, only: [:update, :destroy] # :edit removed from this list
 

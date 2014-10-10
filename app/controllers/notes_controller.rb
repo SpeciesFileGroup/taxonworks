@@ -1,5 +1,5 @@
 class NotesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_note, only: [:update, :destroy]
 

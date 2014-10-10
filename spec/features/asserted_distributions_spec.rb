@@ -1,12 +1,10 @@
 require 'rails_helper'
-
 describe "AssertedDistributions", :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { asserted_distributions_path }
     let(:page_index_name) { 'Asserted Distributions' }
   end
-
 
   context 'signed in as user, with some records created' do
     before {
@@ -26,7 +24,6 @@ describe "AssertedDistributions", :type => :feature do
       let(:s) { factory_girl_create_for_user(:valid_source_bibtex, @user) }
       before { 
         5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project)  }
-
         5.times.each_with_index { |i| 
           FactoryGirl.create(:valid_asserted_distribution,
                              otu: Otu.all[i],

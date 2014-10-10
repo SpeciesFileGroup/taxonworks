@@ -1,5 +1,5 @@
 class TaggedSectionKeywordsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_tagged_section_keyword, only: [:update, :destroy]
 

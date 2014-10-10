@@ -1,5 +1,5 @@
 class TaxonNamesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy]
 

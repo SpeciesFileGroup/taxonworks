@@ -1,5 +1,5 @@
 class TaxonNameClassificationsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name_classification, only: [:update, :destroy]
 

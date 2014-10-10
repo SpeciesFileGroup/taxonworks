@@ -1,5 +1,5 @@
 class DataAttributesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_data_attribute, only: [:update, :destroy]
 

@@ -1,5 +1,5 @@
 class LoanItemsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_loan_item, only: [:update, :destroy]
 

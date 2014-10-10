@@ -1,5 +1,5 @@
 class TagsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_tag, only: [:update, :destroy]
 

@@ -1,5 +1,5 @@
 class ImagesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_image, only: [:show, :edit, :update, :destroy]
 

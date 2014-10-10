@@ -1,5 +1,5 @@
 class CollectionObjectsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collection_object, only: [:show, :edit, :update, :destroy]
 

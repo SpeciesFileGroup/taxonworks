@@ -1,5 +1,5 @@
 class SerialsController < ApplicationController
-  #include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :require_sign_in
 

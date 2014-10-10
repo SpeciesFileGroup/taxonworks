@@ -1,5 +1,5 @@
 class BiocurationClassificationsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biocuration_classification, only: [:update, :destroy]
 

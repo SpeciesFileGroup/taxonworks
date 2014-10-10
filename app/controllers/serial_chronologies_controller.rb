@@ -1,5 +1,5 @@
 class SerialChronologiesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :require_sign_in
   before_action :set_serial_chronology, only: [:update, :destroy]

@@ -1,7 +1,5 @@
 require 'rails_helper'
 
-# TODO: fix this.
-
 describe 'Project Members', :type => :feature do
   
 # it_behaves_like 'a_superuser_login_required_and_project_selected_controller' do 

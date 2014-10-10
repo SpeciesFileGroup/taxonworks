@@ -1,5 +1,5 @@
 class CitationsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
   before_action :set_citation, only: [:update, :destroy]

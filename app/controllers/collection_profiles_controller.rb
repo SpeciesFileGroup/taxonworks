@@ -1,5 +1,5 @@
 class CollectionProfilesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collection_profile, only: [:show, :edit, :update, :destroy]
 

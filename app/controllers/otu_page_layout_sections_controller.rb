@@ -1,5 +1,5 @@
 class OtuPageLayoutSectionsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_otu_page_layout_section, only: [:update, :destroy]
 

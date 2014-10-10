@@ -1,5 +1,5 @@
 class PublicContentsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_public_content, only: [:update, :destroy]
 

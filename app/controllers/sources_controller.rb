@@ -1,5 +1,5 @@
 class SourcesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :require_sign_in 
   before_action :set_source, only: [:show, :edit, :update, :destroy]

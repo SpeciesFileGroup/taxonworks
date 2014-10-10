@@ -1,5 +1,5 @@
 class CitationTopicsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_citation_topic, only: [:update, :destroy]
 

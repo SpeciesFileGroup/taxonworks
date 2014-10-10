@@ -1,5 +1,5 @@
 class TypeMaterialsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_type_material, only: [:show, :edit, :update, :destroy]
 

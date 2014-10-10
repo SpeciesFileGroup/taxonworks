@@ -77,8 +77,7 @@ describe 'Project Handling', :type => :feature do
       it 'it should show the project'
     end
   end
-
-
+  
   describe 'GET /projects/1/edit' do
     context 'logged in member is a member and project admin' do 
       before { 
