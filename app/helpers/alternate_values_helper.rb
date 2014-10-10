@@ -1,7 +1,7 @@
 module AlternateValuesHelper
 
   def link_to_remove_alternate_value(link_text, f)
-    f.hidden_field(:_destroy) + link_to(link_text, '', id: 'alternate-value-remove')
+    f.hidden_field(:_destroy) + link_to(link_text, '', class: 'alternate-value-remove')
   end
 
   def link_to_add_alternate_value(link_text, f, association)
@@ -12,7 +12,7 @@ module AlternateValuesHelper
     # link_to(link_text, '', id: "#{association[0]}-add", onclick: "add_fields(this, \"#{association}\", \"#{escape_javascript(fields)}\")")
     # link_to(link_text, '', id: "#{association[0]}-add")
     # link_to(link_text, '', id: "#{association[0]}-add", fields: fields)
-    link_to(link_text, '', id: "#{association}-add", content: "#{fields}")
+    link_to(link_text, '', class: "#{association}-add", content: "#{fields}")
 
   end
 
