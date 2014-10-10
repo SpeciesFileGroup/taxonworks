@@ -113,10 +113,11 @@
 # @!all_generic_placements #array of genera where the species was placed
 #
 class TaxonName < ActiveRecord::Base
+  # Notice about alternate values
   include Housekeeping
   include Shared::IsData 
   include Shared::Identifiable
-  include Shared::DataAttributes
+  include Shared::DataAttributes 
   include Shared::Citable
   include SoftValidation
   include Shared::Notable

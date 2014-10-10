@@ -13,7 +13,10 @@ module AlternateValuesHelper
     # link_to(link_text, '', id: "#{association[0]}-add")
     # link_to(link_text, '', id: "#{association[0]}-add", fields: fields)
     link_to(link_text, '', class: "#{association}-add", content: "#{fields}")
-
   end
+
+  def  add_alternate_value_link(object: object, attribute: nil, user: user)
+    link_to('Add alternate value', new_alternate_value_path(alternate_value: {alternate_object_type: object.class.base_class.name, alternate_object_id: object.id, alternate_object_attribute: attribute} ) )
+  end 
 
 end

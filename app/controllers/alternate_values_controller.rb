@@ -3,14 +3,17 @@ class AlternateValuesController < ApplicationController
 
   before_action :set_alternate_value, only: [:update, :destroy] # :edit removed from this list
 
+  def new
+    @alternate_value = AlternateValue.new(alternate_value_params)
+  end
+
   # POST /alternate_values
   # POST /alternate_values.json
   def create
     @alternate_value = AlternateValue.new(alternate_value_params)
-
     respond_to do |format|
       if @alternate_value.save
-        format.html { redirect_to :back, notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.alternate_object.becomes(@alternate_value.alternate_object.class.base_class), notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
