@@ -4,17 +4,9 @@ describe 'Project Handling', :type => :feature do
 
   subject { page }
 
-  # TODO: clarify this, this is describing the root path but under Projects
   describe '/' do
-    before(:each) {
-      $user_id = nil 
-      $project_id = nil
+    before { 
       sign_in_user
-    }
-
-    after(:all) {
-      $project_id = 1
-      $user_id = 1
     }
 
     context 'when a user is signed in they see a list of projects (in the hub)' do
@@ -129,36 +121,28 @@ describe 'Project Handling', :type => :feature do
         it 'should create the project and redirect to projects/index with a notice'
       end
     end
-
   end
 
-  describe 'GET /projects/list' do
-    before do
-      sign_in_user
-      $user_id = 1
-      # this is so that there are more than one page of projects
-      30.times { FactoryGirl.create(:valid_project) }
-      visit '/projects/list'
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Projects'
-    end
-
-  end
-
-  describe 'GET /projects/n' do
+  context 'with some projects created' do
     before {
       sign_in_user
-      $user_id = 1
-      1.times { FactoryGirl.create(:valid_project) }
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/projects/#{all_projects[1]}"
-    }
+      5.times { factory_girl_create_for_user(:valid_project, @user)   } 
+    } 
 
-    xspecify 'there is the projects name' do
+    describe 'GET /projects/list' do
+      before {
+        visit list_projects_path}
+
+
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Projects'
+      end
+    end
+
+    describe 'GET /projects/n' do
+      before { visit project_path(Project.first) }
+      xspecify 'there is the projects name' do
+      end
     end
   end
-
 end
-

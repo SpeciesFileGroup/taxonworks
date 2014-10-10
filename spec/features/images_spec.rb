@@ -17,14 +17,17 @@ describe "Images", :type => :feature do
     end
   end
 
+  context 'with some records created' do
+    before {
+    sign_in_user_and_select_project
+     10.times { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
+    }
+
+
   describe 'GET /images/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there is more than one page
-      30.times { FactoryGirl.create(:valid_image) }
-      visit '/images/list'
-    end
+    before {
+      visit list_images_path
+    }
 
     specify 'that it renders without error' do
       expect(page).to have_content 'Listing images'
@@ -33,12 +36,7 @@ describe "Images", :type => :feature do
 
   describe 'GET /images/n' do
     before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_image) }
-      all_images = Image.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/images/#{all_images[1]}"
+      visit image_path(Image.second) 
     }
 
     specify 'there is a \'previous\' link' do
@@ -52,4 +50,4 @@ describe "Images", :type => :feature do
   end
 
 end
-
+end

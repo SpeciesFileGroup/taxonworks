@@ -8,7 +8,13 @@ describe 'Otus', :type => :feature do
     let(:page_index_name) { 'Otus' }
   end
 
-  describe 'GET /otus' do
+  context 'with some records created' do
+    before {
+    sign_in_user_and_select_project
+     10.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+    }
+  
+    describe 'GET /otus' do
     before {
       sign_in_user_and_select_project
       visit otus_path
@@ -24,11 +30,7 @@ describe 'Otus', :type => :feature do
 
   describe 'GET /otus/list' do
     before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there are more than one page of otus
-      30.times { FactoryGirl.create(:valid_otu) }
-      visit '/otus/list'
+      visit list_otus_path
     end
 
     specify 'that it renders without error' do
@@ -39,12 +41,7 @@ describe 'Otus', :type => :feature do
 
   describe 'GET /otus/n' do
     before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_otu) }
-      all_otus = Otu.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/otus/#{all_otus[1]}"
+      visit otu_path(Otu.second)
     }
 
     specify 'there is a \'previous\' link' do
@@ -56,5 +53,5 @@ describe 'Otus', :type => :feature do
     end
 
   end
-
+  end
 end
