@@ -50,11 +50,11 @@ describe "AssertedDistributions", :type => :feature do
           visit asserted_distribution_path(AssertedDistribution.second)
         }
 
-        specify 'there is a \'previous\' link' do
+        specify "there is a 'previous' link" do
           expect(page).to have_link('Previous')
         end
 
-        specify 'there is a \'next\' link' do
+        specify "there is a 'next' link" do
           expect(page).to have_link('Next')
         end
 

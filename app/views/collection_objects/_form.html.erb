@@ -12,16 +12,23 @@
         </div>
     <% end %>
 
-    <div class="field">
-      <%= f.label :total %>
-      <br>
-      <%= f.number_field :total %>
+<div class="required"></div>
+    <div class="or">
+      <div class="option">
+        <div class="field">
+          <%= f.label :total %>
+          <br>
+          <%= f.number_field :total %>
+        </div>
+      </div>
+      <div class="option">
+        <div class="field">
+          <%= f.label :ranged_lot_category %>
+          <br>
+          <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name) -%>
+        </div>
+      </div>
     </div>
-
-    <div class="field">
-      <%= f.label :ranged_lot_category %>
-      <br>
-      <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name) -%>
     </div>
 
     <div class="field">
@@ -41,12 +48,12 @@
       <br>
       <%#= f.select :repository_id, options_from_collection_for_select(Repository.all, :id, :name) -%>
       <%= render partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'repositories',
-                           object:     'collection_object',
-                           method:     'repository',
-                           tag_id:     'repository_id_for_collection_object',
-                           display:    object_tag(@collection_object.repository),
-                           size:       20} %>
+                 locals: {controller: 'repositories',
+                          object: 'collection_object',
+                          method: 'repository',
+                          tag_id: 'repository_id_for_collection_object',
+                          display: object_tag(@collection_object.repository),
+                          size: 20} %>
     </div>
 
     <div class="field">
@@ -54,12 +61,12 @@
       <br>
       <%#= f.select :collecting_event_id, options_from_collection_for_select(CollectingEvent.with_project_id($project_id).all, :id, :cached_display) -%>
       <%= render partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'collecting_events',
-                           object:     'collection_object',
-                           method:     'collecting_event_id',
-                           tag_id:     'collecting_event_id_for_collection_object',
-                           display:    object_tag(@collection_object.collecting_event),
-                           size:       20} %>
+                 locals: {controller: 'collecting_events',
+                          object: 'collection_object',
+                          method: 'collecting_event_id',
+                          tag_id: 'collecting_event_id_for_collection_object',
+                          display: object_tag(@collection_object.collecting_event),
+                          size: 20} %>
 
     </div>
 
@@ -97,24 +104,24 @@
       <%= f.label :accession_provider %>
       <br>
       <%= render(partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'people',
-                           object:     'person',
-                           method:     'accession_provider_id',
-                           tag_id:     'accession_provider_id_for_collection_object',
-                           display:    object_tag(@collection_object.accession_provider),
-                           size:       20}) %>
+                 locals: {controller: 'people',
+                          object: 'person',
+                          method: 'accession_provider_id',
+                          tag_id: 'accession_provider_id_for_collection_object',
+                          display: object_tag(@collection_object.accession_provider),
+                          size: 20}) %>
     </div>
 
     <div class="field">
       <%= f.label :deaccession_recipient %>
       <br>
       <%= render partial: 'elements/forms/ajax_select',
-                 locals:  {controller: 'people',
-                           object:     'person',
-                           method:     'deaccession_recipient_id',
-                           tag_id:     'deaccession_recipient_id_for_collection_object',
-                           display:    object_tag(@collection_object.deaccession_recipient),
-                           size:       20} %>
+                 locals: {controller: 'people',
+                          object: 'person',
+                          method: 'deaccession_recipient_id',
+                          tag_id: 'deaccession_recipient_id_for_collection_object',
+                          display: object_tag(@collection_object.deaccession_recipient),
+                          size: 20} %>
     </div>
 
     <div class="field">
