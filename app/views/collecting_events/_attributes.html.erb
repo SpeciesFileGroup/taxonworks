@@ -2,119 +2,9 @@
   <p id="notice"><%= notice %></p>
 
   <p>
-    <strong>Verbatim label:</strong>
-    <%= @collecting_event.verbatim_label %>
-  </p>
-
-  <p>
-    <strong>Print label:</strong>
-    <%= @collecting_event.print_label %>
-  </p>
-
-  <p>
-    <strong>Document label:</strong>
-    <%= @collecting_event.document_label %>
-  </p>
-
-  <p>
-    <strong>Verbatim locality:</strong>
-    <%= @collecting_event.verbatim_locality %>
-  </p>
-
-  <p>
-    <strong>Verbatim longitude:</strong>
-    <%= @collecting_event.verbatim_longitude %>
-  </p>
-
-  <p>
-    <strong>Verbatim latitude:</strong>
-    <%= @collecting_event.verbatim_latitude %>
-  </p>
-
-  <p>
-    <strong>Verbatim geolocation uncertainty:</strong>
-    <%= @collecting_event.verbatim_geolocation_uncertainty %>
-  </p>
-
-  <p>
-    <strong>Verbatim trip identifier:</strong>
-    <%= @collecting_event.verbatim_trip_identifier %>
-  </p>
-
-  <p>
-    <strong>Verbatim collectors:</strong>
-    <%= @collecting_event.verbatim_collectors %>
-  </p>
-
-  <p>
-    <strong>Verbatim method:</strong>
-    <%= @collecting_event.verbatim_method %>
-  </p>
-
-  <p>
-    <strong>Verbatim habitat:</strong>
-    <%= @collecting_event.verbatim_habitat %>
-  </p>
-
-  <p>
     <strong>Geographic area:</strong>
     <%#= @collecting_event.geographic_area_id %>
     <%= object_link(@collecting_event.geographic_area) %>
-  </p>
-
-  <p>
-    <strong>Minimum elevation:</strong>
-    <%= @collecting_event.minimum_elevation %>
-  </p>
-
-  <p>
-    <strong>Maximum elevation:</strong>
-    <%= @collecting_event.maximum_elevation %>
-  </p>
-
-  <p>
-    <strong>Elevation precision:</strong>
-    <%= @collecting_event.elevation_precision %>
-  </p>
-
-  <p>
-    <strong>Time start:</strong>
-    <%= @collecting_event.time_start %>
-  </p>
-
-  <p>
-    <strong>Time end:</strong>
-    <%= @collecting_event.time_end %>
-  </p>
-
-  <p>
-    <strong>Start date day:</strong>
-    <%= @collecting_event.start_date_day %>
-  </p>
-
-  <p>
-    <strong>Start date month:</strong>
-    <%= @collecting_event.start_date_month %>
-  </p>
-
-  <p>
-    <strong>Start date year:</strong>
-    <%= @collecting_event.start_date_year %>
-  </p>
-
-  <p>
-    <strong>End date day:</strong>
-    <%= @collecting_event.end_date_day %>
-  </p>
-
-  <p>
-    <strong>End date month:</strong>
-    <%= @collecting_event.end_date_month %>
-  </p>
-
-  <p>
-    <strong>End date year:</strong>
-    <%= @collecting_event.end_date_year %>
   </p>
 
   <p>
@@ -131,5 +21,123 @@
     <strong>Cached:</strong>
     <%= @collecting_event.cached %>
   </p>
+
+  <div class="attribute_set" data-title="Labels">
+    <p>
+      <strong>Verbatim label:</strong>
+      <%= @collecting_event.verbatim_label %>
+    </p>
+
+    <p>
+      <strong>Print label:</strong>
+      <%= @collecting_event.print_label %>
+    </p>
+
+    <p>
+      <strong>Document label:</strong>
+      <%= @collecting_event.document_label %>
+    </p>
+  </div>
+
+  <div class="attribute_set" data-title="Verbatim">
+    <p>
+      <strong>Verbatim locality:</strong>
+      <%= @collecting_event.verbatim_locality %>
+    </p>
+
+    <p>
+      <strong>Verbatim longitude:</strong>
+      <%= @collecting_event.verbatim_longitude %>
+    </p>
+
+    <p>
+      <strong>Verbatim latitude:</strong>
+      <%= @collecting_event.verbatim_latitude %>
+    </p>
+
+    <p>
+      <strong>Verbatim geolocation uncertainty:</strong>
+      <%= @collecting_event.verbatim_geolocation_uncertainty %>
+    </p>
+
+    <p>
+      <strong>Verbatim trip identifier:</strong>
+      <%= @collecting_event.verbatim_trip_identifier %>
+    </p>
+
+    <p>
+      <strong>Verbatim collectors:</strong>
+      <%= @collecting_event.verbatim_collectors %>
+    </p>
+
+    <p>
+      <strong>Verbatim method:</strong>
+      <%= @collecting_event.verbatim_method %>
+    </p>
+
+    <p>
+      <strong>Verbatim habitat:</strong>
+      <%= @collecting_event.verbatim_habitat %>
+    </p>
+  </div>
+
+  <div class="attribute_set" data-title="Elevation">
+    <p>
+      <strong>Minimum elevation:</strong>
+      <%= @collecting_event.minimum_elevation %>
+    </p>
+
+    <p>
+      <strong>Maximum elevation:</strong>
+      <%= @collecting_event.maximum_elevation %>
+    </p>
+
+    <p>
+      <strong>Elevation precision:</strong>
+      <%= @collecting_event.elevation_precision %>
+    </p>
+  </div>
+
+  <div class="attribute_set" data-title="Time">
+    <p>
+      <strong>Time start:</strong>
+      <%= @collecting_event.time_start %>
+    </p>
+
+    <p>
+      <strong>Time end:</strong>
+      <%= @collecting_event.time_end %>
+    </p>
+
+    <p>
+      <strong>Start date day:</strong>
+      <%= @collecting_event.start_date_day %>
+    </p>
+
+    <p>
+      <strong>Start date month:</strong>
+      <%= @collecting_event.start_date_month %>
+    </p>
+
+    <p>
+      <strong>Start date year:</strong>
+      <%= @collecting_event.start_date_year %>
+    </p>
+
+    <p>
+      <strong>End date day:</strong>
+      <%= @collecting_event.end_date_day %>
+    </p>
+
+    <p>
+      <strong>End date month:</strong>
+      <%= @collecting_event.end_date_month %>
+    </p>
+
+    <p>
+      <strong>End date year:</strong>
+      <%= @collecting_event.end_date_year %>
+    </p>
+  </div>
 
 </div>
