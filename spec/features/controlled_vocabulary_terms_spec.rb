@@ -7,49 +7,50 @@ describe 'ControlledVocabularyTerms', :type => :feature do
     let(:page_index_name) { 'Controlled Vocabulary Terms' }
   end
 
-  describe 'GET /controlled_vocabulary_terms' do
-    before {
-      sign_in_user_and_select_project
-      visit controlled_vocabulary_terms_path }
+  context 'signed in with a project selected' do
+    before { sign_in_user_and_select_project }
 
-    specify 'an index name is present' do
-      expect(page).to have_content('Controlled Vocabulary Terms')
+    describe 'GET /controlled_vocabulary_terms' do
+      before {
+        visit controlled_vocabulary_terms_path
+      }
+
+      specify 'an index name is present' do
+        expect(page).to have_content('Controlled Vocabulary Terms')
+      end
+    end
+
+    context 'with some records created' do
+      let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge( source: nil) ) }
+      before {
+        5.times {
+          FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project) )
+        }
+      }
+
+      describe 'GET /controlled_vocabulary_terms/list' do
+        before do
+          visit list_controlled_vocabulary_terms_path
+        end
+
+        specify 'it renders list without error' do
+          expect(page).to have_content 'Listing Controlled Vocabulary Terms'
+        end
+      end
+
+      describe 'GET /controlled_vocabulary_terms/n' do
+        before {
+          visit controlled_vocabulary_term_path(ControlledVocabularyTerm.second)
+        }
+
+        specify 'there is a "previous" link' do
+          expect(page).to have_link('Previous')
+        end
+
+        specify 'there is a "next" link' do
+          expect(page).to have_link('Next')
+        end
+      end
     end
   end
-
-  describe 'GET /controlled_vocabulary_terms/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there is more than one page
-      30.times { FactoryGirl.create(:valid_controlled_vocabulary_term) }
-      visit '/controlled_vocabulary_terms/list'
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Controlled Vocabulary Terms'
-    end
-  end
-
-  describe 'GET /controlled_vocabulary_terms/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_controlled_vocabulary_term) }
-      all_controlled_vocabulary_terms = ControlledVocabularyTerm.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      visit "/controlled_vocabulary_terms/#{all_controlled_vocabulary_terms[1]}"
-    }
-
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
-    end
-
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
-    end
-  end
-
 end
-
-
