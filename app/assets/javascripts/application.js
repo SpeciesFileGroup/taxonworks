@@ -18,3 +18,30 @@
 //= require turbolinks
 //= require jquery.turbolinks
 //= require_tree .
+
+//function remove_fields(rf_link) {
+//    $(rf_link).prev('.destroy_field').attr('value', '1');
+//    $(rf_link).closest('.fields').hide();
+//}
+//
+//function destroy_fields(rf_link) {
+//    $(rf_link).prev('.destroy_field').attr('value', '1');
+//    $(rf_link).closest('.fields').hide();
+//}
+//
+//function add_fields(af_link, association, content) {
+//    var new_id = new Date().getTime();
+//    var regexp = new RegExp("new_" + association, "g");
+//    $(af_link).prev().insertBefore(content.replace(regexp, new_id));
+//}
+//
+//function a_fields(af_link) {
+////    af_link.attributes.content.value or $(af_link).attr('content')
+//    var content = $(af_link).attr('content');
+//    var association = $(af_link).attr('association');
+//    var new_id = new Date().getTime();
+//    var regex = new RegExp("new_" + association, "g");
+//    content = content.replace(regex, new_id);
+//    $(content).insertBefore($(af_link));
+//}
+//

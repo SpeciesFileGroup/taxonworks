@@ -59,7 +59,7 @@ class AlternateValue < ActiveRecord::Base
   end
 
   def not_empty_original_value
-    errors.add(:value, 'No alternate value is allowed to empty field') if self.original_value.blank?
+    errors.add(:value, 'An alternate value cannot be assigned to an empty field') if self.original_value.blank?
   end
 
 end

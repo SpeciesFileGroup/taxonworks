@@ -21,12 +21,12 @@
             <br>
             <br>
             <%= render :partial => 'elements/forms/ajax_select',
-                       :locals => {:controller => 'geographic_areas',
-                                   :object => 'collecting_event',
-                                   :method => 'geographic_area_id',
-                                   :tag_id => 'geographic_area_id_for_collecting_event',
-                                   :display => geographic_area_tag(@collecting_event.geographic_area),
-                                   :size => 20} %>
+                       :locals  => {:controller => 'geographic_areas',
+                                    :object     => 'collecting_event',
+                                    :method     => 'geographic_area_id',
+                                    :tag_id     => 'geographic_area_id_for_collecting_event',
+                                    :display    => geographic_area_tag(@collecting_event.geographic_area),
+                                    :size       => 20} %>
           </div>
           <div class="field">
             <%= f.label :field_notes %>
