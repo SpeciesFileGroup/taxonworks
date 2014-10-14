@@ -24,8 +24,12 @@ module AlternateValuesHelper
     link_to('Add alternate value', new_alternate_value_path(alternate_value: {alternate_object_type: object.class.base_class.name, alternate_object_id: object.id, alternate_object_attribute: attribute}))
   end
 
-  def edit_alternate_value_link(object: object, attribute: nil, user: user)
-    link_to('edit', edit_alternate_value_path(alternate_value: {alternate_object_type: object.class.base_class.name, alternate_object_id: object.id, alternate_object_attribute: attribute}))
+  def edit_alternate_value_link(alternate_value)
+    link_to('Edit', edit_alternate_value_path(alternate_value))
+  end
+
+  def destroy_alternate_value_link(alternate_value)
+    # link_to('Destroy', destroy_alternate_value_path(alternate_value))
   end
 
 end
