@@ -12,23 +12,23 @@
         </div>
     <% end %>
 
-<div class="required"></div>
-    <div class="or">
-      <div class="option">
-        <div class="field">
-          <%= f.label :total %>
-          <br>
-          <%= f.number_field :total %>
+    <div class="required">
+      <div class="or">
+        <div class="option">
+          <div class="field">
+            <%= f.label :total %>
+            <br>
+            <%= f.number_field :total %>
+          </div>
+        </div>
+        <div class="option">
+          <div class="field">
+            <%= f.label :ranged_lot_category %>
+            <br>
+            <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name) -%>
+          </div>
         </div>
       </div>
-      <div class="option">
-        <div class="field">
-          <%= f.label :ranged_lot_category %>
-          <br>
-          <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name) -%>
-        </div>
-      </div>
-    </div>
     </div>
 
     <div class="field">
