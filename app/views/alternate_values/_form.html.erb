@@ -17,7 +17,7 @@
     <div class="field">
       <%= f.label :alternate_object_attribute %>
       <br>
-      <%= f.select :alternate_object_attribute, options_for_select(@alternate_value.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS) -%>
+      <%= f.select :alternate_object_attribute, options_for_select(@alternate_value.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_object_attribute) -%>
     </div>
 
     <div class="field">
@@ -28,7 +28,7 @@
     <div class="field">
       <%= f.label :type %>
       <br>
-      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']]) -%>
+      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = @alternate_value.type) -%>
     </div>
     <div class="field">
       <%= f.label :language_id %>

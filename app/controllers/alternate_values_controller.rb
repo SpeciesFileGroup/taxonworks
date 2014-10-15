@@ -7,6 +7,13 @@ class AlternateValuesController < ApplicationController
     @alternate_value = AlternateValue.new(alternate_value_params)
   end
 
+  def edit
+    @alternate_value = AlternateValue.find_by_id(params[:id]).becomes(AlternateValue)
+    # alternate_value: {alternate_object_type: object.class.base_class.name,
+    #                   alternate_object_id: object.id,
+    #                   alternate_object_attribute: alternate_value.alternate_object_attribute}
+  end
+
   # POST /alternate_values
   # POST /alternate_values.json
   def create
@@ -27,8 +34,8 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to :back, notice: 'Alternate value was successfully updated.' }
-        format.json { head :no_content }
+        format.html { redirect_to @alternate_value.alternate_object.becomes(@alternate_value.alternate_object.class.base_class), notice: 'Alternate value was successfully created.' }
+        format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully updated.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
