@@ -576,57 +576,89 @@ namespace :tw do
         localities
       end
 
-      def  index_collecting_events_from_accessions_new(collecting_events_index)
-        path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
+
+      # Relevant columns
+      # -    LocalityCode --- 
+      # -    DateCollectedBeginning
+      # -    DateCollectedEnding
+      # -    Collector
+      # -    CollectionMethod
+      # -    Habitat
+      # -    OldLocalityCode    # tags on CE
+      # -    OldCollector       # tags on CE
+      # --- not used 
+      #     LocalityCompare     # related to hash md5
+
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
+      def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+        puts " from specimens"
+        path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        #   AccessionNumber - field notes for collecting event /  # Not the same accession code 
-        #      missing a "file"  
-        #   Prefix
-        #   CatalogNumber
-        #   LocalityLabel
-        #   Habitat
-        #   Host
-        #   Country
-        #   State
-        #   County
-        #   Locality
-        #   Park
-        #   DateCollectedBeginning
-        #   DateCollectedEnding
-        #   Collector
-        #   CollectionMethod
-        #   ElevationM
-        #   ElevationF
-        #   NS
-        #   Lat_deg
-        #   Lat_min
-        #   Lat_sec
-        #   EW
-        #   Long_deg
-        #   Long_Ming
-        #   Long_Sec
-        #   Remarks
-        #   Precision
-        #   Datum
-        #
-        #   ModifiedBy
-        #   ModifiedOn
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
 
-        puts "\naccession new records\n"
-        ac.each_with_index do |row, i|
-          collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
-          print "\r#{i}" 
+          locality_code = row['LocalityCode']
+          tmp_ce = { }   
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            #tmp_ce.merge!(LOCALITIES[locality_code])
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+          end
+
+          collecting_events_index.merge!(tmp_ce  => nil)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
         end
+
+        puts "\n Number of collecting events processed from specimens: #{collecting_events_index.keys.count} "
+        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
+      end
+
+      def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
+        puts " from specimens_new"
+        path = @args[:data_directory] + 'TXT/specimens_new.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
+
+        unmatched_localities = { }
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
+
+          locality_code = row['LocalityCode']
+          tmp_ce = { }
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            #tmp_ce.merge!(LOCALITIES[locality_code])
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+          end
+
+          collecting_events_index.merge!(tmp_ce  => nil)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+        end
+
+        puts "\n Number of collecting events processed from specimensNew: #{collecting_events_index.keys.count} "
+        puts "\n!! The following are locality codes in specimensNew without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
       end
 
       #  LocalityCode
       #  Collector
       #  DateCollectedBeginning
       #  DateCollectedEnding
-      #       
+      #
       #  Collection
       #  AccessionNumber
       #  LedgerBook
@@ -650,6 +682,7 @@ namespace :tw do
       #  Genus
       #  Species
       #  Sex
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
 
       def index_collecting_events_from_ledgers(collecting_events_index)
         path = @args[:data_directory] + 'TXT/ledgers.txt'
@@ -658,83 +691,76 @@ namespace :tw do
 
         puts "\n  from ledgers\n"
         le.each_with_index do |row, i|
-          collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
-          print "\r#{i}" 
-        end
-      end
-
-      # Relevant columns
-      # -    LocalityCode --- 
-      # -    DateCollectedBeginning
-      # -    DateCollectedEnding
-      # -    Collector
-      # -    CollectionMethod
-      # -    Habitat
-      # -    OldLocalityCode    # tags on CE
-      # -    OldCollector       # tags on CE
-      # --- not used 
-      #     LocalityCompare     # related to hash md5
-
-      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-      #STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
-
-      def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
-        puts " from specimens"
-        path = @args[:data_directory] + 'TXT/specimens.txt'
-        raise 'file not found' if not File.exists?(path)
-
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
-
-        sp.each_with_index do |row, i|
           print "\r#{i}      "
-
-          locality_code = row['LocalityCode']
-          tmp_ce = { }   
-          SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
-          end
-
-          if LOCALITIES[locality_code]
-            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            tmp_ce.merge!(LOCALITIES[locality_code]) 
-          else
-            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
-          end
-
-          collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
-        end
-
-        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ") 
-      end
-
-      def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
-        puts " from specimens_new"
-        path = @args[:data_directory] + 'TXT/specimens_new.txt'
-        raise 'file not found' if not File.exists?(path)
-
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
-
-        sp.each_with_index do |row, i|
-          print "\r#{i}      "
-
-          locality_code = row['LocalityCode']
           tmp_ce = { }
           SPECIMENS_COLUMNS.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
+          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
 
-          if LOCALITIES[locality_code]
-            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            tmp_ce.merge!(LOCALITIES[locality_code])
-          else
-            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
-          end
-
-          collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+          collecting_events_index.merge!(tmp_ce => row.to_h)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
         end
-
-        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
+        puts "\n Number of collecting events processed from Ledgers: #{collecting_events_index.keys.count} "
       end
+
+      #   AccessionNumber - field notes for collecting event /  # Not the same accession code
+      #      missing a "file"
+      #   Prefix
+      #   CatalogNumber
+      #   LocalityLabel
+      #   Habitat
+      #   Host
+      #   Country
+      #   State
+      #   County
+      #   Locality
+      #   Park
+      #   DateCollectedBeginning
+      #   DateCollectedEnding
+      #   Collector
+      #   CollectionMethod
+      #   ElevationM
+      #   ElevationF
+      #   NS
+      #   Lat_deg
+      #   Lat_min
+      #   Lat_sec
+      #   EW
+      #   Long_deg
+      #   Long_Ming
+      #   Long_Sec
+      #   Remarks
+      #   Precision
+      #   Datum
+      #
+      #   ModifiedBy
+      #   ModifiedOn
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
+      def  index_collecting_events_from_accessions_new(collecting_events_index)
+        path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
+        raise 'file not found' if not File.exists?(path)
+
+        ac = CSV.open(path, col_sep: "\t", :headers => true)
+
+        puts "\naccession new records\n"
+        ac.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp_ce = { }
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
+
+          collecting_events_index.merge!(tmp_ce => row.to_h)
+          #collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
+        end
+        puts "\n Number of collecting events processed from Accessions_new: #{collecting_events_index.keys.count} "
+      end
+
+
 
       def parse_geographic_area(ce, found, matchless_for_geographic_area)
         geog_search = []
