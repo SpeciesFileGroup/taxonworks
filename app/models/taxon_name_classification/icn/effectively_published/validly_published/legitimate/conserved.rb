@@ -6,4 +6,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legi
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Sanctioned)
   end
 
+  def self.gbif_status
+    'conservandum'
+  end
+
 end

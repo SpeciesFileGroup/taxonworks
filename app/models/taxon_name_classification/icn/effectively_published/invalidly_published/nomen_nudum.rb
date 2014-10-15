@@ -5,4 +5,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::No
         TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished)
   end
 
+  def self.gbif_status
+    'nudum'
+  end
+
 end

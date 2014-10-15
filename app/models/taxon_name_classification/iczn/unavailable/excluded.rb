@@ -8,7 +8,11 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
 
   end
-  
+
+  def self.gbif_status
+    'nullum'
+  end
+
   module InnerClass
 
     def disjoint_taxon_name_classes

@@ -7,4 +7,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Ille
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Superfluous)
   end
 
+  def self.gbif_status
+    'negatum'
+  end
+
 end

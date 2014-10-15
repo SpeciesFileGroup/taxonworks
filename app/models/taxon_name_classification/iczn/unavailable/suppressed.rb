@@ -8,4 +8,8 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed < TaxonNameClassifi
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
+  def self.gbif_status
+    'rejiciendum'
+  end
+
 end

@@ -14,6 +14,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
     'incorrect original spelling'
   end
 
+  def self.gbif_status_of_subject
+    'negatum'
+  end
 
   def self.assignment_method
     # bus.set_as_misspelling_of(aus)

@@ -93,6 +93,14 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
+  def self.gbif_status_of_subject
+    nil
+  end
+
+  def self.gbif_status_of_object
+    nil
+  end
+
   def self.assignable
     false
   end

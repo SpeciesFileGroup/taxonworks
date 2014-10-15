@@ -5,4 +5,8 @@ class TaxonNameClassification::Iczn::Available::Valid::NomenDubium < TaxonNameCl
         TaxonNameClassification::Iczn::Available::Valid)
   end
 
+  def self.gbif_status
+    'dubimum'
+  end
+
 end

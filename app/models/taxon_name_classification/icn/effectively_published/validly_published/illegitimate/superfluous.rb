@@ -7,4 +7,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Ille
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym)
   end
 
+  def self.gbif_status
+    'superfluum'
+  end
+
 end

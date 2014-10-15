@@ -28,4 +28,12 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
     'invalid'
   end
 
+  def self.gbif_status_of_subject
+    'valid'
+  end
+
+  def self.gbif_status_of_object
+    'invalidum'
+  end
+
 end

@@ -32,6 +32,14 @@ class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelation
     'conserved work'
   end
 
+  def self.gbif_status_of_subject
+    'conservandum'
+  end
+
+  def self.gbif_status_of_object
+    'rejiciendum'
+  end
+
   # as.
   def self.assignment_method
     # bus.set_as_conserved_name_of(aus)

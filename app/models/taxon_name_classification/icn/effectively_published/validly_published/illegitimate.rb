@@ -6,4 +6,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Ille
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate)
   end
 
+  def self.gbif_status
+    'illegitimum'
+  end
+
 end

@@ -21,6 +21,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
     'misapplication'
   end
 
+  def self.gbif_status_of_subject
+    'ambigua'
+  end
+
   def self.assignment_method
     # bus.set_as_icn_misapplication_of(aus)
     :icn_set_as_misapplication_of

@@ -5,4 +5,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::Re
         TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished)
   end
 
+  def self.gbif_status
+    'oppressa'
+  end
+
 end

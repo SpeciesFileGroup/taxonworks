@@ -14,6 +14,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNa
     'misapplication'
   end
 
+  def self.gbif_status_of_subject
+    'ambigua'
+  end
 
   def self.assignment_method
     # bus.set_as_iczn_misapplication_of(aus)

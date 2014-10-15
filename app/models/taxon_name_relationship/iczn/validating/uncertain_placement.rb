@@ -20,13 +20,18 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
     true
   end
 
-  def self.object_relationship_name
+  def self.subject_relationship_name
     'incertae sedis'
   end
 
   def self.object_relationship_name
     'as incertae sedis'
   end
+
+  def self.gbif_status_of_object
+    'valid'
+  end
+
 
   def self.assignment_method
     :iczn_uncertain_placement

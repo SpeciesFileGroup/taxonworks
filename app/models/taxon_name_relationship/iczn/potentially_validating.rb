@@ -14,4 +14,8 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating < TaxonNameRelationship
             TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
   end
 
+  def self.gbif_status_of_object
+    'invalidum'
+  end
+
 end

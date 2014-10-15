@@ -19,7 +19,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
     'synonym'
   end
 
-
   def self.assignment_method
     # bus.set_as_iczn_synonym_of(aus)
     :iczn_set_as_synonym_of

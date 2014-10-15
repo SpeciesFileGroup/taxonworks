@@ -6,4 +6,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legi
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Incorrect)
   end
 
+  def self.gbif_status
+    'valid'
+  end
+
 end

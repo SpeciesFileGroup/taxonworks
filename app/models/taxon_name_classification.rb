@@ -58,6 +58,10 @@ class TaxonNameClassification < ActiveRecord::Base
     nil
   end
 
+  def self.gbif_status
+    nil
+  end
+
   def type_name
     r = self.type.to_s
     TAXON_NAME_CLASS_NAMES.include?(r) ? r : nil

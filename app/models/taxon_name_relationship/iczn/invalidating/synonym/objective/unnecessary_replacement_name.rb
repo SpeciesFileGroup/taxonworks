@@ -15,6 +15,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
     'unnecessary replacement'
   end
 
+  def self.gbif_status_of_subject
+    'superfluum'
+  end
+
   def self.assignment_method
     # bus.set_as_iczn_unnecessary_replacement_name_of(aus)
     :iczn_set_as_unnecessary_replaced_name

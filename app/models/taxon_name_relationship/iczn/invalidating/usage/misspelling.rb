@@ -14,6 +14,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
     'misspelling'
   end
 
+  def self.gbif_status_of_subject
+    'nullum'
+  end
 
   def self.assignment_method
     # bus.set_as_misspelling_of(aus)

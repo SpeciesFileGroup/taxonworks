@@ -13,4 +13,12 @@ class TaxonNameRelationship::Icn::Accepting < TaxonNameRelationship::Icn
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
+  def self.gbif_status_of_subject
+    'valid'
+  end
+
+  def self.gbif_status_of_object
+    'invalidum'
+  end
+
 end

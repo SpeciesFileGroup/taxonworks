@@ -5,4 +5,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::Pr
         TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished)
   end
 
+  def self.gbif_status
+    'provisorium'
+  end
+
 end
