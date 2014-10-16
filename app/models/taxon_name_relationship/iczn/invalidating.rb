@@ -31,7 +31,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   end
 
   def self.gbif_status_of_subject
-    'invalid'
+    'invalidum'
   end
 
   # as.

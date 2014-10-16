@@ -92,7 +92,23 @@ describe TaxonName, :type => :model do
         end
       end
     end
-  end
+
+    context 'gbif_status' do
+      before(:all) do
+        @t1 = FactoryGirl.create(:iczn_species, name: 'aus', parent: @genus)
+        @t2 = FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus)
+        @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @t2, object_taxon_name: @t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+      end
+
+      specify 'valid species' do
+        expect(@t1.gbif_status_array).to eq(['valid'])
+      end
+
+      specify 'synonym' do
+        expect(@t2.gbif_status_array).to eq(['invalidum'])
+      end
+    end
+    end
 
   context 'instance methods' do
     context 'verbatim_author' do

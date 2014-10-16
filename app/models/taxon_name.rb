@@ -310,6 +310,22 @@ class TaxonName < ActiveRecord::Base
     (vn.count == 1) ? vn.first.object_taxon_name : self
   end
 
+  def gbif_status_array
+    return nil if self.class.nil?
+    return ['combinatio'] if self.class == 'Combination'
+    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}
+    s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
+    s3 = self.related_taxon_name_relationships.collect{|r| r.class.gbif_status_of_object}
+
+    s = s1 + s2 + s3
+    s.compact!
+    if s.empty?
+      ['valid']
+    else
+      s
+    end
+  end
+
   def name_with_alternative_spelling
     if self.class != Protonym || self.rank_class.nil? || self.rank_class.to_s =~ /::Icn::/
       return nil
