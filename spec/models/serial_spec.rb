@@ -2,12 +2,23 @@ require 'rails_helper'
 
 describe Serial, :type => :model do
 
-  it 'should only save valid serials' do
+  let(:serial) { Serial.new }
+
+  context 'associations' do
+    context 'belongs_to' do 
+      specify '.language' do
+        expect(serial.language = Language.new).to be_truthy
+      end
+    end
+
+   #  ... include has many relationships here
+  end
+
+  specify 'only name is required to be valid' do
     # to be valid it must have a name
-    s = Serial.new()
-    expect(s.save).to be_falsey
-    s.name = 'Test Serial 1'
-    expect(s.save).to be_truthy
+    expect(serial.save).to be_falsey
+    serial.name = 'Test Serial 1'
+    expect(serial.save).to be_truthy
   end
 
   it 'should soft validate duplicate serials' do
@@ -49,40 +60,31 @@ describe Serial, :type => :model do
   end
 
   context 'should set the language based on valid languages' do
-    before(:each) do
-      @eng = FactoryGirl.build(:english)
-      @eng.save
-      @rus = FactoryGirl.build(:russian)
-      @rus.save
-      @cre = FactoryGirl.build(:creole_eng)
-      @cre.save
-      @s = FactoryGirl.build(:valid_serial)
-    end
+
+    let!(:eng) {FactoryGirl.create(:english) }
+    let!(:rus) {FactoryGirl.create(:russian) }
+    let!(:cre) {FactoryGirl.create(:creole_eng) }
+    let(:s) {FactoryGirl.build(:valid_serial) } 
+    
     specify 'should be able to get & set language by 3 letter abbreviation' do
-      @s.language_abbrev = 'eng'
-      expect(@s.save).to be_truthy
-      expect(@s.primary_language_id).to eq(@eng.id)
-      expect(@s.language_abbrev).to eq('eng')
-      @s.language_abbrev = 'test'
-      expect(@s.primary_language_id).to be_nil
-      expect(@s.save).to be_truthy
-    end
-    specify 'should be able to get & set language by full name' do
-      @s.language = 'English'
-      expect(@s.save).to be_truthy
-      expect(@s.primary_language_id).to eq(@eng.id)
-      expect(@s.language).to eq('English')
-      @s.language = 'test'
-      expect(@s.primary_language_id).to be_nil
-      expect(@s.save).to be_truthy
-    end
-    specify 'if set by primary language id, should be able to get language full name & abbreviation' do
-      @s.primary_language_id = @eng.id
-      expect(@s.language).to eq('English')
-      expect(@s.language_abbrev).to eq('eng')
-      expect(@s.save).to be_truthy
+      s.language = Language.where(alpha_3_bibliographic: 'eng').first
+      expect(s.save).to be_truthy
+      expect(s.language.id).to eq(eng.id)
+      expect(s.language.alpha_3_bibliographic).to eq('eng')
+      s.language = Language.where(alpha_3_bibliographic: 'test').first
+      expect(s.primary_language_id).to be_nil
+      expect(s.save).to be_truthy
     end
 
+    specify 'should be able to get & set language by full name' do
+      s.language = eng 
+      expect(s.save).to be_truthy
+      expect(s.primary_language_id).to eq(eng.id)
+      expect(s.language.english_name).to eq('English')
+      s.language = Language.where(english_name:  'test').first
+      expect(s.primary_language_id).to be_nil
+      expect(s.save).to be_truthy
+    end
   end
 
   context 'Serial Chronology' do
@@ -105,6 +107,7 @@ describe Serial, :type => :model do
       # d becomes f
       SerialChronology::SerialSequence.create(preceding_serial: @d, succeeding_serial: @f)
     }
+
     specify '#immediately_preceding_serials - immediately preceding serial(s if merge)' do
       expect(@e.immediately_preceding_serials.order(:name).to_a).to eq([@a, @b])
       expect(@h.immediately_preceding_serials.to_a).to eq([@e])

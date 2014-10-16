@@ -9,31 +9,25 @@ class Language < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData 
 
+  has_many :serials
+  has_many :sources
 
   # Scopes
-  scope :eng_name_contains, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
+  scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
+
+  def self.with_english_name_or_abbreviation(value)
+    value = [value] if value.class == String
+
+    t = Language.arel_table
+    a = t[:english_name].matches_any(value)
+    b = t[:alpha_2].matches_any(value)
+    c = t[:alpha_3_bibliographic].matches_any(value)
+    d = t[:alpha_3_terminologic].matches_any(value)
+     Language.where(a.or(b).or(c).or(d).to_sql)
+
+  end
 
   #Validations
   validates_presence_of :english_name, :alpha_3_bibliographic
-
-  #returns nil or single object
-  def self.exact_abr(abbr)
-    a = where('alpha_3_bibliographic = ?', abbr).to_a
-    if a.count == 0
-      return nil
-    else
-      return a[0]
-    end
-  end
-
-  #returns nil or single object
-  def self.exact_eng(name)
-    a = where('english_name = ?', name).to_a
-    if a.count == 0
-      return nil
-    else
-      return a[0]
-    end
-
-  end
+ 
 end

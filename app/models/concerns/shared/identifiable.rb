@@ -3,10 +3,13 @@ module Shared::Identifiable
   included do
     has_many :identifiers, as: :identified_object, validate: false
     accepts_nested_attributes_for :identifiers
+  end
 
-    #scope :creator_missing_first_name, -> { where(people: {first_name: nil}).joins(:creator)}
-    #scope :created_by,  lambda {|person| where("created_by_id = ?", person) }
-    #scope :modified_by, lambda {|person| where("last_updated_by_id = ?", person) }
+  module ClassMethods
+    def with_identifier(namespace, identifier)
+      t = Identifier.arel_table
+      joins(:alternate_values).where(alternate_values: {alternate_object_attribute: a, value: b})
+    end
   end
 
   def identified?
@@ -14,15 +17,5 @@ module Shared::Identifiable
   end
 
   protected
-
-  # This code wasn't asked for in the Tutorial
-  # def set_creator
-  #   self.created_by_id = $person_id
-  #   set_updater
-  # end
-
-  # def set_updater
-  #   self.last_updated_by_id = $person_id if self.changed?
-  # end
 
 end

@@ -1,7 +1,8 @@
-# Serial - represents a journal or other serial publication
+# Serial - represents a journal or other serial publication. It follows the ISSN model for serials.
 #
-# It will support abbreviations through Shared::AlternateValues.
-# Serials are Notable, Taggable, and Identifiable.
+# @!attribute primary_language_id 
+#   @return [Integer]
+#   The id of the Language  langauge of this serial.  According to the ISSN a new ISSN is minted for a journal that changes languages.
 #
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type
@@ -20,7 +21,8 @@ class Serial < ActiveRecord::Base
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
- 
+  belongs_to :language, foreign_key: :primary_language_id, class_name: 'Language'
+
   has_many :sources 
 
   has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
@@ -72,37 +74,7 @@ class Serial < ActiveRecord::Base
   # "Soft" Validations
   soft_validate(:sv_duplicate?)
 
-  # Getters/Setters
-  # TODO set language via string name (english_name: & french_name)  & short form (alpha_3_bibliographic)
-  # set language based on 3 letter abbreviation (do not use 2 letter abbreviations because there are several missing)
-  def language_abbrev=(value)
-    lang = Language.exact_abr(value)
-    if lang.nil?
-      self.primary_language_id = nil
-    else
-      self.primary_language_id = lang.id
-    end
-  end
-
-  def language_abbrev
-    lang = Language.where(id: self.primary_language_id).to_a[0].alpha_3_bibliographic
-  end
-
-  def language=(value)
-    lang = Language.exact_eng(value)
-    if lang.nil?
-      self.primary_language_id = nil
-    else
-      self.primary_language_id = lang.id
-    end
-  end
-
-  def language
-    lang = Language.where(id: self.primary_language_id).to_a[0].english_name
-  end
-
   # Instance methods
-
 
   # Boolean is there another serial with the same name?
   def duplicate?
