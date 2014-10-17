@@ -17,11 +17,14 @@
       <%= f.text_area :name, :cols => 40, :rows => 3 %>
     </div>
     <p>
-      ----------------------------<br/>
-      <%= f.fields_for :alternate_values do |av| %>
-          <%= render 'alternate_value_fields', :avf => av %>
+      <!------------------------------<br/>-->
+      <%#= f.fields_for :alternate_values do |av| %>
+      <%#= render 'alternate_value_fields', :avf => av %>
+      <%# end %>
+      <!-------------------------------->
+      <% if @serial.alternate_values.any? %>
+          <%= link_to("Show #{pluralize(@serial.alternate_values.count, 'alternate value')}.", @serial) %>
       <% end %>
-      ----------------------------
     </p>
     <div class="field">
       <%= f.label :publisher %>

@@ -9,6 +9,10 @@ module AlternateValuesHelper
     link_to(link_text, '', class: 'alternate-value-edit')
   end
 
+  def link_to_original_value(object: object)
+    link_to(object)
+  end
+
   def link_to_add_alternate_value(link_text, f, association)
     new_object = f.object.class.reflect_on_association(association).klass.new
     fields     = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|
@@ -31,7 +35,7 @@ module AlternateValuesHelper
   end
 
   def destroy_alternate_value_link(alternate_value)
-    # link_to('Destroy', destroy_alternate_value_path(alternate_value))
+    destroy_object_link(alternate_value)
   end
 
 end
