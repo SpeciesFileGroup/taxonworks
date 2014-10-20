@@ -125,6 +125,25 @@ describe TaxonName, :type => :model do
       end
     end
 
+    context 'author_string' do
+      specify 'verbatim_author absent; source with a single author' do
+        source = FactoryGirl.create(:src_dmitriev)
+        taxon_name.source = source
+        expect(taxon_name.author_string).to eq('Dmitriev')
+        source.destroy
+      end
+      specify 'verbatim_author absent; source with a multiple authors' do
+        source = FactoryGirl.create(:src_mult_authors)
+        taxon_name.source = source
+        expect(taxon_name.author_string).to eq('Thomas, Fowler & Hunt')
+        source.destroy
+      end
+      specify 'verbatim_author present' do
+        taxon_name.verbatim_author = 'Linnaeus'
+        expect(taxon_name.author_string).to eq('Linnaeus')
+      end
+    end
+
     context 'rank_class' do
       specify 'returns the passed value when not yet validated and not a NomenclaturalRank' do
         taxon_name.rank_class = 'foo'

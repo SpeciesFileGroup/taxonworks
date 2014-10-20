@@ -238,6 +238,14 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  def author_string
+    if !self.verbatim_author.nil?
+      self.verbatim_author
+    elsif !self.source_id.nil?
+      self.source.authority_name
+    end
+  end
+
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
