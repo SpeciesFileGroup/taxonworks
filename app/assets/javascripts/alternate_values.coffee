@@ -2,20 +2,6 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-$(document).on 'ready page:load', ->
-  $(".alternate-value-edit").click (event) ->
-#    alert "Delete answer by link_id."
-    edit_fields(this)
-    event.preventDefault() # Prevent link from following its href
-    return
-
-  $(".alternate-value-destroy").click (event) ->
-#    alert "remove answer by link_id."
-    destroy_fields(this)
-    #    a_fields(this)
-    event.preventDefault() # Prevent link from following its href
-    return
-
 #  $(".q-remove").click (event) ->
 ##    alert "Delete question by link_id."
 #    remove_fields(this)
@@ -29,13 +15,13 @@ $(document).on 'ready page:load', ->
 #    return
 return
 
-remove_fields = (rf_link) ->
-  $(rf_link).prev(".destroy_field").attr "value", "1"
-  $(rf_link).closest(".fields").hide()
+edit_record = (er_link) ->
+  $(er_link).prev(".destroy_field").attr "value", "1"
+  $(er_link).closest(".fields").hide()
   return
-destroy_fields = (rf_link) ->
-  $(rf_link).prev(".destroy_field").attr "value", "1"
-  $(rf_link).closest(".fields").hide()
+destroy_record = (dr_link) ->
+  $(dr_link).prev(".destroy_field").attr "value", "1"
+  $(dr_link).closest(".fields").hide()
   return
 add_fields = (af_link, association, content) ->
   new_id = new Date().getTime()
@@ -51,3 +37,18 @@ a_fields = (af_link) ->
   content = content.replace(regex, new_id)
   $(content).insertBefore $(af_link)
   return
+
+  $(document).on 'ready page:load', ->
+  $(".alternate-value-edit").click (event) ->
+#    alert "Delete answer by link_id."
+    edit_record(this)
+    event.preventDefault() # Prevent link from following its href
+    return
+
+  $(".alternate-value-destroy").click (event) ->
+#    alert "remove answer by link_id."
+    destroy_record(this)
+    #    a_fields(this)
+    event.preventDefault() # Prevent link from following its href
+    return
+
