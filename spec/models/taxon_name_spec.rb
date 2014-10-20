@@ -140,7 +140,7 @@ describe TaxonName, :type => :model do
       end
       specify 'verbatim_author present' do
         taxon_name.verbatim_author = 'Linnaeus'
-        expect(taxon_name.author_string).to eq('Linnaeus')
+        expect(taxon_name.author_string).to  eq('Linnaeus')
       end
     end
 
