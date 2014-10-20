@@ -9,9 +9,6 @@ class AlternateValuesController < ApplicationController
 
   def edit
     @alternate_value = AlternateValue.find_by_id(params[:id]).becomes(AlternateValue)
-    # alternate_value: {alternate_object_type: object.class.base_class.name,
-    #                   alternate_object_id: object.id,
-    #                   alternate_object_attribute: alternate_value.alternate_object_attribute}
   end
 
   # POST /alternate_values
