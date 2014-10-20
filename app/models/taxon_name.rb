@@ -313,11 +313,12 @@ class TaxonName < ActiveRecord::Base
   def gbif_status_array
     return nil if self.class.nil?
     return ['combinatio'] if self.class == 'Combination'
-    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}
+    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
+    return s1 unless s1.empty?
     s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
     s3 = self.related_taxon_name_relationships.collect{|r| r.class.gbif_status_of_object}
 
-    s = s1 + s2 + s3
+    s = s2 + s3
     s.compact!
     if s.empty?
       ['valid']

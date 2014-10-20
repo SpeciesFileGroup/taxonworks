@@ -107,6 +107,12 @@ describe TaxonName, :type => :model do
       specify 'synonym' do
         expect(@t2.gbif_status_array).to eq(['invalidum'])
       end
+
+      specify 'nomen nudum' do
+        c = FactoryGirl.create(:taxon_name_classification, taxon_name: @t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
+        @t2.reload
+        expect(@t2.gbif_status_array).to eq(['nudum'])
+      end
     end
     end
 
