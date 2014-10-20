@@ -1,13 +1,13 @@
-function destroy_record(rf_link) {
+function destroy_record(dr_link) {
     // do something to the html
-    $(rf_link).prev('.destroy_field').attr('value', '1');
-    $(rf_link).closest('.fields').hide();
+    $(dr_link).prev('.destroy_field').attr('value', '1');
+    $(dr_link).closest('.fields').hide();
 }
 
-function edit_record(ef_link) {
+function edit_record(er_link) {
     // do something to the html
-    $(ef_link).prev('.edit_field').attr('value', '1');
-    $(ef_link).closest('.fields').hide();
+    $(er_link).prev('.edit_field').attr('value', '1');
+    $(er_link).closest('.fields').hide();
 }
 
 function add_fields(af_link, association, content) {
