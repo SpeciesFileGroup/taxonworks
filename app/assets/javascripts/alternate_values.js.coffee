@@ -5,13 +5,13 @@
 $(document).on 'ready page:load', ->
   $(".alternate-value-edit").click (event) ->
 #    alert "Delete answer by link_id."
-    edit_fields(this)
+    edit_record(this)
     event.preventDefault() # Prevent link from following its href
     return
 
   $(".alternate-value-destroy").click (event) ->
 #    alert "remove answer by link_id."
-    destroy_fields(this)
+    destroy_record(this)
     #    a_fields(this)
     event.preventDefault() # Prevent link from following its href
     return
