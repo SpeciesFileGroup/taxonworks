@@ -1,12 +1,12 @@
 module AlternateValuesHelper
 
-  def link_to_remove_alternate_value(link_text, f)
+  def link_to_destroy_alternate_value(link_text, alternate_value)
     # f.hidden_field(:_destroy) +
-    link_to(link_text, '', class: 'alternate-value-remove')
+    link_to(link_text, '', class: 'alternate-value-destroy', alternate_value_id: alternate_value.id)
   end
 
-  def link_to_edit_alternate_value(link_text, f)
-    link_to(link_text, '', class: 'alternate-value-edit')
+  def link_to_edit_alternate_value(link_text, alternate_value)
+    link_to(link_text, '', class: 'alternate-value-edit', alternate_value_id: alternate_value.id)
   end
 
   def link_to_original_value(object: object)

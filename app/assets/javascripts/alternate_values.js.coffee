@@ -29,13 +29,13 @@ $(document).on 'ready page:load', ->
 #    return
 return
 
-remove_fields = (rf_link) ->
+destroy_record = (rf_link) ->
   $(rf_link).prev(".destroy_field").attr "value", "1"
   $(rf_link).closest(".fields").hide()
   return
-destroy_fields = (rf_link) ->
-  $(rf_link).prev(".destroy_field").attr "value", "1"
-  $(rf_link).closest(".fields").hide()
+edit_record = (ef_link) ->
+  $(ef_link).prev(".edit_field").attr "value", "1"
+  $(ef_link).closest(".fields").hide()
   return
 add_fields = (af_link, association, content) ->
   new_id = new Date().getTime()
