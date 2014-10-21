@@ -246,6 +246,15 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def year_integer
+    if !self.year_of_publication.nil?
+      self.year_of_publication
+    elsif !self.source_id.nil?
+      self.source.year
+    end
+  end
+
+
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -777,26 +786,39 @@ class TaxonName < ActiveRecord::Base
   # @proceps - this needs to use nomenclatural date, or reference the source when provided
   # Returns a String with the author and year of the name. 
   def get_author_and_year
-    return ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ') if self.rank.nil?
+    return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
     rank = self.rank_class
 
     if rank.nomenclatural_code == :iczn
       misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
         with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
-      ay             = ([self.verbatim_author] + [self.year_of_publication]).compact.join(', ')
-      obj            = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+      a = [self.author_string]
 
-      unless (misapplication.empty? || obj.verbatim_author.blank?)
-        ay += ' nec ' + ([obj.verbatim_author] + [obj.year_of_publication]).compact.join(', ')
+      if a =~ /^\(.*\)$/ # (Author)
+        a = a[1..-2]
+        p = true
+      else
+        p = false
+      end
+
+      ay = (a + [self.year_integer]).compact.join(', ')
+      obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+
+      unless (misapplication.empty? || obj.author_string.blank?)
+        ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
       end
 
       if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(rank)
-        if self.original_combination_genus.name != (self.ancestor_at_rank('genus').name && !self.original_combination_genus.name.to_s.empty?)
+        if p = true || ((self.original_combination_genus.name != self.ancestor_at_rank('genus').name) && !self.original_combination_genus.name.to_s.empty?)
           ay = '(' + ay + ')' unless ay.empty?
         end
       end
 
     elsif rank.nomenclatural_code == :icn
+      #misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+      #    with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+
+
       t  = [self.verbatim_author]
       t  += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
       ay = t.compact.join(' ')
@@ -937,7 +959,7 @@ class TaxonName < ActiveRecord::Base
     soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix:             :sv_fix_missing_author,
-                         success_message: 'Year was updated') if self.verbatim_author.blank?
+                         success_message: 'Author was updated') if self.verbatim_author.blank?
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix:             :sv_fix_missing_year,
                          success_message: 'Year was updated') if self.year_of_publication.nil?
