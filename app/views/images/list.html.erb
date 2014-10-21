@@ -4,12 +4,11 @@
 
 <table>
   <thead>
-  <tr>
-    <th>User file name</th>
+    <tr>
+      <th> Image </th>
     <th>Height</th>
     <th>Width</th>
     <th>Image file fingerprint</th>
-    <th>Image file file name</th>
     <th>Image file content type</th>
     <th>Image file file size</th>
     <th>Image file updated at</th>
@@ -23,12 +22,11 @@
 
   <tbody>
   <% @images.each do |image| %>
-      <tr>
-        <td><%= image.user_file_name %></td>
+    <tr>
+      <td><%= image_tag(image.image_file.url(:thumb)) -%> </td>
         <td><%= image.height %></td>
         <td><%= image.width %></td>
         <td><%= image.image_file_fingerprint %></td>
-        <td><%= image.image_file_file_name %></td>
         <td><%= image.image_file_content_type %></td>
         <td><%= image.image_file_file_size %></td>
         <td><%= image.image_file_updated_at %></td>

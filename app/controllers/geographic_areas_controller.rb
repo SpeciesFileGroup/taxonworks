@@ -1,6 +1,6 @@
 class GeographicAreasController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
-  before_filter :require_administrator_login, only: [:edit, :update, :destroy]
+  before_filter :require_administrator_sign_in, only: [:edit, :update, :destroy]
 
   before_action :set_geographic_area, only: [:show, :edit, :update, :destroy]
   before_action :disable_turbolinks, only: [:show]

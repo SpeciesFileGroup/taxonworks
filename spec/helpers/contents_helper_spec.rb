@@ -18,14 +18,13 @@ describe ContentsHelper, :type => :helper do
       @cvt_name = @content.text
     }
 
-    specify '::content_tag' do
-      expect(ContentsHelper.content_tag(@content)).to eq(@cvt_name)
+    specify '#taxon_works_content_tag' do
+      expect(ContentsHelper.taxon_works_content_tag(@content)).to eq(@cvt_name)
     end
 
-    specify '#content_tag' do
+    specify '.taxon_works_content_tag' do
       # TODO: Resolve conflict
-      skip 'resolution of method \'content_tag\' name conflict'
-      expect(content_tag(@content)).to eq(@cvt_name)
+      expect(taxon_works_content_tag(@content)).to eq(@cvt_name)
     end
 
     specify '#content_link' do

@@ -6,9 +6,17 @@ module Shared::Identifiable
   end
 
   module ClassMethods
-    def with_identifier(namespace, identifier)
+    # Exact match on identifier + namespace (only use for Identifier::Local subclasses 
+    def with_namespaced_identifier(namespace_name, identifier)
+      includes(:identifiers).where(namespace: {name: namespace_name}, identifier: identifier).references(:identifiers)
+    end
+
+    # Exact match on the full identifier (use for any class of identifiers)
+    def with_identifier(value)
+      value = [value] if value.class == String
       t = Identifier.arel_table
-      joins(:alternate_values).where(alternate_values: {alternate_object_attribute: a, value: b})
+      a = t[:cached].eq_any(value)
+      includes(:identifiers).where(a.to_sql).references(:identifiers) 
     end
   end
 
