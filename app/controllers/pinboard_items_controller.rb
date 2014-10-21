@@ -1,5 +1,5 @@
 class PinboardItemsController < ApplicationController
-  before_action :require_signin 
+  before_action :require_sign_in 
 
   before_action :set_pinboard_item, only: [:destroy]
 

@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
-ruby '2.1.1'
+ruby '2.1.2'
 
 gem 'rails', '4.1.6'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
-gem 'pg', '~> 0.17.0'
+gem 'pg', '~> 0.17.1'
 
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 2.2.0'
@@ -67,12 +67,12 @@ gem 'dwc-archive', '~> 0.9.11'
 gem 'validates_timeliness', '~> 3.0.14'
 
 # Password encryption
-gem 'bcrypt-ruby', '~> 3.1.5'
+gem 'bcrypt', '~> 3.1.7'
 
 # API view template engine
 gem 'rabl'
 
-gem 'rmagick', '~> 2.13.2'
+gem 'rmagick', '~> 2.13.3'
 
 group :test, :development do
   gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
