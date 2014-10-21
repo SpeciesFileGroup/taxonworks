@@ -29,8 +29,8 @@
 #   @return [String]
 #   The Rails STI subclass of this identifier.   
 
-## @!attribute cached_identifier 
-#   @return [String]
+## @!attribute cached
+#   @return [Text]
 #   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
 #   
 class Identifier < ActiveRecord::Base

@@ -1,5 +1,5 @@
 class GeographicItemsController < ApplicationController
-  before_filter :require_user_signin
+  before_filter :require_sign_in
 
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 
