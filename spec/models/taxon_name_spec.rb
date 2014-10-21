@@ -107,6 +107,12 @@ describe TaxonName, :type => :model do
       specify 'synonym' do
         expect(@t2.gbif_status_array).to eq(['invalidum'])
       end
+
+      specify 'nomen nudum' do
+        c = FactoryGirl.create(:taxon_name_classification, taxon_name: @t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
+        @t2.reload
+        expect(@t2.gbif_status_array).to eq(['nudum'])
+      end
     end
     end
 
@@ -116,6 +122,25 @@ describe TaxonName, :type => :model do
         taxon_name.verbatim_author = '(Smith)'
         taxon_name.valid?
         expect(taxon_name.errors.include?(:verbatim_author)).to be_falsey
+      end
+    end
+
+    context 'author_string' do
+      specify 'verbatim_author absent; source with a single author' do
+        source = FactoryGirl.create(:src_dmitriev)
+        taxon_name.source = source
+        expect(taxon_name.author_string).to eq('Dmitriev')
+        source.destroy
+      end
+      specify 'verbatim_author absent; source with a multiple authors' do
+        source = FactoryGirl.create(:src_mult_authors)
+        taxon_name.source = source
+        expect(taxon_name.author_string).to eq('Thomas, Fowler & Hunt')
+        source.destroy
+      end
+      specify 'verbatim_author present' do
+        taxon_name.verbatim_author = 'Linnaeus'
+        expect(taxon_name.author_string).to  eq('Linnaeus')
       end
     end
 

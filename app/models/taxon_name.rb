@@ -238,6 +238,14 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  def author_string
+    if !self.verbatim_author.nil?
+      self.verbatim_author
+    elsif !self.source_id.nil?
+      self.source.authority_name
+    end
+  end
+
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -313,11 +321,12 @@ class TaxonName < ActiveRecord::Base
   def gbif_status_array
     return nil if self.class.nil?
     return ['combinatio'] if self.class == 'Combination'
-    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}
+    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
+    return s1 unless s1.empty?
     s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
     s3 = self.related_taxon_name_relationships.collect{|r| r.class.gbif_status_of_object}
 
-    s = s1 + s2 + s3
+    s = s2 + s3
     s.compact!
     if s.empty?
       ['valid']
