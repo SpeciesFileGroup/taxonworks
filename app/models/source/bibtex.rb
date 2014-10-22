@@ -351,6 +351,10 @@ class Source::Bibtex < Source
   end
 
   # TODO add conversion of identifiers to ruby-bibtex fields
+  # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
+  # serial with alternate_value on name .count = 1 assign .first
+  # before validate assign serial if matching & not doesn't have a serial currently assigned.
+
 
   def valid_bibtex?
     self.to_bibtex.valid?
@@ -416,10 +420,27 @@ class Source::Bibtex < Source
 
   #region getters & setters
   def authority_name
-    # TODO need to use full last name with suffix not just last_name
     case self.authors.count
       when 0
-        return ((self.author.blank?) ? '' : self.author)
+        if (self.author.blank?)
+          return ('')
+        else        # build off the last names only of authors
+          b = self.to_bibtex
+          b.parse_names
+          case b.author.tokens.count
+            when 0
+              return ('') # shouldn't ever get here
+            when 1
+              return(b.author[0].last)
+            else
+              p_array = []
+              for i in 0..(b.author.tokens.count-1) do
+                p_array.push(b.author.tokens[i].last)
+              end
+              return(p_array.to_sentence(:last_word_connector => ' & '))
+          end
+        end
+        #return ((self.author.blank?) ? '' : self.author)
       #return self.author # return author or ''
       when 1
         return (authors[0].last_name)
@@ -429,7 +450,7 @@ class Source::Bibtex < Source
         for i in 0..(self.authors.count-1) do
           p_array.push(self.authors[i].last_name)
         end
-        p_array.to_sentence(:last_word_connector => ' & ')
+        return(p_array.to_sentence(:last_word_connector => ' & '))
     end
   end
 
