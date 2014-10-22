@@ -1,18 +1,71 @@
+# alternate_values.js.coffee
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
+destroy_record = (dr_link) ->
+  $(dr_link).prev(".destroy_field").attr "value", "1"
+  $(dr_link).closest(".alternate_value_record").hide()
+  return
+
+remove_record = (rr_link) ->
+  $(rr_link).prev(".destroy_field").attr "value", "1"
+  $(rr_link).closest(".fields").hide()
+  return
+
+edit_record = (ef_link) ->
+  $(ef_link).prev(".edit_field").attr "value", "1"
+  $(ef_link).closest(".fields").hide()
+  return
+
+add_record = (af_link) ->
+  new_id = new Date().getTime()
+  regexp = new RegExp("new_" + association, "g")
+  $(af_link).prev().insertBefore content.replace(regexp, new_id)
+  return
+
+a_record = (af_link) ->
+  #    af_link.attributes.content.value or $(af_link).attr('content')
+  content = $(af_link).attr("content")
+  association = $(af_link).attr("association")
+  new_id = new Date().getTime()
+  regex = new RegExp("new_" + association, "g")
+  content = content.replace(regex, new_id)
+  $(content).insertBefore $(af_link)
+  return
+
+bind_alternate_value_remove = (link) ->
+  # alert 'Remove binding triggered by new link.'
+  $('a', $(link).prev('div.alternate-value-record')).click (event) ->
+    # alert 'Remove triggered by new link.'
+    destroy_record(this)
+    return
+  return
+
 $(document).on 'ready page:load', ->
   $(".alternate-value-edit").click (event) ->
-#    alert "Delete answer by link_id."
+    #    alert "Delete answer by link_id."
     edit_record(this)
     event.preventDefault() # Prevent link from following its href
     return
 
+  $(".alternate-value-add").click (event) ->
+    # alert "Add alternate_value by link_id."
+    a_record(this)
+    bind_alternate_value_remove(this)
+    event.preventDefault() # Prevent link from following its href
+    return
+
   $(".alternate-value-destroy").click (event) ->
-#    alert "remove answer by link_id."
+    #    alert "remove answer by link_id."
     destroy_record(this)
     #    a_fields(this)
+    event.preventDefault() # Prevent link from following its href
+    return
+
+  $(".alternate-value-remove").click (event) ->
+    alert "remove alternate_value by link_id."
+    destroy_record(this)
     event.preventDefault() # Prevent link from following its href
     return
 
@@ -29,25 +82,3 @@ $(document).on 'ready page:load', ->
 #    return
 return
 
-destroy_record = (rf_link) ->
-  $(rf_link).prev(".destroy_field").attr "value", "1"
-  $(rf_link).closest(".fields").hide()
-  return
-edit_record = (ef_link) ->
-  $(ef_link).prev(".edit_field").attr "value", "1"
-  $(ef_link).closest(".fields").hide()
-  return
-add_fields = (af_link, association, content) ->
-  new_id = new Date().getTime()
-  regexp = new RegExp("new_" + association, "g")
-  $(af_link).prev().insertBefore content.replace(regexp, new_id)
-  return
-a_fields = (af_link) ->
-  #    af_link.attributes.content.value or $(af_link).attr('content')
-  content = $(af_link).attr("content")
-  association = $(af_link).attr("association")
-  new_id = new Date().getTime()
-  regex = new RegExp("new_" + association, "g")
-  content = content.replace(regex, new_id)
-  $(content).insertBefore $(af_link)
-  return

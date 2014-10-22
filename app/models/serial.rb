@@ -39,7 +39,7 @@ class Serial < ActiveRecord::Base
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
-  accepts_nested_attributes_for :alternate_values, :reject_if => lambda { |av| av[:value].blank? } #, :allow_destroy => true
+  accepts_nested_attributes_for :alternate_values, :reject_if => lambda { |av| av[:value].blank? }, :allow_destroy => true
 
   # TODO handle translations (which are simultaneous)
 

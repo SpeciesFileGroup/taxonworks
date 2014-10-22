@@ -1,0 +1,41 @@
+<div class="alternate-value-record">
+  <div class="hide-for-display">
+    ---------------AV Separator ----------------------------------------------------
+  </div>
+  <div class="field">
+    <%= avf.label :alternate_value %>
+    <%= avf.hidden_field :_destroy, class: 'destroy_field' %>
+<%= link_to('(remove)', '', :class => 'alternate-value-remove') %>
+    <br>
+    <%= avf.text_area :value, rows: 3 %>
+  </div>
+  <div class="field">
+    <%= avf.label :type %>
+    <br>
+    <%= avf.text_field :type %>
+  </div>
+  <div class="field">
+    <%= avf.label :language_id %>
+    <br>
+    <%= avf.number_field :language_id %>
+  </div>
+  <div class="field">
+    <%= avf.label :alternate_object_type %>
+    <br>
+    <%= avf.text_field :alternate_object_type %>
+  </div>
+  <%= object_tag(avf.object.alternate_object) %>
+  <div class="field">
+    <%= avf.label :alternate_object_id %>
+    <br>
+    <%= avf.number_field :alternate_object_id %>
+  </div>
+  <div class="field">
+    <%= avf.label :alternate_object_attribute %>
+    <br>
+    <%= avf.text_field :alternate_object_attribute %>
+  </div>
+  <div class="hide-for-display">
+    ---------------AV Separator ----------------------------------------------------
+  </div>
+</div>
