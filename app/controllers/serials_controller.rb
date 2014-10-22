@@ -73,6 +73,19 @@ class SerialsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def serial_params
-      params.require(:serial).permit(:name, :publisher, :place_published, :primary_language_id, :first_year_of_issue, :last_year_of_issue)
+      params.require(:serial).permit(:name,
+                                     :publisher,
+                                     :place_published,
+                                     :primary_language_id,
+                                     :first_year_of_issue,
+                                     :last_year_of_issue,
+                                      :alternate_values_attributes => [:id,
+                                                                       :value,
+                                                                       :type,
+                                                                       :language_id,
+                                                                       :alternate_object_type,
+                                                                       :alternate_object_id,
+                                                                       :alternate_object_attribute,
+                                                                       :_destroy])
     end
 end
