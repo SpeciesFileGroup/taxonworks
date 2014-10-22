@@ -129,6 +129,7 @@ describe TaxonName, :type => :model do
       specify 'verbatim_author absent; source with a single author' do
         source = FactoryGirl.create(:src_dmitriev)
         taxon_name.source = source
+        expect(taxon_name.year_integer).to eq(1940)
         expect(taxon_name.author_string).to eq('Dmitriev')
         source.destroy
       end
@@ -140,7 +141,9 @@ describe TaxonName, :type => :model do
       end
       specify 'verbatim_author present' do
         taxon_name.verbatim_author = 'Linnaeus'
-        expect(taxon_name.author_string).to  eq('Linnaeus')
+        taxon_name.year_of_publication = 1999
+        expect(taxon_name.year_integer).to eq(1999)
+        expect(taxon_name.author_string).to eq('Linnaeus')
       end
     end
 

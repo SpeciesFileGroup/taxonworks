@@ -7,34 +7,37 @@ describe 'Citations', :type => :feature do
     let(:page_index_name) { 'Citations' }
   end
 
-  describe 'GET /citations' do
+  context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      visit citations_path }
+      5.times {factory_girl_create_for_user(:valid_source_bibtex, @user)} 
+      s = Source::Bibtex.all
+      o = factory_girl_create_for_user_and_project(:valid_otu, @user, @project) 
 
-    specify 'an index name is present' do
-      expect(page).to have_content('Citations')
+      5.times.each_with_index { |i| 
+        FactoryGirl.create(:valid_citation, user_project_attributes( @user, @project).merge(citation_object: o, source: s[i] ) )
+      }
+    }
+
+    describe 'GET /citations' do
+      before {visit citations_path }
+      specify 'an index name is present' do
+        expect(page).to have_content('Citations')
+      end
     end
 
-  end
+    describe 'GET /citations/list' do
+      before {
+        visit list_citations_path
+      }
 
-  describe 'GET /citations/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there are more than one page of citations
-      30.times { FactoryGirl.create(:valid_citation) }
-      visit '/citations/list'
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Citations'
+      end
     end
 
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Citations'
+    context 'citations list' do
+      pending 'when a user clicks a citation record, they are taken to the cited data instance'
     end
-
-  end
-
-  context 'citations list' do
-    pending 'when a user clicks a citation record, they are taken to the cited data instance'
-  end
- 
+  end 
 end
