@@ -13,7 +13,6 @@ require 'rails_helper'
 describe TagsHelper, :type => :helper do
   context 'a tag needs some helpers' do
     before(:all) {
-      $user_id  = 1; $project_id = 1
       @tag      = FactoryGirl.create(:valid_tag)
       @cvt_name = @tag.keyword.name
     }

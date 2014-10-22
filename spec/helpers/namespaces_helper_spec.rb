@@ -13,7 +13,6 @@ require 'rails_helper'
 describe NamespacesHelper, :type => :helper do
   context 'a namespace needs some helpers' do
     before(:all) {
-      $user_id   = 1; $project_id = 1
       @namespace = FactoryGirl.create(:valid_namespace)
       @cvt_name  = @namespace.name
     }

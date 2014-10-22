@@ -13,7 +13,6 @@ require 'rails_helper'
 describe RepositoriesHelper, :type => :helper do
   context 'a repository needs some helpers' do
     before(:all) {
-      $user_id    = 1; $project_id = 1
       @repository = FactoryGirl.create(:valid_repository)
       @cvt_name   = @repository.name
     }

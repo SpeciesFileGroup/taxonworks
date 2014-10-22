@@ -12,23 +12,20 @@ require 'rails_helper'
 # end
 describe ContentsHelper, :type => :helper do
   context 'a content needs some helpers' do
-    before(:all) {
-      $user_id  = 1; $project_id = 1
-      @content  = FactoryGirl.create(:valid_content)
-      @cvt_name = @content.text
-    }
+    let(:content) {FactoryGirl.create(:valid_content) }
+    let(:tag_string) {content.text}
 
     specify '#taxon_works_content_tag' do
-      expect(ContentsHelper.taxon_works_content_tag(@content)).to eq(@cvt_name)
+      expect(ContentsHelper.taxon_works_content_tag(content)).to eq(tag_string)
     end
 
     specify '.taxon_works_content_tag' do
       # TODO: Resolve conflict
-      expect(taxon_works_content_tag(@content)).to eq(@cvt_name)
+      expect(taxon_works_content_tag(content)).to eq(tag_string)
     end
 
     specify '#content_link' do
-      expect(content_link(@content)).to have_link(@cvt_name)
+      expect(content_link(content)).to have_link(tag_string)
     end
 
     specify "#content_search_form" do
