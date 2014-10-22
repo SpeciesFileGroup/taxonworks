@@ -2,8 +2,6 @@
 
 <%= paginate @geographic_areas %> <%= page_entries_info @geographic_areas %>
 
-<!-- todo @mjy list needs culling -->
-
 <table>
   <thead>
   <tr>
@@ -20,8 +18,6 @@
     <th>Level2</th>
     <th>Last modified</th>
     <th>Updated by</th>
-    <th></th>
-    <th></th>
     <th></th>
   </tr>
   </thead>
@@ -43,8 +39,6 @@
         <td><%= geographic_area.updated_at %></td>
         <td><%= object_tag(geographic_area.updater) %></td>
         <td><%= link_to 'Show', geographic_area %></td>
-        <td><%= link_to 'Edit', edit_geographic_area_path(geographic_area) %></td>
-        <td><%= link_to 'Destroy', geographic_area, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
   </tbody>

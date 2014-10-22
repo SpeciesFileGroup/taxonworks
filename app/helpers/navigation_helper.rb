@@ -74,15 +74,22 @@ module NavigationHelper
   end
 
   def edit_object_link(object)
-    link_to('Edit', edit_object_path(object.becomes(object.class.base_class)))
+    if @is_shared_data_model 
+      content_tag(:span, 'Edit', class: :disabled) 
+    else
+      link_to('Edit', edit_object_path(object.becomes(object.class.base_class)))  
+    end
   end
 
   def destroy_object_link(object)
-    link_to('Destroy', object.becomes(object.class.base_class), method: :delete, data: { confirm: 'Are you sure?' })
+    if @is_shared_data_model 
+      content_tag(:span, 'Destroy', class: :disabled) 
+    else
+      link_to('Destroy', object.becomes(object.class.base_class), method: :delete, data: { confirm: 'Are you sure?' })
+    end
   end
 
-
- def batch_preview_model_path
+  def batch_preview_model_path
     send("batch_preview_#{controller_name.to_s.pluralize}_path")
   end
 

@@ -3,7 +3,6 @@ module Housekeeping::Timestamps
   extend ActiveSupport::Concern
 
   included do
-
   end
 
   module ClassMethods
@@ -26,13 +25,13 @@ module Housekeeping::Timestamps
 
     #  Otu.created_in_last(2.weeks)
     def created_in_last(time)
-      where(created_at: time..Time.now  )
+      where(created_at: time.ago..Time.now  )
     end 
 
+    #  Otu.created_in_last(1.month)
     def updated_in_last(time)
-      where(updated_at: time..Time.now)
+      where(updated_at: time.ago..Time.now)
     end
   end
-
 end
 
