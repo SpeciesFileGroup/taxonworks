@@ -169,10 +169,10 @@ describe Source::Bibtex, :type => :model do
         expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
         expect(@s.save).to be_truthy
         expect(@s.notes.count).to eq(1)
-        date = @s.notes.to_a[0].updated_at
-        b    = @s.to_bibtex
+        date     = @s.notes.to_a[0].updated_at
+        b        = @s.to_bibtex
         out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
-        expect(b[:note].to_s).to eq(out_note)     # should be (<date/time>: <user name>: <note>[on: <title>])
+        expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
         #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
 
       end
@@ -447,14 +447,16 @@ describe Source::Bibtex, :type => :model do
       end
 
       context 'after save' do
-        before {##
+        before {
           @l_src.save
-          @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
         }
         specify 'src should have a cached value' do
           expect(@l_src.cached.blank?).to be_falsey
         end
         context 'correctly creates authority_name & cached_author_string' do
+          before {
+            @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
+          }
           context 'with author, but without authors' do
             specify 'single author' do
               @source_bibtex.author = 'Thomas, D.'
@@ -467,6 +469,13 @@ describe Source::Bibtex, :type => :model do
               @source_bibtex.save
               expect(@source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(@source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
+            end
+            specify 'valid Source::Bibtex but not valid BibTex::Entry' do
+              @l_src.year = nil
+              @l_src.soft_validate
+              expect(@l_src.soft_validations.messages_on(:year).empty?).to be_falsey
+              expect(@l_src.save).to be_truthy
+              expect(@l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
             end
           end
         end
