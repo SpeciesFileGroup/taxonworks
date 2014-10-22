@@ -1,17 +1,13 @@
 class GeographicAreasController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
-  before_filter :require_administrator_sign_in, only: [:edit, :update, :destroy]
 
-  before_action :set_geographic_area, only: [:show, :edit, :update, :destroy]
-  before_action :disable_turbolinks, only: [:show]
+  before_action :set_geographic_area, only: [:show]
+  before_action :disable_turbolinks, only: [:show, :list, :index]
 
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
-    # @@all_the_stuff = GeographicArea.all.pain
-    @geographic_areas = GeographicArea.limit(30).offset(@geo_area_offset)
-    # @recent_objects   = GeographicArea.recent_in_time(1.year).order(updated_at: :desc).limit(10)
-    @recent_objects   = GeographicArea.order(updated_at: :desc).limit(10)
+    @recent_objects   = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
   end
 
   # GET /geographic_areas/1
@@ -19,56 +15,6 @@ class GeographicAreasController < ApplicationController
   def show
   end
 
-  # GET /geographic_areas/new
-  def new
-    @geographic_area = GeographicArea.new
-  end
-
-  # GET /geographic_areas/1/edit
-  def edit
-  end
-
-  # POST /geographic_areas
-  # POST /geographic_areas.json
-  def create
-    @geographic_area = GeographicArea.new(geographic_area_params)
-
-    respond_to do |format|
-      if @geographic_area.save
-        format.html { redirect_to @geographic_area, notice: 'Geographic area was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @geographic_area }
-      else
-        format.html { render action: 'new' }
-        format.json { render json: @geographic_area.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /geographic_areas/1
-  # PATCH/PUT /geographic_areas/1.json
-  def update
-    respond_to do |format|
-      if @geographic_area.update(geographic_area_params)
-        format.html { redirect_to @geographic_area, notice: 'Geographic area was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @geographic_area.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /geographic_areas/1
-  # DELETE /geographic_areas/1.json
-  def destroy
-    @geographic_area.destroy
-    respond_to do |format|
-      format.html { redirect_to geographic_areas_url }
-      format.json { head :no_content }
-    end
-  end
-
-  # triggered by "list" link on index page
   def list
     @geographic_areas = GeographicArea.order(:id).page(params[:page])
   end
@@ -103,7 +49,6 @@ class GeographicAreasController < ApplicationController
   def disable_turbolinks
     @no_turbolinks = true
   end
-
 
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area
