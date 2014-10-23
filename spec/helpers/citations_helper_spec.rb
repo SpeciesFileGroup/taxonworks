@@ -1,31 +1,25 @@
 require 'rails_helper'
+require 'navigation_helper'
 
 describe CitationsHelper, :type => :helper do
   context 'a citation needs some helpers' do
+    let(:otu) {FactoryGirl.create(:valid_otu, name: 'Tigerbearcat') } 
+    let(:source) {FactoryGirl.create(:valid_source_bibtex, author: 'Smith, J.', year: '1929') } 
+    let(:citation) { FactoryGirl.create(:valid_citation, citation_object: otu, source: source) }
+    let(:link_text) { 'Otu: Tigerbearcat in Smith, 1929'  }
 
-    let(:citation) { FactoryGirl.create(:valid_citation) }
-    let(:citation_object_type) {citation.citation_object_type } 
-
-    after(:all) {
-      ProjectsAndUsers.clean_slate
-    }
-
-    specify '.citation_tag' do
-      expect(CitationsHelper.citation_tag(citation)).to eq(citation_object_type)
-    end
-
-    specify '#citation_tag' do
-      expect(citation_tag(citation)).to eq(citation_object_type)
+    specify '.citation_tag format' do
+      expect( helper.citation_tag(citation)).to eq( link_text)
     end
 
     specify '#citation_link' do
-      expect(citation_link(citation)).to have_link(citation_object_type)
+      expect(helper.citation_link(citation)).to have_link(link_text)
     end
 
     specify "#citation_search_form" do
       expect(citations_search_form).to have_button('Show')
+      expect(citations_search_form).to_not have_button('Edit')
       expect(citations_search_form).to have_field('citation_id_for_quick_search_form')
     end
-
   end
 end

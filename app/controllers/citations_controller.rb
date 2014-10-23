@@ -62,12 +62,13 @@ class CitationsController < ApplicationController
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @citations.collect do |t|
+      lbl = render_to_string(partial: 'tag', citation: t)
       {id:              t.id,
-       label:           CitationsHelper.citation_tag(t),
+       label:           lbl, 
        response_values: {
          params[:method] => t.id
        },
-       label_html:      CitationsHelper.citation_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: lbl 
       }
     end
 

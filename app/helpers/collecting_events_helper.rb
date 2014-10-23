@@ -1,9 +1,9 @@
 module CollectingEventsHelper
 
+  # self. pattern is going away, it can't include instance methods, i.e. other helpers
   def self.collecting_event_tag(collecting_event)
-    # collecting_event.cached.blank? ? 'CACHED VALUE NOT BUILT - CONTACT ADMIN' : collecting_event.cached
     return nil if collecting_event.nil?
-    collecting_event.verbatim_locality
+    content_tag(:pre, collecting_event.verbatim_label)
   end
 
   def collecting_event_tag(collecting_event)

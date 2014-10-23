@@ -73,29 +73,10 @@
 #   The gender of the genus also designated as a taxon_name_classification.
 #
 #
-# @!part_of_speech_class
-#   @return [Class]
-#   Returns part of speech of a species as class.
 #
-# @!part_of_speech_name
-#   @return [String]
-#   Returns part of speech of a species as string.
 #
-# @!cached_name_and_author_year
-#   @return [String]
-#   Combination of cached_html and cached_author_year.
 #
-# @!ancestor_at_rank(rank)
-#   @return taxon_name
-#   To find an ancestor at certain rank.
 #
-# @!unavailable_or_invalid?
-#   @return [Bool]
-#   True or False.
-#
-# @!unavailable?
-#   @return [Bool]
-#   True or False.
 #
 # @!get_valid_taxon_name
 #   @return taxon_name
@@ -295,16 +276,25 @@ class TaxonName < ActiveRecord::Base
     c.nil? ? nil : c.class_name
   end
 
+  # @!part_of_speech_class
+  #   @return [Class]
+  #   Returns part of speech of a species as class.
   def part_of_speech_class
     c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
     c.nil? ? nil : c.type_class
   end
 
+  # @!part_of_speech_name
+  #   @return [String]
+  #   Returns part of speech of a species as string.
   def part_of_speech_name
     c = self.part_of_speech_class
     c.nil? ? nil : c.class_name
   end
 
+  # @!cached_name_and_author_year
+  #   @return [String]
+  #   Combination of cached_html and cached_author_year.
   def cached_name_and_author_year
     if self.rank_string =~ /::(Species|Genus)/
       (self.cached_html.to_s + ' ' + self.cached_author_year.to_s).squish!
@@ -312,11 +302,17 @@ class TaxonName < ActiveRecord::Base
       (self.name.to_s + ' ' + self.cached_author_year.to_s).squish!
     end
   end
-
+  
+  # @!ancestor_at_rank(rank)
+  #   @return taxon_name
+  #   To find an ancestor at certain rank.
   def ancestor_at_rank(rank)
     TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
 
+  # @!unavailable_or_invalid?
+  #   @return [Bool]
+  #   True or False - @proceps based on what?
   def unavailable_or_invalid?
     case self.rank_class.nomenclatural_code
       when :iczn
@@ -331,6 +327,9 @@ class TaxonName < ActiveRecord::Base
     return false
   end
 
+  # @!unavailable?
+  #   @return [Bool]
+  #   True or False.
   def unavailable?
     if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
       true
@@ -339,7 +338,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def get_valid_taxon_name # get valid name for any taxon
+  # get valid name for any taxon
+  def get_valid_taxon_name 
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
     (vn.count == 1) ? vn.first.object_taxon_name : self
   end
