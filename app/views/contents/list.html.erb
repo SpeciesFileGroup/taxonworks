@@ -26,9 +26,9 @@
         <td><%= content.type %></td>
         <td><%= content.updated_at %></td>
         <td><%= object_tag(content.updater) %></td>
-        <td><%= link_to 'Show', content.becomes(Content) %></td>
-        <td><%= link_to 'Edit', edit_content_path(content.becomes(Content)) %></td>
-        <td><%= link_to 'Destroy', content.becomes(Content), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', content.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_content_path(content.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', content.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

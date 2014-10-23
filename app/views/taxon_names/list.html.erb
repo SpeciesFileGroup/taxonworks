@@ -37,9 +37,9 @@
         <td><%= taxon_name.type %></td>
         <td><%= object_tag(taxon_name.updater) %></td>
         <td><%= object_time_since_update_tag(taxon_name) %></td>
-        <td><%= link_to 'Show', taxon_name.becomes(TaxonName) %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_path(taxon_name.becomes(TaxonName)) %></td>
-        <td><%= link_to 'Destroy', taxon_name.becomes(TaxonName), method: :delete, data: {confirm: 'Are you sure?'} %></td>
+        <td><%= link_to 'Show', taxon_name.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_taxon_name_path(taxon_name.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
   </tbody>

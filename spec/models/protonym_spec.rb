@@ -289,6 +289,7 @@ describe Protonym, :type => :model do
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
       end
+
       specify 'fix author and year from the source' do
         #TODO citeproc gem doesn't currently support lastname without firstname
         @source.update(year: 1758, author: 'Linnaeus, C.')
@@ -301,7 +302,8 @@ describe Protonym, :type => :model do
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        expect(@kingdom.verbatim_author).to eq('Linnaeus, C.')
+       
+        expect(@kingdom.verbatim_author).to eq('Linnaeus C.') # @proceps see comment in TaxonName, please define verbatim_author
         expect(@kingdom.year_of_publication).to eq(1758)
       end
     end

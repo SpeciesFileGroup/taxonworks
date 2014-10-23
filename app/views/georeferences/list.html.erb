@@ -44,9 +44,9 @@
         <td><%= object_tag(georeference.updater) %></td>
         <td><%= georeference.is_undefined_z %></td>
         <td><%= georeference.is_median_z %></td>
-        <td><%= link_to 'Show', georeference.becomes(Georeference) %></td>
-        <td><%= link_to 'Edit', edit_georeference_path(georeference.becomes(Georeference)) %></td>
-        <td><%= link_to 'Destroy', georeference.becomes(Georeference), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', georeference.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_georeference_path(georeference.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', georeference.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
   </tbody>

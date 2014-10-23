@@ -26,9 +26,9 @@
         <td><%= object_tag(taxon_name_relationship.source) %></td>
         <td><%= taxon_name_relationship.updated_at %></td>
         <td><%= object_tag(taxon_name_relationship.updater) %></td>
-        <td><%= link_to 'Show', taxon_name_relationship.becomes(TaxonNameRelationship) %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_relationship_path(taxon_name_relationship.becomes(TaxonNameRelationship)) %></td>
-        <td><%= link_to 'Destroy', taxon_name_relationship.becomes(TaxonNameRelationship), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', taxon_name_relationship.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_taxon_name_relationship_path(taxon_name_relationship.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', taxon_name_relationship.metamorphosize,  method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
   </tbody>

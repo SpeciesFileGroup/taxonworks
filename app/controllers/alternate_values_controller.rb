@@ -8,7 +8,7 @@ class AlternateValuesController < ApplicationController
   end
 
   def edit
-    @alternate_value = AlternateValue.find_by_id(params[:id]).becomes(AlternateValue)
+    @alternate_value = AlternateValue.find_by_id(params[:id]).metamorphosize
   end
 
   # POST /alternate_values
@@ -17,7 +17,7 @@ class AlternateValuesController < ApplicationController
     @alternate_value = AlternateValue.new(alternate_value_params)
     respond_to do |format|
       if @alternate_value.save
-        format.html { redirect_to @alternate_value.alternate_object.becomes(@alternate_value.alternate_object.class.base_class), notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.alternate_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
@@ -31,7 +31,7 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to @alternate_value.alternate_object.becomes(@alternate_value.alternate_object.class.base_class), notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.alternate_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully updated.' }

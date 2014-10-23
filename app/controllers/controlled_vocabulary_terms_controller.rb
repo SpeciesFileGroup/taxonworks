@@ -31,7 +31,7 @@ class ControlledVocabularyTermsController < ApplicationController
       if @controlled_vocabulary_term.save
         redirect_url = (request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new') ? controlled_vocabulary_term_path(@controlled_vocabulary_term) : :back)
         format.html { redirect_to redirect_url, notice: 'Controlled vocabulary term was successfully created.' } # !! new behaviour to test
-        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.becomes(ControlledVocabularyTerm) }
+        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize}
       else
         format.html { 
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.' 
@@ -51,7 +51,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def update
     respond_to do |format|
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
-        format.html { redirect_to @controlled_vocabulary_term.becomes(ControlledVocabularyTerm), notice: 'Controlled vocabulary term was successfully updated.' }
+        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: 'Controlled vocabulary term was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -63,7 +63,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # DELETE /controlled_vocabulary_terms/1
   # DELETE /controlled_vocabulary_terms/1.json
   def destroy
-    redirect_url = (request.env['HTTP_REFERER'].include?(controlled_vocabulary_term_path(@controlled_vocabulary_term.becomes(ControlledVocabularyTerm))) ? controlled_vocabulary_terms_url : :back)
+    redirect_url = (request.env['HTTP_REFERER'].include?(controlled_vocabulary_term_path(@controlled_vocabulary_term.metamorphosize)) ? controlled_vocabulary_terms_url : :back)
     @controlled_vocabulary_term.destroy
     respond_to do |format|
       format.html { redirect_to redirect_url }

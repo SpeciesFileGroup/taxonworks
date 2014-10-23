@@ -31,8 +31,8 @@ class ContentsController < ApplicationController
 
     respond_to do |format|
       if @content.save
-        format.html { redirect_to @content.becomes(Content), notice: 'Content was successfully created.' }
-        format.json { render :show, status: :created, location: @content.becomes(Content) }
+        format.html { redirect_to @content.metamorphosize, notice: 'Content was successfully created.' }
+        format.json { render :show, status: :created, location: @content.metamorphosize }
       else
         format.html { render :new }
         format.json { render json: @content.errors, status: :unprocessable_entity }
@@ -45,8 +45,8 @@ class ContentsController < ApplicationController
   def update
     respond_to do |format|
       if @content.update(content_params)
-        format.html { redirect_to @content.becomes(Content), notice: 'Content was successfully updated.' }
-        format.json { render :show, status: :ok, location: @content.becomes(Content) }
+        format.html { redirect_to @content.metamorphosize, notice: 'Content was successfully updated.' }
+        format.json { render :show, status: :ok, location: @content.metamorphosize }
       else
         format.html { render :edit }
         format.json { render json: @content.errors, status: :unprocessable_entity }

@@ -5,8 +5,8 @@ describe TaxonName, :type => :model do
 
   let(:taxon_name) { TaxonName.new }
   before(:all) do
-    TaxonName.delete_all
-    TaxonNameRelationship.delete_all
+    # TaxonName.delete_all
+    # TaxonNameRelationship.delete_all
     
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species    = @subspecies.ancestor_at_rank('species')

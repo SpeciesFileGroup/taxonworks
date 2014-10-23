@@ -5,5 +5,5 @@
       <li> <%= object_link(r) -%> <%= edit_object_link(r) -%>  <%= object_time_since_update_tag(r) -%> ago </li>
   <% end %>
   </ul>
-  <%= content_tag(:em, "No recently updated or created #{@data_model.name.tableize.humanize}.") if @recent_objects.empty? -%>
+<%= content_tag(:em, "No recently updated or created #{@data_model.name.tableize.humanize}.") if @recent_objects.empty? -%>
 </div>

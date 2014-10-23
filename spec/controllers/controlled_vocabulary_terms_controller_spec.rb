@@ -99,7 +99,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
 
       it "redirects to the created controlled_vocabulary_term" do
         post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
-        expect(response).to redirect_to(ControlledVocabularyTerm.last.becomes(ControlledVocabularyTerm))
+        expect(response).to redirect_to(ControlledVocabularyTerm.last.metamorphosize)
       end
     end
 
