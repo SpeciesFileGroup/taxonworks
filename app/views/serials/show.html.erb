@@ -29,17 +29,7 @@
       <% end %>
     </ol>
 <% end %>
-<%= add_alternate_value_link(object: @serial, user: sessions_current_user) -%>
-
-<p>
-  <strong>Created by:</strong>
-  <%= @serial.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @serial.updated_by_id %>
-</p>
+<%#= add_alternate_value_link(object: @serial, user: sessions_current_user) -%>
 
 <p>
   <strong>Publisher:</strong>
@@ -65,6 +55,16 @@
   <strong>Last year of issue:</strong>
   <%= @serial.last_year_of_issue %>
 </p>
+
+<!--<p>-->
+  <!--<strong>Created by:</strong>-->
+  <!--<%#= @serial.created_by_id %>-->
+<!--</p>-->
+
+<!--<p>-->
+  <!--<strong>Updated by:</strong>-->
+  <!--<%#= @serial.updated_by_id %>-->
+<!--</p>-->
 
 
 

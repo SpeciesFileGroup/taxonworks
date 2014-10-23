@@ -26,7 +26,7 @@ describe CollectingEventsHelper, :type => :helper do
       expect(collecting_event_link(collecting_event)).to have_link("Locality #{collecting_event.id} for testing...")
     end
 
-    specify "#collecting_event_search_form" do
+    specify '#collecting_event_search_form' do
       expect(collecting_events_search_form).to have_button('Show')
       expect(collecting_events_search_form).to have_field('collecting_event_id_for_quick_search_form')
     end
