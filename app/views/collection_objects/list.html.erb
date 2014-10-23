@@ -25,9 +25,9 @@
         <td><%= object_tag(collection_object.repository) %></td>
         <td><%= collection_object.updated_at %></td>
         <td><%= object_tag(collection_object.updater) %></td>
-        <td><%= link_to 'Show', collection_object.becomes(CollectionObject) %></td>
-        <td><%= link_to 'Edit', edit_collection_object_path(collection_object.becomes(CollectionObject)) %></td>
-        <td><%= link_to 'Destroy', collection_object.becomes(CollectionObject), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', collection_object.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_collection_object_path(collection_object.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', collection_object.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

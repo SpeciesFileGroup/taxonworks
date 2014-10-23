@@ -95,7 +95,7 @@ describe CollectionObjectsController, :type => :controller do
 
       it "redirects to the created collection_object" do
         post :create, {:collection_object => valid_attributes}, valid_session
-        expect(response).to redirect_to(CollectionObject.last.becomes(CollectionObject))
+        expect(response).to redirect_to(CollectionObject.last.metamorphosize)
       end
     end
 

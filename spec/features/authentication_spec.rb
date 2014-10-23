@@ -2,15 +2,16 @@ require 'rails_helper'
 
 describe 'Authentication', :type => :feature do
 
+
   subject { page }
 
   describe '/signin' do
     context 'when credentials match existing user' do
 
-      before { @valid_user = User.find(1) }
+      let(:valid_user) { FactoryGirl.create(:valid_user, id: 1) }
 
       it 'should sign user in' do
-        sign_in_with(@valid_user.email, TEST_USER_PASSWORD)
+        sign_in_with(valid_user.email, TEST_USER_PASSWORD)
 
         expect(subject).to have_link('Account') # TODO, add href
         expect(subject).not_to have_link('Sign out', href: signin_path)

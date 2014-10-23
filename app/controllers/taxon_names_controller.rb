@@ -33,7 +33,7 @@ class TaxonNamesController < ApplicationController
 
     respond_to do |format|
       if @taxon_name.save
-        format.html { redirect_to @taxon_name.becomes(TaxonName), notice: 'Taxon name was successfully created.' }
+        format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name }
       else
         format.html { render action: 'new' }
@@ -47,7 +47,7 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
-        format.html { redirect_to @taxon_name.becomes(TaxonName), notice: 'Taxon name was successfully updated.' }
+        format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

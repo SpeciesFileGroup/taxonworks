@@ -83,7 +83,7 @@ describe SourcesController, :type => :controller do
 
       it "redirects to the created source" do
         post :create, {:source => valid_attributes}, valid_session
-        expect(response).to redirect_to(Source.last.becomes(Source))
+        expect(response).to redirect_to(Source.last.metamorphosize)
       end
     end
 

@@ -28,9 +28,9 @@
         <td><%= person.prefix %></td>
         <td><%= person.updated_at %></td>  <!-- todo @mjy please validate updated and updater; format different -->
         <td><%= person.updater.email %></td>
-        <td><%= link_to 'Show', person.becomes(Person) %></td>
-        <td><%= link_to 'Edit', edit_person_path(person.becomes(Person)) %></td>
-        <td><%= link_to 'Destroy', person.becomes(Person), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', person.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_person_path(person.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', person.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
   </tbody>

@@ -1,4 +1,4 @@
-<%= form_for(controlled_vocabulary_term.becomes(ControlledVocabularyTerm)) do |f| %>
+<%= form_for(controlled_vocabulary_term.metamorphosize) do |f| %>
   <% if controlled_vocabulary_term.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(controlled_vocabulary_term.errors.count, "error") %> prohibited this controlled_vocabulary_term from being saved:</h2>

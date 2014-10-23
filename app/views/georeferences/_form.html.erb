@@ -1,4 +1,4 @@
-<%= form_for(@georeference.becomes(Georeference)) do |f| %>
+<%= form_for(@georeference.metamorphosize) do |f| %>
     <% if @georeference.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>

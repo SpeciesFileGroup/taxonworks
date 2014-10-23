@@ -1,5 +1,31 @@
 # Covers both Protonyms and subsequent Combination.
 
+# @!attribute year_of_publication 
+#   @return [Integer]
+#   The 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
+#
+# @!attribute source_id 
+#   @return [Integer]
+#   The ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations. 
+#
+# @!attribute lft 
+#   @return [Integer]
+#   A per awesome_nested_set. 
+#
+# @!attribute rgt 
+#   @return [Integer]
+#   A per awesome_nested_set. 
+#
+# @!attribute parent_id
+#   @return [Integer]
+#   The id of the parent taxon. The parent child relationship is exclusively organizational!  All statuses and relationships
+#   of a taxon name must be explicitly defined.  The parent of a taxon name can be thought of the "place where you'd find this
+#   name in a hierarchy if you knew literally *nothing* else about that name." 
+#
+# @!attribute verbatim_author 
+#   @return [String]
+#    The verbatim author string as provided ? is not post-filled in when Source is referenced !?
+#
 # @!attribute cached:
 #   @return [String]
 #    Genus-species combination for genus and lower, monomial for higher. The string has NO html.
@@ -22,7 +48,7 @@
 #
 # @!attribute cached_classified_as:
 #   @return [String]
-#   Returns if the name was classified in different group (e.g. a genus placed in wrong family).
+#   Returns [@proces: WHAT?] if the name was classified in different group (e.g. a genus placed in wrong family). 
 #
 # @!attribute cached_primary_homonym
 #   @return [String]
@@ -46,33 +72,6 @@
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
 #
-# @!all_taxon_name_relationships
-#   @return array of relationships
-#   Returns all relationships where this taxon is an object or subject.
-#
-# @!related_taxon_names
-#   @return array of taxon_names
-#   Returns all taxon_names which has relationsships to this taxon as an object or subject.
-#
-# @!rank_string
-#   @return [String]
-#   Returns rank as a string.
-#
-# @!rank_class
-#   @return [Class]
-#   Returns rank as class.
-#
-# @!nomenclature_date
-#   @return [Date]
-#   Returns effective date of publication. Used to determine nomenclatural priorities.
-#
-# @!gender_class
-#   @return [Class]
-#   Returns gender of a genus as class.
-#
-# @!gender_name
-#   @return [String]
-#   Returns gender of a genus as string.
 #
 # @!part_of_speech_class
 #   @return [Class]
@@ -206,14 +205,18 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
   soft_validate(:sv_cached_names, set: :cached_names)
 
+  # @!all_taxon_name_relationships
+  #   @return array of relationships
+  #   Returns all relationships where this taxon is an object or subject.
   def all_taxon_name_relationships
-    # (self.taxon_name_relationships & self.related_taxon_name_relationships)
-
-    # !! If self relatinships are every made possiblepossible this needs a DISTINCT clause
+    # !! If self relatinships are every made possible this needs a DISTINCT clause
     TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
                          SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
+  # @!related_taxon_names
+  #   @return array of taxon_names
+  #   Returns all taxon_names which has relationsships to this taxon as an object or subject.
   def related_taxon_names
     TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
                       LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
@@ -225,6 +228,9 @@ class TaxonName < ActiveRecord::Base
     ::RANKS.include?(self.rank_string) ? self.rank_class.rank_name : nil
   end
 
+  # @!rank_string
+  #   @return [String]
+  #   Returns rank as a string.
   def rank_string
     read_attribute(:rank_class)
   end
@@ -233,6 +239,9 @@ class TaxonName < ActiveRecord::Base
     write_attribute(:rank_class, value.to_s)
   end
 
+  # @!rank_class
+  #   @return [Class]
+  #   Returns rank as class.
   def rank_class
     r = read_attribute(:rank_class)
     Ranks.valid?(r) ? r.safe_constantize : r
@@ -254,7 +263,9 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-
+  # @!nomenclature_date
+  #   @return [Date]
+  #   Returns effective date of publication. Used to determine nomenclatural priorities.
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -268,11 +279,17 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # @!gender_class
+  #   @return [Class]
+  #   Returns gender of a genus as class.
   def gender_class
     c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
     c.nil? ? nil : c.type_class
   end
 
+  # @!gender_name
+  #   @return [String]
+  #   Returns gender of a genus as string.
   def gender_name
     c = self.gender_class
     c.nil? ? nil : c.class_name

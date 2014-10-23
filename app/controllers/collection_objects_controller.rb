@@ -30,8 +30,8 @@ class CollectionObjectsController < ApplicationController
 
     respond_to do |format|
       if @collection_object.save
-        format.html { redirect_to @collection_object.becomes(CollectionObject), notice: 'Collection object was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @collection_object.becomes(CollectionObject) }
+        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully created.' }
+        format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
         format.json { render json: @collection_object.errors, status: :unprocessable_entity }
@@ -44,7 +44,7 @@ class CollectionObjectsController < ApplicationController
   def update
     respond_to do |format|
       if @collection_object.update(collection_object_params)
-        format.html { redirect_to @collection_object.becomes(CollectionObject), notice: 'Collection object was successfully updated.' }
+        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

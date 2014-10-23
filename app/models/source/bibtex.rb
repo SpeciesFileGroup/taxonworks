@@ -379,6 +379,12 @@ class Source::Bibtex < Source
     self[:year].to_s + self[:year_suffix].to_s
   end
 
+  # @return[String] A string that represents the authors last_names and year (no suffix)
+  def author_year
+    return 'not yet calculated' if self.new_record?
+    [ cached_author_string, year].compact.join(", ")
+  end
+
   def build_related_people_and_roles
     return false if !self.valid? ||
       self.new_record? ||

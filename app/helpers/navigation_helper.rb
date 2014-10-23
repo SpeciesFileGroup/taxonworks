@@ -22,7 +22,7 @@ module NavigationHelper
       link_object = instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
     end
 
-    link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
+    link_object.nil? ? text : link_to(text, link_object.metamorphosize)
   end
 
   # A next record link.
@@ -33,7 +33,7 @@ module NavigationHelper
     else
       link_object = instance.class.base_class.order(id: :asc).where(['id > ?', instance.id]).limit(1).first
     end
-    link_object.nil? ? text : link_to(text, link_object.becomes(link_object.class.base_class))
+    link_object.nil? ? text : link_to(text, link_object.metamorphosize)
   end
 
   def new_path_for_model(model)
@@ -66,18 +66,22 @@ module NavigationHelper
 
   def object_link(object)
     return nil if object.nil?
-    link_to(object_tag(object).html_safe, object.becomes(object.class.base_class))
+    link_to(object_tag(object).html_safe, object.metamorphosize)
   end
 
   def edit_object_path(object)
-    send("edit_#{object.class.base_class.name.underscore}_path", object)
+    send(edit_object_path_string(object), object)
+  end
+
+  def edit_object_path_string(object)
+    "edit_#{object.class.base_class.name.underscore}_path"
   end
 
   def edit_object_link(object)
-    if @is_shared_data_model 
+    if @is_shared_data_model || !self.respond_to?(edit_object_path_string(object))
       content_tag(:span, 'Edit', class: :disabled) 
     else
-      link_to('Edit', edit_object_path(object.becomes(object.class.base_class)))  
+      link_to('Edit', edit_object_path(object.metamorphosize))  
     end
   end
 
@@ -85,7 +89,7 @@ module NavigationHelper
     if @is_shared_data_model 
       content_tag(:span, 'Destroy', class: :disabled) 
     else
-      link_to('Destroy', object.becomes(object.class.base_class), method: :delete, data: { confirm: 'Are you sure?' })
+      link_to('Destroy', object.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' })
     end
   end
 
