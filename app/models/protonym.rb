@@ -43,8 +43,7 @@ class Protonym < TaxonName
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
-  
-       
+        
         # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end

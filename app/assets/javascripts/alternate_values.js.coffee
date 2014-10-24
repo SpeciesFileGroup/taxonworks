@@ -18,6 +18,7 @@ edit_record = (er_link) ->
   $(er_link).closest(".fields").hide()
   return
 
+# TODO: @tuckerjd what's this?
 a_record = (ar_link) ->
   new_id = new Date().getTime()
   regexp = new RegExp("new_" + association, "g")

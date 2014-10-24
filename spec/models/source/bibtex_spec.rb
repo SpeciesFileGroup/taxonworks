@@ -435,7 +435,7 @@ describe Source::Bibtex, :type => :model do
     end
 
     context 'before save set cached values - multiple authors' do
-      
+
       before(:all) {
         @l_src = FactoryGirl.create(:src_mult_authors)
       }

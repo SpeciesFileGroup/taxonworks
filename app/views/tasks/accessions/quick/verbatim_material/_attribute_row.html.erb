@@ -1,0 +1,14 @@
+<div class='flexbox'> 
+  <div class='item item1'> 
+    Total: <%= number_field_tag("collection_objects[object#{i}][total]") %>
+  </div> 
+
+  <div class="item item2">
+    <fieldset >
+      <%= content_tag(:legend, bg.name) -%>
+      <% bg.biocuration_classes.each do |bc| %>
+        <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object#{i}][biocuration_classes][#{bc.id}]" ) -%>
+      <% end %>
+    </fieldset>
+  </div>
+</div> 

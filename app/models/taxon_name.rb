@@ -78,10 +78,7 @@
 #
 #
 #
-# @!get_valid_taxon_name
-#   @return taxon_name
-#   Returns a valid taxon_name for an invalid name or self for valid name.
-#
+
 # @!name_with_alternative_spelling
 #   @return [String]
 #   Alternative spelling of the name according to rules of homonymy.
@@ -228,6 +225,9 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # Return the author for this taxon, last name only.  
+  # This is the baseline means of displaying 
+  # taxon name authorship. 
   def author_string
     if !self.verbatim_author.nil?
       self.verbatim_author
@@ -338,7 +338,9 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # get valid name for any taxon
+  # @!get_valid_taxon_name
+  #  @return taxon_name
+  #  Returns a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name 
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
     (vn.count == 1) ? vn.first.object_taxon_name : self
@@ -801,7 +803,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @proceps - this needs to use nomenclatural date, or reference the source when provided
-  # Returns a String with the author and year of the name. 
+  # Returns a String with the author and year of the name. Adds parenthesis.  
+  #
   def get_author_and_year
     return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
     rank = self.rank_class

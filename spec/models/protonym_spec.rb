@@ -294,18 +294,23 @@ describe Protonym, :type => :model do
         #TODO citeproc gem doesn't currently support lastname without firstname
         @source.update(year: 1758, author: 'Linnaeus, C.')
         @source.save
+        
         @kingdom.source = @source
+
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+
         @kingdom.fix_soft_validations  # get author and year from the source
+        
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-       
-        expect(@kingdom.verbatim_author).to eq('Linnaeus C.') # @proceps see comment in TaxonName, please define verbatim_author
+        expect(@kingdom.author_string).to eq('Linnaeus') 
+        
         expect(@kingdom.year_of_publication).to eq(1758)
       end
+
     end
 
     context 'coordinated taxa' do
@@ -715,9 +720,11 @@ describe Protonym, :type => :model do
       @s =  Protonym.where(name: 'vitis').first
       @g =  Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
+    
     after(:all) {
       TaxonName.delete_all
     }
+
     before(:each) {
       TaxonNameRelationship.delete_all
     }
@@ -832,7 +839,6 @@ describe Protonym, :type => :model do
       specify 'as_subject_without_taxon_name_relationship_base' do
         expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship').count).to eq(Protonym.all.size - 1)
       end
-
     end
 
     context 'classifications' do

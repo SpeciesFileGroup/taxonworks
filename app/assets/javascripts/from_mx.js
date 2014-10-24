@@ -8,12 +8,12 @@ function initialize_js(root) {
   find("*[data-observe-field]").mx_field_observer();
   find("*[data-autoquery]").mx_autoquery();
   find("*[data-sortable]").mx_sortable();
-/*
+  find("*[data-insert-content]").mx_insert_content();
+  /*
 
   find("*[data-sortable-table]").mx_sortable_table();
    find("input[data-color-picker]").mx_color_picker();
    find("a[data-ajaxify], input[data-ajaxify]").ajaxify();
-   find("*[data-insert-content]").mx_insert_content();
    find("*[data-tooltip]").mx_tooltip();
    find("*[data-observe-select]").mx_select_observer();
    find("*[data-basic-modal]").basicModal();
