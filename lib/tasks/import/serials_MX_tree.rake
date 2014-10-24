@@ -118,67 +118,78 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             identifiers.push({type:       'Identifier::global::uri',
                               identifier: row[16].to_s.strip
                              })
-          end
 
-
-          r                               = Serial.new(
-            name:                   row[4].to_s.strip,
-            publisher:              row[5].to_s.strip,
-            place_published:        row[6].to_s.strip,
-            primary_language_id:    row[11].to_s.strip,
-            # first_year_of_issue:    row[6],              # not available from treehopper or MX data
-            # last_year_of_issue:     row[7],
-            identifiers_attributes: identifiers,
-            notes_attributes:       notes
-          )
-
-          # add abbreviation
-          abbr                            = AlternateValue.new # or should this be an abbreviation?
-          abbr.value                      = row[7].to_s.strip
-          abbr.alternate_object_attribute = 'name'
-          abbr.type                       = 'AlternateValue::Abbreviation'
-          r.alternate_values << abbr
-
-          # add short name (alternate name)
-          alt_name                            = AlternateValue.new
-          alt_name.value                      = row[8].to_s.strip
-          alt_name.alternate_object_attribute = 'name'
-          alt_name.type                       = 'AlternateValue::Abbreviation'
-          r.alternate_values << alt_name
-
-          r.save!
-
-          if need2serials # had 2 different ISSNs for digital and print versions
-            identifiers=[]
-            # Import ID - never empty
-            identifiers.push({type:       'Identifier::Local::Import',
-                              namespace:  IMPORT_SERIAL_NAMESPACE,
-                              identifier: row[0].to_s.strip
-                             })
-            # MX ID
-            if !(row[1].to_s.strip.blank?)
-              identifiers.push({type:       'Identifier::Local::Import',
-                                namespace:  MX_SERIAL_NAMESPACE,
-                                identifier: row[1].to_s.strip
-                               })
-            end
-            identifiers.push({type:       'Identifier::global::issn',
-                              identifier: row[14].to_s.strip})
-
-            r = Serial.new(
+            r                               = Serial.new(
               name:                   row[4].to_s.strip,
               publisher:              row[5].to_s.strip,
               place_published:        row[6].to_s.strip,
               primary_language_id:    row[11].to_s.strip,
+              # first_year_of_issue:    row[6],              # not available from treehopper or MX data
+              # last_year_of_issue:     row[7],
               identifiers_attributes: identifiers,
               notes_attributes:       notes
             )
 
+            # add abbreviation
+            abbr                            = AlternateValue.new # or should this be an abbreviation?
+            abbr.value                      = row[7].to_s.strip
+            abbr.alternate_object_attribute = 'name'
+            abbr.type                       = 'AlternateValue::Abbreviation'
+            r.alternate_values << abbr
+
+            # add short name (alternate name)
+            alt_name                            = AlternateValue.new
+            alt_name.value                      = row[8].to_s.strip
+            alt_name.alternate_object_attribute = 'name'
+            alt_name.type                       = 'AlternateValue::Abbreviation'
+            r.alternate_values << alt_name
+
             r.save!
 
+            if need2serials # had 2 different ISSNs for digital and print versions
+              identifiers=[]
+              # Import ID - never empty
+              identifiers.push({type:       'Identifier::Local::Import',
+                                namespace:  IMPORT_SERIAL_NAMESPACE,
+                                identifier: row[0].to_s.strip
+                               })
+              # MX ID
+              if !(row[1].to_s.strip.blank?)
+                identifiers.push({type:       'Identifier::Local::Import',
+                                  namespace:  MX_SERIAL_NAMESPACE,
+                                  identifier: row[1].to_s.strip
+                                 })
+              end
+              identifiers.push({type:       'Identifier::global::issn',
+                                identifier: row[14].to_s.strip})
+
+              r = Serial.new(
+                name:                   row[4].to_s.strip,
+                publisher:              row[5].to_s.strip,
+                place_published:        row[6].to_s.strip,
+                primary_language_id:    row[11].to_s.strip,
+                identifiers_attributes: identifiers,
+                notes_attributes:       notes
+              )
+
+              r.save!
+
+            end
+
           end
+          puts 'Successful load of primary serial file'
+
+          # Now add additional identifiers
+=begin
+            Find by alternate value  - note from pair programming with Jim
+            s = Source::Bibtex.new
+            a = AlternateValue.where(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+            s = a.objectID
+=end
+
+
         end # transaction end
-        puts 'Success'
+        puts 'Successful complete load of MX & treehopper serials'
         raise # causes it to always fail and rollback the transaction
 
       rescue
