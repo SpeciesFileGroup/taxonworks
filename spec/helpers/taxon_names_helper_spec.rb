@@ -1,15 +1,5 @@
 require 'rails_helper'
 
-# Specs in this file have access to a helper object that includes
-# the TaxonNamesHelper. For example:
-#
-# describe TaxonNamesHelper do
-#   describe "string concat" do
-#     it "concatenates two strings with spaces" do
-#       expect(helper.concat_strings("this", "that")).to eq("this that")
-#     end
-#   end
-# end
 describe TaxonNamesHelper, :type => :helper do
   context 'a taxon_name needs some helpers' do
     let(:taxon_name) {FactoryGirl.create(:valid_taxon_name) }

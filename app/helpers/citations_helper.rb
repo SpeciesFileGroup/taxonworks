@@ -16,4 +16,13 @@ module CitationsHelper
     render('/citations/quick_search_form')
   end
 
+  def add_citation_link(object: object)
+    if object.citable?
+    link_to("Cite this #{object.class.name}", new_citation_path(alternate_value: {citation_object_type:      object.class.base_class.name,
+                                                                                  citation_object_id:        object.id }))
+    else
+      nil
+    end
+  end
+
 end

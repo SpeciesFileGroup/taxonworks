@@ -2,22 +2,20 @@ require 'rails_helper'
 
 describe ProjectsHelper do
   context 'a project needs some helpers' do
-    before(:all) {
-      @project  = FactoryGirl.build_stubbed(:valid_project, id: 1)
-      @cvt_name = @project.name
-    }
+    let(:name) {'Wonderland'}
+    let(:project) {FactoryGirl.build_stubbed(:valid_project, id: 1, name:name) }
 
     specify '::project_tag' do
-      expect(ProjectsHelper.project_tag(@project)).to eq(@cvt_name)
+      expect(ProjectsHelper.project_tag(project)).to eq(name)
     end
 
     specify '#project_tag' do
-      expect(project_tag(@project)).to eq(@cvt_name)
+      expect(helper.project_tag(project)).to eq(name)
     end
 
     specify '#project_link' do
       session[:project_id] = 1
-      expect(project_link(@project)).to have_link(@cvt_name)
+      expect(helper.project_link(project)).to have_link(name)
     end
 
     specify "#project_search_form" do
