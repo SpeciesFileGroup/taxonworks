@@ -4,11 +4,16 @@ class Identifier::Local < Identifier
 
   after_validation :set_cached_value
 
+  # Exact match on identifier + namespace
+  def with_namespaced_identifier(namespace_name, identifier)
+    includes(:identifiers).where(identifiers: {namespace: {name: namespace_name}}, identifier: identifier).references(:identifiers)
+  end
+
   protected
 
   def set_cached_value
     if errors.empty?
-      cached = Namespace.name + " " + identifier.to_s
+      self.cached = namespace.name + " " + identifier.to_s
     end
   end
 

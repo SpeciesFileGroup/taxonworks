@@ -6,9 +6,24 @@ module Shared::Identifiable
   end
 
   module ClassMethods
-    # Exact match on identifier + namespace (only use for Identifier::Local subclasses 
+
+    # Exact match on identifier + namespace, return an Array, not Arel
     def with_namespaced_identifier(namespace_name, identifier)
-      includes(:identifiers).where(namespace: {name: namespace_name}, identifier: identifier).references(:identifiers)
+      i = Identifier.arel_table
+      n = Namespace.arel_table
+      s = self.arel_table
+
+      # conditions
+      c1 = n[:name].eq(namespace_name)
+      c2 = i[:identifier].eq(identifier)
+
+      # join identifiers to namespaces
+      j = i.join(n).on(i[:namespace_id].eq(n[:id]))
+
+      # join self to identifiers
+      l = s.join(i).on(s[:id].eq(i[:identified_object_id]).and(i[:identified_object_type].eq(self.base_class.name)))
+
+      self.joins(l.join_sql, j.join_sql).where(c1.and(c2).to_sql)
     end
 
     # Exact match on the full identifier (use for any class of identifiers)
@@ -16,7 +31,7 @@ module Shared::Identifiable
       value = [value] if value.class == String
       t = Identifier.arel_table
       a = t[:cached].eq_any(value)
-      includes(:identifiers).where(a.to_sql).references(:identifiers) 
+      self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
   end
 

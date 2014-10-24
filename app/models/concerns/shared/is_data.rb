@@ -1,4 +1,4 @@
-module Shared::IsData 
+module Shared::IsData
   extend ActiveSupport::Concern
 
   included do

@@ -6,13 +6,12 @@ class Identifier::Global < Identifier
 
   # only one identifier of a global type can be created  
   validates_uniqueness_of :type, scope: [:identifier]
-
   after_validation :set_cached_value
 
   protected
 
   def set_cached_value
-    cached = identifier
+    self.cached = identifier
   end
 
 
