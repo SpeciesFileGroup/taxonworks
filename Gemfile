@@ -83,6 +83,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
+  gem 'selenium-webdriver'
 end
 
 group :development do
