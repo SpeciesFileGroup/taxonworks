@@ -74,14 +74,13 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Person.find_for_autocomplete(params)
-
     data = @people.collect do |t|
       {id:              t.id,
-       label:           PeopleHelper.collection_object_tag(t), # in helper
+       label:           t.name,
        response_values: {
            params[:method] => t.id
        },
-       label_html:      PeopleHelper.collection_object_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:     t.name 
       }
     end
 

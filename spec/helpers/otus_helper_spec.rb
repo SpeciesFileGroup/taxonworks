@@ -12,9 +12,7 @@ require 'rails_helper'
 # end
 describe OtusHelper, :type => :helper do
   context 'an otu needs some helpers' do
-    before(:all) {
-      @otu     = FactoryGirl.create(:valid_otu, name: 'voluptas')
-    }
+    let(:otu) {FactoryGirl.create(:valid_otu, name: 'voluptas') }
 
     specify '::otu_tag' do
       expect(OtusHelper.otu_tag(@otu)).to eq('voluptas')

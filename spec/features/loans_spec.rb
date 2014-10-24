@@ -35,11 +35,11 @@ describe 'Loans', :type => :feature do
         visit loan_path(Loan.second) 
       }
 
-      specify 'there is a \'previous\' link' do
+      specify 'there is a "previous" link' do
         expect(page).to have_link('Previous')
       end
 
-      specify 'there is a \'next\' link' do
+      specify 'there is a "next" link' do
         expect(page).to have_link('Next')
       end
     end

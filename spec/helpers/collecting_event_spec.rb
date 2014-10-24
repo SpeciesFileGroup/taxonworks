@@ -7,7 +7,7 @@ describe CollectingEventsHelper, :type => :helper do
   
 
     specify '.collecting_event_tag' do
-      expect(CollectingEventsHelper.collecting_event_tag(collecting_event)).to eq(verbatim_label)
+      expect(helper.collecting_event_tag(collecting_event)).to eq(verbatim_label)
     end
 
     specify '#collecting_event_tag' do
@@ -15,7 +15,7 @@ describe CollectingEventsHelper, :type => :helper do
     end
 
     specify '#collecting_event_link' do
-      expect(helper.collecting_event_link(collecting_event)).to have_link("Locality #{collecting_event.id} for testing...")
+      expect(helper.collecting_event_link(collecting_event)).to have_link("Urbana ii") # matches anywhere in link
     end
 
     specify '#collecting_event_search_form' do

@@ -68,19 +68,30 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) 
   end
 
+  # GET /collecting_events/search
+  def search
+    if params[:collecting_event] && params[:collecting_event][:id]
+      redirect_to collecting_event_path(params[:collecting_event][:id])
+    else
+      redirect_to collecting_events_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+
   def autocomplete
-    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
+    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) 
 
     data = @collecting_events.collect do |t|
+      str = render_to_string(partial: 'tag', locals: {collecting_event: t})
       {id:              t.id,
-       label:           CollectingEventsHelper.collecting_event_tag(t), # in helper
+       label:           str, 
        response_values: {
          params[:method] => t.id
        },
-       label_html:      CollectingEventsHelper.collecting_event_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      str  
       }
     end
 
@@ -96,6 +107,6 @@ class CollectingEventsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def collecting_event_params
-    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label, :cached_display, :created_by_id, :updated_by_id, :project_id)
+    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label )
   end
 end

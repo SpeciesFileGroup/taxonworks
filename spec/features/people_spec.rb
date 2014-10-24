@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'People', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+  it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { people_path }
     let(:page_index_name) { 'People' }
   end

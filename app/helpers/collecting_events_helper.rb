@@ -1,13 +1,9 @@
 module CollectingEventsHelper
 
-  # self. pattern is going away, it can't include instance methods, i.e. other helpers
-  def self.collecting_event_tag(collecting_event)
-    return nil if collecting_event.nil?
-    content_tag(:pre, collecting_event.verbatim_label)
-  end
-
   def collecting_event_tag(collecting_event)
-    CollectingEventsHelper.collecting_event_tag(collecting_event)
+    return nil if collecting_event.nil?
+    string = [ collecting_event.cached,  collecting_event.verbatim_label, collecting_event.print_label, collecting_event.document_label, collecting_event.field_notes, collecting_event.to_param].compact.first 
+    string
   end
 
   def collecting_event_link(collecting_event)

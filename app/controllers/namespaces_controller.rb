@@ -1,9 +1,7 @@
 class NamespacesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_administrator_sign_in, only: [:edit, :update, :destroy]
-
-  # TODO: scope this to administrators?
+  before_action :require_administrator_sign_in, only: [:edit, :update, :destroy, :index]
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
   # GET /namespaces
@@ -31,7 +29,6 @@ class NamespacesController < ApplicationController
   # POST /namespaces.json
   def create
     @namespace = Namespace.new(namespace_params)
-
 
     respond_to do |format|
       if @namespace.save
