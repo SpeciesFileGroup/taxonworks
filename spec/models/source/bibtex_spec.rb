@@ -2,9 +2,6 @@ require 'rails_helper'
 
 describe Source::Bibtex, :type => :model do
 
-  $user_id    = 1 # user_id & project_id must be set to get housekeeping to work correctly
-  $project_id = 1
-
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
   before(:each) do
@@ -438,6 +435,7 @@ describe Source::Bibtex, :type => :model do
     end
 
     context 'before save set cached values - multiple authors' do
+      
       before(:all) {
         @l_src = FactoryGirl.create(:src_mult_authors)
       }

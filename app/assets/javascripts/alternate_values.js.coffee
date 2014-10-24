@@ -39,6 +39,7 @@ bind_alternate_value_remove = (link) ->
   $('a', $(link).prev('div.alternate-value-record')).click (event) ->
     # alert 'Remove triggered by new link.'
     destroy_record(this)
+    event.preventDefault() # Prevent link from following its href
     return
   return
 
