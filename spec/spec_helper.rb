@@ -63,7 +63,7 @@ RSpec.configure do |config|
 =end
 
   config.infer_spec_type_from_file_location!
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
   config.infer_base_class_for_anonymous_controllers = false 
 
   # Many RSpec users commonly either run the entire suite or an individual
@@ -89,5 +89,23 @@ RSpec.configure do |config|
   #
   #
   #
- 
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:each, js: true) do
+    DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end 
 end

@@ -27,7 +27,7 @@ describe 'Otus', :type => :feature do
         expect(page).to have_link('Download')
       end
 
-      specify 'that it has an AJAX autocomplete box' do # js: true 
+      specify 'that it has an AJAX autocomplete box', js: true do 
         expect(page).to have_button('Show')
         expect(page).to have_field('Enter a search for Otus')
 

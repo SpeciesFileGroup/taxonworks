@@ -83,7 +83,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
-#  gem 'selenium-webdriver'
+  gem 'selenium-webdriver'
 #  gem 'capybara-webkit'
 end
 
@@ -106,5 +106,6 @@ group :test do
   gem 'timecop', '~> 0.7.1'
   gem 'webmock', '~> 1.18.0'
   gem 'vcr', '~> 2.9.2'
+  gem 'database_cleaner', '~> 1.3.0'
 end
 
