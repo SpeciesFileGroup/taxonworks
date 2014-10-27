@@ -1,6 +1,6 @@
 
 def strip_housekeeping_attributes(attributes)
-  i = NON_ANNOTATABLE_COLUMNS
+  i = NON_ANNOTATABLE_COLUMNS.dup
   i.delete(:type)
   attributes.delete_if { |j, k| i.map(&:to_s).include?(j) } # See config/initializers/constants/note_constants
 end

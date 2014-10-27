@@ -11,12 +11,10 @@ class Note < ActiveRecord::Base
 
   before_validation :not_a_housekeeping_field, :is_valid_attribute, :no_pipes
 
-  # TODO: Move to Draper
   # Format a note
   def note_string
     "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? "" : "[on: #{note_object_attribute}]")
   end
-
   
   protected
   def no_pipes
@@ -34,8 +32,9 @@ class Note < ActiveRecord::Base
 
   def is_valid_attribute
     if !(self.note_object_attribute.blank?)
-      errors.add(:note_object_attribute, 'not a valid attribute (column)') if
-          !(self.note_object.attributes.include?(self.note_object_attribute.to_s))
+      attr = self.note_object_attribute.to_s
+      errors.add(:note_object_attribute, "#{attr} is not an attribute (column) of #{self.note_object.class}") if
+          !(self.note_object.attributes.include?(attr))
     end
   end
 end

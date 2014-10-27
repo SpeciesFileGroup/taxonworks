@@ -55,40 +55,43 @@ describe 'Notable', :type => :model do
     expect(class_with_note.notes[0].note_object_attribute).to eq(TestNotable.columns[4].name)
   end
 
-  context 'can not add note to housekeeping columns' do
-    before (:each) {
-      @bad_note = FactoryGirl.build(:note, text: 'foo')
-      expect(class_with_note.save).to be_truthy
-      expect(class_with_note.notes.count == 0).to be_truthy
-      @error_message = 'can not add a note to this attribute (column)'
-    }
+  context 'attaching a note to column that is not notable' do
+    let(:bad_note) { FactoryGirl.build(:note, text: 'foo') }
+    let(:error_message) { 'can not add a note to this attribute (column)'}
+    before(:each) { class_with_note.save! }
 
     # for each column in ::NON_ANNOTATABLE_COLUMNS test that you can't add a note to it.
-    ::NON_ANNOTATABLE_COLUMNS.each do |attr|
-      specify "can not add a note to #{attr.to_s}" do
-        @bad_note.note_object_attribute = attr
-        @bad_note.text                  = "note to #{attr.to_s}"
-        expect(class_with_note.notes << @bad_note).to be_falsey
-        expect(class_with_note.notes.count == 0).to be_truthy
-        expect(@bad_note.errors.messages[:note_object_attribute].include?(@error_message)).to be_truthy
-        # now add note to a different column
-        @bad_note.note_object_attribute = TestNotable.columns[1].name
-        expect(@bad_note.errors.full_messages.include?(@error_message)).to be_falsey
+    NON_ANNOTATABLE_COLUMNS.each do |attr|
+      specify "#{attr.to_s} is a housekeeping or related column and can not be annotated" do
+        puts "testing: #{attr.to_s}" 
+        expect(class_with_note.notes.count == 0).to eq(true)
+
+        bad_note.note_object_attribute = attr
+        bad_note.text                  = "note to #{attr.to_s}"
+        expect(class_with_note.notes << bad_note).to be_falsey
+
+        expect(class_with_note.notes.count == 0).to eq(true) #be_truthy # <---
+        expect(bad_note.errors.messages[:note_object_attribute].include?(error_message)).to be_truthy
+  
+        # now add note to a real column
+        bad_note.note_object_attribute = :string 
+        expect(bad_note.errors.full_messages.include?(error_message)).to be_falsey
       end
     end
 
     specify 'can not add a note to a non-existent attribute (column)' do
-      expect(class_with_note.save).to be_truthy
-      expect(class_with_note.notes.count == 0).to be_truthy
-      bad_note = FactoryGirl.build(:note, text: 'foo')
+      expect(class_with_note.notes.count == 0).to eq(true)
+ 
+      not_a_column = 'nonexistentColumn'
+      bad_note.note_object_attribute = not_a_column 
 
-      bad_note.note_object_attribute = 'nonexistentColumn'
       expect(class_with_note.notes << bad_note).to be_falsey
       expect(class_with_note.notes.count == 0).to be_truthy
-      expect(bad_note.errors.messages[:note_object_attribute].include?('not a valid attribute (column)')).to be_truthy
-      # now add note to a different column
-      bad_note.note_object_attribute = TestNotable.columns[1].name
-      expect(bad_note.errors.full_messages.include?(@error_message)).to be_falsey
+      expect(bad_note.errors.messages[:note_object_attribute].include?("#{not_a_column} is not an attribute (column) of #{class_with_note.class}")).to be_truthy
+
+      # now add note to a real column
+      bad_note.note_object_attribute = :string 
+      expect(bad_note.errors.full_messages.include?(error_message)).to be_falsey
     end
   end
 
