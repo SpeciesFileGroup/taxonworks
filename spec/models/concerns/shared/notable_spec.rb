@@ -63,7 +63,6 @@ describe 'Notable', :type => :model do
     # for each column in ::NON_ANNOTATABLE_COLUMNS test that you can't add a note to it.
     NON_ANNOTATABLE_COLUMNS.each do |attr|
       specify "#{attr.to_s} is a housekeeping or related column and can not be annotated" do
-        puts "testing: #{attr.to_s}" 
         expect(class_with_note.notes.count == 0).to eq(true)
 
         bad_note.note_object_attribute = attr
