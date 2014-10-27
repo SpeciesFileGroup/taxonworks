@@ -3,12 +3,13 @@ namespace :tw do
 
     desc 'call like "rake tw:initialization:upload_MX_tree_serials[/Users/eef/src/data/serialdata/serialdata/working_data/treeMXmerge-final.txt] user_id=1" '
     task :build_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
-      args.with_defaults(:data_directory => './SerialExport.txt')
+      args.with_defaults(:data_directory1 => './TreeMXmerge-final.txt', :data_directory2 => './treeMXduplicates.txt')
 
       # TODO: check checksums of incoming files?
 
       raise 'There are existing serials, doing nothing.' if Serial.all.count > 0
 
+      # first file ./TreeMXmerge-final.txt
       begin
         ActiveRecord::Base.transaction do
           MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID')
@@ -17,7 +18,7 @@ namespace :tw do
           TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID')
           IMPORT_SERIAL_NAMESPACE     = Namespace.find_or_create_by(name: 'MX_T import serial ID')
 
-          CSV.foreach(args[:data_directory],
+          CSV.foreach(args[:data_directory1],
                       headers:        true,
                       return_headers: false,
                       encoding:       'UTF-16LE:UTF-8',
@@ -178,18 +179,48 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
           end
           puts 'Successful load of primary serial file'
+        end # transaction end
 
-          # Now add additional identifiers
+        # Now add additional identifiers - filename is treeMXduplicates
+        begin
+          Activerecord::Base.transaction do
+            CSV.foreach(args[:data_directory1],
+                        headers:        true,
+                        return_headers: false,
+                        encoding:       'UTF-16LE:UTF-8',
+                        col_sep:        "\t",
+                        quote_char:     '|'
+            ) do
+=begin
+Column : SQL column name : data desc
+0 : Keep : The tmpID of the primary source
+1 : Delete : The tmpID of the duplicated source (was never loaded)
+2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
+3 : MXID
+4 : TreeID
+5 : Name
+6 : Abbr
+
+=end
+            end
+
+          end
+        end
 =begin
             Find by alternate value  - note from pair programming with Jim
             s = Source::Bibtex.new
             a = AlternateValue.where(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
             s = a.objectID
+
+to save without raising
+      a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+      if a.valid? then save else continue the loop
 =end
 
 
-        end # transaction end
         puts 'Successful complete load of MX & treehopper serials'
+
+
         raise # causes it to always fail and rollback the transaction
 
       rescue
