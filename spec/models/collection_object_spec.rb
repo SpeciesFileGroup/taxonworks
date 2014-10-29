@@ -5,9 +5,9 @@ describe CollectionObject, :type => :model do
   let(:collection_object) {FactoryGirl.build(:collection_object) }
 
   context 'validation' do
-    specify 'type is set to a biological_collection_object when not provided' do
+    specify 'type is not set when total/ranged_lot are not provided' do
       collection_object.valid?
-      expect(collection_object.type).to eq('CollectionObject::BiologicalCollectionObject') 
+      expect(collection_object.type).to eq(nil) 
     end
 
     specify 'type is set to Specimen when type not provided but total is one' do
@@ -28,12 +28,34 @@ describe CollectionObject, :type => :model do
       expect(collection_object.type).to eq('RangedLot') 
     end
 
-    specify 'both total and ranged_lot_category_id can not be present' do
-      collection_object.total = 10
-      collection_object.ranged_lot_category_id = 10
-      expect(collection_object.valid?).to be_falsey
-      expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
-    end 
+    context 'both total and ranged_lot_category_id may not be present' do
+      before {
+        collection_object.total = 10
+        collection_object.ranged_lot_category_id = 10
+      }
+      specify 'when a CollectionObject' do
+        expect(collection_object.valid?).to be_falsey
+        expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
+      end 
+
+      specify 'when a Specimen' do
+        collection_object.type = 'Specimen'
+        expect(collection_object.valid?).to be_falsey
+        expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
+      end
+
+      specify 'when a Lot' do
+        collection_object.type = 'Lot'
+        expect(collection_object.valid?).to be_falsey
+        expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
+      end
+
+      specify 'when a RangedLot' do
+        collection_object.type = 'RangedLot'
+        expect(collection_object.valid?).to be_falsey
+        expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
+      end
+    end
 
     specify 'one of total or ranged_lot_category_id must be present' do
       collection_object.valid?
@@ -91,8 +113,6 @@ describe CollectionObject, :type => :model do
     specify '#deaccession_recipient' do
       expect(collection_object.deaccession_recipient = FactoryGirl.build(:valid_person)).to be_truthy
     end
-
-
   end
 
   context 'soft validation' do

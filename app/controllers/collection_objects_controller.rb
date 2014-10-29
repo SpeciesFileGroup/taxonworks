@@ -63,6 +63,7 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # GET /collection_objects/list
   def list
     @collection_objects =  CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
@@ -73,28 +74,24 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-
     data = @collection_objects.collect do |t|
       {id:              t.id,
        label:           CollectionObjectsHelper.collection_object_tag(t), # in helper
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html:      CollectionObjectsHelper.collection_object_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      CollectionObjectsHelper.collection_object_tag(t)  # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-
     render :json => data
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_collection_object
-      @collection_object = CollectionObject.find(params[:id])
-    end
+  def set_collection_object
+    @collection_object = CollectionObject.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def collection_object_params
-      params.require(:collection_object).permit(:total, :type, :preparation_type_id, :repository_id, :created_by_id, :updated_by_id, :project_id)
-    end
+  def collection_object_params
+    params.require(:collection_object).permit(:total, :preparation_type_id, :repository_id, :ranged_lot_category_id, :collecting_event_id, :buffered_collecting_event, :buffered_deteriminations, :buffered_other_labels, :deaccessioned_at, :accession_provider, :deaccesion_recipient, :deaccession_reason)
+  end
 end

@@ -25,7 +25,7 @@
           <div class="field">
             <%= f.label :ranged_lot_category %>
             <br>
-            <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name) -%>
+            <%= f.select :ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name), {include_blank: true} -%>
           </div>
         </div>
       </div>

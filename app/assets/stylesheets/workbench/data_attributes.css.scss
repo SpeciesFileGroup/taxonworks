@@ -1,0 +1,24 @@
+@import 'workbench/palette';
+
+.attributes {
+  p {
+    font-weight: bold;
+    strong {
+      font-weight: normal;
+      text-align: center;
+    }
+  }
+
+  .attribute_set_title {
+    border-bottom: 1px solid $background_gray;
+    font:caption;
+    font-color: $title_gray;  
+  }
+
+  .attribute_set {
+    background-color: $note_yellow;
+  }
+
+}
+
+

@@ -71,15 +71,12 @@ class CollectionObject < ActiveRecord::Base
   belongs_to :repository, inverse_of: :collection_objects
 
   validates_presence_of :type
-  before_validation :default_to_biological_collection_object_if_type_not_provided
-  before_validation :check_that_either_total_or_ranged_lot_category_id_is_present, unless: 'type == "Specimen" || type == "Lot"'
-  before_validation :check_that_both_of_category_and_total_are_not_present, unless: 'type == "Specimen" || type == "Lot"'
-  before_validation :reassign_type_if_total_or_ranged_lot_category_id_provided
+  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
+  validate :check_that_either_total_or_ranged_lot_category_id_is_present
+  validate :check_that_both_of_category_and_total_are_not_present
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
-
-  #region Soft Validation
 
   def sv_missing_accession_fields
     soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
@@ -114,13 +111,7 @@ class CollectionObject < ActiveRecord::Base
     where(id: params[:term]) 
   end
 
-  #endregion
-
   protected
-
-  def default_to_biological_collection_object_if_type_not_provided
-    self.type ||= 'CollectionObject::BiologicalCollectionObject'
-  end
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -130,17 +121,20 @@ class CollectionObject < ActiveRecord::Base
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
-  def reassign_type_if_total_or_ranged_lot_category_id_provided
-    return true if ['Specimen', 'Lot', 'RangedLot'].include?(self.type) # handle validation in subclasses
-    return true if self.total.nil? && ranged_lot_category_id.blank?
-    if self.total == 1
-      self.type = 'Specimen'
-    elsif self.total.to_i > 1
-      self.type = 'Lot'
-    elsif total.nil? && !ranged_lot_category_id.blank?
-      self.type = 'RangedLot'
-    end
+  def assign_type_if_total_or_ranged_lot_category_id_provided
+      if self.total == 1
+        self.type = 'Specimen'
+      elsif self.total.to_i > 1
+        self.type = 'Lot'
+      elsif total.nil? && !ranged_lot_category_id.blank?
+        self.type = 'RangedLot'
+      end
     true
   end
+
+  # # TODO: Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
+  # def transmogrify_to(new_type)
+  # end
+
 
 end
