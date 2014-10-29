@@ -1,5 +1,5 @@
 # These are *controller* methods.
-module SessionsHelper
+module Workbench::SessionsHelper
 
   # User methods
   def sessions_signed_in?

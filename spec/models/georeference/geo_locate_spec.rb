@@ -60,8 +60,7 @@ describe Georeference::GeoLocate, :type => :model do
       end
     end
 
-    # TODO: what was the 3 reason again?
-    # TODO: @mjy three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
+    # Note: three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
       VCR.use_cassette('geo-locate-with-build-using-false-doUncert-param') do
         @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'true', locality: 'Urbana', doUncert: 'false'})

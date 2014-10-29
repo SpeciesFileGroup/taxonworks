@@ -1,5 +1,5 @@
 # Helpers that generate simple lists, tables etc.
-module ListHelper
+module Workbench::ListHelper
 
   def similarly_named_records_list(instance)
     model   = instance.class

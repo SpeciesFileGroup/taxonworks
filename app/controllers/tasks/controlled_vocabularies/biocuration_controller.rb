@@ -5,12 +5,14 @@ class Tasks::ControlledVocabularies::BiocurationController < ApplicationControll
   def build_collection
      @biocuration_groups = BiocurationGroup.with_project_id($project_id).all
      @biocuration_classes = BiocurationClass.with_project_id($project_id)
-     @biocuration_classes_without_groups = @biocuration_classes.without_tags # BiocurationClass.without_tags.with_project_id($project_id)
+
+     @available_biocuration_classes = @biocuration_groups.inject({}) {|hsh, bg| hsh.merge( bg =>  (@biocuration_classes - bg.biocuration_classes) )  }
+
+     @biocuration_classes_without_groups = @biocuration_classes.without_tags 
      @new_biocuration_group  = BiocurationGroup.new
      @new_biocuration_class  = BiocurationClass.new
      @new_tag = Tag.new
   end
-
 
   # POST build_biocuration_group_path
   def build_biocuration_group
@@ -23,5 +25,7 @@ class Tasks::ControlledVocabularies::BiocurationController < ApplicationControll
     end
     redirect_to build_biocuration_groups_task_path
   end
+
+
 
 end

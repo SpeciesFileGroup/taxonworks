@@ -1,4 +1,4 @@
-module SearchHelper
+module Workbench::SearchHelper
 
   def search_form_for_model(data_model)
     search_partial = "#{data_model.name.tableize}_search_form"

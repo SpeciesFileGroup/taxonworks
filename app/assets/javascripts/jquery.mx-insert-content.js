@@ -21,7 +21,12 @@
       var selector = $this.data('insertContentTarget'); // doesn't work when null
 
       $this.click(function(evt) {
-        $this.closest(parent).find(selector).append($(content)); 
+        if (selector) { 
+          $this.closest(parent).find(selector).append($(content)); 
+        }
+        else {
+          $this.closest(parent).append($(content)); 
+        }
         evt.preventDefault();
       });
     });

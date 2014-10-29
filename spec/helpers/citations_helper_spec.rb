@@ -1,5 +1,5 @@
 require 'rails_helper'
-require 'navigation_helper'
+require 'workbench/navigation_helper'
 
 describe CitationsHelper, :type => :helper do
   context 'a citation needs some helpers' do

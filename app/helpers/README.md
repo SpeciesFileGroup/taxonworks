@@ -58,3 +58,9 @@ class <Model>Helper
 end
 ```
 
+Directory Organization
+======================
+* All rails model related and the standard application helpers are at /.  
+* Workbench related helpers (general functionality, including styling, layout etc.) are at /workbench.
+* Helpers related to vendor plugins are in /plugins (e.g. Papertrail)
+

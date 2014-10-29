@@ -4,7 +4,7 @@
     <%= content_tag(:em, 'None.') if @biocuration_groups.size == 0 -%>
     <% @biocuration_groups.each do |bg| -%>
       <%= content_tag(:mark, bg.name) -%>
-    <%= render(partial: 'add_biocuration_class_form', locals: {new_tag: Tag.new(keyword: bg, tag_object_type: 'ControlledVocabularyTerm'), tag_objects: @biocuration_classes_without_groups }) if @biocuration_classes_without_groups.count > 0 -%>
+      <%= render(partial: 'add_biocuration_class_form', locals: {new_tag: Tag.new(keyword: bg, tag_object_type: 'ControlledVocabularyTerm'), tag_objects: @available_biocuration_classes[bg] }) if @available_biocuration_classes[bg].count > 0 -%>
 
     <ul>
       <% bg.biocuration_classes.each do |bc| %>

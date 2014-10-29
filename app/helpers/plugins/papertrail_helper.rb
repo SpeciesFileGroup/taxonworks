@@ -1,4 +1,4 @@
-module PapertrailHelper
+module Plugins::PapertrailHelper
 
   def papertrail_link(object)
     if object.respond_to?(:versions) 

@@ -1,7 +1,7 @@
 
 # Helpers that add/wrap information in CSS/SCSS, or are related
 # to adding attributes to CSS.  Also includes 'data-' related functionality.
-module StyleHelper
+module Workbench::StyleHelper
 
   def scrollable_div_tag(text)
     return nil if text.blank?

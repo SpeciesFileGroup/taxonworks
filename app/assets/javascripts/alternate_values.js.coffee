@@ -18,13 +18,6 @@ edit_record = (er_link) ->
   $(er_link).closest(".fields").hide()
   return
 
-# TODO: @tuckerjd what's this?
-a_record = (ar_link) ->
-  new_id = new Date().getTime()
-  regexp = new RegExp("new_" + association, "g")
-  $(ar_link).prev().insertBefore content.replace(regexp, new_id)
-  return
-
 add_record = (ar_link) ->
   #    af_link.attributes.content.value or $(af_link).attr('content')
   content = $(ar_link).attr("content")
