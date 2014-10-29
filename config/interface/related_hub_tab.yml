@@ -1,0 +1,12 @@
+# This defines sets of related functionality, as displayed in the 'related' tabs.
+# !! DO NOT ADD EMPTY ARRAYS  !!
+---
+:collections: 
+  :tasks:
+    - quick_verbatim_material_task
+  :data:
+    - collection_objects
+:nomenclature:
+  :data:
+    - taxon_names
+    - sources

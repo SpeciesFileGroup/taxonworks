@@ -1,8 +1,21 @@
 <div class="flexbox">
 
   <div class="item item1">
-    <h3> Stub</h3>
- </div>
+    <% RELATED_FOR_NAVIGATION.each do |title, link_sets| -%>
+      <div class="related_links_set">
+        <h3> <%= title -%>
+        <% link_sets.each do |link_set_title, links| -%>
+          <h4><%= link_set_title -%> </h4>
+          <ul>
+            <%= links.collect{|l| content_tag(:li,
+                                              link_to(l.humanize, send(l + "_path")))
+            }.join.html_safe -%>
+        </ul>
+      <% end %>
+    </div>
+
+  <% end %>
+</div>
 </div>
 
 

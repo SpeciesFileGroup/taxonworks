@@ -1,0 +1,27 @@
+
+// Styling particular to the hub controller and views
+
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
+div.related_links_set {
+  background-color: $background_gray;
+  padding: $pane_padding;
+  border: $pane_border;
+  margin: $pane_margin;
+  width: 300px;
+  float: left;
+  h3 {
+    margin: 0px;
+  }
+  h4 { 
+    margin: 0px;
+    font-weight: bold;
+  }
+  ul {
+    li {
+      margin: 0px;
+      padding: 0px;
+    }
+  }
+}
