@@ -12,21 +12,26 @@
         </div>
     <% end %>
 
-    <div class="field">
-      <%= f.label :name %>
-      <br>
-      <%= f.text_field :name %>
+    <div class="required">
+      <div class="field">
+        <%= f.label :name %>
+        <br>
+        <%= f.text_field :name %>
+      </div>
+      <div class="field">
+        <%= f.label :minimum_value %>
+        <br>
+        <%= f.number_field :minimum_value %>
+      </div>
+      <div class="field">
+        <%= f.label :maximum_value %>
+        <br>
+        <%= f.number_field :maximum_value %>
+      </div>
     </div>
-    <div class="field">
-      <%= f.label :minimum_value %>
-      <br>
-      <%= f.number_field :minimum_value %>
-    </div>
-    <div class="field">
-      <%= f.label :maximum_value %>
-      <br>
-      <%= f.number_field :maximum_value %>
-    </div>
+
+    <!-- todo @mjy Not sure if min/max are actually required. Validations only deal with values??? -->
+
     <div class="actions">
       <%= f.submit %>
     </div>
