@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.2'
 
-gem 'rails', '4.1.6'
+gem 'rails', '4.1.7'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
@@ -9,8 +9,6 @@ gem 'pg', '~> 0.17.1'
 
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 2.2.0'
-# Has been removed for some time?
-# gem 'squeel', git: 'https://github.com/gtimti/squeel.git'  # nybex and kiela forks were also used
 
 # rgeo support
 gem 'ffi-geos'
@@ -84,7 +82,6 @@ group :test, :development do
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
   gem 'selenium-webdriver'
-#  gem 'capybara-webkit'
 end
 
 group :development do
@@ -107,5 +104,7 @@ group :test do
   gem 'webmock', '~> 1.18.0'
   gem 'vcr', '~> 2.9.2'
   gem 'database_cleaner', '~> 1.3.0'
+# gem 'simplecov', :require => false
+# gem 'simplecov-rcov', :require => false
 end
 
