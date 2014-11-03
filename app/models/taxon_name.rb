@@ -835,15 +835,27 @@ class TaxonName < ActiveRecord::Base
       end
 
     elsif rank.nomenclatural_code == :icn
-      #misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-      #    with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+      basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
+          with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
+      misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+          with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication')
+      b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
+      m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
 
-      t  = [self.verbatim_author]
-      t  += ['(' + self.year_of_publication.to_s + ')'] unless self.year_of_publication.nil?
+      t  = [self.author_string]
+      t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
       ay = t.compact.join(' ')
+
+      unless (basionym.empty? || b_sub.author_string.blank?)
+        ay = '(' + b_sub.author_string + ') ' + ay
+      end
+      unless (misapplication.empty? || m_obj.author_string.blank?)
+        ay += ' nec ' + [m_obj.author_string]
+        t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
+      end
     else
-      ay = ([self.verbatim_author] + [self.year_of_publication]).compact.join(' ')
+      ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
     end
     ay
   end

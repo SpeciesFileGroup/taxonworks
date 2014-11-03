@@ -44,6 +44,12 @@ describe TaxonName, :type => :model do
       expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
       expect(variety.cached_author_year).to eq('McAtee (1900)')
       expect(variety.cached_html).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
+
+      basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id, source_id: nil, verbatim_author: 'Linnaeus')
+      r  = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
+      variety.reload
+      expect(variety.save).to be_truthy
+      expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
     end
   end
  
