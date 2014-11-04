@@ -8,8 +8,8 @@ taxon_names:
   - taxon_name_relationships
 collection_objects:
   - collecting_events 
+  - taxon_determinations
   - repositories
-  - loans
 tags:
   - controlled_vocabulary_terms
 repositories:
@@ -32,4 +32,5 @@ geographic_items:
   - georeferences
   - collecting_events
 loans:
-  - collection_profiles  
+  - collection_profiles
+  - repositories  

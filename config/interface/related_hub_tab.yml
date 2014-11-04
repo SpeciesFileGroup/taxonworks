@@ -1,12 +1,29 @@
 # This defines sets of related functionality, as displayed in the 'related' tabs.
 # !! DO NOT ADD EMPTY ARRAYS  !!
 ---
-:collections: 
+:specimens_and_collecting:
   :tasks:
     - quick_verbatim_material_task
   :data:
     - collection_objects
+    - collecting_events
+    - taxon_determinations
 :nomenclature:
   :data:
     - taxon_names
+    - taxon_name_relationships
+    - type_materials
     - sources
+:references_and_sources:
+  :data:
+    - sources
+    - people
+    - serials
+:curation_and_loans:
+  :data:
+    - loans
+:taxon_distributions:
+  :data:
+    - asserted_distributions
+    - georeferences
+    - geographic_areas

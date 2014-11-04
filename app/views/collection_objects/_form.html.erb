@@ -1,4 +1,4 @@
-<%= form_for(@collection_object.metamorphosize) do |f| %>
+<%= form_for(@collection_object) do |f| %>
     <% if @collection_object.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@collection_object.errors.count, 'error') %> prohibited this collection_object from being
@@ -10,25 +10,29 @@
           </ul>
         </div>
     <% end %>
-
+ 
     <div class="flexbox">
       <div class="item item1">
+
         <div class="required">
           <div class="or">
-            <div class="option">
+            <div class="option float_left">
               <div class="field">
                 <%= f.label :total %>
                 <br>
                 <%= f.number_field :total %>
               </div>
             </div>
-            <div class="option">
+
+            <div class="option float_left">
               <div class="field">
                 <%= f.label :ranged_lot_category %>
                 <br>
                 <%= f.select(:ranged_lot_category_id, options_from_collection_for_select(RangedLotCategory.with_project_id($project_id).to_a, :id, :name), {include_blank: true}) -%>
               </div>
-            </div>
+            </div> 
+
+            <br class="clear_both">
           </div>
         </div>
 
@@ -125,7 +129,6 @@
           <br>
           <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
         </div>
-
       </div>
     </div>
     <div class="actions">
@@ -133,7 +136,7 @@
     </div>
 <% end %>
 
-<script>
+<script >
     $('#collection_object_deaccessioned_at').datepicker();
     $('#collection_object_accessioned_at').datepicker();
 </script>

@@ -9,10 +9,12 @@ div.related_links_set {
   padding: $pane_padding;
   border: $pane_border;
   margin: $pane_margin;
-  width: 300px;
+  width: 260px;
   float: left;
+  min-height: 200px;
   h3 {
     margin: 0px;
+    border-bottom: 1px solid;
   }
   h4 { 
     margin: 0px;
@@ -20,8 +22,18 @@ div.related_links_set {
   }
   ul {
     li {
-      margin: 0px;
+      margin: .2em;
       padding: 0px;
+
     }
   }
+  a {
+    &:visited {
+      color: black; 
+    }   
+    &:hover {
+      background-color: $note_yellow;
+    }
+  }
+  
 }

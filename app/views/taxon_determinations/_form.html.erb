@@ -15,14 +15,17 @@
     <%= f.label :biological_collection_object_id %><br>
     <%= f.select :biological_collection_object_id, options_from_collection_for_select(CollectionObject.all, :id, :id) %>
   </div>
+
   <div class="field">
     <%= f.label :otu_id %><br>
     <%= f.select :otu_id, options_from_collection_for_select(Otu.all, :id, :name) %>
   </div>
+
   <div class="field">
     <%= f.label :position %><br>
     <%= f.number_field :position %>
   </div>
+
   <div class="field">
     <%= f.label :year_made %><br>
     <%= f.text_field :year_made %>

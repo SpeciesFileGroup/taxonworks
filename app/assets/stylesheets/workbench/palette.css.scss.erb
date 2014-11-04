@@ -1,12 +1,18 @@
-.muted_red {
-  background-color: #E5A1A1;
-}
-
-.muted_blue {
-  background-color: #A1A1E5;
-}
+/* all colors expecting black/white must be defined here, and referenced as variables */
+$muted_blue:  #E5A1A1;
+$muted_red: #A1A1E5;
 
 $background_gray: #eee;
 $title_gray: #777;
 
-$note_yellow: #ffffcc;  
+$note_yellow: #ffffcc; 
+
+.muted_red {
+  background-color: $muted_red
+}
+
+.muted_blue {
+  background-color: $muted_blue; 
+}
+
+
