@@ -17,8 +17,12 @@ repositories:
 sources:
   - serials
   - people
+serials: 
+  - sources
+  - people
 geographic_areas:
   - collecting_events
+  - georeferences
 collecting_events:
   - georeferences
 controlled_vocabulary_terms:
@@ -27,6 +31,7 @@ controlled_vocabulary_terms:
 people:
   - sources 
   - collecting_events
+  - taxon_determinations
 geographic_items:
   - geographic_areas
   - georeferences

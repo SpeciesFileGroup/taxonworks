@@ -26,7 +26,7 @@
     <div class="field">
       <%= f.label :parent %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  locals:  {controller: 'taxon_names',
                            object:     'taxon_name',
                            method:     'parent_id',
@@ -50,7 +50,7 @@
     <div class="field">
       <%= f.label :source %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  locals:  {controller: 'sources',
                            object:     'taxon_name',
                            method:     'source_id',

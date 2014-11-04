@@ -39,7 +39,7 @@
     <div class="field">
       <%= f.label :recipient_person_id %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'people',
                               :object     => 'person',
                               :method     => 'recipient_person_id',
@@ -69,7 +69,7 @@
     <div class="field">
       <%= f.label :supervisor_person_id %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'people',
                               :object     => 'person',
                               :method     => 'supervisor_person_id',

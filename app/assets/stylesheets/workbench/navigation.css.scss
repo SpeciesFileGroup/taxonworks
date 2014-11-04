@@ -1,3 +1,5 @@
+@import 'palette';
+
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
   list-style: none;
@@ -23,7 +25,7 @@
 }
 
 .horizontal_navbar a:hover {
-  background: darken(deepskyblue, 2%);
+  background: darken($color-secondary-2-0, 2%);
 }
 
 @media all and (max-width: 800px) {
@@ -49,4 +51,8 @@
   .horizontal_navbar li:last-of-type a {
     border-bottom: none;
   }
+}
+
+#taxonworks_link {
+ text-decoration: none;
 }

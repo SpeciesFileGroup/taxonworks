@@ -4,6 +4,20 @@
 @import 'workbench/palette';
 @import 'workbench/whitespace';
 
+#hub_tabs {
+}
+
+.hub_link {
+  @extend .navigation_emphasis;
+  color: white;
+  a {
+    color: white;
+    &:visited {
+      color: white;
+    }
+  }
+}
+
 div.related_links_set {
   background-color: $background_gray;
   padding: $pane_padding;
@@ -15,16 +29,17 @@ div.related_links_set {
   h3 {
     margin: 0px;
     border-bottom: 1px solid;
+    color: $color-secondary-2-4;
   }
   h4 { 
     margin: 0px;
     font-weight: bold;
+    color: $color-secondary-2-3;
   }
   ul {
     li {
       margin: .2em;
       padding: 0px;
-
     }
   }
   a {
@@ -35,5 +50,4 @@ div.related_links_set {
       background-color: $note_yellow;
     }
   }
-  
 }

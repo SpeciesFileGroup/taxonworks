@@ -132,7 +132,7 @@ module Workbench::SessionsHelper
   end
 
   def taxonworks_link
-    content_tag(:h1,  link_to('TaxonWorks', root_path))
+    content_tag(:h1,  link_to('TaxonWorks', root_path, id: :taxonworks_link) )
   end
 
 end

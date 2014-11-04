@@ -16,7 +16,7 @@
       <br>
       <%#= f.number_field :keyword_id %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'controlled_vocabulary_terms',
                               :object     => 'tag',
                               :method     => 'keyword_id',
@@ -28,7 +28,7 @@
       <br>
       <%#= f.number_field :tag_object_id %>
       <%#=TODO: mjy: how to de-reference the controller/object combinations based on actual object type %>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'otus',
                               :object     => 'tag',
                               :method     => 'tag_object_id',
