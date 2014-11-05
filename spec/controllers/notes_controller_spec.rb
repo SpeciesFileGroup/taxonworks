@@ -43,28 +43,9 @@ describe NotesController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested note as @note" do
-      note = Note.create! valid_attributes
-      get :show, {:id => note.to_param}, valid_session
-      expect(assigns(:note)).to eq(note)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new note as @note" do
-      get :new, {}, valid_session
-      expect(assigns(:note)).to be_a_new(Note)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested note as @note" do
-      note = Note.create! valid_attributes
-      get :edit, {:id => note.to_param}, valid_session
-      expect(assigns(:note)).to eq(note)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -80,9 +61,9 @@ describe NotesController, :type => :controller do
         expect(assigns(:note)).to be_persisted
       end
 
-      it "redirects to the created note" do
+      it "redirects to :back" do
         post :create, {:note => valid_attributes}, valid_session
-        expect(response).to redirect_to(Note.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -94,11 +75,11 @@ describe NotesController, :type => :controller do
         expect(assigns(:note)).to be_a_new(Note)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Note).to receive(:save).and_return(false)
         post :create, {:note => { "text" => "invalid value" }}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -121,10 +102,10 @@ describe NotesController, :type => :controller do
         expect(assigns(:note)).to eq(note)
       end
 
-      it "redirects to the note" do
+      it "redirects to :back" do
         note = Note.create! valid_attributes
         put :update, {:id => note.to_param, :note => valid_attributes}, valid_session
-        expect(response).to redirect_to(note)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -137,12 +118,12 @@ describe NotesController, :type => :controller do
         expect(assigns(:note)).to eq(note)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         note = Note.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Note).to receive(:save).and_return(false)
         put :update, {:id => note.to_param, :note => { "text" => "invalid value" }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -155,10 +136,10 @@ describe NotesController, :type => :controller do
       }.to change(Note, :count).by(-1)
     end
 
-    it "redirects to the notes list" do
+    it "redirects to :back" do
       note = Note.create! valid_attributes
       delete :destroy, {:id => note.to_param}, valid_session
-      expect(response).to redirect_to(notes_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

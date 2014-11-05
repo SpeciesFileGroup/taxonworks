@@ -1,5 +1,5 @@
 class OtuPageLayoutsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_otu_page_layout, only: [:show, :edit, :update, :destroy]
 

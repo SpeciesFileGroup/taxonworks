@@ -27,4 +27,3 @@ describe Specimen, :type => :model do
 
 end
 
-

@@ -37,36 +37,9 @@ describe PublicContentsController, :type => :controller do
   # PublicContentsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all public_contents as @public_contents" do
-      public_content = PublicContent.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:public_contents)).to eq([public_content])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested public_content as @public_content" do
-      public_content = PublicContent.create! valid_attributes
-      get :show, {:id => public_content.to_param}, valid_session
-      expect(assigns(:public_content)).to eq(public_content)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new public_content as @public_content" do
-      get :new, {}, valid_session
-      expect(assigns(:public_content)).to be_a_new(PublicContent)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested public_content as @public_content" do
-      public_content = PublicContent.create! valid_attributes
-      get :edit, {:id => public_content.to_param}, valid_session
-      expect(assigns(:public_content)).to eq(public_content)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -82,9 +55,9 @@ describe PublicContentsController, :type => :controller do
         expect(assigns(:public_content)).to be_persisted
       end
 
-      it "redirects to the created public_content" do
+      it "redirects to :back" do
         post :create, {:public_content => valid_attributes}, valid_session
-        expect(response).to redirect_to(PublicContent.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -96,11 +69,11 @@ describe PublicContentsController, :type => :controller do
         expect(assigns(:public_content)).to be_a_new(PublicContent)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         post :create, {:public_content => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -123,10 +96,10 @@ describe PublicContentsController, :type => :controller do
         expect(assigns(:public_content)).to eq(public_content)
       end
 
-      it "redirects to the public_content" do
+      it "redirects to :back" do
         public_content = PublicContent.create! valid_attributes
         put :update, {:id => public_content.to_param, :public_content => valid_attributes}, valid_session
-        expect(response).to redirect_to(public_content)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -139,12 +112,12 @@ describe PublicContentsController, :type => :controller do
         expect(assigns(:public_content)).to eq(public_content)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
         put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -157,10 +130,10 @@ describe PublicContentsController, :type => :controller do
       }.to change(PublicContent, :count).by(-1)
     end
 
-    it "redirects to the public_contents list" do
+    it "redirects to :back" do
       public_content = PublicContent.create! valid_attributes
       delete :destroy, {:id => public_content.to_param}, valid_session
-      expect(response).to redirect_to(public_contents_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

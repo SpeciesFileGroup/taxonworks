@@ -1,7 +1,6 @@
 class TypeMaterial < ActiveRecord::Base
-  belongs_to :source
-
   include Housekeeping
+  include Shared::IsData 
   include Shared::Citable
   include SoftValidation
 
@@ -35,6 +34,7 @@ class TypeMaterial < ActiveRecord::Base
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject'
   belongs_to :protonym
+  belongs_to :source
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person
 
@@ -46,7 +46,6 @@ class TypeMaterial < ActiveRecord::Base
   scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
-
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)
@@ -69,6 +68,12 @@ class TypeMaterial < ActiveRecord::Base
     else
       nil
     end
+  end
+
+  def self.find_for_autocomplete(params)
+    term = params[:term]
+    include(:protonym, :material, :source).
+        where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term})
   end
 
   protected

@@ -7,7 +7,11 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
             TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
-  
+
+  def self.gbif_status
+    'nudum'
+  end
+
   module InnerClass
     
     def disjoint_taxon_name_classes

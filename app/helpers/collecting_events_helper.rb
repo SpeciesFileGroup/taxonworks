@@ -1,13 +1,9 @@
 module CollectingEventsHelper
 
-  def self.collecting_event_tag(collecting_event)
-    # collecting_event.cached.blank? ? 'CACHED VALUE NOT BUILT - CONTACT ADMIN' : collecting_event.cached
-    return nil if collecting_event.nil?
-    collecting_event.verbatim_locality
-  end
-
   def collecting_event_tag(collecting_event)
-    CollectingEventsHelper.collecting_event_tag(collecting_event)
+    return nil if collecting_event.nil?
+    string = [ collecting_event.cached,  collecting_event.verbatim_label, collecting_event.print_label, collecting_event.document_label, collecting_event.field_notes, collecting_event.to_param].compact.first 
+    string
   end
 
   def collecting_event_link(collecting_event)

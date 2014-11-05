@@ -1,0 +1,53 @@
+<h1>Collection Profiles</h1>
+
+<%= paginate @collection_profiles %> <%= page_entries_info @collection_profiles %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Otu</th>
+    <th>Collection type</th>
+    <th>Conservation status</th>
+    <th>Processing state</th>
+    <th>Container condition</th>
+    <th>Condition of labels</th>
+    <th>Identification level</th>
+    <th>Arrangement level</th>
+    <th>Data quality</th>
+    <th>Computerization level</th>
+    <th>Number of collection objects</th>
+    <th>Number of containers</th>
+    <th>Container</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @collection_profiles.each do |collection_profile| %>
+      <tr>
+        <td><%= object_tag(collection_profile.otu) %></td>
+        <td><%= collection_profile.collection_type %></td>
+        <td><%= collection_profile.conservation_status %></td>
+        <td><%= collection_profile.processing_state %></td>
+        <td><%= collection_profile.container_condition %></td>
+        <td><%= collection_profile.condition_of_labels %></td>
+        <td><%= collection_profile.identification_level %></td>
+        <td><%= collection_profile.arrangement_level %></td>
+        <td><%= collection_profile.data_quality %></td>
+        <td><%= collection_profile.computerization_level %></td>
+        <td><%= collection_profile.number_of_collection_objects %></td>
+        <td><%= collection_profile.number_of_containers %></td>
+        <td><%= object_tag(collection_profile.container) %></td>
+        <td><%= collection_profile.updated_at %></td>
+        <td><%= object_tag(collection_profile.updater) %></td>
+        <td><%= link_to 'Show', collection_profile %></td>
+        <td><%= link_to 'Edit', edit_collection_profile_path(collection_profile) %></td>
+        <td><%= link_to 'Destroy', collection_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

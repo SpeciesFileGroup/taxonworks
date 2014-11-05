@@ -11,7 +11,7 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_term_link(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
-    link_to(controlled_vocabulary_term_tag(controlled_vocabulary_term).html_safe, controlled_vocabulary_term)
+    link_to(controlled_vocabulary_term_tag(controlled_vocabulary_term.metamorphosize).html_safe, controlled_vocabulary_term.metamorphosize)
   end
 
   def controlled_vocabulary_term_type_select_options

@@ -1,4 +1,4 @@
-<%= form_for(@georeference.becomes(Georeference)) do |f| %>
+<%= form_for(@georeference.metamorphosize) do |f| %>
     <% if @georeference.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>
@@ -18,24 +18,29 @@
         <%= text_field_tag('georeference[iframe_response]') %>
       </div>
 
-      <div class="field">
-        <%= f.label :collecting_event_id %>
-        <br>
-        <%= f.number_field :collecting_event_id %>
-      </div>
+      <!-- todo @mjy Should this be Ajax picker? (why isn't this comment blue?) -->
 
-      <div class="field">
-        <%= f.label :type %>
-        <br>
-        <%= f.text_field :type, default: 'Georeference::GeoLocate' %>
+      <div class="required">
+        <div class="field">
+          <%= f.label :collecting_event_id %>
+          <br>
+          <%= f.number_field :collecting_event_id %>
+        </div>
+
+        <div class="field">
+          <%= f.label :type %>
+          <br>
+          <%= f.text_field :type, default: 'Georeference::GeoLocate' %>
+        </div>
       </div>
 
       <!--
-
+<!-- <div class="required"> -->
   <div class="field">
     <%= f.label :geographic_item_id %><br>
     <%= f.number_field :geographic_item_id %>
   </div>
+      <!-- </div> -->
   <div class="field">
     <%= f.label :error_radius %><br>
     <%= f.text_field :error_radius %>

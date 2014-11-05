@@ -1,0 +1,16 @@
+
+@import 'palette';
+
+.mx-autocomplete {
+  border: 1px $background_gray dashed;
+}
+
+form div.required {
+  display: inline;
+  div.or {
+    display: inline;
+    div.option {
+      display: inline;
+    }
+  }
+}

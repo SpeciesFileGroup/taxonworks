@@ -7,6 +7,10 @@ describe ControlledVocabularyTermsController, :type => :routing do
       expect(get("/controlled_vocabulary_terms")).to route_to("controlled_vocabulary_terms#index")
     end
 
+    it "routes to #list" do
+      expect(get("/controlled_vocabulary_terms/list")).to route_to("controlled_vocabulary_terms#list")
+    end
+
     it "routes to #new" do
       expect(get("/controlled_vocabulary_terms/new")).to route_to("controlled_vocabulary_terms#new")
     end

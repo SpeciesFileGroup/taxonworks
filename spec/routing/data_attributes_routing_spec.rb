@@ -7,18 +7,6 @@ describe DataAttributesController, :type => :routing do
       expect(get("/data_attributes")).to route_to("data_attributes#index")
     end
 
-    it "routes to #new" do
-      expect(get("/data_attributes/new")).to route_to("data_attributes#new")
-    end
-
-    it "routes to #show" do
-      expect(get("/data_attributes/1")).to route_to("data_attributes#show", :id => "1")
-    end
-
-    it "routes to #edit" do
-      expect(get("/data_attributes/1/edit")).to route_to("data_attributes#edit", :id => "1")
-    end
-
     it "routes to #create" do
       expect(post("/data_attributes")).to route_to("data_attributes#create")
     end

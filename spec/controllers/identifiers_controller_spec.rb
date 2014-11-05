@@ -43,28 +43,32 @@ describe IdentifiersController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested identifier as @identifier" do
-      identifier = Identifier.create! valid_attributes
-      get :show, {:id => identifier.to_param}, valid_session
-      expect(assigns(:identifier)).to eq(identifier)
-    end
-  end
+  # describe "GET show" do
+  #   it "assigns the requested identifier as @identifier" do
+  #     identifier = Identifier.create! valid_attributes
+  #     get :show, {:id => identifier.to_param}, valid_session
+  #     expect(assigns(:identifier)).to eq(identifier)
+  #   end
+  # end
+  #
+  # describe "GET new" do
+  #   it "assigns a new identifier as @identifier" do
+  #     get :new, {}, valid_session
+  #     expect(assigns(:identifier)).to be_a_new(Identifier)
+  #   end
+  # end
+  #
+  # describe "GET edit" do
+  #   it "assigns the requested identifier as @identifier" do
+  #     identifier = Identifier.create! valid_attributes
+  #     get :edit, {:id => identifier.to_param}, valid_session
+  #     expect(assigns(:identifier)).to eq(identifier)
+  #   end
+  # end
 
-  describe "GET new" do
-    it "assigns a new identifier as @identifier" do
-      get :new, {}, valid_session
-      expect(assigns(:identifier)).to be_a_new(Identifier)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested identifier as @identifier" do
-      identifier = Identifier.create! valid_attributes
-      get :edit, {:id => identifier.to_param}, valid_session
-      expect(assigns(:identifier)).to eq(identifier)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -80,9 +84,9 @@ describe IdentifiersController, :type => :controller do
         expect(assigns(:identifier)).to be_persisted
       end
 
-      it "redirects to the created identifier" do
+      it "redirects to :back" do
         post :create, {:identifier => valid_attributes}, valid_session
-        expect(response).to redirect_to(Identifier.last.becomes(Identifier))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -94,11 +98,11 @@ describe IdentifiersController, :type => :controller do
         expect(assigns(:identifier)).to be_a_new(Identifier)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         post :create, {:identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -121,10 +125,10 @@ describe IdentifiersController, :type => :controller do
         expect(assigns(:identifier)).to eq(identifier)
       end
 
-      it "redirects to the identifier" do
+      it "redirects to :back" do
         identifier = Identifier.create! valid_attributes
         put :update, {:id => identifier.to_param, :identifier => valid_attributes}, valid_session
-        expect(response).to redirect_to(identifier.becomes(Identifier))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -137,12 +141,12 @@ describe IdentifiersController, :type => :controller do
         expect(assigns(:identifier)).to eq(identifier)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -155,10 +159,10 @@ describe IdentifiersController, :type => :controller do
       }.to change(Identifier, :count).by(-1)
     end
 
-    it "redirects to the identifiers list" do
+    it "redirects to :back" do
       identifier = Identifier.create! valid_attributes
       delete :destroy, {:id => identifier.to_param}, valid_session
-      expect(response).to redirect_to(identifiers_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

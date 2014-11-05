@@ -1,0 +1,24 @@
+<div class="attributes">
+  <p id="notice"><%= notice %></p>
+
+  <p>
+    <strong>Protonym:</strong>
+    <%= object_link(@type_material.protonym) %>
+  </p>
+
+  <p>
+    <strong>Biological object:</strong>
+    <%= object_link(@type_material.material) %>
+  </p>
+
+  <p>
+    <strong>Type type:</strong>
+    <%= @type_material.type_type %>
+  </p>
+
+  <p>
+    <strong>Source:</strong>
+    <%= object_link(@type_material.source) %>
+  </p>
+
+</div>

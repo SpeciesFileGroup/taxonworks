@@ -2,17 +2,26 @@ require 'rails_helper'
 
 describe 'OtuPageLayoutSections', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { otu_page_layout_sections_path }
-    let(:page_index_name) { 'Otu Page Layout Sections' }
-  end
+ context 'resource routes' do
+   #  before { 
+   #    sign_in_user_and_select_project
+   #  }
 
-  describe 'GET /otu_page_layout_sections' do
-    before {
-      sign_in_user_and_select_project 
-      visit otu_page_layout_sections_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('Otu Page Layout Sections')
+    # The scenario for creating OtuPageLayoutSections has not been developed. 
+    # It must handle these three calls for logged in/not logged in users.
+    # It may be that these features are ultimately tested in a task.
+    describe 'POST /create' do
+    end
+
+    describe 'PATCH /update' do
+    end
+
+    describe 'DELETE /destroy' do
+    end
+
+    describe 'the partial form rendered in context of NEW/EDIT on some other page' do
     end
   end
+
+
 end

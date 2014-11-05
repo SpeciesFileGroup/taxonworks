@@ -12,6 +12,14 @@ class TaxonNameRelationship::Icn::Accepting::SanctionedName < TaxonNameRelations
     'sanctioned'
   end
 
+  def self.gbif_status_of_subject
+    'conservandum'
+  end
+
+  def self.gbif_status_of_object
+    'rejiciendum'
+  end
+
   def self.nomenclatural_priority
     :reverse
   end

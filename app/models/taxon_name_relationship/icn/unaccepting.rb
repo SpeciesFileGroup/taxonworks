@@ -13,6 +13,14 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
     'unaccepted name'
   end
 
+  def self.gbif_status_of_subject
+    'invalidum'
+  end
+
+  def self.gbif_status_of_object
+    'valid'
+  end
+
   def self.assignment_method
     # bus.set_as_icn_unacceptable_of(aus)
     :icn_set_as_unacceptable_of

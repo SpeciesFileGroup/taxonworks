@@ -1,5 +1,5 @@
 class GeographicAreasGeographicItemsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_geographic_areas_geographic_item, only: [:show, :edit, :update, :destroy]
 

@@ -1,12 +1,8 @@
 module PeopleHelper
 
-  def self.person_tag(person)
+  def person_tag(person)
     return nil if person.nil?
     person.name
-  end
-
-  def person_tag(person)
-    PeopleHelper.person_tag(person)
   end
 
   def people_search_form
@@ -15,12 +11,7 @@ module PeopleHelper
 
   def person_link(person)
     return nil if person.nil?
-    link_to(PeopleHelper.person_tag(person).html_safe, person)
-    # todo: @mjy This causes test to fail, no 'select_person_path'
-    # l = link_to(person.name, select_person_path(person))
-    # person.id == sessions_current_person_id ?
-    #     content_tag(:mark, l) :
-    #     l
+    link_to(person_tag(person), person.metamorphosize)
   end
 
 end

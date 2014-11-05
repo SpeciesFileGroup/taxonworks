@@ -18,38 +18,42 @@ describe Language, :type => :model do
   end
 
   context 'find values' do
-    before(:each) do
-      @eng = FactoryGirl.build(:english)
-      @eng.save
-      @rus = FactoryGirl.build(:russian)
-      @rus.save
-      @cre = FactoryGirl.build(:creole_eng)
-      @cre.save
-    end
+    let!(:eng) {FactoryGirl.create(:english) }
+    let!(:rus) {FactoryGirl.create(:russian) }
+    let!(:cre) {FactoryGirl.create(:creole_eng) }
 
-    specify 'eng_name scope should return a list of matching languages(like)' do
-      lang_a = Language.eng_name_contains('russ')
+    specify '#with_english_name_containing scope should return a list of matching languages(like)' do
+      lang_a = Language.with_english_name_containing('russ')
       expect(lang_a.count).to eq(1)
-      expect(lang_a[0].id).to eq(@rus.id)
-      lang_a = Language.eng_name_contains('Englis')
+      expect(lang_a[0].id).to eq(rus.id)
+      lang_a = Language.with_english_name_containing('Englis')
       expect(lang_a.count).to eq(2)
-      expect(lang_a[0].id).to eq(@eng.id)
-      expect(lang_a[1].id).to eq(@cre.id)
+      expect(lang_a[0].id).to eq(eng.id)
+      expect(lang_a[1].id).to eq(cre.id)
     end
 
-    specify 'exact_abr should return a single object or nil' do
-      result = Language.exact_abr('cpe')
-      expect(result.id).to eq(@cre.id)
-      result = Language.exact_abr('not')
+    specify 'finding by abbreviation return a single object or nil' do
+      result = Language.where(alpha_3_bibliographic: 'cpe').first
+      expect(result.id).to eq(cre.id)
+      result = Language.where(alpha_3_bibliographic: 'not').first
       expect(result).to be_nil
     end
 
-    specify 'exact_eng_name should return a single object or nil' do
-      result = Language.exact_eng('English')
-      expect(result.id).to eq(@eng.id)
-      result = Language.exact_eng('English,')
+    specify 'finding by exact english_name should return a single object or nil' do
+      result = Language.where(english_name: 'English').first
+      expect(result.id).to eq(eng.id)
+      result = Language.where(english_name: 'English,').first
       expect(result).to be_nil
     end
+
+    specify '#with_english_name_or_abbreviation finds exact in many fields for String search value' do
+      expect(Language.with_english_name_or_abbreviation('eng').count).to eq(1)
+    end
+
+    specify '#with_english_name_or_abbreviation finds exact in many fields for Array search value' do
+      expect(Language.with_english_name_or_abbreviation(['eng', 'Russian']).count).to eq(2)
+    end
+
   end
 
 end

@@ -19,6 +19,13 @@ ICN_LOOKUP = ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)}
 # ICZN Rank Classes in a Hash with keys being the "human" name
 ICZN_LOOKUP = ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)}
 
+# All ranks, with keys as class strings pointing to common usage
+RANKS_LOOKUP = ICN_LOOKUP.invert.merge(ICZN_LOOKUP.invert)
+
+# An Array of Arrays, used in options for select
+#   [["class (ICN)", "NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank"] .. ]
+RANKS_SELECT_OPTIONS = RANKS_LOOKUP.collect{|k,v| ["#{v} " + ((k.to_s =~ /Iczn/) ? '(ICZN)' : '(ICN)' ), k, {class: ((k.to_s =~ /Iczn/) ? :iczn : :icn) }] }.sort{|a, b| a[0] <=> b[0]} 
+
 # All assignable ranks for family groups, for ICZN
 FAMILY_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|i| i.to_s}
 

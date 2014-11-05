@@ -1,0 +1,11 @@
+<%= form_tag(search_type_materials_path) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'type_materials',
+                         object:     'type_material',
+                         method:     'id',
+                         tag_id:     'type_material_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+<%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

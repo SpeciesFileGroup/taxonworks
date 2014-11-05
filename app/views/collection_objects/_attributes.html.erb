@@ -1,38 +1,68 @@
-
-<p>
+<div class="attributes">
+  <p>
   <strong>Total:</strong>
   <%= @collection_object.total %>
-</p>
+  </p>
 
-<p>
+  <p>
+  <strong>Ranged lot category:</strong>
+  <%= object_tag(@collection_object.ranged_lot_category) %>
+  </p>
+
+  <p>
   <strong>Type:</strong>
   <%= @collection_object.type %>
-</p>
+  </p>
 
-<p>
+  <p>
   <strong>Preparation type:</strong>
-  <%#= @collection_object.preparation_type_id %>
   <%= object_link(@collection_object.preparation_type) %>
-</p>
+  </p>
 
-<p>
+  <p>
+  <strong>Collecting Event:</strong>
+  <%= object_tag(@collection_object.collecting_event) %>
+  </p>
+
+  <p>
   <strong>Repository:</strong>
-  <%#= @collection_object.repository_id %>
   <%= object_link(@collection_object.repository) %>
-</p>
+  </p>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @collection_object.created_by_id %>
-</p>
+  <div class="attribute_set" data-title="Buffered values (data in preparation)">
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @collection_object.updated_by_id %>
-</p>
+    <p>
+    <strong>Buffered collecting event:</strong>
+    <%= @collection_object.buffered_collecting_event %>
+    </p>
 
-<p>
-  <strong>Project:</strong>
-  <%= @collection_object.project_id %>
-</p>
+    <p>
+    <strong>Buffered determination:</strong>
+    <%= @collection_object.buffered_determinations %>
+    </p>
 
+    <p>
+    <strong>Buffered other labels:</strong>
+    <%= @collection_object.buffered_other_labels %>
+    </p>
+
+  </div>
+
+  <div class="attribute_set" data-title="Accession related">
+    <p>
+    <strong>Accessioned at:</strong>
+    <%= @collection_object.accessioned_at %>
+    </p>
+
+    <p>
+    <strong>Deaccessioned reason:</strong>
+    <%= @collection_object.deaccession_reason %>
+    </p>
+
+    <p>
+    <strong>Deaccessioned at:</strong>
+    <%= @collection_object.deaccessioned_at %>
+    </p>
+
+  </div>
+</div>

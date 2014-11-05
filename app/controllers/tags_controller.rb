@@ -1,51 +1,30 @@
 class TagsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_tag, only: [:show, :edit, :update, :destroy]
+  before_action :set_tag, only: [:update, :destroy]
 
   # GET /tags
   # GET /tags.json
   def index
-    #@tags           = Tag.all
     @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-
   end
 
-  # GET /tags/1
-  # GET /tags/1.json
-  def show
-  end
-
-  # GET /tags/new
-  def new
-    @tag = Tag.new
-  end
-
-  # GET /tags/1/edit
-  def edit
-  end
-
-  # triggered by "list" link on index page
-  def list
-    @tags = Tag.order(:id).page(params[:page])
-  end
-
-# POST /tags
+  # POST /tags
   # POST /tags.json
   def create
     @tag         = Tag.new(tag_params)
-    redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
+    # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to redirect_url, notice: 'Tag was successfully created.' }
-        format.json { render :show, status: :created, location: @tag }
+        format.html { redirect_to :back, notice: 'Tag was successfully created.' }
+        format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
-          if redirect_url == :back
-            redirect_to redirect_url
-          else
-            render :new
-          end
+          # if redirect_url == :back
+            redirect_to :back, notice: 'Tag was NOT successfully created.'
+          # else
+          #   render :new
+          # end
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -57,10 +36,10 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to @tag, notice: 'Tag was successfully updated.' }
-        format.json { render :show, status: :ok, location: @tag }
+        format.html { redirect_to :back, notice: 'Tag was successfully updated.' }
+        format.json { render json: @tag, status: :ok, location: @tag }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Tag was NOT successfully updated.' }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
     end
@@ -69,11 +48,10 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
+    # redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
     @tag.destroy
-
     respond_to do |format|
-      format.html { redirect_to redirect_url, notice: 'Tag was successfully destroyed.' }
+      format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -83,7 +61,7 @@ class TagsController < ApplicationController
   end
 
   def autocomplete
-    @otus = Tag.find_for_autocomplete(params)
+    @tags = Tag.find_for_autocomplete(params)
 
     data = @tags.collect do |t|
       {id:              t.id,

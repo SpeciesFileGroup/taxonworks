@@ -15,6 +15,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicV
     'orthographic variant'
   end
 
+  def self.gbif_status_of_subject
+    'orthographia'
+  end
+
   def self.assignment_method
     # bus.set_as_icn_orthographic_variant_of(aus)
     :icn_set_as_orthographic_variant_of

@@ -27,6 +27,8 @@ TaxonWorks::Application.configure do
   # number of complex assets.
   config.assets.debug = false # true if you are stuck
 
+  config.action_mailer.default_url_options = { :host => "localhost:3000" }
+
   require 'taxonworks'
   require 'taxonworks_autoload'
 end

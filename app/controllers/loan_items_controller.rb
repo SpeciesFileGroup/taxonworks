@@ -1,27 +1,7 @@
 class LoanItemsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_loan_item, only: [:show, :edit, :update, :destroy]
-
-  # GET /loan_items
-  # GET /loan_items.json
-  def index
-    @loan_items = LoanItem.all
-  end
-
-  # GET /loan_items/1
-  # GET /loan_items/1.json
-  def show
-  end
-
-  # GET /loan_items/new
-  def new
-    @loan_item = LoanItem.new
-  end
-
-  # GET /loan_items/1/edit
-  def edit
-  end
+  before_action :set_loan_item, only: [:update, :destroy]
 
   # POST /loan_items
   # POST /loan_items.json
@@ -30,10 +10,10 @@ class LoanItemsController < ApplicationController
 
     respond_to do |format|
       if @loan_item.save
-        format.html { redirect_to @loan_item, notice: 'Loan item was successfully created.' }
-        format.json { render :show, status: :created, location: @loan_item }
+        format.html { redirect_to :back, notice: 'Loan item was successfully created.' }
+        format.json { render json: @loan_item, status: :created, location: @loan_item }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Loan item was NOT successfully created.' }
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end
@@ -44,10 +24,10 @@ class LoanItemsController < ApplicationController
   def update
     respond_to do |format|
       if @loan_item.update(loan_item_params)
-        format.html { redirect_to @loan_item, notice: 'Loan item was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Loan item was successfully updated.' }
         format.json { render :show, status: :ok, location: @loan_item }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Loan item was NOT successfully updated.' }
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end
@@ -58,7 +38,7 @@ class LoanItemsController < ApplicationController
   def destroy
     @loan_item.destroy
     respond_to do |format|
-      format.html { redirect_to loan_items_url }
+      format.html { redirect_to :back, notice: 'Loan item was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

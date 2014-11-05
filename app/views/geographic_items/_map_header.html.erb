@@ -1,0 +1,14 @@
+<%= content_for :head do %>
+  <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
+
+  <script language="javascript" >
+    var data = <%= json_tag(geographic_item) %>;
+  </script>
+  <%= javascript_include_tag "maps" %>
+
+  <script language="javascript">
+   $(document).ready(initialize);
+   $(document).on('page:load', initialize);
+   // google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+<% end %>

@@ -2,6 +2,8 @@
 #
 class Role < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
+
 
   acts_as_list scope: [ :type, :role_object_type, :role_object_id  ]
 
@@ -16,6 +18,8 @@ class Role < ActiveRecord::Base
   # it won't be needed, but shouldn't hurt, in production
   before_validation :set_creator_and_updater_from_person_if_possible
 
+  # after save :vet_people
+
   protected
 
   def set_creator_and_updater_from_person_if_possible
@@ -23,4 +27,12 @@ class Role < ActiveRecord::Base
     self.updater = self.person.updater if self.person && self.updater.nil?
   end
 
+  def vet_person
+    # if a person is ever used in 2 different roles they are considered vetted.
+    #TODO write test for this
+    if Role.where(person_id: person_id).count > 1
+      p = Person.find(person_id)
+      p.update(type: 'Person::Vetted')
+    end
+  end
 end

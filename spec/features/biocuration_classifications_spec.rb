@@ -2,17 +2,24 @@ require 'rails_helper'
 
 describe 'BiocurationClassifications', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { biocuration_classifications_path }
-    let(:page_index_name) { 'Biocuration Classifications' }
-  end
+  # !! This should act more or less the same as AlternateValue features, 
 
-  describe 'GET /biocuration_classifications' do
-    before { 
-      sign_in_valid_user_and_select_project 
-      visit biocuration_classifications_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('Biocuration Classifications')
+  context 'resource routes' do
+   #  before { 
+   #    sign_in_user_and_select_project
+   #  }
+
+    # The scenario for creating biocuration classifications is in process (it has example usage in accessions/quick/verbatim_material.
+    # It must handle these three calls for logged in/not logged in users.
+    # It may be that these features are ultimately tested in a task.
+    describe 'POST /create' do
+    end
+
+    describe 'PATCH /update' do
+    end
+
+    describe 'DELETE /destroy' do
     end
   end
+
 end

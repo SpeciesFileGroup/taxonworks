@@ -39,7 +39,7 @@ describe RepositoriesController, :type => :controller do
     it "assigns all repositories as @repositories" do
       repository = Repository.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:repositories)).to eq([repository])
+      expect(assigns(:repositories)).to include(repository)
     end
   end
 

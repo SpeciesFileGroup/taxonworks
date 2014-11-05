@@ -1,7 +1,9 @@
 <h1>Listing Taxon Names</h1>
 
-
 <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
+
+
+<!-- todo @mjy this file has been modified in a different way than the rest of the list.html.erb files; it uses 'ago' vs 'last modified' among other things -->
 
 <table>
   <thead>
@@ -9,23 +11,13 @@
     <th>Name</th>
     <th>Parent</th>
     <th>Cached name</th>
-    <th>Cached author year</th>
-    <th>Cached higher classification</th>
-    <!--<th>Lft</th>-->
-    <!--<th>Rgt</th>-->
     <th>Source</th>
     <th>Year of publication</th>
     <th>Verbatim author</th>
-    <th>Rank class</th>
+    <th>Rank</th>
     <th>Type</th>
-    <th>Cached original combination</th>
-    <th>Cached secondary homonym</th>
-    <th>Cached primary homonym</th>
-    <th>Cached secondary homonym alt</th>
-    <th>Cached primary homonym alt</th>
-    <th>Created by</th>
     <th>Updated by</th>
-    <th>Project</th>
+    <th>Last updated</th>
     <th></th>
     <th></th>
     <th></th>
@@ -37,27 +29,17 @@
       <tr>
         <td><%= taxon_name.name %></td>
         <td><%= object_tag(taxon_name.parent) %></td>
-        <td><%= taxon_name.cached_name %></td>
-        <td><%= taxon_name.cached_author_year %></td>
-        <td><%= taxon_name.cached_higher_classification %></td>
-        <!--<td><%#= taxon_name.lft %></td>-->
-        <!--<td><%#= taxon_name.rgt %></td>-->
+        <td><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
         <td><%= object_tag(taxon_name.source) %></td>
         <td><%= taxon_name.year_of_publication %></td>
         <td><%= taxon_name.verbatim_author %></td>
-        <td><%= taxon_name.rank_class %></td>
+        <td><%= taxon_name.rank %></td>
         <td><%= taxon_name.type %></td>
-        <td><%= taxon_name.cached_original_combination %></td>
-        <td><%= taxon_name.cached_secondary_homonym %></td>
-        <td><%= taxon_name.cached_primary_homonym %></td>
-        <td><%= taxon_name.cached_secondary_homonym_alt %></td>
-        <td><%= taxon_name.cached_primary_homonym_alt %></td>
-        <td><%= taxon_name.created_by_id %></td>
-        <td><%= taxon_name.updated_by_id %></td>
-        <td><%= taxon_name.project_id %></td>
-        <td><%= link_to 'Show', taxon_name.becomes(TaxonName) %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_path(taxon_name.becomes(TaxonName)) %></td>
-        <td><%= link_to 'Destroy', taxon_name.becomes(TaxonName), method: :delete, data: {confirm: 'Are you sure?'} %></td>
+        <td><%= object_tag(taxon_name.updater) %></td>
+        <td><%= object_time_since_update_tag(taxon_name) %></td>
+        <td><%= link_to 'Show', taxon_name.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_taxon_name_path(taxon_name.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
   </tbody>

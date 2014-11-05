@@ -19,9 +19,12 @@ TaxonWorks::Application.routes.draw do
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
+
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
+
+  match '/papertrail', to: 'papertrail#papertrail', via: :get
 
   resources :projects do
     concerns [:data_routes]
@@ -31,25 +34,36 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  # Note singular 'resource' 
+  resource :hub, controller: 'hub', only: [:index] do
+    get '/', action: :index
+    get 'order_tabs'
+    post 'update_tab_order'
+  end
+
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+  match '/administration', to: 'administration#index', via: 'get'
 
   resources :project_members
 
-  match '/hub', to: 'hub#index', via: 'get'
-  match '/administration', to: 'administration#index', via: 'get'
-
-  resources :pinboard_items
+  resources :pinboard_items, only: [:create, :destroy]
 
   #
   # Unvetted/not fully tested Stubbed
   # 
 
-  match '/forgot_password', to: 'users#forgot_password', via: 'get'
+  get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
+  post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
+  match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
-  resources :alternate_values
-  resources :biocuration_classifications
-  resources :citation_topics
-  resources :citations do
+  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy]
+
+  resources :asserted_distributions do
+    concerns [:data_routes]
+  end
+  resources :biocuration_classifications, only: [:create, :update, :destroy]
+  resources :citation_topics, only: [:create, :update, :destroy]
+  resources :citations, except: [:new, :edit, :show] do
     concerns [:data_routes]
   end
   resources :collecting_events do
@@ -61,31 +75,48 @@ TaxonWorks::Application.routes.draw do
   resources :collection_objects do
     concerns [:data_routes]
   end
-  resources :collection_profiles
+  resources :collection_profiles do
+    collection do
+      get 'list'
+    end
+  end
+  resources :containers, only: [:create, :update, :destroy]
+  resources :container_items, only: [:create, :update, :destroy]
   resources :contents do
     concerns [:data_routes]
   end
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
-  resources :data_attributes
+  resources :data_attributes, only: [:create, :update, :destroy, :index]
   resources :geographic_area_types
   resources :geographic_areas do
     concerns [:data_routes]
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items
-  resources :georeferences
-  resources :identifiers
-  resources :loan_items
+  resources :georeferences do
+    collection do
+      get 'list'
+    end
+  end
+  resources :identifiers, only: [:create, :update, :destroy, :index]
+  resources :images do
+    concerns [:data_routes]
+  end
+  resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
     concerns [:data_routes]
   end
   resources :namespaces do
     concerns [:data_routes]
   end
-  resources :notes
-  resources :otu_page_layout_sections
+  resources :notes, except: [:new, :edit, :show] do
+    collection do
+      get 'list'
+    end
+  end
+  resources :otu_page_layout_sections, only: [:create, :update, :destroy]
   resources :otu_page_layouts
   resources :otus do
     concerns [:data_routes]
@@ -93,26 +124,37 @@ TaxonWorks::Application.routes.draw do
   resources :people do
     concerns [:data_routes]
   end
-  resources :public_contents
+  resources :public_contents, only: [:create, :update, :destroy]
   resources :ranged_lot_categories
   resources :repositories do
     concerns [:data_routes]
   end
-  resources :serial_chronologies
+  resources :serial_chronologies, only: [:create, :update, :destroy]
   resources :serials
   resources :sources do
     concerns [:data_routes]
   end
-  resources :tagged_section_keywords
-  resources :tags do
+  resources :tagged_section_keywords, only: [:create, :update, :destroy]
+  resources :tags, only: [:create, :update, :destroy, :index] do
     concerns [:data_routes]
   end
-  resources :taxon_determinations
+  resources :taxon_determinations do
+    collection do
+      get 'list'
+    end
+  end
   resources :taxon_names do
     concerns [:data_routes]
   end
-  resources :taxon_name_classifications
-  resources :taxon_name_relationships
+  resources :taxon_name_classifications, only: [:create, :update, :destroy]
+  resources :taxon_name_relationships do
+    collection do
+      get 'list'
+    end
+  end
+  resources :type_materials do
+    concerns [:data_routes]
+  end
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'

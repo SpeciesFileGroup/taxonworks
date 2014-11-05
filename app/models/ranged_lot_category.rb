@@ -3,8 +3,8 @@
 # a CollectionObject then no CollectionObject#total can be provided.. 
 # 
 class RangedLotCategory < ActiveRecord::Base
-
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
 
   validates_presence_of :name 

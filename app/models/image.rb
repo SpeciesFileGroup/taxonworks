@@ -18,7 +18,8 @@
 # @!endgroup
 #
 class Image < ActiveRecord::Base
-  include Housekeeping::Users
+  include Housekeeping
+  include Shared::IsData
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
@@ -93,6 +94,10 @@ class Image < ActiveRecord::Base
     # that will convert from degrees min sec to decimal degree
     # - maybe 2 versions? - one returns string, other decimal?
 
+  end
+
+  def self.find_for_autocomplete(params)
+    where(id: params[:term])
   end
 
   protected

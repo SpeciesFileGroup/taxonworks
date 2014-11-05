@@ -23,6 +23,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
     'misspelling'
   end
 
+  def self.gbif_status_of_subject
+    'nullum'
+  end
 
   def self.assignment_method
     # bus.set_as_icn_misspelling_of(aus)

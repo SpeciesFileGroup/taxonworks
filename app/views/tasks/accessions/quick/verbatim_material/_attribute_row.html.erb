@@ -1,0 +1,20 @@
+<div class="flexbox biocuration_totals_row"> 
+  <div class='item item1 one_tenth_width'> 
+    Total: <%= number_field_tag("collection_objects[object_#{object_id}][total]", nil, class: 'collection_object_total four_character_width'  )   -%>
+  </div> 
+
+  <div class="item item2 one_third_width">
+    <fieldset >
+      <%= content_tag(:legend, bg.name) -%>
+      <% bg.biocuration_classes.each do |bc| %>
+        <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object_#{object_id}][biocuration_classes][#{bc.id}]", nil, false,  class: 'biocuration_class_check_box'  ) -%>
+      <% end %>
+    </fieldset>
+  </div>
+
+  <div class="item item3 one_third_width">
+    <%= link_to('remove', "#", class: '_update_') if remove_link -%>
+  </div>
+</div>
+
+

@@ -10,7 +10,7 @@ module Housekeeping::Projects
     # these are added to the model
     belongs_to :project, inverse_of: related_instances
 
-    before_validation :set_project_id, on: :create
+    before_validation :set_project_id #, on: :create
     validates :project, presence: true
 
     before_save :prevent_alteration_in_other_projects
@@ -36,7 +36,9 @@ module Housekeeping::Projects
   end
 
   def set_project_id
-    self.project_id ||= $project_id
+    if self.new_record?
+      self.project_id ||= $project_id
+    end
   end
 
   # This will have to be extended via role exceptions, maybe.  It is a loose

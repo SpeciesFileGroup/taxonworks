@@ -8,11 +8,9 @@ module ProjectsAndUsers
     $user_id = nil
     $project_id = nil
   end
-end
 
-RSpec.configure do |config|
-  config.before(:suite) { 
-    ProjectsAndUsers.clean_slate
+  # This is used before all tests of type :model, :controller, :helper
+  def self.spin_up_projects_users_and_housekeeping
     # Order matters 
     FactoryGirl.create(:valid_user, id: 1)
     $user_id = 1
@@ -22,10 +20,5 @@ RSpec.configure do |config|
 
     # TODO: This is here for Rake based testing purposes, it's a little worriesome that it is needed.
     ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
-  } 
-
-  config.after(:suite) { 
-    ProjectsAndUsers.clean_slate
-  }
+  end
 end
-

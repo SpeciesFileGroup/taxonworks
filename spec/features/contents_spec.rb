@@ -7,53 +7,51 @@ describe 'Contents', :type => :feature do
     let(:page_index_name) { 'Contents' }
   end
 
-  describe 'GET /contents' do
+  context 'when signed in an a project is selected' do
     before {
       sign_in_user_and_select_project
-      visit contents_path }
-
-    specify 'an index name is present' do
-      expect(page).to have_content('Contents')
-    end
-
-  end
-
-  describe 'GET /contents/list' do
-    before do
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      # this is so that there are more than one page of contents
-      # problem with Faker::Lorem.word forces this to 15, ATM
-      5.times { FactoryGirl.create(:valid_content) }
-      visit '/contents/list'
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Contents'
-    end
-
-  end
-
-  describe 'GET /contents/n' do
-    before {
-      sign_in_user_and_select_project
-      $user_id = 1; $project_id = 1
-      3.times { FactoryGirl.create(:valid_content) }
-      all_contents = Content.all.map(&:id)
-      # there *may* be a better way to do this, but this version *does* work
-      # TODO: @mjy pending 'correction of the 'content_tag' name conflict'
-      # visit "/contents/#{all_contents[1]}"
     }
 
-    specify 'there is a \'previous\' link' do
-      pending 'correction of the \'content_tag\' name conflict'
-      expect(page).to have_link('Previous')
+    describe 'GET /contents' do
+      before { visit contents_path }
+
+      specify 'an index name is present' do
+        expect(page).to have_content('Contents')
+      end
     end
 
-    specify 'there is a \'next\' link' do
-      pending 'correction of the \'content_tag\' name conflict'
-      expect(page).to have_link('Next')
-    end
+    context 'with some records created' do
+      let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      let!(:t) { factory_girl_create_for_user_and_project(:valid_topic, @user, @project) } 
+      before do
+        10.times {
+          FactoryGirl.create(:valid_otu_content,
+                             otu: o, 
+                             topic: t,
+                             project: @project,
+                             creator: @user,
+                             updater: @user
+                            )
+        }
+      end
 
+      describe 'GET /contents/list' do
+        before { visit list_contents_path}
+        specify 'that it renders without error' do
+          expect(page).to have_content 'Listing Contents'
+        end
+      end
+
+      describe 'GET /contents/n' do
+        before { visit content_path(Content.second) }
+        specify 'there is a \'previous\' link' do
+          expect(page).to have_link('Previous')
+        end
+
+        specify 'there is a \'next\' link' do
+          expect(page).to have_link('Next')
+        end
+      end
+    end
   end
 end

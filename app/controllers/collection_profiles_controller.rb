@@ -1,5 +1,5 @@
 class CollectionProfilesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collection_profile, only: [:show, :edit, :update, :destroy]
 
@@ -61,6 +61,10 @@ class CollectionProfilesController < ApplicationController
       format.html { redirect_to collection_profiles_url }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @collection_profile = CollectionProfile.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   private

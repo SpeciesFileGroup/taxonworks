@@ -5,4 +5,8 @@ class TaxonNameClassification::Iczn::Available::Invalid < TaxonNameClassificatio
         self.collect_to_s(TaxonNameClassification::Iczn::Available::Valid)
   end
 
+  def self.gbif_status
+    'invalidum'
+  end
+
 end

@@ -1,5 +1,5 @@
 class SourcesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :require_sign_in 
   before_action :set_source, only: [:show, :edit, :update, :destroy]
@@ -31,7 +31,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       if @source.save
-        format.html { redirect_to @source.becomes(Source), notice: 'Source was successfully created.' }
+        format.html { redirect_to @source.metamorphosize, notice: 'Source was successfully created.' }
         format.json { render action: 'show', status: :created, location: @source }
       else
         format.html { render action: 'new' }
@@ -45,7 +45,7 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        format.html { redirect_to @source.becomes(Source), notice: 'Source was successfully updated.' }
+        format.html { redirect_to @source.metamorphosize, notice: 'Source was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -69,11 +69,11 @@ class SourcesController < ApplicationController
 
     data = @sources.collect do |t|
       {id: t.id,
-       label: SourcesHelper.otu_tag(t), 
+       label: SourcesHelper.source_tag(t),
        response_values: {
          params[:method] => t.id  
        },
-       label_html: SourcesHelper.otu_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 

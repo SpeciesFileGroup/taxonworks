@@ -4,6 +4,7 @@
 #
 class Repository < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
   include Shared::Notable
   include Shared::SharedAcrossProjects
 

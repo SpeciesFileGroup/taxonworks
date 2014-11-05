@@ -1,0 +1,35 @@
+<h1>Taxon Name Relationships</h1>
+
+<%= paginate @taxon_name_relationships %> <%= page_entries_info @taxon_name_relationships %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Subject taxon name</th>
+    <th>Object taxon name</th>
+    <th>Type</th>
+    <th>Source</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @taxon_name_relationships.each do |taxon_name_relationship| %>
+      <tr>
+        <td><%= object_tag(taxon_name_relationship.subject_taxon_name) %></td>
+        <td><%= object_tag(taxon_name_relationship.object_taxon_name) %></td>
+        <td><%= taxon_name_relationship.type %></td>
+        <td><%= object_tag(taxon_name_relationship.source) %></td>
+        <td><%= taxon_name_relationship.updated_at %></td>
+        <td><%= object_tag(taxon_name_relationship.updater) %></td>
+        <td><%= link_to 'Show', taxon_name_relationship.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_taxon_name_relationship_path(taxon_name_relationship.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', taxon_name_relationship.metamorphosize,  method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -1,38 +1,39 @@
-<h1>Collecting Events</h1>
+<h1>Listing Collecting Events</h1>
+
 <%= paginate @collecting_events %> <%= page_entries_info @collecting_events %>
 
 <table>
   <thead>
     <tr>
-      <th>Verbatim label</th>
-      <th>Print label</th>
-      <th>Document label</th>
-      <th>Verbatim locality</th>
-      <th>Verbatim longitude</th>
-      <th>Verbatim latitude</th>
-      <th>Verbatim geolocation uncertainty</th>
-      <th>Verbatim trip identifier</th>
+      <th>Cached display</th>
+      <th>Geographic area</th>
       <th>Verbatim collectors</th>
       <th>Verbatim method</th>
-      <th>Geographic area</th>
-      <th>Minimum elevation</th>
-      <th>Maximum elevation</th>
-      <th>Elevation precision</th>
-      <th>Time start</th>
-      <th>Time end</th>
-      <th>Start date day</th>
-      <th>Start date month</th>
-      <th>Start date year</th>
-      <th>End date day</th>
-      <th>End date month</th>
-      <th>End date year</th>
-      <th>Verbatim habitat</th>
-      <th>Field notes</th>
-      <!--<th>Md5 of verbatim label</th>-->
-      <th>Cached display</th>
-      <th>Created by</th>
+      <!--<th>Verbatim label</th>-->
+      <!--<th>Print label</th>-->
+      <!--<th>Document label</th>-->
+      <!--<th>Verbatim locality</th>-->
+      <!--<th>Verbatim longitude</th>-->
+      <!--<th>Verbatim latitude</th>-->
+      <!--<th>Verbatim geolocation uncertainty</th>-->
+      <!--<th>Verbatim trip identifier</th>-->
+      <!--<th>Verbatim method</th>-->
+      <!--<th>Minimum elevation</th>-->
+      <!--<th>Maximum elevation</th>-->
+      <!--<th>Elevation precision</th>-->
+      <!--<th>Time start</th>-->
+      <!--<th>Time end</th>-->
+      <!--<th>Start date day</th>-->
+      <!--<th>Start date month</th>-->
+      <!--<th>Start date year</th>-->
+      <!--<th>End date day</th>-->
+      <!--<th>End date month</th>-->
+      <!--<th>End date year</th>-->
+      <!--<th>Verbatim habitat</th>-->
+      <!--<th>Field notes</th>-->
+      <!--<!--<th>Md5 of verbatim label</th>-->-->
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -42,35 +43,35 @@
   <tbody>
     <% @collecting_events.each do |collecting_event| %>
       <tr>
-        <td><%= collecting_event.verbatim_label %></td>
-        <td><%= collecting_event.print_label %></td>
-        <td><%= collecting_event.document_label %></td>
-        <td><%= collecting_event.verbatim_locality %></td>
-        <td><%= collecting_event.verbatim_longitude %></td>
-        <td><%= collecting_event.verbatim_latitude %></td>
-        <td><%= collecting_event.verbatim_geolocation_uncertainty %></td>
-        <td><%= collecting_event.verbatim_trip_identifier %></td>
+        <td><%= collecting_event.cached %></td>
+        <td><%= object_tag(collecting_event.geographic_area) %></td>
         <td><%= collecting_event.verbatim_collectors %></td>
         <td><%= collecting_event.verbatim_method %></td>
-        <td><%= object_tag(collecting_event.geographic_area) %></td>
-        <td><%= collecting_event.minimum_elevation %></td>
-        <td><%= collecting_event.maximum_elevation %></td>
-        <td><%= collecting_event.elevation_precision %></td>
-        <td><%= collecting_event.time_start %></td>
-        <td><%= collecting_event.time_end %></td>
-        <td><%= collecting_event.start_date_day %></td>
-        <td><%= collecting_event.start_date_month %></td>
-        <td><%= collecting_event.start_date_year %></td>
-        <td><%= collecting_event.end_date_day %></td>
-        <td><%= collecting_event.end_date_month %></td>
-        <td><%= collecting_event.end_date_year %></td>
-        <td><%= collecting_event.verbatim_habitat %></td>
-        <td><%= collecting_event.field_notes %></td>
+        <!--<td><%#= collecting_event.verbatim_label %></td>-->
+        <!--<td><%#= collecting_event.print_label %></td>-->
+        <!--<td><%#= collecting_event.document_label %></td>-->
+        <!--<td><%#= collecting_event.verbatim_locality %></td>-->
+        <!--<td><%#= collecting_event.verbatim_longitude %></td>-->
+        <!--<td><%#= collecting_event.verbatim_latitude %></td>-->
+        <!--<td><%#= collecting_event.verbatim_geolocation_uncertainty %></td>-->
+        <!--<td><%#= collecting_event.verbatim_trip_identifier %></td>-->
+        <!--<td><%#= collecting_event.verbatim_method %></td>-->
+        <!--<td><%#= collecting_event.minimum_elevation %></td>-->
+        <!--<td><%#= collecting_event.maximum_elevation %></td>-->
+        <!--<td><%#= collecting_event.elevation_precision %></td>-->
+        <!--<td><%#= collecting_event.time_start %></td>-->
+        <!--<td><%#= collecting_event.time_end %></td>-->
+        <!--<td><%#= collecting_event.start_date_day %></td>-->
+        <!--<td><%#= collecting_event.start_date_month %></td>-->
+        <!--<td><%#= collecting_event.start_date_year %></td>-->
+        <!--<td><%#= collecting_event.end_date_day %></td>-->
+        <!--<td><%#= collecting_event.end_date_month %></td>-->
+        <!--<td><%#= collecting_event.end_date_year %></td>-->
+        <!--<td><%#= collecting_event.verbatim_habitat %></td>-->
+        <!--<td><%#= collecting_event.field_notes %></td>-->
         <!--<td><%#= collecting_event.md5_of_verbatim_label %></td>-->
-        <td><%= collecting_event.cached %></td>
-        <td><%= collecting_event.created_by_id %></td>
-        <td><%= collecting_event.updated_by_id %></td>
-        <td><%= collecting_event.project_id %></td>
+        <td><%= collecting_event.updated_at %></td>
+        <td><%= object_tag(collecting_event.updater) %></td>
         <td><%= link_to 'Show', collecting_event %></td>
         <td><%= link_to 'Edit', edit_collecting_event_path(collecting_event) %></td>
         <td><%= link_to 'Destroy', collecting_event, method: :delete, data: { confirm: 'Are you sure?' } %></td>

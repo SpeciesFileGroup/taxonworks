@@ -6,10 +6,8 @@ Dir[Rails.root.to_s + '/app/models/otu_page_layout_section/**/*.rb'].sort.each {
 describe OtuPageLayoutSection, :type => :model do
   let(:otu_page_layout_section) {FactoryGirl.build(:otu_page_layout_section)} 
   context 'validation' do
-    specify 'type is a legal type' do
-      otu_page_layout_section.type = 'foo'
-      otu_page_layout_section.valid?
-      expect(otu_page_layout_section.errors.include?(:type)).to be_truthy
+    specify '"foo" is a legal type' do
+      expect{OtuPageLayoutSection.new(type: "foo")}.to raise_error ActiveRecord::SubclassNotFound
     end
 
     OtuPageLayoutSection.descendants.each do |d|
@@ -20,5 +18,4 @@ describe OtuPageLayoutSection, :type => :model do
       end
     end
   end
-
 end

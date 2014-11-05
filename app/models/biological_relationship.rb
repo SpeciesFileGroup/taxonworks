@@ -1,5 +1,6 @@
 class BiologicalRelationship < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   validates_presence_of :name
   has_many :biological_relationship_types, inverse_of: :biological_relationship

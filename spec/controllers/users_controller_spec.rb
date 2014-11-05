@@ -178,11 +178,62 @@ describe UsersController, :type => :controller do
   
   describe "GET forgot_password" do
     
-    it "renders password reset form" do
-      get :forgot_password
+    it "renders password reset template" do
+      get :forgot_password, {}, valid_session
       expect(response).to render_template(:forgot_password)
     end
     
+  end
+  
+  describe "POST send_password_reset" do
+    
+    context "when e-mail not provided" do
+      let(:examples) { [{}, { :email => nil }, { :email => '' }, { :email => ' ' }] }
+      
+      it "redirects to forgot_password" do
+        examples.each do |param|
+          post :send_password_reset, param, valid_session
+          expect(response).to redirect_to(:forgot_password)
+        end
+      end
+      
+      it "notifies no e-mail was provided in flash[:notice]" do
+        examples.each do |param|
+          post :send_password_reset, param, valid_session
+          expect(flash[:notice]).to match(/^No e-mail was given/)
+        end
+      end
+
+    end
+    
+    context "when e-mail does not exist" do
+      before { post :send_password_reset, { :email => "non-existant@example.com" }, valid_session }
+      
+      it "redirects to forgot_password" do
+        expect(response).to redirect_to(:forgot_password)
+      end
+      
+      it "notifies the e-mail does not exist" do
+        expect(flash[:notice]).to match(/^The supplied e-mail does not belong to a registered user/)
+      end
+    end
+    
+    context "when valid e-mail" do
+      before do
+        user = FactoryGirl.create(:valid_user)
+        post :send_password_reset, { :email => user.email }, valid_session      
+      end
+      
+      it "renders e-mail sent notification page" do
+
+        expect(response).to render_template(:send_password_reset)
+      end
+      
+      it "does not set flash[:notice]" do
+        expect(flash[:notice]).to be_nil
+      end
+    end
+
   end
 
 end

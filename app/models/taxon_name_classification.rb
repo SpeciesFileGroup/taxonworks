@@ -1,5 +1,6 @@
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include Shared::Citable
   include SoftValidation
 
@@ -54,6 +55,10 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   def self.possible_genus_endings
+    nil
+  end
+
+  def self.gbif_status
     nil
   end
 

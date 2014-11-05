@@ -1,0 +1,58 @@
+@import 'palette';
+
+/* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
+.horizontal_navbar {
+  list-style: none;
+  margin: 0; 
+  
+  // background: deepskyblue;
+  
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  
+  -webkit-flex-flow: row wrap;
+  justify-content: flex-start;
+}
+
+.horizontal_navbar a {
+  text-decoration: none;
+  display: block;
+  padding: 0 1em; // was 1
+ // color: white;
+}
+
+.horizontal_navbar a:hover {
+  background: darken($color-secondary-2-0, 2%);
+}
+
+@media all and (max-width: 800px) {
+  .horizontal_navbar {
+    justify-content: space-around;
+  }
+}
+
+@media all and (max-width: 600px) {
+  .horizontal_navbar {
+    -webkit-flex-flow: column wrap;
+    flex-flow: column wrap;
+    padding: 0;
+  }
+  
+  .horizontal_navbar a { 
+    text-align: center; 
+    padding: 10px;
+    border-top: 1px solid rgba(255,255,255,0.3); 
+    border-bottom: 1px solid rgba(0,0,0,0.1); 
+  }
+  
+  .horizontal_navbar li:last-of-type a {
+    border-bottom: none;
+  }
+}
+
+#taxonworks_link {
+ text-decoration: none;
+}

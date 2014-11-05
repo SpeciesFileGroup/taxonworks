@@ -2,7 +2,8 @@ require 'citeproc'
 require 'csl/styles'
 
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
-#
+# @author Matt Yoder 
+# 
 # Bibtex - Subclass of Source that represents most references.
 #   Cached values are formatted using the 'zootaxa' style from 'csl/styles'
 #
@@ -206,8 +207,6 @@ require 'csl/styles'
 class Source::Bibtex < Source
   include SoftValidation
 
-#  include Shared::Notable in source.rb
-#
 # @!attribute publisher
 # @!attribute school
 # @!attribute series
@@ -253,8 +252,10 @@ class Source::Bibtex < Source
 # @!group identifiers
 # @!endgroup
 # 
-# TODO add linkage to serials ==> belongs_to serial
-# TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+
+ belongs_to :source
+
+  # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
 #region constants
 # TW required fields (must have one of these fields filled in)
@@ -308,11 +309,12 @@ class Source::Bibtex < Source
                               message: "[%{value}] is not a valid URL"}, allow_nil: true
 
   before_validation :check_has_field
-  before_save :set_nomenclature_date, :set_cached_values
+  after_validation :set_cached_values
+  before_save :set_nomenclature_date
 
 #endregion validations
 
-# includes nil last, exclude it explicitly with another condition if need be
+  # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
 #region soft_validate setup calls
@@ -326,10 +328,6 @@ class Source::Bibtex < Source
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
 
 #endregion
-
-
-# TODO: This should be moved out to notable likely, and inherited at Source
-  accepts_nested_attributes_for :notes
 
   #region ruby-bibtex related
 
@@ -353,6 +351,10 @@ class Source::Bibtex < Source
   end
 
   # TODO add conversion of identifiers to ruby-bibtex fields
+  # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
+  # serial with alternate_value on name .count = 1 assign .first
+  # before validate assign serial if matching & not doesn't have a serial currently assigned.
+
 
   def valid_bibtex?
     self.to_bibtex.valid?
@@ -375,6 +377,12 @@ class Source::Bibtex < Source
   #   returns "" if neither :year or :year_suffix are set.
   def year_with_suffix
     self[:year].to_s + self[:year_suffix].to_s
+  end
+
+  # @return[String] A string that represents the authors last_names and year (no suffix)
+  def author_year
+    return 'not yet calculated' if self.new_record?
+    [ cached_author_string, year].compact.join(", ")
   end
 
   def build_related_people_and_roles
@@ -418,10 +426,27 @@ class Source::Bibtex < Source
 
   #region getters & setters
   def authority_name
-    # TODO need to use full last name with suffix not just last_name
     case self.authors.count
       when 0
-        return ((self.author.blank?) ? '' : self.author)
+        if (self.author.blank?)
+          return ('')
+        else        # build off the last names only of authors
+          b = self.to_bibtex
+          b.parse_names
+          case b.author.tokens.count
+            when 0
+              return ('') # shouldn't ever get here
+            when 1
+              return(b.author[0].last)
+            else
+              p_array = []
+              for i in 0..(b.author.tokens.count-1) do
+                p_array.push(b.author.tokens[i].last)
+              end
+              return(p_array.to_sentence(:last_word_connector => ' & '))
+          end
+        end
+        #return ((self.author.blank?) ? '' : self.author)
       #return self.author # return author or ''
       when 1
         return (authors[0].last_name)
@@ -431,10 +456,9 @@ class Source::Bibtex < Source
         for i in 0..(self.authors.count-1) do
           p_array.push(self.authors[i].last_name)
         end
-        p_array.to_sentence(:last_word_connector => ' & ')
+        return(p_array.to_sentence(:last_word_connector => ' & '))
     end
   end
-
 
   def year=(value)
     if value.class == String
@@ -559,19 +583,21 @@ class Source::Bibtex < Source
   protected
 
   def set_cached_values
-    bx_entry = self.to_bibtex
-    if bx_entry.key.blank? then
-      bx_entry.key = 'tmpID'
+    if self.errors.empty?
+      bx_entry = self.to_bibtex
+      if bx_entry.key.blank? then
+        bx_entry.key = 'tmpID'
+      end
+      key             = bx_entry.key
+      bx_bibliography = BibTeX::Bibliography.new()
+      bx_bibliography.add(bx_entry)
+
+      cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+      cp.import bx_bibliography.to_citeproc
+
+      self.cached               = cp.render(:bibliography, id: key).first.strip
+      self.cached_author_string = authority_name
     end
-    key             = bx_entry.key
-    bx_bibliography = BibTeX::Bibliography.new()
-    bx_bibliography.add(bx_entry)
-
-    cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-    cp.import bx_bibliography.to_citeproc
-
-    self.cached               = cp.render(:bibliography, id: key).first
-    self.cached_author_string = authority_name
   end
 
 

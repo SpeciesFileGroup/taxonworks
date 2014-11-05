@@ -33,11 +33,24 @@ describe LoansController, :type => :controller do
   # LoansController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page loans as @loans" do
+      loan = Loan.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:loans)).to include(loan)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all loans as @loans" do
       loan = Loan.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:loans)).to eq([loan])
+      expect(assigns(:loans).to_a).to include(loan)
     end
   end
 

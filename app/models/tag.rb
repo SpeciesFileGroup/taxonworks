@@ -1,5 +1,7 @@
 class Tag < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
+
 
   acts_as_list scope: [:keyword_id]
 

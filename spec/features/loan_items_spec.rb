@@ -2,17 +2,31 @@ require 'rails_helper'
 
 describe 'LoanItems', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { loan_items_path }
-    let(:page_index_name) { 'Loan Items' }
-  end 
+ context 'resource routes' do
+   #  before { 
+   #    sign_in_user_and_select_project
+   #  }
 
-  describe 'GET /loan_items' do
-    before {
-      sign_in_user_and_select_project 
-      visit loan_items_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('Loan Items')
+    # The scenario for creating loan items has not been developed. 
+    # It must handle these  calls for logged in/not logged in users.
+    # It may be that these features are ultimately tested in a task.
+
+    describe 'GET /edit' do
     end
+
+    describe 'POST /create' do
+    end
+
+    describe 'PATCH /update' do
+    end
+
+    describe 'DELETE /destroy' do
+    end
+
+    describe 'the partial form rendered in context of NEW/EDIT on some other page' do
+    end
+    
+
   end
+
 end

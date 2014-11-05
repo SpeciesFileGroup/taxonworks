@@ -9,4 +9,7 @@ module Shared::Citable
     self.citations.count > 0
   end
 
+  def citable?
+    true
+  end
 end

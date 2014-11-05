@@ -1,5 +1,5 @@
 class PeopleController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_person, only: [:show, :edit, :update, :destroy]
 
@@ -31,7 +31,7 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person.becomes(Person), notice: 'Person was successfully created.' }
+        format.html { redirect_to @person.metamorphosize, notice: 'Person was successfully created.' }
         format.json { render action: 'show', status: :created, location: @person }
       else
         format.html { render action: 'new' }
@@ -45,7 +45,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person.becomes(Person), notice: 'Person was successfully updated.' }
+        format.html { redirect_to @person.metamorphosize, notice: 'Person was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -74,14 +74,13 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Person.find_for_autocomplete(params)
-
     data = @people.collect do |t|
       {id:              t.id,
-       label:           PeopleHelper.collection_object_tag(t), # in helper
+       label:           t.name,
        response_values: {
            params[:method] => t.id
        },
-       label_html:      PeopleHelper.collection_object_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:     t.name 
       }
     end
 

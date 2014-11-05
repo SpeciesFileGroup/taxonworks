@@ -1,23 +1,45 @@
-<h1> Projects </h1>
-<navigation>
-<ul>
-  <%= content_tag(:li, link_to("New", new_project_path)) -%>
-  <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
-</ul>
-</navigation>
-
-<h1> Project Membership </h1>
-<navigation>
-<ul>
-  <%= content_tag(:li, link_to("Add a user to a project", new_project_member_path)) -%>
-</ul>
-</navigation>
+<h1> Administration </h1>
 
 
-<h1> Users </h1>
-<navigation>
-<ul>
-  <%= content_tag(:li, link_to("New", signup_path)) -%>
-  <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
-</ul>
-</navigation>
+<div class="flexbox">
+  <div class="item item1">
+
+    <h2> Projects </h2>
+    <navigation>
+    <ul>
+      <%= content_tag(:li, link_to("New", new_project_path)) -%>
+      <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
+    </ul>
+    </navigation>
+
+    <h2> Project Membership </h2>
+    <navigation>
+    <ul>
+      <%= content_tag(:li, link_to("Add a user to a project", new_project_member_path)) -%>
+    </ul>
+    </navigation>
+
+    <h2> Users </h2>
+    <navigation>
+    <ul>
+      <%= content_tag(:li, link_to("New", signup_path)) -%>
+      <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
+    </ul>
+    </navigation>
+
+  </div>
+
+  <div class="item item2">
+    <h2> Data </h2>
+    <navigation>
+    <ul>
+      <%= content_tag(:li, link_to("Namespaces", namespaces_path)) -%>
+    </ul>
+    </navigation>
+
+
+  </div>
+
+
+
+</div>

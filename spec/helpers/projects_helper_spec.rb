@@ -1,33 +1,21 @@
 require 'rails_helper'
 
-# Specs in this file have access to a helper object that includes
-# the SessionsHelper. For example:
-#
-# describe SessionsHelper do
-#   describe "string concat" do
-#     it "concats two strings with spaces" do
-#       expect(helper.concat_strings("this","that")).to eq("this that")
-#     end
-#   end
-# end
-
-describe ProjectsHelper, :type => :helper do
+describe ProjectsHelper do
   context 'a project needs some helpers' do
-    before(:all) {
-      @project     = FactoryGirl.create(:valid_project)
-      @cvt_name = @project.name
-    }
+    let(:name) {'Wonderland'}
+    let(:project) {FactoryGirl.build_stubbed(:valid_project, id: 1, name:name) }
 
     specify '::project_tag' do
-      expect(ProjectsHelper.project_tag(@project)).to eq(@cvt_name)
+      expect(ProjectsHelper.project_tag(project)).to eq(name)
     end
 
     specify '#project_tag' do
-      expect(project_tag(@project)).to eq(@cvt_name)
+      expect(helper.project_tag(project)).to eq(name)
     end
 
     specify '#project_link' do
-      expect(project_link(@project)).to have_link(@cvt_name)
+      session[:project_id] = 1
+      expect(helper.project_link(project)).to have_link(name)
     end
 
     specify "#project_search_form" do

@@ -41,28 +41,9 @@ describe DataAttributesController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested data_attribute as @data_attribute" do
-      data_attribute = DataAttribute.create! valid_attributes
-      get :show, {:id => data_attribute.to_param}, valid_session
-      expect(assigns(:data_attribute)).to eq(data_attribute)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new data_attribute as @data_attribute" do
-      get :new, {}, valid_session
-      expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested data_attribute as @data_attribute" do
-      data_attribute = DataAttribute.create! valid_attributes
-      get :edit, {:id => data_attribute.to_param}, valid_session
-      expect(assigns(:data_attribute)).to eq(data_attribute)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +59,9 @@ describe DataAttributesController, :type => :controller do
         expect(assigns(:data_attribute)).to be_persisted
       end
 
-      it "redirects to the created data_attribute" do
+      it "redirects to :back" do
         post :create, {:data_attribute => valid_attributes}, valid_session
-        expect(response).to redirect_to(DataAttribute.last.becomes(DataAttribute))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,11 +73,11 @@ describe DataAttributesController, :type => :controller do
         expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -119,10 +100,10 @@ describe DataAttributesController, :type => :controller do
         expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
-      it "redirects to the data_attribute" do
+      it "redirects to :back" do
         data_attribute = DataAttribute.create! valid_attributes
         put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
-        expect(response).to redirect_to(data_attribute.becomes(DataAttribute))
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -135,12 +116,12 @@ describe DataAttributesController, :type => :controller do
         expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -153,10 +134,10 @@ describe DataAttributesController, :type => :controller do
       }.to change(DataAttribute, :count).by(-1)
     end
 
-    it "redirects to the data_attributes list" do
+    it "redirects to :back" do
       data_attribute = DataAttribute.create! valid_attributes
       delete :destroy, {:id => data_attribute.to_param}, valid_session
-      expect(response).to redirect_to(data_attributes_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

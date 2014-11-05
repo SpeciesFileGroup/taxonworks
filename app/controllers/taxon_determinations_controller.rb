@@ -1,5 +1,5 @@
 class TaxonDeterminationsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
 

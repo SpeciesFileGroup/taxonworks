@@ -5,4 +5,8 @@ class TaxonNameClassification::Iczn::Available < TaxonNameClassification::Iczn
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
+  def self.gbif_status
+    'available'
+  end
+
 end

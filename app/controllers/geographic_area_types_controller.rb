@@ -1,5 +1,5 @@
 class GeographicAreaTypesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_geographic_area_type, only: [:show, :edit, :update, :destroy]
 

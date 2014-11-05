@@ -3,10 +3,36 @@ module Shared::Identifiable
   included do
     has_many :identifiers, as: :identified_object, validate: false
     accepts_nested_attributes_for :identifiers
+  end
 
-    #scope :creator_missing_first_name, -> { where(people: {first_name: nil}).joins(:creator)}
-    #scope :created_by,  lambda {|person| where("created_by_id = ?", person) }
-    #scope :modified_by, lambda {|person| where("last_updated_by_id = ?", person) }
+  module ClassMethods
+
+    # Exact match on identifier + namespace, return an Array, not Arel
+    def with_namespaced_identifier(namespace_name, identifier)
+      i = Identifier.arel_table
+      n = Namespace.arel_table
+      s = self.arel_table
+
+      # conditions
+      c1 = n[:name].eq(namespace_name)
+      c2 = i[:identifier].eq(identifier)
+
+      # join identifiers to namespaces
+      j = i.join(n).on(i[:namespace_id].eq(n[:id]))
+
+      # join self to identifiers
+      l = s.join(i).on(s[:id].eq(i[:identified_object_id]).and(i[:identified_object_type].eq(self.base_class.name)))
+
+      self.joins(l.join_sql, j.join_sql).where(c1.and(c2).to_sql)
+    end
+
+    # Exact match on the full identifier (use for any class of identifiers)
+    def with_identifier(value)
+      value = [value] if value.class == String
+      t = Identifier.arel_table
+      a = t[:cached].eq_any(value)
+      self.joins(:identifiers).where(a.to_sql).references(:identifiers)
+    end
   end
 
   def identified?
@@ -14,15 +40,5 @@ module Shared::Identifiable
   end
 
   protected
-
-  # This code wasn't asked for in the Tutorial
-  # def set_creator
-  #   self.created_by_id = $person_id
-  #   set_updater
-  # end
-
-  # def set_updater
-  #   self.last_updated_by_id = $person_id if self.changed?
-  # end
 
 end

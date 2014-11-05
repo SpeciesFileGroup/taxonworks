@@ -1,27 +1,7 @@
 class CitationTopicsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_citation_topic, only: [:show, :edit, :update, :destroy]
-
-  # GET /citation_topics
-  # GET /citation_topics.json
-  def index
-    @citation_topics = CitationTopic.all
-  end
-
-  # GET /citation_topics/1
-  # GET /citation_topics/1.json
-  def show
-  end
-
-  # GET /citation_topics/new
-  def new
-    @citation_topic = CitationTopic.new
-  end
-
-  # GET /citation_topics/1/edit
-  def edit
-  end
+  before_action :set_citation_topic, only: [:update, :destroy]
 
   # POST /citation_topics
   # POST /citation_topics.json
@@ -30,10 +10,10 @@ class CitationTopicsController < ApplicationController
 
     respond_to do |format|
       if @citation_topic.save
-        format.html { redirect_to @citation_topic, notice: 'Citation topic was successfully created.' }
-        format.json { render :show, status: :created, location: @citation_topic }
+        format.html { redirect_to :back, notice: 'Citation topic was successfully created.' }
+        format.json { render json: @citation_topic, status: :created, location: @citation_topic }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully created.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end
@@ -44,10 +24,10 @@ class CitationTopicsController < ApplicationController
   def update
     respond_to do |format|
       if @citation_topic.update(citation_topic_params)
-        format.html { redirect_to @citation_topic, notice: 'Citation topic was successfully updated.' }
-        format.json { render :show, status: :ok, location: @citation_topic }
+        format.html { redirect_to :back, notice: 'Citation topic was successfully updated.' }
+        format.json { render json: @citation_topic, status: :ok, location: @citation_topic }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully updated.' }
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end
@@ -58,7 +38,7 @@ class CitationTopicsController < ApplicationController
   def destroy
     @citation_topic.destroy
     respond_to do |format|
-      format.html { redirect_to citation_topics_url }
+      format.html { redirect_to :back, notice: 'Citation topic was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

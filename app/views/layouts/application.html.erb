@@ -15,7 +15,7 @@
     <%= yield :head %>
   </head>
   
-  <body>
+  <body <%= turbolinks_off_tag -%> >
 
   <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
 

@@ -1,0 +1,53 @@
+<h1>Georeferences</h1>
+
+<%= paginate @georeferences %> <%= page_entries_info @georeferences %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Geographic item</th>
+    <th>Collecting event</th>
+    <th>Error radius</th>
+    <th>Error depth</th>
+    <th>Error geographic item</th>
+    <th>Type</th>
+    <th>Source</th>
+    <th>Position</th>
+    <th>Is public</th>
+    <th>Api request</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th>Is undefined z</th>
+    <th>Is median z</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <!-- todo @mjy Three boolean values here; how do you want them displayed? Do you want all these fields displayed in the list? -->
+
+  <tbody>
+  <% @georeferences.each do |georeference| %>
+      <tr>
+        <td><%= object_tag(georeference.geographic_item) %></td>
+        <td><%= object_tag(georeference.collecting_event) %></td>
+        <td><%= georeference.error_radius %></td>
+        <td><%= georeference.error_depth %></td>
+        <td><%= object_tag(georeference.error_geographic_item) %></td>
+        <td><%= georeference.type %></td>
+        <td><%= object_tag(georeference.source) %></td>
+        <td><%= georeference.position %></td>
+        <td><%= georeference.is_public %></td>
+        <td><%= georeference.api_request %></td>
+        <td><%= georeference.updated_at %></td>
+        <td><%= object_tag(georeference.updater) %></td>
+        <td><%= georeference.is_undefined_z %></td>
+        <td><%= georeference.is_median_z %></td>
+        <td><%= link_to 'Show', georeference.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_georeference_path(georeference.metamorphosize) %></td>
+        <td><%= link_to 'Destroy', georeference.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

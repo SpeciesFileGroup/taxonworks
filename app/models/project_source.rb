@@ -1,5 +1,6 @@
 class ProjectSource < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   belongs_to :project, inverse_of: :project_sources
   belongs_to :source, inverse_of: :project_sources

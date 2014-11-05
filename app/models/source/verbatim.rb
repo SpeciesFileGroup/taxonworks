@@ -5,6 +5,7 @@
 #
 # @!attribute verbatim
 #   This is the only valid attribute of Source::Verbatim. It is the verbatim representation of the source.
+#
 class Source::Verbatim < Source
   #TODO set cached values!
   before_save :set_cached_values

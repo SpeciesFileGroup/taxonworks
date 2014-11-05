@@ -1,32 +1,19 @@
 require 'rails_helper'
 
-# Specs in this file have access to a helper object that includes
-# the TagsHelper. For example:
-#
-# describe TagsHelper do
-#   describe "string concat" do
-#     it "concats two strings with spaces" do
-#       expect(helper.concat_strings("this","that")).to eq("this that")
-#     end
-#   end
-# end
 describe TagsHelper, :type => :helper do
   context 'a tag needs some helpers' do
-    before(:all) {
-      @tag = FactoryGirl.create(:valid_tag)
-      @cvt_name = @tag.keyword.name
-    }
+    let(:tag) {FactoryGirl.create(:valid_tag)}
 
-    specify '::tag_tag' do
-      expect(TagsHelper.tag_tag(@tag)).to eq(@cvt_name)
+    specify '.tag_tag' do
+      expect(TagsHelper.tag_tag(tag)).to eq(tag.keyword.name)
     end
 
     specify '#tag_tag' do
-      expect(tag_tag(@tag)).to eq(@cvt_name)
+      expect(tag_tag(tag)).to eq(tag.keyword.name)
     end
 
     specify '#tag_link' do
-      expect(tag_link(@tag)).to have_link(@cvt_name)
+      expect(tag_link(tag)).to have_link(tag.keyword.name)
     end
 
     specify "#tag_search_form" do

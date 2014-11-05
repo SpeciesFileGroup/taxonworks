@@ -4,18 +4,9 @@ describe 'Project Handling', :type => :feature do
 
   subject { page }
 
-  # TODO: clarify this, this is describing the root path but under Projects
   describe '/' do
-  
-    before(:each) {
-      $user_id = nil 
-      $project_id = nil
+    before { 
       sign_in_user
-    }
-
-    after(:all) {
-      $project_id = 1
-      $user_id = 1
     }
 
     context 'when a user is signed in they see a list of projects (in the hub)' do
@@ -30,13 +21,9 @@ describe 'Project Handling', :type => :feature do
         click_link 'My Project' 
       }
 
-      it 'should select that project' do
-        expect(subject).to have_link('My Project', href: select_project_path(@project) )
-        expect(subject).to have_css("mark a", text: 'My Project' )
-      end
-
-      it 'should render the default_workspace_path' do
-        expect(subject).to have_content "OTUs"
+      it 'should select that project and reference it in the hub' do
+        expect(subject).to have_content "Hub"
+        expect(subject).to have_content('My Project') 
       end
     end
 
@@ -90,8 +77,7 @@ describe 'Project Handling', :type => :feature do
       it 'it should show the project'
     end
   end
-
-
+  
   describe 'GET /projects/1/edit' do
     context 'logged in member is a member and project admin' do 
       before { 
@@ -134,7 +120,28 @@ describe 'Project Handling', :type => :feature do
         it 'should create the project and redirect to projects/index with a notice'
       end
     end
+  end
 
+  context 'with some projects created' do
+    before {
+      sign_in_user
+      5.times { factory_girl_create_for_user(:valid_project, @user)   } 
+    } 
+
+    describe 'GET /projects/list' do
+      before {
+        visit list_projects_path}
+
+
+      specify 'that it renders without error' do
+        expect(page).to have_content 'Listing Projects'
+      end
+    end
+
+    describe 'GET /projects/n' do
+      before { visit project_path(Project.first) }
+      xspecify 'there is the projects name' do
+      end
+    end
   end
 end
-

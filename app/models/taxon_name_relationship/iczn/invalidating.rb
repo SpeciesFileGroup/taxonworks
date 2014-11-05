@@ -30,6 +30,10 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     'invalid'
   end
 
+  def self.gbif_status_of_subject
+    'invalidum'
+  end
+
   # as.
   def self.assignment_method
     # bus.set_as_iczn_invalid_of(aus)

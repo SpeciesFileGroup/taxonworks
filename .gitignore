@@ -11,11 +11,10 @@
 *~
 *.bak
 *.swp
-*.wkt
+*.swo
 
 /db/schema.rb
 database.yml
-/coverage
 /tags
 
 # Temporarily
@@ -32,7 +31,6 @@ database.yml
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
-/.idea
 index.html
 
 # Ignore rdoc folder
@@ -42,7 +40,6 @@ index.html
 
 coverage/
 
-*.wkt
 *.sql
 
 .ruby-version
@@ -52,3 +49,5 @@ public/system
 
 # temp until we decide how will we deal with repeatability in integration tests with external APIs
 /spec/fixtures/vcr_cassettes
+
+coverage

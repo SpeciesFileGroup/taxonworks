@@ -35,11 +35,24 @@ describe ControlledVocabularyTermsController, :type => :controller do
   # ControlledVocabularyTermsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page controlled_vocabulary_terms as @controlled_vocabulary_terms" do
+      controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:controlled_vocabulary_terms)).to include(controlled_vocabulary_term)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all controlled_vocabulary_terms as @recent_objects" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:recent_objects)).to eq([controlled_vocabulary_term])
+      expect(assigns(:recent_objects)).to include(controlled_vocabulary_term)
     end
   end
 
@@ -86,7 +99,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
 
       it "redirects to the created controlled_vocabulary_term" do
         post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
-        expect(response).to redirect_to(ControlledVocabularyTerm.last.becomes(ControlledVocabularyTerm))
+        expect(response).to redirect_to(ControlledVocabularyTerm.last.metamorphosize)
       end
     end
 

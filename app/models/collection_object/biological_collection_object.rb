@@ -39,8 +39,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     return true
   end
 
-  #region Soft Validation
-
   def sv_missing_determination
     soft_validations.add(:base, 'Determination is missing') if self.current_determination.nil?
   end
@@ -56,7 +54,5 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   def sv_missing_repository
     soft_validations.add(:repository_id, 'Repository is not selected') if self.repository_id.nil?
   end
-
-  #endregion
 
 end

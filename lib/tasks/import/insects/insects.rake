@@ -5,7 +5,7 @@ require 'benchmark'
 # When first starting development, use a blank database with:
 #    rake db:drop && rake db:create && rake db:migrate
 #
-#    rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/ no_transaction=true
+#    rake tw:project_import:insects:import_insects data_directory=/Users/proceps/src/sf/import/inhs-insect-collection-data/ no_transaction=true
 # Only data upto the handle_taxa can be loaded from the database or restored from 
 # a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
@@ -23,10 +23,11 @@ namespace :tw do
 
       # A utility class to index data.
       class ImportedData
-        attr_accessor :people, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
+        attr_accessor :people, :people_id, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
           @namespaces = {}
           @people = {}
+          @people_id = {}
           @users = {}
           @keywords = {}
           @collecting_events = {}
@@ -41,7 +42,7 @@ namespace :tw do
       end
 
       # These are largely collecting event related
-      PREDICATES = [ 
+      PREDICATES = [
         "Country",
         "County",
         "State",
@@ -74,7 +75,7 @@ namespace :tw do
         "WisconsinGlaciated",
 
         "PrecisionCode",    # tag on Georeference
-        "GBIF_precission",  # tag
+        "GBIF_precission"  # tag
       ]
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -84,12 +85,12 @@ namespace :tw do
         'Quebec' => 'Québec',
         'U.S.A' => 'United States',
         'MEXICO' => 'Mexico',
-        'U. S. A. ' => 'United States',
+        'U. S. A. ' => 'United States'
       }
 
       CONTAINER_TYPE = {
         '' => 'Container::Virtual',            # TODO: update with propper class
-        'amber' => 'Container::PillBox',       # remove
+        'amber' => 'Container::Box',       # remove
         'bulk dry' => 'Container::PillBox',
         'envelope' => 'Container::Envelope',
         'jar' => 'Container::Jar',
@@ -105,7 +106,7 @@ namespace :tw do
       SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat} 
 
       # Attributes to strip on CollectingEvent creation 
-      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy ModifiedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/  \n
@@ -162,19 +163,26 @@ namespace :tw do
       #  specimens_new.txt
       #  specimens_new_partially_resolved.txt
       #  types.txt
+
+
+      $project_id = nil
+      $user_id = nil
+      $user_index = {}
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
-        handle_projects_and_users(@data, @import)    
+        handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
         handle_controlled_vocabulary(@data, @import)
+
+        handle_people(@data, @import) ## !created as new
+
         handle_taxa(@data, @import)
 
         checkpoint_save(@import) if ENV['no_transaction']
 
         # !! The following can not be loaded from the database they are always created anew. 
-        handle_people(@data, @import)
         handle_collecting_events(@data, @import)
         handle_specimens(@data, @import)
 
@@ -188,14 +196,17 @@ namespace :tw do
         print "Handling projects and users "
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
+        user_name = 'INHS Insect Collection Import'
         user, project = nil, nil
         if import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
           user = User.where(email: email).first
+          $project_id = project.id
+          $user_id = user.id
         else
           print "as newly parsed.\n"
-          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas')
+          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
           $user_id = user.id # set for project line below
 
           project = Project.create(name: project_name) 
@@ -203,11 +214,11 @@ namespace :tw do
           ProjectMember.create(user: user, project: project, is_project_administrator: true)
 
           import.metadata['project_and_users'] = true
+          $project_id = project.id
         end
 
-        $project_id = project.id
-        $user_id = user.id 
-        data.users.merge!(user.email => user)
+        $user_index.merge!('0' => user.id)
+        #data.users.merge!(user.email => user)
       end
 
       def handle_namespaces(data, import)
@@ -243,9 +254,9 @@ namespace :tw do
 
           # from handle taxa
           data.keywords.merge!(  
-                               'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'), 
-                               'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.') 
-                              )
+              'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'),
+              'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.')
+          )
 
           # from handle specimens
           data.keywords.merge!(  
@@ -253,20 +264,101 @@ namespace :tw do
                                'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'), 
                                'Immature' => BiocurationClass.create(name: 'Immature', definition: 'The collection object is comprised of immature(s).'), 
                                'Pupa' => BiocurationClass.create(name: 'Pupa', definition: 'The collection object is comprised of pupa.'), 
-                               'Exuvium' => BiocurationClass.create(name: 'Exuvium', definition: 'The collection object is comprised of exuviae.'), 
+                               'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuviae.'),
                                'AdultUnsexed' => BiocurationClass.create(name: 'AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
                                'AgeUnknown' => BiocurationClass.create(name: 'AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'), 
                                'OtherSpecimens' => BiocurationClass.create(name: 'OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
                                'ZeroTotal' => Keyword.create(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in the FM database.'),
                                'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'The verbatim value in the identified by field.'),
                                'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'The verbatim value in the year identified field.'),
-                               'OldIdentifiedBy' => Predicate.create(name: 'OldIdentifiedBy', definition: 'The verbatim value in the old identified by.'),
+                               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'The verbatim value in the old identified by.'),
                               )     
 
           import.metadata['controlled_vocabulary'] = true
         end
       end
 
+
+      def find_or_create_collection_user(id, data)
+        if id.blank?
+          $user_id
+        elsif $user_index[id]
+          $user_index[id]
+        elsif data.people_id[id]
+          p = data.people_id[id]
+          email = p['Email']
+          if email.blank?
+            puts 'PeopleID = ' + id.to_s + ' does not have e-mail' if email.blank?
+            $user_id
+          else
+            user_name = p['LastName'] + ', ' + p['FirstName'] + ' - imported'
+
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ] )
+
+            unless p['SupervisorID'].blank?
+              s = data.people_id[p['SupervisorID']]
+              user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+            end
+            $user_index.merge!(id => user.id)
+            user
+          end
+        else
+          $user_id
+        end
+      end
+
+      #- 0 PeopleID          Import Identifier
+      #  1 SupervisorID      Loan#supervisor_person_id  ?
+      #
+      #- 2 LastName
+      #- 3 FirstName
+      #
+      #  4 Honorarium        Loan#recipient_honorarium
+      #  5 Address           Loan#recipient_address
+      #  6 Country           Loan#recipient_country
+      #  7 Email             Loan#recipient_email
+      #  8 Phone             Loan#recipent_phone
+
+      # - 9 Comments          Note.new
+      #
+      # # TODO: User conversion, other handling.
+      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
+      #
+      def handle_people(data, import)
+        path = @args[:data_directory] + 'TXT/people.txt'
+        raise 'file not found' if not File.exists?(path)
+        f = CSV.open(path, col_sep: "\t", :headers => true)
+
+        print 'Handling people '
+        if import.metadata['people']
+          print "from database.  Indexing People by PeopleID..."
+          f.each do |row|
+            data.people_id.merge!(row['PeopleID'] => row)
+          end
+
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
+            $user_index.merge!(u.value => u.attribute_subject_id)
+          end
+
+          print "done.\n"
+        else
+          print "as newly parsed.\n"
+          f.each do |row|
+            puts "\tNo last name: #{row}" if row['LastName'].blank?
+            p = Person::Vetted.new(
+                last_name: row['LastName'] || 'Not Provided',
+                first_name: row['FirstName'],
+                data_attributes_attributes: [ {value: row['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ]
+            )
+            p.notes.build(text: row['Comments']) if !row['Comments'].blank?
+            p.save!
+            #data.people.merge!(row => p)
+            data.people_id.merge!(row['PeopleID'] => row)
+          end
+          import.metadata['people'] = true
+        end
+      end
 
       #   ID             Not Included (parent use only)
       #
@@ -305,11 +397,15 @@ namespace :tw do
           parent_index = {}
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
-          f.each_with_index do |row, i|
+
+          code = :iczn
+
+          f.each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
-            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) if !row['Author'].blank?
+            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
-            rank = Ranks.lookup((row['Name'] == 'Plantae' ? :icn : :iczn), row['Rank'])
+            code = :icn if code == :iczn && row['Name'] == 'Plantae'
+            rank = Ranks.lookup(code, row['Rank'])
             rank ||= NomenclaturalRank
 
             p = Protonym.new(
@@ -317,17 +413,19 @@ namespace :tw do
               verbatim_author: author,
               year_of_publication: row['Year'],
               rank_class: rank,
-              creator: find_or_create_user(row['CreatedBy'], data),
-              updater: find_or_create_user(row['ModifiedBy'], data),
-              parent: parent_index[row['Parent']]
+              created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+              updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+              #creator: find_or_create_user(row['CreatedBy'], data),
+              #updater: find_or_create_user(row['ModifiedBy'], data),
+              created_at: time_from_field(row['CreatedOn']),
+              updated_at: time_from_field(row['ModifiedOn'])
             )
 
-            p.created_at = time_from_field(row['CreatedOn'])
-            p.updated_at = time_from_field(row['ModifiedOn'])
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     if !row['Synonyms'].blank?
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) if !row['References'].blank?
-            p.notes.build(text: row['Remarks'])                                                                                       if !row['Remarks'].blank?
-            p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
+            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
+            p.notes.build(text: row['Remarks']) unless row['Remarks'].blank?
+            p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
+            #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
 
             if rank == NomenclaturalRank || !p.parent_id.blank?
               bench = Benchmark.measure {
@@ -366,44 +464,6 @@ namespace :tw do
         o
       end
 
-      #- 0 PeopleID          Import Identifier
-      #  1 SupervisorID      Loan#supervisor_person_id  ?
-      #
-      #- 2 LastName           
-      #- 3 FirstName
-      # 
-      #  4 Honorarium        Loan#recipient_honorarium 
-      #  5 Address           Loan#recipient_address
-      #  6 Country           Loan#recipient_country 
-      #  7 Email             Loan#recipient_email 
-      #  8 Phone             Loan#recipent_phone
-
-      # - 9 Comments          Note.new 
-      #
-      # # TODO: User conversion, other handling.
-      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
-      #
-      def handle_people(data, import)
-        path = @args[:data_directory] + 'TXT/people.txt'
-        raise 'file not found' if not File.exists?(path)
-        f = CSV.open(path, col_sep: "\t", :headers => true)
-
-        puts 'Handling people.'
-
-        f.each do |row|
-          puts "\tNo last name: #{row}" if row['LastName'].blank?
-          p = Person::Vetted.new(
-            last_name: row['LastName'] || 'Not Provided',
-            first_name: row['FirstName'],
-            identifiers_attributes: [ {identifier: row['PeopleID'], namespace: @identifier_namespace, type: 'Identifier::Local::Import'} ]
-          )
-          p.notes.build(text: row['Comments']) if !row['Comments'].blank?
-          p.save!
-          data.people.merge!(p => row)
-        end
-      end
-
-
       def handle_collecting_events(data, import)
         matchless_for_geographic_area = []
         found = 0
@@ -413,6 +473,7 @@ namespace :tw do
 
         puts "Indexing collecting events." 
         index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+        index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         index_collecting_events_from_ledgers(collecting_events_index)
         index_collecting_events_from_accessions_new(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}." 
@@ -515,57 +576,89 @@ namespace :tw do
         localities
       end
 
-      def  index_collecting_events_from_accessions_new(collecting_events_index)
-        path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
+
+      # Relevant columns
+      # -    LocalityCode --- 
+      # -    DateCollectedBeginning
+      # -    DateCollectedEnding
+      # -    Collector
+      # -    CollectionMethod
+      # -    Habitat
+      # -    OldLocalityCode    # tags on CE
+      # -    OldCollector       # tags on CE
+      # --- not used 
+      #     LocalityCompare     # related to hash md5
+
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
+      def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+        puts " from specimens"
+        path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        #   AccessionNumber - field notes for collecting event /  # Not the same accession code 
-        #      missing a "file"  
-        #   Prefix
-        #   CatalogNumber
-        #   LocalityLabel
-        #   Habitat
-        #   Host
-        #   Country
-        #   State
-        #   County
-        #   Locality
-        #   Park
-        #   DateCollectedBeginning
-        #   DateCollectedEnding
-        #   Collector
-        #   CollectionMethod
-        #   ElevationM
-        #   ElevationF
-        #   NS
-        #   Lat_deg
-        #   Lat_min
-        #   Lat_sec
-        #   EW
-        #   Long_deg
-        #   Long_Ming
-        #   Long_Sec
-        #   Remarks
-        #   Precision
-        #   Datum
-        #
-        #   ModifiedBy
-        #   ModifiedOn
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
 
-        puts "\naccession new records\n"
-        ac.each_with_index do |row, i|
-          collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
-          print "\r#{i}" 
+          locality_code = row['LocalityCode']
+          tmp_ce = { }   
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            #tmp_ce.merge!(LOCALITIES[locality_code])
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+          end
+
+          collecting_events_index.merge!(tmp_ce  => nil)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
         end
+
+        puts "\n Number of collecting events processed from specimens: #{collecting_events_index.keys.count} "
+        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
+      end
+
+      def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
+        puts " from specimens_new"
+        path = @args[:data_directory] + 'TXT/specimens_new.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
+
+        unmatched_localities = { }
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
+
+          locality_code = row['LocalityCode']
+          tmp_ce = { }
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          if LOCALITIES[locality_code]
+            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+            #tmp_ce.merge!(LOCALITIES[locality_code])
+          else
+            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+          end
+
+          collecting_events_index.merge!(tmp_ce  => nil)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+        end
+
+        puts "\n Number of collecting events processed from specimensNew: #{collecting_events_index.keys.count} "
+        puts "\n!! The following are locality codes in specimensNew without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
       end
 
       #  LocalityCode
       #  Collector
       #  DateCollectedBeginning
       #  DateCollectedEnding
-      #       
+      #
       #  Collection
       #  AccessionNumber
       #  LedgerBook
@@ -589,6 +682,8 @@ namespace :tw do
       #  Genus
       #  Species
       #  Sex
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
       def index_collecting_events_from_ledgers(collecting_events_index)
         path = @args[:data_directory] + 'TXT/ledgers.txt'
         raise 'file not found' if not File.exists?(path)
@@ -596,50 +691,76 @@ namespace :tw do
 
         puts "\n  from ledgers\n"
         le.each_with_index do |row, i|
-          collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
-          print "\r#{i}" 
+          print "\r#{i}      "
+          tmp_ce = { }
+          SPECIMENS_COLUMNS.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
+
+          collecting_events_index.merge!(tmp_ce => row.to_h)
+          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
         end
+        puts "\n Number of collecting events processed from Ledgers: #{collecting_events_index.keys.count} "
       end
 
-      # Relevant columns
-      # -    LocalityCode --- 
-      # -    DateCollectedBeginning
-      # -    DateCollectedEnding
-      # -    Collector
-      # -    CollectionMethod
-      # -    Habitat
-      # -    OldLocalityCode    # tags on CE
-      # -    OldCollector       # tags on CE
-      # --- not used 
-      #     LocalityCompare     # related to hash md5
-      def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
-        puts "  from specimens"
-        path = @args[:data_directory] + 'TXT/specimens.txt'
+      #   AccessionNumber - field notes for collecting event /  # Not the same accession code
+      #      missing a "file"
+      #   Prefix
+      #   CatalogNumber
+      #   LocalityLabel
+      #   Habitat
+      #   Host
+      #   Country
+      #   State
+      #   County
+      #   Locality
+      #   Park
+      #   DateCollectedBeginning
+      #   DateCollectedEnding
+      #   Collector
+      #   CollectionMethod
+      #   ElevationM
+      #   ElevationF
+      #   NS
+      #   Lat_deg
+      #   Lat_min
+      #   Lat_sec
+      #   EW
+      #   Long_deg
+      #   Long_Ming
+      #   Long_Sec
+      #   Remarks
+      #   Precision
+      #   Datum
+      #
+      #   ModifiedBy
+      #   ModifiedOn
+      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
+      def  index_collecting_events_from_accessions_new(collecting_events_index)
+        path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        ac = CSV.open(path, col_sep: "\t", :headers => true)
 
-        sp.each_with_index do |row, i|
-          print "\r#{i}      "
-
-          locality_code = row['LocalityCode']
-          tmp_ce = { }   
+        puts "\naccession new records\n"
+        ac.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp_ce = { }
           SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) if !row[c].blank?
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
+          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
 
-          if LOCALITIES[locality_code]
-            Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            tmp_ce.merge!(LOCALITIES[locality_code]) 
-          else
-            unmatched_localities.merge!(row['LocalityCode'] => nil) if !locality_code.blank?
-          end
-
-          collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+          collecting_events_index.merge!(tmp_ce => row.to_h)
+          #collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
         end
-
-        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ") 
+        puts "\n Number of collecting events processed from Accessions_new: #{collecting_events_index.keys.count} "
       end
+
+
 
       def parse_geographic_area(ce, found, matchless_for_geographic_area)
         geog_search = []

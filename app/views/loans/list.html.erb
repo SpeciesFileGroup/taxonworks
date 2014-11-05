@@ -20,9 +20,8 @@
       <th>Supervisor phone</th>
       <th>Date closed</th>
       <th>Recipient honorarium</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
-      <th>Project</th>
       <th></th>
       <th></th>
       <th></th>
@@ -47,9 +46,8 @@
         <td><%= loan.supervisor_phone %></td>
         <td><%= loan.date_closed %></td>
         <td><%= loan.recipient_honorarium %></td>
-        <td><%= loan.created_by_id %></td>
-        <td><%= loan.updated_by_id %></td>
-        <td><%= loan.project_id %></td>
+        <td><%= loan.updated_at %></td>
+        <td><%= object_tag(loan.updater) %></td>
         <td><%= link_to 'Show', loan %></td>
         <td><%= link_to 'Edit', edit_loan_path(loan) %></td>
         <td><%= link_to 'Destroy', loan, method: :delete, data: { confirm: 'Are you sure?' } %></td>
@@ -57,7 +55,3 @@
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Loan', new_loan_path %>

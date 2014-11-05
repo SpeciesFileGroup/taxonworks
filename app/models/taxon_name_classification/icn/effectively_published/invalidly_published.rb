@@ -6,4 +6,8 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished < T
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished)
   end
 
+  def self.gbif_status
+    'invalidum'
+  end
+
 end

@@ -1,0 +1,20 @@
+// see application for notices related styling
+
+@import 'palette';
+
+
+body {
+  background-color: #fff;
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+
+  header {
+    display: block;
+    padding:0px;
+    border-bottom: 1px solid $color-secondary-1-4;
+    margin-bottom: .5em;
+    line-height: 0px;
+  }
+
+}

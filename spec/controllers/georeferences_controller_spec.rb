@@ -83,7 +83,7 @@ describe GeoreferencesController, :type => :controller do
 
       it "redirects to the created georeference" do
         post :create, {:georeference => valid_attributes}, valid_session
-        expect(response).to redirect_to(Georeference.last.becomes(Georeference))
+        expect(response).to redirect_to(Georeference.last.metamorphosize)
       end
     end
 

@@ -5,6 +5,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available)
   end
 
+  def self.gbif_status
+    'invalidum'
+  end
+
   module InnerClass
     def disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes +
@@ -53,6 +57,9 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class IncorrectOriginalSpelling < TaxonNameClassification::Iczn::Unavailable
     extend InnerClass
+    def self.gbif_status
+      'negatum'
+    end
   end
 
   class LessThanTwoLetters < TaxonNameClassification::Iczn::Unavailable
@@ -113,6 +120,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class UnavailableUnderIcn < TaxonNameClassification::Iczn::Unavailable
     extend InnerClass
+
+    def self.gbif_status
+      'abortivum'
+    end
   end
 
   class VarietyOrFormAfter1960 < TaxonNameClassification::Iczn::Unavailable

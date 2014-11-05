@@ -82,7 +82,7 @@ describe TaxonNameRelationshipsController, :type => :controller do
 
       it "redirects to the created taxon_name_relationship" do
         post :create, {:taxon_name_relationship => valid_attributes}, valid_session
-        expect(response).to redirect_to(TaxonNameRelationship.last.becomes(TaxonNameRelationship))
+        expect(response).to redirect_to(TaxonNameRelationship.last.metamorphosize)
       end
     end
 

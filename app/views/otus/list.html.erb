@@ -6,9 +6,8 @@
   <thead>
   <tr>
     <th>Name</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
-    <th>Project</th>
     <th></th>
     <th></th>
     <th></th>
@@ -19,9 +18,8 @@
   <% @otus.each do |otu| %>
       <tr>
         <td><%= otu.name %></td>
-        <td><%= otu.created_by_id %></td>
-        <td><%= otu.updated_by_id %></td>
-        <td><%= otu.project_id %></td>
+        <td><%= otu.updated_at %></td>
+        <td><%= object_tag(otu.updater) %></td>
         <td><%= link_to 'Show', otu %></td>
         <td><%= link_to 'Edit', edit_otu_path(otu) %></td>
         <td><%= link_to 'Destroy', otu, method: :delete, data: {confirm: 'Are you sure?'} %></td>

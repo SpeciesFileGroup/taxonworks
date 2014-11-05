@@ -1,4 +1,4 @@
-<%= form_for(@taxon_name.becomes(TaxonName)) do |f| %>
+<%= form_for(@taxon_name.metamorphosize) do |f| %>
     <% if @taxon_name.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@taxon_name.errors.count, "error") %> prohibited this taxon_name from being saved:</h2>
@@ -18,14 +18,21 @@
     </div>
 
     <div class="field">
+      <%= f.label :rank %>
+      <br>
+      <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
+    </div>
+
+    <div class="field">
       <%= f.label :parent %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  locals:  {controller: 'taxon_names',
                            object:     'taxon_name',
                            method:     'parent_id',
                            tag_id:     'parent_id_for_name',
-                           display:    taxon_name_tag(@taxon_name)} %>
+                           size:       '50%',
+                           display:    taxon_name_tag(@taxon_name.parent)} %>
     </div>
 
     <div class="field">
@@ -39,25 +46,19 @@
       <%= f.text_field :verbatim_author %>
     </div>
 
-    <div class="field">
-      <%= f.label :rank %>
-      <br>
-      <%= taxon_name_rank_select_tag(@taxon_name) %>
-    </div>
 
     <div class="field">
-      <!--<%#= f.label :source_id %>-->
-      <!--<br>-->
-      <!--<%#= f.number_field :source_id %>-->
       <%= f.label :source %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  locals:  {controller: 'sources',
-                           object:     'source',
+                           object:     'taxon_name',
                            method:     'source_id',
                            tag_id:     'source_id_for_taxon_name',
+                           size:       '50%',
                            display:    source_tag(@taxon_name.source)} %>
     </div>
+
 
     <%= f.hidden_field :type %>
 

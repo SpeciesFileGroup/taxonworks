@@ -33,36 +33,9 @@ describe TaggedSectionKeywordsController, :type => :controller do
   # TaggedSectionKeywordsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all tagged_section_keywords as @tagged_section_keywords" do
-      tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:tagged_section_keywords)).to eq([tagged_section_keyword])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
-      tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
-      get :show, {:id => tagged_section_keyword.to_param}, valid_session
-      expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new tagged_section_keyword as @tagged_section_keyword" do
-      get :new, {}, valid_session
-      expect(assigns(:tagged_section_keyword)).to be_a_new(TaggedSectionKeyword)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
-      tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
-      get :edit, {:id => tagged_section_keyword.to_param}, valid_session
-      expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +51,9 @@ describe TaggedSectionKeywordsController, :type => :controller do
         expect(assigns(:tagged_section_keyword)).to be_persisted
       end
 
-      it "redirects to the created tagged_section_keyword" do
+      it "redirects to :back" do
         post :create, {:tagged_section_keyword => valid_attributes}, valid_session
-        expect(response).to redirect_to(TaggedSectionKeyword.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,11 +65,11 @@ describe TaggedSectionKeywordsController, :type => :controller do
         expect(assigns(:tagged_section_keyword)).to be_a_new(TaggedSectionKeyword)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         post :create, {:tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -119,10 +92,10 @@ describe TaggedSectionKeywordsController, :type => :controller do
         expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
-      it "redirects to the tagged_section_keyword" do
+      it "redirects to :back" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => valid_attributes}, valid_session
-        expect(response).to redirect_to(tagged_section_keyword)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -135,12 +108,12 @@ describe TaggedSectionKeywordsController, :type => :controller do
         expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -153,10 +126,10 @@ describe TaggedSectionKeywordsController, :type => :controller do
       }.to change(TaggedSectionKeyword, :count).by(-1)
     end
 
-    it "redirects to the tagged_section_keywords list" do
+    it "redirects to :back" do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       delete :destroy, {:id => tagged_section_keyword.to_param}, valid_session
-      expect(response).to redirect_to(tagged_section_keywords_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

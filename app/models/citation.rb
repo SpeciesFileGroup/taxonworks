@@ -2,6 +2,7 @@
 # (Assertion that the subject was referenced in a source)
 class Citation < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
@@ -13,7 +14,12 @@ class Citation < ActiveRecord::Base
 
   # TODO: @mjy What *is* the right construct for 'Citation'?
   def self.find_for_autocomplete(params)
+
+
+
+ #   includes(:source).where(sources: {cached:  })
     where('citation_object_type LIKE ?', "#{params[:term]}%")
+  
   end
 
 end

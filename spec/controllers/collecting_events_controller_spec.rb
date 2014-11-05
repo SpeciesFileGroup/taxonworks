@@ -35,11 +35,24 @@ describe CollectingEventsController, :type => :controller do
   # CollectingEventsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  describe "GET list" do
+    it "with no other parameters, assigns 20/page collecting_events as @controlled_vocabulary_terms" do
+      collecting_event = CollectingEvent.create! valid_attributes
+      get :list, {}, valid_session
+      expect(assigns(:collecting_events)).to include(collecting_event)
+    end
+
+    it "renders the list template" do
+      get :list, {}, valid_session
+      expect(response).to render_template("list")
+    end
+  end
+
   describe "GET index" do
     it "assigns all collecting_events as @collecting_events" do
       collecting_event = CollectingEvent.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:recent_objects)).to eq([collecting_event])
+      expect(assigns(:recent_objects)).to include(collecting_event)
     end
   end
 

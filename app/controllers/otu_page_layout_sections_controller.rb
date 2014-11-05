@@ -1,27 +1,7 @@
 class OtuPageLayoutSectionsController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu_page_layout_section, only: [:show, :edit, :update, :destroy]
-
-  # GET /otu_page_layout_sections
-  # GET /otu_page_layout_sections.json
-  def index
-    @otu_page_layout_sections = OtuPageLayoutSection.all
-  end
-
-  # GET /otu_page_layout_sections/1
-  # GET /otu_page_layout_sections/1.json
-  def show
-  end
-
-  # GET /otu_page_layout_sections/new
-  def new
-    @otu_page_layout_section = OtuPageLayoutSection.new
-  end
-
-  # GET /otu_page_layout_sections/1/edit
-  def edit
-  end
+  before_action :set_otu_page_layout_section, only: [:update, :destroy]
 
   # POST /otu_page_layout_sections
   # POST /otu_page_layout_sections.json
@@ -30,10 +10,10 @@ class OtuPageLayoutSectionsController < ApplicationController
 
     respond_to do |format|
       if @otu_page_layout_section.save
-        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully created.' }
-        format.json { render :show, status: :created, location: @otu_page_layout_section }
+        format.html { redirect_to :back, notice: 'Otu page layout section was successfully created.' }
+        format.json { render json: @otu_page_layout_section, status: :created, location: @otu_page_layout_section }
       else
-        format.html { render :new }
+        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully created.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end
@@ -44,10 +24,10 @@ class OtuPageLayoutSectionsController < ApplicationController
   def update
     respond_to do |format|
       if @otu_page_layout_section.update(otu_page_layout_section_params)
-        format.html { redirect_to @otu_page_layout_section.becomes(OtuPageLayoutSection), notice: 'Otu page layout section was successfully updated.' }
-        format.json { render :show, status: :ok, location: @otu_page_layout_section }
+        format.html { redirect_to :back, notice: 'Otu page layout section was successfully updated.' }
+        format.json { render json @otu_page_layout_section, status: :ok, location: @otu_page_layout_section }
       else
-        format.html { render :edit }
+        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully updated.' }
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end
@@ -58,7 +38,7 @@ class OtuPageLayoutSectionsController < ApplicationController
   def destroy
     @otu_page_layout_section.destroy
     respond_to do |format|
-      format.html { redirect_to otu_page_layout_sections_url }
+      format.html { redirect_to :back, notice: 'Otu page layout section was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

@@ -1,5 +1,6 @@
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
   include Shared::Notable
 
@@ -22,6 +23,13 @@ class AssertedDistribution < ActiveRecord::Base
   scope :not_self, -> (id) { where('asserted_distribution.id <> ?', id) }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
+
+  def self.find_for_autocomplete(params)
+    # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+    term = params[:term]
+    include(:geographic_area, :otu, :source).
+        where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term})
+  end
 
   #region Soft validation
 

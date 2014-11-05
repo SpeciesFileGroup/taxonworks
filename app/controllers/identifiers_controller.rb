@@ -1,26 +1,12 @@
 class IdentifiersController < ApplicationController
-  include DataControllerConfiguration
+ include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_identifier, only: [:show, :edit, :update, :destroy]
+  before_action :set_identifier, only: [:update, :destroy]
 
   # GET /identifiers
   # GET /identifiers.json
   def index
     @identifiers = Identifier.all
-  end
-
-  # GET /identifiers/1
-  # GET /identifiers/1.json
-  def show
-  end
-
-  # GET /identifiers/new
-  def new
-    @identifier = Identifier.new
-  end
-
-  # GET /identifiers/1/edit
-  def edit
   end
 
   # POST /identifiers
@@ -30,10 +16,10 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.new(identifier_params)
     respond_to do |format|
       if @identifier.save
-        format.html { redirect_to @identifier.becomes(Identifier), notice: 'Identifier was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
+        format.html { redirect_to :back, notice: 'Identifier was successfully created.' }
+        format.json { render json: @identifier, status: :created, location: @identifier.becomes(Identifier) }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Identifier was NOT successfully created.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
       end
     end
@@ -44,10 +30,10 @@ class IdentifiersController < ApplicationController
   def update
     respond_to do |format|
       if @identifier.update(identifier_params)
-        format.html { redirect_to @identifier.becomes(Identifier), notice: 'Identifier was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Identifier was NOT successfully updated.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
       end
     end
@@ -58,7 +44,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html { redirect_to identifiers_url }
+      format.html { redirect_to :back, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -71,6 +57,6 @@ class IdentifiersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def identifier_params
-      params.require(:identifier).permit(:identified_object_id, :identified_object_type, :identifier, :type, :cached_identifier, :namespace_id, :created_by_id, :updated_by_id, :project_id)
+      params.require(:identifier).permit(:identified_object_id, :identified_object_type, :identifier, :type,  :namespace_id)
     end
 end

@@ -16,6 +16,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
     'nomen oblitum'
   end
 
+  def self.gbif_status_of_subject
+    'oblitum'
+  end
+
   def self.nomenclatural_priority
     :reverse
   end

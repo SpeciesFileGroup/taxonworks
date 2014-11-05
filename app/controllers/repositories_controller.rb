@@ -1,5 +1,5 @@
 class RepositoriesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_repository, only: [:show, :edit, :update, :destroy]
 

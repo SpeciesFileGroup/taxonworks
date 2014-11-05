@@ -15,9 +15,9 @@
       <%= f.label :citation_object_id %>
       <br>
       <%#=TODO: @mjy: how to de-reference the controller/object combinations based on actual object type %>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'otus',
-                              :object     => 'otu',
+                              :object     => 'citation',
                               :method     => 'citation_object_id',
                               :tag_id     => 'citation_object_id_for_citation',
                               :display    => object_tag(@citation.citation_object)} %>
@@ -30,9 +30,9 @@
     <div class="field">
       <%= f.label :source_id %>
       <br>
-      <%= render :partial => 'elements/forms/ajax_select',
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals  => {:controller => 'sources',
-                              :object     => 'source',
+                              :object     => 'citation',
                               :method     => 'source_id',
                               :tag_id     => 'source_id_for_citation',
                               :display    => source_tag(@citation.source)} %>

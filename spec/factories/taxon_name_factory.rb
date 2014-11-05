@@ -2,8 +2,7 @@
 
 FactoryGirl.define do
   factory :taxon_name, traits: [:housekeeping] do
-    factory :valid_taxon_name, traits: [:housekeeping]  do
-      association :parent, factory: :root_taxon_name
+    factory :valid_taxon_name, traits: [:housekeeping, :parent_is_root]  do
       name 'Adidae'
       rank_class Ranks.lookup(:iczn, 'Family')
     end

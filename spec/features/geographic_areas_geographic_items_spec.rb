@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'GeographicAreasGeographicItems', :type => :feature do
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
+  it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { geographic_areas_geographic_items_path }
     let(:page_index_name) { 'Geographic Areas Geographic Items' }
   end  

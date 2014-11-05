@@ -15,8 +15,8 @@
   <tbody>
     <% @project_members.each do |project_member| %>
       <tr>
-        <td><%= project_member.project_id %></td>
-        <td><%= project_member.user_id %></td>
+        <td><%= project_tag(project_member.project) %></td>
+        <td><%= user_tag(project_member.user) %></td>
         <td><%= project_member.created_by_id %></td>
         <td><%= project_member.updated_by_id %></td>
         <td><%= project_member.is_project_administrator %></td>

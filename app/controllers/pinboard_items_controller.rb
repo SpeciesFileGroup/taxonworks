@@ -1,21 +1,25 @@
 class PinboardItemsController < ApplicationController
+  before_action :require_sign_in 
+
   before_action :set_pinboard_item, only: [:destroy]
 
   # POST /pinboard_items
   # POST /pinboard_items.json
   def create
-    # .merge(user_id: @sessions_current_user.id)
-    @pinboard_item = PinboardItem.new(pinboard_item_params)
-
+    @pinboard_item = PinboardItem.new(pinboard_item_params.merge(user_id: sessions_current_user_id))
     respond_to do |format|
       if @pinboard_item.save
         format.html { redirect_to :back, notice: 'Pinboard item was successfully created.' }
-        format.json { render :show, status: :created, location: @pinboard_item }
+        format.json { render json: @pinboard_item, status: :created, location: @pinboard_item }
       else
         format.html { redirect_to :back, notice: "Couldn't pin this item! Is it already there?" }
         format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # Stub a "reorder" method
+  def reorder
   end
 
   # DELETE /pinboard_items/1
@@ -29,13 +33,13 @@ class PinboardItemsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_pinboard_item
-      @pinboard_item = PinboardItem.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_pinboard_item
+    @pinboard_item = PinboardItem.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def pinboard_item_params
-      params.require(:pinboard_item).permit(:pinned_object_id, :pinned_object_type, :user_id,  :is_inserted, :is_cross_project, :inserted_count)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def pinboard_item_params
+    params.require(:pinboard_item).permit(:pinned_object_id, :pinned_object_type, :user_id, :is_inserted, :is_cross_project, :inserted_count)
+  end
 end

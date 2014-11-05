@@ -16,6 +16,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
     'suppressed'
   end
 
+  def self.gbif_status_of_subject
+    'rejiciendum'
+  end
+
+  def self.gbif_status_of_object
+    'conservandum'
+  end
+
   def self.nomenclatural_priority
     :reverse
   end

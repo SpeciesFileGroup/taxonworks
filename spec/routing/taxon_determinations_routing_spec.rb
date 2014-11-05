@@ -7,6 +7,10 @@ describe TaxonDeterminationsController, :type => :routing do
       expect(get("/taxon_determinations")).to route_to("taxon_determinations#index")
     end
 
+    it "routes to #list" do
+      expect(get("/taxon_determinations/list")).to route_to("taxon_determinations#list")
+    end
+
     it "routes to #new" do
       expect(get("/taxon_determinations/new")).to route_to("taxon_determinations#new")
     end

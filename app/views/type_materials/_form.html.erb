@@ -1,0 +1,50 @@
+<%= form_for(@type_material) do |f| %>
+  <% if @type_material.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@type_material.errors.count, "error") %> prohibited this type_material from being saved:</h2>
+      <ul>
+      <% @type_material.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :protonym_id %><br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+               :locals  => {:controller => 'taxon_names',
+                            :object     => 'type_material',
+                            :method     => 'protonym_id',
+                            :tag_id     => 'protonym_id_for_type_material',
+                            :display    => object_tag(@type_material.protonym),
+                            :size       => 20} %>
+  </div>
+  <div class="field">
+    <%= f.label :biological_object_id, 'Material' %><br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+               :locals  => {:controller => 'collection_objects',
+                            :object     => 'type_material',
+                            :method     => 'biological_object_id',
+                            :tag_id     => 'biological_object_id_for_type_material',
+                            :display    => collection_object_tag(@type_material.material),
+                            :size       => 20} %>
+  </div>
+  <div class="field">
+    <%= f.label :type_type, 'Type' %><br>
+    <%= f.select :type_type, options_for_type_type_select  %>
+  </div>
+  <div class="field">
+    <%= f.label :source_id %><br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+               :locals  => {:controller => 'sources',
+                            :object     => 'type_material',
+                            :method     => 'source_id',
+                            :tag_id     => 'source_id_for_type_material',
+                            :display    => source_tag(@type_material.source),
+                            :size       => 20} %>
+  </div>
+ <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -2,8 +2,9 @@
 class Specimen < CollectionObject::BiologicalCollectionObject
 
   before_validation :check_and_set_total 
+  
   validates_presence_of :total 
-  validates :total, :inclusion => { :in => 1..1 }
+  validates :total, :inclusion => { :in => 1..1 }, if: 'self.type == "Specimen"'
 
   protected
 

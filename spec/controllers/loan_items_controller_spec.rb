@@ -33,36 +33,9 @@ describe LoanItemsController, :type => :controller do
   # LoanItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all loan_items as @loan_items" do
-      loan_item = LoanItem.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:loan_items)).to eq([loan_item])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested loan_item as @loan_item" do
-      loan_item = LoanItem.create! valid_attributes
-      get :show, {:id => loan_item.to_param}, valid_session
-      expect(assigns(:loan_item)).to eq(loan_item)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new loan_item as @loan_item" do
-      get :new, {}, valid_session
-      expect(assigns(:loan_item)).to be_a_new(LoanItem)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested loan_item as @loan_item" do
-      loan_item = LoanItem.create! valid_attributes
-      get :edit, {:id => loan_item.to_param}, valid_session
-      expect(assigns(:loan_item)).to eq(loan_item)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +51,9 @@ describe LoanItemsController, :type => :controller do
         expect(assigns(:loan_item)).to be_persisted
       end
 
-      it "redirects to the created loan_item" do
+      it "redirects to :back" do
         post :create, {:loan_item => valid_attributes}, valid_session
-        expect(response).to redirect_to(LoanItem.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,11 +65,11 @@ describe LoanItemsController, :type => :controller do
         expect(assigns(:loan_item)).to be_a_new(LoanItem)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -119,10 +92,10 @@ describe LoanItemsController, :type => :controller do
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "redirects to the loan_item" do
+      it "redirects to :back" do
         loan_item = LoanItem.create! valid_attributes
         put :update, {:id => loan_item.to_param, :loan_item => valid_attributes}, valid_session
-        expect(response).to redirect_to(loan_item)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -135,12 +108,12 @@ describe LoanItemsController, :type => :controller do
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -153,10 +126,10 @@ describe LoanItemsController, :type => :controller do
       }.to change(LoanItem, :count).by(-1)
     end
 
-    it "redirects to the loan_items list" do
+    it "redirects to :back" do
       loan_item = LoanItem.create! valid_attributes
       delete :destroy, {:id => loan_item.to_param}, valid_session
-      expect(response).to redirect_to(loan_items_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

@@ -7,6 +7,10 @@ describe LoansController, :type => :routing do
       expect(get("/loans")).to route_to("loans#index")
     end
 
+    it "routes to #list" do
+      expect(get("/loans/list")).to route_to("loans#list")
+    end
+
     it "routes to #new" do
       expect(get("/loans/new")).to route_to("loans#new")
     end

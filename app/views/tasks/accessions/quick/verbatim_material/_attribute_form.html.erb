@@ -1,27 +1,17 @@
-<% @biocuration_groups.each_with_index do |bg, i| %>
-  <div class='flexbox'> 
-    <div class='item item1'> 
-      Total: <%= number_field_tag("collection_objects[object#{i}][total]") %>
-    </div> 
-
-    <div class="item item2">
-      <fieldset >
-        <%= content_tag(:legend, bg.name) -%>
-        <% bg.biocuration_classes.each do |bc| %>
-          <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object#{i}][biocuration_classes][#{bc.id}]" ) -%>
-        <% end %>
-      </fieldset>
+<div class="totals">
+  <% @biocuration_groups.each_with_index do |bg, i| %>
+    <div id="biocuration_group_<%= i -%>" class="biocuration_group_totals" >
+      <div class="total_rows">
+        <%= render(partial: 'attribute_row', locals: {object_id: SecureRandom.uuid, bg: bg, remove_link: false} ) %>
+      </div>
+      <%= link_to(
+        "Add another record", "#",
+        'data-insert-content' => CGI.escapeHTML(render(partial: 'attribute_row', locals: {object_id: "_update_", bg: bg, remove_link: true})) ,
+        'data-insert-content-target' => '.total_rows',
+        'data-insert-content-parent' => "div.biocuration_group_totals", 
+        class: :add_total_row ) -%>
     </div>
-  </div> 
-<% end %>
+  <% end %>
+</div>
 
-<% if @biocuration_groups.count == 0 -%>
-  <div class='item item1'> 
-    Total: <%= number_field_tag("collection_objects[object1][total]") %>
-  </div> 
-<% end %>
-
-
-
-
-
+<% if @biocuration_groups.count == 0 -%> <div class='item item1'> otal: <%= number_field_tag("collection_objects[object1][total]") %> </div> <% end %> 

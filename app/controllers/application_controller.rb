@@ -3,19 +3,20 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  include SessionsHelper
+  include Workbench::SessionsHelper
   include ProjectsHelper
 
   before_filter :set_project_and_user_variables
   after_filter :log_user_recent_route 
   after_filter :clear_project_and_user_variables
 
+  # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
     @sessions_current_user.add_page_to_recent(request.fullpath) if @sessions_current_user
   end
 
   def set_project_and_user_variables
-    $project_id = sessions_current_project_id 
+    $project_id = sessions_current_project_id  # This also sets @sessions_current_project_id
     $user_id = sessions_current_user_id 
   end
 

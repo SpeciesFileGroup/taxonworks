@@ -10,6 +10,7 @@
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::IsData 
 
   DATA_TYPES = [:point,
                 :line_string,

@@ -1,26 +1,12 @@
 class NotesController < ApplicationController
-  include DataControllerConfiguration
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_note, only: [:show, :edit, :update, :destroy]
+  before_action :set_note, only: [:update, :destroy]
 
   # GET /notes
   # GET /notes.json
   def index
     @notes = Note.all
-  end
-
-  # GET /notes/1
-  # GET /notes/1.json
-  def show
-  end
-
-  # GET /notes/new
-  def new
-    @note = Note.new
-  end
-
-  # GET /notes/1/edit
-  def edit
   end
 
   # POST /notes
@@ -30,10 +16,10 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       if @note.save
-        format.html { redirect_to @note, notice: 'Note was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @note }
+        format.html { redirect_to :back, notice: 'Note was successfully created.' }
+        format.json { render json: @note, status: :created, location: @note }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Note was NOT successfully created.' }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -44,10 +30,10 @@ class NotesController < ApplicationController
   def update
     respond_to do |format|
       if @note.update(note_params)
-        format.html { redirect_to @note, notice: 'Note was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Note was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { redirect_to :back, notice: 'Note was NOT successfully updated.' }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -58,7 +44,7 @@ class NotesController < ApplicationController
   def destroy
     @note.destroy
     respond_to do |format|
-      format.html { redirect_to notes_url }
+      format.html { redirect_to :back, notice: 'Note was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

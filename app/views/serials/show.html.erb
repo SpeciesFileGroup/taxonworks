@@ -4,21 +4,32 @@
   <strong>Name:</strong>
   <%= @serial.name %>
 </p>
-
-<p>
-  <strong>Created by:</strong>
-  <%= @serial.created_by_id %>
-</p>
-
-<p>
-  <strong>Updated by:</strong>
-  <%= @serial.updated_by_id %>
-</p>
-
-<p>
-  <strong>Project:</strong>
-  <%= @serial.project_id %>
-</p>
+<div style="display:none">
+  For alternate_values:
+  <ul>
+    <li>
+      Enumerate by type (sorted), show value and attribute (more?)
+    </li>
+    <li>
+      With edit/remove links for each.
+    </li>
+  </ul>
+</div>
+<% if @serial.alternate_values.any? %>
+    <ol>
+      <strong>Alternate values:</strong>
+      <% for alternate_value in @serial.alternate_values.order('type') %>
+          <li>
+            <%= "Type: #{alternate_value.type.gsub('AlternateValue::', '')}, Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_object_attribute}'" %>
+            <%#= edit_alternate_value_link(alternate_value) %>
+            <%#=	link_to_edit_alternate_value('jsEdit', alternate_value) %>
+            <%#= destroy_alternate_value_link(alternate_value) %>
+            <%#=	link_to_destroy_alternate_value('jsDestroy', alternate_value) %>
+          </li>
+      <% end %>
+    </ol>
+<% end %>
+<%#= add_alternate_value_link(object: @serial, user: sessions_current_user) -%>
 
 <p>
   <strong>Publisher:</strong>
@@ -44,6 +55,18 @@
   <strong>Last year of issue:</strong>
   <%= @serial.last_year_of_issue %>
 </p>
+
+<!--<p>-->
+  <!--<strong>Created by:</strong>-->
+  <!--<%#= @serial.created_by_id %>-->
+<!--</p>-->
+
+<!--<p>-->
+  <!--<strong>Updated by:</strong>-->
+  <!--<%#= @serial.updated_by_id %>-->
+<!--</p>-->
+
+
 
 <%= link_to 'Edit', edit_serial_path(@serial) %> |
 <%= link_to 'Back', serials_path %>

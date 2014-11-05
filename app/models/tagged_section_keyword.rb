@@ -1,5 +1,7 @@
 class TaggedSectionKeyword < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
+
 
   acts_as_list
 

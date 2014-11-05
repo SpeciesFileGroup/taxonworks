@@ -15,6 +15,10 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeNa
     'alternative name'
   end
 
+  def self.gbif_status_of_subject
+    'alternativum'
+  end
+
   def self.assignment_method
     # bus.set_as_icn_alternative_name_of(aus)
     :icn_set_as_alternative_name_of

@@ -14,6 +14,10 @@ describe User, :type => :model do
       specify 'projects' do
         expect(user.projects << Project.new()).to be_truthy
       end
+
+      specify 'pinbaord_items' do
+        expect(user.pinboard_items << PinboardItem.new()).to be_truthy
+      end
     end
   end
 
@@ -25,6 +29,18 @@ describe User, :type => :model do
     specify '#recent_routes' do
       expect(user.recent_routes).to eq([])
     end
+
+    context '#hub_tab_order' do
+      specify 'is an array' do
+        expect(user.hub_tab_order).to eq([])
+      end
+
+      specify 'is set to DEFAULT_HUB_TAB_ORDER after_create' do
+        expect(user.save!).to be_truthy
+        expect(user.hub_tab_order).to eq(DEFAULT_HUB_TAB_ORDER)
+      end
+    end
+
   end
 
   context 'authorization' do
@@ -43,7 +59,7 @@ describe User, :type => :model do
     end
 
     context 'when administator' do
-      before { user.is_administrator = true  }
+      before { user.is_administrator = true }
       specify '#is superuser?' do
         expect(user.is_superuser?).to be true
       end

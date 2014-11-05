@@ -6,11 +6,11 @@
 #
 # OTU is labeled with a name, either arbitrarily given or specificly linked to a taxon_name_id.
 #
-#
 # TODO: Add simple semantics (same_as etc.) describing taxon_name_id
 #
 class Otu < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
   include Shared::Identifiable
   include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
@@ -21,11 +21,11 @@ class Otu < ActiveRecord::Base
 
   belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :contents, inverse_of: :otu, dependent: :destroy
+  has_many :otu_contents, inverse_of: :otu, dependent: :destroy
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :collection_profiles # @proceps dependent: what?
-  has_many :topics, through: :contents, source: :topic
+  has_many :topics, through: :otu_contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
@@ -59,6 +59,25 @@ class Otu < ActiveRecord::Base
 
   #end region
 
+  # Hernán - this is extremely hacky, I'd like to
+  # map core keys to procs, use yield:, use cached values,
+  # add logic for has_many handling (e.g. identifiers) etc.
+  # ultmately, each key maps to a proc that returns a value
+  #
+  def dwca_core
+    core = Dwca::GbifProfile::CoreTaxon.new
+    
+    core.nomenclaturalCode = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
+    core.taxonomicStatus = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.nomenclaturalStatus = (taxon_name.unavailable? ? nil : 'available')
+    core.scientificName =  taxon_name.get_full_name_no_html                           
+    core.scientificNameAuthorship = taxon_name.get_author_and_year       
+    core.scientificNameID = taxon_name.identifiers.first.identifier      
+    core.taxonRank = taxon_name.rank  
+    core.namePublishedIn = taxon_name.source.cached  
+    core
+  end
+
   #region Soft validation
   def sv_taxon_name
     soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
@@ -74,7 +93,7 @@ class Otu < ActiveRecord::Base
   #endregion
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    Queries::OtuAutocompleteQuery.new(params[:term]).all
   end
 
   # Generate a CSV version of the raw Otus table for the given project_id
@@ -114,3 +133,6 @@ class Otu < ActiveRecord::Base
   end
 
 end
+
+
+

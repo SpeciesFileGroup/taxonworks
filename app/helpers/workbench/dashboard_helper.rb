@@ -1,0 +1,2 @@
+module Workbench::DashboardHelper
+end

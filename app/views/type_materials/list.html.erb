@@ -1,0 +1,32 @@
+<h1>Listing type materials</h1>
+<%= paginate @type_materials %> <%= page_entries_info @type_materials %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Material</th>
+    <th>Type type</th>
+    <th>Protonym</th>
+    <th>Source</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th colspan="3"></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @type_materials.each do |type_material| %>
+      <tr>
+        <td><%= object_tag(type_material.material) %></td>
+        <td><%= type_material.type_type %></td>
+        <td><%= object_tag(type_material.protonym) %></td>
+        <td><%= object_tag(type_material.source) %></td>
+        <td><%= type_material.updated_at %></td>
+        <td><%= object_tag(type_material.updater) %></td>
+        <td><%= link_to 'Show', type_material %></td>
+        <td><%= link_to 'Edit', edit_type_material_path(type_material) %></td>
+        <td><%= link_to 'Destroy', type_material, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

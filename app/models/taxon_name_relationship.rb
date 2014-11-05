@@ -1,6 +1,6 @@
 class TaxonNameRelationship < ActiveRecord::Base
-
   include Housekeeping
+  include Shared::IsData 
   include Shared::Citable
   include SoftValidation
 
@@ -91,6 +91,14 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def self.disjoint_object_classes
     []
+  end
+
+  def self.gbif_status_of_subject
+    nil
+  end
+
+  def self.gbif_status_of_object
+    nil
   end
 
   def self.assignable
@@ -264,11 +272,11 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:type, 'Subjective synonyms should not have the same type')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-        soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.cached_primary_homonym_alt == o.cached_primary_homonym_alt
+        soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
         if s.original_genus != o.original_genus
           soft_validations.add(:type, 'Primary homonyms should have the same original genus')
-        elsif s.cached_primary_homonym_alt != o.cached_primary_homonym_alt
+        elsif s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
@@ -276,7 +284,7 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
           soft_validations.add(:type, "Secondary homonyms should be placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
-        elsif s.cached_secondary_homonym_alt != o.cached_secondary_homonym_alt
+        elsif s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
         soft_validations.add(:base, 'No combination available showing both species placed in the same genus') if (s.all_generic_placements & o.all_generic_placements).empty?

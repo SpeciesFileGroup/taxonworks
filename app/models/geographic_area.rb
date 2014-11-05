@@ -38,6 +38,9 @@
 #
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
+
+  include Shared::IsData 
 
   # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
   if ENV['NO_GEO_NESTING']
@@ -100,8 +103,8 @@ class GeographicArea < ActiveRecord::Base
   # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
     joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-    where(name: names[0]).
-    where(['ga.name = ?', names[1] ])
+      where(name: names[0]).
+      where(['ga.name = ?', names[1]])
   }
 
   # TODO: Test, or extend a general method
@@ -109,12 +112,12 @@ class GeographicArea < ActiveRecord::Base
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
   scope :with_name_and_parent_names, -> (names) {
     joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-    joins('join geographic_areas gb on gb.id = ga.parent_id').
-    where(name: names[0]).
-    where(['ga.name = ?', names[1] ]).
-    where(['gb.name = ?', names[2] ])
+      joins('join geographic_areas gb on gb.id = ga.parent_id').
+      where(name: names[0]).
+      where(['ga.name = ?', names[1]]).
+      where(['gb.name = ?', names[2]])
   }
- 
+
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
@@ -183,8 +186,9 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
-    # where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:id])
+    terms = params[:term].split
+    search_term = terms.collect{|t| "name LIKE '#{t}%'"}.join(" OR ") 
+    where(search_term).includes(:parent, :geographic_area_type).order(:name)
   end
 
 end

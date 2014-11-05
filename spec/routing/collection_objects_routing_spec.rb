@@ -7,6 +7,10 @@ describe CollectionObjectsController, :type => :routing do
       expect(get("/collection_objects")).to route_to("collection_objects#index")
     end
 
+    it "routes to #list" do
+      expect(get("/collection_objects/list")).to route_to("collection_objects#list")
+    end
+
     it "routes to #new" do
       expect(get("/collection_objects/new")).to route_to("collection_objects#new")
     end

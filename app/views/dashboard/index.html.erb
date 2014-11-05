@@ -1,5 +1,7 @@
 <h1> Dashboard </h1>
 
+<h2> Signed in as <%= user_tag(sessions_current_user) -%> </h2>
+
 <div class='flexbox'>
   <div class='item item1'>
     <section> 
@@ -10,7 +12,9 @@
   <div class='item item2'>
     <aside> 
       <h2> Preferences </h2>
-      <p> Stub. </p>
+      <ul> 
+        <li> <%= link_to('order hub tabs', order_tabs_hub_path ) -%> </li>
+      </ul>
     </aside>
 
   </div>

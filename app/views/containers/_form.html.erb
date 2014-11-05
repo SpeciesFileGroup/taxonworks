@@ -1,0 +1,61 @@
+<%= form_for(@container) do |f| %>
+  <% if @container.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@container.errors.count, "error") %> prohibited this container from being saved:</h2>
+
+      <ul>
+      <% @container.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :lft %><br>
+    <%= f.number_field :lft %>
+  </div>
+  <div class="field">
+    <%= f.label :rgt %><br>
+    <%= f.number_field :rgt %>
+  </div>
+  <div class="field">
+    <%= f.label :parent_id %><br>
+    <%= f.number_field :parent_id %>
+  </div>
+  <div class="field">
+    <%= f.label :depth %><br>
+    <%= f.number_field :depth %>
+  </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.number_field :project_id %>
+  </div>
+  <div class="field">
+    <%= f.label :otu_id %><br>
+    <%= f.number_field :otu_id %>
+  </div>
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :disposition %><br>
+    <%= f.text_field :disposition %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

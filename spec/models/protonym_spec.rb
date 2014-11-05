@@ -289,21 +289,28 @@ describe Protonym, :type => :model do
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
       end
+
       specify 'fix author and year from the source' do
         #TODO citeproc gem doesn't currently support lastname without firstname
         @source.update(year: 1758, author: 'Linnaeus, C.')
         @source.save
+        
         @kingdom.source = @source
+
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+
         @kingdom.fix_soft_validations  # get author and year from the source
+        
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        expect(@kingdom.verbatim_author).to eq('Linnaeus, C.')
+        expect(@kingdom.author_string).to eq('Linnaeus') 
+        
         expect(@kingdom.year_of_publication).to eq(1758)
       end
+
     end
 
     context 'coordinated taxa' do
@@ -500,6 +507,7 @@ describe Protonym, :type => :model do
         @family.soft_validate(:missing_relationships)
         expect(@family.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'type genus in wrong subfamily' do
         other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
         gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
@@ -528,6 +536,7 @@ describe Protonym, :type => :model do
         other_subfamily.soft_validate(:type_placement)
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'mismatching' do
         @genus.type_species_by_monotypy = @species
         @subgenus.type_species_by_original_monotypy = @species
@@ -542,6 +551,7 @@ describe Protonym, :type => :model do
         @genus.soft_validate(:validate_coordinated_names)
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+      
       specify 'incertae sedis' do
         species = FactoryGirl.create(:relationship_species, parent: @family)
         expect(species.valid?).to be_truthy
@@ -554,6 +564,7 @@ describe Protonym, :type => :model do
         species.parent = @genus
         expect(species.valid?).to be_falsey
       end
+     
       specify 'parent priority' do
         subgenus = FactoryGirl.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
         subgenus.soft_validate(:parent_priority)
@@ -709,9 +720,11 @@ describe Protonym, :type => :model do
       @s =  Protonym.where(name: 'vitis').first
       @g =  Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
+    
     after(:all) {
       TaxonName.delete_all
     }
+
     before(:each) {
       TaxonNameRelationship.delete_all
     }
@@ -826,7 +839,6 @@ describe Protonym, :type => :model do
       specify 'as_subject_without_taxon_name_relationship_base' do
         expect(Protonym.as_subject_without_taxon_name_relationship_base('TaxonNameRelationship').count).to eq(Protonym.all.size - 1)
       end
-
     end
 
     context 'classifications' do

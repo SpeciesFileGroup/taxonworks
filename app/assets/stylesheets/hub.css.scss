@@ -1,0 +1,53 @@
+
+// Styling particular to the hub controller and views
+
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
+#hub_tabs {
+}
+
+.hub_link {
+  @extend .navigation_emphasis;
+  color: white;
+  a {
+    color: white;
+    &:visited {
+      color: white;
+    }
+  }
+}
+
+div.related_links_set {
+  background-color: $background_gray;
+  padding: $pane_padding;
+  border: $pane_border;
+  margin: $pane_margin;
+  width: 260px;
+  float: left;
+  min-height: 200px;
+  h3 {
+    margin: 0px;
+    border-bottom: 1px solid;
+    color: $color-secondary-2-4;
+  }
+  h4 { 
+    margin: 0px;
+    font-weight: bold;
+    color: $color-secondary-2-3;
+  }
+  ul {
+    li {
+      margin: .2em;
+      padding: 0px;
+    }
+  }
+  a {
+    &:visited {
+      color: black; 
+    }   
+    &:hover {
+      background-color: $note_yellow;
+    }
+  }
+}

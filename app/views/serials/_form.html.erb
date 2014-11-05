@@ -1,53 +1,61 @@
 <%= form_for(@serial) do |f| %>
-  <% if @serial.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@serial.errors.count, "error") %> prohibited this serial from being saved:</h2>
+    <% if @serial.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@serial.errors.count, "error") %> prohibited this serial from being saved:</h2>
 
-      <ul>
-      <% @serial.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+          <ul>
+            <% @serial.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_area :name, :cols => 40, :rows => 3 %>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
-  </div>
-  <div class="field">
-    <%= f.label :created_by_id %><br>
-    <%= f.number_field :created_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :updated_by_id %><br>
-    <%= f.number_field :updated_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
-    <%= f.number_field :project_id %>
-  </div>
-  <div class="field">
-    <%= f.label :publisher %><br>
-    <%= f.text_field :publisher %>
-  </div>
-  <div class="field">
-    <%= f.label :place_published %><br>
-    <%= f.text_field :place_published %>
-  </div>
-  <div class="field">
-    <%= f.label :primary_language_id %><br>
-    <%= f.number_field :primary_language_id %>
-  </div>
-  <div class="field">
-    <%= f.label :first_year_of_issue %><br>
-    <%= f.number_field :first_year_of_issue %>
-  </div>
-  <div class="field">
-    <%= f.label :last_year_of_issue %><br>
-    <%= f.number_field :last_year_of_issue %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <p>
+      <!------------------------------<br/>-->
+      <%#= f.fields_for :alternate_values do |av| %>
+      <%#= render 'alternate_values/alternate_value_fields', :avf => av %>
+      <%# end %>
+      <!-------------------------------->
+      <%# if @serial.alternate_values.any? %>
+      <%#= link_to("Show #{pluralize(@serial.alternate_values.count, 'alternate value')}.", @serial) %>
+      <%# end %>
+      <%= f.fields_for :alternate_values do |av| %>
+          <%= render 'alternate_values/alternate_value_fields', :avf => av %>
+      <% end %>
+      <%= link_to_add_alternate_value('Add alternate value', f) %>
+    </p>
+    <div class="field">
+      <%= f.label :publisher %>
+      <br>
+      <%= f.text_field :publisher %>
+    </div>
+    <div class="field">
+      <%= f.label :place_published %>
+      <br>
+      <%= f.text_field :place_published %>
+    </div>
+    <div class="field">
+      <%= f.label :primary_language_id %>
+      <br>
+      <%= f.number_field :primary_language_id %>
+    </div>
+    <div class="field">
+      <%= f.label :first_year_of_issue %>
+      <br>
+      <%= f.number_field :first_year_of_issue %>
+    </div>
+    <div class="field">
+      <%= f.label :last_year_of_issue %>
+      <br>
+      <%= f.number_field :last_year_of_issue %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

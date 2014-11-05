@@ -1,0 +1,39 @@
+<div class="alternate-value-record">
+  <div class="hide-for-display">
+    Start---------------AV Separator ----------------------------------------------------
+  </div>
+  <div class="field">
+    <%#=	 "#{avf.object.class.to_s}: " %>
+    <%#= object_tag(avf.object.alternate_object) %>
+  </div>
+  <div class="field">
+    <%= avf.label :alternate_value %>
+    <%= avf.hidden_field :_destroy, class: 'destroy_field' %>
+    <%= link_to('(remove)', '', :class => 'alternate-value-remove') %>
+    <br>
+    <%= avf.text_area :value, rows: 3 %>
+  </div>
+  <div class="field">
+    <%= avf.label :type %>
+    <br>
+    <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = avf.object.type) -%>
+  </div>
+  <div class="field">
+    <%= avf.label :language_id %>
+    <br>
+    <%= avf.number_field :language_id %>
+  </div>
+  <div class="field">
+    <%= avf.label :alternate_object_attribute %>
+    <br>
+    <%= avf.select :alternate_object_attribute, options_for_select(avf.object.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = avf.object.alternate_object_attribute) -%>
+  </div>
+
+  <%#= avf.hidden_field :alternate_object_type %>
+
+  <%= avf.hidden_field :alternate_object_id %>
+
+  <div class="hide-for-display">
+    --------------------AV Separator -------------------------------------------------End
+  </div>
+</div>

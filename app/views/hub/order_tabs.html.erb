@@ -1,0 +1,21 @@
+<h1>Hub - Order tabs</h1>
+<div>
+
+  <p><i> Drag the handle to sort.</i> 
+    <table id="tabs"
+    style="margin-left: 2em;"
+    data-sortable
+    data-sortable-items="tr"
+    data-sortable-on-change-url="<%= update_tab_order_hub_path  -%>">
+  </td> <tr>
+    <% @sessions_current_user.hub_tab_order.each_with_index do |t, i| -%>
+      <%= content_tag :tr, i, {id: "order_#{t}"} do -%>
+      <td class="handle"> [ drag ] </td>
+      <td><%= t -%></td>
+  <% end %>
+  <% end %>
+  </table>
+</div>
+
+
+<%= link_to('back to dashboard', dashboard_path) -%>

@@ -4,49 +4,20 @@
 # - Use     :valid_protonym - for basic relationships without hierarchy
 # - Use     :relationship_species, :relationship_genus, or :relationship_family for basic hierarchy.
 # - FactoryGirl.build(:relationship_species) will build a hierarchy with genus, family, kingdom and root relationships.
-
+#
 FactoryGirl.define do
 
-  trait :mostly_empty_protonym do
-    cached_name nil
-    cached_author_year nil
-    source_id nil
-    year_of_publication nil
-    verbatim_author nil
-  end
-
-  trait :parent_is_root do
-    parent {
-      p =  Protonym.where(parent_id: nil) 
-      if p.blank?
-        name = FactoryGirl.create(:root_taxon_name)
-      else
-        name = p.first
-      end
-      name 
-    }
-    # ignore do
-    #   associated_attributes nil
-    # end
-    #
-    # after_create do |object, evaluator|
-    #   # Use the ignored associated_attributes when creating the associated object
-    #   associated_object = AssociatedModel.new(evaluator.associated_attributes)
-    #   end
-    end
+  # See taxon_name_traits.rb for trait sets 
 
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
-    #valid_protonym
     factory :valid_protonym, traits: [:parent_is_root] do
-      name 'Root'
-      rank_class NomenclaturalRank
-      parent_id nil
+      name 'Aaidae'
+      rank_class Ranks.lookup(:iczn, 'family')
     end
 
-
     # Relationship provided factories with short hierarchy
-    factory :relationship_family, class: Protonym do
+    factory :relationship_family do
       name 'Erythroneuridae'
       association :parent, factory: :iczn_kingdom
       year_of_publication 1850

@@ -1,0 +1,11 @@
+<%= form_tag(search_collecting_events_path) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'asserted_distributions',
+                         object:     'asserted_distribution',
+                         method:     'id',
+                         tag_id:     'asserted_distribution_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+<%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

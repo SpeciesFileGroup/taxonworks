@@ -14,11 +14,11 @@ describe 'Dashboard' do
 
     it 'should provide access to sign in' do
       expect(page).to have_selector('h1', 'Taxon Works')
-      expect(page).to have_selector('form') do |form|
-       expect(form).to have_selector('input[name=email]')
-       expect(form).to have_selector('input[name=password]')
-       expect(form).to have_selector('input[type=submit]', 'Sign in')
-      end
+      expect(page).to have_selector('form') { |form|
+        expect(form).to have_selector('input[name=email]')
+        expect(form).to have_selector('input[name=password]')
+        expect(form).to have_selector('input[type=submit]', 'Sign in')
+      }
 
       expect(page).to have_link('forgot password?')
       expect(page).to have_link('find out more')
@@ -39,7 +39,7 @@ describe 'Dashboard' do
       within(:css, 'ul.horizontal_navbar') {
         expect(page).to have_link("Account")
         expect(page).to have_link("Sign out")
-        expect(page).to have_content("#{@user.email}")
+        expect(page).to have_content("#{@user.name}")
         expect(page).not_to have_link("Project")
       }
     end
@@ -53,11 +53,14 @@ describe 'Dashboard' do
     end
 
     context 'when click Account' do
-      before { visit dashboard_path
-      click_link "Account" }
+      before {
+        visit dashboard_path
+        click_link "Account"
+      }
 
       it 'should have user name' do
-        expect(page).to have_content("User #{@user.id}")
+        # expect(page).to have_content("User #{@user.id}")
+        expect(page).to have_content("#{@user.name}")
       end
 
       it 'should have Edit account link' do

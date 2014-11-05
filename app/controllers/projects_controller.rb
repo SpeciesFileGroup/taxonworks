@@ -76,7 +76,7 @@ class ProjectsController < ApplicationController
   end
 
   def settings_for
-    redirect_to otus_path, notice: 'Project settings not yet implemented'
+    redirect_to edit_project_path(sessions_current_project)
   end
 
   def list

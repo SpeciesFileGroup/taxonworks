@@ -43,6 +43,7 @@
 #
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
+  include Shared::IsData 
   include Shared::Citable
   include Shared::Identifiable
   include Shared::Notable

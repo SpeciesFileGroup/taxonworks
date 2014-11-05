@@ -3,8 +3,8 @@
 #  "wet", "dry", or "slide"
 
 class CollectionProfile < ActiveRecord::Base
-
   include Housekeeping
+  include Shared::IsData 
   include SoftValidation
 
   belongs_to :container

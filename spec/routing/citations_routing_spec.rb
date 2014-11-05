@@ -7,16 +7,8 @@ describe CitationsController, :type => :routing do
       expect(get("/citations")).to route_to("citations#index")
     end
 
-    it "routes to #new" do
-      expect(get("/citations/new")).to route_to("citations#new")
-    end
-
-    it "routes to #show" do
-      expect(get("/citations/1")).to route_to("citations#show", :id => "1")
-    end
-
-    it "routes to #edit" do
-      expect(get("/citations/1/edit")).to route_to("citations#edit", :id => "1")
+    it "routes to #list" do
+      expect(get("/citations/list")).to route_to("citations#list")
     end
 
     it "routes to #create" do

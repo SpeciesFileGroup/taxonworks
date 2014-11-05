@@ -33,36 +33,9 @@ describe BiocurationClassificationsController, :type => :controller do
   # BiocurationClassificationsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all biocuration_classifications as @biocuration_classifications" do
-      biocuration_classification = BiocurationClassification.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:biocuration_classifications)).to eq([biocuration_classification])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested biocuration_classification as @biocuration_classification" do
-      biocuration_classification = BiocurationClassification.create! valid_attributes
-      get :show, {:id => biocuration_classification.to_param}, valid_session
-      expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new biocuration_classification as @biocuration_classification" do
-      get :new, {}, valid_session
-      expect(assigns(:biocuration_classification)).to be_a_new(BiocurationClassification)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested biocuration_classification as @biocuration_classification" do
-      biocuration_classification = BiocurationClassification.create! valid_attributes
-      get :edit, {:id => biocuration_classification.to_param}, valid_session
-      expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
-    end
-  end
+  before {
+    request.env['HTTP_REFERER'] = list_otus_path # logical example
+  }
 
   describe "POST create" do
     describe "with valid params" do
@@ -78,9 +51,9 @@ describe BiocurationClassificationsController, :type => :controller do
         expect(assigns(:biocuration_classification)).to be_persisted
       end
 
-      it "redirects to the created biocuration_classification" do
+      it "redirects to :back" do
         post :create, {:biocuration_classification => valid_attributes}, valid_session
-        expect(response).to redirect_to(BiocurationClassification.last)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -92,11 +65,11 @@ describe BiocurationClassificationsController, :type => :controller do
         expect(assigns(:biocuration_classification)).to be_a_new(BiocurationClassification)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         post :create, {:biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -119,10 +92,10 @@ describe BiocurationClassificationsController, :type => :controller do
         expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
       end
 
-      it "redirects to the biocuration_classification" do
+      it "redirects to :back" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => valid_attributes}, valid_session
-        expect(response).to redirect_to(biocuration_classification)
+        expect(response).to redirect_to(list_otus_path)
       end
     end
 
@@ -135,12 +108,12 @@ describe BiocurationClassificationsController, :type => :controller do
         expect(assigns(:biocuration_classification)).to eq(biocuration_classification)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the :back template" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(BiocurationClassification).to receive(:save).and_return(false)
         put :update, {:id => biocuration_classification.to_param, :biocuration_classification => { "biocuration_class_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(list_otus_path)
       end
     end
   end
@@ -153,10 +126,10 @@ describe BiocurationClassificationsController, :type => :controller do
       }.to change(BiocurationClassification, :count).by(-1)
     end
 
-    it "redirects to the biocuration_classifications list" do
+    it "redirects to :back" do
       biocuration_classification = BiocurationClassification.create! valid_attributes
       delete :destroy, {:id => biocuration_classification.to_param}, valid_session
-      expect(response).to redirect_to(biocuration_classifications_url)
+      expect(response).to redirect_to(list_otus_path)
     end
   end
 

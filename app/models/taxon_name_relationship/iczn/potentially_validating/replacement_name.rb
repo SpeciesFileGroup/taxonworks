@@ -12,6 +12,10 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
     'nomen novum'
   end
 
+  def self.gbif_status_of_subject
+    'novum'
+  end
+
   # as.
   def self.assignment_method
     # bus.set_as_replacement_name_of(aus)

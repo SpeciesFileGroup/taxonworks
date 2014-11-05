@@ -1,0 +1,46 @@
+<%= form_for(@alternate_value) do |f| %>
+    <% if @alternate_value.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@alternate_value.errors.count, "error") %> prohibited this alternate_value from being
+            saved:</h2>
+
+          <ul>
+            <% @alternate_value.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <p> Tagging:   <%#= object_tag(@alternate_value.alternate_object) -%>  </p>
+
+    <div class="field">
+      <%= f.label :alternate_object_attribute %>
+      <br>
+      <%= f.select :alternate_object_attribute, options_for_select(@alternate_value.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_object_attribute) -%>
+    </div>
+
+    <div class="field">
+      <%= f.label :value %>
+      <br>
+      <%= f.text_area :value %>
+    </div>
+    <div class="field">
+      <%= f.label :type %>
+      <br>
+      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = @alternate_value.type) -%>
+    </div>
+    <div class="field">
+      <%= f.label :language_id %>
+      <br>
+      <%= f.number_field :language_id %>
+    </div>
+
+    <%= f.hidden_field :alternate_object_type %>
+
+    <%= f.hidden_field :alternate_object_id %>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

@@ -1,16 +1,14 @@
 source 'https://rubygems.org'
-ruby '2.1.1'
+ruby '2.1.2'
 
-gem 'rails', '4.1.4'
+gem 'rails', '4.1.7'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
-gem 'pg', '~> 0.17.0'
+gem 'pg', '~> 0.17.1'
 
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 2.2.0'
-# Has been removed for some time?
-# gem 'squeel', git: 'https://github.com/gtimti/squeel.git'  # nybex and kiela forks were also used
 
 # rgeo support
 gem 'ffi-geos'
@@ -39,15 +37,15 @@ gem 'jquery-turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set',
-    git: 'https://github.com/collectiveidea/awesome_nested_set.git'
-#  tag: 'v3.0.0.rc.5', 
+gem 'awesome_nested_set', '~> 3.0.1' 
 
 # BibTex handling
 gem 'bibtex-ruby', '~> 4.0.3'
 gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
+
+gem 'ref2bibtex', '~> 0.0.2'
 
 # Pagination
 gem 'kaminari'
@@ -59,36 +57,35 @@ gem 'paperclip', '~> 4.2'
 gem 'acts_as_list'
 
 # Versioning
-gem 'paper_trail', '~> 3.0.0'
+gem 'paper_trail', '~> 3.0.5'
 
 # DwC-A archive handling 
 gem 'dwc-archive', '~> 0.9.11'
-gem 'biodiversity', '3.1.4' # Workaround rails' treetop dependency incompatibility with dwc-archive
 
 gem 'validates_timeliness', '~> 3.0.14'
 
 # Password encryption
-gem 'bcrypt-ruby', '~> 3.1.5'
+gem 'bcrypt', '~> 3.1.7'
 
 # API view template engine
 gem 'rabl'
 
-gem 'rmagick', '~> 2.13.2'
-
-# Generate fake data: names, addresses, phone numbers, etc.
-gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
+gem 'rmagick', '~> 2.13.3'
 
 group :test, :development do
+  gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
   gem 'rspec-rails', '~> 3.0' #  
   gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
+  gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
+  gem 'selenium-webdriver'
 end
 
 group :development do
-  gem 'better_errors'
+  gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
   gem 'spring', '~> 1.1.3'
   gem 'spring-commands-rspec', '~> 1.0.2'
@@ -106,5 +103,8 @@ group :test do
   gem 'timecop', '~> 0.7.1'
   gem 'webmock', '~> 1.18.0'
   gem 'vcr', '~> 2.9.2'
+  gem 'database_cleaner', '~> 1.3.0'
+# gem 'simplecov', :require => false
+# gem 'simplecov-rcov', :require => false
 end
 

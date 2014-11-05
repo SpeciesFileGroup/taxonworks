@@ -1,0 +1,11 @@
+---
+:default:  
+ - favorite
+ - recent
+ - data
+ - shared
+ - tasks
+ - worker
+ - icons 
+ - related
+ - all
