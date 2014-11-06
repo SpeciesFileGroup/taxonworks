@@ -1,0 +1,18 @@
+<h2> Batch preview </h2>
+<%= form_tag batch_create_sources_path do -%>
+  <% @sources.each_with_index do |o, i| %>
+    <div id="sources">
+      <%= text_field_tag("sources[#{i}][name]", o.name) -%>
+    <%= link_to('Remove', "#", class: 'remove_link') %> <%= similarly_named_records_list(o) -%> </div>
+  <% end %>
+<%= submit_tag(:create) -%>
+<% end %>
+
+<%# remove this -%>
+<script>
+$(function() {
+    $('.remove_link').click(function() {
+      $(this).parent().remove(); 
+      });
+});
+</script>

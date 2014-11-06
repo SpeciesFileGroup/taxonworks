@@ -90,7 +90,6 @@ class OtusController < ApplicationController
     render :json => data
   end
 
-  # batch is demo only ... 
   def batch_preview
     @otus = Otu.batch_preview(file: params[:file].tempfile)
   end

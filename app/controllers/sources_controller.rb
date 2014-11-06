@@ -7,7 +7,7 @@ class SourcesController < ApplicationController
   # GET /sources
   # GET /sources.json
   def index
-    @sources = Source.all
+    @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
   end
 
   # GET /sources/1
@@ -80,6 +80,21 @@ class SourcesController < ApplicationController
     render :json => data 
  
   end
+
+  def batch_preview
+    @sources = Source.batch_preview(file: params[:file].tempfile)
+  end
+
+  def batch_create
+    if @sources = Source.batch_create(params.symbolize_keys.to_h)
+      flash[:notice] = "Successfully batch created #{@sources.count} OTUs."
+    else
+      flash[:notice] = 'Failed to create the sources.'
+    end
+    redirect_to sources_path
+  end
+
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

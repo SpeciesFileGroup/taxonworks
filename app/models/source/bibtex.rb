@@ -355,21 +355,29 @@ class Source::Bibtex < Source
   # serial with alternate_value on name .count = 1 assign .first
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
 
-
   def valid_bibtex?
     self.to_bibtex.valid?
   end
 
-  def self.new_from_bibtex(bibtex_entry)
+
+  # Instantiates a Source::Bibtex instance from a BibTeX::Entry
+  # Note: note conversion is handled in note setter
+  #
+  # Usage:
+  #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+  #    b = Source::Bibtex.new(a)
+  # 
+  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
+  # @return [Source::BibTex.new] a new instance 
+  def self.new_from_bibtex(bibtex_entry = nil)
     # TODO On input, convert ruby-bibtex.url to an identifier
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
-      s.send("#{key}=", v) # = v
+      s.send("#{key}=", v) 
     end
-    # note conversion is handled in note setter
     s
   end
 

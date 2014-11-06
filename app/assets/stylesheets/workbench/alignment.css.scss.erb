@@ -8,4 +8,15 @@ br.clear_both{ clear: both; }
 
 .inline { display: inline; }
 
+.middle_align {
+  vertical_align: middle
+}
 
+// Lifted from http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
+@mixin vertical-align {
+  position: relative;
+  top: 50%;
+  	-webkit-transform: translateY(-50%);
+  	-ms-transform: translateY(-50%);
+  	transform: translateY(-50%);
+}

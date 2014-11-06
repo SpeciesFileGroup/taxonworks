@@ -9,10 +9,38 @@ describe Source, :type => :model do
 
   context 'associtations' do
     specify 'sources have citations' do
-      expect(source).to respond_to(:citations)
+      expect(source.citations << Citation.new()).to be_truthy 
     end
-    specify 'sources have cited_objects' do
-      expect(source).to respond_to(:cited_objects)
+  end
+
+  context '#new_from_citation' do
+    let(:citation) { 'Yoder, M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae). ZooKeys 20:53-118.' }
+    specify 'when citation is < 5 characters false is returned' do
+      expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
+    end
+    
+    specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
+      expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
+    end
+
+    specify 'when citation is resolveable a Source::Verbatim instance is returned' do
+      expect(Source.new_from_citation(citation: citation).class).to eq(Source::Bibtex)
+    end
+  end
+
+  context "cited objects" do
+    let(:o) {FactoryGirl.create(:valid_otu) }
+    let(:a) {FactoryGirl.create(:valid_source_bibtex)}
+
+    specify 'returns a scope' do
+      expect(source.cited_objects).to eq([])
+    end
+
+    specify 'returns a mixed array of objects' do
+      c = Citation.create!(source: a, citation_object: o)
+      a.reload
+      expect(a.cited_objects.include?(o)).to be(true) 
+      
     end
   end
 

@@ -44,8 +44,9 @@ gem 'bibtex-ruby', '~> 4.0.3'
 gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
-
 gem 'ref2bibtex', '~> 0.0.2'
+
+# gem 'anystyle-parser' # use when we stabilize
 
 # Pagination
 gem 'kaminari'
