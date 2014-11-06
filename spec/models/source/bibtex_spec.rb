@@ -749,8 +749,7 @@ describe Source::Bibtex, :type => :model do
     context 'attributes' do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
-          bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James',
-                                                year: '1921b')
+          bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
           src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
@@ -764,9 +763,7 @@ describe Source::Bibtex, :type => :model do
           bibtex_entry = src.to_bibtex
           expect(bibtex_entry[:year]).to eq('1922c')
         end
-
       end
-
     end
 
     context 'associations' do
@@ -835,6 +832,32 @@ describe Source::Bibtex, :type => :model do
     #    opts = {
     #      use_vetted_people: false
     #    }.merge!(opts)
+
+    context '#new_from_bibtex' do
+      let(:citation_string) { %Q(@book{international_commission_on_zoological_nomenclature_international_1999,
+                                    address = {London},
+                                    edition = {Fourth},
+                                    title = {International Code of Zoological Nomenclature},
+                                    url = {http://www.nhm.ac.uk/hosted-sites/iczn/code/},
+                                    urldate = {2010-12-06},
+                                    publisher = {International Trust for Zoological Nomenclature},
+                                    author = {International Commission on Zoological Nomenclature},
+                                    year = {1999}})
+      }
+      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
+
+      specify 'handles non-recognized keys as ImportAttributes' do
+        expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
+        expect(a.save).to be_truthy
+        a.reload
+        expect(a.data_attributes.count).to eq(1)
+        expect(a.data_attributes.first.type).to eq('ImportAttribute')
+        expect(a.data_attributes.first.import_predicate).to eq('urldate')
+        expect(a.data_attributes.first.value).to eq('2010-12-06')
+      end
+
+    end
+
     context 'create_with_roles(BibTeX::Entry instance)' do
 
       specify 'creates author/editor roles with Person::Unvetted by default' do
@@ -876,8 +899,7 @@ describe Source::Bibtex, :type => :model do
     specify 'missing authors' do
       @source_bibtex.soft_validate(:recommended_fields)
       expect(@source_bibtex.soft_validations.messages_on(:author).empty?).to be_falsey
-      expect(@source_bibtex.soft_validations.messages).to \
-                        include 'There is neither an author,nor editor associated with this source.'
+      expect(@source_bibtex.soft_validations.messages).to include('There is neither an author, nor editor associated with this source.')
       @source_bibtex.author = 'Smith, Bill'
       @source_bibtex.save
       @source_bibtex.soft_validate(:recommended_fields)

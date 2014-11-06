@@ -14,6 +14,8 @@ class Source < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Taggable
 
+  has_paper_trail
+
   has_many :citations, inverse_of: :source, dependent: :destroy
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
@@ -58,12 +60,30 @@ class Source < ActiveRecord::Base
   end
 
   def self.batch_preview(file: nil, ** args)
-    bibliography = BibTeX.open(file)
+    bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
     @sources = []
     bibliography.each do |record|
-      @sources.push(Source::Bibtex.new_from_bibtex(record))
+      a = Source::Bibtex.new_from_bibtex(record)
+      @sources.push(a)
     end
     @sources
+  end
+
+  def self.batch_create(file: nil, ** args)
+    sources = []
+    begin
+      Source.transaction do 
+        bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
+        bibliography.each do |record|
+          a = Source::Bibtex.new_from_bibtex(record)
+          a.save!
+          sources.push(a)
+        end
+      end 
+    rescue
+      raise
+    end
+    sources
   end
   
   def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)

@@ -8,6 +8,10 @@ module SourcesHelper
   def source_tag(source)
     SourcesHelper.source_tag(source)
   end
+  
+  def sources_search_form
+    render('/sources/quick_search_form')
+  end
 
   # TODO: write helper methods
   # context 'source format variations' do

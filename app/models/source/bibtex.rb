@@ -9,7 +9,7 @@ require 'csl/styles'
 #
 # TaxonWorks(TW) relies on the bibtex-ruby gem to input or output BibTeX bibliographies,
 # and has a strict list of required fields. TW itself only requires that :bibtex_type
-# be valid and that one of the attributes in TW_REQ_FIELDS be defined.
+# be valid and that one of the attributes in TW_REQUIRED_FIELDS be defined.
 # This allows a rapid input of incomplete data, but also means that not all TW Source::Bibtex
 # objects can be added to a BibTeX bibliography.
 #
@@ -35,21 +35,25 @@ require 'csl/styles'
 # TW will add all non-standard or housekeeping attributes to the bibliography even though
 # the data may be ignored.
 #
-# @!group Ruby standard attributes & our added housekeeping attributes
-# @!attribute id [Fixnum]
-#   This is the Ruby Active Record ID. When no value is provided for the key attribute and
-#   a cross reference is needed, this attribute may be used within the key.
-#   @return [Fixnum] the unique identifier of this record in the Source table.
-#   @return [nil] means the record does not exist in the database.
+# @!group non-Bibtex attributes that are cross-referenced.
 #
 # @!attribute serial_id [Fixnum]
 #   @note not yet implemented!
 #   @return [Fixnum] the unique identifier of the serial record in the Serial? table.
 #   @return [nil] means the record does not exist in the database.
 #
+# @!attribute verbatim
+# @!attribute cached
+# @!attribute cached_author_string
+#
+#
 # @!endgroup
 #
-# @!group BibTeX attributes (based on BibTeX fields)
+#
+#                                                       #
+#                                                       #
+# @!group BibTeX attributes (based on BibTeX fields)    #
+#                                                       #
 #
 # @!attribute address
 #   BibTeX standard field (optional for types: book, inbook, incollection, inproceedings, manual, mastersthesis,
@@ -199,14 +203,7 @@ require 'csl/styles'
 #   compatible databases, the standard styles convert a single dash (as in
 #   7-33) to the double dash used in TeX to denote number ranges (as in 7--33).
 #
-#
-# @!endgroup
-# @!group TW added attributes that are not part of the standard attribute list
-# @!endgroup
-#
-class Source::Bibtex < Source
-  include SoftValidation
-
+#  #!! TODO: What is address ?
 # @!attribute publisher
 # @!attribute school
 # @!attribute series
@@ -235,31 +232,26 @@ class Source::Bibtex < Source
 # @!attribute language
 # @!attribute contents
 # @!attribute stated_year
-#   A TW required attribute (TW requires a value in one of the required attributes.)
-# @!attribute verbatim
-# @!attribute cached
-# @!attribute cached_author_string
-# @!attribute created_at
-# @!attribute created_by - not yet implemented
-# @!attribute updated_at
-# @!attribute updated_by - not yet implemented
+#
+#
+#
+#
+# @!endgroup
+#
+# UNKNOWN:
+#
 # @!attribute bibtex_type
 # @!attribute day
 #   If day is present there must be a month and day must be valid for the month.
 #
-# @!group associations
-# @!endgroup
-# @!group identifiers
-# @!endgroup
-# 
-
- belongs_to :source
+#
+class Source::Bibtex < Source
+  include SoftValidation
 
   # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
-#region constants
-# TW required fields (must have one of these fields filled in)
-  TW_REQ_FIELDS = [
+  # TW required fields (must have one of these fields filled in)
+  TW_REQUIRED_FIELDS = [
     :author,
     :editor,
     :booktitle,
@@ -269,65 +261,62 @@ class Source::Bibtex < Source
     :year,
     :stated_year
   ] # either year or stated_year is acceptable
-#endregion
 
+  belongs_to :serial
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
 
-#region validations
+  #region validations
   validates_inclusion_of :bibtex_type,
-                         in:      ::VALID_BIBTEX_TYPES,
-                         message: '%{value} is not a valid source type'
+    in:      ::VALID_BIBTEX_TYPES,
+    message: '%{value} is not a valid source type'
 
-# TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
+  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_presence_of :year,
-                        if:      '!month.nil?',
-                        message: 'year is required when month is provided'
+    if:      '!month.nil?',
+    message: 'year is required when month is provided'
   validates_numericality_of :year,
-                            only_integer:          true, greater_than: 999,
-                            less_than_or_equal_to: Time.now.year + 2,
-                            allow_nil:             true,
-                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+    only_integer:          true, greater_than: 999,
+    less_than_or_equal_to: Time.now.year + 2,
+    allow_nil:             true,
+    message:               'year must be an integer greater than 999 and no more than 2 years in the future'
   validates_presence_of :month,
-                        if:      '!day.nil?',
-                        message: 'month is required when day is provided'
+    if:      '!day.nil?',
+    message: 'month is required when day is provided'
   validates_inclusion_of :month,
-                         in:        ::VALID_BIBTEX_MONTHS,
-                         allow_nil: true,
-                         message:   ' month'
+    in:        ::VALID_BIBTEX_MONTHS,
+    allow_nil: true,
+    message:   ' month'
   validates_numericality_of :day,
-                            allow_nil:             true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-                            :unless                => 'year.nil? || month.nil?',
-                            message:               '%{value} is not a valid day for the month provided'
+    allow_nil:             true,
+    only_integer:          true,
+    greater_than:          0,
+    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
+    :unless                => 'year.nil? || month.nil?',
+    message:               '%{value} is not a valid day for the month provided'
 
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
                               message: "[%{value}] is not a valid URL"}, allow_nil: true
 
   before_validation :check_has_field
+  #endregion validations
 
   before_save :set_nomenclature_date
-
-#endregion validations
 
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
 
-#region soft_validate setup calls
-
+  #region soft_validate setup calls
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
-#  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
+  #  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
-
-#endregion
+  #endregion
 
   #region ruby-bibtex related
 
@@ -361,7 +350,8 @@ class Source::Bibtex < Source
 
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
-  # Note: note conversion is handled in note setter
+  # Note: note conversion is handled in note setter. 
+  # !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
@@ -374,10 +364,16 @@ class Source::Bibtex < Source
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+    import_attributes = []
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
-      s.send("#{key}=", v) 
+      if s.respond_to?(key.to_sym)
+        s.send("#{key}=", v)
+      else
+        import_attributes.push({import_predicate: key, value: v, type: 'ImportAttribute'})
+      end
     end
+    s.data_attributes_attributes = import_attributes
     s
   end
 
@@ -435,36 +431,33 @@ class Source::Bibtex < Source
   #region getters & setters
   def authority_name
     case self.authors.count
-      when 0
-        if (self.author.blank?)
-          return ('')
-        else        # build off the last names only of authors
-          b = self.to_bibtex
-          b.parse_names
-          case b.author.tokens.count
-            when 0
-              return ('') # shouldn't ever get here
-            when 1
-              return(b.author[0].last)
-            else
-              p_array = []
-              for i in 0..(b.author.tokens.count-1) do
-                p_array.push(b.author.tokens[i].last)
-              end
-              return(p_array.to_sentence(:last_word_connector => ' & '))
+    when 0
+      if (self.author.blank?)
+        return ('')
+      else        # build off the last names only of authors
+        b = self.to_bibtex
+        b.parse_names
+        case b.author.tokens.count
+        when 0
+          return ('') # shouldn't ever get here
+        when 1
+          return(b.author[0].last)
+        else
+          p_array = []
+          for i in 0..(b.author.tokens.count-1) do
+            p_array.push(b.author.tokens[i].last)
           end
+          return(p_array.to_sentence(:last_word_connector => ' & '))
         end
-        #return ((self.author.blank?) ? '' : self.author)
-      #return self.author # return author or ''
-      when 1
-        return (authors[0].last_name)
-      else
-        # authors[0..-2].join(", ") + " & #{authors.last.last_name}"
-        p_array = []
-        for i in 0..(self.authors.count-1) do
-          p_array.push(self.authors[i].last_name)
-        end
-        return(p_array.to_sentence(:last_word_connector => ' & '))
+      end
+    when 1
+      return (authors[0].last_name)
+    else
+      p_array = []
+      for i in 0..(self.authors.count-1) do
+        p_array.push(self.authors[i].last_name)
+      end
+      return(p_array.to_sentence(:last_word_connector => ' & '))
     end
   end
 
@@ -537,15 +530,15 @@ class Source::Bibtex < Source
     identifiers.size == 0 ? nil : identifiers.first.identifier
   end
 
-#TODO if language is set => set language_id
-#endregion getters & setters
+  #TODO if language is set => set language_id
+  #endregion getters & setters
 
-# turn bibtex URL field into a Ruby URI object
+  # turn bibtex URL field into a Ruby URI object
   def url_as_uri
     URI(self.url) unless self.url.blank?
   end
 
-#region has_<attribute>? section
+  #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?)
     # author attribute is empty
@@ -571,10 +564,10 @@ class Source::Bibtex < Source
     false
   end
 
-#endregion has_<attribute>? section
+  #endregion has_<attribute>? section
 
-#region time/date related
-# @return[Time] alias for nomenclature_date, computed if not yet saved
+  #region time/date related
+  # @return[Time] alias for nomenclature_date, computed if not yet saved
   def date
     set_nomenclature_date if !self.persisted?
     self.nomenclature_date
@@ -584,42 +577,39 @@ class Source::Bibtex < Source
     self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
   end
 
-#todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
+  #todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
 
-#endregion    time/date related
+  #endregion    time/date related
+
+  def cached_string
+    bx_entry = self.to_bibtex
+    if bx_entry.key.blank? then
+      bx_entry.key = 'tmpID'
+    end
+    key             = bx_entry.key
+    bx_bibliography = BibTeX::Bibliography.new()
+    bx_bibliography.add(bx_entry)
+
+    cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+    cp.import(bx_bibliography.to_citeproc)
+    cp.render(:bibliography, id: key).first.strip
+  end
 
   protected
 
   def set_cached_values
     if self.errors.empty?
-      bx_entry = self.to_bibtex
-      if bx_entry.key.blank? then
-        bx_entry.key = 'tmpID'
-      end
-      key             = bx_entry.key
-      bx_bibliography = BibTeX::Bibliography.new()
-      bx_bibliography.add(bx_entry)
-
-      cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-      cp.import bx_bibliography.to_citeproc
-
-      self.cached               = cp.render(:bibliography, id: key).first.strip
+      self.cached               = cached_string
       self.cached_author_string = authority_name
     end
   end
 
+  #region hard validations
 
-#region hard validations
-
-# replaced with inclusion validation
-#   def check_bibtex_type # must have a valid bibtex_type
-#     errors.add(:bibtex_type, 'not a valid bibtex type') if !::VALID_BIBTEX_TYPES.include?(self.bibtex_type)
-#   end
-
-# must have at least one of the required fields (TW_REQ_FIELDS)
+  # must have at least one of the required fields (TW_REQUIRED_FIELDS)
   def check_has_field
     valid = false
-    TW_REQ_FIELDS.each do |i|
+    TW_REQUIRED_FIELDS.each do |i|
       if !self[i].blank?
         valid = true
         break
@@ -628,9 +618,9 @@ class Source::Bibtex < Source
     errors.add(:base, 'no core data provided') if !valid
   end
 
-#endregion  hard validations
+  #endregion  hard validations
 
-#region Soft_validation_methods
+  #region Soft_validation_methods
   def sv_has_authors
     if !(has_authors?)
       soft_validations.add(:author, 'There is no author associated with this source.')
@@ -639,10 +629,9 @@ class Source::Bibtex < Source
 
   def sv_contains_a_writer # neither author nor editor
     if !has_writer?
-      soft_validations.add(:author, 'There is neither an author,nor editor associated with this source.')
-      soft_validations.add(:editor, 'There is neither an author,nor editor associated with this source.')
+      soft_validations.add(:author, 'There is neither an author, nor editor associated with this source.')
+      soft_validations.add(:editor, 'There is neither an author, nor editor associated with this source.')
     end
-
   end
 
   def sv_has_title
@@ -718,69 +707,69 @@ class Source::Bibtex < Source
 
   def sv_missing_required_bibtex_fields
     case self.bibtex_type
-      when 'article' #:article       => [:author,:title,:journal,:year]
-        sv_has_authors
-        sv_has_title
-        sv_is_article_missing_journal
-        sv_year_exists
-      when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
-        sv_contains_a_writer
-        sv_has_title
-        sv_has_a_publisher
-        sv_year_exists
-      when 'booklet' #    :booklet       => [:title],
-        sv_has_title
-      when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_year_exists
-      when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
-        sv_contains_a_writer
-        sv_has_title
-        sv_is_contained_has_chapter_or_pages
-        sv_has_a_publisher
-        sv_year_exists
-      when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_has_a_publisher
-        sv_year_exists
-      when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_year_exists
-      when 'manual' #    :manual        => [:title],
-        sv_has_title
-      when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_school
-        sv_year_exists
+    when 'article' #:article       => [:author,:title,:journal,:year]
+      sv_has_authors
+      sv_has_title
+      sv_is_article_missing_journal
+      sv_year_exists
+    when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
+      sv_contains_a_writer
+      sv_has_title
+      sv_has_a_publisher
+      sv_year_exists
+    when 'booklet' #    :booklet       => [:title],
+      sv_has_title
+    when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_booktitle
+      sv_year_exists
+    when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
+      sv_contains_a_writer
+      sv_has_title
+      sv_is_contained_has_chapter_or_pages
+      sv_has_a_publisher
+      sv_year_exists
+    when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_booktitle
+      sv_has_a_publisher
+      sv_year_exists
+    when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_booktitle
+      sv_year_exists
+    when 'manual' #    :manual        => [:title],
+      sv_has_title
+    when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_school
+      sv_year_exists
       #    :misc          => [],  (no required fields)
-      when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_school
-        sv_year_exists
-      when 'proceedings' #    :proceedings   => [:title,:year],
-        sv_has_title
-        sv_year_exists
-      when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_institution
-        sv_year_exists
-      when 'unpublished' #    :unpublished   => [:author,:title,:note]
-        sv_has_authors
-        sv_has_title
-        sv_has_note
+    when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_school
+      sv_year_exists
+    when 'proceedings' #    :proceedings   => [:title,:year],
+      sv_has_title
+      sv_year_exists
+    when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
+      sv_has_authors
+      sv_has_title
+      sv_has_institution
+      sv_year_exists
+    when 'unpublished' #    :unpublished   => [:author,:title,:note]
+      sv_has_authors
+      sv_has_title
+      sv_has_note
     end
   end
 
-#endregion   Soft_validation_methods
+  #endregion   Soft_validation_methods
 
 end
 

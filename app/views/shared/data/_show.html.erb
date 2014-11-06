@@ -1,5 +1,5 @@
 <div class="flexbox">
-  <div class="item item1">
+  <div class="item item1 one_fifth_width">
     <h2> <%= model_name_title -%></h2>
 
     <div>id: <%= object.id -%></div>
@@ -12,7 +12,7 @@
     <%= papertrail_link(object) -%>
   </div>
 
-  <div class="item item2">
+  <div class="item item2 half_width">
     <h2> <%= object_tag(object) -%> </h2>
     <%= render object_attributes_partial_path(object.metamorphosize) %>
     <div class="attributes">
@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="item item3">
+  <div class="item item3 one_quarter_width">
 
 
   </div>

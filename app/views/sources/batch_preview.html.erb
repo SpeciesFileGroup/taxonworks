@@ -1,18 +1,17 @@
 <h2> Batch preview </h2>
-<%= form_tag batch_create_sources_path do -%>
-  <% @sources.each_with_index do |o, i| %>
-    <div id="sources">
-      <%= text_field_tag("sources[#{i}][name]", o.name) -%>
-    <%= link_to('Remove', "#", class: 'remove_link') %> <%= similarly_named_records_list(o) -%> </div>
-  <% end %>
-<%= submit_tag(:create) -%>
-<% end %>
 
-<%# remove this -%>
-<script>
-$(function() {
-    $('.remove_link').click(function() {
-      $(this).parent().remove(); 
-      });
-});
-</script>
+<p> Import includes <%= @sources.count -%> records. </p>
+
+<p> To complete this import, select the file again and click create: 
+<%= form_tag batch_create_sources_path, multipart: true do -%>
+  <%= file_field_tag :file -%>
+  <%= submit_tag 'Create' -%>
+<% end %>
+</p>
+
+<ol>
+  <% @sources.each_with_index do |o, i| %>
+    <%= content_tag(:li, o.cached_string) -%> 
+  <% end %>
+</ol>
+
