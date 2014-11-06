@@ -18,6 +18,8 @@ class Source < ActiveRecord::Base
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 
+  after_validation :set_cached_values
+
   def cited_objects
     self.citations.collect{|t| t.citation_object}
   end
@@ -35,13 +37,22 @@ class Source < ActiveRecord::Base
   # @return [Source::BibTex.new] a new instance 
   # @return [false] a new instance 
   def self.new_from_citation(citation: nil, resolve: true)
-    if citation.length > 3
-      bibtex_string = Ref2bibtex.get(citation) if resolve
-      if bibtex_string 
-        b = BibTeX.parse(bibtex_string).first
-        return Source::Bibtex.new_from_bibtex(b)
-      end
+    return false if citation.length < 6
+    bibtex_string = Ref2bibtex.get(citation) if resolve
+    if bibtex_string 
+      b = BibTeX.parse(bibtex_string).first
+      return Source::Bibtex.new_from_bibtex(b)
+    else
       return Source::Verbatim.new(verbatim: citation )
+    end
+  end
+
+  def self.new_from_doi(doi: nil)
+    return false if !doi 
+    bibtex_string = Ref2bibtex.get_bibtex(doi) 
+    if bibtex_string 
+      b = BibTeX.parse(bibtex_string).first
+      return Source::Bibtex.new_from_bibtex(b)
     end
     false
   end
@@ -53,6 +64,20 @@ class Source < ActiveRecord::Base
       @sources.push(Source::Bibtex.new_from_bibtex(record))
     end
     @sources
+  end
+
+  def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
+    return Source.none if compared_string.nil?
+    order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
+    Source.where('id <> ?', self.to_param).
+      order(order_str).
+      limit(limit)
+  end
+
+  protected
+
+  def set_cached_values
+    # in subclasses
   end
 
 end

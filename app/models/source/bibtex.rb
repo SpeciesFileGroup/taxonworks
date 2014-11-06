@@ -309,7 +309,7 @@ class Source::Bibtex < Source
                               message: "[%{value}] is not a valid URL"}, allow_nil: true
 
   before_validation :check_has_field
-  after_validation :set_cached_values
+
   before_save :set_nomenclature_date
 
 #endregion validations

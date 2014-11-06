@@ -399,47 +399,45 @@ describe Source::Bibtex, :type => :model do
     end
 
     context 'on save set cached values - single author' do
-      before(:each) {
-        @l_src = FactoryGirl.create(:soft_valid_bibtex_source_article)
-      }
+      let(:l_src) {FactoryGirl.create(:soft_valid_bibtex_source_article)}
 
       specify 'save src' do
-        expect(@l_src.save).to be_truthy
+        expect(l_src.save).to be_truthy
       end
       context 'after save' do
         before {
-          @l_src.save
+          l_src.save
         }
 
         specify 'src should have a cached value' do
-          expect(@l_src.cached.blank?).to be_falsey
+          expect(l_src.cached.blank?).to be_falsey
         end
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(@l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
         end
         specify 'cached author should be set' do
-          expect(@l_src.cached_author_string.blank?).to be_falsey
+          expect(l_src.cached_author_string.blank?).to be_falsey
         end
         specify 'which equals...' do
-          expect(@l_src.cached_author_string).to eq('Person')
+          expect(l_src.cached_author_string).to eq('Person')
         end
         specify 'should be able to build & save related people' do
-          expect(@l_src.build_related_people_and_roles).to be_truthy
-          expect(@l_src.save).to be_truthy
+          expect(l_src.build_related_people_and_roles).to be_truthy
+          expect(l_src.save).to be_truthy
         end
       end
       context 'after creating related people' do
         before {
-          @l_src.build_related_people_and_roles
-          @l_src.save
+          l_src.build_related_people_and_roles
+          l_src.save
         }
         specify 'author count should be correct' do
-          expect(@l_src.authors.count).to eq(1)
+          expect(l_src.authors.count).to eq(1)
         end
         specify 'author name should be correct' do
-          expect(@l_src.authors.first.first_name).to eq('Test')
-          expect(@l_src.authors.first.last_name).to eq('Person')
-          expect(@l_src.cached_author_string).to eq('Person')
+          expect(l_src.authors.first.first_name).to eq('Test')
+          expect(l_src.authors.first.last_name).to eq('Person')
+          expect(l_src.cached_author_string).to eq('Person')
         end
       end
     end
