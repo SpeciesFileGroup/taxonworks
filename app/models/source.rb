@@ -65,14 +65,14 @@ class Source < ActiveRecord::Base
     end
     @sources
   end
-
+  
   def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
     return Source.none if compared_string.nil?
     order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
     Source.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
-  end
+end
 
   protected
 

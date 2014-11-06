@@ -103,9 +103,9 @@ namespace :tw do
       }
 
       # Attributes to use from specimens.txt
-      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat} 
+      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
 
-      # Attributes to strip on CollectingEvent creation 
+      # Attributes to strip on CollectingEvent creation
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
       desc "Import the INHS insect collection dataset.\n
@@ -474,7 +474,7 @@ namespace :tw do
         puts "Indexing collecting events." 
         index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
         index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
-        index_collecting_events_from_ledgers(collecting_events_index)
+        #index_collecting_events_from_ledgers(collecting_events_index)
         index_collecting_events_from_accessions_new(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}." 
 
@@ -624,7 +624,7 @@ namespace :tw do
 
       def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         puts " from specimens_new"
-        path = @args[:data_directory] + 'TXT/specimens_new.txt'
+        path = @args[:data_directory] + 'TXT/specimens_new_partially_resolved.txt'
         raise 'file not found' if not File.exists?(path)
 
         sp = CSV.open(path, col_sep: "\t", :headers => true)
@@ -646,7 +646,7 @@ namespace :tw do
             unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
           end
 
-          collecting_events_index.merge!(tmp_ce  => nil)
+          collecting_events_index.merge!(tmp_ce  => nil) if !locality_code.blank? && row['Done'] == '1'
           #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
         end
 
@@ -707,8 +707,6 @@ namespace :tw do
 
       #   AccessionNumber - field notes for collecting event /  # Not the same accession code
       #      missing a "file"
-      #   Prefix
-      #   CatalogNumber
       #   LocalityLabel
       #   Habitat
       #   Host
@@ -721,18 +719,18 @@ namespace :tw do
       #   DateCollectedEnding
       #   Collector
       #   CollectionMethod
-      #   ElevationM
-      #   ElevationF
+      #   Elev_m
+      #   Evel_ft
       #   NS
       #   Lat_deg
       #   Lat_min
       #   Lat_sec
       #   EW
       #   Long_deg
-      #   Long_Ming
-      #   Long_Sec
-      #   Remarks
-      #   Precision
+      #   Long_min
+      #   Long_sec
+      #   Comments
+      #   PrecisionCode
       #   Datum
       #
       #   ModifiedBy

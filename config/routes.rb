@@ -50,7 +50,7 @@ TaxonWorks::Application.routes.draw do
 
   #
   # Unvetted/not fully tested Stubbed
-  # 
+  #
 
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
@@ -162,8 +162,23 @@ TaxonWorks::Application.routes.draw do
   match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
   match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
 
+  match 'build_source_from_crossref_task', to: 'tasks/bibliography/verbatim_reference#new', via: 'get'
+  post 'tasks/bibliography/verbatim_reference/create'
+
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
+
+  match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
+
+  namespace :tasks do
+    namespace :usage do
+      get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
+    end
+  end
+=begin
+  get 'tasks/usage/user_activity#report/:id'
+=end
+
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
