@@ -1,0 +1,19 @@
+<%= form_tag tasks_bibliography_verbatim_reference_create_path do %>
+
+    <h2>Paste new reference</h2>
+    <div>
+      <div class="field">
+        <%= label_tag :citation %>
+        <%= text_area_tag :citation%>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= submit_tag %>
+    </div>
+
+<% end %>
+
+<%= @p %>
+<br><br>
+<%= @b %>
