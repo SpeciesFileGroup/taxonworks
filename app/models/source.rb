@@ -34,7 +34,7 @@ class Source < ActiveRecord::Base
   def self.new_from_citation(citation: nil, resolve: true)
     if citation.length > 3
       if resolve
-        if bibtext_string = Ref2bibtex.get(citation)
+        if bibtex_string = Ref2bibtex.get(citation)
           return Source::Bibtex.new_from_bibtex(bibtex_string)
         end
       end

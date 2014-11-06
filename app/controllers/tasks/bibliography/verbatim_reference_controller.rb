@@ -10,8 +10,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def create
     @p = params[:citation]
 
-    c = Ref2bibtex.get(@p)
-
+    #c = Ref2bibtex.get(@p)
     #source = Source.new(c)
     source = Source.new_from_citation(citation: @p)
 
