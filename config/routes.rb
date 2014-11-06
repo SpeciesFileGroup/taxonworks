@@ -165,6 +165,18 @@ TaxonWorks::Application.routes.draw do
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
 
+  match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
+
+  namespace :tasks do
+    namespace :usage do
+      get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
+    end
+  end
+=begin
+  get 'tasks/usage/user_activity#report/:id'
+=end
+
+
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 
