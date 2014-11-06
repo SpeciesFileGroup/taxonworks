@@ -119,6 +119,22 @@ class User < ActiveRecord::Base
     pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by { |a| a.pinned_object_type }
   end
 
+  def total_for_Otu_class
+    Otu.where(creator:self).count
+  end
+
+  def last_otu_created
+    Otu.limit(1).order(created_at: :desc).first
+  end
+
+  def total_objects(klass)   # klass_name is a string, need .constantize in next line
+    klass.where(creator:self).count
+  end
+
+  def total_objects2(klass_string)
+    self.send("created_#{klass_string}").count  #         klass.where(creator:self).count
+  end
+
   private
 
   def set_remember_token
