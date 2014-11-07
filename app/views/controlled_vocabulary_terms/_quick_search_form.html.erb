@@ -1,4 +1,4 @@
-<%= form_tag(search_controlled_vocabulary_terms_path) do %>
+<%= form_tag(search_controlled_vocabulary_terms_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'controlled_vocabulary_terms',
                          object:     nil,

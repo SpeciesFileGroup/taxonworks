@@ -1,4 +1,4 @@
-<%= form_tag(search_otus_path) do %>
+<%= form_tag(search_otus_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'otus',
                          object:     nil,

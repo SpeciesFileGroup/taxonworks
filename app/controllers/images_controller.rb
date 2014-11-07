@@ -75,8 +75,6 @@ class ImagesController < ApplicationController
     end
   end
 
-
-
   def autocomplete
     @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
 

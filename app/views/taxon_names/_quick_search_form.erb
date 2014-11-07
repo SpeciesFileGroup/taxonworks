@@ -1,4 +1,4 @@
-<%= form_tag(search_taxon_names_path) do %>
+<%= form_tag(search_taxon_names_path, method: :get) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'taxon_names',
                          object:     nil,

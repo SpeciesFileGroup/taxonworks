@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   include Workbench::SessionsHelper
   include ProjectsHelper
@@ -65,5 +66,11 @@ class ApplicationController < ActionController::Base
   def site_name
     @site_name ||= 'TaxonWorks'
   end
+ 
+  private
+ 
+   def record_not_found
+     render plain: "404 Not Found", status: 404
+   end
 
 end

@@ -1,4 +1,4 @@
-<%= form_tag(search_collection_objects_path) do %>
+<%= form_tag(search_collection_objects_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'collection_objects',
                          object:     nil,

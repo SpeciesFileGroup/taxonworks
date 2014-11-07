@@ -1,6 +1,5 @@
 TaxonWorks::Application.routes.draw do
 
-  # Vetted / tested
 
   # All models that use data controllers should include this concern. 
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
@@ -11,8 +10,8 @@ TaxonWorks::Application.routes.draw do
       get 'list'
       post 'batch_create'
       post 'batch_preview'
-      post 'search'
       get 'autocomplete'
+      get 'search'
     end
   end
 
@@ -224,4 +223,5 @@ TaxonWorks::Application.routes.draw do
   #     # (app/controllers/admin/products_controller.rb)
   #     resources :products
   #   end
+  #
 end
