@@ -1,5 +1,5 @@
 <h1> Report for <%= object_tag(@user) -%> </h1>
-<%= Rails.application.eager_load! if Rails.env.development? -%>
+<% Rails.application.eager_load! if Rails.env.development? -%>
 
 <% @user.class.reflect_on_all_associations(:has_many).each do |r| %>
     <% if r.name.to_s =~ /created_/ %>

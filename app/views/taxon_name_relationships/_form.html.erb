@@ -12,21 +12,50 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :subject_taxon_name_id %><br>
-    <%= f.number_field :subject_taxon_name_id %>
-  </div>
-  <div class="field">
-    <%= f.label :object_taxon_name_id %><br>
-    <%= f.number_field :object_taxon_name_id %>
-  </div>
+    <%= f.label :subject_taxon_name %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      :locals => {:controller => 'taxon_names',
+                  :object => 'taxon_name_relationship',
+                  :method => 'subject_taxon_name_id',
+                  :tag_id => 'subject_taxon_name_id_for_taxon_name_relationship',
+                  :display => object_tag(@taxon_name_relationship.subject_taxon_name),
+                  :size => 20} %>
+              </div>
+
+
   <div class="field">
     <%= f.label :type %><br>
     <%= f.text_field :type %>
   </div>
+
+
   <div class="field">
-    <%= f.label :source_id %><br>
-    <%= f.number_field :source_id %>
-  </div>
+    <%= f.label :object_taxon_name %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      :locals => {:controller => 'taxon_names',
+                  :object => 'taxon_name_relationship',
+                  :method => 'object_taxon_name_id',
+                  :tag_id => 'object_taxon_name_id_for_taxon_name_relationship',
+                  :display => object_tag(@taxon_name_relationship.object_taxon_name),
+                  :size => 20} %>
+              </div>
+
+
+  <div class="field">
+    <%= f.label :source %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      :locals => {:controller => 'sources',
+                  :object => 'taxon_name_relationship',
+                  :method => 'source_id',
+                  :tag_id => 'source_id_for_taxon_name_relationship',
+                  :display => object_tag(@taxon_name_relationship.source),
+                  :size => 20} %>
+              </div>
+
+
   <div class="actions">
     <%= f.submit %>
   </div>
