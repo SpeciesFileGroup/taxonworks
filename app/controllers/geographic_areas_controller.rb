@@ -20,11 +20,11 @@ class GeographicAreasController < ApplicationController
   end
 
   def search
-    # @geographic_areas = GeographicArea.with_name_like(params[:name])
-    # @search_string    = params[:name]
-    # render :index
-    # @geo_area_offset = index
-    redirect_to geographic_area_path(params[:geographic_area][:id])
+    if params[:id]
+      redirect_to geographic_area_path(params[:id])
+    else
+      redirect_to geographic_area_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

@@ -1,7 +1,7 @@
 <%= form_tag(search_images_path) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'images',
-                         object:     'image',
+                         object:     nil,
                          method:     'id',
                          tag_id:     'image_id_for_quick_search_form',
                          size:       '',

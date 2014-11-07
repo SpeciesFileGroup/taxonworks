@@ -1,7 +1,7 @@
 <%= form_tag(search_projects_path) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'projects',
-                         object:     'project',
+                         object:     nil,
                          method:     'id',
                          tag_id:     'project_id_for_quick_search_form',
                          size:       '',

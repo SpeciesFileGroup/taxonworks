@@ -1,7 +1,7 @@
 <%= form_tag(search_geographic_areas_path) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'geographic_areas',
-                         object:     'geographic_area',
+                         object:     nil,
                          method:     'id',
                          tag_id:     'geographic_area_id_for_quick_search_form',
                          size:       '',

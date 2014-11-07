@@ -82,7 +82,7 @@ class SourcesController < ApplicationController
     if params[:id]
       redirect_to source_path(params[:id])
     else
-      redirect_to source_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to sources_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 

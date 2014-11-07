@@ -72,7 +72,11 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def search
-    redirect_to controlled_vocabulary_term_path_path(params[:controlled_vocabulary_term][:id])
+    if params[:id]
+      redirect_to controlled_vocabulary_term_path(params[:id])
+    else
+      redirect_to controlled_vocabulary_term_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def list

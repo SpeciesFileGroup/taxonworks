@@ -111,7 +111,7 @@ TaxonWorks::Application.routes.draw do
   resources :namespaces do
     concerns [:data_routes]
   end
-  resources :notes, except: [:new, :edit, :show] do
+  resources :notes, except: [:show] do
     collection do
       get 'list'
     end

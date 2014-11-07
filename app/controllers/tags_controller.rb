@@ -57,7 +57,11 @@ class TagsController < ApplicationController
   end
 
   def search
-    redirect_to tag_path(params[:tag][:id])
+    if params[:id]
+      redirect_to tag_path(params[:id])
+    else
+      redirect_to tags_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

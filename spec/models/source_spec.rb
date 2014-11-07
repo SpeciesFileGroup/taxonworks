@@ -41,7 +41,7 @@ describe Source, :type => :model do
       expect(Source.new_from_doi(doi: 'asdfasdf')).to eq(false)
     end
 
-    specify 'when non resolvable doi is provided false is returned ' do
+    specify 'when resolvable doi is provided a new instance of Source::Bibtex is returned ' do
       expect(Source.new_from_doi(doi: doi).class).to eq(Source::Bibtex)
     end
   end

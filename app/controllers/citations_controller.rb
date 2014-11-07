@@ -55,8 +55,13 @@ class CitationsController < ApplicationController
   end
 
   def search
-    redirect_to citation_path(params[:citation][:id])
+    if params[:id]
+      redirect_to citation_path(params[:id])
+    else
+      redirect_to citations_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
+
 
   def autocomplete
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))

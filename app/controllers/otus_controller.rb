@@ -68,8 +68,8 @@ class OtusController < ApplicationController
   end
 
   def search
-    if params[:otu] && params[:otu][:id]
-      redirect_to otu_path(params[:otu][:id])
+    if params[:id] 
+      redirect_to otu_path(params[:id])
     else
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
