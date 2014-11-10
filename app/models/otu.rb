@@ -23,7 +23,7 @@ class Otu < ActiveRecord::Base
 
   has_many :otu_contents, inverse_of: :otu, dependent: :destroy
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :collection_profiles # @proceps dependent: what?
   has_many :topics, through: :otu_contents, source: :topic
 

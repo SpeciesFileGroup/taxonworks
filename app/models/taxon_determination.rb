@@ -37,27 +37,34 @@ class TaxonDetermination < ActiveRecord::Base
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
-    only_integer: true, greater_than: 0,
+    only_integer: true, 
+    greater_than: 0,
     less_than_or_equal_to: Time.now.year,
     allow_nil: true,
-    message: 'year made must be an integer greater than 0'
+    message: ' must be a 4 digit integer greater than 0'
   validates_inclusion_of :month_made,
     in: 1..12, 
     allow_nil: true,
-    message: ' month made'
+    message: ' is not an integer from 1-12'
   validates_numericality_of :day_made,
+    unless: 'year_made.nil? || month_made.nil? || ![*(1..12)].include?(month_made)',
     allow_nil: true,
     only_integer: true,
     greater_than: 0,
+    less_than: 32,
     less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
-    :unless => 'year_made.nil? || month_made.nil?',
-    message: '%{value} is not a valid day_made for the month provided'
+    message: '%{value} is not valid for the month provided'
+
+  validates :otu, presence: true
+  validates :biological_collection_object, presence: true 
+
+  before_save :set_made_fields_if_not_provided
 
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
-  before_save :set_made_fields_if_not_provided
+
 
   protected
 

@@ -16,7 +16,6 @@
       <div class="field">
         <%= f.label :otu_id %>
         <br>
-        <br>
         <%= render :partial => 'workbench/elements/forms/ajax_select',
                    :locals => {:controller => 'otus',
                                :object => 'asserted_distribution',
@@ -29,7 +28,6 @@
       <div class="field">
         <%= f.label :geographic_area %>
         <br>
-        <br>
         <%= render :partial => 'workbench/elements/forms/ajax_select',
                    :locals => {:controller => 'geographic_areas',
                                :object => 'asserted_distribution',
@@ -41,7 +39,6 @@
       <div class="field">
         <%= f.label :source_id %>
         <br>
-        <br>
         <%= render :partial => 'workbench/elements/forms/ajax_select',
                    :locals => {:controller => 'sources',
                                :object => 'asserted_distribution',
@@ -51,7 +48,7 @@
                                :size => 20} %>
       </div>
     </div>
-    <div class="optional"><
+    <div class="optional">
       <div class="field">
         <%= f.label :is_absent %>
         <br>

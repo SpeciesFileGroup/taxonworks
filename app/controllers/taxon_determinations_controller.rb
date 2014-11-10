@@ -6,8 +6,14 @@ class TaxonDeterminationsController < ApplicationController
   # GET /taxon_determinations
   # GET /taxon_determinations.json
   def index
-    @taxon_determinations = TaxonDetermination.all
+    @recent_objects = TaxonDetermination.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
+
+  def list
+    @taxon_determinations = TaxonDetermination.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+
 
   # GET /taxon_determinations/1
   # GET /taxon_determinations/1.json

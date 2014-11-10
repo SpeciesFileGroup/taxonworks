@@ -1,7 +1,7 @@
-<%= form_tag(search_collecting_events_path) do %>
+<%= form_tag(search_asserted_distributions_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'asserted_distributions',
-                         object:     'asserted_distribution',
+                         object:     nil,
                          method:     'id',
                          tag_id:     'asserted_distribution_id_for_quick_search_form',
                          size:       '',
