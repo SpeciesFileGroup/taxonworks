@@ -1,0 +1,31 @@
+<div class="attributes"> 
+<p>
+  <strong>Otu:</strong>
+  <%= otu_link(@taxon_determination.otu) %>
+</p>
+
+<p>
+  <strong>Biological collection object:</strong>
+  <%= collection_object_link(@taxon_determination.biological_collection_object.metamorphosize) %>
+</p>
+
+<p>
+  <strong>Year made:</strong>
+  <%= @taxon_determination.year_made %>
+</p>
+
+<p>
+  <strong>Month made:</strong>
+  <%= @taxon_determination.month_made %>
+</p>
+
+<p>
+  <strong>Day made:</strong>
+  <%= @taxon_determination.day_made %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @taxon_determination.position %>
+</p>
+</div>

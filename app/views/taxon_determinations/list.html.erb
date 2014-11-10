@@ -7,7 +7,6 @@
   <tr>
     <th>Biological collection object</th>
     <th>Otu</th>
-    <th>Position</th>
     <th>Year made</th>
     <th>Month made</th>
     <th>Day made</th>
@@ -22,9 +21,8 @@
   <tbody>
   <% @taxon_determinations.each do |taxon_determination| %>
       <tr>
-        <td><%= taxon_determination.biological_collection_object_id %></td>
+        <td><%= object_tag(taxon_determination.biological_collection_object.metamorphosize) %></td>
         <td><%= object_tag(taxon_determination.otu) %></td>
-        <td><%= taxon_determination.position %></td>
         <td><%= taxon_determination.year_made %></td>
         <td><%= taxon_determination.month_made %></td>
         <td><%= taxon_determination.day_made %></td>

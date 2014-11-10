@@ -35,10 +35,10 @@ describe TaxonDeterminationsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all taxon_determinations as @taxon_determinations" do
+    it "assigns a projects recent taxon_determinations as @recent_objects" do
       taxon_determination = TaxonDetermination.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:taxon_determinations)).to eq([taxon_determination])
+      expect(assigns(:recent_objects)).to eq([taxon_determination])
     end
   end
 

@@ -1,7 +1,7 @@
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
-  has_many :otus, through: :taxon_determinations
+  has_many :otus, through: :taxon_determinations, inverse_of: :taxon_determinations
   has_many :taxon_determinations, inverse_of: :biological_collection_object
  
   accepts_nested_attributes_for :biocuration_classes, :biocuration_classifications, :taxon_determinations, :otus
