@@ -1,0 +1,11 @@
+// Place all the styles related to the Georeferences controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import 'workbench/palette';
+
+#tulane_iframe {
+  width: 800px;
+  height: 768px;
+  margin: 0px;
+}

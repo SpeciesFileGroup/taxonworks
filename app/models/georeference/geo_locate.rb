@@ -88,7 +88,6 @@ class Georeference::GeoLocate < Georeference
     else
       g.errors.add(:api_request, 'requested parameters did not succeed to return a result')
     end
-
     g
   end
 

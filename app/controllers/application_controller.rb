@@ -73,4 +73,10 @@ class ApplicationController < ActionController::Base
      render plain: "404 Not Found", status: 404
    end
 
+  def disable_turbolinks
+    @no_turbolinks = true
+  end
+
+
+
 end
