@@ -1,7 +1,6 @@
 # display.js.coffee
 # A temporary place to write display altering bindings 
 
-
 render_attribute_set_headers = () ->
  for i in $('.attribute_set')
     do (i) ->
