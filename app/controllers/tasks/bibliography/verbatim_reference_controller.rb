@@ -8,18 +8,12 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
 
   # POST
   def create
-    @p = params[:citation]
-
-    #c = Ref2bibtex.get(@p)
-    #source = Source.new(c)
-    source = Source.new_from_citation(citation: @p)
-
-    if source
-      @b =   source.class
+    @source = Source.new_from_citation(citation: params[:citation])
+    if @source.save 
+      flash[:notice] = 'Successfully created a new record, resolved to bibtex format.'
     else
-      @b =   'The reference could not be resolved'
+      flash[:notice] = 'There was an error creating the recrod.'
     end
-
     render :new
   end
 

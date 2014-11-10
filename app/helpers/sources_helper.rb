@@ -13,6 +13,12 @@ module SourcesHelper
     render('/sources/quick_search_form')
   end
 
+  def source_link(source)
+    return nil if source.nil?
+    link_to(source_tag(source).html_safe, source.metamorphosize )
+  end
+
+
   # TODO: write helper methods
   # context 'source format variations' do
   #   # a valid source ibtex should support the following output formats

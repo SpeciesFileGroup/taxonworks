@@ -1,19 +1,24 @@
 <%= form_tag tasks_bibliography_verbatim_reference_create_path do %>
 
-    <h2>Paste new reference</h2>
+  <h2>Create a source (reference) from a verbaitm citation</h2>
+  <p> <i> The record will be resolved against CrossRef, if it fails to resolve it will be stored as verbatim. </i> </p>
     <div>
       <div class="field">
-        <%= label_tag :citation %>
-        <%= text_area_tag :citation%>
+        <%= label_tag :paste_full_citation %>
+        <%= text_area_tag :citation, nil ,  rows: 4, cols: 50 %>
       </div>
     </div>
 
     <div class="actions">
-      <%= submit_tag %>
+      <%= submit_tag :create %>
     </div>
-
 <% end %>
 
-<%= @p %>
-<br><br>
-<%= @b %>
+
+<% if @source -%>
+  <div> 
+    <p> A record was created:    
+    <%= source_link(@source) -%>
+    </p>
+  </div>
+<% end %>
