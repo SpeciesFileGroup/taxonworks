@@ -26,7 +26,7 @@ class <Model>Helper
   # of objects. Tag.tag_object is a good example, since this entry can refer to almost any kind of object.
   
   #
-  # Tentative data model helper methods.
+  # Exemplar data model helper methods 
   #    
 
   #  Return a single line, ideally wrapped in a content_tag(:span, ... ) naming the instance.
@@ -35,7 +35,7 @@ class <Model>Helper
     # return some model.attribute of interpolated string of model attributes
   end
 
-  #  Return a single line, ideally wrapped in a content_tag(:span, ... ) briefly naming the instance.
+  #  Return a single line, ideally wrapped in a content_tag(:span, ... ) briefly naming the instance. 
   def <model_name>_short_tag(model)
   end
 

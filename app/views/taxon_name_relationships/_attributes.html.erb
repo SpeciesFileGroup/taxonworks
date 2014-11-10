@@ -1,0 +1,20 @@
+<p>
+  <strong>Subject taxon name:</strong>
+  <%= taxon_name_tag(@taxon_name_relationship.subject_taxon_name) %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @taxon_name_relationship.type %>
+</p>
+
+<p>
+  <strong>Object taxon name:</strong>
+  <%= taxon_name_tag(@taxon_name_relationship.object_taxon_name) %>
+</p>
+
+<p>
+  <strong>Source:</strong>
+  <%= source_tag(@taxon_name_relationship.source) %>
+</p>
+

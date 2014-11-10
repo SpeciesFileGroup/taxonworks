@@ -8,21 +8,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
-  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
-  soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
-  soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
-  soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
-  soft_validate(:sv_specific_relationship, set: :specific_relationship)
-  soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship)
-  soft_validate(:sv_synonym_relationship, set: :synonym_relationship)
-  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
-  soft_validate(:sv_matching_types, set: :matching_types)
-  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
-  soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
-  soft_validate(:sv_validate_priority, set: :validate_priority)
-  soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
-  soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
-
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
@@ -38,6 +23,23 @@ class TaxonNameRelationship < ActiveRecord::Base
     :validate_subject_and_object_ranks,
     :validate_uniqueness_of_synonym_subject,
     :validate_uniqueness_of_typification_object
+
+  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
+  soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
+  soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object)
+  soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject)
+  soft_validate(:sv_specific_relationship, set: :specific_relationship)
+  soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship)
+  soft_validate(:sv_synonym_relationship, set: :synonym_relationship)
+  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
+
+  # @proceps: this method doesn't seem to exist:  soft_validate(:sv_matching_types, set: :matching_types)
+
+  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
+  soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
+  soft_validate(:sv_validate_priority, set: :validate_priority)
+  soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
+  soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}

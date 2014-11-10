@@ -1,4 +1,4 @@
-<%= form_for(@taxon_name_relationship) do |f| %>
+<%= form_for(@taxon_name_relationship.metamorphosize) do |f| %>
   <% if @taxon_name_relationship.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@taxon_name_relationship.errors.count, "error") %> prohibited this taxon_name_relationship from being saved:</h2>
@@ -19,16 +19,15 @@
                   :object => 'taxon_name_relationship',
                   :method => 'subject_taxon_name_id',
                   :tag_id => 'subject_taxon_name_id_for_taxon_name_relationship',
-                  :display => object_tag(@taxon_name_relationship.subject_taxon_name),
-                  :size => 20} %>
+                  :display => (@taxon_name_relationship.subject_taxon_name.cached if @taxon_name_relationship.subject_taxon_name),
+                  :size => 40} %>
               </div>
 
 
   <div class="field">
     <%= f.label :type %><br>
-    <%= f.text_field :type %>
+    <%= f.select :type, options_for_select(TAXON_NAME_RELATIONSHIPS_SUBJECT_SELECT, @taxon_name_relationship.type)  %>
   </div>
-
 
   <div class="field">
     <%= f.label :object_taxon_name %>
@@ -38,8 +37,8 @@
                   :object => 'taxon_name_relationship',
                   :method => 'object_taxon_name_id',
                   :tag_id => 'object_taxon_name_id_for_taxon_name_relationship',
-                  :display => object_tag(@taxon_name_relationship.object_taxon_name),
-                  :size => 20} %>
+                  :display => (@taxon_name_relationship.object_taxon_name.cached if @taxon_name_relationship.object_taxon_name),
+                  :size => 40} %>
               </div>
 
 
@@ -52,9 +51,8 @@
                   :method => 'source_id',
                   :tag_id => 'source_id_for_taxon_name_relationship',
                   :display => object_tag(@taxon_name_relationship.source),
-                  :size => 20} %>
+                  :size => 40} %>
               </div>
-
 
   <div class="actions">
     <%= f.submit %>

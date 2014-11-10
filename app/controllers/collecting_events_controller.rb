@@ -80,9 +80,6 @@ class CollectingEventsController < ApplicationController
     end
   end
 
-  
-
-
   def autocomplete
     @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) 
 

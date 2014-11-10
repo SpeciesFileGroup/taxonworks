@@ -29,7 +29,6 @@ class GeographicAreasController < ApplicationController
 
   def autocomplete
     @geographic_areas = GeographicArea.find_for_autocomplete(params)
-
     data = @geographic_areas.collect do |t|
       show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t, params[:term])
       {id:              t.id,

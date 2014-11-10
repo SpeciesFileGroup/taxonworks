@@ -87,7 +87,6 @@ class ImagesController < ApplicationController
        label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-
     render :json => data
   end
 

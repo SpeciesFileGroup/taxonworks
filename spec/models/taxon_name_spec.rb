@@ -2,12 +2,8 @@ require 'rails_helper'
 
 describe TaxonName, :type => :model do
 
-
   let(:taxon_name) { TaxonName.new }
   before(:all) do
-    # TaxonName.delete_all
-    # TaxonNameRelationship.delete_all
-    
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species    = @subspecies.ancestor_at_rank('species')
     @subgenus   = @subspecies.ancestor_at_rank('subgenus')
@@ -98,29 +94,28 @@ describe TaxonName, :type => :model do
         end
       end
     end
+  end
 
-    context 'gbif_status' do
-      before(:all) do
-        @t1 = FactoryGirl.create(:iczn_species, name: 'aus', parent: @genus)
-        @t2 = FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus)
-        @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @t2, object_taxon_name: @t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-      end
+  context 'gbif_status' do
+    let(:t1) { FactoryGirl.create(:iczn_species, name: 'aus', parent: @genus) }
+    let(:t2) { FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus) } 
+    let!(:r2) { FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') } # Note the bang (!)
 
-      specify 'valid species' do
-        expect(@t1.gbif_status_array).to eq(['valid'])
-      end
-
-      specify 'synonym' do
-        expect(@t2.gbif_status_array).to eq(['invalidum'])
-      end
-
-      specify 'nomen nudum' do
-        c = FactoryGirl.create(:taxon_name_classification, taxon_name: @t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
-        @t2.reload
-        expect(@t2.gbif_status_array).to eq(['nudum'])
-      end
+    specify 'valid species' do
+      expect(t1.gbif_status_array).to eq(['valid'])
     end
+
+    specify 'synonym' do
+      expect(t2.gbif_status_array).to eq(['invalidum'])
     end
+
+    specify 'nomen nudum' do
+      c = FactoryGirl.create(:taxon_name_classification, taxon_name: t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
+      t2.reload
+      expect(t2.gbif_status_array).to eq(['nudum'])
+    end
+  end
+
 
   context 'instance methods' do
     context 'verbatim_author' do
@@ -213,21 +208,31 @@ describe TaxonName, :type => :model do
     end
 
     context 'class methods from awesome_nested_set' do
-      before {
-        @p = Project.create(name: 'Taxon-name root test.')
-      }
+      let(:p) { Project.create(name: 'Taxon-name root test.') }
 
-      specify 'a second root (parent is nul) in a given project is not allowed' do
-        root2 = FactoryGirl.build(:root_taxon_name)
-        expect(root2.parent).to be_nil
-        expect(root2.valid?).to be_falsey
-        expect(root2.errors.include?(:parent_id)).to be_truthy
-      end
+      context 'root names' do
+        let(:root2) { FactoryGirl.build(:root_taxon_name) }
 
-      specify 'permit multiple roots in different projects' do
-        root2 = FactoryGirl.build(:root_taxon_name, project_id: @p.id)
-        expect(root2.parent).to be_nil
-        expect(root2.valid?).to be_truthy
+        specify 'a second root (parent is nul) in a given project is not allowed' do
+          expect(root2.parent).to be_nil
+          expect(root2.project_id).to eq(1)
+          expect(TaxonName.where(project_id: 1, name: 'Root', parent_id: nil).count).to eq(1)
+          
+          expect(root2.valid?).to be_falsey
+          expect(root2.errors.include?(:parent_id)).to be_truthy
+        end
+
+        specify 'permit multiple roots in different projects' do
+          root2.project_id = p.id
+          expect(root2.parent).to be_nil
+          expect(root2.valid?).to be_truthy
+        end
+
+        specify 'roots can be saved without raising' do
+          root2.project_id = p.id
+          expect(root2.save).to be_truthy
+          expect(TaxonName.where(name: 'Root', project_id: 1).first.save).to be_truthy
+        end
       end
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
@@ -462,7 +467,9 @@ describe TaxonName, :type => :model do
             expect(@family.cached_secondary_homonym.blank?).to be_truthy
             expect(@g1.cached_secondary_homonym.blank?).to be_truthy
             expect(@g2.cached_secondary_homonym.blank?).to be_truthy
+            @s1.save
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            @s2.save
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do
@@ -474,7 +481,9 @@ describe TaxonName, :type => :model do
             @s2.reload
             expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
             expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
+            @s1.save 
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            @s2.save
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
             expect(@s1.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
             expect(@s2.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
@@ -482,19 +491,25 @@ describe TaxonName, :type => :model do
             expect(@s2.cached_secondary_homonym_alternative_spelling).to eq('Bus uitata')
           end
         end
-        context 'mismatching cached values' do
-          before(:all) do
-            @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
-          end
-          specify 'missing cached values' do
-            @s.soft_validate(:cached_names)
-            expect(@s.soft_validations.messages_on(:base).count).to eq(1)
-            @s.fix_soft_validations
-            @s.soft_validate(:cached_names)
-            expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
-          end
-        end
+
+        # @proceps: this is not a soft validation, cached values must be built before_save, only after the record is valid.  
+        # There presence must be checked in other tests.
+        # context 'mismatching cached values' do
+        #   before(:all) do
+        #     @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+        #     @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
+        #   end
+
+        #   # @proceps cached values are now built before save, not before validation, this needs updating
+        #   specify 'missing cached values' do
+        #     @s.soft_validate(:cached_names)
+        #     expect(@s.soft_validations.messages_on(:base).count).to eq(1)
+        #     @s.fix_soft_validations
+        #     @s.soft_validate(:cached_names)
+        #     expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
+        #   end
+        # end
+
       end
 
       context 'when rank ICZN family' do

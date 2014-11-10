@@ -6,8 +6,8 @@
   <thead>
   <tr>
     <th>Subject taxon name</th>
-    <th>Object taxon name</th>
     <th>Type</th>
+    <th>Object taxon name</th>
     <th>Source</th>
     <th>Last modified</th>
     <th>Updated by</th>
@@ -21,8 +21,8 @@
   <% @taxon_name_relationships.each do |taxon_name_relationship| %>
       <tr>
         <td><%= object_tag(taxon_name_relationship.subject_taxon_name) %></td>
-        <td><%= object_tag(taxon_name_relationship.object_taxon_name) %></td>
         <td><%= taxon_name_relationship.type %></td>
+        <td><%= object_tag(taxon_name_relationship.object_taxon_name) %></td>
         <td><%= object_tag(taxon_name_relationship.source) %></td>
         <td><%= taxon_name_relationship.updated_at %></td>
         <td><%= object_tag(taxon_name_relationship.updater) %></td>
