@@ -492,23 +492,19 @@ describe TaxonName, :type => :model do
           end
         end
 
-        # @proceps: this is not a soft validation, cached values must be built before_save, only after the record is valid.  
-        # There presence must be checked in other tests.
-        # context 'mismatching cached values' do
-        #   before(:all) do
-        #     @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-        #     @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
-        #   end
-
-        #   # @proceps cached values are now built before save, not before validation, this needs updating
-        #   specify 'missing cached values' do
-        #     @s.soft_validate(:cached_names)
-        #     expect(@s.soft_validations.messages_on(:base).count).to eq(1)
-        #     @s.fix_soft_validations
-        #     @s.soft_validate(:cached_names)
-        #     expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
-        #   end
-        # end
+         context 'mismatching cached values' do
+           before(:all) do
+             @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+             @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
+           end
+           specify 'missing cached values' do
+             @s.soft_validate(:cached_names)
+             expect(@s.soft_validations.messages_on(:base).count).to eq(1)
+             @s.fix_soft_validations
+             @s.soft_validate(:cached_names)
+             expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
+           end
+         end
 
       end
 

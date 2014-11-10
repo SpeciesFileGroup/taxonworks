@@ -12,7 +12,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
     if @source.save 
       flash[:notice] = 'Successfully created a new record, resolved to bibtex format.'
     else
-      flash[:notice] = 'There was an error creating the recrod.'
+      flash[:notice] = 'There was an error creating the record.'
     end
     render :new
   end

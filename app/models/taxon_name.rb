@@ -176,9 +176,7 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
- 
-  # @proceps: this should not be checkd in soft validation, but rather in unit tests, it's now after_save.  Cached values only built for valid records. 
-  # soft_validate(:sv_cached_names, set: :cached_names)
+  soft_validate(:sv_cached_names, set: :cached_names)
 
   # @!all_taxon_name_relationships
   #   @return array of relationships
@@ -230,6 +228,8 @@ class TaxonName < ActiveRecord::Base
       self.verbatim_author
     elsif !self.source_id.nil?
       self.source.authority_name
+    else
+      nil
     end
   end
 
@@ -238,6 +238,8 @@ class TaxonName < ActiveRecord::Base
       self.year_of_publication
     elsif !self.source_id.nil?
       self.source.year
+    else
+      nil
     end
   end
 
@@ -455,7 +457,7 @@ class TaxonName < ActiveRecord::Base
       set_cached_classified_as
 
       # @proceps this line does nothing:
-      self.cached_original_combination.blank? if self.class == Protonym
+      #self.cached_original_combination.blank? if self.class == Protonym
 
       set_cached_original_combination
     end
@@ -811,8 +813,7 @@ class TaxonName < ActiveRecord::Base
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
-  # @proceps - this needs to use nomenclatural date, or reference the source when provided
-  # Returns a String with the author and year of the name. Adds parenthesis.  
+  # Returns a String with the author and year of the name. Adds parenthesis.
   #
   def get_author_and_year
     return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
@@ -870,7 +871,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_higher_classification
-    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
+    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
     safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
   end
 
@@ -932,9 +933,9 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
+  # @mjy: self.rank_class_was returns old value from the database before replacing it with a new value on update.
   def check_new_rank_class
-    if (self.rank_class != self.rank_class_was) &&
-      !self.rank_class_was.nil?
+    if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
@@ -1081,46 +1082,49 @@ class TaxonName < ActiveRecord::Base
     false
   end
 
-  # @proceps: see comments in spec.  cached values should be set only after a record is valid, on before_save. 
-  # def sv_cached_names
-  #     # if updated, update also set_cached_names
-  #     is_cached = true
-  #     is_cached = false if self.cached_author_year != get_author_and_year
+  # @proceps: see comments in spec.  cached values should be set only after a record is valid, on before_save.
+  # @mjy: cached values should be updated when related taxa change (new genus, or a new original genus). That what is done in this test
 
-  #     if self.class == Protonym && cached # don't run the tests if it's already false
-  #       if self.cached_html != get_full_name ||
-  #         self.cached_misspelling != get_cached_misspelling ||
-  #         self.cached_original_combination != get_original_combination ||
-  #         self.cached_higher_classification != get_higher_classification ||
-  #         self.cached_primary_homonym != get_genus_species(:original, :self) ||
-  #         self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-  #         self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
-  #         is_cached = false
-  #       end
-  #     end
 
-  #     if self.class == Combination && cached
-  #       if self.cached_html != get_combination || self.cached_original_combination != get_combination
-  #         is_cached = false
-  #       end
-  #     end
+  def sv_cached_names
+       # if updated, update also set_cached_names
+       is_cached = true
+       is_cached = false if self.cached_author_year != get_author_and_year
 
-  #     soft_validations.add(
-  #       :base, 'Cached values should be updated',
-  #       fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
-  #     ) if !is_cached
-  #   end
+       if self.class == Protonym && cached # don't run the tests if it's already false
+         if self.cached_html != get_full_name ||
+           self.cached_misspelling != get_cached_misspelling ||
+           self.cached_original_combination != get_original_combination ||
+           self.cached_higher_classification != get_higher_classification ||
+           self.cached_primary_homonym != get_genus_species(:original, :self) ||
+           self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+           self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+           is_cached = false
+         end
+       end
 
-  # def sv_fix_cached_names
-  #   begin
-  #     TaxonName.transaction do
-  #       self.save
-  #       return true
-  #     end
-  #   rescue
-  #   end
-  #   false
-  # end
+       if self.class == Combination && cached
+         if self.cached_html != get_combination || self.cached_original_combination != get_combination
+           is_cached = false
+         end
+       end
+
+       soft_validations.add(
+         :base, 'Cached values should be updated',
+         fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+       ) if !is_cached
+     end
+
+   def sv_fix_cached_names
+     begin
+       TaxonName.transaction do
+         self.save
+         return true
+       end
+     rescue
+     end
+     false
+   end
 
   def sv_validate_parent_rank
     true # see validation in Protonym.rb
