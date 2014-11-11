@@ -79,12 +79,12 @@ class TaxonNamesController < ApplicationController
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'tag', locals: {taxon_name: t})
-      {id:  t.id,
-       label: t.get_full_name_no_html, 
+      {id:              t.id,
+       label:           t.get_full_name_no_html,
        response_values: {
          params[:method] => t.id
        },
-       label_html: str 
+       label_html:      str
       }
     end
 
