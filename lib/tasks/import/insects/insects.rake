@@ -11,9 +11,6 @@ require 'benchmark'
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
-# TODO:
-#
-#
 
 namespace :tw do
   namespace :project_import do
@@ -104,6 +101,38 @@ namespace :tw do
 
       # Attributes to use from specimens.txt
       SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+
+      LOCALITY_COLUMNS = %w{
+           Country
+           State
+           County
+           Locality
+           Park
+           BodyOfWater
+           DrainageBasinLesser
+           DrainageBasinGreater
+           StreemSize
+           INDrainage
+           WisconsinGlaciated
+           NS
+           Lat_deg
+           Lat_min
+           Lat_sec
+           EW
+           Long_deg
+           Long_min
+           Long_sec
+           Elev_m
+           Elev_ft
+           Datum
+           PrecisionCode
+           Habitat
+           Host
+           DateCollectedBeginning
+           DateCollectedEnding
+           Collector
+           CollectionMethod
+           Comments}
 
       # Attributes to strip on CollectingEvent creation
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
@@ -264,15 +293,30 @@ namespace :tw do
                                'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'), 
                                'Immature' => BiocurationClass.create(name: 'Immature', definition: 'The collection object is comprised of immature(s).'), 
                                'Pupa' => BiocurationClass.create(name: 'Pupa', definition: 'The collection object is comprised of pupa.'), 
-                               'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuviae.'),
+                               'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuvia.'),
                                'AdultUnsexed' => BiocurationClass.create(name: 'AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
                                'AgeUnknown' => BiocurationClass.create(name: 'AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'), 
                                'OtherSpecimens' => BiocurationClass.create(name: 'OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
                                'ZeroTotal' => Keyword.create(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in the FM database.'),
                                'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'The verbatim value in the identified by field.'),
                                'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'The verbatim value in the year identified field.'),
-                               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'The verbatim value in the old identified by.'),
-                              )     
+                               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'Imported value: Old identified by.'),
+                               'LocalityCode' => Predicate.create(name: 'LocalityCode', definition: 'Imported value: Locality Code.'),
+                               'Country' => Predicate.create(name: 'Country', definition: 'Imported value: Country.'),
+                               'State' => Predicate.create(name: 'State', definition: 'Imported value: State.'),
+                               'County' => Predicate.create(name: 'County', definition: 'Imported value: County.'),
+                               'Locality' => Predicate.create(name: 'Locality', definition: 'Imported value: Locality.'),
+                               'Park' => Predicate.create(name: 'Park', definition: 'Imported value: Park.'),
+                               'BodyOfWater' => Predicate.create(name: 'BodyOfWater', definition: 'The verbatim value in the Body Of Water.'),
+                               'DrainageBassinLesser' => Predicate.create(name: 'DrainageBassinLesser', definition: 'The verbatim value in the Drainage Bassin Lesser.'),
+                               'DrainageBassinGreater' => Predicate.create(name: 'DrainageBassinGreater', definition: 'The verbatim value in the Drainage Bassin Greater.'),
+                               'StreamSize' => Predicate.create(name: 'StreamSize', definition: 'The verbatim value in the StreamSize.'),
+                               'INDrainage' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the INDrainage.'),
+                               'WisconsinGlaciated' => Predicate.create(name: 'WisconsinGlaciated', definition: 'The verbatim value in the Wisconsin Glaciated.'),
+                               'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'Imported value: Old Locality Code.'),
+                               'AccessionNumber' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the AccessionNumber.'),
+                               'Host' => Predicate.create(name: 'Host', definition: 'The verbatim value in the Host.'),
+                              )
 
           import.metadata['controlled_vocabulary'] = true
         end
@@ -306,6 +350,36 @@ namespace :tw do
         else
           $user_id
         end
+      end
+
+      def find_or_create_collecting_event(ce, data)
+        c = CollectingEvent.new(
+            geographic_area_id: geographic_area,
+            verbatim_label: ce['LocalityLabel'],
+            verbatim_locality: ce['Locality'],
+            verbatim_collectors: ce['Collector'],
+            verbatim_method: ce['CollectionMethod'],
+            start_date_day: sdd,
+            start_date_month: sdm,
+            start_date_year: sdy,
+            end_date_day: edd,
+            end_date_month: edm,
+            end_date_year: edy,
+            verbatim_habitat: ce['Habitat'],
+            minimum_elevation: elevation,
+            verbatim_elevation: verbatim_elevation,
+            verbatim_latitude: latitude,
+            verbatim_longitude: longitude,
+            verbatim_geolocation_uncertainty: geolocation_uncertainty
+        )
+
+        ce.select{|k,v| !v.nil?}.each do |a,b|
+          if PREDICATES.include?(a)
+            c.data_attributes.build(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
+          end
+        end
+
+
       end
 
       #- 0 PeopleID          Import Identifier
@@ -497,7 +571,7 @@ namespace :tw do
           geographic_area = parse_geographic_area(ce, found, matchless_for_geographic_area)
 
           c = CollectingEvent.new(
-            geographic_area: geographic_area,
+            geographic_area_id: geographic_area,
             verbatim_label: ce['LocalityLabel'], 
             verbatim_locality: ce['Locality'],
             verbatim_collectors: ce['Collector'],                
@@ -508,11 +582,12 @@ namespace :tw do
             end_date_day: edd,
             end_date_month: edm,
             end_date_year: edy,
-            macro_habitat: ce['Habitat'],
+            verbatim_habitat: ce['Habitat'],
             minimum_elevation: elevation,
-            elevation_unit: elevation_unit,
+            verbatim_elevation: verbatim_elevation,
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
+            verbatim_geolocation_uncertainty: geolocation_uncertainty
           )
 
           ce.select{|k,v| !v.nil?}.each do |a,b|
