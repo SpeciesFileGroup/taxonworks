@@ -181,6 +181,8 @@ TaxonWorks::Application.routes.draw do
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
+  
+  get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
