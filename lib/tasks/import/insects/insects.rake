@@ -197,6 +197,7 @@ namespace :tw do
       $project_id = nil
       $user_id = nil
       $user_index = {}
+      $collecting_event_index = {}
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
@@ -352,7 +353,21 @@ namespace :tw do
         end
       end
 
+
+      $found_geographic_areas = 0
+      $matchless_for_geographic_area =[]
+
+
       def find_or_create_collecting_event(ce, data)
+
+        return $collecting_event_index[ce] if $collecting_event_index[ce]
+
+        latitude, longitude = parse_lat_long(ce)
+        sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
+        elevation, verbatim_elevation = parse_elevation(ce)
+        geographic_area = parse_geographic_area(ce)
+        geolocation_uncertainty = parse_geolocation_Uncertainty(ce)
+
         c = CollectingEvent.new(
             geographic_area_id: geographic_area,
             verbatim_label: ce['LocalityLabel'],
@@ -370,7 +385,8 @@ namespace :tw do
             verbatim_elevation: verbatim_elevation,
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
-            verbatim_geolocation_uncertainty: geolocation_uncertainty
+            verbatim_geolocation_uncertainty: geolocation_uncertainty,
+            verbatim_datum: datum
         )
 
         ce.select{|k,v| !v.nil?}.each do |a,b|
@@ -568,7 +584,7 @@ namespace :tw do
           latitude, longitude = parse_lat_long(ce)
           sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
           elevation, elevation_unit = parse_elevation(ce)
-          geographic_area = parse_geographic_area(ce, found, matchless_for_geographic_area)
+          geographic_area = parse_geographic_area(ce)
 
           c = CollectingEvent.new(
             geographic_area_id: geographic_area,
@@ -835,7 +851,7 @@ namespace :tw do
 
 
 
-      def parse_geographic_area(ce, found, matchless_for_geographic_area)
+      def parse_geographic_area(ce)
         geog_search = []
         [ ce['County'], ce['State'], ce['Country']].each do |v|
           geog_search.push( GEO_NAME_TRANSLATOR[v] ? GEO_NAME_TRANSLATOR[v] : v) if !v.blank?
@@ -845,13 +861,13 @@ namespace :tw do
         geographic_area = nil
 
         if match.count == 0
-          puts "\nNo matching geographic area for: #{geog_search}"
-          matchless_for_geographic_area.push geog_search
+          #puts "\nNo matching geographic area for: #{geog_search}"
+          $matchless_for_geographic_area.push geog_search
         elsif match.count > 1
-          puts "\nMultiple geographic areas match #{geog_search}\n"
-          matchless_for_geographic_area.push geog_search
+          #puts "\nMultiple geographic areas match #{geog_search}\n"
+          $matchless_for_geographic_area.push geog_search
         elsif match.count == 1
-          found += 1
+          $found_geographic_areas += 1
           geographic_area = match[0]
         else
           puts "\nHuh?! not zero, 1 or more than one matches"
@@ -866,7 +882,7 @@ namespace :tw do
         ltd = ce['Lat_deg'].blank? ? nil : "#{ce['Lat_deg']}º"
         ltm = ce['Lat_min'].blank? ? nil : "#{ce['Lat_min']}'"
         lts = ce['Lat_sec'].blank? ? nil : "#{ce['Lat_sec']}\""
-        latitude = [nlt, ltd,ltm,lts].compact.join
+        latitude = [nlt,ltd,ltm,lts].compact.join
         latitude = nil if latitude == '-'
 
         nll = ce['EW'] # (ce['EW'].downcase == 'w' ? '-' : nil ) if !ce['EW'].blank?
@@ -879,6 +895,26 @@ namespace :tw do
         [latitude, longitude]
       end
 
+      def parse_geolocation_Uncertainty(ce)
+        geolocation_uncertainty = nil
+        unless ce['PrecisionCode'].blank?
+          case ce['PrecisionCode'].to_i
+            when 1
+              geolocation_uncertainty = 10
+            when 2
+              geolocation_uncertainty = 1000
+            when 3
+              geolocation_uncertainty = 10000
+            when 4
+              geolocation_uncertainty = 100000
+            when 5
+              geolocation_uncertainty = 1000000
+            when 6
+              geolocation_uncertainty = 1000000
+          end
+        end
+      end
+
       def parse_dates(ce)
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
         ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
@@ -886,6 +922,10 @@ namespace :tw do
 
         sdy = sdy.to_i if sdy 
         edy = edy.to_i if edy
+        sdd = sdd.to_i if sdd
+        edd = edd.to_i if edd
+        sdm = sdm.to_i if sdm
+        edm = edy.to_i if edm
         [sdm, sdd, sdy, edm, edd, edy]
       end
 
@@ -897,19 +937,15 @@ namespace :tw do
           puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."
         end
 
-        elevation, elevation_unit = nil, nil
+        elevation, verbatim_elevation = nil, nil
 
         if !ce['Elev_ft'].blank?
-          elevation = ce['Elev_ft']
-          elevation_unit = 'feet'
+          elevation = ce['Elev_ft'].to_i * 0.305
+          verbatim_elevation = ce['Elev_ft'] & ' ft.'
         elsif !ce['Elev_m'].blank?
-          elevation = ce['Elev_m']
-          elevation_unit = 'meters'
-        else
-          elevation = nil
-          elevation_unit = nil
+          elevation = ce['Elev_m'].to_i
         end
-        [elevation, elevation_unit]
+        [elevation, verbatim_elevation]
       end
 
 
