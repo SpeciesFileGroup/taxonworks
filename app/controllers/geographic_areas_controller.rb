@@ -45,9 +45,6 @@ class GeographicAreasController < ApplicationController
   private
 
   # TODO: move to a concern?
-  def disable_turbolinks
-    @no_turbolinks = true
-  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area

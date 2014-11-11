@@ -1,0 +1,65 @@
+<%= render(partial: 'geographic_items/map_header', locals: {geographic_item: @georeference.error_geographic_item}) -%>
+
+<div class="attributes"> 
+  <p>
+  <strong>Geographic item:</strong>
+  <%= @georeference.geographic_item_id %>
+  </p>
+
+  <div id="map_canvas" style="width:320px; height: 240px;"></div>
+
+  <p>
+    <strong>Collecting event:</strong>
+    <%= collecting_event_tag(@georeference.collecting_event) %>
+  </p>
+
+  <p>
+    <strong>Error radius:</strong>
+    <%= @georeference.error_radius %>
+  </p>
+
+  <p>
+    <strong>Error depth:</strong>
+    <%= @georeference.error_depth %>
+  </p>
+
+  <p>
+    <strong>Error geographic item:</strong>
+    <%= @georeference.error_geographic_item_id %>
+  </p>
+
+  <p>
+    <strong>Type:</strong>
+    <%= @georeference.type %>
+  </p>
+
+  <p>
+    <strong>Source:</strong>
+    <%= source_tag(@georeference.source) %>
+  </p>
+
+  <p>
+    <strong>Position:</strong>
+    <%= @georeference.position %>
+  </p>
+
+  <p>
+    <strong>Is public:</strong>
+    <%= @georeference.is_public %>
+  </p>
+
+  <p>
+    <strong>Api request:</strong>
+    <%= @georeference.api_request %>
+  </p>
+
+  <p>
+    <strong>Is undefined z:</strong>
+    <%= @georeference.is_undefined_z %>
+  </p>
+
+  <p>
+    <strong>Is median z:</strong>
+    <%= @georeference.is_median_z %>
+  </p>
+</div>

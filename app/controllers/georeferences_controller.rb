@@ -2,11 +2,16 @@ class GeoreferencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_georeference, only: [:show, :edit, :update, :destroy]
+  before_action :disable_turbolinks, only: [:show, :list, :index]
 
   # GET /georeferences
   # GET /georeferences.json
   def index
-    @georeferences = Georeference.all
+    @recent_objects = Georeference.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+  end
+
+  def list
+    @georeferences = Georeference.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /georeferences/1
