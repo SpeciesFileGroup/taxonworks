@@ -2,14 +2,14 @@ module Shared::Notable
   extend ActiveSupport::Concern
 
   included do
-    has_many :notes, as: :note_object, validate: false
+    # Validation happens on the parent side!
+    has_many :notes, as: :note_object, validate: true
     accepts_nested_attributes_for :notes
   end 
 
-  module ClassMethods
-  end
+   # module ClassMethods
+   # end
 
-  # TODO: Move to a Decorator/Draper if we use it 
   def concatenated_notes_string
     s = notes.order(updated_at: :desc).collect{|n| n.note_string}.join('|') 
     s == "" ? nil : s
@@ -18,4 +18,8 @@ module Shared::Notable
   def has_notations?
     self.notes.count > 0
   end
+
+  protected
+
+  
 end

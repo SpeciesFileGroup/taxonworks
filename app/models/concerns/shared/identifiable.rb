@@ -1,7 +1,9 @@
 module Shared::Identifiable
   extend ActiveSupport::Concern
   included do
-    has_many :identifiers, as: :identified_object, validate: false
+    # Validation happens on the parent side!
+    has_many :identifiers, as: :identified_object, validate: true 
+
     accepts_nested_attributes_for :identifiers
   end
 
@@ -40,5 +42,10 @@ module Shared::Identifiable
   end
 
   protected
+
+  def build_identifier(params)
+    byebug
+    foo = 1
+  end
 
 end
