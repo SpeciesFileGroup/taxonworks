@@ -8,23 +8,80 @@ describe Identifier, :type => :model do
   let(:specimen2) {FactoryGirl.create(:valid_specimen)}
 
   context 'validation' do
+
     context 'requires' do
       before do
-        identifier.save
+        identifier.valid?
+      end
+
+      # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
+      specify 'identified_object' do 
+        # this eliminate all model based validation requirements
+        identifier.type = 'Identifier::Local::CatalogNumber'
+        identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
+        identifier.identifier = '123'
+
+        expect{identifier.save}.to raise_error ActiveRecord::StatementInvalid
       end
 
       specify 'identifier' do
         expect(identifier.errors.include?(:identifier)).to be_truthy
       end
 
-      specify 'identified_object' do
-        expect(identifier.errors.include?(:identified_object)).to be_truthy
-      end
-
       specify 'type' do
         expect(identifier.errors.include?(:type)).to be_truthy
       end
     end
+
+    # sanity check for Housekeeping, which is tested elsewhere 
+    context 'sets housekeeping' do
+      before {identifier.valid?}
+      specify 'creator' do
+        expect(identifier.errors.include?(:creator)).to be_falsey
+      end
+
+      specify 'updater' do
+        expect(identifier.errors.include?(:updater)).to be_falsey
+      end
+
+      specify 'with <<' do
+        expect(specimen1.identifiers.count).to eq(0)
+        specimen1.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
+        expect(specimen1.save).to be_truthy 
+        expect(specimen1.identifiers.first.creator.nil?).to be_falsey
+        expect(specimen1.identifiers.first.updater.nil?).to be_falsey
+        expect(specimen1.identifiers.first.project.nil?).to be_falsey
+      end
+
+      specify 'with .build' do
+        expect(specimen1.identifiers.count).to eq(0)
+        specimen1.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
+        expect(specimen1.save).to be_truthy 
+        expect(specimen1.identifiers.first.creator.nil?).to be_falsey
+        expect(specimen1.identifiers.first.updater.nil?).to be_falsey
+        expect(specimen1.identifiers.first.project.nil?).to be_falsey
+      end
+
+      specify 'with new objects and <<' do
+        s = FactoryGirl.build(:valid_specimen)
+        s.identifiers <<  Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
+        expect(s.save).to be_truthy
+        expect(s.identifiers.count).to eq(1)
+        expect(s.identifiers.first.creator.nil?).to be_falsey
+        expect(s.identifiers.first.updater.nil?).to be_falsey
+        expect(s.identifiers.first.project.nil?).to be_falsey
+      end
+
+      specify 'with new objects and build' do
+        s = FactoryGirl.build(:valid_specimen)
+        s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
+        expect(s.save).to be_truthy
+        expect(s.identifiers.count).to eq(1)
+        expect(s.identifiers.first.creator.nil?).to be_falsey
+        expect(s.identifiers.first.updater.nil?).to be_falsey
+        expect(s.identifiers.first.project.nil?).to be_falsey
+      end
+    end 
 
     specify 'has an identified_object' do
       expect(identifier).to respond_to(:identified_object)

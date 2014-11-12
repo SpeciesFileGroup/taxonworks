@@ -8,6 +8,9 @@
 # or local, in which case they have a namespace.
 #
 #
+# !! Identifiers should always be created in the context of their parents see spec/lib/identifier_spec.rb for examples  !!
+#
+#
 ## @!attribute identified_object_id 
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
@@ -59,7 +62,10 @@ class Identifier < ActiveRecord::Base
     unknown: Identifier::Unknown
   }
 
-  validates :identified_object, presence: true
+  # Please DO NOT include the following: 
+  #   validates :identified_object, presence: true 
+  #   validates_presence_of :identified_object_type, :identified_object_id
+  
   validates_presence_of :type, :identifier
 
   # identifiers are unique across types for a class of objects
@@ -76,6 +82,8 @@ class Identifier < ActiveRecord::Base
   protected
 
   # validations are currently defined in the subclass using active record validations.
-  #def validate_format_of_identifier;
+  #def validate_format_of_identifier
   #end
+ 
+  
 end
