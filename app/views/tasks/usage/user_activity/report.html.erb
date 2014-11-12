@@ -2,9 +2,40 @@
 <% Rails.application.eager_load! if Rails.env.development? -%>
 
 <% @user.class.reflect_on_all_associations(:has_many).each do |r| %>
-    <% if r.name.to_s =~ /created_/ %>
-      <div><%= r.name -%> <%= @user.send(r.name).count %></div>
+    <% unless r.name.to_s =~ /created_/ || r.name.to_s =~ /updated_/ %>
+        <div><%= r.name -%> <%#= @user.send(r.name).count %></div>
     <% end %>
+
 <% end %>
 
++++
+
+<!-- call method in user.rb that will create a hash to include class name, no. created, no updated
+ Then there will be some routine (within the loop?) that puts the values in the appropriate column
+
+ Now add a first created at and a last updated at
+ -->
+
+<table>
+  <tr>
+    <th>Class</th>
+    <th>Number created</th>
+    <th>Number updated</th>
+  </tr>
+
+
+  <% @user.get_class_created_updated.each do |k,v| %>
+      <tr>
+        <td>  <%= k %>  </td>
+        <td>
+          <%= v[:created] %>
+        </td>
+        <td>
+          <%= v[:updated] %>
+        </td>
+
+      </tr>
+  <% end %>
+
+</table>
 <%= link_to('select another user', user_activity_task_path) -%>

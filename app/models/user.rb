@@ -43,17 +43,17 @@ class User < ActiveRecord::Base
   # SEE: http://unicode-utils.rubyforge.org/
 
   before_save { self.email = email.to_s.downcase }
-  before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER } 
+  before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
   before_validation { self.email = email.to_s.downcase }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true,
-            format:           {with: VALID_EMAIL_REGEX},
-            uniqueness:       true
+            format: {with: VALID_EMAIL_REGEX},
+            uniqueness: true
 
   has_secure_password
 
   validates :password,
-            length:       {minimum: 8, :if => :validate_password?},
+            length: {minimum: 8, :if => :validate_password?},
             :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
@@ -105,8 +105,8 @@ class User < ActiveRecord::Base
   end
 
   def generate_password_reset_token()
-    token                          = User.secure_random_token
-    self.password_reset_token      = User.encrypt(token)
+    token = User.secure_random_token
+    self.password_reset_token = User.encrypt(token)
     self.password_reset_token_date = DateTime.now
     token
   end
@@ -120,19 +120,51 @@ class User < ActiveRecord::Base
   end
 
   def total_for_Otu_class
-    Otu.where(creator:self).count
+    Otu.where(creator: self).count
   end
 
   def last_otu_created
     Otu.limit(1).order(created_at: :desc).first
   end
 
-  def total_objects(klass)   # klass_name is a string, need .constantize in next line
-    klass.where(creator:self).count
+  def total_objects(klass) # klass_name is a string, need .constantize in next line
+    klass.where(creator: self).count
   end
 
   def total_objects2(klass_string)
-    self.send("created_#{klass_string}").count  #         klass.where(creator:self).count
+    self.send("created_#{klass_string}").count #         klass.where(creator:self).count
+  end
+
+  def get_class_created_updated
+    Rails.application.eager_load! if Rails.env.development?
+    data = {}
+    # "projects" => {created: 10, updated: 10}
+
+    self.class.reflect_on_all_associations(:has_many).each do |r|
+      key = nil
+      puts r.name.to_s
+      if r.name.to_s =~ /created_/
+        puts "after created"
+        key = :created
+      elsif r.name.to_s =~ /updated_/
+        puts "after updated"
+        key = :updated
+      end
+
+      if key
+
+        n = r.klass.name.underscore.humanize.pluralize
+
+        if data[n]
+          data[n].merge!(key => self.send(r.name).count)
+        else
+          data.merge!(n => {key => self.send(r.name).count})
+        end
+
+
+      end
+    end
+    data
   end
 
   private
