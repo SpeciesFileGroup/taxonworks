@@ -248,6 +248,10 @@ require 'csl/styles'
 class Source::Bibtex < Source
   include SoftValidation
 
+  attr_accessor :authors_to_create
+
+  before_validation :create_authors, if: '!authors_to_create.nil?'
+
   # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)
@@ -263,10 +267,13 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 
   belongs_to :serial
-  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object
-  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person # self.author & self.authors should match or one of them should be empty
-  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object # ditto for self.editor & self.editors
-  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person
+  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object, validate: true
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
+  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
+  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+
+
+
 
   #region validations
   validates_inclusion_of :bibtex_type,
@@ -389,30 +396,40 @@ class Source::Bibtex < Source
     [ cached_author_string, year].compact.join(", ")
   end
 
-  def build_related_people_and_roles
+  # Modified from build, the issues with polymorphic has_many and build
+  # are more than we want to tackle righ tnow
+  def create_related_people_and_roles
     return false if !self.valid? ||
       self.new_record? ||
       (self.author.blank? && self.editor.blank?) ||
       self.roles.count > 0
-
+    
     bibtex = to_bibtex
     bibtex.parse_names
 
-    unless bibtex.authors.blank?
-      bibtex.authors.each do |a|
-        p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
-        self.authors << p
+    begin
+      Role.transaction do 
+        unless bibtex.authors.blank?
+          bibtex.authors.each do |a|
+            p = Source::Bibtex.bibtex_author_to_person(a)
+            p.save!
+            SourceAuthor.create!(role_object: self, person: p)
+          end
+        end
+
+        if !bibtex.editors.blank?
+          bibtex.editors.each do |a|
+            p = Source::Bibtex.bibtex_author_to_person(a)
+            p.save!
+            SourceEditor.create!(role_object: self, person: p)
+          end
+        end
       end
+    rescue ActiveRecord::RecordInvalid
+      raise 
     end
 
-    if !bibtex.editors.blank?
-      bibtex.editors.each do |a|
-        p = Source::Bibtex.bibtex_author_to_person(a) # p is a TW person
-        self.editors << p
-      end
-    end
-
-    return true
+    true
   end
 
   def self.bibtex_author_to_person(bibtex_author)
@@ -596,6 +613,20 @@ class Source::Bibtex < Source
   end
 
   protected
+
+  def create_authors
+    begin
+      Person.transaction do
+        authors_to_create.each do |ary|
+          p = Person.create!(ary)
+          self.author_roles.build(person: p)
+        end
+      end
+    rescue
+      errors.add(:base, 'invalid author parameters')
+    end
+  end
+
 
   def set_cached_values
     if self.errors.empty?
