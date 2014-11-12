@@ -106,6 +106,6 @@ class CollectingEventsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def collecting_event_params
-    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label )
+    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :verbatim_habitat,  :field_notes, :verbatim_datum )
   end
 end
