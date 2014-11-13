@@ -29,6 +29,9 @@ TaxonWorks::Application.configure do
 
   config.action_mailer.default_url_options = { :host => "localhost:3000" }
 
+  # Load local settings
+  # Configuration.load_from_file(config, 'config/local_settings.yml')
+
   require 'taxonworks'
   require 'taxonworks_autoload'
 end
