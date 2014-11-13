@@ -20,7 +20,9 @@
   <tr>
     <th>Class</th>
     <th>Number created</th>
+    <th>First created</th>
     <th>Number updated</th>
+    <th>Last updated</th>
   </tr>
 
 
@@ -31,7 +33,13 @@
           <%= v[:created] %>
         </td>
         <td>
+          <%= v[:first_created] %>
+        </td>
+        <td>
           <%= v[:updated] %>
+        </td>
+        <td>
+          <%= v[:last_updated] %>
         </td>
 
       </tr>

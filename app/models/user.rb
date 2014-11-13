@@ -138,7 +138,7 @@ class User < ActiveRecord::Base
   def get_class_created_updated
     Rails.application.eager_load! if Rails.env.development?
     data = {}
-    # "projects" => {created: 10, updated: 10}
+    # "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime}
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
       key = nil
@@ -154,13 +154,27 @@ class User < ActiveRecord::Base
       if key
 
         n = r.klass.name.underscore.humanize.pluralize
+        count = self.send(r.name).count
 
         if data[n]
-          data[n].merge!(key => self.send(r.name).count)
+          data[n].merge!(key => count)
         else
-          data.merge!(n => {key => self.send(r.name).count})
+          data.merge!(n => {key => count})
         end
 
+        if count == 0
+          data[n].merge!(:first_created => 'n/a')
+          data[n].merge!(:last_updated => 'n/a')
+        else
+          data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
+          data[n].merge!(:last_updated => self.send(r.name).limit(1).order('updated_at desc').first.updated_at)
+
+
+          # data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
+          # data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
+          # data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
+          # data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
+        end
 
       end
     end
