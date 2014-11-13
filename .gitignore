@@ -15,7 +15,7 @@
 
 /db/schema.rb
 database.yml
-local_config.yml
+local_settings.yml
 /tags
 
 # Temporarily
