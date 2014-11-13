@@ -1,0 +1,5 @@
+exception_notification:
+  email_prefix: "[TW-Error] "
+  sender_address: "\"notifier\" <notifier@example.com>"
+  exception_recipients: 
+    - exceptions@example.com

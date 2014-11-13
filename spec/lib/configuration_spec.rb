@@ -1,22 +1,22 @@
 require 'rails_helper'
 
 describe Configuration do
-  
-  describe '#load_from_hash' do
-    let(:rails_config) {
-      double('config', middleware: double('middleware'))
+  let(:valid_config) do
+    { exception_notification: {
+        email_prefix: '[TW-Error] ',
+        sender_address: %{"notifier" <notifier@example.com>},
+        exception_recipients: ["exceptions@example.com"]
+      } 
     }
+  end
+  let(:rails_config) {
+    double('config', middleware: double('middleware'))
+  }
+        
+  describe '#load_from_hash' do
     let(:empty_config) { { } }
 
     describe 'exception_notification' do
-      let(:valid_config) do
-        { exception_notification: {
-            email_prefix: '[TW-Error] ',
-            sender_address: %{"notifier" <notifier@example.com>},
-            exception_recipients: ["exceptions@example.com"]
-          } 
-        }
-      end
             
       context 'when valid configuration' do
       
@@ -64,6 +64,24 @@ describe Configuration do
       
     end
     
+  end
+  
+  describe '#load_from_file' do
+    
+    it "calls #load_from_hash with YAML file converted to hash" do
+      expect(Configuration).to receive(:load_from_hash).with(rails_config, valid_config)
+      Configuration.load_from_file(rails_config, Rails.root + 'spec/files/configuration/valid.yml')
+    end
+    
+    it "throws error when file not exists" do
+      expect { Configuration.load_from_file(rails_config, 'not_exists.yml') }.to raise_error
+    end
+    
+    it "throws error on syntax error" do
+      expect { 
+        Configuration.load_from_file(rails_config, Rails.root + 'spec/files/configuration/syntax_error.yml') 
+      }.to raise_error Psych::SyntaxError
+    end
   end
   
 end

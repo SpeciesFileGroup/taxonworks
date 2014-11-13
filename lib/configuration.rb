@@ -30,4 +30,16 @@ module Configuration
     
   end
   
+  def self.load_from_file(config, path)
+    self.load_from_hash(config, symbolize_keys(YAML.load_file(path)))
+  end
+  
+  private
+  def self.symbolize_keys(hash)
+    hash.inject({}) do |h, (k, v)|
+      h[k.is_a?(String) ? k.to_sym : k] = (v.is_a?(Hash) ? symbolize_keys(v) : v)
+      h
+    end
+  end
+
 end
