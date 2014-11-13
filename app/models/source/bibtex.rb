@@ -446,12 +446,14 @@ class Source::Bibtex < Source
   #endregion  ruby-bibtex related
 
   #region getters & setters
+  
+  # Return a String of last names as displayed in nomenclatural authority.
   def authority_name
     case self.authors.count
     when 0
       if (self.author.blank?)
         return ('')
-      else        # build off the last names only of authors
+      else        # build off the last names only of .authors
         b = self.to_bibtex
         b.parse_names
         case b.author.tokens.count
@@ -460,21 +462,13 @@ class Source::Bibtex < Source
         when 1
           return(b.author[0].last)
         else
-          p_array = []
-          for i in 0..(b.author.tokens.count-1) do
-            p_array.push(b.author.tokens[i].last)
-          end
-          return(p_array.to_sentence(:last_word_connector => ' & '))
+         return  b.author.tokens.collect{|t| t.last}.to_sentence( :last_word_connector => ' & ')
         end
       end
     when 1
-      return (authors[0].last_name)
+      return (authors.all.first.last_name)
     else
-      p_array = []
-      for i in 0..(self.authors.count-1) do
-        p_array.push(self.authors[i].last_name)
-      end
-      return(p_array.to_sentence(:last_word_connector => ' & '))
+      return  self.authors.collect{|a| a.last_name}.to_sentence(:last_word_connector => ' & ')
     end
   end
 
@@ -512,7 +506,8 @@ class Source::Bibtex < Source
   def isbn=(value)
     write_attribute(:isbn, value)
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
+
+    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) if ! value.nil?
   end
 
   def isbn
@@ -522,7 +517,7 @@ class Source::Bibtex < Source
   def doi=(value)
     write_attribute(:doi, value)
     #TODO if there is already an 'Identifier::Global::Doi' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
+    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value) if ! value.nil?
   end
 
   def doi
@@ -533,7 +528,7 @@ class Source::Bibtex < Source
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if ! value.nil?
   end
 
   def issn

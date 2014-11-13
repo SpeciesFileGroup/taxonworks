@@ -8,19 +8,18 @@ describe Role, :type => :model do
       role.valid?
     end
 
-    context 'required fields' do
-      specify 'person_id' do
-        expect(role.errors.include?(:person_id)).to be_truthy
+    context 'required' do
+      specify 'person' do
+        expect(role.errors.include?(:person)).to be_truthy
       end
+
+      specify 'role_object' do
+        expect(role.errors.include?(:person)).to be_truthy
+      end
+ 
       specify 'type' do
         expect(role.errors.include?(:type)).to be_truthy
-      end
-      specify 'role_object_id' do
-        expect(role.errors.include?(:role_object_id)).to be_truthy
-      end
-      specify 'role_object_type' do
-        expect(role.errors.include?(:role_object_type)).to be_truthy
-      end
+     end
     end
 
     context 'indices' do

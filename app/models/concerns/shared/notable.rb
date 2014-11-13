@@ -4,6 +4,8 @@ module Shared::Notable
   included do
     # Validation happens on the parent side!
     has_many :notes, as: :note_object, validate: true
+
+    # Todo: this likely doesn't do anything.
     accepts_nested_attributes_for :notes
   end 
 
@@ -19,7 +21,4 @@ module Shared::Notable
     self.notes.count > 0
   end
 
-  protected
-
-  
 end

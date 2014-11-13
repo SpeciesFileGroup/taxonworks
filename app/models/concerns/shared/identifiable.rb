@@ -3,7 +3,6 @@ module Shared::Identifiable
   included do
     # Validation happens on the parent side!
     has_many :identifiers, as: :identified_object, validate: true 
-
     accepts_nested_attributes_for :identifiers
   end
 

@@ -525,9 +525,22 @@ describe Source::Bibtex, :type => :model do
 
     context 'with a new object' do
       let(:s) {Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
-      specify 'with new objects, <<, and existing Person' do
+      specify 'with new object, <<, and existing Person' do
         expect(bibtex.roles.count).to eq(0)
         s.authors << Person.create(last_name: 'Jones')
+        expect(s.save).to be_truthy
+        expect(s.roles.count).to eq(1)
+        expect(s.roles.first.creator.nil?).to be_falsey
+        expect(s.roles.first.updater.nil?).to be_falsey
+        expect(s.roles.first.project_id.nil?).to be_truthy
+
+        expect(s.authors.first.creator.nil?).to be_falsey
+        expect(s.authors.first.updater.nil?).to be_falsey
+      end
+
+      specify 'with new object, <<, and new Person' do
+        expect(bibtex.roles.count).to eq(0)
+        s.authors << Person.new(last_name: 'Jones')
         expect(s.save).to be_truthy
         expect(s.roles.count).to eq(1)
         expect(s.roles.first.creator.nil?).to be_falsey
@@ -608,7 +621,7 @@ describe Source::Bibtex, :type => :model do
               method = "#{a}s"
 
               source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
-              source_bibtex.save
+              expect(source_bibtex.save).to be_truthy
               expect(@source_bibtex.send(method.to_sym).size).to eq(0)
 
               expect(Person.count).to eq(0)
@@ -635,7 +648,6 @@ describe Source::Bibtex, :type => :model do
             method_roles = "#{a}_roles"
             @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
             expect(@source_bibtex.save).to be_truthy
-
             expect(@source_bibtex.send(method.to_sym).size).to eq(0)
             expect(@source_bibtex.create_related_people_and_roles).to be_truthy
             @source_bibtex.reload

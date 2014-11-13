@@ -32,7 +32,7 @@ describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
     s = TaxonName.create(name: 'caerulescens', rank_class: Ranks.lookup(:iczn, 'species'), parent: g)
     ss = TaxonName.create(name: 'sardeti', rank_class: Ranks.lookup(:iczn, 'subspecies'), parent: s, source: source)
   
-    ss.identifiers << Identifier::Global::Lsid.create(identifier: 'urn:lsid:Orthoptera.speciesfile.org:TaxonName:67404')
+    ss.identifiers << Identifier::Global::Lsid.new(identifier: 'urn:lsid:Orthoptera.speciesfile.org:TaxonName:67404')
 
     otu = Otu.create(taxon_name: ss)
   
