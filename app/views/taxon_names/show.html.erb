@@ -1,7 +1,11 @@
-<% content_for :editing do %>
+<% content_for :tasks do %>
 
   <%= render(partial: 'tasks') -%>
 
+<% end %>
+
+<% content_for :show_navigation do %>
+  <%= render( 'parent_navigator', taxon_name: @taxon_name) -%>
 <% end %>
 
 <%= render(partial: 'shared/data/show', locals: {object: @taxon_name}) -%>

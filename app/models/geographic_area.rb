@@ -140,8 +140,15 @@ class GeographicArea < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     terms       = params[:term].split
+    limit = 100 
+    case params[:term].length
+    when 0..3
+      limit = 10
+    else
+      limit = 40
+    end 
     search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
-    where(search_term).includes(:parent, :geographic_area_type).order(:name)
+    where(search_term).includes(:parent, :geographic_area_type).order(:name).limit(limit)
   end
 
   def children_at_level1
