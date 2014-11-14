@@ -1,0 +1,10 @@
+<div class="object_pane">
+  <h3> Alternate values </h3>
+  <ul>
+    <% object.alternate_values.each do |alternate_value| -%>
+      <li> <%= alternate_value.value -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'No alternate values.') if !object.alternate_values.any? -%>
+</div>
