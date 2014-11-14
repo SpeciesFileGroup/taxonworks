@@ -218,4 +218,14 @@ describe GeographicArea, :type => :model do
     end
   end
 
+  context 'geolocate_params_string' do
+    before(:all) {
+      @geographic_area = FactoryGirl.create(:level2_geographic_area)
+    }
+    specify 'retrieving geolocate parameters as a string' do
+      pending 'completion of method'
+      expect(geographic_area.geolocate_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
+    end
+  end
+
 end

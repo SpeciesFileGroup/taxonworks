@@ -185,6 +185,14 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
+  def geolocate_params_string
+
+  end
+
+  def geolocate_params_hash
+
+  end
+
   def self.find_for_autocomplete(params)
     terms = params[:term].split
     search_term = terms.collect{|t| "name LIKE '#{t}%'"}.join(" OR ") 

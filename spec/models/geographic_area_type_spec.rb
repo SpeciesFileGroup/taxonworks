@@ -12,6 +12,9 @@ describe GeographicAreaType, :type => :model do
   end
 
   context 'validation' do
+    before(:all) {
+      GeographicAreaType.destroy_all
+    }
     before(:each) {
       geographic_area_type.valid?
     }

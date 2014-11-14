@@ -397,7 +397,7 @@ class Source::Bibtex < Source
   end
 
   # Modified from build, the issues with polymorphic has_many and build
-  # are more than we want to tackle righ tnow
+  # are more than we want to tackle right now
   def create_related_people_and_roles
     return false if !self.valid? ||
       self.new_record? ||

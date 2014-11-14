@@ -169,6 +169,7 @@ describe GeographicItem, :type => :model do
   end
 
   context 'geo_object interactions (Geographical attribute of GeographicItem)' do
+
     specify 'Certain line_string shapes cannot be polygons, others can.' do
       @k.reload # can't make a polygon out of a line_string which crosses itself
       @d.reload # can make a (closed) polygon out of a line_string which is either closed, or open
@@ -767,11 +768,11 @@ describe GeographicItem, :type => :model do
         expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to contain_exactly(@b1, @b2, @b, @g1)
       end
 
-      specify '::within_radius of returns objects within a specific distance of an object.' do
+      specify '::within_radius_of returns objects within a specific distance of an object.' do
         expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
       
-      specify '::within_radius("any"...)' do
+      specify '::within_radius_of("any", ...)' do
         expect(GeographicItem.within_radius_of('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 

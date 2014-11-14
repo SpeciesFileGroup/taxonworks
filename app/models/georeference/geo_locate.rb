@@ -91,6 +91,10 @@ class Georeference::GeoLocate < Georeference
     g
   end
 
+  def self.default_options_string
+    '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
+  end
+
   class Request
     URI_HOST = 'www.museum.tulane.edu'
     URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
@@ -98,10 +102,10 @@ class Georeference::GeoLocate < Georeference
     REQUEST_PARAMS = {
       country:      nil, # name of a country 'USA', or Germany
       state:        nil, # 'IL', or 'illinois' (required in the United States)
-      county:       nil, # upply as a parameter, returned as 'Adm='
+      county:       nil, # supply as a parameter, returned as 'Adm='
       locality:     nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
-      hwyX:         'false',
       enableH2O:    'false',
+      hwyX:         'false',
       doUncert:     'true',
       doPoly:       'false',
       displacePoly: 'false',
