@@ -18,6 +18,7 @@
     <div class="attributes">
       <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
       <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+      <%= render(partial: '/notes/object_pane', locals: {object: object}) if object.respond_to?(:notes) %>
     </div>
   </div>
 
