@@ -1,12 +1,12 @@
 class TaxonNameRelationship::OriginalCombination::OriginalSpecies < TaxonNameRelationship::OriginalCombination
 
   def self.valid_subject_ranks
-    SPECIES_RANK_NAMES
+    GENUS_AND_SPECIES_RANK_NAMES 
   end
 
   # right_side
   def self.valid_object_ranks
-    SPECIES_RANK_NAMES
+    SPECIES_RANK_NAMES 
   end
 
   def self.required_taxon_name_relationships
@@ -26,5 +26,9 @@ class TaxonNameRelationship::OriginalCombination::OriginalSpecies < TaxonNameRel
   def self.assignable
     true
   end
+
+ #def self.inapplicable_ranks
+ #  ['NomenclaturalRank::Iczn::SpeciesGroup::Subspecies']
+ #end
 
 end

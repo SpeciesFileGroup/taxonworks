@@ -1,2 +1,8 @@
+<% content_for :editing do %>
+
+  <%= render(partial: 'tasks') -%>
+
+<% end %>
+
 <%= render(partial: 'shared/data/show', locals: {object: @taxon_name}) -%>
 

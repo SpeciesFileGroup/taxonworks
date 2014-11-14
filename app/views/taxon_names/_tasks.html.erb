@@ -1,0 +1,8 @@
+<h3> Tasks </h3>
+ <ul>
+  <% if GENUS_AND_SPECIES_RANK_NAMES.include?(@taxon_name.rank_string) %>
+    <%= content_tag(:li, edit_original_combination_task_link(@taxon_name)) -%>
+  <% end %>
+</ul> 
+
+

@@ -48,7 +48,6 @@ describe TaxonName, :type => :model do
       expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
     end
   end
- 
 
   context 'associations' do
     specify 'responses to source' do

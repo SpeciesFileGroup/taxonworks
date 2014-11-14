@@ -18,6 +18,7 @@
 
 <table>
   <tr>
+    <th> </th>
     <th>Class</th>
     <th>Number created</th>
     <th>First created</th>
@@ -26,8 +27,9 @@
   </tr>
 
 
-  <% @user.get_class_created_updated.each do |k,v| %>
-      <tr>
+  <% @user.get_class_created_updated.each_with_index do |(k,v), i| %>
+    <tr>
+      <td> <%= i -%> </td>
         <td>  <%= k %>  </td>
         <td>
           <%= v[:created] %>

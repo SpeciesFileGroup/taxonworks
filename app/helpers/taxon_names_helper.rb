@@ -28,4 +28,8 @@ module TaxonNamesHelper
     select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string) ) 
   end
 
+  def edit_original_combination_task_link(taxon_name)
+    link_to('Edit original combination.', edit_original_combination_task_taxon_name_path(taxon_name)) if GENUS_AND_SPECIES_RANK_NAMES.include?(taxon_name.rank_string)
+  end
+
 end

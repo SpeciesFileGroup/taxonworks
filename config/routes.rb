@@ -142,9 +142,15 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
+
   resources :taxon_names do
     concerns [:data_routes]
+    member do
+      match 'edit_original_combination_task', to: 'tasks/nomenclature/original_combination#edit', via: 'get'
+      match 'update_original_combination_task', to: 'tasks/nomenclature/original_combination#update', via: 'patch'
+    end
   end
+
   resources :taxon_name_classifications, only: [:create, :update, :destroy]
   resources :taxon_name_relationships do
     collection do

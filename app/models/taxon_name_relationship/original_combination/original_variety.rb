@@ -2,12 +2,12 @@ class TaxonNameRelationship::OriginalCombination::OriginalVariety < TaxonNameRel
 
   # left_side
   def self.valid_subject_ranks
-    SPECIES_RANK_NAMES_ICN
+    SPECIES_RANK_NAMES_ICN   
   end
 
   # right_side
   def self.valid_object_ranks
-    SPECIES_RANK_NAMES_ICN
+    SPECIES_RANK_NAMES_ICN 
   end
 
   def self.required_taxon_name_relationships

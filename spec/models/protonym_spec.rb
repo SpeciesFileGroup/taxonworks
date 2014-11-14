@@ -873,7 +873,32 @@ describe Protonym, :type => :model do
         expect(Protonym.with_taxon_name_classification_containing('Valid').count).to eq(1)
       end
     end
-  end
 
+    context 'original combinations' do
+      context '#original_combination_class_relationships' do
+        let(:t) { Protonym.new } 
+
+        specify 'for iczn Genus' do
+          t.rank_class = NomenclaturalRank::Iczn::GenusGroup::Genus
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus ].sort )
+        end
+
+        specify 'for iczn Subgenus' do
+          t.rank_class = NomenclaturalRank::Iczn::GenusGroup::Subgenus
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus ].sort )
+        end
+
+        specify 'for iczn species' do
+          t.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Species 
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus, :original_species ].sort )
+        end
+
+        specify 'for iczn subspecies' do
+          t.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Subspecies 
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus, :original_species ].sort )
+        end
+      end
+    end
+  end
 
 end

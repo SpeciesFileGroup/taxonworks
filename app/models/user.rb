@@ -140,7 +140,7 @@ class User < ActiveRecord::Base
     data = {}
     # "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime}
 
-    self.class.reflect_on_all_associations(:has_many).each do |r|
+    User.reflect_on_all_associations(:has_many).each do |r|
       key = nil
       puts r.name.to_s
       if r.name.to_s =~ /created_/
@@ -166,8 +166,10 @@ class User < ActiveRecord::Base
           data[n].merge!(:first_created => 'n/a')
           data[n].merge!(:last_updated => 'n/a')
         else
-          data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)
-          data[n].merge!(:last_updated => self.send(r.name).limit(1).order('updated_at desc').first.updated_at)
+          data[n].merge!(:first_created => self.send(r.name).limit(1).order(created_at: :asc).first.created_at)
+          data[n].merge!(:last_updated => self.send(r.name).limit(1).order(updated_at: :desc).first.updated_at)
+          
+          # "Select created_at from { } order created_at asc limit 1"
 
 
           # data[n].merge!(:first_created => self.send(r.name).limit(1).order('created_at asc').first.created_at)

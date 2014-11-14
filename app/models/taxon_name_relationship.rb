@@ -14,9 +14,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
-  # TODO: refactor once housekeeping stabilizes
-  before_validation :assign_houskeeping_if_possible, on: :create
-
   before_validation :validate_type,
     :validate_subject_and_object_share_code,
     :validate_valid_subject_and_object,
@@ -135,15 +132,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   protected
-
-  # TODO: ! remove once housekeepign stabilizes
-  def assign_houskeeping_if_possible
-    if self.subject_taxon_name
-      self.creator = self.subject_taxon_name.creator if self.creator.nil?
-      self.updater = self.subject_taxon_name.updater if self.updater.nil?
-      self.project = self.subject_taxon_name.project if self.project.nil?
-    end
-  end
 
   #region Validation
 

@@ -124,6 +124,8 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
+  accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
+
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
@@ -196,14 +198,17 @@ class TaxonName < ActiveRecord::Base
                       LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
                       WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
   end
-
+  
+  # @!rank
+  #   @return [String]
+  #   Returns rank as human readable shortform, like 'genus' or 'species'
   def rank
     ::RANKS.include?(self.rank_string) ? self.rank_class.rank_name : nil
   end
 
   # @!rank_string
   #   @return [String]
-  #   Returns rank as a string.
+  #   Returns rank as a string, like "NomenclaturalRank::Iczn::SpeciesGroup::Species".
   def rank_string
     read_attribute(:rank_class)
   end
@@ -214,7 +219,7 @@ class TaxonName < ActiveRecord::Base
 
   # @!rank_class
   #   @return [Class]
-  #   Returns rank as class.
+  #   Returns rank as Class, like NomenclaturalRank::Iczn::SpeciesGroup::Species
   def rank_class
     r = read_attribute(:rank_class)
     Ranks.valid?(r) ? r.safe_constantize : r
@@ -233,14 +238,13 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # @!nomenclature_date
+  #   @return [String]
+  #   Returns a 4 digit string representing year of publication, like '1974'
   def year_integer
-    if !self.year_of_publication.nil?
-      self.year_of_publication
-    elsif !self.source_id.nil?
-      self.source.year
-    else
-      nil
-    end
+    return self.year_of_publication if !self.year_of_publication.nil?
+    return self.source.year if !self.source_id.nil?
+    nil
   end
 
   # @!nomenclature_date
@@ -355,11 +359,8 @@ class TaxonName < ActiveRecord::Base
 
     s = s2 + s3
     s.compact!
-    if s.empty?
-      ['valid']
-    else
-      s
-    end
+    return ['valid'] if s.empty?
+    s
   end
 
   def name_with_alternative_spelling
@@ -431,7 +432,7 @@ class TaxonName < ActiveRecord::Base
     n.blank? ? self.name : n
   end
 
-  # An array of genera where the species was placed
+  # An Array of genera where the species was placed
   def all_generic_placements
     valid_name = self.get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
@@ -490,8 +491,6 @@ class TaxonName < ActiveRecord::Base
     misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
     misspelling.empty? ? nil : true
   end
-
-
 
   # Returns an Array of ancestors
   #   same as self.ancestors, but also works
@@ -691,6 +690,7 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # Returns a String representing the name as originally published
   def get_original_combination
     unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       cached_html = nil
@@ -888,7 +888,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+    t = params[:term]
+    limit = 10 
+    case t.length
+    when 0..3
+    else
+     limit = 10
+    end
+    
+    where('cached ~ ? OR name ~ ?', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
   end
 
   #endregion

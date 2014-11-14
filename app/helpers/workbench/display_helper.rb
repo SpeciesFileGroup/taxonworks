@@ -17,5 +17,5 @@ module Workbench::DisplayHelper
   def object_attributes_partial_path(object)
     "/#{object.class.base_class.name.tableize}/attributes"
   end
-
+  
 end

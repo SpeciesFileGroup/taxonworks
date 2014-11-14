@@ -5,4 +5,4 @@ build_biocuration_groups_task:
   - quick_verbatim_material_task
 quick_verbatim_material_task:
   - build_biocuration_groups_task
-
+update_original_combination_task:

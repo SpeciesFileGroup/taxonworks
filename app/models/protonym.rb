@@ -23,9 +23,11 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
+
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
   has_one :type_taxon_name_classification, -> {
     where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
   }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
@@ -200,8 +202,6 @@ class Protonym < TaxonName
     end
   end
 
-
-
   def incorrect_original_spelling
     self.iczn_set_as_incorrect_original_spelling_of_relationship
     #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
@@ -210,6 +210,34 @@ class Protonym < TaxonName
   def incertae_sedis
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
+  end
+
+  # Returns an Array of TaxonNameRelationship classes that are applicable to this name
+  def original_combination_class_relationships
+    relations = []
+    TaxonNameRelationship::OriginalCombination.descendants.each do |r|
+      relations.push(r) if r.valid_object_ranks.include?(self.rank_string)
+    end
+    relations
+  end
+
+  def original_combination_relationships_and_stubs
+    # TODO: figure out where to really put this, likely in one big sort
+    display_order = [
+      :original_genus, :original_subgenus, :original_species, :original_subspecies
+    ]
+
+    defined_relations = self.original_combination_relationships.all
+    created_already = defined_relations.collect{|a| a.class}
+    new_relations = [] 
+   
+    original_combination_class_relationships.each do |r|
+      new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
+    end
+  
+    (new_relations + defined_relations).sort{|a,b| 
+      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
+    }
   end
 
   protected
