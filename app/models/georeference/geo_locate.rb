@@ -2,6 +2,9 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
+  URI_HOST = 'www.museum.tulane.edu'
+  URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+
   def api_response=(response)
     make_geographic_item(response.coordinates)
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
@@ -95,10 +98,50 @@ class Georeference::GeoLocate < Georeference
     '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
   end
 
-  class Request
-    URI_HOST = 'www.museum.tulane.edu'
-    URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+  class RequestUI
+    REQUEST_PARAMS = {
+      country:       nil, # name of a country 'USA', or Germany
+      state:         nil, # 'IL', or 'illinois' (required in the United States)
+      county:        nil, # supply as a parameter
+      locality:      nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
+      H20:           'false',
+      HwyX:          'false',
+      Uncert:        'true',
+      Poly:          'true',
+      DisplacePoly:  'false',
+      RistrictAdmin: 'false',
+      BG:            'false',
+      LanguageIndex: '0',
+      gc:            'Tester'
+    }
 
+    attr_reader :request_params, :request_param_string, :request_params_hash
+
+    def initialize(request_params)
+      @request_params = REQUEST_PARAMS.merge(request_params)
+      @succeeded      = nil
+    end
+
+    def build_params_hash
+      @request_params
+    end
+
+    def build_param_string
+      @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
+    end
+
+    def request_string
+      build_param_string
+      URI_PATH + @request_param_string
+    end
+
+    def request_hash
+
+    end
+
+  end
+
+  class Request
     REQUEST_PARAMS = {
       country:      nil, # name of a country 'USA', or Germany
       state:        nil, # 'IL', or 'illinois' (required in the United States)
@@ -148,7 +191,7 @@ class Georeference::GeoLocate < Georeference
     attr_accessor :result
 
     def initialize(request)
-      @result           = JSON.parse(call_api(Georeference::GeoLocate::Request::URI_HOST, request))
+      @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1
     end
 

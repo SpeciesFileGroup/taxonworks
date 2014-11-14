@@ -40,7 +40,7 @@ class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
   include Housekeeping::Timestamps
 
-  include Shared::IsData 
+  include Shared::IsData
 
   # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
   if ENV['NO_GEO_NESTING']
@@ -138,6 +138,12 @@ class GeographicArea < ActiveRecord::Base
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
 
+  def self.find_for_autocomplete(params)
+    terms       = params[:term].split
+    search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
+    where(search_term).includes(:parent, :geographic_area_type).order(:name)
+  end
+
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
   end
@@ -189,14 +195,9 @@ class GeographicArea < ActiveRecord::Base
 
   end
 
-  def geolocate_params_hash
-
-  end
-
-  def self.find_for_autocomplete(params)
-    terms = params[:term].split
-    search_term = terms.collect{|t| "name LIKE '#{t}%'"}.join(" OR ") 
-    where(search_term).includes(:parent, :geographic_area_type).order(:name)
+  def geolocate_ui_params_hash
+    data = {}
+    data.merge!(county: level2.name, state: level1.name, country: level0.name)
   end
 
 end

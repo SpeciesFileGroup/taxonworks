@@ -118,9 +118,9 @@ describe GeographicArea, :type => :model do
   context 'search functions' do
     before(:each) {
       @champaign = FactoryGirl.create(:level2_geographic_area)
-      @illinois = @champaign.parent
-      @usa = @illinois.parent
-      @earth = @usa.parent
+      @illinois  = @champaign.parent
+      @usa       = @illinois.parent
+      @earth     = @usa.parent
     }
 
     specify 'should be able to find a country by ISO_A2' do
@@ -222,9 +222,31 @@ describe GeographicArea, :type => :model do
     before(:all) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
     }
+
+    after(:all) {
+      @geographic_area.destroy
+    }
+
     specify 'retrieving geolocate parameters as a string' do
       pending 'completion of method'
-      expect(geographic_area.geolocate_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
+      expect(@geographic_area.geolocate_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
+    end
+  end
+
+  context 'geolocate_params_hash' do
+    before(:all) {
+      @geographic_area = FactoryGirl.create(:level2_geographic_area)
+    }
+
+    after(:all) {
+      @geographic_area.destroy
+    }
+
+    specify 'retrieving geolocate paramerters as a hash' do
+      pending 'completion of method'
+      expect(@geographic_area.geolocate_ui_params_hash).to contain_exactly(counrty: 'United States of America',
+                                                                           state:   'Illinois',
+                                                                           county:  'Champaign')
     end
   end
 
