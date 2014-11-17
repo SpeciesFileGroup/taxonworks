@@ -1,4 +1,4 @@
-module Configuration
+module Settings
   
   EXCEPTION_NOTIFICATION_SETTINGS = [
     :email_prefix,
