@@ -36,11 +36,13 @@ TaxonWorks::Application.configure do
 
   config.action_mailer.default_url_options = { :host => "www.example.com" }
   
-  middleware.use ExceptionNotification::Rack, :email => {
-    :email_prefix => "[TW-Error] ",
-    :sender_address => %{"notifier" <notifier@example.com>},
-    :exception_recipients => %w{exceptions@example.com}
-  }  
+  Settings.load_from_hash(config, { 
+    exception_notification: {
+      email_prefix: "[TW-Error] ",
+      sender_address: %{"notifier" <notifier@example.com>},
+      exception_recipients: %w{exceptions@example.com}
+    }
+  })  
   
   # Post scaffolding changes 
   require 'taxonworks'
