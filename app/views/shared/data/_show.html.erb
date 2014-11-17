@@ -18,6 +18,7 @@
       <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
       <%= render(partial: '/alternate_values/object_pane', locals: {object: object}) if object.respond_to?(:alternate_values) %>
       <%= render(partial: '/citations/object_pane', locals: {object: object}) if object.respond_to?(:citations) %>
+      <%= render(partial: '/identifiers/object_pane', locals: {object: object}) if object.respond_to?(:identifiers) %>
       <%= render(partial: '/notes/object_pane', locals: {object: object}) if object.respond_to?(:notes) %>
       <%= render(partial: '/tags/object_pane', locals: {object: object}) if object.respond_to?(:tags) %>
     </div>
