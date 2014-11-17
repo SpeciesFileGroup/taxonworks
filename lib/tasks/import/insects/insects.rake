@@ -366,12 +366,12 @@ namespace :tw do
         sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
         elevation, verbatim_elevation = parse_elevation(ce)
         geographic_area = parse_geographic_area(ce)
-        geolocation_uncertainty = parse_geolocation_Uncertainty(ce)
+        geolocation_uncertainty = parse_geolocation_uncertainty(ce)
 
         c = CollectingEvent.new(
             geographic_area_id: geographic_area,
             verbatim_label: ce['LocalityLabel'],
-            verbatim_locality: ce['Locality'],
+            verbatim_locality: (ce['Locality'] + ' ' + ce['Park']).squish,
             verbatim_collectors: ce['Collector'],
             verbatim_method: ce['CollectionMethod'],
             start_date_day: sdd,
@@ -386,14 +386,15 @@ namespace :tw do
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
             verbatim_geolocation_uncertainty: geolocation_uncertainty,
-            verbatim_datum: datum
+            verbatim_datum: ce['Datum']
         )
-
+        c.save! if c.valid?
         ce.select{|k,v| !v.nil?}.each do |a,b|
           if PREDICATES.include?(a)
-            c.data_attributes.build(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
+            c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
           end
         end
+        c.generate_verbatim_georeference
 
 
       end
@@ -895,7 +896,7 @@ namespace :tw do
         [latitude, longitude]
       end
 
-      def parse_geolocation_Uncertainty(ce)
+      def parse_geolocation_uncertainty(ce)
         geolocation_uncertainty = nil
         unless ce['PrecisionCode'].blank?
           case ce['PrecisionCode'].to_i
