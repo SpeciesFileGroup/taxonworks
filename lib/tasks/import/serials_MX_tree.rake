@@ -1,9 +1,9 @@
 namespace :tw do
   namespace :import do
 
-    desc 'call like "rake tw:initialization:upload_MX_tree_serials[/Users/eef/src/data/serialdata/serialdata/working_data/treeMXmerge-final.txt] user_id=1" '
-    task :build_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
-      args.with_defaults(:data_directory1 => './TreeMXmerge-final.txt', :data_directory2 => './treeMXduplicates.txt')
+    desc 'call like "rake tw:import:build_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1 project_id=1" '
+    task :build_MXserials, [:data_directory1] => [:environment, :user_id, :project_id] do |t, args|
+      args.with_defaults(:data_directory1 => './treeMXmerge-final.txt')
 
       # TODO: check checksums of incoming files?
 
@@ -115,35 +115,40 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             end
 
             # URL
-            f !(row[16].to_s.strip.blank?)
-            identifiers.push({type:       'Identifier::global::uri',
-                              identifier: row[16].to_s.strip
-                             })
+            if !(row[16].to_s.strip.blank?)
+              identifiers.push({type:       'Identifier::global::uri',
+                                identifier: row[16].to_s.strip
+                               })
+            end
 
-            r                               = Serial.new(
+            r = Serial.new(
               name:                   row[4].to_s.strip,
               publisher:              row[5].to_s.strip,
               place_published:        row[6].to_s.strip,
               primary_language_id:    row[11].to_s.strip,
               # first_year_of_issue:    row[6],              # not available from treehopper or MX data
-              # last_year_of_issue:     row[7],
-              identifiers_attributes: identifiers,
+              # last_year_of_issue:     row[7],             # not available from treehopper or MX data
+              identifiers_attributes: identifiers,    # TODO identifiers & notes require project even on non-project objects
               notes_attributes:       notes
             )
 
             # add abbreviation
-            abbr                            = AlternateValue.new # or should this be an abbreviation?
-            abbr.value                      = row[7].to_s.strip
-            abbr.alternate_object_attribute = 'name'
-            abbr.type                       = 'AlternateValue::Abbreviation'
-            r.alternate_values << abbr
+            if !(row[7].to_s.strip.blank?)
+              abbr                            = AlternateValue.new # or should this be an abbreviation?
+              abbr.value                      = row[7].to_s.strip
+              abbr.alternate_object_attribute = 'name'
+              abbr.type                       = 'AlternateValue::Abbreviation'
+              r.alternate_values << abbr
+            end
 
             # add short name (alternate name)
-            alt_name                            = AlternateValue.new
-            alt_name.value                      = row[8].to_s.strip
-            alt_name.alternate_object_attribute = 'name'
-            alt_name.type                       = 'AlternateValue::Abbreviation'
-            r.alternate_values << alt_name
+            if !(row[8].to_s.strip.blank?)
+              alt_name                            = AlternateValue.new
+              alt_name.value                      = row[8].to_s.strip
+              alt_name.alternate_object_attribute = 'name'
+              alt_name.type                       = 'AlternateValue::Abbreviation'
+              r.alternate_values << alt_name
+            end
 
             r.save!
 
@@ -174,23 +179,33 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               )
 
               r.save!
-
             end
 
           end
           puts 'Successful load of primary serial file'
+          #raise # causes it to always fail and rollback the transaction
         end # transaction end
 
-        # Now add additional identifiers - filename is treeMXduplicates
-        begin
-          Activerecord::Base.transaction do
-            CSV.foreach(args[:data_directory1],
-                        headers:        true,
-                        return_headers: false,
-                        encoding:       'UTF-16LE:UTF-8',
-                        col_sep:        "\t",
-                        quote_char:     '|'
-            ) do
+      rescue
+        raise
+      end
+
+    end # task
+
+    desc 'call like "rake tw:import:add_duplicate_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1" '
+    task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
+      args.with_defaults(:data_directory => './treeMXduplicates.txt')
+
+      # Now add additional identifiers - filename is treeMXduplicates
+      begin
+        Activerecord::Base.transaction do
+          CSV.foreach(args[:data_directory],
+                      headers:        true,
+                      return_headers: false,
+                      encoding:       'UTF-16LE:UTF-8',
+                      col_sep:        "\t",
+                      quote_char:     '|'
+          ) do
 =begin
 Column : SQL column name : data desc
 0 : Keep : The tmpID of the primary source
@@ -202,10 +217,13 @@ Column : SQL column name : data desc
 6 : Abbr
 
 =end
+            # i = Identifer.with_identifier('IMPORT_SERIAL_NAMESPACE ' + Row[0])
+            s           = Serial.with_namespaced_identifier('IMPORT_SERIAL_NAMESPACE ', row[0])
+            identifiers =[]
+            if !(s.title = row[5]) || !(s.with_alternate_value_on(:title, row[5]).count > 0)
+              printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.title,
+                     s.title.alternate_values)
             end
-
-          end
-        end
 =begin
             Find by alternate value  - note from pair programming with Jim
             s = Source::Bibtex.new
@@ -216,17 +234,16 @@ to save without raising
       a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
       if a.valid? then save else continue the loop
 =end
-
-
-        puts 'Successful complete load of MX & treehopper serials'
-
-
-        raise # causes it to always fail and rollback the transaction
-
+          end
+          puts 'Successful complete load of MX & treehopper serials'
+          raise # causes it to always fail and rollback the transaction
+        end
       rescue
         raise
       end
 
-    end # task
+    end #end task
   end
 end
+
+
