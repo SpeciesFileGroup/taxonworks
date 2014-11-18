@@ -14,7 +14,7 @@ case Rails.env
     # Creates 1,1 project/users
     u = FactoryGirl.create(:valid_user)
     p = FactoryGirl.create(:valid_project, creator: u, updater: u)
-    FactoryGirl.create(:project_member, project_id: p.id, user_id: u.id, creator: u, updater: u)
+    FactoryGirl.create(:project_member, project: p, user: u, creator: u, updater: u)
 
     # These will interfere with importing geographic_items.dmp because it creates related records
     # FactoryGirl.create(:level2_geographic_area)
