@@ -104,12 +104,17 @@ class Georeference::GeoLocate < Georeference
       state:         nil, # 'IL', or 'illinois' (required in the United States)
       county:        nil, # supply as a parameter
       locality:      nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
+      Latitude:      '0.0', #
+      Longitude:     '0.0', #
+      Placename:     nil, #
+      Score:         '0',
+      Uncertainty:   '3',
       H20:           'false',
       HwyX:          'false',
       Uncert:        'true',
       Poly:          'true',
       DisplacePoly:  'false',
-      RistrictAdmin: 'false',
+      RestrictAdmin: 'false',
       BG:            'false',
       LanguageIndex: '0',
       gc:            'Tester'
