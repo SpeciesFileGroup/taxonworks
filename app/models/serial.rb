@@ -11,9 +11,8 @@ class Serial < ActiveRecord::Base
   include Shared::SharedAcrossProjects
   include SoftValidation
   include Shared::Identifiable
-  include Shared::Notable
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
-  include Shared::DataAttributes
+  include Shared::DataAttributes  # equivalent of a note for a global class
   include Shared::Taggable
 
   # Class constants
