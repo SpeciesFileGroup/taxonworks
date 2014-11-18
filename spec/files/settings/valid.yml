@@ -1,6 +1,12 @@
-database_dumps_directory: 'tmp'
-exception_notification:
-  email_prefix: "[TW-Error] "
-  sender_address: "\"notifier\" <notifier@example.com>"
-  exception_recipients: 
-    - exceptions@example.com
+foo:
+  database_dumps_directory: 'foo'
+test:
+  database_dumps_directory: 'tmp'
+  exception_notification:
+    email_prefix: "[TW-Error] "
+    sender_address: "\"notifier\" <notifier@example.com>"
+    exception_recipients: 
+      - exceptions@example.com
+bar:
+  database_dumps_directory: 'bar'
+empty:

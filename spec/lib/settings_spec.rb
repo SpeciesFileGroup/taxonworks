@@ -16,7 +16,6 @@ describe Settings do
         
   describe '::load_from_hash' do
     let(:valid_config) { { exception_notification: valid_full_config[:exception_notification] } }
-    let(:empty_config) { { } }
 
     describe 'exception_notification' do
             
@@ -29,7 +28,7 @@ describe Settings do
         
         it 'does not set up ExceptionNotification middleware when no settings is available' do
           expect(rails_config.middleware).not_to receive(:use)
-          Settings.load_from_hash(rails_config, empty_config)
+          Settings.load_from_hash(rails_config, { })
         end
       
       end
@@ -107,18 +106,27 @@ describe Settings do
   
   describe '::load_from_file' do
     
-    it "calls ::load_from_hash with YAML file converted to hash" do
+    it "calls ::load_from_hash with the supplied settings set in the YAML file converted to hash" do
       expect(Settings).to receive(:load_from_hash).with(rails_config, valid_full_config)
-      Settings.load_from_file(rails_config, 'spec/files/settings/valid.yml')
+      Settings.load_from_file(rails_config, 'spec/files/settings/valid.yml', :test)
+    end
+    
+    it "calls ::load_from_hash with an empty hash when the settings set in the YAML file is empty" do
+      expect(Settings).to receive(:load_from_hash).with(rails_config, { })
+      Settings.load_from_file(rails_config, 'spec/files/settings/valid.yml', :empty)
     end
     
     it "throws error when file not exists" do
-      expect { Settings.load_from_file(rails_config, 'not_exists.yml') }.to raise_error
+      expect { Settings.load_from_file(rails_config, 'not_exists.yml', :test) }.to raise_error Errno::ENOENT
+    end
+    
+    it "throws error when settings set is not present" do
+      expect { Settings.load_from_file(rails_config, 'spec/files/settings/valid.yml', :INVALID_SET_NAME) }.to raise_error(/.*INVALID_SET_NAME.*/)
     end
     
     it "throws error on syntax error" do
       expect { 
-        Settings.load_from_file(rails_config, 'spec/files/settings/syntax_error.yml') 
+        Settings.load_from_file(rails_config, 'spec/files/settings/syntax_error.yml', :test) 
       }.to raise_error Psych::SyntaxError
     end
   end

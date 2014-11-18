@@ -19,8 +19,10 @@ module Settings
     load_database_dumps_directory(hash[:database_dumps_directory])
   end
   
-  def self.load_from_file(config, path)
-    self.load_from_hash(config, symbolize_keys(YAML.load_file(path)))
+  def self.load_from_file(config, path, set_name)
+    hash = YAML.load_file(path)
+    raise "#{set_name} settings set not found" unless hash.keys.include?(set_name.to_s)
+    self.load_from_hash(config, symbolize_keys(hash[set_name.to_s] || { }))
   end
   
   def self.db_dumps_dir
