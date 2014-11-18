@@ -147,11 +147,19 @@ class CollectingEvent < ActiveRecord::Base
     if verbatim_latitude && verbatim_longitude && !new_record?
       point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
       g     = GeographicItem.new(point: point)
+      r = get_error_radius
       if g.valid?
         g.save
-        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g))
+        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r ))
       end
     end
+  end
+
+  def get_error_radius
+    return nil if verbatim_geolocation_uncertainty.blank?
+    return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
+    nil
+    #TODO: figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
   end
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718

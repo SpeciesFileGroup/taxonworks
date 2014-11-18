@@ -1,0 +1,10 @@
+<div class="object_pane">
+  <h3> Tags </h3>
+  <ul>
+    <% object.tags.each do |tag| -%>
+      <li> <%= tag.keyword.name -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'No tags.') if !object.tags.any? -%>
+</div>

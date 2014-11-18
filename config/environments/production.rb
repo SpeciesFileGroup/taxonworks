@@ -79,7 +79,7 @@ TaxonWorks::Application.configure do
   config.log_formatter = ::Logger::Formatter.new
   
   # Load local settings
-  # Configuration.load_from_file(config, 'config/local_settings.yml')
+  # Settings.load_from_file(config, 'config/local_settings.yml')
   
   require 'taxonworks'
 end

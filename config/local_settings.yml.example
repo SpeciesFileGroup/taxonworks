@@ -1,3 +1,4 @@
+database_dumps_directory: '/home/jdoe/my-dumps'
 exception_notification:
   email_prefix: "[TW-Error] "
   sender_address: "\"notifier\" <notifier@example.com>"
