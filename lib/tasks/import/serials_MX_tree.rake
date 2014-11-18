@@ -12,11 +12,11 @@ namespace :tw do
       # first file ./TreeMXmerge-final.txt
       begin
         ActiveRecord::Base.transaction do
+          IMPORT_SERIAL_NAMESPACE     = Namespace.find_or_create_by(name: 'MX_T import serial ID')
           MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID')
+          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID')
           #SF_PUB_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub ID')
           #SF_PUB_REG_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub Registry ID')
-          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID')
-          IMPORT_SERIAL_NAMESPACE     = Namespace.find_or_create_by(name: 'MX_T import serial ID')
 
           CSV.foreach(args[:data_directory1],
                       headers:        true,
@@ -96,19 +96,19 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             # digital and print ISSNs, make the digital ISSN a second serial
             need2serials = FALSE
             if !(row[12].to_s.strip.blank?)
-              identifiers.push({type:       'Identifier::global::issn',
+              identifiers.push({type:       'Identifier::Global::Issn',
                                 identifier: row[12].to_s.strip
                                })
             else
               if !(row[13].to_s.strip.blank?) # have MXprint ISSN
-                identifiers.push({type:       'Identifier::global::issn',
+                identifiers.push({type:       'Identifier::Global::Issn',
                                   identifier: row[13].to_s.strip})
                 if !(row[14].to_s.strip.blank?) # have MXdigital ISSN
                   need2serials = TRUE
                 end
               else # no MXprint ISSN
                 if !(row[14].to_s.strip.blank?)
-                  identifiers.push({type:       'Identifier::global::issn',
+                  identifiers.push({type:       'Identifier::Global::Issn',
                                     identifier: row[14].to_s.strip})
                 end
               end
@@ -116,7 +116,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
             # URL
             if !(row[16].to_s.strip.blank?)
-              identifiers.push({type:       'Identifier::global::uri',
+              identifiers.push({type:       'Identifier::Global::Uri',
                                 identifier: row[16].to_s.strip
                                })
             end
@@ -150,6 +150,12 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               r.alternate_values << alt_name
             end
 
+            r.identifiers.each do |ident|
+              if !ident.valid?
+                str = 'A place for me to break'
+                # current problem - TreeID 100 claims to be used more than once; but can't find another use in TreeMX_merge
+              end
+            end
             r.save!
 
             if need2serials # had 2 different ISSNs for digital and print versions
@@ -157,16 +163,16 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               # Import ID - never empty
               identifiers.push({type:       'Identifier::Local::Import',
                                 namespace:  IMPORT_SERIAL_NAMESPACE,
-                                identifier: row[0].to_s.strip
+                                identifier: row[0].to_s.strip + ' 2nd ISSN'
                                })
               # MX ID
               if !(row[1].to_s.strip.blank?)
                 identifiers.push({type:       'Identifier::Local::Import',
                                   namespace:  MX_SERIAL_NAMESPACE,
-                                  identifier: row[1].to_s.strip
+                                  identifier: row[1].to_s.strip + ' 2nd ISSN'
                                  })
               end
-              identifiers.push({type:       'Identifier::global::issn',
+              identifiers.push({type:       'Identifier::Global::Issn',
                                 identifier: row[14].to_s.strip})
 
               r = Serial.new(
@@ -179,6 +185,8 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               )
 
               r.save!
+
+              #z = 1 # here so I can check the results of the save
             end
 
           end
@@ -211,10 +219,51 @@ Column : SQL column name : data desc
 0 : Keep : The tmpID of the primary source
 1 : Delete : The tmpID of the duplicated source (was never loaded)
 2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
-3 : MXID
-4 : TreeID
-5 : Name
-6 : Abbr
+3 : MXID  : add as an additional identifier
+4 : TreeID  : add as an additional identifier
+5 : Name    : only add if it doesn't match primary or alt name
+6 : Abbr    : only add if it doesn't match primary or alt name
+
+=end
+
+
+
+
+
+
+
+          end
+          puts 'Successful load of MX & treehopper duplicate IDs'
+          raise # causes it to always fail and rollback the transaction
+        end
+      rescue
+        raise
+      end
+
+    end #end task
+    desc 'call like "rake tw:import:add_duplicate_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
+    task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
+      args.with_defaults(:data_directory => './treeMXduplicates.txt')
+
+      # Now add additional identifiers - filename is treeMXduplicates
+      begin
+        Activerecord::Base.transaction do
+          CSV.foreach(args[:data_directory],
+                      headers:        true,
+                      return_headers: false,
+                      encoding:       'UTF-16LE:UTF-8',
+                      col_sep:        "\t",
+                      quote_char:     '|'
+          ) do
+=begin
+Column : SQL column name : data desc
+0 : Keep : The tmpID of the primary source
+1 : Delete : The tmpID of the duplicated source (was never loaded)
+2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
+3 : MXID  : add as an additional identifier
+4 : TreeID  : add as an additional identifier
+5 : Name    : only add if it doesn't match primary or alt name
+6 : Abbr    : only add if it doesn't match primary or alt name
 
 =end
             # i = Identifer.with_identifier('IMPORT_SERIAL_NAMESPACE ' + Row[0])
@@ -233,9 +282,13 @@ Column : SQL column name : data desc
 to save without raising
       a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
       if a.valid? then save else continue the loop
+
+        Identifier.where(:identifier => '8740')[0].identified_object
+        Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
+          where: Namespace = 'MX serial ID' and identifier = '8740'
 =end
           end
-          puts 'Successful complete load of MX & treehopper serials'
+          puts 'Successful load of MX & treehopper duplicate IDs'
           raise # causes it to always fail and rollback the transaction
         end
       rescue
@@ -243,6 +296,7 @@ to save without raising
       end
 
     end #end task
+
   end
 end
 
