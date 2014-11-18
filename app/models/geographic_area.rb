@@ -198,13 +198,17 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
-  def geolocate_params_string
+  def geolocate_ui_params_string
 
   end
 
   def geolocate_ui_params_hash
+    # data = {county: level2.name, state: level1.name, country: level0.name}
     data = {}
-    data.merge!(county: level2.name, state: level1.name, country: level0.name)
+    data[:county] = level2.name unless level2.nil?
+    data[:state] = level1.name unless level1.nil?
+    data[:country] = level0.name unless level0.nil?
+    Georeference::GeoLocate::RequestUI.new(data).request_params
   end
 
 end

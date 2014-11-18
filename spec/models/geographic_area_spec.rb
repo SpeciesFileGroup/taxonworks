@@ -218,7 +218,7 @@ describe GeographicArea, :type => :model do
     end
   end
 
-  context 'geolocate_params_string' do
+  context 'geolocate_ui_params_string' do
     before(:all) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
     }
@@ -227,13 +227,13 @@ describe GeographicArea, :type => :model do
       @geographic_area.destroy
     }
 
-    specify 'retrieving geolocate parameters as a string' do
+    specify 'retrieving geolocate UI parameters as a string' do
       pending 'completion of method'
-      expect(@geographic_area.geolocate_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
+      expect(@geographic_area.geolocate_ui_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
     end
   end
 
-  context 'geolocate_params_hash' do
+  context 'geolocate_ui_params_hash' do
     before(:all) {
       @geographic_area = FactoryGirl.create(:level2_geographic_area)
     }
@@ -242,11 +242,84 @@ describe GeographicArea, :type => :model do
       @geographic_area.destroy
     }
 
-    specify 'retrieving geolocate paramerters as a hash' do
-      pending 'completion of method'
-      expect(@geographic_area.geolocate_ui_params_hash).to contain_exactly(counrty: 'United States of America',
-                                                                           state:   'Illinois',
-                                                                           county:  'Champaign')
+    specify 'retrieving geolocate UI paramerters as a hash' do
+      # pending 'completion of method'
+      expect(@geographic_area.geolocate_ui_params_hash).to eq({country:       'United States of America',
+                                                               state:         'Illinois',
+                                                               county:        'Champaign',
+                                                               locality:      nil,
+                                                               Latitude:      '0.0',
+                                                               Longitude:     '0.0',
+                                                               Placename:     nil,
+                                                               Score:         '0',
+                                                               Uncertainty:   '3',
+                                                               H20:           'false',
+                                                               HwyX:          'false',
+                                                               Uncert:        'true',
+                                                               Poly:          'true',
+                                                               DisplacePoly:  'false',
+                                                               RestrictAdmin: 'false',
+                                                               BG:            'false',
+                                                               LanguageIndex: '0',
+                                                               gc:            'Tester'
+                                                              })
+      expect(@geographic_area.parent.geolocate_ui_params_hash).to eq({country:       'United States of America',
+                                                                      state:         'Illinois',
+                                                                      county:        nil,
+                                                                      locality:      nil,
+                                                                      Latitude:      '0.0',
+                                                                      Longitude:     '0.0',
+                                                                      Placename:     nil,
+                                                                      Score:         '0',
+                                                                      Uncertainty:   '3',
+                                                                      H20:           'false',
+                                                                      HwyX:          'false',
+                                                                      Uncert:        'true',
+                                                                      Poly:          'true',
+                                                                      DisplacePoly:  'false',
+                                                                      RestrictAdmin: 'false',
+                                                                      BG:            'false',
+                                                                      LanguageIndex: '0',
+                                                                      gc:            'Tester'
+                                                                     })
+      expect(@geographic_area.parent.parent.geolocate_ui_params_hash).to eq({country:       'United States of America',
+                                                                             state:         nil,
+                                                                             county:        nil,
+                                                                             locality:      nil,
+                                                                             Latitude:      '0.0',
+                                                                             Longitude:     '0.0',
+                                                                             Placename:     nil,
+                                                                             Score:         '0',
+                                                                             Uncertainty:   '3',
+                                                                             H20:           'false',
+                                                                             HwyX:          'false',
+                                                                             Uncert:        'true',
+                                                                             Poly:          'true',
+                                                                             DisplacePoly:  'false',
+                                                                             RestrictAdmin: 'false',
+                                                                             BG:            'false',
+                                                                             LanguageIndex: '0',
+                                                                             gc:            'Tester'
+                                                                            })
+      expect(@geographic_area.parent.parent.parent.geolocate_ui_params_hash).to eq({country:       nil,
+                                                                                    state:         nil,
+                                                                                    county:        nil,
+                                                                                    locality:      nil,
+                                                                                    Latitude:      '0.0',
+                                                                                    Longitude:     '0.0',
+                                                                                    Placename:     nil,
+                                                                                    Score:         '0',
+                                                                                    Uncertainty:   '3',
+                                                                                    H20:           'false',
+                                                                                    HwyX:          'false',
+                                                                                    Uncert:        'true',
+                                                                                    Poly:          'true',
+                                                                                    DisplacePoly:  'false',
+                                                                                    RestrictAdmin: 'false',
+                                                                                    BG:            'false',
+                                                                                    LanguageIndex: '0',
+                                                                                    gc:            'Tester'})
+
     end
   end
 
