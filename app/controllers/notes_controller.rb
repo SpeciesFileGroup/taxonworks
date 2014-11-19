@@ -41,11 +41,7 @@ class NotesController < ApplicationController
   def update
     respond_to do |format|
       if @note.update(note_params)
-        # format.html { redirect_to :back, notice: 'Note was successfully updated.' }
-        # copied from alternate_values:
         format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
-        format.html { redirect_to :back, notice: 'Note was successfully updated.' }
-        # format.json { head :no_content }
         format.json { render json: @note, status: :created, location: @note }
       else
         format.html { redirect_to :back, notice: 'Note was NOT successfully updated.' }
@@ -65,13 +61,13 @@ class NotesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_note
-      @note = Note.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_note
+    @note = Note.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def note_params
-      params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :created_by_id, :updated_by_id, :project_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def note_params
+    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :created_by_id, :updated_by_id, :project_id)
+  end
 end

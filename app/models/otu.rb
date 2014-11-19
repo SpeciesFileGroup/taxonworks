@@ -132,6 +132,9 @@ class Otu < ActiveRecord::Base
     new_otus
   end
 
+
+
+
 end
 
 
