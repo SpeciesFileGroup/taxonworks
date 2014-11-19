@@ -139,14 +139,14 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    terms       = params[:term].split
-    limit = 100 
+    terms = params[:term].split
+    limit = 100
     case params[:term].length
-    when 0..3
-      limit = 10
-    else
-      limit = 40
-    end 
+      when 0..3
+        limit = 10
+      else
+        limit = 40
+    end
     search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
     where(search_term).includes(:parent, :geographic_area_type).order(:name).limit(limit)
   end
@@ -202,13 +202,31 @@ class GeographicArea < ActiveRecord::Base
 
   end
 
+  def geographic_item_centroid
+    item = nil
+    if geographic_items.count == 0
+      # this nil signals the top of the stack: Everything terminates at 'Earth'
+      unless parent.nil?
+        item = parent.geographic_item_centroid
+      end
+    else
+      item = GeographicItem.new(point: geographic_items.first.st_centroid)
+    end
+    item
+  end
+
   def geolocate_ui_params_hash
-    # data = {county: level2.name, state: level1.name, country: level0.name}
-    data = {}
-    data[:county] = level2.name unless level2.nil?
-    data[:state] = level1.name unless level1.nil?
-    data[:country] = level0.name unless level0.nil?
-    Georeference::GeoLocate::RequestUI.new(data).request_params
+    # parameters = {county: level2.name, state: level1.name, country: level0.name}
+    parameters           = {}
+    parameters[:county]  = level2.name unless level2.nil?
+    parameters[:state]   = level1.name unless level1.nil?
+    parameters[:country] = level0.name unless level0.nil?
+    item                 = geographic_item_centroid
+    unless item.nil?
+      parameters[:Longitude] = item.point.x
+      parameters[:Latitude]  = item.point.y
+    end
+    Georeference::GeoLocate::RequestUI.new(parameters).request_params
   end
 
 end

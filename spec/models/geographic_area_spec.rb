@@ -235,11 +235,23 @@ describe GeographicArea, :type => :model do
 
   context 'geolocate_ui_params_hash' do
     before(:all) {
-      @geographic_area = FactoryGirl.create(:level2_geographic_area)
+      @geographic_area    = FactoryGirl.create(:valid_geographic_area_stack)
+      @ford_county        = GeographicArea.new(name:                 'Ford',
+                                               geographic_area_type: @geographic_area.geographic_area_type,
+                                               level1:               @geographic_area.parent,
+                                               level0:               @geographic_area.parent.parent,
+                                               parent:               @geographic_area.parent,
+                                               data_origin:          'Test')
+      @ford_county.level2 = @ford_county
+      @ford_county.save
+      @champaign_county = RSPEC_GEO_FACTORY.parse_wkt(CHAMPAIGN_CO)
+      @geographic_area.geographic_items << GeographicItem.new(multi_polygon: @champaign_county)
+      @illinois_state = RSPEC_GEO_FACTORY.parse_wkt(ILLINOIS)
+      @geographic_area.parent.geographic_items << GeographicItem.new(multi_polygon: @illinois_state)
     }
 
     after(:all) {
-      @geographic_area.destroy
+      clean_slate_geo
     }
 
     specify 'retrieving geolocate UI paramerters as a hash' do
@@ -248,8 +260,8 @@ describe GeographicArea, :type => :model do
                                                                state:         'Illinois',
                                                                county:        'Champaign',
                                                                locality:      nil,
-                                                               Latitude:      '0.0',
-                                                               Longitude:     '0.0',
+                                                               Latitude:      40.1397523583313,
+                                                               Longitude:     -88.199600849246,
                                                                Placename:     nil,
                                                                Score:         '0',
                                                                Uncertainty:   '3',
@@ -267,8 +279,8 @@ describe GeographicArea, :type => :model do
                                                                       state:         'Illinois',
                                                                       county:        nil,
                                                                       locality:      nil,
-                                                                      Latitude:      '0.0',
-                                                                      Longitude:     '0.0',
+                                                                      Latitude:      40.1211151426486,
+                                                                      Longitude:     -89.1547189404101,
                                                                       Placename:     nil,
                                                                       Score:         '0',
                                                                       Uncertainty:   '3',
@@ -286,8 +298,8 @@ describe GeographicArea, :type => :model do
                                                                              state:         nil,
                                                                              county:        nil,
                                                                              locality:      nil,
-                                                                             Latitude:      '0.0',
-                                                                             Longitude:     '0.0',
+                                                                             Latitude:      nil,
+                                                                             Longitude:     nil,
                                                                              Placename:     nil,
                                                                              Score:         '0',
                                                                              Uncertainty:   '3',
@@ -305,8 +317,8 @@ describe GeographicArea, :type => :model do
                                                                                     state:         nil,
                                                                                     county:        nil,
                                                                                     locality:      nil,
-                                                                                    Latitude:      '0.0',
-                                                                                    Longitude:     '0.0',
+                                                                                    Latitude:      nil,
+                                                                                    Longitude:     nil,
                                                                                     Placename:     nil,
                                                                                     Score:         '0',
                                                                                     Uncertainty:   '3',
@@ -319,7 +331,27 @@ describe GeographicArea, :type => :model do
                                                                                     BG:            'false',
                                                                                     LanguageIndex: '0',
                                                                                     gc:            'Tester'})
-
+      # this case is to look upwards in the stack for a geographic_item, because this record does not have one,
+      # thus providing the parent's centroid.
+      expect(@ford_county.geolocate_ui_params_hash).to eq({country:       'United States of America',
+                                                           state:         'Illinois',
+                                                           county:        'Ford',
+                                                           locality:      nil,
+                                                           Latitude:      40.1211151426486,
+                                                           Longitude:     -89.1547189404101,
+                                                           Placename:     nil,
+                                                           Score:         '0',
+                                                           Uncertainty:   '3',
+                                                           H20:           'false',
+                                                           HwyX:          'false',
+                                                           Uncert:        'true',
+                                                           Poly:          'true',
+                                                           DisplacePoly:  'false',
+                                                           RestrictAdmin: 'false',
+                                                           BG:            'false',
+                                                           LanguageIndex: '0',
+                                                           gc:            'Tester'
+                                                          })
     end
   end
 

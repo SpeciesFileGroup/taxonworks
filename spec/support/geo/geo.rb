@@ -1551,7 +1551,7 @@ def clean_slate_geo
   GeographicAreasGeographicItem.delete_all
   Georeference.delete_all
   CollectingEvent.delete_all
-  $user_id = 1
+  $user_id    = 1
   $project_id = 1
 end
 

@@ -104,8 +104,8 @@ class Georeference::GeoLocate < Georeference
       state:         nil, # 'IL', or 'illinois' (required in the United States)
       county:        nil, # supply as a parameter
       locality:      nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
-      Latitude:      '0.0', #
-      Longitude:     '0.0', #
+      Latitude:      nil, #
+      Longitude:     nil, #
       Placename:     nil, #
       Score:         '0',
       Uncertainty:   '3',
