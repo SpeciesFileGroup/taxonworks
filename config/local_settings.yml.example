@@ -1,5 +1,5 @@
 development:
-  database_dumps_directory: "/home/jdoe/my-dumps"
+  default_data_directory: "/home/jdoe/my-dumps"
 production:
   database_dumps_directory: "/mnt/backup-media/tw-dumps"
   exception_notification:

@@ -5,7 +5,7 @@
 
     <div>id: <%= object.id -%></div>
     <%= forward_back_links(object) -%> <br><br>
-    
+
     <%= yield :show_navigation -%> 
   </div>
 
@@ -32,7 +32,8 @@
 
     <h3> Annotate </h3>
     <%= add_alternate_value_link(object: object, user: sessions_current_user) -%><br>
-    <%= pin_item_to_pinboard_link(object, sessions_current_user) -%><br>      
+    <%= add_note_link(object: object, user: sessions_current_user) -%><br>
+    <%= pin_item_to_pinboard_link(object, sessions_current_user) -%><br>
 
     <%= yield :tasks -%>
 
