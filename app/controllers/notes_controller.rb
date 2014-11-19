@@ -3,6 +3,14 @@ class NotesController < ApplicationController
 
   before_action :set_note, only: [:update, :destroy]
 
+  def new
+    @note = Note.new(note_params)
+  end
+
+  def edit
+    @note = Note.find_by_id(params[:id]).metamorphosize
+  end
+
   # GET /notes
   # GET /notes.json
   def index
@@ -16,7 +24,10 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       if @note.save
-        format.html { redirect_to :back, notice: 'Note was successfully created.' }
+        # format.html { redirect_to :back, notice: 'Note was successfully created.' }
+        # format.json { render json: @note, status: :created, location: @note }
+        # copies from alternate_values:
+        format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
         format.json { render json: @note, status: :created, location: @note }
       else
         format.html { redirect_to :back, notice: 'Note was NOT successfully created.' }
@@ -30,8 +41,12 @@ class NotesController < ApplicationController
   def update
     respond_to do |format|
       if @note.update(note_params)
+        # format.html { redirect_to :back, notice: 'Note was successfully updated.' }
+        # copied from alternate_values:
+        format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
         format.html { redirect_to :back, notice: 'Note was successfully updated.' }
-        format.json { head :no_content }
+        # format.json { head :no_content }
+        format.json { render json: @note, status: :created, location: @note }
       else
         format.html { redirect_to :back, notice: 'Note was NOT successfully updated.' }
         format.json { render json: @note.errors, status: :unprocessable_entity }
