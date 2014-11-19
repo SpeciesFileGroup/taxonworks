@@ -82,7 +82,7 @@ describe Settings do
       
       context "when not present" do
         
-        it "it sets ::default_data_directory to nil" do
+        it "sets ::default_data_directory to nil" do
           Settings.load_from_hash(rails_config, { })
           expect(Settings.default_data_directory).to eq(nil)
         end
