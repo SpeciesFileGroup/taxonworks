@@ -29,11 +29,17 @@ namespace :tw do
 
   desc 'a default method to add a data_directory_argument'
   task  :data_directory do |t| 
-    default = "#{ENV['HOME']}/src/sf/tmp/"
+    default = Settings.default_data_directory
     @args ||= {} 
-    puts "no data_directory passed, using default (#{default})" if ENV['data_directory'].blank?
+    if ENV['data_directory'].blank?
+      if default
+        puts "no data_directory passed, using default (#{default})"
+      else
+        raise "no data_directory passed and default_data_directory setting is not present"
+      end
+    end
     @args.merge!(data_directory: (ENV['data_directory'] || default ))
-    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory])
+    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory]) # TODO: Use Dir.exists? and fix tasks that are treating data_directory as a file parameter
     @args
   end
 

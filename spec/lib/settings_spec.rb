@@ -20,36 +20,36 @@ describe Settings do
     describe 'exception_notification' do
             
       context 'when valid settings' do
-      
+
         it 'sets up ExceptionNotification middleware with supplied config' do
           expect(rails_config.middleware).to receive(:use).with(ExceptionNotification::Rack, email: valid_config[:exception_notification])
           Settings.load_from_hash(rails_config, valid_config)
         end
-        
+
         it 'does not set up ExceptionNotification middleware when no settings is available' do
           expect(rails_config.middleware).not_to receive(:use)
           Settings.load_from_hash(rails_config, { })
         end
       
       end
-    
+
       context 'when invalid settings' do  
                 
         it "throws error when a setting is missing" do
           valid_config[:exception_notification].delete(:email_prefix)
           expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.*\[\:email_prefix\].*/)
         end
-        
+
         it "throws error when a setting is invalid" do
           valid_config[:exception_notification][:invalid_setting] = 'INVALID'
           expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.*\[\:invalid_setting\].*/)
         end
-        
+
         it "throws error when :exception_recipients is not an Array" do
           valid_config[:exception_notification][:exception_recipients] = 'NOT AN ARRAY'
           expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.* Array*/) 
         end
-      
+
       end
     
     end
@@ -59,10 +59,11 @@ describe Settings do
       context "when valid directory" do
         let(:valid_directory) { { default_data_directory: valid_full_config[:default_data_directory] } }
         
-        it "sets ::db_dump_dir to the absolute path of the supplied directory" do
+        it "sets ::default_data_directory to the absolute path of the supplied directory" do
           Settings.load_from_hash(rails_config, valid_directory)
           expect(Settings.default_data_directory).to eq(File.absolute_path(valid_directory[:default_data_directory]))
         end
+
       end
       
       context "when invalid directory" do
@@ -75,6 +76,15 @@ describe Settings do
         it "throws error when path is not a directory" do
           file = { default_data_directory: 'spec/settings/file' }
           expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
+        end
+        
+      end
+      
+      context "when not present" do
+        
+        it "it sets ::default_data_directory to nil" do
+          Settings.load_from_hash(rails_config, { })
+          expect(Settings.default_data_directory).to eq(nil)
         end
         
       end
