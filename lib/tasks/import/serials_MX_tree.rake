@@ -12,11 +12,20 @@ namespace :tw do
       # first file ./TreeMXmerge-final.txt
       begin
         ActiveRecord::Base.transaction do
-          IMPORT_SERIAL_NAMESPACE     = Namespace.find_or_create_by(name: 'MX_T import serial ID')
-          MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID')
-          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID')
+          IMPORT_SERIAL_NAMESPACE     =
+            Namespace.find_or_create_by(name: 'MX-Treehopper serial import ID', short_name: 'MX_T importID')
+          MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID', short_name: 'MX_ID')
+          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID', short_name: 'TreeID')
+
           #SF_PUB_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub ID')
           #SF_PUB_REG_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub Registry ID')
+
+          # create needed controlled vocabulary keywords for Serials (needed for data attribute)
+          SERIAL_NOTE  = Keyword.new(name: 'Serial Note', definition: 'Comments about this serial')
+          SERIAL_NOTE.save!
+          SERIAL_LANG_NOTE = Keyword.new(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
+          SERIAL_LANG_NOTE.save!
+          # I think I can use find or create for this - need to test
 
           CSV.foreach(args[:data_directory1],
                       headers:        true,
@@ -52,12 +61,13 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 =end
 
             # add note
-            notes = []
+            data_attr = []
             if !(row[15].to_s.strip.blank?) # test for empty note!
-              notes.push({text: row[15].to_s.strip})
+              # notes.push({text: row[15].to_s.strip})
+              data_attr.push({predicate: SERIAL_NOTE, value: row[15].to_s.strip, type: 'DataAttribute::InternalAttribute'})
             end
             if !(row[10].to_s.strip.blank?) # language notes
-              notes.push({text: row[10].to_s.strip, note_object_attribute: 'language'})
+              data_attr.push({text: row[10].to_s.strip, note_object_attribute: 'language'})
             end
 
             identifiers=[]
@@ -128,8 +138,8 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               primary_language_id:    row[11].to_s.strip,
               # first_year_of_issue:    row[6],              # not available from treehopper or MX data
               # last_year_of_issue:     row[7],             # not available from treehopper or MX data
-              identifiers_attributes: identifiers,    # TODO identifiers & notes require project even on non-project objects
-              notes_attributes:       notes
+              identifiers_attributes: identifiers, # TODO identifiers require project even on non-project objects
+              data_attributes:       data_attr
             )
 
             # add abbreviation
@@ -181,7 +191,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                 place_published:        row[6].to_s.strip,
                 primary_language_id:    row[11].to_s.strip,
                 identifiers_attributes: identifiers,
-                notes_attributes:       notes
+                data_attributes:       data_attr
               )
 
               r.save!
@@ -225,11 +235,6 @@ Column : SQL column name : data desc
 6 : Abbr    : only add if it doesn't match primary or alt name
 
 =end
-
-
-
-
-
 
 
           end
