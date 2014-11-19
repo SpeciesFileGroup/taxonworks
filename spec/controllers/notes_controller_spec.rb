@@ -31,7 +31,8 @@ describe NotesController, :type => :controller do
 
   let(:o) {FactoryGirl.create(:valid_source_bibtex)}
   let(:valid_attributes) {
-    {note_object_id: o.id, note_object_type: o.class.to_s, value: "T.L.T.Q.",      note_object_attribute: :title, type: 'Note.text'}  }
+    {note_object_id: o.id, note_object_type: o.class.to_s, value: "T.L.T.Q.",      note_object_attributes: [{alternate_object_attribute: :title, type: 'Note.text'}]}  }
+  # {note_object_id: o.id, note_object_type: o.class.to_s, value: "T.L.T.Q.",      note_object_attribute: :title, type: 'Note.text'}  }
   # strip_housekeeping_attributes( FactoryGirl.build(:valid_note).attributes )
 
   # This should return the minimal set of values that should be in the session
