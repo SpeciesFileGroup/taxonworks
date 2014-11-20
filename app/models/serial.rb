@@ -87,7 +87,7 @@ class Serial < ActiveRecord::Base
     if ret_val == false
       # check if there is another alternate value with the same name
       a = Serial.with_alternate_value_on(:name, self.name)
-      # select alternate value based on alternate_object class, alternate_object_attribute(column) & value
+      # select alternate value based on alternate_value_object class, alternate_value_object_attribute(column) & value
       if a.count > 0
         ret_val = true
       end
@@ -137,6 +137,6 @@ class Serial < ActiveRecord::Base
   end
 
   def match_alternate_value?
-    #Select value from AlternateValue WHERE alternate_object_type = 'Serial' AND alternate_object_attribute = 'name'
+    #Select value from AlternateValue WHERE alternate_value_object_type = 'Serial' AND alternate_value_object_attribute = 'name'
   end
 end

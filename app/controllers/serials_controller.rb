@@ -83,9 +83,9 @@ class SerialsController < ApplicationController
                                                                        :value,
                                                                        :type,
                                                                        :language_id,
-                                                                       :alternate_object_type,
-                                                                       :alternate_object_id,
-                                                                       :alternate_object_attribute,
+                                                                       :alternate_value_object_type,
+                                                                       :alternate_value_object_id,
+                                                                       :alternate_value_object_attribute,
                                                                        :_destroy])
     end
 end

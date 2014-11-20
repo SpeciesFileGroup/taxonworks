@@ -153,7 +153,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             if !(row[7].to_s.strip.blank?)
               abbr                            = AlternateValue.new # or should this be an abbreviation?
               abbr.value                      = row[7].to_s.strip
-              abbr.alternate_object_attribute = 'name'
+              abbr.alternate_value_object_attribute = 'name'
               abbr.type                       = 'AlternateValue::Abbreviation'
               r.alternate_values << abbr
             end
@@ -162,7 +162,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             if !(row[8].to_s.strip.blank?)
               alt_name                            = AlternateValue.new
               alt_name.value                      = row[8].to_s.strip
-              alt_name.alternate_object_attribute = 'name'
+              alt_name.alternate_value_object_attribute = 'name'
               alt_name.type                       = 'AlternateValue::Abbreviation'
               r.alternate_values << alt_name
             end
