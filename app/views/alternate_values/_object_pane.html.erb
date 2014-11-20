@@ -2,7 +2,7 @@
   <h3> Alternate values </h3>
   <ul>
     <% object.alternate_values.each do |alternate_value| -%>
-      <li> <%= alternate_value.value -%> </li>
+      <li> <%= alternate_value_tag(alternate_value) -%> </li>
     <% end %>
   </ul>
 
