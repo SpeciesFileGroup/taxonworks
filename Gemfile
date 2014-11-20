@@ -75,6 +75,8 @@ gem 'rmagick', '~> 2.13.3'
 
 gem 'exception_notification'
 
+gem 'modularity', '~> 2.0.1'
+
 group :test, :development do
   gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
   gem 'rspec-rails', '~> 3.0' #  

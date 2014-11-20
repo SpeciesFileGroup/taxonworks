@@ -30,11 +30,28 @@
 #   The users email, and login. 
 #
 class User < ActiveRecord::Base
+  
+  module RandomToken
+    as_trait do |*fields|
+      fields.each do |field|
+        define_method("generate_#{field}_token") do
+          token = User.secure_random_token
+          self.password_reset_token = User.encrypt(token)
+          self.password_reset_token_date = DateTime.now
+          token
+        end
+        define_method("#{field}_token_matches?") do |token|
+          self.password_reset_token == User.encrypt(token)
+        end
+      end
+    end
+  end
 
 #  include Housekeeping
   include Shared::Notable
   include Shared::DataAttributes
-
+  include RandomToken[:password_reset]
+  
   before_create :set_remember_token
 
   # TODO: downcase does not work for non-ascii characters which means our
@@ -104,16 +121,7 @@ class User < ActiveRecord::Base
     true
   end
 
-  def generate_password_reset_token()
-    token = User.secure_random_token
-    self.password_reset_token = User.encrypt(token)
-    self.password_reset_token_date = DateTime.now
-    token
-  end
 
-  def password_reset_token_matches?(token)
-    self.password_reset_token == User.encrypt(token)
-  end
 
   def pinboard_hash(project_id)
     pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by { |a| a.pinned_object_type }

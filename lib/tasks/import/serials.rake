@@ -65,9 +65,6 @@ namespace :tw do
             # i.identifier = row[10].to_s.strip
             # # not sure how to assign identifiers
 
-
-
-
             # # SF PubRegistry
             # p_ary = row[9].to_s.split(';').uniq
             # p_ary.each {|sfid|
@@ -75,9 +72,6 @@ namespace :tw do
             #   i.type = :import
             #   i.identifier = sfid.to_s.strip
             # }
-
-
-
 
             r.save!
           end  # transaction end

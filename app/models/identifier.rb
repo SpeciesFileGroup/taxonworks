@@ -84,6 +84,5 @@ class Identifier < ActiveRecord::Base
   # validations are currently defined in the subclass using active record validations.
   #def validate_format_of_identifier
   #end
- 
   
 end

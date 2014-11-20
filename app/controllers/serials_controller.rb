@@ -8,7 +8,7 @@ class SerialsController < ApplicationController
   # GET /serials
   # GET /serials.json
   def index
-    @serials = Serial.all
+    @serials = Serial.all.limit(50)
   end
 
   # GET /serials/1
