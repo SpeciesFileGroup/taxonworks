@@ -12,7 +12,7 @@
         </div>
     <% end %>
 
-    <p> Tagging:   <%= object_tag(@alternate_value.alternate_object) -%>  </p>
+    <p> <strong><%= @alternate_value.alternate_object.class.name %>:</strong> <%= object_tag(@alternate_value.alternate_object) -%>  </p>
 
     <div class="field">
       <%= f.label :alternate_object_attribute %>

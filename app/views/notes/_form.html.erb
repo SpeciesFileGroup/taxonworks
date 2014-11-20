@@ -11,28 +11,23 @@
         </div>
     <% end %>
 
-    <p> Tagging:   <%= object_tag(@note.note_object) -%>  </p>
+    <p><strong><%= @note.note_object.class.name %>:</strong> <%= object_tag(@note.note_object) -%>  </p>
 
     <div class="field">
       <%= f.label :text %>
       <br>
       <%= f.text_field :text %>
     </div>
-    <div class="field">
-      <%= f.label :note_object_id %>
-      <br>
-      <%= f.number_field :note_object_id %>
-    </div>
-    <div class="field">
-      <%= f.label :note_object_type %>
-      <br>
-      <%= f.text_field :note_object_type %>
-    </div>
-    <div class="field">
-      <%= f.label :note_object_attribute %>
-      <br>
-      <%= f.text_field :note_object_attribute %>
-    </div>
+
+    <%= f.hidden_field :note_object_type %>
+
+    <%= f.hidden_field :note_object_id %>
+
+    <!--<div class="field">-->
+    <!--<%#= f.label :note_object_attribute %>-->
+    <!--<br>-->
+    <!--<%#= f.text_field :note_object_attribute %>-->
+    <!--</div>-->
     <div class="actions">
       <%= f.submit %>
     </div>
