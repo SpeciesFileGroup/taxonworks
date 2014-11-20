@@ -17,7 +17,7 @@ class AlternateValuesController < ApplicationController
     @alternate_value = AlternateValue.new(alternate_value_params)
     respond_to do |format|
       if @alternate_value.save
-        format.html { redirect_to @alternate_value.alternate_object.metamorphosize, notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
@@ -31,7 +31,7 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to @alternate_value.alternate_object.metamorphosize, notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
         format.html { redirect_to :back, notice: 'Alternate value was NOT successfully updated.' }
@@ -58,7 +58,7 @@ class AlternateValuesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_object_type, :alternate_object_id, :alternate_object_attribute)
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute)
   end
 
   def breakout_types(collection)

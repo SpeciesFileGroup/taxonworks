@@ -27,8 +27,9 @@ describe TagsController, :type => :controller do
   # Tag. As you add validations to Tag, be sure to
   # adjust the attributes here as well.
   let(:o) { FactoryGirl.create(:valid_otu) }
+  let(:k) { FactoryGirl.create(:valid_keyword) }
   let(:valid_attributes) {
-    {tag_object_id: o.id, tag_object_type: o.class.to_s, keyword_id: 2} }
+    {tag_object_id: o.id, tag_object_type: o.class.to_s, keyword_id: k.to_param} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -91,7 +92,7 @@ describe TagsController, :type => :controller do
 
       it "redirects to :back" do
         post :create, {:tag => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -152,7 +153,7 @@ describe TagsController, :type => :controller do
       it "redirects to :back" do
         tag = Tag.create! valid_attributes
         put :update, {:id => tag.to_param, :tag => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 

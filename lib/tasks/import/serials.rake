@@ -54,7 +54,7 @@ namespace :tw do
             # add short name (alternate name)
             alt_name = AlternateValue.new    # or should this be an abbreviation
             alt_name.value = row[2].to_s.strip
-            alt_name.alternate_object_attribute = 'name'
+            alt_name.alternate_value_object_attribute = 'name'
             alt_name.type = 'AlternateValue::Abbreviation'
             r.alternate_values << alt_name
 

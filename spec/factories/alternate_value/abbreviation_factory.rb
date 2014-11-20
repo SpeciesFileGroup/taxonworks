@@ -3,8 +3,8 @@ FactoryGirl.define do
     factory :valid_alternate_value_abbreviation do
       type 'AlternateValue::Abbreviation' # is this right?!
       value 'B.'
-      alternate_object_attribute 'name'
-      association :alternate_object, factory: :valid_otu
+      alternate_value_object_attribute 'name'
+      association :alternate_value_object, factory: :valid_otu
     end
   end
 end

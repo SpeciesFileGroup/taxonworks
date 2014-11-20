@@ -29,9 +29,9 @@ module TagsHelper
   end
 
   def link_to_add_tag(link_text, f)
-    new_object = f.object.class.reflect_on_association(:tags).klass.new({alternate_object_type: f.object.class.base_class.name,
-                                                                         alternate_object_id: f.object.id,
-                                                                         alternate_object_attribute: 'name'})
+    new_object = f.object.class.reflect_on_association(:tags).klass.new({alternate_value_object_type: f.object.class.base_class.name,
+                                                                         alternate_value_object_id: f.object.id,
+                                                                         alternate_value_object_attribute: 'name'})
     fields = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
       render('tags/tag_fields', :avf => builder)
     end

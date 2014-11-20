@@ -4,11 +4,11 @@ class AlternateValue < ActiveRecord::Base
   include Shared::IsData 
 
   belongs_to :language
-  belongs_to :alternate_object, polymorphic: true
+  belongs_to :alternate_value_object, polymorphic: true
 
   validates :language, presence: true, allow_nil: true
-  validates_presence_of :type, :value, :alternate_object_attribute 
-  validates :alternate_object, presence: true
+  validates_presence_of :type, :value, :alternate_value_object_attribute 
+  validates :alternate_value_object, presence: true
 
   before_validation :ensure_object_has_attribute,
                     :ensure_alternate_value_is_not_identical,
@@ -16,9 +16,9 @@ class AlternateValue < ActiveRecord::Base
                     :not_empty_original_value
 
   def original_value
-    (self.alternate_object_attribute && self.alternate_object && self.alternate_object.respond_to?(
-        self.alternate_object_attribute.to_sym) )  ?
-        self.alternate_object.send(self.alternate_object_attribute.to_sym)  : nil
+    (self.alternate_value_object_attribute && self.alternate_value_object && self.alternate_value_object.respond_to?(
+        self.alternate_value_object_attribute.to_sym) )  ?
+        self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym)  : nil
   end
 
   def type_name
@@ -48,9 +48,9 @@ class AlternateValue < ActiveRecord::Base
 
 
   def ensure_object_has_attribute
-    errors.add(:alternate_object_attribute, 'No attribute (column) with that name') if
-        self.alternate_object &&
-            !self.alternate_object.attributes.include?(self.alternate_object_attribute.to_s)
+    errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name') if
+        self.alternate_value_object &&
+            !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
   end 
 
   def ensure_alternate_value_is_not_identical

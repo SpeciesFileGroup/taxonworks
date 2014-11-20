@@ -19,5 +19,5 @@ NON_ANNOTATABLE_COLUMNS = [
   :created_by_id,
   :updated_by_id,
   :project_id,
-  :alternate_object_id
+  :alternate_value_object_id
 ]

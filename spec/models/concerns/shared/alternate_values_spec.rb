@@ -20,15 +20,22 @@ describe 'AlternateValues', :type => :model do
       class_with_alternate_values.string = 'Testing alternate values'
       class_with_alternate_values.save
 
-      syn = AlternateValue::Synonym.create(value:            'test1', alternate_object_attribute: 'string',
-                                           alternate_object: class_with_alternate_values)
+      syn = AlternateValue::Synonym.create(
+          value: 'test1',
+          alternate_value_object_attribute: 'string',
+          alternate_value_object: class_with_alternate_values)
 
-      trans = AlternateValue::Translation.create(value:                      'gibberish',
-                                                 language:                   FactoryGirl.create(:valid_language),
-                                                 alternate_object_attribute: 'string',
-                                                 alternate_object:           class_with_alternate_values)
-      abbrv = AlternateValue::Abbreviation.create(value: 'tst', alternate_object_attribute: 'string',
-                                             alternate_object: class_with_alternate_values)
+      trans = AlternateValue::Translation.create(
+          value: 'gibberish',
+          language: FactoryGirl.create(:valid_language),
+          alternate_value_object_attribute: 'string',
+          alternate_value_object: class_with_alternate_values
+      )
+      abbrv = AlternateValue::Abbreviation.create(
+          value: 'tst',
+          alternate_value_object_attribute: 'string',
+          alternate_value_object: class_with_alternate_values
+      )
     end
 
     specify '#has_alternate_values?' do
@@ -37,7 +44,7 @@ describe 'AlternateValues', :type => :model do
     end
 
     specify '#all_values_for' do
-       expect(class_with_alternate_values.all_values_for('string')).to \
+      expect(class_with_alternate_values.all_values_for('string')).to \
             eq(['gibberish', 'test1', 'Testing alternate values', 'tst'].sort)
     end
 
