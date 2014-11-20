@@ -260,24 +260,46 @@ describe CollectingEvent, :type => :model do
           expect(pieces).not_to include(@ce_p1)
         end
       end
-
-
     end
 
-    context 'geolocate_ui_params_hash' do
+    context 'geolocate responses from collecting_event' do
+      before(:all) {
+        generate_ce_test_objects
+      }
+      after(:all) {
+        Georeference.destroy_all
+        GeographicItem.destroy_all
+        CollectingEvent.destroy_all
+        clean_slate_geo
+      }
 
-      specify 'geolocate_ui_params_hash from locality' do
-        pending 'creation of a method for geolocate_ui_params_hash'
-        expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+      context 'geolocate_ui_params_hash' do
+
+        specify 'geolocate_ui_params_hash from locality' do
+          pending 'creation of a method for geolocate_ui_params_hash'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+        end
+
+        specify 'geolocate_ui_params_hash from lat/long' do
+          pending 'creation of a method for geolocate_ui_params_hash'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+        end
       end
 
-      specify 'geolocate_ui_params_hash from lat/long' do
-        pending 'creation of a method for geolocate_ui_params_hash'
-        expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+      context 'geolocate_ui_params_string' do
+
+        specify 'geolocate_ui_params_string from locality' do
+          pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+        end
+
+        specify 'geolocate_ui_params_string from lat/long' do
+          pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+        end
       end
     end
   end
-
 
   context 'associations' do
     context 'belongs_to' do
