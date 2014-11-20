@@ -37,6 +37,7 @@ namespace :tw do
                       col_sep:        "\t",
                       quote_char:     '|'
           ) do |row|
+            begin
             # TODO convert row to a hash & reference by column name not order to make it more generic
 =begin
 Column : SQL column name :  data desc
@@ -212,8 +213,10 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
           #raise # causes it to always fail and rollback the transaction
         end # transaction end
 
-      rescue
-        raise              #comment out to here to remove transaction
+      rescue => e
+        #raise              #comment out to here to remove transaction
+        puts(e)
+        break
       end
 
     end # task
@@ -237,12 +240,36 @@ Column : SQL column name : data desc
 0 : Keep : The tmpID of the primary source
 1 : Delete : The tmpID of the duplicated source (was never loaded)
 2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
-3 : MXID  : add as an additional identifier
-4 : TreeID  : add as an additional identifier
-5 : Name    : only add if it doesn't match primary or alt name
-6 : Abbr    : only add if it doesn't match primary or alt name
+3 : MXID  : add as an additional identifier if not already there
+4 : TreeID  : add as an additional identifier   if not already there
+5 : Name    : only add if it doesn't match primary or alt name   if not already there
+6 : Abbr    : only add if it doesn't match primary or alt name   if not already there
 
 =end
+            s = Serial.with_namespaced_identifier('IMPORT_SERIAL_NAMESPACE ', row[0])
+=begin
+            Find by alternate value  - note from pair programming with Jim
+            s = Source::Bibtex.new
+            a = AlternateValue.where(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+            s = a.objectID
+
+to save without raising
+      a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+      if a.valid? then save else continue the loop
+
+        Identifier.where(:identifier => '8740')[0].identified_object
+        Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
+          where: Namespace = 'MX serial ID' and identifier = '8740'
+=end
+            identifiers =[]
+            # add MXID if it doesn't match
+            # add TreeID if it doesn't match
+
+            # add names if they aren't already in the table
+            # if !(s.title = row[5]) || !(s.with_alternate_value_on(:title, row[5]).count > 0)
+            #   printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.title,
+            #          s.title.alternate_values)
+            # end
 
 
           end
@@ -254,9 +281,9 @@ Column : SQL column name : data desc
       end
 
     end #end task
-    desc 'call like "rake tw:import:add_duplicate_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
+    desc 'call like "rake tw:import:add_chronologies_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
     task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
-      args.with_defaults(:data_directory => './treeMXduplicates.txt')
+      args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
 
       # Now add additional identifiers - filename is treeMXduplicates
       begin
@@ -270,14 +297,10 @@ Column : SQL column name : data desc
           ) do
 =begin
 Column : SQL column name : data desc
-0 : Keep : The tmpID of the primary source
-1 : Delete : The tmpID of the duplicated source (was never loaded)
-2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
-3 : MXID  : add as an additional identifier
-4 : TreeID  : add as an additional identifier
-5 : Name    : only add if it doesn't match primary or alt name
-6 : Abbr    : only add if it doesn't match primary or alt name
-
+0 : PrefID: The tmpID of the first serial
+1 : SecID : The tmpID of the second serial
+2 : PrevName: <ignore> Fullname of the first serial
+3 : SucName  : <ignore> Fullname of the Second serial
 =end
             # i = Identifer.with_identifier('IMPORT_SERIAL_NAMESPACE ' + Row[0])
             s           = Serial.with_namespaced_identifier('IMPORT_SERIAL_NAMESPACE ', row[0])
