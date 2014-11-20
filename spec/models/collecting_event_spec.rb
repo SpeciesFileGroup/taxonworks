@@ -7,7 +7,7 @@ describe CollectingEvent, :type => :model do
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
-    specify 'if verbatim_geolocation_uncertainty is provided, then so to are verbatim_longitude and verbatim_latitude' do
+    specify 'if verbatim_geolocation_uncertainty is provided, then so too are verbatim_longitude and verbatim_latitude' do
       collecting_event.verbatim_geolocation_uncertainty = 'based on my astrolab'
       expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors.include?(:verbatim_geolocation_uncertainty)).to be_truthy
@@ -185,8 +185,8 @@ describe CollectingEvent, :type => :model do
       end
 
       specify 'assigns a geographic item when verbatim_latitude/long are provided and !#new_record?' do
-        collecting_event.verbatim_latitude  = 10
-        collecting_event.verbatim_longitude = 10
+        collecting_event.verbatim_latitude  = -10.0
+        collecting_event.verbatim_longitude = '-10'
         expect(collecting_event.save).to be_truthy
         expect(collecting_event.generate_verbatim_georeference).to be_truthy
         expect(collecting_event.verbatim_georeference.blank?).to be_falsey
@@ -209,7 +209,8 @@ describe CollectingEvent, :type => :model do
       }
 
       context 'and that GR has some combination of GIs, and EGIs' do
-        pending 'that the count of which can be found' do
+        specify 'that the count of which can be found' do
+          pending 'fixing the bug in all_geographic_items'  # todo: @mjy
           # @ce_p5 has two GRs, each of which has a GI.
           expect(@ce_p5.all_geographic_items.count).to eq(2)
           # @ce_p8 has two GRs, one of which has only a GI, and the other of which
@@ -264,7 +265,7 @@ describe CollectingEvent, :type => :model do
 
     context 'geolocate responses from collecting_event' do
       before(:all) {
-        generate_ce_test_objects
+        generate_political_areas
       }
       after(:all) {
         Georeference.destroy_all

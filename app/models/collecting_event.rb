@@ -43,7 +43,7 @@
 #
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::Citable
   include Shared::Identifiable
   include Shared::Notable
@@ -144,13 +144,15 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def generate_verbatim_georeference
+    # TODO @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
+    # will occur here
     if verbatim_latitude && verbatim_longitude && !new_record?
       point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
       g     = GeographicItem.new(point: point)
-      r = get_error_radius
+      r     = get_error_radius
       if g.valid?
         g.save
-        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r ))
+        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r))
       end
     end
   end
@@ -167,7 +169,7 @@ class CollectingEvent < ActiveRecord::Base
     GeographicItem.select('g1.* FROM geographic_items gi').
       join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
       join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
-      where(["(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)", id, id])
+      where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
   end
 
   def find_others_within_radius_of(distance)
@@ -327,6 +329,74 @@ class CollectingEvent < ActiveRecord::Base
     county_or_equivalent_name
   end
 
+=begin
+TODO: @mjy: please fill in any other paths you cqan think of for the acquisition of information for the seven below listed items
+  ce.georeference.geographic_item.centroid
+  ce.georeference.error_geographic_item.centroid
+  ce.verbatim_georeference
+  ce.verbatim_lat/ee.verbatim_lng
+  ce.verbatim_locality
+  ce.geographic_area.geographic_item.centroid
+
+  There are a number of items we can try to get data for to complete the geolocate parameter string:
+
+  'country' can come from:
+    GeographicArea through ce.country_name
+
+  'state' can come from:
+    GeographicArea through ce.state_or_province_name
+
+  'county' can come from:
+    GeographicArea through ce.county_or_equivalent_name
+
+  'locality' can come from:
+    ce.verbatim_locality
+
+  'Latitude', 'Longitude' can come from:
+    GeographicItem through ce.georeferences.geographic_item.centroid
+    GeographicItem through ce.georeferences.error_geographic_item.centroid
+    GeographicArea through ce.geographic_area.geographic_area_map_focus
+
+  'Placename' can come from:
+    ? Copy of 'locality'
+=end
+
+  def geolocate_ui_params_hash
+
+  end
+
+  def geolocate_ui_params_string
+    parameters = {}
+
+    parameters[:country]   = country_name
+    parameters[:state]     = state_or_province_name
+    parameters[:county]    = county_or_equivalent_name
+    parameters[:locality]  = verbatim_locality
+    parameters[:Placename] = verbatim_locality
+
+    focus = nil
+    # in reverse order of precedence
+    unless geographic_area.nil?
+      focus = geographic_area.geographic_area_map_focus
+    end
+    unless georeferences.count == 0
+      unless georeferences.first.error_geographic_item.nil?
+        # expecting error_geographic_item to be a polygon or multi_polygon
+        focus = georeferences.first.error_geographic_item.centroid
+      end
+      unless georeferences.first.geographic_item.nil?
+        # the georeferences.first.geographic_item for a verbatim_data instance is a point
+        focus = georeferences.first.geographic_item
+      end
+    end
+
+    unless focus.nil?
+      parameters[:Longitude] = focus.point.x
+      parameters[:Latitude]  = focus.point.y
+    end
+    Georeference::GeoLocate::RequestUI.new(parameters).request_params
+  end
+
 # class methods
 
   def self.excluding(collecting_events)
@@ -357,7 +427,7 @@ class CollectingEvent < ActiveRecord::Base
     if verbatim_label.blank?
       cached = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, verbatim_collectors, "\n"].compact.join
     else
-      cached = verbatim_label  
+      cached = verbatim_label
     end
   end
 
