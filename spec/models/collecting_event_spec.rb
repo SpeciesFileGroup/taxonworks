@@ -170,9 +170,12 @@ describe CollectingEvent, :type => :model do
     end
   end
 
-  specify 'if a verbatim_label is present then a md5_of_verbatim_label is generated' do
-    collecting_event.verbatim_label = "Label\nAnother line\nYet another line."
-    expect(collecting_event.md5_of_verbatim_label.blank?).to be_falsey
+  context 'actions' do
+
+    specify 'if a verbatim_label is present then a md5_of_verbatim_label is generated' do
+      collecting_event.verbatim_label = "Label\nAnother line\nYet another line."
+      expect(collecting_event.md5_of_verbatim_label.blank?).to be_falsey
+    end
   end
 
   context 'georeferences' do
@@ -206,7 +209,7 @@ describe CollectingEvent, :type => :model do
       }
 
       context 'and that GR has some combination of GIs, and EGIs' do
-        skip 'that the count of which can be found' do
+        pending 'that the count of which can be found' do
           # @ce_p5 has two GRs, each of which has a GI.
           expect(@ce_p5.all_geographic_items.count).to eq(2)
           # @ce_p8 has two GRs, one of which has only a GI, and the other of which
@@ -258,8 +261,45 @@ describe CollectingEvent, :type => :model do
         end
       end
     end
-  end
 
+    context 'geolocate responses from collecting_event' do
+      before(:all) {
+        generate_ce_test_objects
+      }
+      after(:all) {
+        Georeference.destroy_all
+        GeographicItem.destroy_all
+        CollectingEvent.destroy_all
+        clean_slate_geo
+      }
+
+      context 'geolocate_ui_params_hash' do
+
+        specify 'geolocate_ui_params_hash from locality' do
+          pending 'creation of a method for geolocate_ui_params_hash'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+        end
+
+        specify 'geolocate_ui_params_hash from lat/long' do
+          pending 'creation of a method for geolocate_ui_params_hash'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+        end
+      end
+
+      context 'geolocate_ui_params_string' do
+
+        specify 'geolocate_ui_params_string from locality' do
+          pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+        end
+
+        specify 'geolocate_ui_params_string from lat/long' do
+          pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+        end
+      end
+    end
+  end
 
   context 'associations' do
     context 'belongs_to' do
@@ -304,12 +344,12 @@ describe CollectingEvent, :type => :model do
       # create some bogus countries, states, provinces, counties, and a parish
       generate_political_areas
       #
-      # The idea: 
+      # The idea:
       #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
       #    - we can arrive at a geographic_area from a collecting event in 2 ways
       #       1) @collecting_event.geographic_area is set, this is easy, we can use it specifically
       #          if it's the right type, or climb up to a specific levelN category to check if not
-      #       2) @collecting_event.georeferences.first is set.  
+      #       2) @collecting_event.georeferences.first is set.
       #          In the case of 2) we must use the georeference to find the minimum containing geographic_area
       #          of type "state" for example
       #   - it is possible (but hopefully unlikely) that multiple geographic areas of type "state" might be return,
@@ -317,8 +357,8 @@ describe CollectingEvent, :type => :model do
       # We want to derive labels in two stages
       #     1) a hash stage finds all possible values, where keys are a string, and values are an array, e.g.
       #         'Canada' => [@geographic_area1, @geographic_area2]
-      #     2) a name stage use the hash from 1) to pick the "best" label (see priorities in tests)  
-      #  
+      #     2) a name stage use the hash from 1) to pick the "best" label (see priorities in tests)
+      #
     }
 
     after(:all) {

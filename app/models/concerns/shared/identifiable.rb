@@ -28,6 +28,8 @@ module Shared::Identifiable
     end
 
     # Exact match on the full identifier (use for any class of identifiers)
+    # 'value' is the cached value with includes the namespace (see spec)
+    # example Serial.with_identifier('MX serial ID 8740')
     def with_identifier(value)
       value = [value] if value.class == String
       t = Identifier.arel_table

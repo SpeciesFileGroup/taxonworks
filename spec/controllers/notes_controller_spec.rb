@@ -24,11 +24,12 @@ describe NotesController, :type => :controller do
   }
 
   # This should return the minimal set of attributes required to create a valid
-  # Georeference. As you add validations to Georeference be sure to
+  # Note. As you add validations to Note be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_note).attributes )
-  } 
+
+  let(:o) {FactoryGirl.create(:valid_otu)}
+  let(:valid_attributes) {
+    {note_object_id: o.id, note_object_type: o.class.to_s, text: "Just the fax"}  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -63,7 +64,8 @@ describe NotesController, :type => :controller do
 
       it "redirects to :back" do
         post :create, {:note => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        # expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -105,7 +107,7 @@ describe NotesController, :type => :controller do
       it "redirects to :back" do
         note = Note.create! valid_attributes
         put :update, {:id => note.to_param, :note => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 

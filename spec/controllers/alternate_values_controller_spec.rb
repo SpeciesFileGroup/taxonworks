@@ -9,7 +9,7 @@ describe AlternateValuesController, :type => :controller do
   # AlternateValue. As you add validations to AlternateValue, be sure to
   # adjust the attributes here as well.
   let(:o) {FactoryGirl.create(:valid_source_bibtex)}
-  let(:valid_attributes) { {alternate_object_id: o.id, alternate_object_type: o.class.to_s, value: "T.L.T.Q.", alternate_object_attribute: :title, type: 'AlternateValue::Abbreviation'} }
+  let(:valid_attributes) { {alternate_value_object_id: o.id, alternate_value_object_type: o.class.to_s, value: "T.L.T.Q.", alternate_value_object_attribute: :title, type: 'AlternateValue::Abbreviation'} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

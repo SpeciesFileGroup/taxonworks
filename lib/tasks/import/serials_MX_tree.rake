@@ -1,9 +1,9 @@
 namespace :tw do
   namespace :import do
 
-    desc 'call like "rake tw:initialization:upload_MX_tree_serials[/Users/eef/src/data/serialdata/serialdata/working_data/treeMXmerge-final.txt] user_id=1" '
-    task :build_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
-      args.with_defaults(:data_directory1 => './TreeMXmerge-final.txt', :data_directory2 => './treeMXduplicates.txt')
+    desc 'call like "rake tw:import:build_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1 project_id=1" '
+    task :build_MXserials, [:data_directory1] => [:environment, :user_id, :project_id] do |t, args|
+      args.with_defaults(:data_directory1 => './treeMXmerge-final.txt')
 
       # TODO: check checksums of incoming files?
 
@@ -11,12 +11,24 @@ namespace :tw do
 
       # first file ./TreeMXmerge-final.txt
       begin
-        ActiveRecord::Base.transaction do
-          MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID')
+        $stdout.sync = true
+        print ("Starting transaction ...")
+
+        ActiveRecord::Base.transaction do     # rm transaction
+          IMPORT_SERIAL_NAMESPACE     =
+            Namespace.find_or_create_by(name: 'MX-Treehopper serial import ID', short_name: 'MX_T importID')
+          MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID', short_name: 'MX_ID')
+          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID', short_name: 'TreeID')
+
           #SF_PUB_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub ID')
           #SF_PUB_REG_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub Registry ID')
-          TREEHOPPER_SERIAL_NAMESPACE = Namespace.find_or_create_by(name: 'Treehopper serial ID')
-          IMPORT_SERIAL_NAMESPACE     = Namespace.find_or_create_by(name: 'MX_T import serial ID')
+
+          # create needed controlled vocabulary keywords for Serials (needed for data attribute)
+          SERIAL_NOTE  = Predicate.new(name: 'Serial Note', definition: 'Comments about this serial')
+          SERIAL_NOTE.save!
+          SERIAL_LANG_NOTE = Predicate.new(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
+          SERIAL_LANG_NOTE.save!
+          # I think I can use find or create for this - need to test
 
           CSV.foreach(args[:data_directory1],
                       headers:        true,
@@ -25,6 +37,7 @@ namespace :tw do
                       col_sep:        "\t",
                       quote_char:     '|'
           ) do |row|
+            begin
             # TODO convert row to a hash & reference by column name not order to make it more generic
 =begin
 Column : SQL column name :  data desc
@@ -50,14 +63,18 @@ Column : SQL column name :  data desc
 
 Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISSN it is considered a different Serial
 =end
-
+            $stdout.sync = true
+            print ("tmpID #{row[0]} starting ...")
+            # moved notes to dataAttribute, but couldn't get the [] format to work, so moved to after the
+            # base serial was created.
             # add note
-            notes = []
+            data_attr = []
             if !(row[15].to_s.strip.blank?) # test for empty note!
-              notes.push({text: row[15].to_s.strip})
+              # notes.push({text: row[15].to_s.strip})
+              data_attr.push({predicate: SERIAL_NOTE, value: row[15].to_s.strip, type: 'InternalAttribute'})
             end
-            if !(row[10].to_s.strip.blank?) # language notes
-              notes.push({text: row[10].to_s.strip, note_object_attribute: 'language'})
+            if !(row[10].to_s.strip.blank?) # language notes  - data attributes are associated with the whole object and can't be assigned to an object attribute like notes.
+              data_attr.push({predicate: SERIAL_LANG_NOTE, value: row[10].to_s.strip, type: 'InternalAttribute'})
             end
 
             identifiers=[]
@@ -96,55 +113,66 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             # digital and print ISSNs, make the digital ISSN a second serial
             need2serials = FALSE
             if !(row[12].to_s.strip.blank?)
-              identifiers.push({type:       'Identifier::global::issn',
+              identifiers.push({type:       'Identifier::Global::Issn',
                                 identifier: row[12].to_s.strip
                                })
             else
               if !(row[13].to_s.strip.blank?) # have MXprint ISSN
-                identifiers.push({type:       'Identifier::global::issn',
+                identifiers.push({type:       'Identifier::Global::Issn',
                                   identifier: row[13].to_s.strip})
                 if !(row[14].to_s.strip.blank?) # have MXdigital ISSN
                   need2serials = TRUE
                 end
               else # no MXprint ISSN
                 if !(row[14].to_s.strip.blank?)
-                  identifiers.push({type:       'Identifier::global::issn',
+                  identifiers.push({type:       'Identifier::Global::Issn',
                                     identifier: row[14].to_s.strip})
                 end
               end
             end
 
             # URL
-            f !(row[16].to_s.strip.blank?)
-            identifiers.push({type:       'Identifier::global::uri',
-                              identifier: row[16].to_s.strip
-                             })
+            if !(row[16].to_s.strip.blank?)
+              identifiers.push({type:       'Identifier::Global::Uri',
+                                identifier: row[16].to_s.strip
+                               })
+            end
 
-            r                               = Serial.new(
+            r = Serial.new(
               name:                   row[4].to_s.strip,
               publisher:              row[5].to_s.strip,
               place_published:        row[6].to_s.strip,
               primary_language_id:    row[11].to_s.strip,
               # first_year_of_issue:    row[6],              # not available from treehopper or MX data
-              # last_year_of_issue:     row[7],
-              identifiers_attributes: identifiers,
-              notes_attributes:       notes
+              # last_year_of_issue:     row[7],             # not available from treehopper or MX data
+              identifiers_attributes: identifiers, # TODO identifiers require project even on non-project objects
+              data_attributes_attributes:       data_attr
             )
 
             # add abbreviation
-            abbr                            = AlternateValue.new # or should this be an abbreviation?
-            abbr.value                      = row[7].to_s.strip
-            abbr.alternate_object_attribute = 'name'
-            abbr.type                       = 'AlternateValue::Abbreviation'
-            r.alternate_values << abbr
+            if !(row[7].to_s.strip.blank?)
+              abbr                            = AlternateValue.new # or should this be an abbreviation?
+              abbr.value                      = row[7].to_s.strip
+              abbr.alternate_value_object_attribute = 'name'
+              abbr.type                       = 'AlternateValue::Abbreviation'
+              r.alternate_values << abbr
+            end
 
             # add short name (alternate name)
-            alt_name                            = AlternateValue.new
-            alt_name.value                      = row[8].to_s.strip
-            alt_name.alternate_object_attribute = 'name'
-            alt_name.type                       = 'AlternateValue::Abbreviation'
-            r.alternate_values << alt_name
+            if !(row[8].to_s.strip.blank?)
+              alt_name                            = AlternateValue.new
+              alt_name.value                      = row[8].to_s.strip
+              alt_name.alternate_value_object_attribute = 'name'
+              alt_name.type                       = 'AlternateValue::Abbreviation'
+              r.alternate_values << alt_name
+            end
 
+            r.identifiers.each do |ident|
+              if !ident.valid?
+                str = 'A place for me to break'
+                # current problem - TreeID 100 claims to be used more than once; but can't find another use in TreeMX_merge
+              end
+            end
             r.save!
 
             if need2serials # had 2 different ISSNs for digital and print versions
@@ -152,16 +180,16 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               # Import ID - never empty
               identifiers.push({type:       'Identifier::Local::Import',
                                 namespace:  IMPORT_SERIAL_NAMESPACE,
-                                identifier: row[0].to_s.strip
+                                identifier: row[0].to_s.strip + ' 2nd ISSN'
                                })
               # MX ID
               if !(row[1].to_s.strip.blank?)
                 identifiers.push({type:       'Identifier::Local::Import',
                                   namespace:  MX_SERIAL_NAMESPACE,
-                                  identifier: row[1].to_s.strip
+                                  identifier: row[1].to_s.strip + ' 2nd ISSN'
                                  })
               end
-              identifiers.push({type:       'Identifier::global::issn',
+              identifiers.push({type:       'Identifier::Global::Issn',
                                 identifier: row[14].to_s.strip})
 
               r = Serial.new(
@@ -170,42 +198,55 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                 place_published:        row[6].to_s.strip,
                 primary_language_id:    row[11].to_s.strip,
                 identifiers_attributes: identifiers,
-                notes_attributes:       notes
+                data_attributes_attributes:       data_attr
               )
 
               r.save!
+              if data_attr.count > 0
+                z = 1 # here so I can check the results of the save
+              end
+              end
 
-            end
-
+            print("Ending | ")
           end
           puts 'Successful load of primary serial file'
+          #raise # causes it to always fail and rollback the transaction
         end # transaction end
 
-        # Now add additional identifiers - filename is treeMXduplicates
-        begin
-          Activerecord::Base.transaction do
-            CSV.foreach(args[:data_directory1],
-                        headers:        true,
-                        return_headers: false,
-                        encoding:       'UTF-16LE:UTF-8',
-                        col_sep:        "\t",
-                        quote_char:     '|'
-            ) do
+      rescue => e
+        #raise              #comment out to here to remove transaction
+        puts(e)
+        break
+      end
+
+    end # task
+
+    desc 'call like "rake tw:import:add_duplicate_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1" '
+    task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
+      args.with_defaults(:data_directory => './treeMXduplicates.txt')
+
+      # Now add additional identifiers - filename is treeMXduplicates
+      begin
+        Activerecord::Base.transaction do
+          CSV.foreach(args[:data_directory],
+                      headers:        true,
+                      return_headers: false,
+                      encoding:       'UTF-16LE:UTF-8',
+                      col_sep:        "\t",
+                      quote_char:     '|'
+          ) do
 =begin
 Column : SQL column name : data desc
 0 : Keep : The tmpID of the primary source
 1 : Delete : The tmpID of the duplicated source (was never loaded)
 2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
-3 : MXID
-4 : TreeID
-5 : Name
-6 : Abbr
+3 : MXID  : add as an additional identifier if not already there
+4 : TreeID  : add as an additional identifier   if not already there
+5 : Name    : only add if it doesn't match primary or alt name   if not already there
+6 : Abbr    : only add if it doesn't match primary or alt name   if not already there
 
 =end
-            end
-
-          end
-        end
+            s = Serial.with_namespaced_identifier('IMPORT_SERIAL_NAMESPACE ', row[0])
 =begin
             Find by alternate value  - note from pair programming with Jim
             s = Source::Bibtex.new
@@ -215,18 +256,84 @@ Column : SQL column name : data desc
 to save without raising
       a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
       if a.valid? then save else continue the loop
+
+        Identifier.where(:identifier => '8740')[0].identified_object
+        Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
+          where: Namespace = 'MX serial ID' and identifier = '8740'
 =end
+            identifiers =[]
+            # add MXID if it doesn't match
+            # add TreeID if it doesn't match
+
+            # add names if they aren't already in the table
+            # if !(s.title = row[5]) || !(s.with_alternate_value_on(:title, row[5]).count > 0)
+            #   printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.title,
+            #          s.title.alternate_values)
+            # end
 
 
-        puts 'Successful complete load of MX & treehopper serials'
-
-
-        raise # causes it to always fail and rollback the transaction
-
+          end
+          puts 'Successful load of MX & treehopper duplicate IDs'
+          raise # causes it to always fail and rollback the transaction
+        end
       rescue
         raise
       end
 
-    end # task
+    end #end task
+    desc 'call like "rake tw:import:add_chronologies_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
+    task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id] do |t, args|
+      args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
+
+      # Now add additional identifiers - filename is treeMXduplicates
+      begin
+        Activerecord::Base.transaction do
+          CSV.foreach(args[:data_directory],
+                      headers:        true,
+                      return_headers: false,
+                      encoding:       'UTF-16LE:UTF-8',
+                      col_sep:        "\t",
+                      quote_char:     '|'
+          ) do
+=begin
+Column : SQL column name : data desc
+0 : PrefID: The tmpID of the first serial
+1 : SecID : The tmpID of the second serial
+2 : PrevName: <ignore> Fullname of the first serial
+3 : SucName  : <ignore> Fullname of the Second serial
+=end
+            # i = Identifer.with_identifier('IMPORT_SERIAL_NAMESPACE ' + Row[0])
+            s           = Serial.with_namespaced_identifier('IMPORT_SERIAL_NAMESPACE ', row[0])
+            identifiers =[]
+            if !(s.title = row[5]) || !(s.with_alternate_value_on(:title, row[5]).count > 0)
+              printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.title,
+                     s.title.alternate_values)
+            end
+=begin
+            Find by alternate value  - note from pair programming with Jim
+            s = Source::Bibtex.new
+            a = AlternateValue.where(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+            s = a.objectID
+
+to save without raising
+      a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
+      if a.valid? then save else continue the loop
+
+        Identifier.where(:identifier => '8740')[0].identified_object
+        Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
+          where: Namespace = 'MX serial ID' and identifier = '8740'
+=end
+          end
+          puts 'Successful load of MX & treehopper duplicate IDs'
+          raise # causes it to always fail and rollback the transaction
+        end
+      rescue
+        raise
+      end
+
+    end #end task
+
   end
 end
+
+

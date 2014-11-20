@@ -50,7 +50,7 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
@@ -72,7 +72,7 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
-  # TODOone: Break this down into individual validations
+  # TODone: Break this down into individual validations
   # validate :proper_data_is_provided
   validate :add_error_radius
   validate :add_error_depth

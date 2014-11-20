@@ -1,6 +1,7 @@
 # A note is a text annotation on a data instance (record).
 # 
 # Notes are text only notes on instances that belong to some project (e.g. models that include Shared::IsData).
+# For global instances use DataAttribute
 #
 # Notes may include any text excluding pipes ('|'). Pipes are a reserved object separator for output
 #

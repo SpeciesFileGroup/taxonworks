@@ -5,8 +5,8 @@ FactoryGirl.define do
     factory :valid_alternate_value do
       type 'AlternateValue::Synonym'
       value 'Blorf'
-      alternate_object_attribute 'name'
-      association :alternate_object, factory: :valid_otu
+      alternate_value_object_attribute 'name'
+      association :alternate_value_object, factory: :valid_otu
     end
   end
 end
