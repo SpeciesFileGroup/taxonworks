@@ -37,6 +37,7 @@
 #   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
 #   
 class Identifier < ActiveRecord::Base
+  # TODO: @mjy resolve this to not require project id 
   include Housekeeping
   include Shared::IsData 
 
@@ -65,7 +66,6 @@ class Identifier < ActiveRecord::Base
   # Please DO NOT include the following: 
   #   validates :identified_object, presence: true 
   #   validates_presence_of :identified_object_type, :identified_object_id
-  
   validates_presence_of :type, :identifier
 
   # identifiers are unique across types for a class of objects

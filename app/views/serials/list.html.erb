@@ -1,0 +1,40 @@
+<h1>Listing Serials</h1>
+<%= paginate @serials %> <%= page_entries_info @serials %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Publisher</th>
+      <th>Place published</th>
+      <th>Primary language</th>
+      <th>First year of issue</th>
+      <th>Last year of issue</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @serials.each do |serial| %>
+      <tr>
+        <td><%= serial.name %></td>
+        <td><%= object_tag(serial.creator) %></td>
+        <td><%= object_tag(serial.updater) %></td>
+        <td><%= serial.publisher %></td>
+        <td><%= serial.place_published %></td>
+        <td><%= serial.primary_language_id %></td>
+        <td><%= serial.first_year_of_issue %></td>
+        <td><%= serial.last_year_of_issue %></td>
+        <td><%= link_to 'Show', serial %></td>
+        <td><%= link_to 'Edit', edit_serial_path(serial) %></td>
+        <td><%= link_to 'Destroy', serial, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+

@@ -7,8 +7,15 @@ class SerialsController < ApplicationController
 
   # GET /serials
   # GET /serials.json
+
+  # GET /otus
+  # GET /otus.json
   def index
-    @serials = Serial.all.limit(50)
+    @recent_objects = Serial.order(updated_at: :desc).limit(10)
+  end
+
+  def list
+    @serials = Serial.order(:id).page(params[:page]) 
   end
 
   # GET /serials/1

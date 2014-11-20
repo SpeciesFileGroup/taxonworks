@@ -129,7 +129,14 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-  resources :serials
+  
+  # TODO: add exceptions 
+  resources :serials do
+    concerns [:data_routes]
+  end
+
+
+
   resources :sources do
     concerns [:data_routes]
   end

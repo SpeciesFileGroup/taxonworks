@@ -24,7 +24,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) 
   end
 
   # POST /otus

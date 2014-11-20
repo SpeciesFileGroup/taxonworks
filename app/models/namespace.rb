@@ -35,7 +35,6 @@ class Namespace < ActiveRecord::Base
   include Shared::IsData 
   include Shared::SharedAcrossProjects
 
-
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
