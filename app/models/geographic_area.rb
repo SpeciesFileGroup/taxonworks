@@ -198,16 +198,14 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
-  def geolocate_ui_params_string
-
-  end
-
-  def geographic_item_centroid
+  # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
+  # provide a point on which to focus the map.  Return 'nil' if there are no GIs in the chain.
+  def geographic_area_map_focus
     item = nil
     if geographic_items.count == 0
       # this nil signals the top of the stack: Everything terminates at 'Earth'
       unless parent.nil?
-        item = parent.geographic_item_centroid
+        item = parent.geographic_area_map_focus
       end
     else
       item = GeographicItem.new(point: geographic_items.first.st_centroid)
@@ -221,12 +219,16 @@ class GeographicArea < ActiveRecord::Base
     parameters[:county]  = level2.name unless level2.nil?
     parameters[:state]   = level1.name unless level1.nil?
     parameters[:country] = level0.name unless level0.nil?
-    item                 = geographic_item_centroid
+    item                 = geographic_area_map_focus
     unless item.nil?
       parameters[:Longitude] = item.point.x
       parameters[:Latitude]  = item.point.y
     end
     Georeference::GeoLocate::RequestUI.new(parameters).request_params
+  end
+
+  def geolocate_ui_params_string
+
   end
 
 end
