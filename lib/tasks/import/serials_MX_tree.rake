@@ -11,7 +11,10 @@ namespace :tw do
 
       # first file ./TreeMXmerge-final.txt
       begin
-        ActiveRecord::Base.transaction do
+        $stdout.sync = true
+        print ("Starting transaction ...")
+
+        ActiveRecord::Base.transaction do     # rm transaction
           IMPORT_SERIAL_NAMESPACE     =
             Namespace.find_or_create_by(name: 'MX-Treehopper serial import ID', short_name: 'MX_T importID')
           MX_SERIAL_NAMESPACE         = Namespace.find_or_create_by(name: 'MX serial ID', short_name: 'MX_ID')
@@ -21,9 +24,9 @@ namespace :tw do
           #SF_PUB_REG_NAMESPACE = Namespace.find_or_create_by(name: 'SF Pub Registry ID')
 
           # create needed controlled vocabulary keywords for Serials (needed for data attribute)
-          SERIAL_NOTE  = Keyword.new(name: 'Serial Note', definition: 'Comments about this serial')
+          SERIAL_NOTE  = Predicate.new(name: 'Serial Note', definition: 'Comments about this serial')
           SERIAL_NOTE.save!
-          SERIAL_LANG_NOTE = Keyword.new(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
+          SERIAL_LANG_NOTE = Predicate.new(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
           SERIAL_LANG_NOTE.save!
           # I think I can use find or create for this - need to test
 
@@ -59,15 +62,18 @@ Column : SQL column name :  data desc
 
 Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISSN it is considered a different Serial
 =end
-
+            $stdout.sync = true
+            print ("tmpID #{row[0]} starting ...")
+            # moved notes to dataAttribute, but couldn't get the [] format to work, so moved to after the
+            # base serial was created.
             # add note
             data_attr = []
             if !(row[15].to_s.strip.blank?) # test for empty note!
               # notes.push({text: row[15].to_s.strip})
-              data_attr.push({predicate: SERIAL_NOTE, value: row[15].to_s.strip, type: 'DataAttribute::InternalAttribute'})
+              data_attr.push({predicate: SERIAL_NOTE, value: row[15].to_s.strip, type: 'InternalAttribute'})
             end
-            if !(row[10].to_s.strip.blank?) # language notes
-              data_attr.push({text: row[10].to_s.strip, note_object_attribute: 'language'})
+            if !(row[10].to_s.strip.blank?) # language notes  - data attributes are associated with the whole object and can't be assigned to an object attribute like notes.
+              data_attr.push({predicate: SERIAL_LANG_NOTE, value: row[10].to_s.strip, type: 'InternalAttribute'})
             end
 
             identifiers=[]
@@ -139,7 +145,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               # first_year_of_issue:    row[6],              # not available from treehopper or MX data
               # last_year_of_issue:     row[7],             # not available from treehopper or MX data
               identifiers_attributes: identifiers, # TODO identifiers require project even on non-project objects
-              data_attributes:       data_attr
+              data_attributes_attributes:       data_attr
             )
 
             # add abbreviation
@@ -191,21 +197,23 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                 place_published:        row[6].to_s.strip,
                 primary_language_id:    row[11].to_s.strip,
                 identifiers_attributes: identifiers,
-                data_attributes:       data_attr
+                data_attributes_attributes:       data_attr
               )
 
               r.save!
+              if data_attr.count > 0
+                z = 1 # here so I can check the results of the save
+              end
+              end
 
-              #z = 1 # here so I can check the results of the save
-            end
-
+            print("Ending | ")
           end
           puts 'Successful load of primary serial file'
           #raise # causes it to always fail and rollback the transaction
         end # transaction end
 
       rescue
-        raise
+        raise              #comment out to here to remove transaction
       end
 
     end # task
