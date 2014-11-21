@@ -62,7 +62,7 @@ TaxonWorks::Application.routes.draw do
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
-  resources :citations, except: [:new, :edit, :show] do
+  resources :citations, except: [:edit, :show] do
     concerns [:data_routes]
   end
   resources :collecting_events do
