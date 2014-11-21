@@ -20,7 +20,7 @@
 # Users must never be shared by real-life humans. 
 #
 #
-# @!attribute name 
+# @!attribute name
 #   @return [String]
 #   A users name.  Not intended to be a nickname, but this is loosely enforced.  Attribute is 
 #   intended to identify a human who owns this account.
@@ -31,26 +31,10 @@
 #
 class User < ActiveRecord::Base
   
-  module RandomToken
-    as_trait do |*fields|
-      fields.each do |field|
-        define_method("generate_#{field}_token") do
-          token = User.secure_random_token
-          self.password_reset_token = User.encrypt(token)
-          self.password_reset_token_date = DateTime.now
-          token
-        end
-        define_method("#{field}_token_matches?") do |token|
-          self.password_reset_token == User.encrypt(token)
-        end
-      end
-    end
-  end
-
 #  include Housekeeping
   include Shared::Notable
   include Shared::DataAttributes
-  include RandomToken[:password_reset]
+  include Shared::RandomTokenField[:password_reset]
   
   before_create :set_remember_token
 
