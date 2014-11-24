@@ -304,10 +304,10 @@ describe CollectingEvent, :type => :model do
           expect(@ce_m1.geolocate_ui_params_hash).to eq({:country       => 'Big Boxia',
                                                          :state         => 'T',
                                                          :county        => 'M1',
-                                                         :locality      => nil,
+                                                         :locality      => 'Lesser Boxia Lake',
                                                          :Latitude      => 27.5,
                                                          :Longitude     => 33.5,
-                                                         :Placename     => nil,
+                                                         :Placename     => 'Lesser Boxia Lake',
                                                          :Score         => '0',
                                                          :Uncertainty   => '3',
                                                          :H20           => 'false',
@@ -326,13 +326,13 @@ describe CollectingEvent, :type => :model do
       context 'geolocate_ui_params_string' do
 
         specify 'geolocate_ui_params_string from locality' do
-          pending 'creation of a method for geolocate_ui_params_string'
-          expect(@ce_m1.geolocate_ui_params_hash).to eq('')
+          #pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Old Boxia&state=N3&county=&locality=Greater Boxia Lake&points=25.5|34.5|Greater Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
         end
 
         specify 'geolocate_ui_params_string from lat/long' do
-          pending 'creation of a method for geolocate_ui_params_string'
-          expect(@ce_m1.geolocate_ui_params_hash).to eq('')
+          #pending 'creation of a method for geolocate_ui_params_string'
+          expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big Boxia&state=T&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
         end
       end
     end

@@ -1388,6 +1388,7 @@ Two different shapes with the same name, 'East Boxia', and
   # 16 collecting events, one for each of the smallest boxes
 
   @ce_m1 = FactoryGirl.create(:collecting_event,
+                              :verbatim_locality => 'Lesser Boxia Lake',
                               :verbatim_label  => '@ce_m1',
                               :geographic_area => @area_m1)
   @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,

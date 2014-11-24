@@ -390,10 +390,16 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
       parameters[:Longitude] = focus.point.x
       parameters[:Latitude]  = focus.point.y
     end
-    Georeference::GeoLocate::RequestUI.new(parameters).request_params
+    @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
+    @geolocate_string  = @geolocate_request.request_params_string
+    @geolocate_hash    = @geolocate_request.request_params_hash
   end
 
   def geolocate_ui_params_string
+    if @geolocate_hash.nil?
+      geolocate_ui_params_hash
+    end
+    @geolocate_string
   end
 
 # class methods

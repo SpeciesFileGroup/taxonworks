@@ -344,8 +344,8 @@ describe GeographicArea, :type => :model do
     context 'geolocate_ui_params_string' do
 
       specify 'retrieving geolocate UI parameters as a string' do
-        pending 'completion of a method for geolocate_ui_params_string'
-        expect(@geographic_area.geolocate_ui_params_string).to eq('country=United States of America&state=Illinois&locality=Champaign')
+        # pending 'completion of a method for geolocate_ui_params_string'
+        expect(@geographic_area.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&county=Champaign&locality=&points=40.1397523583313|-88.199600849246||0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
       end
     end
 

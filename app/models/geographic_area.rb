@@ -224,11 +224,17 @@ class GeographicArea < ActiveRecord::Base
       parameters[:Longitude] = item.point.x
       parameters[:Latitude]  = item.point.y
     end
-    Georeference::GeoLocate::RequestUI.new(parameters).request_params
+    @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
+    @geolocate_string = @geolocate_request.request_params_string
+    @geolocate_hash   = @geolocate_request.request_params_hash
   end
 
+  # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
   def geolocate_ui_params_string
-
+    if @geolocate_hash.nil?
+      geolocate_ui_params_hash
+    end
+    @geolocate_string
   end
 
 end

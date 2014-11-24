@@ -2,8 +2,9 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
-  URI_HOST = 'www.museum.tulane.edu'
-  URI_PATH = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+  URI_HOST       = 'www.museum.tulane.edu'
+  URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'
+  URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'
 
   def api_response=(response)
     make_geographic_item(response.coordinates)
@@ -66,7 +67,9 @@ class Georeference::GeoLocate < Georeference
 
   def self.parse_embedded_result(response_string)
     lat, long, error_radius, uncertainty_polygon = response_string.split("|")
-    uncertainty_points                           = uncertainty_polygon.split(',').reverse.in_groups_of(2)
+    unless uncertainty_polygon.nil?
+      uncertainty_points = uncertainty_polygon.split(',').reverse.in_groups_of(2)
+    end
     [lat, long, error_radius, uncertainty_points]
   end
 
@@ -94,9 +97,9 @@ class Georeference::GeoLocate < Georeference
     g
   end
 
-  def self.default_options_string
-    '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
-  end
+  # def self.default_options_string
+  #   '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
+  # end
 
   class RequestUI
     REQUEST_PARAMS = {
@@ -120,30 +123,36 @@ class Georeference::GeoLocate < Georeference
       gc:            'Tester'
     }
 
-    attr_reader :request_params, :request_param_string, :request_params_hash
+    attr_reader :request_params, :request_params_string, :request_params_hash
 
     def initialize(request_params)
-      @request_params = REQUEST_PARAMS.merge(request_params)
-      @succeeded      = nil
-    end
-
-    def build_params_hash
-      @request_params
-    end
-
-    def build_param_string
-      @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
-    end
-
-    def request_string
+      @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
-      URI_PATH + @request_param_string
+      @succeeded           = nil
     end
 
-    def request_hash
-
+    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+    def build_param_string
+      # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
+      ga                    = @request_params_hash
+      @request_params_string = 'http://' + URI_HOST +
+        URI_EMBED_PATH +
+        "country=#{ga[:country]}&state=#{ga[:state]}&county=#{ga[:county]}&locality=#{ga[:locality]}&points=" +
+        "#{ga[:Latitude]}|#{ga[:Longitude]}|#{ga[:Placename]}|#{ga[:Score]}|#{ga[:Uncertainty]}" +
+        "&georef=run|#{ga[:H20]}|#{ga[:HwyX]}|#{ga[:Uncert]}|#{ga[:Poly]}|#{ga[:DisplacePoly]}|" +
+        "#{ga[:RestrictAdmin]}|#{ga[:BG]}|#{ga[:LanguageIndex]}" +
+        "&gc=#{ga[:gc]}"
     end
 
+    # def request_string
+    #   build_param_string
+    #   URI_PATH + @request_param_string
+    # end
+    #
+    # def request_hash
+    #   @request_params_hash
+    # end
+    #
   end
 
   class Request
