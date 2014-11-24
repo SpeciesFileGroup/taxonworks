@@ -1,14 +1,19 @@
 
-<div>
+<div id="hub">
+
   <h1 class="center_text"> 
-    <span class="subtle">Hub for</span> <%= object_tag(sessions_current_project) -%> 
+    <span class="subtle">Hub for</span> 
+    <%= object_tag(sessions_current_project) -%> 
   </h1> 
+
+  <div class="center_text">
+    <%= render(partial: 'navigation_index_bar') -%>
+  </div>
+
+  <navigation id="navigation_list">
+    <ul>
+      <%= render(partial: "hub/navigation_lists/#{@links_to_render}") -%>
+    </ul>
+  </navigation>
+
 </div>
-
-<%= render(partial: 'navigation_index_bar') -%>
-
-<navigation>
-<ul>
-  <%= render(partial: "hub/navigation_lists/#{@links_to_render}") -%>
-</ul>
-</navigation>

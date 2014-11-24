@@ -2,7 +2,7 @@
   <h3> Citations </h3>
   <ul>
     <% object.citations.each do |citation| -%>
-      <li> <%= citation.value -%> </li>
+      <li> <%= citation.source.cached -%> </li>
     <% end %>
   </ul>
 
