@@ -79,6 +79,10 @@ class Identifier < ActiveRecord::Base
   # TODO: test  - pendings are in the identifier_spec
   scope :of_type, -> (type) { where(type: Identifier::SHORT_NAMES[type].to_s) }
 
+  def self.find_for_autocomplete(params)
+    where('identifier LIKE ?', "#{params[:term]}%")
+  end
+
   protected
 
   # validations are currently defined in the subclass using active record validations.

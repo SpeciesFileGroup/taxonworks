@@ -99,7 +99,7 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
-  resources :identifiers, only: [:create, :update, :destroy, :index]
+  resources :identifiers, only: [:new, :create, :update, :destroy, :index]
   resources :images do
     concerns [:data_routes]
   end
