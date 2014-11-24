@@ -44,12 +44,12 @@ namespace :tw do
         "County",
         "State",
 
-        "AccessionNumber",
+        #"AccessionNumber",
         "BodyOfWater",
         "Collection",
         "Comments",
 
-        "Datum",
+        #"Datum",
         "Description",
         "DrainageBasinGreater",
         "DrainageBasinLesser",
@@ -72,7 +72,7 @@ namespace :tw do
         "WisconsinGlaciated",
 
         "PrecisionCode",    # tag on Georeference
-        "GBIF_precission"  # tag
+        #"GBIF_precission"  # tag
       ]
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -111,7 +111,7 @@ namespace :tw do
            BodyOfWater
            DrainageBasinLesser
            DrainageBasinGreater
-           StreemSize
+           StreamSize
            INDrainage
            WisconsinGlaciated
            NS
@@ -198,6 +198,8 @@ namespace :tw do
       $user_id = nil
       $user_index = {}
       $collecting_event_index = {}
+      $invalid_collecting_event_index = {}
+
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
@@ -309,13 +311,12 @@ namespace :tw do
                                'Locality' => Predicate.create(name: 'Locality', definition: 'Imported value: Locality.'),
                                'Park' => Predicate.create(name: 'Park', definition: 'Imported value: Park.'),
                                'BodyOfWater' => Predicate.create(name: 'BodyOfWater', definition: 'The verbatim value in the Body Of Water.'),
-                               'DrainageBassinLesser' => Predicate.create(name: 'DrainageBassinLesser', definition: 'The verbatim value in the Drainage Bassin Lesser.'),
-                               'DrainageBassinGreater' => Predicate.create(name: 'DrainageBassinGreater', definition: 'The verbatim value in the Drainage Bassin Greater.'),
+                               'DrainageBasinLesser' => Predicate.create(name: 'DrainageBasinLesser', definition: 'The verbatim value in the Drainage Basin Lesser.'),
+                               'DrainageBasinGreater' => Predicate.create(name: 'DrainageBasinGreater', definition: 'The verbatim value in the Drainage Basin Greater.'),
                                'StreamSize' => Predicate.create(name: 'StreamSize', definition: 'The verbatim value in the StreamSize.'),
                                'INDrainage' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the INDrainage.'),
                                'WisconsinGlaciated' => Predicate.create(name: 'WisconsinGlaciated', definition: 'The verbatim value in the Wisconsin Glaciated.'),
                                'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'Imported value: Old Locality Code.'),
-                               'AccessionNumber' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the AccessionNumber.'),
                                'Host' => Predicate.create(name: 'Host', definition: 'The verbatim value in the Host.'),
                               )
 
@@ -360,7 +361,18 @@ namespace :tw do
 
       def find_or_create_collecting_event(ce, data)
 
-        return $collecting_event_index[ce] if $collecting_event_index[ce]
+        tmp_ce = { }
+        LOCALITY_COLUMNS.each do |c|
+          tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
+        end
+
+        unless $collecting_event_index[tmp_ce].nil?
+          collecting_event = $collecting_event_index[tmp_ce]
+          if collecting_event.data_attributes['LocalityCode'].nil? && !tmp_ce['LocalityCode'].nil?
+            c.data_attributes.create(predicate: 'LocalityCode', value: tmp_ce['LocalityCode'], type: 'ImportAttribute')
+          end
+          return collecting_event
+        end
 
         latitude, longitude = parse_lat_long(ce)
         sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
@@ -386,17 +398,28 @@ namespace :tw do
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
             verbatim_geolocation_uncertainty: geolocation_uncertainty,
-            verbatim_datum: ce['Datum']
+            verbatim_datum: ce['Datum'],
+            verbatim_trip_identifier: ce['AccessionNumber'],
+            created_by_id: find_or_create_collection_user(ce['CreatedBy'], data),
+            updated_by_id: find_or_create_collection_user(ce['ModifiedBy'], data),
+            created_at: time_from_field(ce['CreatedOn']),
+            updated_at: time_from_field(ce['ModifiedOn'])
         )
-        c.save! if c.valid?
-        ce.select{|k,v| !v.nil?}.each do |a,b|
-          if PREDICATES.include?(a)
-            c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
+        if c.valid?
+          c.save!
+          c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
+          ce.select{|k,v| !v.nil?}.each do |a,b|
+            if PREDICATES.include?(a)
+              c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
+            end
           end
+          c.generate_verbatim_georeference
+          $collecting_event_index.merge!(tmp_ce => c)
+          return c
+        else
+          $invalid_collecting_event_index.merge!(tmp_ce => nil)
+          return nil
         end
-        c.generate_verbatim_georeference
-
-
       end
 
       #- 0 PeopleID          Import Identifier
@@ -562,12 +585,13 @@ namespace :tw do
         collecting_events_index = {}
         unmatched_localities = {}
 
-        puts "Indexing collecting events." 
+        puts "Indexing collecting events."
+        index_collecting_events_from_accessions_new(collecting_events_index)
+
         index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
         index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         #index_collecting_events_from_ledgers(collecting_events_index)
-        index_collecting_events_from_accessions_new(collecting_events_index)
-        puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}." 
+        puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
 
         # Debugging code, turn this on if you want to inspect all the columns that 
         # are used to index a unique collecting event.
@@ -829,7 +853,7 @@ namespace :tw do
       #   ModifiedOn
       # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
 
-      def  index_collecting_events_from_accessions_new(collecting_events_index)
+      def  index_collecting_events_from_accessions_new()
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
@@ -842,12 +866,15 @@ namespace :tw do
           SPECIMENS_COLUMNS.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
-          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
 
-          collecting_events_index.merge!(tmp_ce => row.to_h)
+          find_or_create_collecting_event(tmp_ce, data)
+
+          #puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
+
+          #collecting_events_index.merge!(tmp_ce => row.to_h)
           #collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
         end
-        puts "\n Number of collecting events processed from Accessions_new: #{collecting_events_index.keys.count} "
+        puts "\n Number of collecting events processed from Accessions_new: #{$collecting_events_index.keys.count} "
       end
 
 
