@@ -837,7 +837,7 @@ def gen_wkt_files()
   f_poly.close
 end
 
-def generate_political_areas
+def generate_political_areas_with_collecting_events
   #
   # 4 by 4 matrix of squares:
 =begin
@@ -1029,7 +1029,8 @@ Two different shapes with the same name, 'East Boxia', and
                                       :name                 => 'Great Northern Land Mass',
                                       :geographic_area_type => gat_land_mass,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @earth)
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
@@ -1037,35 +1038,40 @@ Two different shapes with the same name, 'East Boxia', and
                                       :name                 => 'Old Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
   @area_big_boxia = FactoryGirl.build(:level0_geographic_area,
                                       :name                 => 'Big Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.build(:level0_geographic_area,
                               :name                 => 'Q',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'QQQ',
-                              :iso_3166_a2          => 'QQ')
+                              :iso_3166_a2          => 'QQ',
+                              :parent               => @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
   @area_east_boxia_1 = FactoryGirl.build(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB1',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
   @area_east_boxia_2 = FactoryGirl.build(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB2',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
   @area_east_boxia_3 = FactoryGirl.build(:level1_geographic_area,
@@ -1080,7 +1086,8 @@ Two different shapes with the same name, 'East Boxia', and
                                          :name                 => 'West Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'WB1',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
   @area_west_boxia_3 = FactoryGirl.build(:level1_geographic_area,
@@ -1095,14 +1102,16 @@ Two different shapes with the same name, 'East Boxia', and
                               :name                 => 'R',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'RRR',
-                              :iso_3166_a2          => 'RR')
+                              :iso_3166_a2          => 'RR',
+                              :parent               => @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
   @area_s = FactoryGirl.build(:level0_geographic_area,
                               :name                 => 'S',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'SSS',
-                              :iso_3166_a2          => 'SS')
+                              :iso_3166_a2          => 'SS',
+                              :parent               => @area_land_mass)
   @area_s.geographic_items << @item_s
   @area_s.save
 
@@ -1459,6 +1468,7 @@ Two different shapes with the same name, 'East Boxia', and
                                 :error_geographic_item => @item_m3,
                                 :geographic_item       => GeographicItem.new(:point => @item_m3.st_centroid))
   @ce_n3   = FactoryGirl.create(:collecting_event,
+                                :verbatim_locality => 'Greater Boxia Lake',
                                 :verbatim_label  => '@ce_n3',
                                 :geographic_area => @area_n3)
   @gr_n3   = FactoryGirl.create(:georeference_verbatim_data,

@@ -362,10 +362,6 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
 =end
 
   def geolocate_ui_params_hash
-
-  end
-
-  def geolocate_ui_params_string
     parameters = {}
 
     parameters[:country]   = country_name
@@ -382,7 +378,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     unless georeferences.count == 0
       unless georeferences.first.error_geographic_item.nil?
         # expecting error_geographic_item to be a polygon or multi_polygon
-        focus = georeferences.first.error_geographic_item.centroid
+        focus = georeferences.first.error_geographic_item.st_centroid
       end
       unless georeferences.first.geographic_item.nil?
         # the georeferences.first.geographic_item for a verbatim_data instance is a point
@@ -395,6 +391,9 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
       parameters[:Latitude]  = focus.point.y
     end
     Georeference::GeoLocate::RequestUI.new(parameters).request_params
+  end
+
+  def geolocate_ui_params_string
   end
 
 # class methods

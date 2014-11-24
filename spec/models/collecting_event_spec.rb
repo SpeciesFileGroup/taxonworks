@@ -210,7 +210,7 @@ describe CollectingEvent, :type => :model do
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do
-          pending 'fixing the bug in all_geographic_items'  # todo: @mjy
+          pending 'fixing the bug in all_geographic_items' # todo: @mjy
           # @ce_p5 has two GRs, each of which has a GI.
           expect(@ce_p5.all_geographic_items.count).to eq(2)
           # @ce_p8 has two GRs, one of which has only a GI, and the other of which
@@ -265,7 +265,7 @@ describe CollectingEvent, :type => :model do
 
     context 'geolocate responses from collecting_event' do
       before(:all) {
-        generate_political_areas
+        generate_political_areas_with_collecting_events
       }
       after(:all) {
         Georeference.destroy_all
@@ -278,12 +278,49 @@ describe CollectingEvent, :type => :model do
 
         specify 'geolocate_ui_params_hash from locality' do
           pending 'creation of a method for geolocate_ui_params_hash'
-          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+          expect(@ce_n3.geolocate_ui_params_hash).to eq({:country       => "Big Boxia",
+                                                         :state         => "T",
+                                                         :county        => "M1",
+                                                         :locality      => nil,
+                                                         :Latitude      => 27.5,
+                                                         :Longitude     => 33.5,
+                                                         :Placename     => nil,
+                                                         :Score         => "0",
+                                                         :Uncertainty   => "3",
+                                                         :H20           => "false",
+                                                         :HwyX          => "false",
+                                                         :Uncert        => "true",
+                                                         :Poly          => "true",
+                                                         :DisplacePoly  => "false",
+                                                         :RestrictAdmin => "false",
+                                                         :BG            => "false",
+                                                         :LanguageIndex => "0",
+                                                         :gc            => "Tester"
+                                                        })
         end
 
         specify 'geolocate_ui_params_hash from lat/long' do
-          pending 'creation of a method for geolocate_ui_params_hash'
-          expect(@ce.p1.geolocate_ui_params_hash).to eq({})
+          # pending 'creation of a method for geolocate_ui_params_hash'
+          # @ce_m1.georeference was built from verbatim data
+          expect(@ce_m1.geolocate_ui_params_hash).to eq({:country       => "Big Boxia",
+                                                         :state         => "T",
+                                                         :county        => "M1",
+                                                         :locality      => nil,
+                                                         :Latitude      => 27.5,
+                                                         :Longitude     => 33.5,
+                                                         :Placename     => nil,
+                                                         :Score         => "0",
+                                                         :Uncertainty   => "3",
+                                                         :H20           => "false",
+                                                         :HwyX          => "false",
+                                                         :Uncert        => "true",
+                                                         :Poly          => "true",
+                                                         :DisplacePoly  => "false",
+                                                         :RestrictAdmin => "false",
+                                                         :BG            => "false",
+                                                         :LanguageIndex => "0",
+                                                         :gc            => "Tester"
+                                                        })
         end
       end
 
@@ -291,12 +328,12 @@ describe CollectingEvent, :type => :model do
 
         specify 'geolocate_ui_params_string from locality' do
           pending 'creation of a method for geolocate_ui_params_string'
-          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+          expect(@ce_m1.geolocate_ui_params_hash).to eq('')
         end
 
         specify 'geolocate_ui_params_string from lat/long' do
           pending 'creation of a method for geolocate_ui_params_string'
-          expect(@ce.p1.geolocate_ui_params_hash).to eq('')
+          expect(@ce_m1.geolocate_ui_params_hash).to eq('')
         end
       end
     end
@@ -343,7 +380,7 @@ describe CollectingEvent, :type => :model do
   context 'geopolitical labels' do
     before(:all) {
       # create some bogus countries, states, provinces, counties, and a parish
-      generate_political_areas
+      generate_political_areas_with_collecting_events
       #
       # The idea:
       #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
