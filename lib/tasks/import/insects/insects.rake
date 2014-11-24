@@ -196,6 +196,7 @@ namespace :tw do
 
       $project_id = nil
       $user_id = nil
+      $repository
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
@@ -251,6 +252,10 @@ namespace :tw do
 
         $user_index.merge!('0' => user.id)
         #data.users.merge!(user.email => user)
+
+        $repository = Repository.create(name: 'Illinois Natural History Survey Insect Collection',
+                                        url: 'http://wwx.inhs.illinois.edu/collections/insect',
+                                        acronym: 'INHS')
       end
 
       def handle_namespaces(data, import)
@@ -413,6 +418,7 @@ namespace :tw do
               c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
             end
           end
+
           c.generate_verbatim_georeference
           $collecting_event_index.merge!(tmp_ce => c)
           return c
@@ -586,9 +592,9 @@ namespace :tw do
         unmatched_localities = {}
 
         puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new(collecting_events_index)
+        index_collecting_events_from_accessions_new()
 
-        index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+        index_collecting_events_from_specimens(unmatched_localities)
         index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         #index_collecting_events_from_ledgers(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
@@ -707,7 +713,7 @@ namespace :tw do
 
       # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
 
-      def index_collecting_events_from_specimens(collecting_events_index, unmatched_localities)
+      def index_collecting_events_from_specimens(unmatched_localities)
         puts " from specimens"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
@@ -725,13 +731,17 @@ namespace :tw do
 
           if LOCALITIES[locality_code]
             #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            #tmp_ce.merge!(LOCALITIES[locality_code])
+            tmp_ce.merge!(LOCALITIES[locality_code])
           else
             unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
           end
 
-          collecting_events_index.merge!(tmp_ce  => nil)
+          #collecting_events_index.merge!(tmp_ce  => nil)
           #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+
+          collecting_event = find_or_create_collecting_event(tmp_ce, data)
+          otu = data.otus['TaxonCode']
+
         end
 
         puts "\n Number of collecting events processed from specimens: #{collecting_events_index.keys.count} "
