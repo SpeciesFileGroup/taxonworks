@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
 #  include Housekeeping
   include Shared::Notable
   include Shared::DataAttributes
-  include Shared::RandomTokenField[:password_reset]
+  include Shared::RandomTokenFields[:password_reset]
   
   before_create :set_remember_token
 

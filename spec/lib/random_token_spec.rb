@@ -3,8 +3,9 @@ require 'rails_helper'
 describe RandomToken do
   describe "::generate" do
     it "returns SecureRandom.urlsafe_base64 return value" do
-      allow(SecureRandom).to receive(:urlsafe_base64).and_return('TEST_TOKEN')
-      expect(RandomToken.generate).to eq('TEST_TOKEN')
+      value = SecureRandom.urlsafe_base64
+      allow(SecureRandom).to receive(:urlsafe_base64).and_return(value)
+      expect(RandomToken.generate).to eq(value)
     end
     
     it "returns a token with at least 16 chars" do

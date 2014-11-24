@@ -1,4 +1,4 @@
-module Shared::RandomTokenField
+module Shared::RandomTokenFields
   as_trait do |*fields|
     fields.each do |field|
 
