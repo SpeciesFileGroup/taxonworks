@@ -286,7 +286,7 @@ describe Material::QuickVerbatimResponse do
 
   specify '#save' do
     a = FactoryGirl.build(:valid_specimen)
-    i = FactoryGirl.build(:valid_identifier_local_catalog_number, identified_object: nil)
+    i = FactoryGirl.build(:valid_identifier_local_catalog_number, identifier_object: nil)
     n = Note.new(text: "fasdfasdf")
     b = FactoryGirl.build(:valid_biocuration_class) 
 

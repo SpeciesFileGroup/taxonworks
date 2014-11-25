@@ -11,7 +11,7 @@
     </div>
   <% end %>
 
-    <p><strong><%= @identifier.identified_object.class.name %>:</strong> <%= object_tag(@identifier.identified_object) -%>  </p>
+    <p><strong><%= @identifier.identifier_object.class.name %>:</strong> <%= object_tag(@identifier.identifier_object) -%>  </p>
 
   <div class="field">
     <%= f.label :identifier %><br>
@@ -36,9 +36,9 @@
                               :display    => namespace_tag(@identifier.namespace)} %>
     </div>
 
-    <%= f.hidden_field :identified_object_type %>
+    <%= f.hidden_field :identifier_object_type %>
 
-    <%= f.hidden_field :identified_object_id %>
+    <%= f.hidden_field :identifier_object_id %>
 
     <div class="actions">
     <%= f.submit %>

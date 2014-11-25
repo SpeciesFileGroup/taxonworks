@@ -32,8 +32,8 @@ describe IdentifiersController, :type => :controller do
   let(:o) { FactoryGirl.create(:valid_otu) }
   let(:valid_attributes) {
     {type: 'Identifier::Global::Uri',
-     identified_object_id: o.id,
-     identified_object_type: o.class.to_s,
+     identifier_object_id: o.id,
+     identifier_object_type: o.class.to_s,
      identifier: "http://uri.org/1234"} }
 
   # This should return the minimal set of values that should be in the session
@@ -100,14 +100,14 @@ describe IdentifiersController, :type => :controller do
       it "assigns a newly created but unsaved identifier as @identifier" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        post :create, {:identifier => {"identified_object_id" => "invalid value"}}, valid_session
+        post :create, {:identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(assigns(:identifier)).to be_a_new(Identifier)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        post :create, {:identifier => {"identified_object_id" => "invalid value"}}, valid_session
+        post :create, {:identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(response).to redirect_to(otu_path(o))
       end
     end
@@ -121,8 +121,8 @@ describe IdentifiersController, :type => :controller do
         # specifies that the Identifier created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(Identifier).to receive(:update).with({"identified_object_id" => "1"})
-        put :update, {:id => identifier.to_param, :identifier => {"identified_object_id" => "1"}}, valid_session
+        expect_any_instance_of(Identifier).to receive(:update).with({"identifier_object_id" => "1"})
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "1"}}, valid_session
       end
 
       it "assigns the requested identifier as @identifier" do
@@ -143,7 +143,7 @@ describe IdentifiersController, :type => :controller do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        put :update, {:id => identifier.to_param, :identifier => {"identified_object_id" => "invalid value"}}, valid_session
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(assigns(:identifier)).to eq(identifier)
       end
 
@@ -151,7 +151,7 @@ describe IdentifiersController, :type => :controller do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        put :update, {:id => identifier.to_param, :identifier => {"identified_object_id" => "invalid value"}}, valid_session
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(response).to redirect_to(otu_path(o))
       end
     end

@@ -294,13 +294,13 @@ to save without raising
       a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
       if a.valid? then save else continue the loop
 
-        Identifier.where(:identifier => '8740')[0].identified_object
+        Identifier.where(:identifier => '8740')[0].identifier_object
         Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
           where: Namespace = 'MX serial ID' and identifier = '8740'
 =end
               identifiers =[]
               data_attr = []
-              if i = DataAttribute.where(import_predicate: @mx_serial_namespace.id, identified_object_type: 'Serial', identified_object_id: s.to_param, identifier: row[3]).first
+              if i = DataAttribute.where(import_predicate: @mx_serial_namespace.id, identifier_object_type: 'Serial', identifier_object_id: s.to_param, identifier: row[3]).first
                 # puts "found an existing identifier #{ap(i)}"
                 next
               else
@@ -312,7 +312,7 @@ to save without raising
                 print "\r adding a mx id #{row[3]}"
               end
 
-              if i = Identifier.where(namespace_id: @treehopper_serial_namespace.id, identified_object_type: 'Serial', identified_object_id: s.to_param, identifier: row[4]).first
+              if i = Identifier.where(namespace_id: @treehopper_serial_namespace.id, identifier_object_type: 'Serial', identifier_object_id: s.to_param, identifier: row[4]).first
                 #          puts "found an existing hopper identifier #{ap(i)}"
                 next
 

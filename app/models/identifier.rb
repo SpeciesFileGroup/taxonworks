@@ -11,11 +11,11 @@
 # !! Identifiers should always be created in the context of their parents see spec/lib/identifier_spec.rb for examples  !!
 #
 #
-## @!attribute identified_object_id 
+## @!attribute identifier_object_id 
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
 #
-## @!attribute identified_object_id 
+## @!attribute identifier_object_id 
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #
@@ -42,7 +42,7 @@ class Identifier < ActiveRecord::Base
   include Shared::IsData 
 
   # must come before SHORT_NAMES for weird inheritance issue
-  belongs_to :identified_object, polymorphic: :true
+  belongs_to :identifier_object, polymorphic: :true
 
   # TODO: this likely has to be refactored/considered
   # !! If there are inheritance issues with validation the position
@@ -64,15 +64,15 @@ class Identifier < ActiveRecord::Base
   }
 
   # Please DO NOT include the following: 
-  #   validates :identified_object, presence: true 
-  #   validates_presence_of :identified_object_type, :identified_object_id
+  #   validates :identifier_object, presence: true 
+  #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
   # identifiers are unique across types for a class of objects
-  validates_uniqueness_of :identifier, scope: [:type, :identified_object_type, :namespace_id]
+  validates_uniqueness_of :identifier, scope: [:type, :identifier_object_type, :namespace_id]
 
   # no more of one identifier of a type per object 
-  validates_uniqueness_of :type, scope: [:identified_object_id, :identified_object_type, :namespace_id, :project_id] 
+  validates_uniqueness_of :type, scope: [:identifier_object_id, :identifier_object_type, :namespace_id, :project_id] 
 
   #before_validation :validate_format_of_identifier
 

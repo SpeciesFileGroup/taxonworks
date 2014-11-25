@@ -80,6 +80,6 @@ class IdentifiersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def identifier_params
-    params.require(:identifier).permit(:identified_object_id, :identified_object_type, :identifier, :type, :namespace_id)
+    params.require(:identifier).permit(:identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id)
   end
 end
