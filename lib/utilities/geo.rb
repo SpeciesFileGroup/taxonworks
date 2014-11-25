@@ -26,19 +26,33 @@ module Utilities::Geo
   def self.degrees_minutes_seconds_to_decimal_degrees(dms)
     dms =~ /[nsew]/i
     dir = $~.to_s.upcase
-    if dir.length > 1
-      return "#{dms}: Too many letters (#{dir})"
-    end
+    # return "#{dms}: Too many letters (#{dir})" if dir.length > 1
+    return nil if dir.length > 1
     dms.gsub!(dir, '')
     pieces = dms.split(':')
-
-    seconds = (pieces[1].to_f * 60.0) + pieces[2].to_f
-    frac = seconds / 3600.0
-    dd = pieces[0].to_f + frac
+    degrees = pieces[0].to_f
     case dir
       when 'W', 'S'
-        dd *= -1.0
+        sign = -1.0
+      else
+        sign = 1.0
     end
+    if degrees < 0
+      sign *= -1
+      degrees *= -1.0
+    end
+    seconds = (pieces[1].to_f * 60.0) + pieces[2].to_f
+    frac = seconds / 3600.0
+    dd = (degrees + frac) * sign
+    case dir
+      when 'N', 'S'
+        limit = 90.0
+      else
+        limit = 180.0
+    end
+    # return "#{dms}: Out of range (#{dd})" if dd.abs > limit
+    return nil if dd.abs > limit
+    dd.to_s
   end
 
 
