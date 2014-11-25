@@ -1,8 +1,8 @@
 <div class="object_pane">
   <h3> Identifiers </h3>
   <ul>
-    <% object.identifiers.each do |note| -%>
-      <li> <%= identifier.cache -%> </li>
+    <% object.identifiers.each do |identifier| -%>
+      <li> <%= identifier_tag(identifier) -%> </li>
     <% end %>
   </ul>
 

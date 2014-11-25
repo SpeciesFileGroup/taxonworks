@@ -108,7 +108,7 @@ describe IdentifiersController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
         post :create, {:identifier => {"identifier_object_id" => "invalid value"}}, valid_session
-        expect(response).to redirect_to(otu_path(o))
+        expect(response).to render_template("new")
       end
     end
   end

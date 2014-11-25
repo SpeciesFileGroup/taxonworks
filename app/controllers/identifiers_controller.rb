@@ -20,10 +20,10 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.new(identifier_params)
     respond_to do |format|
       if @identifier.save
-        format.html { redirect_to :back, notice: 'Identifier was successfully created.' }
+        format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully created.' }
         format.json { render json: @identifier, status: :created, location: @identifier.becomes(Identifier) }
       else
-        format.html { redirect_to :back, notice: 'Identifier was NOT successfully created.' }
+        format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
       end
     end
@@ -34,7 +34,7 @@ class IdentifiersController < ApplicationController
   def update
     respond_to do |format|
       if @identifier.update(identifier_params)
-        format.html { redirect_to :back, notice: 'Identifier was successfully updated.' }
+        format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { redirect_to :back, notice: 'Identifier was NOT successfully updated.' }

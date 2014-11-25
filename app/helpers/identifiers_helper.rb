@@ -7,4 +7,31 @@ module IdentifiersHelper
             identifier_object_id: object.id}))
   end
 
+      def identifier_type_select_options
+        Identifier::SHORT_NAMES.collect{|k,v| [k.to_s.humanize, v.name]}
+        # SHORT_NAMES = {
+        #     doi:   Identifier::Global::Doi,
+        #     isbn:  Identifier::Global::Isbn,
+        #     issn:  Identifier::Global::Issn,
+        #     lccn:  Identifier::Global::Lccn,
+        #     orcid: Identifier::Global::Orcid,
+        #     uri:   Identifier::Global::Uri,
+        #     uuid:  Identifier::Global::Uuid,
+        #     catalog_number: Identifier::Local::CatalogNumber,
+        #     trip_code: Identifier::Local::TripCode,
+        #     import: Identifier::Local::Import,
+        #     otu_utility: Identifier::Local::OtuUtility,
+        #     accession_code: Identifier::Local::AccessionCode,
+        #     unknown: Identifier::Unknown
+        # }
+
+      end
+
+  def identifier_tag(identifier)
+    return nil if identifier.nil?
+    "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})"
+  end
+
+
+
 end
