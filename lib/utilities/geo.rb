@@ -29,8 +29,10 @@ module Utilities::Geo
     # return "#{dms}: Too many letters (#{dir})" if dir.length > 1
     return nil if dir.length > 1
     dms.gsub!(dir, '')
-    pieces = dms.split(':')
-    degrees = pieces[0].to_f
+
+    /(?<degrees>-*\d+):(?<minutes>\d+):(?<seconds>\d+\.*\d*)/ =~ dms
+
+    degrees = degrees.to_f
     case dir
       when 'W', 'S'
         sign = -1.0
@@ -38,12 +40,11 @@ module Utilities::Geo
         sign = 1.0
     end
     if degrees < 0
-      sign *= -1
+      sign    *= -1
       degrees *= -1.0
     end
-    seconds = (pieces[1].to_f * 60.0) + pieces[2].to_f
-    frac = seconds / 3600.0
-    dd = (degrees + frac) * sign
+    frac    = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
+    dd      = (degrees + frac) * sign
     case dir
       when 'N', 'S'
         limit = 90.0
