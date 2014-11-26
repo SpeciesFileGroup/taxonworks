@@ -3,6 +3,29 @@
 # require 'indiana'
 # require 'iowa'
 
+LATLONG_USE_CASES = {'40:26:46.302N' => '',
+                     '079:58:55.903W' => '',
+                     '40°26′46″N' => '',
+                     '079°58′56″W' => '',
+                     '40d 26′ 46″ N' => '',
+                     '079d 58′ 56″ W' => '',
+                     '40.446195N' => '',
+                     '79.982195W' => '',
+                     '40.446195,' => '',
+                     '-79.982195' => '',
+                     '40.446195,' => '',
+                     '-79.982195' => '',
+                     '40° 26.7717,' => '',
+                     '-79° 58.93172' => '',
+                     'N40:26:46.302' => '',
+                     'W079:58:55.903' => '',
+                     'N40°26′46″' => '',
+                     'W079°58′56″' => '',
+                     'N40d 26′ 46″' => '',
+                     'W079d 58′ 56″' => '',
+                     'N40.446195' => '',
+                     'W79.982195' => ''}
+
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
 # this is the factory for use *only* by rspec
@@ -1389,8 +1412,8 @@ Two different shapes with the same name, 'East Boxia', and
 
   @ce_m1 = FactoryGirl.create(:collecting_event,
                               :verbatim_locality => 'Lesser Boxia Lake',
-                              :verbatim_label  => '@ce_m1',
-                              :geographic_area => @area_m1)
+                              :verbatim_label    => '@ce_m1',
+                              :geographic_area   => @area_m1)
   @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_m1',
                               :collecting_event      => @ce_m1,
@@ -1470,8 +1493,8 @@ Two different shapes with the same name, 'East Boxia', and
                                 :geographic_item       => GeographicItem.new(:point => @item_m3.st_centroid))
   @ce_n3   = FactoryGirl.create(:collecting_event,
                                 :verbatim_locality => 'Greater Boxia Lake',
-                                :verbatim_label  => '@ce_n3',
-                                :geographic_area => @area_n3)
+                                :verbatim_label    => '@ce_n3',
+                                :geographic_area   => @area_n3)
   @gr_n3   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_n3',
                                 :collecting_event      => @ce_n3,
