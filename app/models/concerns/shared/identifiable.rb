@@ -2,7 +2,7 @@ module Shared::Identifiable
   extend ActiveSupport::Concern
   included do
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identified_object, validate: true 
+    has_many :identifiers, as: :identifier_object, validate: true 
     accepts_nested_attributes_for :identifiers
   end
 
@@ -22,7 +22,7 @@ module Shared::Identifiable
       j = i.join(n).on(i[:namespace_id].eq(n[:id]))
 
       # join self to identifiers
-      l = s.join(i).on(s[:id].eq(i[:identified_object_id]).and(i[:identified_object_type].eq(self.base_class.name)))
+      l = s.join(i).on(s[:id].eq(i[:identifier_object_id]).and(i[:identifier_object_type].eq(self.base_class.name)))
 
       self.joins(l.join_sql, j.join_sql).where(c1.and(c2).to_sql)
     end

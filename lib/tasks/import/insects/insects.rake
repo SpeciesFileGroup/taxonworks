@@ -1034,7 +1034,7 @@ namespace :tw do
       end
 
       def objects_from_co_row(row)
-        # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identified_object
+        # otu = Identifier.of_type(:otu_utility).where(identifier: row['TaxonCode']).first.identifier_object
         otu = data.otus[row['TaxonCode']]
 
         return [] if otu.nil?
