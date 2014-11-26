@@ -32,6 +32,10 @@ describe 'Geo' do
       specify 'with no letter' do
         expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('42:5:18.1')).to eq('42.08836111111111')
       end
+
+      specify 'only degrees and decimal minutes' do
+        expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('42:30.1')).to eq('42.501666666666665')
+      end
     end
 
     context 'a Southern latitude' do
@@ -99,6 +103,35 @@ describe 'Geo' do
       specify 'with no letter' do
         # pending 'fixing for degree symbol, tick and doubletick'
         expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('-42º5\'18.1"')).to eq('-42.08836111111111')
+      end
+    end
+  end
+
+  context 'NN.NNNA or ANN.NNN' do
+
+    context 'a Northern latitude' do
+
+      specify 'with uppercase letter front' do
+        # pending 'fixing for degree symbol, tick and doubletick'
+        expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('N42.18')).to eq('42.18')
+      end
+
+      specify 'with no letter' do
+        # pending 'fixing for degree symbol, tick and doubletick'
+        expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('42.18')).to eq('42.18')
+      end
+    end
+
+    context 'a Southern latitude' do
+
+      specify 'with lowercase letter' do
+        # pending 'fixing for degree symbol, tick and doubletick'
+        expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('s42.18')).to eq('-42.18')
+      end
+
+      specify 'with no letter' do
+        # pending 'fixing for degree symbol, tick and doubletick'
+        expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('-42.18')).to eq('-42.18')
       end
     end
   end

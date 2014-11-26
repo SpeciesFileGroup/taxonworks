@@ -24,19 +24,21 @@ module Utilities::Geo
 
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms)
-    degrees = 0.0 ; minutes = 0.0 ; seconds = 0.0
-    dms =~ /[nsew]/i
-    dir = $~.to_s.upcase
-    # return "#{dms}: Too many letters (#{dir})" if dir.length > 1
-    return nil if dir.length > 1
-    dms.gsub!(dir, '')
+    degrees = 0.0; minutes = 0.0; seconds = 0.0
+    dms =~ /[NSEW]/i
+    cardinal = $~.to_s.upcase
+    # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
+    return nil if cardinal.length > 1
+    dms.gsub!(cardinal, '')
 
-    /(?<degrees>-*\d+):(?<minutes>\d+):(?<seconds>\d+\.*\d*)/ =~ dms if dms.include? ':'
+    /(?<degrees>-*\d+\.\d+)/ =~ dms unless dms.include? ':' if dms.include? '.'
+
+    /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms if dms.include? ':'
 
     /(?<degrees>-*\d+)º\s*(?<minutes>\d+)'\s*(?<seconds>\d+\.*\d*)"/ =~ dms if dms.include? 'º'
 
     degrees = degrees.to_f
-    case dir
+    case cardinal
       when 'W', 'S'
         sign = -1.0
       else
@@ -46,9 +48,9 @@ module Utilities::Geo
       sign    *= -1
       degrees *= -1.0
     end
-    frac    = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
-    dd      = (degrees + frac) * sign
-    case dir
+    frac = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
+    dd   = (degrees + frac) * sign
+    case cardinal
       when 'N', 'S'
         limit = 90.0
       else
@@ -58,6 +60,4 @@ module Utilities::Geo
     return nil if dd.abs > limit
     dd.to_s
   end
-
-
 end
