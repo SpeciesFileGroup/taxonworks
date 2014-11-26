@@ -196,7 +196,7 @@ namespace :tw do
 
       $project_id = nil
       $user_id = nil
-      $repository
+      $repository = Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
@@ -253,9 +253,6 @@ namespace :tw do
         $user_index.merge!('0' => user.id)
         #data.users.merge!(user.email => user)
 
-        $repository = Repository.create(name: 'Illinois Natural History Survey Insect Collection',
-                                        url: 'http://wwx.inhs.illinois.edu/collections/insect',
-                                        acronym: 'INHS')
       end
 
       def handle_namespaces(data, import)
