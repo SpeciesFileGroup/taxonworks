@@ -24,13 +24,16 @@ module Utilities::Geo
 
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms)
+    degrees = 0.0 ; minutes = 0.0 ; seconds = 0.0
     dms =~ /[nsew]/i
     dir = $~.to_s.upcase
     # return "#{dms}: Too many letters (#{dir})" if dir.length > 1
     return nil if dir.length > 1
     dms.gsub!(dir, '')
 
-    /(?<degrees>-*\d+):(?<minutes>\d+):(?<seconds>\d+\.*\d*)/ =~ dms
+    /(?<degrees>-*\d+):(?<minutes>\d+):(?<seconds>\d+\.*\d*)/ =~ dms if dms.include? ':'
+
+    /(?<degrees>-*\d+)º\s*(?<minutes>\d+)'\s*(?<seconds>\d+\.*\d*)"/ =~ dms if dms.include? 'º'
 
     degrees = degrees.to_f
     case dir
