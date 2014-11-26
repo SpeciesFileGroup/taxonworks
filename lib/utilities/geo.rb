@@ -58,6 +58,6 @@ module Utilities::Geo
     end
     # return "#{dms}: Out of range (#{dd})" if dd.abs > limit
     return nil if dd.abs > limit
-    dd.to_s
+    dd.round(6).to_s
   end
 end
