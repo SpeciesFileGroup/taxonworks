@@ -196,7 +196,7 @@ namespace :tw do
 
       $project_id = nil
       $user_id = nil
-      $repository = Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
+      $repository #= Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
