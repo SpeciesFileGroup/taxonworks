@@ -23,19 +23,28 @@ module Utilities::Geo
   # 88:11:43.3W
 
   # no limit test, unless there is a letter included
-  def self.degrees_minutes_seconds_to_decimal_degrees(dms)
+  def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
+    dms = dms_in.dup.upcase
     degrees = 0.0; minutes = 0.0; seconds = 0.0
     dms =~ /[NSEW]/i
     cardinal = $~.to_s.upcase
     # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
     return nil if cardinal.length > 1
-    dms.gsub!(cardinal, '')
+    dms = dms.gsub!(cardinal, '').strip
 
-    /(?<degrees>-*\d+\.\d+)/ =~ dms unless dms.include? ':' if dms.include? '.'
+    if dms.include? '.'
+      unless dms.include? ':'
+        /(?<degrees>-*\d+\.\d+)/ =~ dms
+      end
+    end
 
-    /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms if dms.include? ':'
-
-    /(?<degrees>-*\d+)º\s*(?<minutes>\d+)'\s*(?<seconds>\d+\.*\d*)"/ =~ dms if dms.include? 'º'
+    if dms.include? ':'
+      /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
+    end
+    # >40°26′46″< >40°26′46″<
+    if dms.include?('D') or dms.include?('º') or dms.include?('°')
+      /(?<degrees>-*\d+)[º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
+    end
 
     degrees = degrees.to_f
     case cardinal

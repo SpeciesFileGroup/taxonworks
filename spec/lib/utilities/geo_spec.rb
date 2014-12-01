@@ -139,8 +139,8 @@ describe 'Geo' do
   context 'multiple use cases' do
 
     LATLONG_USE_CASES.each { |co_ordinate, result|
-      specify "case #{co_ordinate}" do
-        pending 'full construction of the use_case hash'
+      specify "case #{co_ordinate} should yield #{result}" do
+        # pending 'full construction of the use_case hash'
         expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)).to eq(result)
       end
     }
