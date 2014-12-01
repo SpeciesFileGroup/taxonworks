@@ -268,9 +268,9 @@ describe CollectingEvent, :type => :model do
         generate_political_areas_with_collecting_events
       }
       after(:all) {
-        Georeference.destroy_all
-        GeographicItem.destroy_all
-        CollectingEvent.destroy_all
+        # Georeference.destroy_all
+        # GeographicItem.destroy_all
+        # CollectingEvent.destroy_all
         clean_slate_geo
       }
 

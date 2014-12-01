@@ -42,8 +42,8 @@ module Utilities::Geo
       /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
     end
     # >40°26′46″< >40°26′46″<
-    if dms.include?('D') or dms.include?('º') or dms.include?('°')
-      /(?<degrees>-*\d+)[º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
+    if dms.include?('D') or dms.include?('º') or dms.include?('°') or dms.include?('∞')
+      /(?<degrees>-*\d+)[∞º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
     end
 
     degrees = degrees.to_f

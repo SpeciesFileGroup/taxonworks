@@ -5,8 +5,8 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-LATLONG_USE_CASES = {'40º26\'46"N'    => '40.446111',   # using MAC-native symbols
-                     '079º58\'56"W'   => '-79.982222',  # using MAC-native symbols
+LATLONG_USE_CASES = {'40º26\'46"N'    => '40.446111', # using MAC-native symbols
+                     '079º58\'56"W'   => '-79.982222', # using MAC-native symbols
                      '40:26:46.302N'  => '40.446195',
                      '079:58:55.903W' => '-79.982195',
                      '40°26′46″N'     => '40.446111',
@@ -28,7 +28,9 @@ LATLONG_USE_CASES = {'40º26\'46"N'    => '40.446111',   # using MAC-native symb
                      'N40d 26′ 46″'   => '40.446111',
                      'W079d 58′ 56″'  => '-79.982222',
                      'N40.446195'     => '40.446195',
-                     'W79.982195'     => '-79.982195'}
+                     'W79.982195'     => '-79.982195',
+                     '42∞5\'18.1"S'   => '-42.088361',
+                     'w88∞11\'43.3"'  => '-88.195361'}
 
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
