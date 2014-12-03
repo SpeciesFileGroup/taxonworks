@@ -175,7 +175,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # r.identifiers.each do |ident|
               #   if !ident.valid?
-              #     str = 'A place for me to break'
+              #     puts "invalid identifier #{ap(ident)}"
               #   end
               # end
 
@@ -194,21 +194,29 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
 
               if need2serials # had 2 different ISSNs for digital and print versions
-                identifiers=[]
+                data_attr = []
                 # Import ID - never empty
-                identifiers.push({type:       'Identifier::Local::Import',
-                                  namespace:  @import_serial_namespace,
-                                  identifier: row[0].to_s.strip + ' 2nd ISSN'
-                                 })
+                data_attr.push({type:             'ImportAttribute',
+                                import_predicate: @import_serial_ID.name,
+                                value:            row[0].to_s.strip + ' 2nd ISSN'
+                               })
                 # MX ID
                 if !(row[1].to_s.strip.blank?)
-                  identifiers.push({type:       'Identifier::Local::Import',
-                                    namespace:  @mx_serial_namespace,
-                                    identifier: row[1].to_s.strip + ' 2nd ISSN'
-                                   })
+                  data_attr.push({import_predicate: @mx_serial_id.name,
+                                  value: row[10].to_s.strip + ' 2nd ISSN',
+                                  type: 'ImportAttribute'})
                 end
+
+                identifiers=[]
                 identifiers.push({type:       'Identifier::Global::Issn',
                                   identifier: row[14].to_s.strip})
+
+                # r.identifiers.each do |ident|
+                #   if !ident.valid?
+                #     puts "invalid identifier #{ap(ident)}"
+                #   end
+                # end
+
 
                 r = Serial.new(
                   name:                       row[4].to_s.strip,
@@ -240,7 +248,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               end
             end
-
+            puts
             puts 'Successful load of primary serial file'
             #raise # causes it to always fail and rollback the transaction
             #                    rescue Exception => e
@@ -254,6 +262,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
           raise
 
         end
+
 
       end # task
 
