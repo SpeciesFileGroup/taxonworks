@@ -28,7 +28,6 @@ namespace :tw do
         $stdout.sync = true
         print ('Starting transaction ...')
 
-
         begin
           ActiveRecord::Base.transaction do # rm transaction
             get_namespaces
@@ -96,7 +95,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # MX ID
               if !(row[1].to_s.strip.blank?)
-                data_attr.push({import_predicate: @mx_serial_id.name, value: row[10].to_s.strip, type: 'ImportAttribute'})
+                data_attr.push({import_predicate: @mx_serial_id.name, value: row[1].to_s.strip, type: 'ImportAttribute'})
 
                 # identifiers.push({type:       'Identifier::Local::Import',
                 #                   namespace:  @mx_serial_namespace,
@@ -106,7 +105,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # Treehopper ID
               if !(row[2].to_s.strip.blank?)
-                data_attr.push({import_predicate: @treehopper_serial_id.name, value: row[10].to_s.strip, type: 'ImportAttribute'})
+                data_attr.push({import_predicate: @treehopper_serial_id.name, value: row[2].to_s.strip, type: 'ImportAttribute'})
 
                 # identifiers.push({type:       'Identifier::Local::Import',
                 #                   namespace:  @treehopper_serial_namespace,
@@ -271,7 +270,12 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
       task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './treeMXduplicates.txt')
 
-        # Now add additional identifiers - filename is treeMXduplicates
+        raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
+
+        # processing second file ./reeMXduplicates.txt - adding additional identifiers
+        $stdout.sync = true
+        print ('Starting transaction ...')
+
         begin
           ActiveRecord::Base.transaction do
             get_namespaces
@@ -294,9 +298,10 @@ Column : SQL column name : data desc
 6 : Abbr    : only add if it doesn't match primary or alt name   if not already there
 
 =end
+
              # s = Serial.with_namespaced_identifier(@import_serial_namespace.name, row[0]).first
               s = nil
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.id.to_s})
+              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.name})
               # no longer a namespace identifier, now a data attribute
               case sr.count   # how many serials were found for this value?
                 when 0
@@ -304,6 +309,7 @@ Column : SQL column name : data desc
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
+                  print ("\r SerialID #{s.id} : tmpID #{row[0]} : MXID #{row[3]} : TreeID #{row[4]} ")
                 else
                   puts ['skipping - match > 1 base serial ', @import_serial_namespace.name, row[0]].join(" : ")
                   next
@@ -324,18 +330,18 @@ to save without raising
 =end
               identifiers =[]
               data_attr = []
-              if i = DataAttribute.where(import_predicate: @mx_serial_namespace.id, identifier_object_type: 'Serial', identifier_object_id: s.to_param, identifier: row[3]).first
-                # puts "found an existing identifier #{ap(i)}"
-                next
-              else
-                s.identifiers << Identifier.new(
-                  identifier:   row[3],
-                  namespace_id: @mx_serial_namespace.id,
-                  type:         'Identifier::Local::Import'
-                )
-                print "\r adding a mx id #{row[3]}"
+              # MX_ID
+              i = DataAttribute.where(import_predicate: @mx_serial_id.name, attribute_subject_type: 'Serial',
+                                     attribute_subject_id: s.id, value: row[3])
+              case i.count
+                when 0    # not found -> add it
+                  s.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name, value: row[3].to_s.strip, type: 'ImportAttribute'})
+                when 1 # found it  -> skip it
+                   puts "found an existing identifier #{ap(i.first)}"
+                else  # found more than 1 -> error
+                  puts "found multiple existing identifiers #{ap(i.first)}"
               end
-
+# TODO broken from here down
               if i = Identifier.where(namespace_id: @treehopper_serial_namespace.id, identifier_object_type: 'Serial', identifier_object_id: s.to_param, identifier: row[4]).first
                 #          puts "found an existing hopper identifier #{ap(i)}"
                 next
