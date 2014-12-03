@@ -80,7 +80,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # Import ID - never empty
               data_attr.push({type:             'ImportAttribute',
-                              import_predicate: @import_serial_ID,
+                              import_predicate: @import_serial_ID.name,
                               value:            row[0].to_s.strip
                              })
               # reference identifiers are now Import attributes
@@ -96,7 +96,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # MX ID
               if !(row[1].to_s.strip.blank?)
-                data_attr.push({import_predicate: @mx_serial_id, value: row[10].to_s.strip, type: 'ImportAttribute'})
+                data_attr.push({import_predicate: @mx_serial_id.name, value: row[10].to_s.strip, type: 'ImportAttribute'})
 
                 # identifiers.push({type:       'Identifier::Local::Import',
                 #                   namespace:  @mx_serial_namespace,
@@ -106,7 +106,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # Treehopper ID
               if !(row[2].to_s.strip.blank?)
-                data_attr.push({import_predicate: @treehopper_serial_id, value: row[10].to_s.strip, type: 'ImportAttribute'})
+                data_attr.push({import_predicate: @treehopper_serial_id.name, value: row[10].to_s.strip, type: 'ImportAttribute'})
 
                 # identifiers.push({type:       'Identifier::Local::Import',
                 #                   namespace:  @treehopper_serial_namespace,
@@ -173,17 +173,23 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                 r.alternate_values << alt_name
               end
 
-              r.identifiers.each do |ident|
-                if !ident.valid?
-                  str = 'A place for me to break'
-                  # current problem - TreeID 100 claims to be used more than once; but can't find another use in TreeMX_merge
-                end
-              end
+              # r.identifiers.each do |ident|
+              #   if !ident.valid?
+              #     str = 'A place for me to break'
+              #   end
+              # end
 
               if r.valid? && r.name.length < 256
                 r.save!
               else
-                puts "error with #{ap(r)}, skipping"
+                puts "error on primary save tmpID #{row[0]}"
+                if r.name.length >= 256
+                  puts 'name too long'
+                else
+                  puts "invalid error #{ap(r.errors.messages)} "
+                end
+                puts "serial content #{ap(r)} - skipping "
+                puts
               end
 
 
@@ -215,11 +221,20 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
                 if r.valid? && r.name.length < 256
                   r.save!
-                  if data_attr.count > 0
-                    z = 1 # here so I can check the results of the save
-                  end
+                  # if data_attr.count > 0
+                  #   z = 1 # here so I can check the results of the save
+                  # end
                 else
-                  puts "error with #{r}, skipping"
+                  puts "error saving second serial - tmpID #{row[0]}"
+                  if r.name.length >= 256
+                    puts '  name too long'
+                  else
+                    puts "invalid error message #{ap(r.errors.messages)} "
+                  end
+                  puts "serial #{ap(r)} - skipping "
+                  puts
+
+                  # puts " error #{ap(r.errors)} with #{ap(r)}, skipping"
                 end
 
 
