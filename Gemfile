@@ -92,7 +92,7 @@ end
 group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
-  gem 'spring', '~> 1.1.3'
+  gem 'spring', '~> 1.2.0'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.3.1', require: false
 end
@@ -106,7 +106,7 @@ group :test do
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.7.1'
-  gem 'webmock', '~> 1.18.0'
+  gem 'webmock', '~> 1.20.0'
   gem 'vcr', '~> 2.9.2'
   gem 'database_cleaner', '~> 1.3.0'
 # gem 'simplecov', :require => false
