@@ -6,5 +6,4 @@ class AccessionProvider < Role::ProjectRole
   #
   # has_many :collection_objects
 
-
 end

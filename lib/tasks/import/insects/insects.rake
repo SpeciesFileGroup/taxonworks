@@ -23,6 +23,7 @@ namespace :tw do
         attr_accessor :people, :people_id, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
           @namespaces = {}
+          @preparation_types = {}
           @people = {}
           @people_id = {}
           @users = {}
@@ -30,6 +31,12 @@ namespace :tw do
           @collecting_events = {}
           @collection_objects = {}
           @otus = {}
+          $project_id = nil
+          $user_id = nil
+          $repository = #Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
+          $user_index = {}
+          $collecting_event_index = {}
+          $invalid_collecting_event_index = {}
         end
 
         def export_to_pg(data_directory) 
@@ -40,38 +47,38 @@ namespace :tw do
 
       # These are largely collecting event related
       PREDICATES = [
-        "Country",
-        "County",
-        "State",
+        'Country',
+        'County',
+        'State',
 
         #"AccessionNumber",
-        "BodyOfWater",
-        "Collection",
-        "Comments",
+        'BodyOfWater',
+        'Collection',
+        'Comments',
 
         #"Datum",
-        "Description",
-        "DrainageBasinGreater",
-        "DrainageBasinLesser",
-        "Family",
+        'Description',
+        'DrainageBasinGreater',
+        'DrainageBasinLesser',
+        'Family',
 
-        "Genus",
-        "Host",
-        "HostGenus",
-        "HostSpecies",
-        "INDrainage",
-        "LedgerBook",
-        "LocalityCode",
-        "OldLocalityCode",
-        "Order",
-        "Park",
-        "Remarks",
-        "Sex",
-        "Species",
-        "StreamSize",
-        "WisconsinGlaciated",
+        'Genus',
+        'Host',
+        'HostGenus',
+        'HostSpecies',
+        'INDrainage',
+        'LedgerBook',
+        'LocalityCode',
+        'OldLocalityCode',
+        'Order',
+        'Park',
+        'Remarks',
+        'Sex',
+        'Species',
+        'StreamSize',
+        'WisconsinGlaciated',
 
-        "PrecisionCode",    # tag on Georeference
+        'PrecisionCode',    # tag on Georeference
         #"GBIF_precission"  # tag
       ]
 
@@ -194,19 +201,13 @@ namespace :tw do
       #  types.txt
 
 
-      $project_id = nil
-      $user_id = nil
-      $repository #= Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
-      $user_index = {}
-      $collecting_event_index = {}
-      $invalid_collecting_event_index = {}
-
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
         handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
+        handle_preparation_types(@data, @import)
         handle_controlled_vocabulary(@data, @import)
 
         handle_people(@data, @import) ## !created as new
@@ -215,7 +216,7 @@ namespace :tw do
 
         checkpoint_save(@import) if ENV['no_transaction']
 
-        # !! The following can not be loaded from the database they are always created anew. 
+        # !! The following can not be loaded from the database they are always created anew.
         handle_collecting_events(@data, @import)
         handle_specimens(@data, @import)
 
@@ -257,21 +258,87 @@ namespace :tw do
 
       def handle_namespaces(data, import)
         print "Handling namespaces "
+
+        catalogue_namespaces = [
+            'Acari',
+            'Araneae',
+            'Coleoptera',
+            'Diplopoda',
+            'Diptera',
+            'Ephemeroptera',
+            'Heteroptera',
+            'Homoptera',
+            'Hymenoptera',
+            'Insect Collection',
+            'Lepidoptera',
+            'Loan Invoice',
+            'Mecoptera',
+            'Neuroptera',
+            'Odonata',
+            'Opiliones',
+            'Orthoptera',
+            'Phthiraptera',
+            'Plecoptera',
+            'Pseudoscorpiones',
+            'Psocoptera',
+            'Scorpiones',
+            'Strepsiptera',
+            'Trichoptera'
+        ]
+
         if import.metadata['namespaces']
-          @import_namespace = Namespace.where(name: 'INHS Import Identifiers', short_name: 'INHS Import').first
-          @accession_namespace = Namespace.where(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code').first
+          @import_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Import Identifiers', short_name: 'Import').first
+          @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
-          @import_namespace = Namespace.create(name: 'INHS Import Identifiers', short_name: 'INHS Import')
-          @accession_namespace = Namespace.create(name: 'INHS Legacy Accession Codes', short_name: 'INHS Legacy Accession Code')
+          @import_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Import Identifiers', short_name: 'Import')
+          @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
           import.metadata['namespaces'] = true
         end
+
+        catalogue_namespaces.each do |cn|
+          n = Namespace.where(institution: 'INHS Insect Collection', short_name: cn)
+          if n.empty?
+            n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS ' + cn, short_name: cn)
+          else
+            n = n.first
+          end
+          @namespaces.megre!(cn => n)
+        end
+
         data.namespaces.merge!(import_namespace: @import_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
       end
 
-      # Builds all the controlled vocabulary terms (tags/keywords)
+      def handle_preparation_types(data, import)
+        print "Handling namespaces "
+
+        preaparation_types = [
+            'Bulk dry',
+            'Envelope',
+            'Jar',
+            'Pill box',
+            'Pin',
+            'Slide',
+            'Vial'
+          ]
+        preparation_types.each do |pt|
+          t = PreparationType.where(name: pt)
+          if t.empty?
+            t = PreparationType.create(name: pt) if t.nil?
+          else
+            t = t.first
+          end
+          @preparation_types.megre!(pt => t)
+        end
+        @preparation_types.megre!('Slides' => @preparation_types['Slide'])
+        @preparation_types.megre!('Vials' => @preparation_types['Vial'])
+        @preparation_types.megre!('pill box' => @preparation_types['Pill box'])
+      end
+
+
+            # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary(data, import)
         print "Handling CV "
         if import.metadata['controlled_vocabulary']
