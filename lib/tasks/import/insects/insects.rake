@@ -23,7 +23,6 @@ namespace :tw do
         attr_accessor :people, :people_id, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
           @namespaces = {}
-          @preparation_types = {}
           @people = {}
           @people_id = {}
           @users = {}
@@ -31,12 +30,6 @@ namespace :tw do
           @collecting_events = {}
           @collection_objects = {}
           @otus = {}
-          $project_id = nil
-          $user_id = nil
-          $repository = #Repository.find_by institutional_LSID: 'urn:lsid:biocol.org:col:34797'
-          $user_index = {}
-          $collecting_event_index = {}
-          $invalid_collecting_event_index = {}
         end
 
         def export_to_pg(data_directory) 
@@ -44,6 +37,14 @@ namespace :tw do
           Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
         end
       end
+
+      $preparation_types = {}
+      $project_id = nil
+      $user_id = nil
+      $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
+      $user_index = {}
+      $collecting_event_index = {}
+      $invalid_collecting_event_index = {}
 
       # These are largely collecting event related
       PREDICATES = [
@@ -79,7 +80,10 @@ namespace :tw do
         'WisconsinGlaciated',
 
         'PrecisionCode',    # tag on Georeference
-        #"GBIF_precission"  # tag
+
+        'Prefix',
+        'CatalogNumber',
+        #TaxonCode LocalityCode AccessionSource DeaccessionRecipient DateCollectedBeginning DateCollectedEnding Collector AccessionNumberLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName OldLocalityCode OldCollector OldIdentifiedBy
       ]
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -330,11 +334,11 @@ namespace :tw do
           else
             t = t.first
           end
-          @preparation_types.megre!(pt => t)
+          $preparation_types.megre!(pt => t)
         end
-        @preparation_types.megre!('Slides' => @preparation_types['Slide'])
-        @preparation_types.megre!('Vials' => @preparation_types['Vial'])
-        @preparation_types.megre!('pill box' => @preparation_types['Pill box'])
+        $preparation_types.megre!('Slides' => @preparation_types['Slide'])
+        $preparation_types.megre!('Vials' => @preparation_types['Vial'])
+        $preparation_types.megre!('pill box' => @preparation_types['Pill box'])
       end
 
 
@@ -438,7 +442,11 @@ namespace :tw do
         unless $collecting_event_index[tmp_ce].nil?
           collecting_event = $collecting_event_index[tmp_ce]
           if collecting_event.data_attributes['LocalityCode'].nil? && !tmp_ce['LocalityCode'].nil?
-            c.data_attributes.create(predicate: 'LocalityCode', value: tmp_ce['LocalityCode'], type: 'ImportAttribute')
+            collecting_event.data_attributes.create(predicate: 'LocalityCode', value: tmp_ce['LocalityCode'], type: 'ImportAttribute')
+          end
+          if collecting_event.verbatim_locality.nil? && !tmp_ce['LocalityLabel'].nil?
+            collecting_event.verbatim_locality = tmp_ce['LocalityLabel']
+            collecting_event.save!
           end
           return collecting_event
         end
@@ -505,9 +513,6 @@ namespace :tw do
       #  8 Phone             Loan#recipent_phone
 
       # - 9 Comments          Note.new
-      #
-      # # TODO: User conversion, other handling.
-      #    !! These are always added tot eh db, regardless, they need to be cased out like taxa etc.
       #
       def handle_people(data, import)
         path = @args[:data_directory] + 'TXT/people.txt'
@@ -656,9 +661,9 @@ namespace :tw do
         unmatched_localities = {}
 
         puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new()
+        index_collecting_events_from_accessions_new(data)
+        index_specimen_records_from_specimens(unmatched_localities, data)
 
-        index_collecting_events_from_specimens(unmatched_localities)
         index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         #index_collecting_events_from_ledgers(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
@@ -672,82 +677,12 @@ namespace :tw do
         # end
         # all_keys.sort!
 
-        collecting_events_index.keys.each_with_index do |ce,i|
-          break if i > 100  # TODO: Remove
-          print "\r#{i}"
-
-          latitude, longitude = parse_lat_long(ce)
-          sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
-          elevation, elevation_unit = parse_elevation(ce)
-          geographic_area = parse_geographic_area(ce)
-
-          c = CollectingEvent.new(
-            geographic_area_id: geographic_area,
-            verbatim_label: ce['LocalityLabel'], 
-            verbatim_locality: ce['Locality'],
-            verbatim_collectors: ce['Collector'],                
-            verbatim_method: ce['CollectionMethod'],            
-            start_date_day: sdd,
-            start_date_month: sdm,
-            start_date_year: sdy,
-            end_date_day: edd,
-            end_date_month: edm,
-            end_date_year: edy,
-            verbatim_habitat: ce['Habitat'],
-            minimum_elevation: elevation,
-            verbatim_elevation: verbatim_elevation,
-            verbatim_latitude: latitude,
-            verbatim_longitude: longitude,
-            verbatim_geolocation_uncertainty: geolocation_uncertainty
-          )
-
-          ce.select{|k,v| !v.nil?}.each do |a,b|
-            if PREDICATES.include?(a)
-              c.data_attributes.build(predicate: data.keywords[a], value: b, type: 'InternalAttribute')
-            end
-          end
-
-          c.save!
-          data.collecting_events.merge!(ce => c)
-        end
       end
 
       # Index localities by their collective column=>data pairs
       def build_localities_index(data_directory)
-        # LocalityCode
-        # Country
-        # State
-        # County
-        # Locality
-        # Park
-        # BodyOfWater
-        # NS
-        # Lat_deg
-        # Lat_min
-        # Lat_sec
-        # EW
-        # Long_deg
-        # Long_min
-        # Long_sec
-        # Latitude
-        # Longitude
-        # Elev_m
-        # Elev_ft
-        # Elevation
-        # PrecisionCode
-        # Comments
-        # GBIG_precission
-        # DrainageBasinLesser
-        # DrainageBasinGreater
-        # StreemSize
-        # INDrainage
-        # WisconsinGlaciated
-        # OldLocalityCode
-        #
-        # CreatedOn
-        # ModifiedOn
-        # CreatedBy
-        # ModifiedBy
+
+        locality_fields = %w{ LocalityCode Country State County Locality Park BodyOfWater NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Latitude Longitude Elev_m Elev_ft Elevation PrecisionCode Comments DrainageBasinLesser DrainageBasinGreater StreamSize INDrainage WisconsinGlaciated OldLocalityCode CreatedOn ModifiedOn CreatedBy ModifiedBy }
 
         localities_file = data_directory + 'TXT/localities.txt'
         raise 'file not found' if not File.exists?(localities_file)
@@ -757,11 +692,15 @@ namespace :tw do
 
         localities = {}
         lo.each do |row|
-          localities.merge!(row['LocalityCode'] => row.to_h)
+          tmp_l = {}
+          locality_fields.each do |c|
+            tmp_l.merge!(c => row[c]) unless row[c].blank?
+          end
+          localities.merge!(row['LocalityCode'] => tmp_l)
         end
+
         localities
       end
-
 
       # Relevant columns
       # -    LocalityCode --- 
@@ -776,13 +715,15 @@ namespace :tw do
       #     LocalityCompare     # related to hash md5
 
       # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-
-      def index_collecting_events_from_specimens(unmatched_localities)
-        puts " from specimens"
+      def index_specimen_records_from_specimens(unmatched_localities, data)
+        puts " specimen records from specimens.text"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
         sp = CSV.open(path, col_sep: "\t", :headers => true)
+
+        specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }
+        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
         sp.each_with_index do |row, i|
           print "\r#{i}      "
@@ -805,6 +746,50 @@ namespace :tw do
 
           collecting_event = find_or_create_collecting_event(tmp_ce, data)
           otu = data.otus['TaxonCode']
+          preparation_type = $preparation_types[se['preparation_type']]
+
+
+          #Prefix CatalogNumber TaxonCode LocalityCode AccessionSource DeaccessionRecipient DateCollectedBeginning DateCollectedEnding Collector AccessionNumberLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName OldLocalityCode OldCollector OldIdentifiedBy
+          container = []
+          count_fields.each do |count|
+            unless se[count].blank?
+              specimen = CollectionObject.new(
+              total: se[count],
+              preparation_type_id: preparation_type,
+              repository_id: $repository,
+              buffered_collecting_event: se['LocalityLabel'],
+              buffered_determinations: se['DeterminationLabel'],
+              buffered_other_labels: se['OtherLabel'],
+              collecting_event_id: collecting_event,
+              deaccessioned_at: time_from_field(se['DeaccessionDate']),
+              deaccession_reason: se['DeaccessionCause'],
+              created_by_id: find_or_create_collection_user(se['CreatedBy'], data),
+              updated_by_id: find_or_create_collection_user(se['ModifiedBy'], data),
+              created_at: time_from_field(se['CreatedOn']),
+              updated_at: time_from_field(se['ModifiedOn'])
+              )
+              if specimen.valid?
+                specimen.save!
+                specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
+                ce.select{|k,v| !v.nil?}.each do |a,b|
+                  if PREDICATES.include?(a)
+                    c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
+                  end
+                end
+              end
+
+
+
+
+
+              end
+          end
+
+
+
+
+
+
 
         end
 
@@ -895,49 +880,19 @@ namespace :tw do
         puts "\n Number of collecting events processed from Ledgers: #{collecting_events_index.keys.count} "
       end
 
-      #   AccessionNumber - field notes for collecting event /  # Not the same accession code
-      #      missing a "file"
-      #   LocalityLabel
-      #   Habitat
-      #   Host
-      #   Country
-      #   State
-      #   County
-      #   Locality
-      #   Park
-      #   DateCollectedBeginning
-      #   DateCollectedEnding
-      #   Collector
-      #   CollectionMethod
-      #   Elev_m
-      #   Evel_ft
-      #   NS
-      #   Lat_deg
-      #   Lat_min
-      #   Lat_sec
-      #   EW
-      #   Long_deg
-      #   Long_min
-      #   Long_sec
-      #   Comments
-      #   PrecisionCode
-      #   Datum
-      #
-      #   ModifiedBy
-      #   ModifiedOn
-      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-
-      def  index_collecting_events_from_accessions_new()
+      def  index_collecting_events_from_accessions_new(data)
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
         ac = CSV.open(path, col_sep: "\t", :headers => true)
 
+        accessions_new_fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
+
         puts "\naccession new records\n"
         ac.each_with_index do |row, i|
           print "\r#{i}"
           tmp_ce = { }
-          SPECIMENS_COLUMNS.each do |c|
+          accessions_new_fields.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
 
