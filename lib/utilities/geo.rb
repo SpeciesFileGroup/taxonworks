@@ -24,27 +24,30 @@ module Utilities::Geo
 
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
-    dms = dms_in.dup.upcase
+    dms     = dms_in.dup.upcase
     degrees = 0.0; minutes = 0.0; seconds = 0.0
     dms =~ /[NSEW]/i
     cardinal = $~.to_s.upcase
     # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
-    return nil if cardinal.length > 1
-    dms = dms.gsub!(cardinal, '').strip
+    # return nil if cardinal.length > 1
+    dms      = dms.gsub!(cardinal, '').strip
 
     if dms.include? '.'
-      unless dms.include? ':'
+      if dms.include? ':' # might be '42:5.1'
+        /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
+      else
+        # this will get over-ridden if the next regex matchs
         /(?<degrees>-*\d+\.\d+)/ =~ dms
       end
     end
 
-    if dms.include? ':'
-      /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
-    end
     # >40°26′46″< >40°26′46″<
-    if dms.include?('D') or dms.include?('º') or dms.include?('°') or dms.include?('∞')
-      /(?<degrees>-*\d+)[∞º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
-    end
+    dms.each_char { |c|
+      if SPECIAL_LATLONG_SYMBOLS.include?(c)
+        /(?<degrees>-*\d+)[∞º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
+        break
+      end
+    }
 
     degrees = degrees.to_f
     case cardinal
@@ -66,7 +69,10 @@ module Utilities::Geo
         limit = 180.0
     end
     # return "#{dms}: Out of range (#{dd})" if dd.abs > limit
-    return nil if dd.abs > limit
+    if dd.abs > limit or dd == 0.0
+      return nil
+    end
     dd.round(6).to_s
   end
+
 end
