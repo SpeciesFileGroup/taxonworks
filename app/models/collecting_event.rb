@@ -58,6 +58,8 @@ class CollectingEvent < ActiveRecord::Base
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
   has_many :georeferences, dependent: :destroy
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
   # Todo: this needs work
   has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
