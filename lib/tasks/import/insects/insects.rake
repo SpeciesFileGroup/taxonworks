@@ -81,9 +81,20 @@ namespace :tw do
 
         'PrecisionCode',    # tag on Georeference
 
-        'Prefix',
+        'Prefix',        #specimens
         'CatalogNumber',
-        #TaxonCode LocalityCode AccessionSource DeaccessionRecipient DateCollectedBeginning DateCollectedEnding Collector AccessionNumberLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName OldLocalityCode OldCollector OldIdentifiedBy
+        'TaxonCode',
+        'LocalityCode',
+        'SpecialCollection',
+        'IdentifiedBy',
+        'YearIdentified',
+        'Type',
+        'TypeName',
+        'AccessionNumberLabel',
+        'SpecialCollection',
+        'OldLocalityCode',
+        'OldCollector',
+        'OldIdentifiedBy'
       ]
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -147,6 +158,9 @@ namespace :tw do
 
       # Attributes to strip on CollectingEvent creation
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+
+      TAXA = {}
+      PEOPLE = {}
 
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/  \n
@@ -530,6 +544,10 @@ namespace :tw do
             $user_index.merge!(u.value => u.attribute_subject_id)
           end
 
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'People').each do |p|
+            PEOPLE.merge!(p.value => p.attribute_subject_id)
+          end
+
           print "done.\n"
         else
           print "as newly parsed.\n"
@@ -544,6 +562,7 @@ namespace :tw do
             p.save!
             #data.people.merge!(row => p)
             data.people_id.merge!(row['PeopleID'] => row)
+            PEOPLE.merge!(row['PeopleID'] => p)
           end
           import.metadata['people'] = true
         end
@@ -623,7 +642,8 @@ namespace :tw do
               }
 
               if p.valid?
-                parent_index.merge!(row['ID'] => p) 
+                parent_index.merge!(row['ID'] => p)
+                TAXA.merge!(row['TaxonCode'] => p)
                 print "\r#{i}\t#{bench.to_s.strip}  #{name}                           " #  \t\t#{rank}  
               else
                 puts "\n#{p.name}"
@@ -659,14 +679,23 @@ namespace :tw do
 
         collecting_events_index = {}
         unmatched_localities = {}
+        invalid_specimens = {}
+        unmatched_taxa = {}
 
         puts "Indexing collecting events."
         index_collecting_events_from_accessions_new(data)
-        index_specimen_records_from_specimens(unmatched_localities, data)
+        index_specimen_records_from_specimens(unmatched_localities, unmatched_taxa, invalid_specimens, data)
+
+
 
         index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         #index_collecting_events_from_ledgers(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
+
+
+        puts "\nUnmatched localities: #{unmatched_localities.to_s}."
+        puts "\nUnmatched taxa: #{unmatched_taxa.to_s}."
+        puts "\nInvalid_specimens: #{invalid_specimens.to_s}."
 
         # Debugging code, turn this on if you want to inspect all the columns that 
         # are used to index a unique collecting event.
@@ -715,7 +744,7 @@ namespace :tw do
       #     LocalityCompare     # related to hash md5
 
       # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-      def index_specimen_records_from_specimens(unmatched_localities, data)
+      def index_specimen_records_from_specimens(unmatched_localities, unmatched_taxa, invalid_specimens, data)
         puts " specimen records from specimens.text"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
@@ -748,9 +777,7 @@ namespace :tw do
           otu = data.otus['TaxonCode']
           preparation_type = $preparation_types[se['preparation_type']]
 
-
-          #Prefix CatalogNumber TaxonCode LocalityCode AccessionSource DeaccessionRecipient DateCollectedBeginning DateCollectedEnding Collector AccessionNumberLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName OldLocalityCode OldCollector OldIdentifiedBy
-          container = []
+          objects = []
           count_fields.each do |count|
             unless se[count].blank?
               specimen = CollectionObject.new(
@@ -770,26 +797,44 @@ namespace :tw do
               )
               if specimen.valid?
                 specimen.save!
+                objects += specimen
                 specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
-                ce.select{|k,v| !v.nil?}.each do |a,b|
+                se.select{|k,v| !v.nil?}.each do |a,b|
                   if PREDICATES.include?(a)
                     c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
                   end
                 end
+                if data.otus[se['TaxonCode']]
+                  td = TaxonDetermination.create(
+                     biological_collection_object_id: specimen,
+                     otu_id: data.otus[se['TaxonCode']],
+                     year_made: se['YearIdentified']
+                      )
+                  td.data_attributes.create(predicate: 'DetermidedBy', value: se['IdentifiedBy'], type: 'ImportAttribute')
+
+                  if !se['Type'].blank? && !se['TypeName'].blank?
+                    tm = TypeMaterial.create(
+                        protonym_id: TAXA[se['TaxonCode']],
+                        biological_object_id: specimen,
+                        type_type: se['Type'],
+                    )
+                    tm.data_attributes.create(predicate: 'TypeName', value: se['TypeName'], type: 'ImportAttribute')
+                  end
+
+                else
+                  unmatched_taxa.merge!(se['TaxonCode'] => nil) unless se['TaxonCode'].blank?
+                end
+
+                Role.create(person: PEOPLE[se['AccessionSource'], role_object: specimen, type: 'AccessionSource']) unless se['AccessionSource'].blank?
+                Role.create(person: PEOPLE[se['DeaccessionRecipient'], role_object: specimen, type: 'DeaccessionRecipient']) unless se['DeaccessionRecipient'].blank?
+
+              else
+                invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
               end
 
-
-
-
-
-              end
+            end
           end
-
-
-
-
-
-
+          add_identifiers(objects, row)
 
         end
 
@@ -1133,15 +1178,15 @@ namespace :tw do
         puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
 
         identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) if !row['CatalogNumber'].blank?
-        accession_number = InternalAttribute.new(value: row['AccessionNumber'], predicate: @data.keywords['AccessionCode']) if !row['AccessionNumber'].blank?
+        #accession_number = InternalAttribute.new(value: row['AccessionNumber'], predicate: @data.keywords['AccessionCode']) if !row['AccessionNumber'].blank?
 
         if objects.count > 1 
           puts "More than one in a #{row['PreparationType']}"
 
-          objects.each do |o|
-            o.data_attributes << accession_number.dup if accession_number
-            o.save!
-          end
+         # objects.each do |o|
+         #   o.data_attributes << accession_number.dup if accession_number
+         #   o.save!
+         # end
 
           # Identifier on container. 
           c = Container.containerize(objects)
@@ -1152,7 +1197,7 @@ namespace :tw do
           # Identifer on object
         elsif objects.count == 1
           objects.first.identifiers << identifier if identifier
-          objects.first.data_attributes << accession_number if accession_number 
+          # objects.first.data_attributes << accession_number if accession_number
           objects.first.save!
         else
           raise 'No objects in container.'
