@@ -11,7 +11,7 @@ require 'benchmark'
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
-
+#
 namespace :tw do
   namespace :project_import do
     namespace :insects do
@@ -41,7 +41,7 @@ namespace :tw do
       $preparation_types = {}
       $project_id = nil
       $user_id = nil
-      $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
+#      $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
