@@ -30,7 +30,7 @@ module Utilities::Geo
     cardinal = $~.to_s.upcase
     # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
     # return nil if cardinal.length > 1
-    dms      = dms.gsub!(cardinal, '').strip
+    dms      = dms.gsub!(cardinal, '').strip.downcase
 
     if dms.include? '.'
       if dms.include? ':' # might be '42:5.1'
@@ -44,7 +44,10 @@ module Utilities::Geo
     # >40°26′46″< >40°26′46″<
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
-        /(?<degrees>-*\d+)[∞º°D]\s*(?<minutes>\d+\.*\d*)['′]*\s*((?<seconds>\d+\.*\d*)["″])*/ =~ dms
+        /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
+        # /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e]/ =~ dms
+        # /(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u2032]*/ =~ dms
+        # /((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
         break
       end
     }

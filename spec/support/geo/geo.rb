@@ -5,9 +5,17 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-SPECIAL_LATLONG_SYMBOLS = "Ddº*\"∞∫o'′¥ \u02DA\u00ba\u00ba\u02B9\u02BA\u02BC\u02CA\u02EE\u02DA\u030a"
+# degree symbols, in addition to 'd', 'o', and '*'
+# \u00b0  "°" \u00ba  "º" \u02da  "˚" \u030a  "?" \u221e "∞" \u222b "∫"
 
-LATLONG_USE_CASES = {"  40\u02da26¥46¥S"             => '40.446111', #current test case
+# tick symbols, in addition to "'", and '"'
+# \u00a5  "¥"
+# \u02B9  "ʹ" \u02BA  "ʺ" \u02BB  "ʻ" \u02BC  "ʼ" \u02CA "ˊ"
+# \u02EE  "ˮ" \u00b4  "´" \u2032 "′" \u2033 "″"
+
+SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b'\u00b4\u00ba\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\""
+
+LATLONG_USE_CASES = {'w88∫11′43.3″'                  => '-88.195361', #current test case
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
                      '40:26:46.302N'                 => '40.446195',
@@ -33,13 +41,14 @@ LATLONG_USE_CASES = {"  40\u02da26¥46¥S"             => '40.446111', #current 
                      'N40.446195'                    => '40.446195',
                      'W79.982195'                    => '-79.982195',
                      # some special characters for Dmitry
+                     "  40\u02da26¥46¥S"             => '-40.446111',
                      '42∞5\'18.1"S'                  => '-42.088361',
                      'w88∞11\'43.3"'                 => '-88.195361',
-                     "  42\u02da5¥18.1¥S"            => '-42.088',
-                     "  42\u02Ba5'18.1'S"            => '-42.088',
-                     "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088',
+                     "  42\u02da5¥18.1¥S"            => '-42.088361',
+                     "  42º5'18.1'S"                 => '-42.088361',
+                     "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088361',
+                     'w88∫11′43.3″'                  => '-88.195361',
                      'nan'                           => nil,
-                     'NAN'                           => nil,
                      'NAN'                           => nil
 
 }
