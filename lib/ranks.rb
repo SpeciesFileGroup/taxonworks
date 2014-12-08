@@ -1,6 +1,6 @@
 # require 'application_enumeration'
 
-# Contains methods used in /config/initializers/ranks.rb to generate Rank Classes 
+# Contains methods used in /config/initializers/constants/ranks.rb to generate Rank Classes
 module Ranks
 
   # Returns true if rank.to_s is the name of a NomenclaturalRank. 

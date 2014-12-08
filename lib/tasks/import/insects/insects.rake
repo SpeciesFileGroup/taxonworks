@@ -11,7 +11,7 @@ require 'benchmark'
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
-#
+
 namespace :tw do
   namespace :project_import do
     namespace :insects do
@@ -22,11 +22,11 @@ namespace :tw do
       class ImportedData
         attr_accessor :people, :people_id, :keywords, :users, :collecting_events, :collection_objects, :otus, :namespaces
         def initialize()
-          @namespaces = {}
+          @keywords = {}
           @people = {}
           @people_id = {}
           @users = {}
-          @keywords = {}
+          @namespaces = {}
           @collecting_events = {}
           @collection_objects = {}
           @otus = {}
@@ -39,9 +39,9 @@ namespace :tw do
       end
 
       $preparation_types = {}
-      $project_id = nil
-      $user_id = nil
-#      $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
+      #$project_id = nil
+      #$user_id = nil
+      $repository = nil
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
@@ -167,7 +167,7 @@ namespace :tw do
       alternately, add: \n
         restore_from_dump=true   (attempt to load the data from the dump) \n
         no_transaction=true      (don't wrap import in a transaction, this will also force a dump of the data)\n"
-      task :import_insects => [:data_directory, :environment] do |t, args| 
+      task :import_insects => [:environment, :data_directory] do |t, args|
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
         LOCALITIES = build_localities_index(@args[:data_directory])        
@@ -258,17 +258,30 @@ namespace :tw do
           $user_id = user.id
         else
           print "as newly parsed.\n"
-          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
+
+          user = User.where(email: email)
+          if user.empty?
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
+          else
+            user = user.first
+          end
           $user_id = user.id # set for project line below
 
-          project = Project.create(name: project_name) 
+          project = Project.where(name: project_name)
+          if project.empty?
+            project = Project.create(name: project_name)
+          else
+            project = project.first
+          end
 
-          ProjectMember.create(user: user, project: project, is_project_administrator: true)
+          $project_id = project.id
+          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          pm.save! if pm.valid?
 
           import.metadata['project_and_users'] = true
-          $project_id = project.id
         end
 
+        $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
         $user_index.merge!('0' => user.id)
         #data.users.merge!(user.email => user)
 
@@ -322,7 +335,7 @@ namespace :tw do
           else
             n = n.first
           end
-          @namespaces.megre!(cn => n)
+          data.namespaces.merge!(cn => n)
         end
 
         data.namespaces.merge!(import_namespace: @import_namespace)
@@ -332,7 +345,7 @@ namespace :tw do
       def handle_preparation_types(data, import)
         print "Handling namespaces "
 
-        preaparation_types = [
+        preparation_types = [
             'Bulk dry',
             'Envelope',
             'Jar',
@@ -348,7 +361,7 @@ namespace :tw do
           else
             t = t.first
           end
-          $preparation_types.megre!(pt => t)
+          $preparation_types.merge!(pt => t)
         end
         $preparation_types.megre!('Slides' => @preparation_types['Slide'])
         $preparation_types.megre!('Vials' => @preparation_types['Vial'])
