@@ -28,7 +28,7 @@ namespace :tw do
   end
 
   desc 'a default method to add a data_directory_argument'
-  task  :data_directory do |t| 
+  task  :data_directory => [:environment] do 
     default = Settings.default_data_directory
     @args ||= {} 
     if ENV['data_directory'].blank?
