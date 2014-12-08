@@ -137,9 +137,11 @@ describe 'Geo' do
   end
 
   context 'multiple use cases' do
+    @entry = 0
 
     LATLONG_USE_CASES.each { |co_ordinate, result|
-      specify "case #{co_ordinate} should yield #{result}" do
+      @entry += 1
+      specify "case #{@entry}: #{co_ordinate} should yield #{result}" do
         # pending 'full construction of the use_case hash'
         expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)).to eq(result)
       end

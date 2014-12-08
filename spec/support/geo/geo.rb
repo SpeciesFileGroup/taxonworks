@@ -5,9 +5,9 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-SPECIAL_LATLONG_SYMBOLS = "º*\"∞∫o'¥ \u02DA\u00ba\u00ba\u02B9\u02BA\u02BC\u02CA\u02EE\u02DA\u030a"
+SPECIAL_LATLONG_SYMBOLS = "Ddº*\"∞∫o'′¥ \u02DA\u00ba\u00ba\u02B9\u02BA\u02BC\u02CA\u02EE\u02DA\u030a"
 
-LATLONG_USE_CASES = {"  40\u02da26¥46¥S"                    => '40.446111', #current test case
+LATLONG_USE_CASES = {"  40\u02da26¥46¥S"             => '40.446111', #current test case
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
                      '40:26:46.302N'                 => '40.446195',
