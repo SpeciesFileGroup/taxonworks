@@ -25,10 +25,10 @@ module NotesHelper
     link_to(link_text, '', class: 'note-add', association: 'notes', content: "#{fields}")
   end
 
-  def add_note_link(object: object, attribute: nil, user: user)
-    link_to('Add note', new_note_path(note: {note_object_type:      object.class.base_class.name,
-                                                                              note_object_id:        object.id,
-                                                                              note_object_attribute: attribute}))
+  def add_note_link(object: object, attribute: nil)
+    link_to('Add note', new_note_path(note: {note_object_type: object.class.base_class.name,
+                                             note_object_id:        object.id,
+                                             note_object_attribute: attribute}))
   end
 
   def edit_note_link(note)

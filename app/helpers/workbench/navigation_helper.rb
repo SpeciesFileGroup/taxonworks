@@ -98,4 +98,13 @@ module Workbench::NavigationHelper
     send("batch_preview_#{controller_name.to_s.pluralize}_path")
   end
 
+  def annotate_links(object: object)
+    [add_alternate_value_link(object: object),
+     add_citation_link(object: object),
+     add_identifier_link(object: object),
+     add_note_link(object: object),
+     add_tag_link(object: object)
+    ].compact.join('<br>').html_safe
+  end
+
 end

@@ -30,10 +30,11 @@ module AlternateValuesHelper
     link_to(link_text, '', class: 'alternate-value-add', association: 'alternate_values', content: "#{fields}")
   end
 
-  def add_alternate_value_link(object: object, attribute: nil, user: user)
-    link_to('Add alternate value', new_alternate_value_path(alternate_value: {alternate_value_object_type: object.class.base_class.name,
-                                                                              alternate_value_object_id: object.id,
-                                                                              alternate_value_object_attribute: attribute}))
+  def add_alternate_value_link(object: object, attribute: nil)
+    link_to('Add alternate value', new_alternate_value_path(
+        alternate_value: {alternate_value_object_type: object.class.base_class.name,
+                          alternate_value_object_id: object.id,
+                          alternate_value_object_attribute: attribute})) if object.respond_to?(:has_alternate_values?)
   end
 
   def edit_alternate_value_link(alternate_value)

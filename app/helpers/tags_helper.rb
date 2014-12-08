@@ -38,7 +38,7 @@ module TagsHelper
     link_to(link_text, '', class: 'tag-add', association: 'tags', content: "#{fields}")
   end
 
-  def add_tag_link(object: object, attribute: nil, user: user)
+  def add_tag_link(object: object, attribute: nil)
     link_to('Add tag', new_tag_path(tag: {tag_object_type: object.class.base_class.name,
                                           tag_object_id: object.id,
                                           tag_object_attribute: attribute}))
