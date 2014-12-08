@@ -44,7 +44,7 @@ module Utilities::Geo
     # >40°26′46″< >40°26′46″<
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
-        /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
+        /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
         # /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e]/ =~ dms
         # /(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u2032]*/ =~ dms
         # /((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
