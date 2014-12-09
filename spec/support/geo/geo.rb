@@ -5,16 +5,6 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-# degree symbols, in addition to 'd', 'o', and '*'
-# \u00b0  "°" \u00ba  "º" \u02da  "˚" \u030a  "?" \u221e "∞" \u222b "∫"
-
-# tick symbols, in addition to "'", and '"'
-# \u00a5  "¥" \u00b4  "´"
-# \u02B9  "ʹ" \u02BA  "ʺ" \u02BB  "ʻ" \u02BC  "ʼ" \u02CA "ˊ"
-# \u02EE  "ˮ" \u2032 "′" \u2033 "″"
-
-SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b'\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\""
-
 LATLONG_USE_CASES = {'w88∫11′43.3″'                  => '-88.195361', #current test case
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
