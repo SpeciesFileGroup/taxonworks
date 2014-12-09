@@ -370,7 +370,7 @@ to save without raising
                       s.alternate_values << AlternateValue.new(
                         value:                            row[5].to_s.strip,
                         alternate_value_object_attribute: 'name',
-                        type:                             'AlternateValue::Synonym'
+                        type:                             'AlternateValue::AlternateSpelling'
                       )
                       # else
                       #found a match -> do nothing

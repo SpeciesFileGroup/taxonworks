@@ -20,10 +20,15 @@ describe 'AlternateValues', :type => :model do
       class_with_alternate_values.string = 'Testing alternate values'
       class_with_alternate_values.save
 
-      syn = AlternateValue::Synonym.create(
-          value: 'test1',
+      misspelled  = AlternateValue::Misspelling.create(
+          value: 'tast1',
           alternate_value_object_attribute: 'string',
           alternate_value_object: class_with_alternate_values)
+
+      alt_spell  = AlternateValue::AlternateSpelling.create(
+        value: 'test1',
+        alternate_value_object_attribute: 'string',
+        alternate_value_object: class_with_alternate_values)
 
       trans = AlternateValue::Translation.create(
           value: 'gibberish',
@@ -45,7 +50,7 @@ describe 'AlternateValues', :type => :model do
 
     specify '#all_values_for' do
       expect(class_with_alternate_values.all_values_for('string')).to \
-            eq(['gibberish', 'test1', 'Testing alternate values', 'tst'].sort)
+            eq(['gibberish', 'test1', 'Testing alternate values', 'tst', 'tast1'].sort)
     end
 
     specify '.with_alternate_value_on' do

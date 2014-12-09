@@ -1,3 +1,24 @@
+# AlternateValue(s) are annotations on an object or object attribute. Use only when the annotations are related
+#   to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books(publisher2))
+#
+# @!attribute attribute_subject_id
+#   the ID of the thing being annotated
+#
+# @!attribute attribute_subject_type
+#   the kind of thing being annotated
+#
+# @!attribute value
+#   the annotated value
+#
+# @!attribute controlled_vocabulary_term_id
+#   the ID of the controlled vocabulary term - used only for InternalAttribute
+#   Use InternalAttributes when you can precisely define what the alternate value is (e.g. note, MX_ID)
+#
+# @!attribute import_predicate
+#   a string describing the data that has been imported from elsewhere that TW does not have a precise definition for.
+#   Used only with ImportAttribute - use when importing outside data and you don't have a definition of the field.
+#   (e.g. verbatim_notebook_field_6)
+#
 class AlternateValue < ActiveRecord::Base
 
   include Housekeeping::Users
