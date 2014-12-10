@@ -16,7 +16,7 @@
   <div class="field">
     <%= avf.label :type %>
     <br>
-    <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = avf.object.type) -%>
+    <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = avf.object.type) -%>
   </div>
   <div class="field">
     <%= avf.label :language_id %>

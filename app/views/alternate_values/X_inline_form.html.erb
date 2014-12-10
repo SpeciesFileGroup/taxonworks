@@ -28,7 +28,7 @@
     <div class="field">
       <%= f.label :type %>
       <br>
-      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = @alternate_value.type) -%>
+      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = @alternate_value.type) -%>
     </div>
     <div class="field">
       <%= f.label :language_id %>
