@@ -7,11 +7,11 @@ class Georeference::VerbatimData < Georeference
     self.is_median_z    = false
     self.is_undefined_z = false # and delta_z is zero, or ignored
 
-    if collecting_event.nil?
-    else
+    unless collecting_event.nil?
+
       # get the data from the parent.collecting_event, and make a point of it
-      lat  = collecting_event.verbatim_latitude.to_f
-      long = collecting_event.verbatim_longitude.to_f
+      lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_latitude.to_s).to_f
+      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_longitude.to_s).to_f
 
       # value from collecting_event is normalised to meters
       z1   = collecting_event.minimum_elevation

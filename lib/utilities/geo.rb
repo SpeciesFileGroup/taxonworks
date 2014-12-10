@@ -1,20 +1,22 @@
 =begin
 To add a new (discovered) symbol:
-  1) Add the Unicode string (i.e, "\uNNNN") to SPECIAL_LATLONG_SYMBOLS (below), selecting either degrees
-      (starting with 'do*'), or tickmarks (starting at "'")
-  2) Add the Unicode to the proper section in the regexp in the corresponding section (degrees, minutes, or seconds).
+  1) To find the Unicode string for any character, use Utilities::Geo.uni_string('c') (remove the first '\').
+  2) Add the Unicode string (i.e, "\uNNNN") to SPECIAL_LATLONG_SYMBOLS (below), selecting either degrees
+      (starting with 'do*'), or tickmarks (starting at "'").
+  3) Add the Unicode to the proper section in the regexp in the corresponding section (degrees, minutes, or seconds).
       NB: all the minutes symbols are duplicated in the seconds section because sometimes two successive tickmarks
-          (for minutes) are used for seconds
+          (for minutes) are used for seconds.
 =end
 # degree symbols, in addition to 'd', 'o', and '*'
 # \u00b0  "°"  \u00ba  "º"  \u02da  "˚"  \u030a  "?"  \u221e "∞"  \u222b "∫"
 
-# tick symbols, in addition to "'", and '"'
+# tick symbols, in addition to "'" ("\u0027""), and '"' ("\u0022")
 # \u00a5  "¥"  \u00b4  "´"
 # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
 # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
 
-SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b'\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\""
+SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022"
+# DMS_REGEX = "(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)[\u0027\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)[\u0027\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\u0022]+)*"
 
 module Utilities::Geo
   # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
@@ -23,8 +25,11 @@ module Utilities::Geo
 
   class ConvertToDecimalDegrees
 
+    attr_reader(:dd, :dms, :match)
+
     def initialize(coordinate)
-      # figure out what the DD is for this (single) coordinate
+      @dms = coordinate
+      @dd = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
     end
 
   end
@@ -63,10 +68,12 @@ module Utilities::Geo
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
         /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
+        # /#{DMS_REGEX}/ =~ dms
         break
       end
     }
 
+    @match = $~
     degrees = degrees.to_f
     case cardinal
       when 'W', 'S'
@@ -91,6 +98,10 @@ module Utilities::Geo
       return nil
     end
     dd.round(6).to_s
+  end
+
+  def uni_string(char)
+    '\\' + sprintf("u%04X", char.ord)
   end
 
 end
