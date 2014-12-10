@@ -163,9 +163,13 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
+
   resources :type_materials do
     concerns [:data_routes]
   end
+
+  match 'verify_accessions_task', to: 'tasks/accessions/verify/material#index', via: 'get'
+ 
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'
