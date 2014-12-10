@@ -9,7 +9,7 @@
 #   @return [String]
 #   Defines the relationship between the curator asserted canonical identifier and other identifiers
 #   of the same type. Must be provided for every global identifier of the same type beyond the first.
-#   Example relationships include same_as. (TODO: define available options) 
+#   Relations are drawn from skos (http://www.w3.org/TR/skos-reference/#mapping) 
 #
 class Identifier::Global < Identifier 
 
@@ -26,7 +26,7 @@ class Identifier::Global < Identifier
   validates :relation, inclusion: { in: RELATIONS.keys }, allow_nil: true 
   validate :permit_only_one_global_without_relation_supplied_per_type
 
-  # identifier can only be used once, i.e. mapped to a single TW concept
+  # Identifier can only be used once, i.e. mapped to a single TW concept
   validates_uniqueness_of :identifier, scope: [:project_id]
 
   protected

@@ -87,14 +87,6 @@ describe Identifier, :type => :model do
       expect(identifier.identifier_object).to be(nil)   
     end
 
-    specify 'you can\'t add multiple identifiers of the same type to a single object' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 345)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_falsey
-      expect(i2.errors.include?(:type)).to be_truthy
-    end
-
     specify 'you can\'t add non-unique identifiers of the same type to a two objects' do
       i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
       i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
@@ -115,6 +107,3 @@ describe Identifier, :type => :model do
   end
 
 end
-
-
-
