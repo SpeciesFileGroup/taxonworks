@@ -1,7 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
-
-  # All models that use data controllers should include this concern. 
+  # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
   concern :data_routes do |options|
@@ -191,6 +190,14 @@ TaxonWorks::Application.routes.draw do
   get 'tasks/usage/user_activity#report/:id'
 =end
 
+  namespace :tasks do
+    namespace :gis do
+      get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
+    end
+  end
+=begin
+  get 'tasks/gis/locality/nearby/:id'
+=end
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
