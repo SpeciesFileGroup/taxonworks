@@ -49,6 +49,8 @@
 class CollectionObject < ActiveRecord::Base
   # TODO: DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
+  has_paper_trail
+
   include Housekeeping
   include Shared::IsData 
   include Shared::Identifiable

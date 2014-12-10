@@ -1,0 +1,18 @@
+
+
+<div> some search form </div>
+
+<div>Identifer: <%= object_tag(@identifier) -%> </div>
+
+<div>Container: <%= object_tag(@container) -%> </div>
+
+<div> Collection objects: <%= @collection_objects.collect{|o| object_tag(o)}.join.html_safe -%> </div>
+
+<div> 
+  <div> Verbatim Column </div> <div> Parsed Column </div>
+
+  <div> Header </div> <div> Header </div>
+  <div> Header </div> <div> Header </div>
+  <div> Header </div> <div> Header </div>
+
+</div>

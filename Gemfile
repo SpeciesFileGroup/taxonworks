@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.1.2'
+ruby '2.1.5'
 
 gem 'rails', '4.1.8'
 gem 'psych', '~> 2.0.3'
@@ -85,7 +85,7 @@ group :test, :development do
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
+  gem 'did_you_mean', '~> 0.9.4'
   gem 'selenium-webdriver'
 end
 

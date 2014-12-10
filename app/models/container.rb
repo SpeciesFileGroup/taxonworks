@@ -1,3 +1,5 @@
+# A container localizes the proximity of a number of physical things, at this point in TW this is restricted to a number of collection objects.
+#
 class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
@@ -8,11 +10,7 @@ class Container < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
 
-  # TODO: rethinking this 
-  # belongs_to :otu
-
   has_many :container_items, inverse_of: :container # , validate: false 
-  # has_many :contained_objects, through: :container_items, source: :contained_object, validate: false, source_type: true
   has_many :collection_objects, through: :container_items, source: :contained_object,  source_type: 'CollectionObject', validate: false 
   has_many :collection_profiles
 

@@ -24,11 +24,6 @@
   <%= object_tag(@collection_object.collecting_event) %>
   </p>
 
-  <p>
-  <strong>Repository:</strong>
-  <%= object_link(@collection_object.repository) %>
-  </p>
-
   <div class="attribute_set" data-title="Buffered values (data in preparation)">
 
     <p>
@@ -62,6 +57,11 @@
     <p>
     <strong>Deaccessioned at:</strong>
     <%= @collection_object.deaccessioned_at %>
+    </p>
+
+    <p>
+    <strong>Repository:</strong>
+    <%= object_link(@collection_object.repository) %>
     </p>
 
   </div>

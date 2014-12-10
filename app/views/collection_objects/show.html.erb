@@ -1,2 +1,15 @@
+<%= content_for :go do -%>
+
+<% end %>
+
+<%= content_for :see do -%>
+
+<% end %>
+
+<%= content_for :tasks do -%>
+  <h3> Tasks </h3>
+  <%= verify_accessions_task_link(@collection_object)   %>
+<% end %>
+
 <%= render(partial: 'shared/data/show', locals: {object: @collection_object}) -%>
 
