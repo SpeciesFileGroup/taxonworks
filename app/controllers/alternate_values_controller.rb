@@ -11,6 +11,12 @@ class AlternateValuesController < ApplicationController
     @alternate_value = AlternateValue.find_by_id(params[:id]).metamorphosize
   end
 
+  # GET /alternate_values
+  # GET /alternate_values.json
+  def index
+    @alternate_values = AlternateValue.all
+  end
+
   # POST /alternate_values
   # POST /alternate_values.json
   def create
@@ -20,7 +26,7 @@ class AlternateValuesController < ApplicationController
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
-        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully created.' }
+        format.html { render 'new', notice: 'Alternate value was NOT successfully created.' }
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
     end

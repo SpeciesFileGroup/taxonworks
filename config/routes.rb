@@ -55,7 +55,7 @@ TaxonWorks::Application.routes.draw do
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
-  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy]
+  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy, :index]
 
   resources :asserted_distributions do
     concerns [:data_routes]
