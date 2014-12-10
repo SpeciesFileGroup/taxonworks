@@ -8,6 +8,10 @@ module Shared::Identifiable
 
   module ClassMethods
 
+    def of_type(id_type)
+      where(type: id_type)
+    end
+
     # Exact match on identifier + namespace, return an Array, not Arel
     def with_namespaced_identifier(namespace_name, identifier)
       i = Identifier.arel_table
@@ -44,9 +48,5 @@ module Shared::Identifiable
 
   protected
 
-  def build_identifier(params)
-    byebug
-    foo = 1
-  end
 
 end

@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 describe Identifier, :type => :model do
-
   let(:identifier) { FactoryGirl.build(:identifier) }
   let(:namespace) {FactoryGirl.create(:valid_namespace)}
   let(:specimen1) {FactoryGirl.create(:valid_specimen)}

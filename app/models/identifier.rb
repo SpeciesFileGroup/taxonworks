@@ -41,6 +41,8 @@ class Identifier < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
 
+  before_save :set_cached_value
+
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identifier_object, polymorphic: :true
 
@@ -68,14 +70,6 @@ class Identifier < ActiveRecord::Base
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
-  # identifiers are unique across types for a class of objects
-  validates_uniqueness_of :identifier, scope: [:type, :identifier_object_type, :namespace_id]
-
-  # no more of one identifier of a type per object 
-  validates_uniqueness_of :type, scope: [:identifier_object_id, :identifier_object_type, :namespace_id, :project_id] 
-
-  #before_validation :validate_format_of_identifier
-
   # TODO: test  - pendings are in the identifier_spec
   scope :of_type, -> (type) { where(type: Identifier::SHORT_NAMES[type].to_s) }
 
@@ -85,8 +79,7 @@ class Identifier < ActiveRecord::Base
 
   protected
 
-  # validations are currently defined in the subclass using active record validations.
-  #def validate_format_of_identifier
-  #end
+  def set_cached_value
+  end
   
 end
