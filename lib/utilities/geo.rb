@@ -25,11 +25,11 @@ module Utilities::Geo
 
   class ConvertToDecimalDegrees
 
-    attr_reader(:dd, :dms, :match)
+    attr_reader(:dd, :dms)
 
     def initialize(coordinate)
       @dms = coordinate
-      @dd = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
+      @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
     end
 
   end
@@ -58,9 +58,11 @@ module Utilities::Geo
     if dms.include? '.'
       if dms.include? ':' # might be '42:5.1'
         /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
+        @match_string = $&
       else
         # this will get over-ridden if the next regex matchs
         /(?<degrees>-*\d+\.\d+)/ =~ dms
+        @match_string = $&
       end
     end
 
@@ -68,13 +70,14 @@ module Utilities::Geo
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
         /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
+        @match_string = $&
         # /#{DMS_REGEX}/ =~ dms
         break
       end
     }
 
-    @match = $~
-    degrees = degrees.to_f
+    # @match_string = $&
+    degrees       = degrees.to_f
     case cardinal
       when 'W', 'S'
         sign = -1.0
