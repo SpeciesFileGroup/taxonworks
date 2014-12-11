@@ -1,3 +1,51 @@
-<h1>Task: Nearby localities for
-  <%= @collecting_event.verbatim_label %></h1>
-<p></p>
+<h1>Task: Nearby localities</h1>
+<p>
+  <strong>Locality:</strong>
+  <%= @collecting_event.verbatim_locality %>
+</p>
+<table border='1' style="left: 0px; width: 100%; top: 0px; height: 99px">
+  <tbody>
+  <tr>
+    <td width="99px">
+          <pre><%= collecting_event_tag(@collecting_event) %></pre>
+    </td>
+    <td align="left" valign="top" height="15" id="top">
+      slider
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <table border='1'>
+        <thead>Nearby table</thead>
+        <tbody>
+        <tr>
+          <th>Verbatim Locality</th>
+          <th>Distance</th>
+          <th>Collecting Event ID</th>
+          <th>Other Georeference?</th>
+          <th>Link to</th>
+        </tr>
+        <tr>
+          <td>
+            @collecting_event.verbatim_locality
+          </td>
+          <td>
+            500m
+          </td>
+          <td>
+            @collecting_event.id
+          </td>
+          <td>
+            @collecting_event.georeferences.any?
+          </td>
+          <td>
+            link_to
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
