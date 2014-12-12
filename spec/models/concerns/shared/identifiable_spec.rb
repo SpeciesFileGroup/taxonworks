@@ -18,6 +18,12 @@ describe 'Identifiable', :type => :model do
       expect(identifiable_instance.identified?).to eq(false)
     end
 
+    specify 'identified? with some identifiers' do
+      identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
+      expect(identifiable_instance.identified?).to eq(true)
+    end
+
+
     context "with some records created" do
       let(:namespace_name1) {'INHSIC'}
       let(:namespace_name2) {'NCSU'}

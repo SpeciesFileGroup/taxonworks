@@ -43,7 +43,7 @@ module Shared::Identifiable
   end
 
   def identified?
-    self.identifiers.size > 0
+    self.identifiers.any?
   end
 
   protected

@@ -22,7 +22,6 @@ describe 'Citable', :type => :model do
       class_with_citations.citations << Citation.new(source: FactoryGirl.create(:valid_source_bibtex))
       expect(class_with_citations.cited?).to eq(true)
     end
-
   end
 end
 
