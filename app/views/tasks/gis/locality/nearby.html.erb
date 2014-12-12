@@ -7,7 +7,7 @@
   <tbody>
   <tr>
     <td width="99px">
-          <pre><%= collecting_event_tag(@collecting_event) %></pre>
+      <pre><%= collecting_event_tag(@collecting_event) %></pre>
     </td>
     <td align="left" valign="top" height="15" id="top">
       slider
@@ -17,31 +17,33 @@
     <td colspan="2">
       <table border='1'>
         <thead>Nearby table</thead>
-        <tbody>
         <tr>
           <th>Verbatim Locality</th>
-          <th>Distance</th>
+          <th>Actual Distance</th>
           <th>Collecting Event ID</th>
           <th>Other Georeference?</th>
           <th>Link to</th>
         </tr>
-        <tr>
-          <td>
-            @collecting_event.verbatim_locality
-          </td>
-          <td>
-            500m
-          </td>
-          <td>
-            @collecting_event.id
-          </td>
-          <td>
-            @collecting_event.georeferences.any?
-          </td>
-          <td>
-            link_to
-          </td>
-        </tr>
+        <tbody>
+        <% collecting_events_nearby(5000).each { |collecting_event| %>
+            <tr>
+              <td>
+                <%= collecting_event.verbatim_locality %>
+              </td>
+              <td>
+                <%= distance_from(collecting_event) %>
+              </td>
+              <td>
+                <%= collecting_event.id %>
+              </td>
+              <td>
+                <%= collecting_event_georeference_count(collecting_event) %>
+              </td>
+              <td>
+                <%= link_to('nearby', tasks_gis_locality_nearby_path(collecting_event.to_param)) %>
+              </td>
+            </tr>
+        <% } %>
         </tbody>
       </table>
     </td>

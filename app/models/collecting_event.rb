@@ -174,6 +174,12 @@ class CollectingEvent < ActiveRecord::Base
       where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
   end
 
+  # see how far away we are from another gi
+  def distance_to(geographic_item)
+    retval = GeographicItem.ordered_by_shortest_distance_from('any', geographic_items.first).limit(1).first
+    retval
+  end
+
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
