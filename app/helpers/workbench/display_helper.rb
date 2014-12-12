@@ -1,5 +1,5 @@
-
 # Generic wrappers around AR instances, these should not include link generation, but may call out to other helpers that do generate links. 
+#
 module Workbench::DisplayHelper
 
   # General wrapper around individual <model_name>_tag methods

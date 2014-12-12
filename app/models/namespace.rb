@@ -1,33 +1,45 @@
-# A namespace is used to scope identifiers.
+# A Namespace is used to scope identifiers.  All identifiers within a namespace
+# must be unique. 
 #
-# In TW Identifiers/namespaces are used for disambiguating one datum from another. 
+# Namespaces are minted in TW on a first come first serve basis.  Their short and
+# long names must be unique.  When conflicts arrise new values must be minted for 
+# record keeping purposes.  In this case a verbatim_short_name can be provided, and this 
+# value will be presented for reporting/searching purposes.  This is a strong restriction
+# that is intended to encourage users to think before they mint namespaces.
 #
-# A namespace + identifier equates to a 
+#
+# In TW Identifiers + namespaces are used for differentiating/disambiguating one datum from another. 
 #
 # All strings (identifiers) within a namespace
 # must be unique, that's all. In TW Namespaces DO NOT 
 # imply ownership, i.e. if an identifer has a namespace
 # that includes reference to some collection, it does
-# not mean that that collecition 'owns' the identified object.
+# not mean that that collecition 'owns' the identified object. 
+#
+# Namespaces in TW are not limited to things like collection repository codens.
 #
 #
-## @!attribute institution 
+# @!attribute institution 
 #   @return [String]
 #   The institution (loosely, could be a person) responsible for minting this namespace.  Roughly, where to look for more information.
 #   This is NOT 1:1 with http://rs.tdwg.org/dwc/terms/ownerInstitutionCode, which implies ownership.  It is narrower in that
 #   it means the institution "owns", or minted the string, that's all.
 #
-## @!attribute name 
+# @!attribute name 
 #   @return [String]
 #   The full name of the namespace. For example 'Illinois Natural History Collection Insect Collection'.
 #   This is similar to http://rs.tdwg.org/dwc/terms/institutionCode, but not identical, in that no ownership is not explicitly implied.
 #
-## @!attribute short_name 
+# @!attribute short_name 
 #   @return [String]
 #   A short, realized version of the name.  For example "INHIC" 
 #   This may be embedded in http://rs.tdwg.org/dwc/terms/institutionCode.  
 #   We presently do not differentiate a http://rs.tdwg.org/dwc/terms/collectionCode in 
 #   identifiers, that data may(?) fall into Repositories. 
+#
+# @!attribute verbatim_short_name 
+#   @return [String]
+#   TW enforces uniquness of short names.  When a short name exists for historical reasons it should be added here. 
 #
 #
 class Namespace < ActiveRecord::Base
@@ -40,9 +52,9 @@ class Namespace < ActiveRecord::Base
 
   has_many :identifiers, dependent: :restrict_with_error
 
-  # TODO: @mjy What *is* the right construct for 'Namespace'?
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    match = "#{params[:term]}%"
+    where('name LIKE ? OR short_name LIKE ? OR verbatim_short_name LIKE ?', match, match, match)
   end
 
 end

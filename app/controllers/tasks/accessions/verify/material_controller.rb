@@ -40,5 +40,4 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
   end
 
 
-
 end
