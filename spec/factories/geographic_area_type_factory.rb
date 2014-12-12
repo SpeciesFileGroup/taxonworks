@@ -77,5 +77,14 @@ FactoryGirl.define do
     factory :testbox_geographic_area_type do
       name 'Test Box'
     end
+
+    factory :feature_geographic_area_type do
+      name 'Feature'
+    end
+
+    factory :named_place_geographic_area_type do
+      name 'Named Place'
+    end
   end
+
 end

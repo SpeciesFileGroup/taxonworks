@@ -156,7 +156,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
               # add abbreviation
               if !(row[7].to_s.strip.blank?)
-                abbr                                  = AlternateValue.new # or should this be an abbreviation?
+                abbr                                  = AlternateValue.new
                 abbr.value                            = row[7].to_s.strip
                 abbr.alternate_value_object_attribute = 'name'
                 abbr.type                             = 'AlternateValue::Abbreviation'
