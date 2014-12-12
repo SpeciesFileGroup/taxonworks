@@ -46,8 +46,13 @@ describe 'Taggable', :type => :model do
   end
 
   context 'methods' do
-    specify 'tagged?' do
-      expect(class_with_tags.tagged?).to eq(false)
+    specify 'has_tags? with no tags' do
+      expect(class_with_tags.has_tags?).to eq(false)
+    end
+
+    specify 'has_tags? with a tag' do
+      class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
+      expect(class_with_tags.has_tags?).to eq(true)
     end
   end
 end
