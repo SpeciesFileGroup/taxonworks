@@ -46,7 +46,4 @@ module Shared::Identifiable
     self.identifiers.any?
   end
 
-  protected
-
-
 end

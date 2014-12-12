@@ -12,8 +12,6 @@ describe 'Identifiable', :type => :model do
 
   context "methods" do
 
-    # need a > 0 test
-
     specify ".identified?" do
       expect(identifiable_instance.identified?).to eq(false)
     end
@@ -22,7 +20,6 @@ describe 'Identifiable', :type => :model do
       identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
       expect(identifiable_instance.identified?).to eq(true)
     end
-
 
     context "with some records created" do
       let(:namespace_name1) {'INHSIC'}
@@ -52,7 +49,6 @@ describe 'Identifiable', :type => :model do
       end
     end
   end
-
 
 end
 

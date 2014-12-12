@@ -17,8 +17,8 @@ module Shared::Notable
     s == "" ? nil : s
   end
 
-  def has_notations?
-    self.notes.count > 0
+  def has_notes?
+    self.notes.any?
   end
 
 end
