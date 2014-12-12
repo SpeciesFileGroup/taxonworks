@@ -6,14 +6,14 @@ module Shared::AlternateValues
   end
 
   def alternate_valued?
-    self.alternate_values.count > 0
+    self.alternate_values.any?
   end
 
   #returns a sorted Array of associated values
   def all_values_for(attr)
   # eg. returns self.name from otu.all_values_for(name)
     values = [self.send(attr)]
-    if has_alternate_values?
+    if alternate_valued?
       alternate_values.each do |v|
         values.push(v.value) if v.alternate_value_object_attribute == attr
       end

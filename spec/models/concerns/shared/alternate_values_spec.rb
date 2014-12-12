@@ -13,11 +13,6 @@ describe 'AlternateValues', :type => :model do
     end
   end
 
-  specify '#has_alternate_values? is false when there are not alternative values' do
-    expect(class_with_alternate_values).to respond_to(:has_alternate_values?)
-    expect(class_with_alternate_values.has_alternate_values?).to eq(false)
-  end
-
   context 'methods' do
     before do
       class_with_alternate_values.string = 'Testing alternate values'
@@ -46,9 +41,17 @@ describe 'AlternateValues', :type => :model do
       )
     end
 
-    specify 'alternate_valued?' do
+    specify 'alternate_valued? with none attached' do
       expect(instance_with_alternate_values.alternate_valued?).to eq(false)
     end
+
+    specify 'alternate_valued? with some attached' do
+      instance_with_alternate_values.string = 'Foo'
+      instance_with_alternate_values.alternate_values << AlternateValue::Misspelling.new(alternate_value_object_attribute: :string, value: 'Fu')
+      expect(instance_with_alternate_values.alternate_valued?).to eq(true)
+    end
+
+
 
     # TODO add a countering example once we add an alternate value to our instance_with_alternate_values
 
