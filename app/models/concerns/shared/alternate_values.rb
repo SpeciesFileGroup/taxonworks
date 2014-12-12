@@ -5,7 +5,7 @@ module Shared::AlternateValues
     has_many :alternate_values, as: :alternate_value_object, validate: false
   end
 
-  def has_alternate_values?
+  def alternate_valued?
     self.alternate_values.count > 0
   end
 

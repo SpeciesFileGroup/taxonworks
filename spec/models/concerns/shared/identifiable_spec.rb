@@ -1,4 +1,5 @@
 require 'rails_helper'
+
 describe 'Identifiable', :type => :model do
   let(:identifiable_instance) { TestIdentifiable.new } 
   let(:identifiable_class) { TestIdentifiable } 
@@ -10,6 +11,8 @@ describe 'Identifiable', :type => :model do
   end
 
   context "methods" do
+
+    # need a > 0 test
 
     specify ".identified?" do
       expect(identifiable_instance.identified?).to eq(false)

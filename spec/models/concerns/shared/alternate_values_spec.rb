@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 describe 'AlternateValues', :type => :model do
+  let(:instance_with_alternate_values) { TestAlternateValue.new   }
+
+  # TODO rename to :instance_with_alternate_values throughout and delete this line
   let(:class_with_alternate_values) { TestAlternateValue.new }
 
   context 'reflections / foreign keys' do
@@ -43,10 +46,13 @@ describe 'AlternateValues', :type => :model do
       )
     end
 
-    specify '#has_alternate_values?' do
-      expect(class_with_alternate_values).to respond_to(:has_alternate_values?)
-      expect(class_with_alternate_values.has_alternate_values?).to eq(true)
+    specify 'alternate_valued?' do
+      expect(instance_with_alternate_values.alternate_valued?).to eq(false)
     end
+
+    # TODO add a countering example once we add an alternate value to our instance_with_alternate_values
+
+
 
     specify '#all_values_for' do
       expect(class_with_alternate_values.all_values_for('string')).to \
