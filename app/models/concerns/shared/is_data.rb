@@ -10,14 +10,26 @@ module Shared::IsData
     self.becomes(self.class.base_class)
   end
 
-
+  # Determines whether the instance can be annotated
+  # in one of the following ways
   def has_alternate_values?
-    self.ancestors.include?(Shared::AlternateValues)
+    self.class.ancestors.include?(Shared::AlternateValues)
   end
 
-
   def has_citations?
-    self.ancestors.include?(Shared::Citable)
+    self.class.ancestors.include?(Shared::Citable)
+  end
+
+  def has_identifiers?
+    self.class.ancestors.include?(Shared::Identifiable)
+  end
+
+  def has_notes?
+    self.class.ancestors.include?(Shared::Notable)
+  end
+
+  def has_tags?
+    self.class.ancestors.include?(Shared::Taggable)
   end
 
 end
