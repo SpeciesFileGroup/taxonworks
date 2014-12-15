@@ -1,5 +1,3 @@
-# This is a comment
-#
 class ContainerItem < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
