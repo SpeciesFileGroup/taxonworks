@@ -174,6 +174,10 @@ class User < ActiveRecord::Base
     end
     data
   end
+  
+  def generate_api_access_token
+    self.api_access_token = RandomToken.generate
+  end
 
   private
 
