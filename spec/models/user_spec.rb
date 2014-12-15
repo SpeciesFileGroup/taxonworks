@@ -140,6 +140,26 @@ describe User, :type => :model do
       let(:token_name) { :password_reset }
     end
   end
+  
+  describe 'API access token' do
+    
+    it 'is nil on a newly created user' do
+      expect(user.api_access_token).to be_nil
+    end
+    
+    describe '#generate_api_access_token' do
+      it 'returns a secure random string generated from RandomToken.generate' do
+        value = RandomToken.generate
+        allow(RandomToken).to receive(:generate).and_return(value)
+        expect(user.generate_api_access_token).to eq(value)
+      end
+      
+      it 'stores the token in api_access_token field' do
+        token = user.generate_api_access_token
+        expect(user.api_access_token).to eq(token)
+      end      
+    end    
+  end
 
   context 'user activity summaries' do
     before {

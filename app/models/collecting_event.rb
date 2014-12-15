@@ -163,7 +163,7 @@ class CollectingEvent < ActiveRecord::Base
     return nil if verbatim_geolocation_uncertainty.blank?
     return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
     nil
-    #TODO: figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
+    # TODO: figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
   end
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
@@ -211,7 +211,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
-  # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
+  # Find other CEs that have GRs whose GIs or EGIs are contained in the EGI
   def find_others_contained_in_error
     # find all the GIs and EGIs associated with CEs
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
@@ -243,10 +243,10 @@ class CollectingEvent < ActiveRecord::Base
   end
 
 
-  # Jim, I refactored to return hash, not hash OR array of hashes, and factored out type so
-  # it can be used for any of the constant type sets.
-  #
-  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}]) 
+  # returns either:
+  #  ( {'name' => [GAs]} 
+  # or 
+  # [{'name' => [GAs]}, {'name' => [GAs]}]) 
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
@@ -288,18 +288,18 @@ class CollectingEvent < ActiveRecord::Base
     name_hash(GeographicAreaType::COUNTRY_LEVEL_TYPES)
   end
 
-# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-#   one hash, consisting of a state name paired with an array of the corresponding GAs, or
-#   an array of all of the hashes (name/GA pairs),
-#   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
   def states_hash
     name_hash(GeographicAreaType::STATE_LEVEL_TYPES)
   end
 
-# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-#   one hash, consisting of a county name paired with an array of the corresponding GAs, or
-#   an array of all of the hashes (name/GA pairs),
-#   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
   def counties_hash
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
