@@ -14,8 +14,16 @@ module Tasks::Gis::LocalityHelper
     end
   end
 
-  def distance_from(collecting_event)
-    collecting_event.distance_to(collecting_event.geographic_items.first)
+  def distance_between(collecting_event_1, collecting_event_2)
+    distance = collecting_event_1.distance_to(collecting_event_2.geographic_items.first).round
+    case
+      when distance >= 1000.0
+        metric = 'km'
+        distance /= 1000.0
+      else
+        metric = 'm'
+    end
+    distance.to_s + metric
   end
 
 end

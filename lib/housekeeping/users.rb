@@ -9,11 +9,15 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    validates :creator, presence: true 
-    validates :updater, presence: true
+    validates :creator, presence: true, unless: 'self.class.name == "User" && self.self_created'
+    validates :updater, presence: true, unless: 'self.class.name == "User" && self.self_created'
 
-    before_validation(on: :create) do
+    before_validation(on: :create, unless: 'self.class.name == "User" && self.self_created') do
+      set_updated_by_id 
       set_created_by_id
+    end
+
+    before_validation(on: :update) do
       set_updated_by_id 
     end
 
@@ -25,29 +29,32 @@ module Housekeeping::Users
     end
   end
 
-  
   module ClassMethods
-    # Returns a scope for all uniq Users that created this class
+
+    # @!return [Scope]
+    #   for all uniq Users that created this class
     def all_creators
      User.joins("created_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
    end
 
-    # Returns a scope for all uniq Users that updated this class (as currently recorded, does not include Papertrail)
+    # @!return [Scope]
+    #   scope for all uniq Users that updated this class (as currently recorded, does not include Papertrail)
     def all_updaters
      User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
    end
   end
 
-  # What was intent? recent touch?
-  # def alive?
-  # end
+  protected
 
   def set_created_by_id
     self.created_by_id ||= $user_id
   end
 
+  # TODO: test this
   def set_updated_by_id
-    self.updated_by_id ||= $user_id
+    if !self.updated_by_id_changed?
+      self.updated_by_id = $user_id
+    end
   end
 
 end
