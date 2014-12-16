@@ -125,6 +125,22 @@ describe User, :type => :model do
     end
   end
 
+  context 'new users' do
+    before { 
+      user.self_created = true
+      user.save
+    }
+
+    specify 'if self_created = true creator is self after save' do
+      expect(user.creator).to eq(user)
+    end
+
+    specify 'if self_created = true updater is self after save' do
+      expect(user.updater).to eq(user)
+    end
+  end
+
+
   describe 'remember token' do
     before { user.save }
     it(:remember_token) { is_expected.not_to be_blank }
@@ -166,18 +182,11 @@ describe User, :type => :model do
       user.save
       4.times { (FactoryGirl.create(:valid_otu, creator: user, updater: user)) }
       @last_otu = FactoryGirl.create(:valid_otu, creator: user, updater: user)
-      # some data
     }
 
-=begin
-    specify '.total_for_Otu_class' do
-      expect(user.total_for_Otu_class).to eq 5
-    end
-=end
-
-    specify '.last Otu created by me' do
-      expect(user.last_otu_created).to eq @last_otu
-    end
+  # specify '.last Otu created by me' do
+  #   expect(user.last_otu_created).to eq @last_otu
+  # end
 
     specify '.total_objects(Otu)' do
       expect(user.total_objects(Otu)).to eq 5
@@ -186,9 +195,6 @@ describe User, :type => :model do
     specify ".total_objects2('otus')" do  # klass_string expects plural
       expect(user.total_objects2('otus')).to eq 5
     end
-
-
-
   end
 
 

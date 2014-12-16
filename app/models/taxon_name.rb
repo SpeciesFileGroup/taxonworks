@@ -484,7 +484,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # Returns an Array of ancestors, Root first.
+  # @return [Array of TaxonNames]
+  #   an list of ancestors, Root first
   # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
   def safe_self_and_ancestors
     if self.new_record?
@@ -495,8 +496,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [ [rank, prefix, name], ...] for genus and below 
-  #   for example
-  #   \{"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
+  # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
     data   = []
