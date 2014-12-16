@@ -54,6 +54,7 @@ class Georeference < ActiveRecord::Base
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
+  SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
   # This should probably be moved out to config/initializers/gis
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,

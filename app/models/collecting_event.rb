@@ -176,8 +176,9 @@ class CollectingEvent < ActiveRecord::Base
 
   # see how far away we are from another gi
   def distance_to(geographic_item)
-    retval = GeographicItem.ordered_by_shortest_distance_from('any', geographic_items.first).limit(1).first
-    retval
+    # retval = GeographicItem.ordered_by_shortest_distance_from('any', geographic_items.first).limit(1).first
+    retval = self.geographic_items.first.st_distance(geographic_item.geo_object)
+    return(retval)
   end
 
   def find_others_within_radius_of(distance)

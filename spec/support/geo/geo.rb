@@ -1050,13 +1050,13 @@ Two different shapes with the same name, 'East Boxia', and
   shape_o4 = make_box(POINT_M1_P0, 2, 3, 1, 1)
   shape_p4 = make_box(POINT_M1_P0, 3, 3, 1, 1)
 
-  shape_q   = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
-  shape_t_1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_t_2 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_u   = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_q   = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2)
+  shape_t_1 = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_t_2 = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_u   = make_box(shape_o1[0].exterior_ring.points[0], 0, 0, 2, 2)
 
-  shape_r = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_s = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_r = make_box(shape_m3[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_s = make_box(shape_o3[0].exterior_ring.points[0], 0, 0, 2, 2)
 
   shape_ob   = make_box(POINT_M1_P0, 0, 0, 2, 4)
   shape_eb_1 = make_box(POINT_M1_P0, 3, 0, 1, 4)
@@ -1065,48 +1065,48 @@ Two different shapes with the same name, 'East Boxia', and
   shape_w    = make_box(POINT_M1_P0, 0, 0, 4, 4)
 
   # first, the basic 16 shapes
-  @item_m1   = FactoryGirl.create(:geographic_item, :polygon => shape_m1)
-  @item_n1   = FactoryGirl.create(:geographic_item, :polygon => shape_n1)
-  @item_o1   = FactoryGirl.create(:geographic_item, :polygon => shape_o1)
-  @item_p1   = FactoryGirl.create(:geographic_item, :polygon => shape_p1)
+  @item_m1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m1)
+  @item_n1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n1)
+  @item_o1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o1)
+  @item_p1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p1)
 
-  @item_m2 = FactoryGirl.create(:geographic_item, :polygon => shape_m2)
-  @item_n2 = FactoryGirl.create(:geographic_item, :polygon => shape_n2)
-  @item_o2 = FactoryGirl.create(:geographic_item, :polygon => shape_o2)
-  @item_p2 = FactoryGirl.create(:geographic_item, :polygon => shape_p2)
+  @item_m2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m2)
+  @item_n2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n2)
+  @item_o2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o2)
+  @item_p2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p2)
 
-  @item_m3 = FactoryGirl.create(:geographic_item, :polygon => shape_m3)
-  @item_n3 = FactoryGirl.create(:geographic_item, :polygon => shape_n3)
-  @item_o3 = FactoryGirl.create(:geographic_item, :polygon => shape_o3)
-  @item_p3 = FactoryGirl.create(:geographic_item, :polygon => shape_p3)
+  @item_m3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m3)
+  @item_n3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n3)
+  @item_o3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o3)
+  @item_p3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p3)
 
-  @item_m4        = FactoryGirl.create(:geographic_item, :polygon => shape_m4)
-  @item_n4        = FactoryGirl.create(:geographic_item, :polygon => shape_n4)
-  @item_o4        = FactoryGirl.create(:geographic_item, :polygon => shape_o4)
-  @item_p4        = FactoryGirl.create(:geographic_item, :polygon => shape_p4)
+  @item_m4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m4)
+  @item_n4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n4)
+  @item_o4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o4)
+  @item_p4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p4)
 
   # next, the big shape, and two sub-shapes
-  @item_q         = FactoryGirl.create(:geographic_item, :polygon => shape_q)
-  @item_t_1       = FactoryGirl.create(:geographic_item, :polygon => shape_t_1)
-  @item_t_2       = FactoryGirl.create(:geographic_item, :polygon => shape_t_2)
-  @item_u         = FactoryGirl.create(:geographic_item, :polygon => shape_u)
+  @item_q         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_q)
+  @item_t_1       = FactoryGirl.create(:geographic_item, :multi_polygon => shape_t_1)
+  @item_t_2       = FactoryGirl.create(:geographic_item, :multi_polygon => shape_t_2)
+  @item_u         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_u)
 
   # then the medium shapes
-  @item_r         = FactoryGirl.create(:geographic_item, :polygon => shape_r)
-  @item_s         = FactoryGirl.create(:geographic_item, :polygon => shape_s)
+  @item_r         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_r)
+  @item_s         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_s)
 
   # secondary country shapes
   # same shape as Q, different object
-  @item_bb        = FactoryGirl.create(:geographic_item, :polygon => shape_q)
+  @item_bb        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_q)
 
   # superseded country shapes
-  @item_ob        = FactoryGirl.create(:geographic_item, :polygon => shape_ob)
-  @item_eb_1      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_1)
-  @item_eb_2      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_2)
-  @item_wb        = FactoryGirl.create(:geographic_item, :polygon => shape_wb)
+  @item_ob        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_ob)
+  @item_eb_1      = FactoryGirl.create(:geographic_item, :multi_polygon => shape_eb_1)
+  @item_eb_2      = FactoryGirl.create(:geographic_item, :multi_polygon => shape_eb_2)
+  @item_wb        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_wb)
 
   # the entire land mass
-  @item_w         = FactoryGirl.create(:geographic_item, :polygon => shape_w)
+  @item_w         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_w)
 
   # now, for the areas, top-down
   @object         = FactoryGirl.create(:valid_geographic_area_stack)
@@ -1638,11 +1638,13 @@ Two different shapes with the same name, 'East Boxia', and
 end
 
 def make_box(base, offset_x, offset_y, size_x, size_y)
-  box = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
-  RSPEC_GEO_FACTORY.polygon(box)
+  box = RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
+  )
+  RSPEC_GEO_FACTORY.multi_polygon([box])
 end
 
 def clean_slate_geo

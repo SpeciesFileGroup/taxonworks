@@ -31,7 +31,7 @@
                 <%= collecting_event.verbatim_locality %>
               </td>
               <td>
-                <%= distance_from(collecting_event) %>
+                <%= distance_between(@collecting_event, collecting_event) %>
               </td>
               <td>
                 <%= collecting_event.id %>

@@ -10,7 +10,7 @@
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
+  include Shared::IsData
 
   DATA_TYPES = [:point,
                 :line_string,
@@ -162,11 +162,29 @@ class GeographicItem < ActiveRecord::Base
     "ST_AsBinary(#{self.geo_object_type})"
   end
 
-  # TODO: Find ST_Centroid(g1) method and
+  # TODOne: Find ST_Centroid(g1) method and
   # Return a WKT for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) centroid").first['centroid']
+    retval = GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) as centroid").first['centroid']
+    return(retval)
+  end
+
+=begin
+SELECT round(CAST(
+		ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
+			As numeric),2) As dist_meters_spheroid
+
+ dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
+----------------------+--------------------+-------------------
+			 70454.92 |           70424.47 |          70438.00
+
+=end
+
+  # Return distance in meters from this object to supplied 'geo_object'
+  def st_distance(geo_object)
+    retval = GeographicItem.where(id: self.id).select("id, ST_Distance_Spheroid( '#{self.geo_object}', '#{geo_object}', '#{Georeference::SPHEROID}') as distance").first['distance']
+    return(retval)
   end
 
   def to_geometry_sql
