@@ -10,12 +10,13 @@ module Shared::AlternateValues
   end
 
   #returns a sorted Array of associated values
+  # @param attr [Symbol]
   def all_values_for(attr)
   # eg. returns self.name from otu.all_values_for(name)
     values = [self.send(attr)]
     if alternate_valued?
       alternate_values.each do |v|
-        values.push(v.value) if v.alternate_value_object_attribute == attr
+        values.push(v.value) if v.alternate_value_object_attribute == attr.to_s
       end
     end
     return values.sort

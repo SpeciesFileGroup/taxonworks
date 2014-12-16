@@ -51,14 +51,18 @@ describe 'AlternateValues', :type => :model do
         instance_with_alternate_values.alternate_values << AlternateValue::Misspelling.new(alternate_value_object_attribute: :string, value: 'Fu')
         expect(instance_with_alternate_values.alternate_valued?).to eq(true)
       end
-    end
 
-    context 'class methods' do
-      specify '#all_values_for' do
+      specify '#all_values_for uses string' do
         expect(class_with_alternate_values.all_values_for('string')).to \
           eq(['gibberish', 'test1', 'Testing alternate values', 'tst', 'tast1'].sort)
       end
+      specify '#all_values_for uses symbol' do
+        expect(class_with_alternate_values.all_values_for(:string)).to \
+          eq(['gibberish', 'test1', 'Testing alternate values', 'tst', 'tast1'].sort)
+      end
+    end
 
+    context 'class methods' do
       specify '.with_alternate_value_on' do
         # find me all the TestAlternateValue objects that have an alternate value of 'test1' on attribute 'string'
         expect(TestAlternateValue.with_alternate_value_on('string', 'test1').to_a).to eq([class_with_alternate_values])
