@@ -24,6 +24,7 @@ namespace :tw do
         # First file SF_serial_export.txt
         $stdout.sync = true
         print ('Starting transaction ...')
+        error_msg = []   # array for error messages
 
         begin
           ActiveRecord::Base.transaction do
@@ -53,81 +54,187 @@ Column : SQL column name :  data desc
 Note on ISSNs - an ISSN can be used once and only once for a serial => if it's already been used for an MXserial,
 need to confirm that the 2 serials are the same and add the SF data as AlternateValue::AlternateSpelling
 =end
+              importID = row[0].to_s.strip
+              print ("\r  tmpID #{importID} ")
+              fname = row[1].to_s.strip
+              sname = row[2].to_s.strip
+              pub   = row[3].to_s.strip
+              place = row[4].to_s.strip
+              syear = row[5].to_s.strip
+              eyear = row[6].to_s.strip
+              note  = row[7].to_s.strip
+              issn  = row[8].to_s.strip
 
-              print ("\r  tmpID #{row[0]} ")
-
-              # TODO check if there is a match to an existing serial
-
-
-              data_attr = []
-
-              # add note
-              unless (row[7].to_s.strip.blank?) # test for empty note!
-                # notes.push({text: row[7].to_s.strip})
-                data_attr.push({predicate: @serial_note, value: row[7].to_s.strip, type: 'InternalAttribute'})
-              end
-
-              # Import ID - never empty
-              data_attr.push({type:             'ImportAttribute',
-                              import_predicate: @import_serial_ID.name,
-                              value:            row[0].to_s.strip
-                             })
-
-              identifiers =[]
-
-              # TODO add test for existing ISSN here
-              unless row[8].to_s.strip.blank?
-                identifiers.push(
-                  {type:       'Identifier::Global::Issn',
-                   identifier: row[8].to_s.strip}
-                )
-              end
-
-              r = Serial.new(
-                name:                       row[1].to_s.strip,
-                publisher:                  row[3].to_s.strip,
-                place_published:            row[4].to_s.strip,
-                first_year_of_issue:        row[5],
-                last_year_of_issue:         row[6],
-                identifiers_attributes:     identifiers,
-                data_attributes_attributes: data_attr
-              )
-
-              if row[1] != row[2] # (SF requires both a short & long name so they may be the same)
-                # add short name (alternate name)
-                abbr = AlternateValue.new(
-                  value:                            row[2].to_s.strip,
-                  alternate_value_object_attribute: 'name',
-                  type:                             'AlternateValue::Abbreviation'
-                )
-                r.alternate_values << abbr
-              end
-
-              if r.valid? && r.name.length < 256 && r.place_published.length < 256
-                r.save!
-                a=1 # here to allow for break point
-              else
-                #  puts "serial content #{ap(r)} - skipping "
-                # puts
-                puts "error on primary save tmpID #{row[0]} -- skipping"
-                if r.name.length >= 256
-                  puts 'name too long'
-                else
-                  if r.errors.messages[:"identifiers.identifier"].include?("has already been taken")
-                    ns = Serial.with_identifier(row[8].strip).first
-                  end
-                  if r.place_published.length >= 256
-                    puts 'place_published too long'
+              ns    = Serial.with_identifier(issn).first
+              if ns.nil? # ISSN is not in use, check for duplicate name
+                sa =  Serial.where(name: fname).to_a # does it match a primary name?
+                case sa.count
+                  when 0 # not a match to primary name - is it a match to an alt name
+                    ava = AlternateValue.where(value: fname, alternate_value_object_type: 'Serial')
+                    case ava.count
+                      when 0
+                        ns = nil #go to new serial
+                      when 1 # found it - set ns
+                        ns =  ava.first.alternate_value_object.becomes(Serial)
+                      else # don't no what to do?
+                        raise ('matched more than one serial ' + importID)
+                        next
+                    end
+                  when 1
+                    ns = sa.first
                   else
-                    puts "invalid error #{ap(r.errors.messages)} "
+                    raise ('matched more than one serial ' + importID)
+                    next
+                end
+              end
+
+              # if ns contains an existing serial update it, else create a new serial
+              if ns.nil?
+                data_attr = []
+
+                # add note
+                unless (note.blank?) # test for empty note!
+                   data_attr.push({predicate: @serial_note, value: note, type: 'InternalAttribute'})
+                end
+
+                # Import ID - never empty
+                data_attr.push({type:             'ImportAttribute',
+                                import_predicate: @import_serial_ID.name,
+                                value:            importID
+                               })
+
+                identifiers =[]
+
+                unless issn.blank? # tested for existing ISSN at top
+                  identifiers.push(
+                    {type:       'Identifier::Global::Issn',
+                     identifier: issn}
+                  )
+                end
+
+                ns = Serial.new(
+                  name:                       fname,
+                  publisher:                  pub,
+                  place_published:            place,
+                  first_year_of_issue:        syear,
+                  last_year_of_issue:         eyear,
+                  identifiers_attributes:     identifiers,
+                  data_attributes_attributes: data_attr
+                )
+
+              else # ns already contains the relevant serial
+                unless (note.blank?) # test for empty note!
+                  ns.data_attributes << {predicate: @serial_note, value: note, type: 'InternalAttribute'}
+                end
+                # is the name already attached to the serial
+                unless ns.all_values_for(:name).include?(fname)
+                  #ns.alternate_values.where(alternate_value_object_attribute: 'name').map(&:value).include?(fname)
+                  begin
+                    # printf('name does not match importID[%d] [%s] [%s] [%s]', importID, syear, s.name,
+                    #        s.all_values_for(:name))
+
+                    ns.alternate_values << AlternateValue.new(
+                      value:                            fname,
+                      alternate_value_object_attribute: 'name',
+                      type:                             'AlternateValue::AlternateSpelling'
+                    )
+                    # else
+                    #found a match -> do nothing
+                    # puts "primary name matched primary name #{s.name}" if s.name == syear
+                    # puts 'primary name matched alternate name' if s.all_values_for(:name).include?(syear)
+                  end
+                end
+                # altname check is below
+                unless pub.blank? #add publisher
+                  if ns.publisher.blank?
+                    ns.publisher = pub
+                  else
+                    if pub != ns.publisher
+                      ns.alternate_values << AlternateValue.new(
+                        value:                            pub,
+                        alternate_value_object_attribute: 'publisher',
+                        type:                             'AlternateValue::AlternateSpelling'
+                      )
+                    end
+                  end
+                end
+                unless place.blank? #add placePublished
+                  if ns.place_published.blank?
+                    ns.place_published = pub
+                  else
+                    if place != ns.place_published
+                      ns.alternate_values << AlternateValue.new(
+                        value:                            pub,
+                        alternate_value_object_attribute: 'place_published',
+                        type:                             'AlternateValue::AlternateSpelling'
+                      )
+                    end
+                  end
+                end
+                unless syear.blank? # add start year
+                  if ns.first_year_of_issue.blank?
+                    ns.first_year_of_issue = syear
+                  else
+                    if syear != ns.first_year_of_issue
+                      ns.alternate_values << AlternateValue.new(
+                        value:                            syear,
+                        alternate_value_object_attribute: 'first_year_of_issue',
+                        type:                             'AlternateValue::AlternateSpelling'
+                      )
+                    end
+                  end
+                end
+                unless eyear.blank? # add start year
+                  if ns.last_year_of_issue.blank?
+                    ns.last_year_of_issue = eyear
+                  else
+                    if eyear != ns.last_year_of_issue
+                      ns.alternate_values << AlternateValue.new(
+                        value:                            eyear,
+                        alternate_value_object_attribute: 'last_year_of_issue',
+                        type:                             'AlternateValue::AlternateSpelling'
+                      )
+                    end
                   end
                 end
 
               end
 
+             # ns now contains the existing or new serial, so add altname
+              if fname != sname # (SF requires both a short & long name so they may be the same)
+
+                unless ns.all_values_for(:name).include?(sname)
+                                  # printf('name does not match importID[%d] [%s] [%s] [%s]', importID, syear, s.name,
+                  #        s.all_values_for(:name))
+
+                  ns.alternate_values << AlternateValue.new(
+                    value:                            sname,
+                    alternate_value_object_attribute: 'name',
+                    type:                             'AlternateValue::Abbreviation'
+                  )
+                end
+
+              end
+
+            if ns.valid? && ns.name.length < 256 && ns.place_published.length < 256
+              ns.save!
+              a=1 # here to allow for break point
+            else
+               puts "error on primary save tmpID #{importID} -- skipping"
+              if ns.name.length >= 256
+                error_msg << 'name too long'
+              else
+                 if ns.place_published.length >= 256
+                  error_msg << 'place_published too long'
+                 else
+                   error_msg << ns.errors.messages
+                  # puts "invalid error #{ap(ns.errors.messages)} "
+                end
+              end
+            end
 
             end # transaction end
-            puts
+            puts "\n#{ap(error_msg.flatten.uniq)}\n"
             puts 'Successful load of primary serial file'
             raise 'preventing load of transaction' # causes it to always fail and rollback the transaction
           end
