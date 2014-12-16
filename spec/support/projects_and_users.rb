@@ -12,7 +12,7 @@ module ProjectsAndUsers
   # This is used before all tests of type :model, :controller, :helper
   def self.spin_up_projects_users_and_housekeeping
     # Order matters 
-    FactoryGirl.create(:valid_user, id: 1)
+    FactoryGirl.create(:valid_user, id: 1, self_created: true)
     $user_id = 1
     FactoryGirl.create(:valid_project, id: 1)
     $project_id = 1
