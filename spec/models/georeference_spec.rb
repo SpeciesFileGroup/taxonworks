@@ -284,7 +284,9 @@ describe Georeference, :type => :model do
 
     }
 
-        specify '.within_radius_of(geographic_item, distance)' do
+    after(:all) { clean_slate_geo }
+
+    specify '.within_radius_of(geographic_item, distance)' do
       #skip 'determination of what is intended'
       # Return all Georeferences within some distance of a geographic_item
       # You're just going to use existing scopes in geographic item here, something like:

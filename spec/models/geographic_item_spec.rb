@@ -6,12 +6,7 @@ describe GeographicItem, :type => :model do
     generate_ce_test_objects # includes generate_geo_test_objects
   }
 
-  after(:all) {
-    Georeference.destroy_all
-    GeographicItem.destroy_all
-    CollectingEvent.destroy_all
-    # clean_slate_ce
-  }
+  after(:all) { clean_slate_geo }
 
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
   let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }
@@ -719,12 +714,12 @@ describe GeographicItem, :type => :model do
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
         expect(GeographicItem.containing('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
         # three things inside and one thing outside k
-        expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p11]).to_a).to eq([@e1, @k])
+        expect(GeographicItem.containing('polygon', [@p1, @p2, @p3, @p11]).to_a).to include(@e1, @k)
         # one thing inside one thing, and another thing inside another thing
-        expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to eq([@e1, @k])
+        expect(GeographicItem.containing('polygon', [@p1, @p11]).to_a).to include(@e1, @k)
         # two things inside one thing, and
         expect(GeographicItem.containing('polygon', @p18).to_a).to eq([@b1, @b2])
-        expect(GeographicItem.containing('polygon', @p19).to_a).to eq([@b1, @b])
+        expect(GeographicItem.containing('polygon', @p19).to_a).to include(@b1, @b)
       end
 
       specify '::excluding([]) drop selves from any list of objects' do
@@ -771,7 +766,7 @@ describe GeographicItem, :type => :model do
       specify '::within_radius_of returns objects within a specific distance of an object.' do
         expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
-      
+
       specify '::within_radius_of("any", ...)' do
         expect(GeographicItem.within_radius_of('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end

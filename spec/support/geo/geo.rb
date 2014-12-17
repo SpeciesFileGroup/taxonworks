@@ -534,7 +534,6 @@ def prepare_test
 
 end
 
-
 def generate_geo_test_objects
 
   prepare_test

@@ -26,4 +26,9 @@ module Tasks::Gis::LocalityHelper
     metric % distance
   end
 
+  def nearby_link(collecting_event)
+    return nil if collecting_event.nil?
+    link_to('nearby', collecting_event)
+  end
+
 end
