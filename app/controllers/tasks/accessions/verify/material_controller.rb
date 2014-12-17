@@ -8,7 +8,6 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
 
   protected
 
-
   # The context (identifier, collection_object or container) is asserted
   # in logic prior to gathering data, so do not fork logic futher here.
   def get_data_to_verify

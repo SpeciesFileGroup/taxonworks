@@ -22,6 +22,6 @@ module TaxonWorksAutoload
       require_dependency file
     end
 
-    Dir[Rails.root.to_s + '/app/models/controlled_vocabulary_term/**/*.rb'].sort.each {|file| require_dependency file }
+     Dir[Rails.root.to_s + '/app/models/controlled_vocabulary_term/**/*.rb'].sort.each {|file| require_dependency file }
   end
 end

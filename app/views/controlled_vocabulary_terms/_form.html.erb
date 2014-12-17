@@ -32,7 +32,17 @@
       </div>
     </div>
 
-    <!-- todo @mjy There is also a column called same_as_uri. Should this be on the form? -->
+    <div class="field">
+      <%= f.label :uri %>
+      <br>
+      <%= f.text_area :uri %>
+    </div>
+
+    <div class="field">
+      <%= f.label :uri_relation %>
+      <br>
+      <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, @controlled_vocabulary_term.uri_relation), include_blank: true -%> 
+    </div>
 
     <div class="actions">
       <%= f.submit %>
