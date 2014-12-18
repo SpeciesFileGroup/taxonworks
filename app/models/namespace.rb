@@ -1,23 +1,19 @@
-# A Namespace is used to scope identifiers.  All identifiers within a namespace
-# must be unique. 
+# A Namespace is used to scope identifiers.  All identifiers (strings) within a namespace
+# must be unique.  This is the only constraint.
+#
+# In TW Identifiers + namespaces are used for differentiating/disambiguating one datum from another. 
+#
 #
 # Namespaces are minted in TW on a first come first serve basis.  Their short and
-# long names must be unique.  When conflicts arrise new values must be minted for 
+# long names must be unique across instances.  When conflicts arrise new values must be minted for 
 # record keeping purposes.  In this case a verbatim_short_name can be provided, and this 
 # value will be presented for reporting/searching purposes.  This is a strong restriction
 # that is intended to encourage users to think before they mint namespaces.
 #
+# In TW Namespaces DO NOT  imply ownership! If an identifer has a namespace
+# that includes reference to some collection, it does not mean that that collection 'owns' the identified object. 
 #
-# In TW Identifiers + namespaces are used for differentiating/disambiguating one datum from another. 
-#
-# All strings (identifiers) within a namespace
-# must be unique, that's all. In TW Namespaces DO NOT 
-# imply ownership, i.e. if an identifer has a namespace
-# that includes reference to some collection, it does
-# not mean that that collecition 'owns' the identified object. 
-#
-# Namespaces in TW are not limited to things like collection repository codens.
-#
+# Namespaces in TW are *not* limited to things like collection repository codens.
 #
 # @!attribute institution 
 #   @return [String]
@@ -32,14 +28,16 @@
 #
 # @!attribute short_name 
 #   @return [String]
-#   A short, realized version of the name.  For example "INHIC" 
+#   A short, realized version of the name.  For example "INHIC".
 #   This may be embedded in http://rs.tdwg.org/dwc/terms/institutionCode.  
 #   We presently do not differentiate a http://rs.tdwg.org/dwc/terms/collectionCode in 
 #   identifiers, that data may(?) fall into Repositories. 
 #
 # @!attribute verbatim_short_name 
 #   @return [String]
-#   TW enforces uniquness of short names.  When a short name exists for historical reasons it should be added here. 
+#   TW enforces uniqueness of short names.  When a short name exists for historical reasons but it has already
+#   been included in TW then a new short name must be minted, and a verbatim_short_name used to indicate the 
+#   physically/and or historically recorded value.
 #
 #
 class Namespace < ActiveRecord::Base
