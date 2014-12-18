@@ -322,6 +322,10 @@ describe Source::Bibtex, :type => :model do
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
       end
 
+      specify 'if state_year is set, there must be a year' do
+        skip  #TODO
+      end
+
       context 'months' do
         before(:each) {
           source_bibtex.year = 1920

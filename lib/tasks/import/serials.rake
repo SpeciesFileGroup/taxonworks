@@ -245,15 +245,16 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
       end # task
 
 # following are not correctly coded yet!
-      desc 'call like "rake tw:import:serial:add_SF_serial_IDs[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1 project_id=1" '
+      desc 'call like "rake tw:import:serial:add_SF_serial_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1 project_id=1" '
       task :add_SF_serial_IDs, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
-        args.with_defaults(:data_directory => './treeMXduplicates.txt')
+        args.with_defaults(:data_directory => './SFImportIDmap.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 
-        # processing second file ./reeMXduplicates.txt - adding additional identifiers
+        # processing second file ./SFImportIDmap.txt - adding SF identifiers
         $stdout.sync = true
         print ('Starting transaction ...')
+        error_msg = []   # array for error messages
 
         begin
           ActiveRecord::Base.transaction do
@@ -266,122 +267,68 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                         col_sep:        "\t",
                         quote_char:     '|'
             ) do |row|
+
 =begin
-Column : SQL column name : data desc
-0 : Keep : The tmpID of the primary source
-1 : Delete : The tmpID of the duplicated source (was never loaded)
-2 : Type : <ignore> in this case always equals "Tree" for MXtreehopper file
-3 : MXID  : add as an additional identifier if not already there
-4 : TreeID  : add as an additional identifier   if not already there
-5 : Name    : only add if it doesn't match primary or alt name   if not already there
-6 : Abbr    : only add if it doesn't match primary or alt name   if not already there
-
+SFImportIDMap.txt
+  Column : SQL column name :  data desc
+  0 : ImportID : file specific import ID
+  1 : SFID  : SF publication ID
+  2 : SFregID  : SF publication registry ID
 =end
+              importID = row[0].to_s.strip
+              print ("\r  tmpID #{importID} ")
+              sfID = row[1].to_s.strip
+              sfregID = row[2].to_s.strip
 
-              # s = Serial.with_namespaced_identifier(@import_serial_ID.name, row[0]).first
+              # find the correct serial
               s  = nil
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.name})
+              sr = Serial.joins(:data_attributes).where(data_attributes: {value: importID, import_predicate: @import_serial_ID.name})
               # no longer a namespace identifier, now a data attribute
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['skipping - unable to find base serial ', @import_serial_ID.name, row[0]].join(" : ")
+                  puts ['skipping - unable to find base serial ', @import_serial_ID.name, importID].join(" : ")
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
-                  print ("\r SerialID #{s.id} : tmpID #{row[0]} : MXID #{row[3]} : TreeID #{row[4]} ")
+                  print ("\r SerialID #{s.id} : tmpID #{importID} : SFID #{sfID} : SFregID #{sfregID} ")
                 else
-                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[0]].join(" : ")
+                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, importID].join(" : ")
                   next
               end
-=begin
-            Find by alternate value  - note from pair programming with Jim
-            s = Source::Bibtex.new
-            a = AlternateValue.where(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
-            s = a.objectID
 
-to save without raising
-      a = AlternateValue.new(:altvalue=>'value', :objecttype=>s.class.to_s, :objattr => 'title')
-      if a.valid? then save else continue the loop
-
-        Identifier.where(:identifier => '8740')[0].identifier_object
-        Serial.with_identifier('MX serial ID 8740')[0] <= returns an array of Serial objects
-          where: Namespace = 'MX serial ID' and identifier = '8740'
-=end
-              unless row[3].blank? # MX_ID
+              unless sfID.blank?
                 begin
-                  i = DataAttribute.where(import_predicate:     @mx_serial_id.name, attribute_subject_type: 'Serial',
-                                          attribute_subject_id: s.id, value: row[3])
+                  i = DataAttribute.where(import_predicate:     @sf_pub_id.name, attribute_subject_type: 'Serial',
+                                          attribute_subject_id: s.id, value: sfID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name, value: row[3].to_s.strip, type: 'ImportAttribute'})
+                      s.data_attributes << DataAttribute.new({import_predicate: @msf_pub_id.name, value: sfID, type: 'ImportAttribute'})
                     when 1 # found it  -> skip it
-                      # puts "found an existing identifier #{ap(i.first)}"
+                      puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
-                      puts "found multiple existing identifiers #{ap(i.first)}"
+                      puts "skipping - found multiple existing identifiers #{ap(i.first)}"
                   end
                 end
               end
 
-              unless row[4].blank? # Treehopper_ID
+              unless sfregID.blank?
                 begin
-                  i = DataAttribute.where(import_predicate:       @treehopper_serial_id.name,
+                  i = DataAttribute.where(import_predicate:       @sf_pub_reg_id.name,
                                           attribute_subject_type: 'Serial',
-                                          attribute_subject_id:   s.id, value: row[4])
+                                          attribute_subject_id:   s.id, value: sfregID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name,
-                                                              value:            row[4].to_s.strip, type: 'ImportAttribute'})
+                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_reg_id_id.name,
+                                                              value: sfregID, type: 'ImportAttribute'})
                     when 1 # found it  -> skip it
-                      # puts "found an existing identifier #{ap(i.first)}"
+                      puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
-                      puts "found multiple existing identifiers #{ap(i.first)}"
+                      puts "skipping - found multiple existing identifiers #{ap(i.first)}"
                   end
                 end
               end
 
-              unless row[5].blank? # add names if they aren't already in the table
-                begin
-                  unless s.all_values_for(:name).include?(row[5])
-                    begin
-                      # printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.name,
-                      #        s.all_values_for(:name))
 
-                      s.alternate_values << AlternateValue.new(
-                        value:                            row[5].to_s.strip,
-                        alternate_value_object_attribute: 'name',
-                        type:                             'AlternateValue::AlternateSpelling'
-                      )
-                      # else
-                      #found a match -> do nothing
-                      # puts "primary name matched primary name #{s.name}" if s.name == row[5]
-                      # puts 'primary name matched alternate name' if s.all_values_for(:name).include?(row[5])
-                    end
-                  end
-                end
-              end
-
-              unless row[6].blank? # add abbreviations if they aren't already in the table
-                begin
-                  unless s.all_values_for(:name).include?(row[6])
-                    begin
-
-                      # printf('abbreviation does not match importID[%d] [%s] [%s] [%s]', row[0], row[6], s.name,
-                      #        s.all_values_for(:name))
-
-                      s.alternate_values << AlternateValue.new(
-                        value:                            row[6].to_s.strip,
-                        alternate_value_object_attribute: 'name',
-                        type:                             'AlternateValue::Abbreviation'
-                      )
-                      # else
-                      #   puts 'alt name matched alternate name'
-                    end
-                    # else
-                    #   puts "alt name matched primary name #{s.name}"
-                    # end
-                  end
-                end
-              end
               if s.valid?
                 s.save
               else
@@ -389,8 +336,8 @@ to save without raising
               end
             end # end of row
             puts
-            puts 'Successful load of MX & treehopper duplicate IDs'
-            # raise 'to prevent saving to db while testing rake'
+            puts 'Successful load of SF & SF registry IDs'
+            raise 'to prevent saving to db while testing rake'
           end # end transaction
         rescue
           raise
@@ -475,13 +422,7 @@ Column : SQL column name : data desc
   end
 end
 
-=begin
-SFImportIDMap.txt
-  Column : SQL column name :  data desc
-  0 : ImportID : file specific import ID
-  1 : SFID  : SF publication ID
-  2 : SFregID  : SF publication registry ID
-=end
+
 =begin
 SFaltnames.txt
 Column : SQL column name :  data desc
