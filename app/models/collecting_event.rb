@@ -124,6 +124,8 @@ class CollectingEvent < ActiveRecord::Base
 
   soft_validate(:sv_minimally_check_for_a_label)
 
+  NEARBY_DISTANCE = 5000
+
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))

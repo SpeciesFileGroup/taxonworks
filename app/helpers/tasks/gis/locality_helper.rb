@@ -18,7 +18,7 @@ module Tasks::Gis::LocalityHelper
     distance = collecting_event_1.distance_to(collecting_event_2.geographic_items.first).round # to the nearest meter
     case
       when distance >= 1000.0
-        metric = "%1.3fkm"
+        metric   = "%1.3fkm"
         distance /= 1000.0
       else
         metric = "%im"
@@ -29,6 +29,21 @@ module Tasks::Gis::LocalityHelper
   def nearby_link(collecting_event)
     return nil if collecting_event.nil?
     link_to('nearby', collecting_event)
+  end
+
+  def distance_select_tag(digit, tag_string)
+    tag = tag_string.gsub(',', '')
+
+    label_tag(digit, tag_string)
+    radio_button_tag(digit, tag.to_s)
+  end
+
+  def is_checked(digit, value)
+    if (params[digit] == value) then
+      true
+    else
+      false
+    end
   end
 
 end

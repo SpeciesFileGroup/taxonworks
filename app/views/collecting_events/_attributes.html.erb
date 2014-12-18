@@ -2,7 +2,7 @@
   <% if @collecting_event.georeferences.any? %>
       <p>
         <%#= link_to('(nearby)', tasks_gis_locality_nearby_path(collecting_event_id: @collecting_event.to_param)) %>
-        <%= link_to('(nearby)', tasks_gis_locality_nearby_path(@collecting_event.to_param)) %>
+        <%= link_to('(nearby)', tasks_gis_locality_nearby_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) %>
       </p>
   <% end %>
   <p>
