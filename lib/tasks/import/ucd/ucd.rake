@@ -14,7 +14,7 @@ namespace :tw do
 
         ActiveRecord::Base.transaction do 
           begin
-            @project, @user = initiate_project_and_users
+            @project, @user = initiate_project_and_users('eucharitid', 'John Heraty') # sets user_id/project_id
             @namespace = Namespace.new(name: 'UCD', short_name: 'UCD')
             @namespace.save!
 

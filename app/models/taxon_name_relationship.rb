@@ -314,7 +314,7 @@ class TaxonNameRelationship < ActiveRecord::Base
             TaxonNameRelationship::Typification::Genus::RulingByCommission)
     if relationships.include?(self.type_name)
       if !!self.source_id
-        date1 = self.source.nomenclature_date.to_time
+        date1 = self.source.cached_nomenclature_date.to_time
         date2 = self.subject_taxon_name.nomenclature_date
         if !!date1 && !!date2
           soft_validations.add(:source_id, 'Taxon was not described at the time of citation') if date2 > date1

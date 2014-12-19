@@ -23,7 +23,7 @@ module CollectionObjectsHelper
   def verify_accessions_task_link(collection_object)
     options = {}
     priority = [collection_object.container, collection_object.identifiers.first, collection_object ].compact.first
-    link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.downcase.to_sym, id: priority.to_param))
+    link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.tableize.singularize.to_sym, id: priority.to_param))
   end
 
 end

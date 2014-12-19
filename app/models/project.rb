@@ -26,12 +26,14 @@ class Project < ActiveRecord::Base
   def nuke
     begin
       ActiveRecord::Base.descendants.each do |d|
+        # !! This needs more caution- it likely nukes users
         if d.ancestors.map(&:to_s).include?('Housekeeping') && d.column_names.include?('project_id')
           d.where(project_id: id).delete_all
         end
       end
-    rescue
-      raise
+      true
+    rescue => e
+      raise e 
     end
   end
 

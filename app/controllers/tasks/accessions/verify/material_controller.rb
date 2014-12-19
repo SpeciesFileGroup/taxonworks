@@ -13,7 +13,7 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
   def get_data_to_verify
     @collection_objects = []
     @identifier = nil
-    @container = []
+    @container = nil 
 
     case params[:by].to_sym
     when :container
