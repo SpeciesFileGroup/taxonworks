@@ -101,6 +101,6 @@ class NamespacesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :created_by_id, :updated_by_id)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :created_by_id, :updated_by_id)
   end
 end
