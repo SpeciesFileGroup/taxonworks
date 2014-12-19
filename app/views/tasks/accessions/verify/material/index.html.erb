@@ -1,42 +1,63 @@
 
 
-<div> some search form </div>
+<div>
 
-<div>Identifer: <%= object_tag(@identifier) -%> </div>
-<div>Container: <%= object_tag(@container) -%> </div>
+  <div>Identifer: <%= object_tag(@identifier) -%> </div>
+  <div>Container: <%= object_tag(@container) -%> </div>
+  <div> <%= @breakdown[:bio_overview].collect{|total, bioclassifications| total.to_s + " " + bioclassifications.join(", ") }.join("; ") -%> </div>
+</div>
 
-<div> Collection objects: </div>
 
-<table>
-  <thead>
-    <tr>
-      <th> buffered </th>
-      <th> parsed </th> 
-    </tr>
-  </thead>
 
-  <tbody>
-  <% @collection_objects.each do |o|  %> 
 
-    <tr> <td colspan="2"> collecting event</th>  </tr>
-    <tr>
-      <td><%= o.buffered_collecting_event -%> </td>
-      <td><%= collecting_event_tag(o.collecting_event) -%> </td>
-    </tr>
 
-    <tr> <td colspan="2"> determinations </th>  </tr>
-    <tr>
-      <td><%= o.buffered_determinations-%> </td>
-      <td><%= o.taxon_determinations.collect{|td| object_tag(td)}.join.html_safe -%> </td>
-    </tr>
-    
-    <tr>
-      <td><%= o.buffered_other_labels -%> </td>
-      <td></td>
-    </tr>
+<div class="flexbox">
 
-  <% end %>
+  <div class="item item1 one_third_width">
 
-  </tbody>
+    <h3> Stage 1 - Buffered data </h3>
+    <% CollectionObject::BUFFERED_ATTRIBUTES.each do |a| -%>
+      <% if @breakdown[a].count != 0 -%>
+        <h4> <%= a.to_s.humanize -%>  </h4>
+        <ul> 
+          <% @breakdown[a].each do |o|  %> 
+            <%= content_tag(:li, o) -%>
+          <% end %>
+        </ul>
+      <% end %>
+    <% end %>
+  </div>
 
-</table>
+  <div class="item item2 one_third_width">
+    <h3> Stage 2 - Collecting Event </h3>
+    <h4> Collecting event </h4>
+    <ul> 
+      <% if @breakdown[:collecting_events].empty? && @breakdown[:total_objects]  -%> 
+        <%= link_to('Create from buffered event', '/') -%>
+      <% else %>
+        <%=  @breakdown[:collecting_events].each do |object, event|  -%>
+          <%= content_tag(:li, object_tag(event))   -%> 
+        <% end %> 
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="item item3 one_third_width">
+    <h3> Stage 3 - Georeferences </h3>
+    <h4> Collecting event </h4>
+    <ul> 
+      <% @collection_objects.each do |o|  %> 
+        <%= content_tag(:li,  object_tag(o.georeferences.first))  if o.collecting_event -%> 
+      <% end %>
+    </ul>
+
+  
+  
+  
+  
+  </div>
+
+
+
+</div>
+<%= ap(@breakdown).html_safe -%>

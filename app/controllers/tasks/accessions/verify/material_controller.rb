@@ -11,7 +11,11 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
   # The context (identifier, collection_object or container) is asserted
   # in logic prior to gathering data, so do not fork logic futher here.
   def get_data_to_verify
+
     @collection_objects = []
+   
+
+    
     @identifier = nil
     @container = nil 
 
@@ -36,6 +40,7 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
         # raise an error
       end
     end
+    @breakdown = CollectionObject.breakdown_status(@collection_objects.to_a)
   end
 
 

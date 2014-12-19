@@ -10,4 +10,10 @@ module Shared::Containable
     !self.container.nil?
   end
 
+  # @return [Array of Object]
+  #   self and others in selfs smallest container
+  def container_siblings
+    self.container.contained_objects
+  end
+
 end
