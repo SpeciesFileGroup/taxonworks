@@ -97,7 +97,10 @@ namespace :tw do
         path = @args[:data_directory] + 'BA_REF.txt'
         raise "file #{path} not found" if not File.exists?(path)
 
-        # BA_REF: RFCITNO, RFYRPUBL, RFDATE, RFYRPRINT, RFBOOKPP, RFSUMMARY, RFREPRINT, ENTERED, RFNOTESP, RFNOTESF 
+        # BA_REF: RFCITNO, RFBOOKPP, RFSUMMARY, RFREPRINT, ENTERED, RFNOTESP, RFNOTESF 
+
+        # TODO: add as import_attributes
+        #   RFDATE  => not worthin parsing the differences in this mixed bag
 
         # RFBOOK 
         # RFTIT
@@ -113,6 +116,8 @@ namespace :tw do
         # RFPUBLISHR
         # RFLANGUAGE
         # RFCITY
+        # RFYRPUBL
+        # RFYRPRINT
 
         f = CSV.open(path, :encoding => 'utf-16', col_sep: "\t", headers: true ) # was le
         invalid = []
@@ -124,12 +129,18 @@ namespace :tw do
 
         f.each do |row|
           dates.push([row['RFYRPUBL'], row['RFDATE'], row['RFYRPRINT']    ])
-
           book.push row['RFBOOK']
+          book_pp.push [ row['RFBOOKPP'], row['RFPP']]
 
+          # Swap years if there is a print/publish difference
+          year = row['RFYRPUBL']
+          state_year = nil
+          if row['RFYRPRINT']
+            stated_year = year
+            year =  row['RFYRPRINT']
+          end
 
           # Handle volumes/pages
-          # Convert volume/pages to volume, pages
           if row['RFVOLPG'] =~ /(\d+)\s*:(\s+\d+\-\d+)\./
             volume = $1
             pages = $2
@@ -137,9 +148,9 @@ namespace :tw do
             pages = row['RFVOLPG']
           end 
           pages ||= row['RFPP']
-          pages.gsub(/\./, '') if !pages.nil?
-          volp.push([ pages, row['RFVOLPG'] ] ) if row['RFPP']
+          pages.gsub(/\./, '') if !pages.nil? # strip the .
 
+          volp.push([ pages, row['RFVOLPG'] ] ) if row['RFPP']
 
           # handle bibtex type
           type = nil
@@ -160,7 +171,8 @@ namespace :tw do
                                    bibtex_type: type,
                                    title: row['RFTIT'],
                                    author: row['RFAUTH'],
-                                   year: nil,
+                                   year: year,
+                                   stated_year: stated_year,
                                    volume: volume,
                                    year_suffix: row['RFLET'],
                                    editor: row['RFEDITOR'],
@@ -181,8 +193,11 @@ namespace :tw do
         ap invalid
         ap book.compact.uniq
 
-        puts "DATES"
-        ap dates
+       #puts "DATES"
+       #ap dates
+        
+        puts 'BOOK PP'
+        ap book_pp
         f.close
       end
 
