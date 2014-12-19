@@ -13,80 +13,77 @@
 
       <%= form_tag(tasks_gis_locality_update_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) do |f| %>
 
-      <table border="1">
-        <thead>Distance select (<%= @nearby_distance %> meters) :</thead>
-        <tr>
-          <td>
-            <%#=	 distance_select_tag(:digit1, '1') %>
-            <%= label_tag(:digit1, '1') %>
-            <%= radio_button_tag(:digit1, '1', checked = is_checked(:digit1, '1')) %>
-          </td>
-          <td>
-            <%= label_tag(:spacer, ' ') %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '10') %>
-            <%= radio_button_tag(:digit2, '10', checked = is_checked(:digit2, '10')) %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '10,000') %>
-            <%= radio_button_tag(:digit2, '10000', checked = is_checked(:digit2, '10000')) %>
-          </td>
-          <td>
+          <table border="1">
+            <thead>Distance select (<%= @nearby_distance %> meters) :</thead>
+            <tr>
+              <td>
+                <%#=	 distance_select_tag(:digit1, '1') %>
+                <%= label_tag(:digit1, '1') %>
+                <%= radio_button_tag(:digit1, '1', checked = is_checked(:digit1, '1')) %>
+              </td>
+              <td>
+                <%= label_tag(:spacer, ' ') %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '10') %>
+                <%= radio_button_tag(:digit2, '10', checked = is_checked(:digit2, '10')) %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '10,000') %>
+                <%= radio_button_tag(:digit2, '10000', checked = is_checked(:digit2, '10000')) %>
+              </td>
+              <td>
 
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <%= label_tag(:digit1, '2') %>
-            <%= radio_button_tag(:digit1, '2', checked = is_checked(:digit1, '2')) %>
-          </td>
-          <td width="20", align="center">
-            <%= label_tag(:spacer, 'X') %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '100') %>
-            <%= radio_button_tag(:digit2, '100', checked = is_checked(:digit2, '100')) %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '100,000') %>
-            <%= radio_button_tag(:digit2, '100000', checked = is_checked(:digit2, '100000')) %>
-          </td>
-          <td>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <%= label_tag(:digit1, '2') %>
+                <%= radio_button_tag(:digit1, '2', checked = is_checked(:digit1, '2')) %>
+              </td>
+              <td width="20" , align="center">
+                <%= label_tag(:spacer, 'X') %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '100') %>
+                <%= radio_button_tag(:digit2, '100', checked = is_checked(:digit2, '100')) %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '100,000') %>
+                <%= radio_button_tag(:digit2, '100000', checked = is_checked(:digit2, '100000')) %>
+              </td>
+              <td>
+                <%= submit_tag('Filter') %>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <%= label_tag(:digit1, '5') %>
+                <%= radio_button_tag(:digit1, '5', checked = is_checked(:digit1, '5')) %>
+              </td>
+              <td>
+                <%= label_tag(:spacer, ' ') %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '1,000') %>
+                <%= radio_button_tag(:digit2, '1000', checked = is_checked(:digit2, '1000')) %>
+              </td>
+              <td align="right">
+                <%= label_tag(:digit2, '1,000,000') %>
+                <%= radio_button_tag(:digit2, '1000000', checked = is_checked(:digit2, '1000000')) %>
+              </td>
+              <td>
 
-
-            <%= submit_tag('Filter') %>
-
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <%= label_tag(:digit1, '5') %>
-            <%= radio_button_tag(:digit1, '5', checked = is_checked(:digit1, '5')) %>
-          </td>
-          <td>
-            <%= label_tag(:spacer, ' ') %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '1,000') %>
-            <%= radio_button_tag(:digit2, '1000', checked = is_checked(:digit2, '1000')) %>
-          </td>
-          <td align="right">
-            <%= label_tag(:digit2, '1,000,000') %>
-            <%= radio_button_tag(:digit2, '1000000', checked = is_checked(:digit2, '1000000')) %>
-          </td>
-          <td>
-
-          </td>
-        </tr>
-      </table>
-          <% end %>
+              </td>
+            </tr>
+          </table>
+      <% end %>
     </td>
   </tr>
   <tr>
     <td colspan="2">
       <table border='1'>
-        <thead>Results for distance of <%= @nearby_distance %> meters:</thead>
+        <thead>Results for distance of <%= @nearby_distance %> meters: <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %></thead>
         <tr>
           <th>Verbatim Locality</th>
           <th>Actual Distance</th>
@@ -95,7 +92,7 @@
           <th>Link to</th>
         </tr>
         <tbody>
-        <% collecting_events_nearby(@nearby_distance).each { |collecting_event| %>
+        <% @collecting_events.each { |collecting_event| %>
             <tr>
               <td>
                 <%= collecting_event.verbatim_locality %>
@@ -104,7 +101,7 @@
                 <%= distance_between(@collecting_event, collecting_event) %>
               </td>
               <td>
-                <%= collecting_event.id %>
+                <%= link_to(collecting_event.id.to_s, collecting_event_path(collecting_event.id)) %>
               </td>
               <td>
                 <%= collecting_event_georeference_count(collecting_event) %>

@@ -316,7 +316,7 @@ describe Source::Bibtex, :type => :model do
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg            = 'year is required when month is provided'
+        error_msg = 'year is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -767,17 +767,17 @@ describe Source::Bibtex, :type => :model do
         @source_bibtex.year = 1984
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 12, 31))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1984, 12, 31))
 
         @source_bibtex.month = 'feb'
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 29))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1984, 2, 29))
 
         @source_bibtex.day = 12
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1984, 2, 12))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1984, 2, 12))
 
         # Times before before 1823, or after 2116 are handled differently.
         @source_bibtex.year  = 1775
@@ -785,15 +785,15 @@ describe Source::Bibtex, :type => :model do
         @source_bibtex.day   = nil
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 12, 31))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1775, 12, 31))
         @source_bibtex.month = 'feb'
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 28))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1775, 2, 28))
         @source_bibtex.day = 12
         expect(@source_bibtex.save).to be_truthy
         @source_bibtex.reload
-        expect(@source_bibtex.nomenclature_date).to eq(Time.utc(1775, 2, 12))
+        expect(@source_bibtex.cached_nomenclature_date).to eq(Time.utc(1775, 2, 12))
       end
 
       specify 'sort an array of source by potentially_validating date' do

@@ -12,7 +12,6 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events/1
   # GET /collecting_events/1.json
   def show
-    # @nearby_distance = 5000
   end
 
   # GET /collecting_events/new
@@ -96,6 +95,11 @@ class CollectingEventsController < ApplicationController
     end
 
     render :json => data
+  end
+
+  # GET /otus/download
+  def download
+    send_data CollectingEvent.generate_download(CollectingEvent.where(params.require(:where).permit(:id)), $project_id), type: 'text'
   end
 
   private

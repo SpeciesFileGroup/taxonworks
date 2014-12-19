@@ -3,16 +3,40 @@
 <div> some search form </div>
 
 <div>Identifer: <%= object_tag(@identifier) -%> </div>
-
 <div>Container: <%= object_tag(@container) -%> </div>
 
-<div> Collection objects: <%= @collection_objects.collect{|o| object_tag(o)}.join.html_safe -%> </div>
+<div> Collection objects: </div>
 
-<div> 
-  <div> Verbatim Column </div> <div> Parsed Column </div>
+<table>
+  <thead>
+    <tr>
+      <th> buffered </th>
+      <th> parsed </th> 
+    </tr>
+  </thead>
 
-  <div> Header </div> <div> Header </div>
-  <div> Header </div> <div> Header </div>
-  <div> Header </div> <div> Header </div>
+  <tbody>
+  <% @collection_objects.each do |o|  %> 
 
-</div>
+    <tr> <td colspan="2"> collecting event</th>  </tr>
+    <tr>
+      <td><%= o.buffered_collecting_event -%> </td>
+      <td><%= collecting_event_tag(o.collecting_event) -%> </td>
+    </tr>
+
+    <tr> <td colspan="2"> determinations </th>  </tr>
+    <tr>
+      <td><%= o.buffered_determinations-%> </td>
+      <td><%= o.taxon_determinations.collect{|td| object_tag(td)}.join.html_safe -%> </td>
+    </tr>
+    
+    <tr>
+      <td><%= o.buffered_other_labels -%> </td>
+      <td></td>
+    </tr>
+
+  <% end %>
+
+  </tbody>
+
+</table>

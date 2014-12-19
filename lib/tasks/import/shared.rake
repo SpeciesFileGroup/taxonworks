@@ -3,9 +3,8 @@ require 'fileutils'
 namespace :tw do
   namespace :project_import do
     
-    # TODO: refactor to use user_id  - likely remove
-    def initiate_project_and_users(project_name, user_id)
-      user = FactoryGirl.create(:user, email: 'john@bm.org', password: '3242341aas', password_confirmation: '3242341aas')
+    def initiate_project_and_users(project_name, user_name)
+      user = FactoryGirl.create(:user, name: user_name, email: 'update@me.org', password: '3242341aas', password_confirmation: '3242341aas', self_created: true)
       $user_id = user.id
 
       project = Project.find_or_create_by(name: project_name)

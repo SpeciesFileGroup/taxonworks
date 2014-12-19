@@ -159,14 +159,44 @@ require 'csl/styles'
 #   @return[String] the key of this source
 #   @return [nil] means the attribute is not stored in the database.
 #
+#
+# Dates in Source Bibtex.
+# It is common for there two be two (or more) dates associated with the origin of a source.
+# 1) If you only have reference to a single value, it goes in year (month, day)
+# 2) If you have reference to two year values, the actual year of publication goes in year, and
+# the stated year of publication goes in stated_year. 
+# 3) If you have month or day publication, they go in month or day.
+#
+# We do not track stated_month or stated_day if
+# they are present in addition to actual month and actual day.
+#
+#
+# Bibtex has month
+#  
+# Bibtex does not have day.
+#
 # @!attribute month
-#   BibTeX standard field (required for types: )(optional for types:)
+#   the actual publication month. a BibTeX standard field (required for types: ) (optional for types:)
 #   The month in which the work was published or, for an unpublished work, in which it was written.
 #   It should use the standard three-letter abbreviation, as described in Appendix B.1.3 of the LaTeX book.
 #   The three-letter lower-case abbreviations are available in _BibTeX::MONTHS_.
 #   If month is present there must be a year.
 #   @return[String] The three-letter lower-case abbreviation for the month in which this source was published.
 #   @return [nil] means the attribute is not stored in the database.
+#
+# @!attribute day 
+#   the actual publication month, NOT a BibTex standard field
+#   If day is present there must be a month and day must be valid for the month.
+#
+# @!attribute year 
+#   the actual publication year. a BibTeX standard field (required for types: ) (optional for types:)
+#   A TW required attribute (TW requires a value in one of the required attributes.)
+#   Year must be between 1000 and now + 2 years inclusive
+#   
+# @!attribute stated_year
+
+
+
 #
 # @!attribute note
 #   BibTeX standard field (required for types: unpublished)(optional for types:)
@@ -213,9 +243,7 @@ require 'csl/styles'
 # @!attribute translator - not yet implemented
 #   bibtex-ruby gem supports translator, it's not clear whether TW will or not.
 # @!attribute volume
-# @!attribute year
-#   A TW required attribute (TW requires a value in one of the required attributes.)
-#   Year must be between 1000 and now + 2 years inclusive
+
 # @!attribute URL
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 # @!attribute doi - not implemented yet
@@ -231,7 +259,7 @@ require 'csl/styles'
 # @!attribute copyright
 # @!attribute language
 # @!attribute contents
-# @!attribute stated_year
+
 #
 #
 #
@@ -241,8 +269,8 @@ require 'csl/styles'
 # UNKNOWN:
 #
 # @!attribute bibtex_type
-# @!attribute day
-#   If day is present there must be a month and day must be valid for the month.
+
+
 #
 #
 class Source::Bibtex < Source
@@ -272,18 +300,16 @@ class Source::Bibtex < Source
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
 
-
-
-
   #region validations
   validates_inclusion_of :bibtex_type,
     in:      ::VALID_BIBTEX_TYPES,
     message: '%{value} is not a valid source type'
 
-  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_presence_of :year,
-    if:      '!month.nil?',
-    message: 'year is required when month is provided'
+    if:      '!month.blank? || !stated_year.blank?',
+    message: 'year is required when month or stated_year is provided'
+
+  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_numericality_of :year,
     only_integer:          true, greater_than: 999,
     less_than_or_equal_to: Time.now.year + 2,
@@ -310,10 +336,10 @@ class Source::Bibtex < Source
   before_validation :check_has_field
   #endregion validations
 
-  before_save :set_nomenclature_date
+  before_save :set_cached_nomenclature_date
 
   # includes nil last, exclude it explicitly with another condition if need be
-  scope :order_by_nomenclature_date, -> { order(:nomenclature_date) }
+  scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
   #region soft_validate setup calls
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
@@ -579,14 +605,15 @@ class Source::Bibtex < Source
   #endregion has_<attribute>? section
 
   #region time/date related
-  # @return[Time] alias for nomenclature_date, computed if not yet saved
+  
+  # @return[Time] alias for cached_nomenclature_date, computed if not yet saved
   def date
-    set_nomenclature_date if !self.persisted?
-    self.nomenclature_date
+    set_cached_nomenclature_date if !self.persisted?
+    self.cached_nomenclature_date
   end
 
-  def set_nomenclature_date
-    self.nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
+  def set_cached_nomenclature_date
+    self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
   end
 
   #todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb

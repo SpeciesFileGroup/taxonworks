@@ -187,7 +187,7 @@ class CollectingEvent < ActiveRecord::Base
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
     gi     = geographic_items.first
-    pieces = GeographicItem.within_radius_of('any', gi, distance)
+    pieces = GeographicItem.joins(:georeferences).within_radius_of('any', gi, distance)
 
     ce = []
     pieces.each { |o|
@@ -433,6 +433,17 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
   def self.find_for_autocomplete(params)
     where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     # changed from 'cached' to 'verbatim_locality':
+  end
+
+  def self.generate_download(scope, project_id)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.with_project_id(project_id).order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect{|i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
   end
 
   protected

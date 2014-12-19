@@ -5,13 +5,13 @@
 #
 #
 # Namespaces are minted in TW on a first come first serve basis.  Their short and
-# long names must be unique across instances.  When conflicts arrise new values must be minted for 
+# long names must be unique across instances.  When conflicts arise new values must be minted for
 # record keeping purposes.  In this case a verbatim_short_name can be provided, and this 
 # value will be presented for reporting/searching purposes.  This is a strong restriction
 # that is intended to encourage users to think before they mint namespaces.
 #
-# In TW Namespaces DO NOT  imply ownership! If an identifer has a namespace
-# that includes reference to some collection, it does not mean that that collection 'owns' the identified object. 
+# In TW Namespaces DO NOT imply ownership! If an identifier has a namespace
+# that includes a reference to some collection, it does not mean that that collection 'owns' the identified object.
 #
 # Namespaces in TW are *not* limited to things like collection repository codens.
 #

@@ -1,11 +1,5 @@
 <div class="attributes">
-  <% if @collecting_event.georeferences.any? %>
-      <p>
-        <%#= link_to('(nearby)', tasks_gis_locality_nearby_path(collecting_event_id: @collecting_event.to_param)) %>
-        <%= link_to('(nearby)', tasks_gis_locality_nearby_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) %>
-      </p>
-  <% end %>
-  <p>
+ <p>
     <strong>Geographic area:</strong>
     <%= object_link(@collecting_event.geographic_area) %>
   </p>
