@@ -66,9 +66,6 @@ TaxonWorks::Application.routes.draw do
   end
   resources :collecting_events do
     concerns [:data_routes]
-    collection do
-      get 'test'
-    end
   end
   resources :collection_objects do
     concerns [:data_routes]

@@ -1,10 +1,5 @@
 module Tasks::Gis::LocalityHelper
 
-  # @param [integer] distance (in meters)
-  def collecting_events_nearby(distance)
-    @collecting_events = @collecting_event.find_others_within_radius_of(distance)
-  end
-
   def collecting_event_georeference_count(collecting_event)
     count = collecting_event.georeferences.count - 1
     if count > 0
@@ -39,11 +34,7 @@ module Tasks::Gis::LocalityHelper
   end
 
   def is_checked(digit, value)
-    if (params[digit] == value) then
-      true
-    else
-      false
-    end
+    (params[digit] == value) ? true : false
   end
 
 end

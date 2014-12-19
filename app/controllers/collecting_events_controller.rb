@@ -98,6 +98,11 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
+  # GET /otus/download
+  def download
+    send_data CollectingEvent.generate_download(CollectingEvent.where(params.require(:where).permit(:id)), $project_id), type: 'text'
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
