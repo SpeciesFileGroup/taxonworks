@@ -344,6 +344,112 @@ SFImportIDMap.txt
         end
       end #end task
 
+      desc 'call like "rake tw:import:serial:add_SF_serial_alt_names[/Users/eef/src/data/serialdata/working_data/SFaltnames.txt] user_id=1 project_id=1" '
+      task :add_altnames_SFserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+        args.with_defaults(:data_directory => './SFaltnames.txt')
+
+        raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
+
+        # processing third file ./SFaltnames.txt - adding additional altnames
+        $stdout.sync = true
+        print ('Starting transaction ...')
+
+        begin
+          ActiveRecord::Base.transaction do
+            get_namespaces
+
+            CSV.foreach(args[:data_directory],
+                        headers:        true,
+                        return_headers: false,
+                        encoding:       'UTF-16LE:UTF-8',
+                        col_sep:        "\t",
+                        quote_char:     '|'
+            ) do |row|
+
+=begin
+SFaltnames.txt
+Column : SQL column name :  data desc
+0 : ImportID : file specific import ID
+1 : ShortName  : SF abbreviation
+2 : SFID  : SF publication ID - check if already applied to serial
+3 : SFregID  : SF publication registry ID - check if already applied to serial
+=end
+
+              # s = Serial.with_namespaced_identifier(@import_serial_ID.name, row[0]).first
+              s  = nil
+              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.name})
+              # no longer a namespace identifier, now a data attribute
+              case sr.count # how many serials were found for this value?
+                when 0
+                  puts ['skipping - unable to find base serial ', @import_serial_ID.name, row[0]].join(" : ")
+                  next
+                when 1 # found 1 and only 1 serial - we're good!
+                  s = sr.first
+                  print ("\r SerialID #{s.id} : tmpID #{row[0]} : MXID #{row[3]} : TreeID #{row[4]} ")
+                else
+                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[0]].join(" : ")
+                  next
+              end
+
+               unless row[5].blank? # add names if they aren't already in the table
+                begin
+                  unless s.all_values_for(:name).include?(row[5])
+                    begin
+                      # printf('name does not match importID[%d] [%s] [%s] [%s]', row[0], row[5], s.name,
+                      #        s.all_values_for(:name))
+
+                      s.alternate_values << AlternateValue.new(
+                        value:                            row[5].to_s.strip,
+                        alternate_value_object_attribute: 'name',
+                        type:                             'AlternateValue::AlternateSpelling'
+                      )
+                      # else
+                      #found a match -> do nothing
+                      # puts "primary name matched primary name #{s.name}" if s.name == row[5]
+                      # puts 'primary name matched alternate name' if s.all_values_for(:name).include?(row[5])
+                    end
+                  end
+                end
+              end
+
+              unless row[6].blank? # add abbreviations if they aren't already in the table
+                begin
+                  unless s.all_values_for(:name).include?(row[6])
+                    begin
+
+                      # printf('abbreviation does not match importID[%d] [%s] [%s] [%s]', row[0], row[6], s.name,
+                      #        s.all_values_for(:name))
+
+                      s.alternate_values << AlternateValue.new(
+                        value:                            row[6].to_s.strip,
+                        alternate_value_object_attribute: 'name',
+                        type:                             'AlternateValue::Abbreviation'
+                      )
+                      # else
+                      #   puts 'alt name matched alternate name'
+                    end
+                    # else
+                    #   puts "alt name matched primary name #{s.name}"
+                    # end
+                  end
+                end
+              end
+              if s.valid?
+                s.save
+              else
+                raise 's not valid'
+              end
+            end # end of row
+            puts
+            puts 'Successful load of MX & treehopper duplicate IDs'
+            # raise 'to prevent saving to db while testing rake'
+          end # end transaction
+        rescue
+          raise
+        end
+      end #end task
+
+
       desc 'call like "rake tw:import:serial:add_chronologies_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
       task :add_chronologies_MXserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
@@ -422,15 +528,6 @@ Column : SQL column name : data desc
   end
 end
 
-
-=begin
-SFaltnames.txt
-Column : SQL column name :  data desc
-0 : ImportID : file specific import ID
-1 : ShortName  : SF abbreviation
-2 : SFID  : SF publication ID - check if already applied to serial
-3 : SFregID  : SF publication registry ID - check if already applied to serial
-=end
 =begin
   SFSerialSeq.txt
   Column : SQL column name :  data desc
