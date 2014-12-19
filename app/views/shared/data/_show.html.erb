@@ -34,7 +34,6 @@
       <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
 
       <h3> Annotate </h3>
-
       <%= annotate_links(object: object) -%>
 
       <br>
@@ -47,6 +46,7 @@
     <div class="see">
       <h2> See </h2>
       <%= papertrail_link(object) -%>
+      <%= yield :see -%>
     </div>
   </div>
 </div>

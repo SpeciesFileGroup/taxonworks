@@ -1,4 +1,10 @@
 
-
+<%= content_for :see do -%>
+  <% if @collecting_event.georeferences.any? %>
+    <p>
+    <%= link_to('Nearby', tasks_gis_locality_nearby_path(@collecting_event.to_param, nearby_distance: 5000)) %>
+    </p>
+  <% end %>
+<% end %> 
 
 <%= render(partial: 'shared/data/show', locals: {object: @collecting_event}) -%>

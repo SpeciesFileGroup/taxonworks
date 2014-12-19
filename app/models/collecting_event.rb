@@ -440,7 +440,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
       csv << column_names
       scope.with_project_id(project_id).order(id: :asc).each do |o|
         csv << o.attributes.values_at(*column_names).collect{|i|
-          i.gsub(/\n/, '\n').gsub(/\t/, '\t')
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
     end

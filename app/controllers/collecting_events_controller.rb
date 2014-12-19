@@ -12,7 +12,6 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events/1
   # GET /collecting_events/1.json
   def show
-    # @nearby_distance = 5000
   end
 
   # GET /collecting_events/new
