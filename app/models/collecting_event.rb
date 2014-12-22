@@ -261,11 +261,11 @@ class CollectingEvent < ActiveRecord::Base
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # we need to use the geographic_area directly
-        gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
+        gi_list << GeographicItem.is_contained_in('any', self.geographic_area.geographic_items)
       end
     else
       # gather all the GIs which contain this GI or EGI
-      gi_list << GeographicItem.containing('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
+      gi_list << GeographicItem.is_contained_in('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
     end
 
     # there are a few ways we can end up with no GIs
@@ -415,6 +415,15 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
 
 # class methods
 
+  # @param geographic_item [GeographicItem]
+  # @return [Scope]
+  def self.find_others_contained_within(geographic_item)
+    partial = GeographicItem.joins(:georeferences).is_contained_by('poly', geographic_item)
+    partial
+  end
+
+  # @param collecting_events [CollectingEvent Scope]
+  # @return [Scope] without self (if included)
   def self.excluding(collecting_events)
     where.not(id: collecting_events)
   end

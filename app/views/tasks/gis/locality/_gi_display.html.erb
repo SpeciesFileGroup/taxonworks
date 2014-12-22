@@ -1,0 +1,49 @@
+<h1>Task: Contained within</h1>
+<p>
+  <strong>Locality:</strong>
+  <%= @geographic_item.id %>
+</p>
+<table border='1' style="left: 0px; width: 100%; top: 0px; height: 99px">
+  <tbody>
+  <tr>
+
+
+  </tr>
+  <tr>
+    <td colspan="2">
+      <table border='1'>
+        <thead>Results for collecting events which are contained within area named <%= @geographic_item.geographic_areas.first.name %>: <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %></thead>
+        <tr>
+          <th>Verbatim Locality</th>
+          <th>Actual Distance</th>
+          <th>Collecting Event ID</th>
+          <th>Other Georeference?</th>
+          <th>Link to</th>
+        </tr>
+        <tbody>
+        <% @collecting_events.each { |collecting_event| %>
+            <tr>
+              <td>
+                <%= collecting_event.verbatim_locality %>
+              </td>
+              <td>
+                <%= distance_between(@collecting_event, collecting_event) %>
+              </td>
+              <td>
+                <%= link_to(collecting_event.id.to_s, collecting_event_path(collecting_event.id)) %>
+              </td>
+              <td>
+                <%= collecting_event_georeference_count(collecting_event) %>
+              </td>
+              <td>
+                <%= link_to('nearby', tasks_gis_locality_nearby_path(collecting_event.to_param, nearby_distance: @nearby_distance)) %>
+              </td>
+            </tr>
+        <% } %>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+

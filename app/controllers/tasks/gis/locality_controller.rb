@@ -51,8 +51,11 @@ class Tasks::Gis::LocalityController < ApplicationController
   def update
     params['nearby_distance'] = (params['digit1'].to_i * params['digit2'].to_i).to_s
     nearby
-    # @collecting_event = CollectingEvent.find(params[:id])
-    # link_to('(nearby)', tasks_gis_locality_nearby_path(@collecting_event.to_param, nearby_distance: @nearby_distance))
+  end
+
+  def within
+    @geographic_item = GeographicItem.find(params[:id])
+    @collecting_events = CollectingEvent.find_others_contained_within(@geographic_item)
   end
 
 end

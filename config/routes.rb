@@ -195,6 +195,7 @@ TaxonWorks::Application.routes.draw do
     namespace :gis do
       get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
       post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
+      get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
     end
   end
 =begin
