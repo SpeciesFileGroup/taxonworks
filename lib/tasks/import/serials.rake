@@ -24,7 +24,7 @@ namespace :tw do
         # First file SF_serial_export.txt
         $stdout.sync = true
         print ('Starting transaction ...')
-        error_msg = []   # array for error messages
+        error_msg = [] # array for error messages
 
         begin
           ActiveRecord::Base.transaction do
@@ -55,7 +55,7 @@ Note on ISSNs - an ISSN can be used once and only once for a serial => if it's a
 need to confirm that the 2 serials are the same and add the SF data as AlternateValue::AlternateSpelling
 =end
               importID = row[0].to_s.strip
-              print ("\r  tmpID #{importID} ")
+              print ("\r  tmpID #{importID} ") # todo Ask Jim to explain about suspend again!!
               fname = row[1].to_s.strip
               sname = row[2].to_s.strip
               pub   = row[3].to_s.strip
@@ -65,25 +65,35 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
               note  = row[7].to_s.strip
               issn  = row[8].to_s.strip
 
-              ns    = Serial.with_identifier(issn).first
+              ns = Serial.with_identifier(issn).first
               if ns.nil? # ISSN is not in use, check for duplicate name
-                sa =  Serial.where(name: fname).to_a # does it match a primary name?
+                sa = Serial.where(name: fname).to_a # does it match a primary name?
                 case sa.count
                   when 0 # not a match to primary name - is it a match to an alt name
-                    ava = AlternateValue.where(value: fname, alternate_value_object_type: 'Serial')
+                    ava = AlternateValue.where(value: fname, alternate_value_object_type: 'Serial', alternate_value_object_attribute: 'name')
                     case ava.count
                       when 0
                         ns = nil #go to new serial
                       when 1 # found it - set ns
-                        ns =  ava.first.alternate_value_object.becomes(Serial)
+                        ns = ava.first.alternate_value_object.becomes(Serial)
                       else # don't no what to do?
-                        raise ('matched more than one serial ' + importID)
-                        next
+                        #raise ('matched more than one serial ' + importID)
+                        msg = ['matched more than one serial ImportID', importID, fname, ' number matched', ava.count,
+                               "adding a new serial \n #{ava[0].attributes.to_s}", "\n #{ava[1].attributes.to_s}"].join(' : ')
+                        error_msg << msg
+                        ns = nil # go to new serial
                     end
                   when 1
                     ns = sa.first
                   else
-                    raise ('matched more than one serial ' + importID)
+                    # raise ('matched more than one serial ' + importID)
+                    msg = ['matched more than one serial ImportID', importID, fname, ' number matched', sa.count, "\n",
+                           'sa[0].import_predicate 1', sa[0].data_attributes[0].import_predicate, 'sa[0].value', sa[0].data_attributes[0].value,
+                           'sa[0].import_predicate 2', sa[0].data_attributes[1].import_predicate, 'sa[0].value', sa[0].data_attributes[1].value,
+                           "\n", 'sa[1].import_predicate 2', sa[1].data_attributes[0].import_predicate, 'sa[1].value', sa[1].data_attributes[0].value,
+                           'sa[1].import_predicate 2', sa[1].data_attributes[1].import_predicate, 'sa[1].value', sa[1].data_attributes[1].value,
+                    ].join(' : ')
+                    error_msg << msg
                     next
                 end
               end
@@ -94,7 +104,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
 
                 # add note
                 unless (note.blank?) # test for empty note!
-                   data_attr.push({predicate: @serial_note, value: note, type: 'InternalAttribute'})
+                  data_attr.push({predicate: @serial_note, value: note, type: 'InternalAttribute'})
                 end
 
                 # Import ID - never empty
@@ -123,8 +133,9 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                 )
 
               else # ns already contains the relevant serial
+                ns.data_attributes << DataAttribute.new({import_predicate: @import_serial_ID.name, value: importID, type: 'ImportAttribute'})
                 unless (note.blank?) # test for empty note!
-                  ns.data_attributes << {predicate: @serial_note, value: note, type: 'InternalAttribute'}
+                  ns.data_attributes << DataAttribute.new({predicate: @serial_note, value: note, type: 'InternalAttribute'})
                 end
                 # is the name already attached to the serial
                 unless ns.all_values_for(:name).include?(fname)
@@ -171,7 +182,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                     end
                   end
                 end
-                unless syear.blank? # add start year
+                unless syear.blank? || syear == '0' # add start year
                   if ns.first_year_of_issue.blank?
                     ns.first_year_of_issue = syear
                   else
@@ -184,7 +195,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                     end
                   end
                 end
-                unless eyear.blank? # add start year
+                unless eyear.blank? || eyear == '0' # add start year
                   if ns.last_year_of_issue.blank?
                     ns.last_year_of_issue = eyear
                   else
@@ -200,11 +211,11 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
 
               end
 
-             # ns now contains the existing or new serial, so add altname
+              # ns now contains the existing or new serial, so add altname
               if fname != sname # (SF requires both a short & long name so they may be the same)
 
                 unless ns.all_values_for(:name).include?(sname)
-                                  # printf('name does not match importID[%d] [%s] [%s] [%s]', importID, syear, s.name,
+                  # printf('name does not match importID[%d] [%s] [%s] [%s]', importID, syear, s.name,
                   #        s.all_values_for(:name))
 
                   ns.alternate_values << AlternateValue.new(
@@ -216,22 +227,22 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
 
               end
 
-            if ns.valid? && ns.name.length < 256 && ns.place_published.length < 256
-              ns.save!
-              a=1 # here to allow for break point
-            else
-               puts "error on primary save tmpID #{importID} -- skipping"
-              if ns.name.length >= 256
-                error_msg << 'name too long'
+              if ns.valid? && ns.name.length < 256 && ns.place_published.length < 256
+                ns.save!
+                a=1 # here to allow for break point
               else
-                 if ns.place_published.length >= 256
-                  error_msg << 'place_published too long'
-                 else
-                   error_msg << ns.errors.messages
-                  # puts "invalid error #{ap(ns.errors.messages)} "
+                puts "error on primary save tmpID #{importID} -- skipping"
+                if ns.name.length >= 256
+                  error_msg << 'name too long'
+                else
+                  if ns.place_published.length >= 256
+                    error_msg << 'place_published too long'
+                  else
+                    error_msg << ns.errors.messages
+                    # puts "invalid error #{ap(ns.errors.messages)} "
+                  end
                 end
               end
-            end
 
             end # transaction end
             puts "\n#{ap(error_msg.flatten.uniq)}\n"
@@ -254,7 +265,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
         # processing second file ./SFImportIDmap.txt - adding SF identifiers
         $stdout.sync = true
         print ('Starting transaction ...')
-        error_msg = []   # array for error messages
+        error_msg = [] # array for error messages
 
         begin
           ActiveRecord::Base.transaction do
@@ -277,12 +288,12 @@ SFImportIDMap.txt
 =end
               importID = row[0].to_s.strip
               print ("\r  tmpID #{importID} ")
-              sfID = row[1].to_s.strip
+              sfID    = row[1].to_s.strip
               sfregID = row[2].to_s.strip
 
               # find the correct serial
-              s  = nil
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: importID, import_predicate: @import_serial_ID.name})
+              s       = nil
+              sr      = Serial.joins(:data_attributes).where(data_attributes: {value: importID, import_predicate: @import_serial_ID.name})
               # no longer a namespace identifier, now a data attribute
               case sr.count # how many serials were found for this value?
                 when 0
@@ -302,7 +313,7 @@ SFImportIDMap.txt
                                           attribute_subject_id: s.id, value: sfID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @msf_pub_id.name, value: sfID, type: 'ImportAttribute'})
+                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_id.name, value: sfID, type: 'ImportAttribute'})
                     when 1 # found it  -> skip it
                       puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
@@ -319,7 +330,7 @@ SFImportIDMap.txt
                   case i.count
                     when 0 # not found -> add it
                       s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_reg_id_id.name,
-                                                              value: sfregID, type: 'ImportAttribute'})
+                                                              value:            sfregID, type: 'ImportAttribute'})
                     when 1 # found it  -> skip it
                       puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
@@ -391,7 +402,7 @@ Column : SQL column name :  data desc
                   next
               end
 
-               unless row[5].blank? # add names if they aren't already in the table
+              unless row[5].blank? # add names if they aren't already in the table
                 begin
                   unless s.all_values_for(:name).include?(row[5])
                     begin
@@ -449,81 +460,6 @@ Column : SQL column name :  data desc
         end
       end #end task
 
-
-      desc 'call like "rake tw:import:serial:add_chronologies_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
-      task :add_chronologies_MXserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
-        args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
-
-        raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
-
-        # Now add additional identifiers - filename is treeMXduplicates
-        $stdout.sync = true
-        print ('Starting transaction ...')
-
-        begin
-          ActiveRecord::Base.transaction do
-            get_namespaces
-
-            CSV.foreach(args[:data_directory],
-                        headers:        true,
-                        return_headers: false,
-                        encoding:       'UTF-16LE:UTF-8',
-                        col_sep:        "\t",
-                        quote_char:     '|'
-            ) do |row|
-=begin
-Column : SQL column name : data desc
-0 : PrefID: The tmpID of the first serial
-1 : SecID : The tmpID of the second serial
-2 : PrevName: <ignore> Fullname of the first serial
-3 : SucName  : <ignore> Fullname of the Second serial
-=end
-
-              print ("\r  previous ID #{row[0]} : succeeding ID #{row[1]} ")
-
-              s1 = nil
-              # find 1st serial
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.name})
-              case sr.count # how many serials were found for this value?
-                when 0
-                  puts ['[', 'skipping - unable to find base serial ', @import_serial_ID.name, row[0], ']'].join(" : ")
-                  next
-                when 1 # found 1 and only 1 serial - we're good!
-                  s1 = sr.first
-                # if s1.name != row[2]
-                #   puts "#{s1.name} (Serial ID #{s1.id}) != #{row[2]} (tmpid #{row[0]})"
-                # end
-                else
-                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[0]].join(" : ")
-                  next
-              end
-
-              s2 = nil
-              # find 2nd serial
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[1], import_predicate: @import_serial_ID.name})
-              case sr.count # how many serials were found for this value?
-                when 0
-                  puts ['skipping - unable to find base serial ', @import_serial_ID.name, row[1]].join(" : ")
-                  next
-                when 1 # found 1 and only 1 serial - we're good!
-                  s2 = sr.first
-                # if s2.name != row[3]
-                #   puts "#{s2.name} (Serial ID #{s2.id}) != #{row[3]} (tmpid #{row[1]})"
-                # end
-                else
-                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[1]].join(" : ")
-                  next
-              end
-              SerialChronology.create!(preceding_serial: s1, succeeding_serial: s2)
-            end
-            puts
-            puts 'Successful load of MX & treehopper serial chronologies'
-            # raise 'causes it to always fail and rollback the transaction'
-          end # end of transaction
-        rescue
-          raise
-        end
-      end #end task
     end
   end
 end

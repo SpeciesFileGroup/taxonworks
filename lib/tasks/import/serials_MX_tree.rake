@@ -272,7 +272,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 
-        # processing second file ./reeMXduplicates.txt - adding additional identifiers
+        # processing second file ./treeMXduplicates.txt - adding additional identifiers
         $stdout.sync = true
         print ('Starting transaction ...')
 
@@ -455,7 +455,7 @@ Column : SQL column name : data desc
               sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[0], import_predicate: @import_serial_ID.name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['[', 'skipping - unable to find base serial ', @import_serial_ID.name, row[0], ']'].join(" : ")
+                  puts ['[', 'skipping - unable to find 1st base serial ', @import_serial_ID.name, row[0], ']'].join(" : ")
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s1 = sr.first
@@ -463,7 +463,7 @@ Column : SQL column name : data desc
                 #   puts "#{s1.name} (Serial ID #{s1.id}) != #{row[2]} (tmpid #{row[0]})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[0]].join(" : ")
+                  puts ['skipping - match > 1 base serial (1st) ', @import_serial_ID.name, row[0]].join(" : ")
                   next
               end
 
@@ -472,7 +472,7 @@ Column : SQL column name : data desc
               sr = Serial.joins(:data_attributes).where(data_attributes: {value: row[1], import_predicate: @import_serial_ID.name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['skipping - unable to find base serial ', @import_serial_ID.name, row[1]].join(" : ")
+                  puts ['skipping - unable to find 2nd base serial ', @import_serial_ID.name, row[1]].join(" : ")
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s2 = sr.first
@@ -480,13 +480,12 @@ Column : SQL column name : data desc
                 #   puts "#{s2.name} (Serial ID #{s2.id}) != #{row[3]} (tmpid #{row[1]})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial ', @import_serial_ID.name, row[1]].join(" : ")
+                  puts ['skipping - match > 1 base serial (2nd) ', @import_serial_ID.name, row[1]].join(" : ")
                   next
               end
               SerialChronology.create!(preceding_serial: s1, succeeding_serial: s2)
             end
-            puts
-            puts 'Successful load of MX & treehopper serial chronologies'
+            puts "\nSuccessful load of MX & treehopper serial chronologies"
             # raise 'causes it to always fail and rollback the transaction'
           end # end of transaction
         rescue
