@@ -10,14 +10,16 @@
 #
 class Otu < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
-  include SoftValidation
-  include Shared::Identifiable
-  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
-  include Shared::Notable
-  include Shared::DataAttributes
-  include Shared::Taggable
   include Shared::AlternateValues
+  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::DataAttributes
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::Taggable
+  include Shared::IsData
+  include SoftValidation
+
+  has_paper_trail
 
   belongs_to :taxon_name, inverse_of: :otus
 

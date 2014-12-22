@@ -19,7 +19,8 @@ module CitationsHelper
   def add_citation_link(object: object, attribute: nil)
     link_to('Add citation', new_citation_path(citation: {
         citation_object_type: object.class.base_class.name,
-        citation_object_id: object.id}))
+        citation_object_id: object.id})) if object.has_citations?
+
 
     # if object.citable?
     # link_to("Cite this #{object.class.name}", new_citation_path(alternate_value: {citation_object_type:      object.class.base_class.name,

@@ -4,7 +4,7 @@ module IdentifiersHelper
     link_to('Add identifier', new_identifier_path(
         identifier: {
             identifier_object_type: object.class.base_class.name,
-            identifier_object_id: object.id}))
+            identifier_object_id: object.id})) if object.has_identifiers?
   end
 
       def identifier_type_select_options

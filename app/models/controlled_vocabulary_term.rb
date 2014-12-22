@@ -2,9 +2,11 @@
 class ControlledVocabularyTerm < ActiveRecord::Base
 
   include Housekeeping
-  include Shared::IsData 
   include Shared::AlternateValues
+  include Shared::IsData
   # include Shared::Taggable <- NO!!
+
+  has_paper_trail
 
   validates_presence_of :name, :definition, :type
   validates_length_of :definition, minimum: 4

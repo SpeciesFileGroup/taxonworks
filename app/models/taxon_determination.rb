@@ -25,9 +25,9 @@ class TaxonDetermination < ActiveRecord::Base
   acts_as_list scope: [:biological_collection_object_id]
 
   include Housekeeping
-  include Shared::IsData 
-  include Shared::HasRoles
   include Shared::Citable
+  include Shared::HasRoles
+  include Shared::IsData
 
   belongs_to :otu, inverse_of: :taxon_determinations
   belongs_to :biological_collection_object, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :taxon_determinations

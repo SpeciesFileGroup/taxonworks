@@ -78,18 +78,18 @@
 #
 #
 class TaxonName < ActiveRecord::Base
-  
-  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
-  has_paper_trail
 
   # Notice about alternate values
   include Housekeeping
-  include Shared::Identifiable
-  include Shared::DataAttributes
   include Shared::Citable
-  include SoftValidation
+  include Shared::DataAttributes
+  include Shared::Identifiable
   include Shared::Notable
   include Shared::IsData
+  include SoftValidation
+
+  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
+  has_paper_trail
 
   acts_as_nested_set scope: [:project_id], dependent: :destroy
 

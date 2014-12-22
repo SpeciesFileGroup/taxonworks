@@ -14,9 +14,10 @@ module AlternateValuesHelper
   end
 
   def link_to_add_alternate_value(link_text, f)
-    new_object = f.object.class.reflect_on_association(:alternate_values).klass.new({alternate_value_object_type: f.object.class.base_class.name,
-                                                                                     alternate_value_object_id: f.object.id,
-                                                                                     alternate_value_object_attribute: 'name'})
+    new_object = f.object.class.reflect_on_association(:alternate_values).klass.new({
+      alternate_value_object_type: f.object.class.base_class.name,
+      alternate_value_object_id: f.object.id,
+      alternate_value_object_attribute: 'name'})
     # new_object = AlternateValue.new(alternate_value_object_id:   f.object.id,
     #                                 alternate_value_object_type: f.object.class.base_class.name)
     # fields     = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|
@@ -34,7 +35,7 @@ module AlternateValuesHelper
     link_to('Add alternate value', new_alternate_value_path(
         alternate_value: {alternate_value_object_type: object.class.base_class.name,
                           alternate_value_object_id: object.id,
-                          alternate_value_object_attribute: attribute})) if object.respond_to?(:has_alternate_values?)
+                          alternate_value_object_attribute: attribute})) if object.has_alternate_values?
   end
 
   def edit_alternate_value_link(alternate_value)

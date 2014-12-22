@@ -39,9 +39,10 @@ module TagsHelper
   end
 
   def add_tag_link(object: object, attribute: nil)
-    link_to('Add tag', new_tag_path(tag: {tag_object_type: object.class.base_class.name,
-                                          tag_object_id: object.id,
-                                          tag_object_attribute: attribute}))
+    link_to('Add tag', new_tag_path(tag: {
+        tag_object_type: object.class.base_class.name,
+        tag_object_id: object.id,
+        tag_object_attribute: attribute})) if object.has_tags?
   end
 
   def edit_tag_link(tag)

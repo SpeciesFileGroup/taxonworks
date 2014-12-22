@@ -16,7 +16,8 @@
 #
 class Content < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
+
   has_paper_trail 
 
   belongs_to :topic, inverse_of: :contents

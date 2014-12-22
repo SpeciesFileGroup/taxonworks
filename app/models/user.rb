@@ -37,8 +37,8 @@
 class User < ActiveRecord::Base
   
   include Housekeeping::Users
-  include Shared::Notable
   include Shared::DataAttributes
+  include Shared::Notable
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password
 

@@ -1,8 +1,8 @@
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
-  include SoftValidation
   include Shared::Notable
+  include SoftValidation
+  include Shared::IsData
 
   belongs_to :otu
   belongs_to :geographic_area

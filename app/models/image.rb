@@ -19,10 +19,10 @@
 #
 class Image < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
+  include Shared::IsData
   include SoftValidation
 
   #constants

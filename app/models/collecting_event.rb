@@ -43,12 +43,15 @@
 #
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData
   include Shared::Citable
+  include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::DataAttributes
+  include Shared::Taggable
+  include Shared::IsData
   include SoftValidation
+
+  has_paper_trail
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 

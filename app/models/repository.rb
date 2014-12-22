@@ -4,10 +4,8 @@
 #
 class Repository < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
   include Shared::Notable
   include Shared::SharedAcrossProjects
-
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   validates_presence_of :name, :url, :acronym, :status

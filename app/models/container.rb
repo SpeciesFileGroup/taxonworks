@@ -4,10 +4,10 @@ class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
   include Housekeeping
-  include Shared::IsData 
-  include Shared::Identifiable
   include Shared::Containable
+  include Shared::Identifiable
   include Shared::Taggable
+  include Shared::IsData
   include SoftValidation
 
   has_many :container_items, inverse_of: :container # , validate: false 

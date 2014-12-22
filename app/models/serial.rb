@@ -7,13 +7,15 @@
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type
   include Housekeeping::Users
-  include Shared::SharedAcrossProjects
-  include SoftValidation
-  include Shared::Identifiable
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
   include Shared::DataAttributes  # equivalent of a note for a global class
+  include Shared::Identifiable
+  include Shared::SharedAcrossProjects
   include Shared::Taggable
   include Shared::IsData
+  include SoftValidation
+
+  has_paper_trail
 
   # Class constants
   # Class variables

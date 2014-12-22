@@ -1,7 +1,7 @@
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
   include Shared::Citable
+  include Shared::IsData
   include SoftValidation
 
   belongs_to :taxon_name

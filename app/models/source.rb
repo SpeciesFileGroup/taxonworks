@@ -5,14 +5,14 @@
 class Source < ActiveRecord::Base
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsData 
-  include Shared::SharedAcrossProjects
-  include Shared::Identifiable
-  include Shared::HasRoles
-  include Shared::Notable
   include Shared::AlternateValues
   include Shared::DataAttributes
+  include Shared::HasRoles
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::SharedAcrossProjects
   include Shared::Taggable
+  include Shared::IsData
 
   has_paper_trail
 

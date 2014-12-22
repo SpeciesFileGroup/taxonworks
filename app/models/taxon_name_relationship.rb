@@ -1,7 +1,7 @@
 class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
   include Shared::Citable
+  include Shared::IsData
   include SoftValidation
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
