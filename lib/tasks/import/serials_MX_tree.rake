@@ -178,7 +178,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               #   end
               # end
 
-              if r.valid? && r.name.length < 256
+              if r.valid?  #&& r.name.length < 256
                 r.save!
               else
                 puts "error on primary save tmpID #{row[0]}"
@@ -202,7 +202,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                 # MX ID
                 if !(row[1].to_s.strip.blank?)
                   data_attr.push({import_predicate: @mx_serial_id.name,
-                                  value:            row[10].to_s.strip + ' 2nd ISSN',
+                                  value:            row[1].to_s.strip + ' 2nd ISSN',
                                   type:             'ImportAttribute'})
                 end
 
