@@ -261,7 +261,7 @@ namespace :tw do
 
           user = User.where(email: email)
           if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name)
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
           else
             user = user.first
           end
@@ -363,9 +363,9 @@ namespace :tw do
           end
           $preparation_types.merge!(pt => t)
         end
-        $preparation_types.megre!('Slides' => @preparation_types['Slide'])
-        $preparation_types.megre!('Vials' => @preparation_types['Vial'])
-        $preparation_types.megre!('pill box' => @preparation_types['Pill box'])
+        $preparation_types.merge!('Slides' => $preparation_types['Slide'])
+        $preparation_types.merge!('Vials' => $preparation_types['Vial'])
+        $preparation_types.merge!('pill box' => $preparation_types['Pill box'])
       end
 
 
@@ -621,7 +621,7 @@ namespace :tw do
 
           code = :iczn
 
-          f.each_with_index do |row, i|             #f.first(500).each_with_index
+          f.first(500).each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
@@ -641,23 +641,17 @@ namespace :tw do
               created_at: time_from_field(row['CreatedOn']),
               updated_at: time_from_field(row['ModifiedOn'])
             )
-
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
-            p.data_attributes.build(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
-            p.notes.build(text: row['Remarks']) unless row['Remarks'].blank?
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
-            #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
-
             if rank == NomenclaturalRank || !p.parent_id.blank?
               bench = Benchmark.measure {
                 p.save
-                build_otu(row, p, data) 
+                build_otu(row, p, data)
               }
 
               if p.valid?
                 parent_index.merge!(row['ID'] => p)
                 TAXA.merge!(row['TaxonCode'] => p)
-                print "\r#{i}\t#{bench.to_s.strip}  #{name}                           " #  \t\t#{rank}  
+                print "\r#{i}\t#{bench.to_s.strip}  #{name}                           " #  \t\t#{rank}
               else
                 puts "\n#{p.name}"
                 puts p.errors.messages
@@ -666,6 +660,14 @@ namespace :tw do
             else
               puts "\n  No parent for #{p.name}.\n"
             end
+
+
+            p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
+            p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
+            p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
+
+            #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
+
           end
 
           import.metadata['taxa'] = true
@@ -943,6 +945,8 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
 
         ac = CSV.open(path, col_sep: "\t", :headers => true)
+        #ac = CSV.open(path, col_sep: "\t", :headers => true)
+
 
         accessions_new_fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
 

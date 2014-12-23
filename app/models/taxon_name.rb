@@ -806,8 +806,8 @@ class TaxonName < ActiveRecord::Base
         with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
       a = [self.author_string]
 
-      if a =~ /^\(.*\)$/ # (Author)
-        a = a[1..-2]
+      if a[0] =~ /^\(.+\)$/ # (Author)
+        a[0] = a[0][1..-2]
         p = true
       else
         p = false
@@ -820,9 +820,16 @@ class TaxonName < ActiveRecord::Base
         ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
       end
 
-      if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(rank)
-        if p = true || ((self.original_combination_genus.name != self.ancestor_at_rank('genus').name) && !self.original_combination_genus.name.to_s.empty?)
+      if SPECIES_RANK_NAMES_ICZN.include?(rank.to_s)
+        if p
           ay = '(' + ay + ')' unless ay.empty?
+        else
+          og = self.original_genus
+          cg = self.ancestor_at_rank('genus')
+          unless og.nil? || cg.nil?
+            ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
+          end
+        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
         end
       end
 
