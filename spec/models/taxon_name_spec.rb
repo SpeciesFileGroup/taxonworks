@@ -361,9 +361,8 @@ describe TaxonName, :type => :model do
           expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
 
-
         specify 'ICZN species misspelling' do
-          sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+          sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
           sp.iczn_set_as_misapplication_of = @species
           expect(sp.save).to be_truthy
           expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
@@ -381,7 +380,18 @@ describe TaxonName, :type => :model do
           t.valid?
           expect(t.cached_author_year).to eq('')
         end
-        
+
+        specify 'parent with parentheses' do
+          c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: '(Dmitriev)', year_of_publication: 2000)
+          expect(c.get_author_and_year).to eq('(Dmitriev, 2000)')
+        end
+
+        specify 'parent without parentheses' do
+          c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: 'Dmitriev', year_of_publication: 2000)
+          expect(c.get_author_and_year).to eq('Dmitriev, 2000')
+        end
+
+
         specify 'original genus subgenus' do
           expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_genus = @genus
@@ -400,36 +410,39 @@ describe TaxonName, :type => :model do
         end
 
         specify 'source_classified_as' do
-          c                      = FactoryGirl.create(:combination, parent: @species)
+          c = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
           expect(c.save).to be_truthy
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
         
         specify 'different gender' do
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
-          @species.masculine_name = 'vitus'
-          @species.feminine_name  = 'vita'
-          @species.neuter_name    = 'vitum'
-          expect(@species.save).to be_truthy
+          s = FactoryGirl.create(:iczn_species, parent: @genus)
+          expect(s.save).to be_truthy
+          expect(s.get_full_name).to eq('<em>Erythroneura vitis</em>')
+          s.masculine_name = 'vitus'
+          s.feminine_name  = 'vita'
+          s.neuter_name    = 'vitum'
+          expect(s.save).to be_truthy
           gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vitus</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
           expect(gender.save).to be_truthy
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vita</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
           expect(gender.save).to be_truthy
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vitum</em>')
         end
 
         specify 'misspelled original combination' do
-          g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+          g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
           g.iczn_set_as_misspelling_of = @genus
           expect(g.save).to be_truthy
           @subspecies.original_genus = g
           @subspecies.reload
           expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
           expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
+          expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
         end
 
         specify 'moving nominotypical taxon' do
@@ -441,7 +454,7 @@ describe TaxonName, :type => :model do
         end
 
         context 'cached homonyms' do
-          before(:all) do
+          before(:each) do
             @g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @tribe, year_of_publication: 1999)
             @g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @tribe, year_of_publication: 2000)
             @s1 = FactoryGirl.create(:relationship_species, name: 'vitatus', parent: @g1, year_of_publication: 1999)
@@ -466,9 +479,9 @@ describe TaxonName, :type => :model do
             expect(@family.cached_secondary_homonym.blank?).to be_truthy
             expect(@g1.cached_secondary_homonym.blank?).to be_truthy
             expect(@g2.cached_secondary_homonym.blank?).to be_truthy
-            @s1.save
+            expect(@s1.save).to be_truthy
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
-            @s2.save
+            expect(@s2.save).to be_truthy
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do

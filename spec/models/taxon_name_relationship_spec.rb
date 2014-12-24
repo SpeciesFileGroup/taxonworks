@@ -225,7 +225,7 @@ describe TaxonNameRelationship, :type => :model do
       end
 
       context 'specific relationships' do
-        before(:all) do
+        before(:each) do
           @f1 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
           @f2 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
           @g1 = FactoryGirl.create(:relationship_genus, parent: @f1)
@@ -343,7 +343,7 @@ describe TaxonNameRelationship, :type => :model do
           @s2.reload
           r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
           r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(2)
+          expect(r.soft_validations.messages_on(:type).size).to eq(1)
           expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
           r.source = @source
           r.soft_validate(:specific_relationship)

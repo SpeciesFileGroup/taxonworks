@@ -12,22 +12,23 @@
     <% end %>
 
     <div class="field">
-      <%= f.label :institution %>
+      <%= f.label :institution, 'Institution (or person responsible for minting this namespace)' %>
       <br>
       <%= f.text_field :institution %>
     </div>
     <div class="field">
-      <%= f.label :name %>
+      <%= f.label :name, 'Full name (e.g., collection name or URL; must be unique among all namespaces)' %>
       <br>
       <%= f.text_field :name %>
     </div>
     <div class="field">
-      <%= f.label :short_name %>
+      <%= f.label :short_name, 'Short name or abbreviation (must be unique among all namespaces)' %>
       <br>
       <%= f.text_field :short_name %>
     </div>
     <div class="field">
-      <%= f.label :verbatim_short_name %>
+      <%= f.label :verbatim_short_name, 'Verbatim short name (since short names must be unique, use a verbatim short name to indicate the
+physical and/or historical recorded value)' %>
       <br>
       <%= f.text_field :verbatim_short_name %>
     </div>

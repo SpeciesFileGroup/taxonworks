@@ -151,7 +151,7 @@ describe Protonym, :type => :model do
   end
 
   context 'usage' do
-    before(:all) do
+    before(:each) do
       @f = FactoryGirl.create(:relationship_family, name: 'Aidae', parent: @order)
       @g = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @f)
       @o = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @f)
@@ -224,7 +224,7 @@ describe Protonym, :type => :model do
   end
 
   context 'soft_validation' do
-    before(:all) do
+    before(:each) do
       @subspecies = FactoryGirl.create(:iczn_subspecies)
       @variety = FactoryGirl.create(:icn_variety)
 

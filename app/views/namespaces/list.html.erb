@@ -8,6 +8,7 @@
     <th>Institution</th>
     <th>Name</th>
     <th>Short name</th>
+    <th>Verbatim short name</th>
     <th>Last modified</th>
     <th>Updated by</th>
     <th></th>
@@ -22,6 +23,7 @@
         <td><%= namespace.institution %></td>
         <td><%= namespace.name %></td>
         <td><%= namespace.short_name %></td>
+        <td><%= namespace.verbatim_short_name %></td>
         <td><%= namespace.updated_at %></td>
         <td><%= object_tag(namespace.updater) %></td>
         <td><%= link_to 'Show', namespace %></td>
