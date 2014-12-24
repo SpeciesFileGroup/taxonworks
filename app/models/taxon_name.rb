@@ -464,7 +464,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_classified_as
-    self.cached_classified_as = get_classified_as
+    self.cached_classified_as = get_cached_classified_as
   end
 
   def get_cached_misspelling
@@ -864,11 +864,11 @@ class TaxonName < ActiveRecord::Base
     safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
   end
 
-  def get_classified_as
+  def get_cached_classified_as
     unless self.class == Combination || self.class == Protonym
       return nil
     end
-    c = self.source_classified_as
+    c = self.source_classified_as_taxon_name
     if c.nil?
       nil
     else

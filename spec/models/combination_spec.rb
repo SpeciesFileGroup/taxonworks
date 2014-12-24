@@ -4,6 +4,9 @@ describe Combination, :type => :model do
 
   before(:all) do
     TaxonName.delete_all
+ # end
+
+ # before(:all) do
     @family = FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000)
     @combination = FactoryGirl.create(:combination, parent: @family)
     @source = FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
@@ -63,20 +66,22 @@ describe Combination, :type => :model do
           @species = FactoryGirl.create(:relationship_species, parent: @genus)
           @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
           @combination1 = FactoryGirl.create(:combination, parent: @species)
-          @combination1.combination_species = @species
-          expect(@combination1.save).to be_truthy
+          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @species, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Species')
         end
         specify 'empty' do
           expect(@combination1.get_combination).to eq('<em>vitis</em>')
         end
         specify 'genus' do
-          @combination1.combination_genus = @genus
+          #@combination1.combination_genus = @genus
+          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Genus')
           @combination1.reload
           expect(@combination1.get_combination).to eq('<em>Erythroneura vitis</em>')
-          @combination1.combination_subgenus = @genus
+          #@combination1.combination_subgenus = @genus
+          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Subgenus')
           @combination1.reload
           expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
-          @combination1.combination_subspecies = @species2
+          #@combination1.combination_subspecies = @species2
+          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @species2, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Subspecies')
           @combination1.reload
           expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis comes</em>')
         end
@@ -104,7 +109,7 @@ describe Combination, :type => :model do
     end
 
     context 'usage' do
-      before(:all) do
+      before(:each) do
         @genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
         @subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: @genus)
         @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @subgenus)
@@ -164,12 +169,16 @@ describe Combination, :type => :model do
       species = FactoryGirl.create(:iczn_species, name: 'bus', parent: genus)
       c1 = FactoryGirl.create(:combination, parent: species)
       c2 = FactoryGirl.create(:combination, parent: species)
-      c1.combination_genus = genus
-      c1.combination_species = species
+      #c1.combination_genus = genus
+      #c1.combination_species = species
+      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: c1, type: 'TaxonNameRelationship::Combination::Genus')
+      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: species, object_taxon_name: c1, type: 'TaxonNameRelationship::Combination::Species')
       expect(c1.save).to be_truthy
       c1.reload
-      c2.combination_genus = genus
-      c2.combination_species = species
+      #c2.combination_genus = genus
+      #c2.combination_species = species
+      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: c2, type: 'TaxonNameRelationship::Combination::Genus')
+      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: species, object_taxon_name: c2, type: 'TaxonNameRelationship::Combination::Species')
       expect(c2.save).to be_truthy
       c2.reload
       expect(c1.cached_original_combination).to eq('<em>Aus bus</em>')
