@@ -7,12 +7,12 @@ describe 'Shared::IsData', type: :model do
 
   context 'instance methods' do
 
-    specify 'has_citations?' do
-      expect(is_data_instance.has_citations?).to eq(false)
-    end
-
     specify 'has_alternate_values?' do
       expect(is_data_instance.has_alternate_values?).to eq(false)
+    end
+
+    specify 'has_citations?' do
+      expect(is_data_instance.has_citations?).to eq(false)
     end
 
     specify 'has_identifiers?' do
@@ -25,6 +25,10 @@ describe 'Shared::IsData', type: :model do
 
     specify 'has_tags?' do
       expect(is_data_instance.has_tags?).to eq(false)
+    end
+
+    specify 'is_in_use?' do
+      expect(is_data_instance.is_in_use?).to eq(false)
     end
   end
 
