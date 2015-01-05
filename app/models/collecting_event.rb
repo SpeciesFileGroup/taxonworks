@@ -421,8 +421,19 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
   # @param geographic_item [GeographicItem]
   # @return [Scope]
   def self.find_others_contained_within(geographic_item)
-    partial = GeographicItem.joins(:georeferences).is_contained_by('poly', geographic_item)
-    partial
+    pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
+    # pieces = GeographicItem.is_contained_by('any', geographic_item)
+    pieces
+
+    ce = []
+    pieces.each { |o|
+      ce.push(o.collecting_events_through_georeferences.to_a)
+      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+    pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+
+    pieces.excluding(self)
+
   end
 
   # @param collecting_events [CollectingEvent Scope]

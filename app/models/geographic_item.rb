@@ -376,11 +376,11 @@ SELECT round(CAST(
         }
         # todo: change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
-      when 'poly', 'line'
+      when 'any_poly', 'any_line'
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            if column.to_s.index(column_name)
+            if column.to_s.index(column_name.gsub('any_', ''))
               part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
             end
           end
@@ -388,7 +388,9 @@ SELECT round(CAST(
         # todo: change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
       else
-        q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql_reverse(column_name, geographic_item) }.join(' or ')
+        q = geographic_items.flatten.collect { |geographic_item|
+          GeographicItem.containing_sql_reverse(column_name, geographic_item)
+        }.join(' or ')
         where(q)
     end
   end
