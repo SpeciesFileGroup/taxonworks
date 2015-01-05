@@ -5,6 +5,7 @@
 class Repository < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::Notable
+  include Shared::IsData
   include Shared::SharedAcrossProjects
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error

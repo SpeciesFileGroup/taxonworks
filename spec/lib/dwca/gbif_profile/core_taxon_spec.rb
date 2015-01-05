@@ -28,9 +28,9 @@ describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
     source.save!
 
     r = find_or_create_root_taxon_name 
-    g = TaxonName.create(name: 'Oedipoda', rank_class: Ranks.lookup(:iczn, 'genus'), parent: r)
-    s = TaxonName.create(name: 'caerulescens', rank_class: Ranks.lookup(:iczn, 'species'), parent: g)
-    ss = TaxonName.create(name: 'sardeti', rank_class: Ranks.lookup(:iczn, 'subspecies'), parent: s, source: source)
+    g = Protonym.create(name: 'Oedipoda', rank_class: Ranks.lookup(:iczn, 'genus'), parent: r)
+    s = Protonym.create(name: 'caerulescens', rank_class: Ranks.lookup(:iczn, 'species'), parent: g)
+    ss = Protonym.create(name: 'sardeti', rank_class: Ranks.lookup(:iczn, 'subspecies'), parent: s, source: source)
   
     ss.identifiers << Identifier::Global::Lsid.new(identifier: 'urn:lsid:Orthoptera.speciesfile.org:TaxonName:67404')
 

@@ -7,7 +7,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events.json
   def index
     @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-  en
+  end
 
   # GET /collecting_events/1
   # GET /collecting_events/1.json
@@ -97,7 +97,7 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
-  # GET /otus/download
+  # GET /collecting_events/download
   def download
     send_data CollectingEvent.generate_download(CollectingEvent.where(params.require(:where).permit(:id)), $project_id), type: 'text'
   end
