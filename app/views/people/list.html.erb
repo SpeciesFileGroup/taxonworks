@@ -30,7 +30,7 @@
         <td><%= person.updater.email %></td>
         <td><%= link_to 'Show', person.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_person_path(person.metamorphosize) %></td>
-        <td><%= link_to 'Destroy', person.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to('Destroy', person.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' }) if person.can_destroy?(@sessions_current_user) %></td>
       </tr>
   <% end %>
   </tbody>
