@@ -399,8 +399,8 @@ SFImportIDMap.txt
                 # raise 's not valid'
               end
             end # end of row
-            puts "\n#{ap(error_msg.flatten.uniq)}\n"
-            puts "\n#{ap(warn_msg.flatten.uniq)}\n"
+            puts "\n ERRORS \n #{ap(error_msg.flatten.uniq)}\n"
+            #puts "\n Warnings \n #{ap(warn_msg.flatten.uniq)}\n"
             puts 'Successful load of SF & SF registry IDs'
             # raise 'to prevent saving to db while testing rake'
           end # end transaction
@@ -409,8 +409,7 @@ SFImportIDMap.txt
         end
       end #end task
 
-# following are not correctly coded yet!
-      desc 'call like "rake tw:import:serial:add_SF_serial_alt_names[/Users/eef/src/data/serialdata/working_data/SFaltnames.txt] user_id=1 project_id=1" '
+      desc 'call like "rake tw:import:serial:add_SF_serial_alt_names[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 project_id=1" '
       task :add_altnames_SFserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './SFaltnames.txt')
 
@@ -521,9 +520,9 @@ Column : SQL column name :  data desc
               end
             end # end of row
             puts "\n#{ap(error_msg.flatten.uniq)}\n"
-            puts "\n#{ap(warn_msg.flatten.uniq)}\n"
+            #puts "\n#{ap(warn_msg.flatten.uniq)}\n"
             puts 'Successful load of SF alternate names'
-            raise 'to prevent saving to db while testing rake'
+            #raise 'to prevent saving to db while testing rake'
           end # end transaction
         rescue
           raise
