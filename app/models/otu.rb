@@ -10,20 +10,22 @@
 #
 class Otu < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
-  include SoftValidation
-  include Shared::Identifiable
-  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
-  include Shared::Notable
-  include Shared::DataAttributes
-  include Shared::Taggable
   include Shared::AlternateValues
+  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::DataAttributes
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::Taggable
+  include Shared::IsData
+  include SoftValidation
+
+  has_paper_trail
 
   belongs_to :taxon_name, inverse_of: :otus
 
   has_many :otu_contents, inverse_of: :otu, dependent: :destroy
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :collection_profiles # @proceps dependent: what?
   has_many :topics, through: :otu_contents, source: :topic
 
@@ -131,6 +133,9 @@ class Otu < ActiveRecord::Base
     end
     new_otus
   end
+
+
+
 
 end
 

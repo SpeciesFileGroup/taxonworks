@@ -1,5 +1,4 @@
 class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
-
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
   # left_side

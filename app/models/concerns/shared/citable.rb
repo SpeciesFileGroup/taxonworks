@@ -6,10 +6,7 @@ module Shared::Citable
   end 
 
   def cited?
-    self.citations.count > 0
+    self.citations.any?
   end
 
-  def citable?
-    true
-  end
 end

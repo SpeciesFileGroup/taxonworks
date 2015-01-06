@@ -6,7 +6,7 @@ class TaxonNameRelationshipsController < ApplicationController
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
-    @taxon_name_relationships = TaxonNameRelationship.all
+    @recent_objects = TaxonNameRelationship.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /taxon_name_relationships/1
@@ -62,6 +62,11 @@ class TaxonNameRelationshipsController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def list
+    @taxon_name_relationships = TaxonNameRelationship.with_project_id($project_id).order(:id).page(params[:page]) 
+  end
+  
 
   private
     # Use callbacks to share common setup or constraints between actions.

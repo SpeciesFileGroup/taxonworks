@@ -1,4 +1,4 @@
-<%= form_for(@identifier) do |f| %>
+<%= form_for(@identifier.metamorphosize) do |f| %>
   <% if @identifier.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@identifier.errors.count, "error") %> prohibited this identifier from being saved:</h2>
@@ -11,27 +11,41 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :identified_object_id %><br>
-    <%= f.number_field :identified_object_id %>
-  </div>
-  <div class="field">
-    <%= f.label :identified_object_type %><br>
-    <%= f.text_field :identified_object_type %>
-  </div>
+    <p><strong><%= @identifier.identifier_object.class.name %>:</strong> <%= object_tag(@identifier.identifier_object) -%>  </p>
+
   <div class="field">
     <%= f.label :identifier %><br>
     <%= f.text_field :identifier %>
   </div>
+
   <div class="field">
-    <%= f.label :type %><br>
-    <%= f.text_field :type %>
+    <%#= f.label :type %>
+    <%#= f.text_field :type %>
+    <%= f.label :type %>
+    <br>
+    <%= f.select :type, options_for_select(identifier_type_select_options, @identifier.type) %>
   </div>
- <div class="field">
-    <%= f.label :namespace_id %><br>
-    <%= f.number_field :namespace_id %>
-  </div>
-  <div class="actions">
+
+ <!-- todo: @mjy added namespace_id in _form, autocomplete in controller, self.find_for_autocomplete in model; tests run fine, but clicking on add identifier blows up -->
+    <div class="field">
+      <%= f.label :namespace_id %><br>
+      <%#= f.number_field :namespace_id %>
+      <br>
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
+                 :locals  => {:controller => 'namespaces',
+                              :object     => 'identifier',
+                              :method     => 'namespace_id',
+                              :tag_id     => 'namespace_id_for_identifier',
+                              :display    => nil} %>
+    </div>
+
+    <!-- namespace_tag(@identifier.namespace) -->
+
+    <%= f.hidden_field :identifier_object_type %>
+
+    <%= f.hidden_field :identifier_object_id %>
+
+    <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>

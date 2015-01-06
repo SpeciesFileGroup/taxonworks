@@ -40,7 +40,7 @@ class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
   include Housekeeping::Timestamps
 
-  include Shared::IsData 
+  include Shared::IsData
 
   # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
   if ENV['NO_GEO_NESTING']
@@ -138,6 +138,37 @@ class GeographicArea < ActiveRecord::Base
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
 
+  def self.find_for_autocomplete(params)
+    terms = params[:term].split
+    limit = 100
+    case params[:term].length
+      when 0..3
+        limit = 10
+      else
+        limit = 40
+    end
+    search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
+    where(search_term).includes(:parent, :geographic_area_type).order(:name).limit(limit)
+  end
+
+  # @param geographic_item [GeographicItem]
+  # @return [Scope]
+  def self.find_others_contained_within(geographic_item)
+    pieces = GeographicItem.is_contained_by('any', geographic_item)
+    pieces
+
+    # ce = []
+    # pieces.each { |o|
+    #   ce.push(o.collecting_events_through_georeferences.to_a)
+    #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    # }
+    # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+    #
+    pieces.excluding(geographic_item)
+
+  end
+
+
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
   end
@@ -185,10 +216,43 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
-  def self.find_for_autocomplete(params)
-    terms = params[:term].split
-    search_term = terms.collect{|t| "name LIKE '#{t}%'"}.join(" OR ") 
-    where(search_term).includes(:parent, :geographic_area_type).order(:name)
+  # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
+  # provide a point on which to focus the map.  Return 'nil' if there are no GIs in the chain.
+  def geographic_area_map_focus
+    item = nil
+    if geographic_items.count == 0
+      # this nil signals the top of the stack: Everything terminates at 'Earth'
+      unless parent.nil?
+        item = parent.geographic_area_map_focus
+      end
+    else
+      item = GeographicItem.new(point: geographic_items.first.st_centroid)
+    end
+    item
+  end
+
+  def geolocate_ui_params_hash
+    # parameters = {county: level2.name, state: level1.name, country: level0.name}
+    parameters           = {}
+    parameters[:county]  = level2.name unless level2.nil?
+    parameters[:state]   = level1.name unless level1.nil?
+    parameters[:country] = level0.name unless level0.nil?
+    item                 = geographic_area_map_focus
+    unless item.nil?
+      parameters[:Longitude] = item.point.x
+      parameters[:Latitude]  = item.point.y
+    end
+    @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
+    @geolocate_string = @geolocate_request.request_params_string
+    @geolocate_hash   = @geolocate_request.request_params_hash
+  end
+
+  # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+  def geolocate_ui_params_string
+    if @geolocate_hash.nil?
+      geolocate_ui_params_hash
+    end
+    @geolocate_string
   end
 
 end

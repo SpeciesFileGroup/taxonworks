@@ -1,4 +1,5 @@
 require 'rails_helper'
+
 describe 'Identifiable', :type => :model do
   let(:identifiable_instance) { TestIdentifiable.new } 
   let(:identifiable_class) { TestIdentifiable } 
@@ -15,6 +16,11 @@ describe 'Identifiable', :type => :model do
       expect(identifiable_instance.identified?).to eq(false)
     end
 
+    specify 'identified? with some identifiers' do
+      identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
+      expect(identifiable_instance.identified?).to eq(true)
+    end
+
     context "with some records created" do
       let(:namespace_name1) {'INHSIC'}
       let(:namespace_name2) {'NCSU'}
@@ -24,9 +30,9 @@ describe 'Identifiable', :type => :model do
       let!(:n2) {FactoryGirl.create(:valid_namespace, name: namespace_name2) }
       let!(:n3) {FactoryGirl.create(:valid_namespace, name: namespace_name3) }
 
-      let!(:identifier1) { FactoryGirl.create(:valid_identifier, identified_object: identifiable_instance, identifier: '123', namespace: n1) }
-      let!(:identifier2) { FactoryGirl.create(:valid_identifier, identified_object: identifiable_instance, identifier: '456', namespace: n2) }
-      let!(:identifier3) { FactoryGirl.create(:valid_identifier, identified_object: identifiable_instance, identifier: '789', namespace: n3) }
+      let!(:identifier1) { FactoryGirl.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
+      let!(:identifier2) { FactoryGirl.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
+      let!(:identifier3) { FactoryGirl.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
 
       specify ".identified?" do
         expect(identifiable_instance.identified?).to eq(true)
@@ -43,7 +49,6 @@ describe 'Identifiable', :type => :model do
       end
     end
   end
-
 
 end
 

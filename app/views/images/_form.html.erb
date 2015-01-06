@@ -1,4 +1,4 @@
-<%= form_for(@image) do |f| %>
+<%= form_for(@image, multipart: true) do |f| %>
   <% if @image.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
@@ -13,9 +13,14 @@
 
   <div class="field">
     <%= f.label :image_file %><br>
-    <%= f.file_field :image_file %>
+    
+    <div> <%= image_tag(@image.image_file.url(:thumb)) -%> </div>
+
+    <%= f.file_field :image_file, class: :required_for_submit %>
   </div>
+
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit id: 'submit_with_required', disabled: :disabled %>
   </div>
 <% end %>
+

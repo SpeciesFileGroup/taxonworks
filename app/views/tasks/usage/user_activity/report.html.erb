@@ -1,0 +1,51 @@
+<h1> Report for <%= object_tag(@user) -%> </h1>
+<% Rails.application.eager_load! if Rails.env.development? -%>
+
+<% @user.class.reflect_on_all_associations(:has_many).each do |r| %>
+    <% unless r.name.to_s =~ /created_/ || r.name.to_s =~ /updated_/ %>
+        <div><%= r.name -%> <%#= @user.send(r.name).count %></div>
+    <% end %>
+
+<% end %>
+
++++
+
+<!-- call method in user.rb that will create a hash to include class name, no. created, no updated
+ Then there will be some routine (within the loop?) that puts the values in the appropriate column
+
+ Now add a first created at and a last updated at
+ -->
+
+<table>
+  <tr>
+    <th> </th>
+    <th>Class</th>
+    <th>Number created</th>
+    <th>First created</th>
+    <th>Number updated</th>
+    <th>Last updated</th>
+  </tr>
+
+
+  <% @user.get_class_created_updated.each_with_index do |(k,v), i| %>
+    <tr>
+      <td> <%= i -%> </td>
+        <td>  <%= k %>  </td>
+        <td>
+          <%= v[:created] %>
+        </td>
+        <td>
+          <%= v[:first_created] %>
+        </td>
+        <td>
+          <%= v[:updated] %>
+        </td>
+        <td>
+          <%= v[:last_updated] %>
+        </td>
+
+      </tr>
+  <% end %>
+
+</table>
+<%= link_to('select another user', user_activity_task_path) -%>

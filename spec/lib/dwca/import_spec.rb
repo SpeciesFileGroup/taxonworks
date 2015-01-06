@@ -33,7 +33,6 @@ describe Dwca::Import do
     end
   end
 
-
   context 'Dwca::Import::Manager' do
     let(:manager) {Dwca::Import::Manager.new(data: @data, errors: @errors, core_fields: @dwc.core.fields)}
 

@@ -73,13 +73,12 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/search
   def search
-    if params[:collecting_event] && params[:collecting_event][:id]
-      redirect_to collecting_event_path(params[:collecting_event][:id])
+    if params[:id]
+      redirect_to collecting_event_path(params[:id])
     else
-      redirect_to collecting_events_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collecting_event_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
-
 
   def autocomplete
     @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) 
@@ -98,6 +97,11 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
+  # GET /collecting_events/download
+  def download
+    send_data CollectingEvent.generate_download(CollectingEvent.where(params.require(:where).permit(:id)), $project_id), type: 'text'
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -107,6 +111,6 @@ class CollectingEventsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def collecting_event_params
-    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :micro_habitat, :macro_habitat, :field_notes, :md5_of_verbatim_label )
+    params.require(:collecting_event).permit(:verbatim_label, :print_label, :print_label_number_to_print, :document_label, :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision, :time_start, :time_end, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year, :verbatim_habitat,  :field_notes, :verbatim_datum )
   end
 end

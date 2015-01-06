@@ -4,7 +4,7 @@ FactoryGirl.define do
     factory :valid_identifier_local_catalog_number  do
       association :namespace, factory: :valid_namespace
       identifier '12345'
-      association :identified_object, factory: :valid_specimen, strategy: :build
+      association :identifier_object, factory: :valid_specimen, strategy: :build
     end
   end
 end

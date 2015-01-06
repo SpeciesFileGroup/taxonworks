@@ -15,7 +15,10 @@
 
 /db/schema.rb
 database.yml
+local_settings.yml
 /tags
+
+.yardoc/
 
 # Temporarily
 /Gemfile.lock

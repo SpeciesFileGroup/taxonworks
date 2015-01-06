@@ -70,7 +70,11 @@ class LoansController < ApplicationController
   end
 
   def search
-    redirect_to loan_path(params[:loan][:id])
+    if params[:id]
+      redirect_to loan_path(params[:id])
+    else
+      redirect_to loan_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

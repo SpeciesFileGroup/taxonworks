@@ -1,29 +1,53 @@
-<div class="flexbox">
-  <div class="item item1">
+<div class="flexbox" id="show">
+  <div class="item item1 one_fifth_width">
+
     <h2> <%= model_name_title -%></h2>
 
     <div>id: <%= object.id -%></div>
-    <%= forward_back_links(object) -%> <br>
-    <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
-    <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-    <br>
-    <%= add_alternate_value_link(object: object, user: sessions_current_user) -%>
-    <br>
-    <%= papertrail_link(object) -%>
-  </div>
 
-  <div class="item item2">
-    <h2> <%= object_tag(object) -%> </h2>
-    <%= render object_attributes_partial_path(object.metamorphosize) %>
-    <div class="attributes">
-      <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
-      <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+    <div class="go">
+      <h2> Go </h2>
+      <%= forward_back_links(object) -%> <br><br>
+      <%= yield :show_navigation -%>
     </div>
   </div>
 
-  <div class="item item3">
+  <div class="item item2 one_third_width">
+    <h2> <%= object_tag(object) -%> </h2>
 
+    <div class="attributes">
+      <%= render object_attributes_partial_path(object.metamorphosize) %>
+      <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
+      <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+      <%= render(partial: '/alternate_values/object_pane', locals: {object: object}) if object.has_alternate_values? %>
+      <%= render(partial: '/citations/object_pane', locals: {object: object}) if object.has_citations? %>
+      <%= render(partial: '/identifiers/object_pane', locals: {object: object}) if object.has_identifiers? %>
+      <%= render(partial: '/notes/object_pane', locals: {object: object}) if object.has_notes? %>
+      <%= render(partial: '/tags/object_pane', locals: {object: object}) if object.has_tags? %>
+    </div>
+  </div>
 
+  <div class="item item3 one_quarter_width">
+
+    <div class="do">
+      <h2> Do </h2>
+      <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
+
+      <h3> Annotate </h3>
+      <%= annotate_links(object: object) -%>
+
+      <br>
+      <br>
+      <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+      <br>
+      <%= yield :tasks -%>
+    </div>
+
+    <div class="see">
+      <h2> See </h2>
+      <%= papertrail_link(object) -%>
+      <%= yield :see -%>
+    </div>
   </div>
 </div>
 

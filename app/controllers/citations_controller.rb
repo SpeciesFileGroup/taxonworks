@@ -4,6 +4,10 @@ class CitationsController < ApplicationController
   before_action :require_sign_in_and_project_selection
   before_action :set_citation, only: [:update, :destroy]
 
+  def new
+    @citation = Citation.new(citation_params)
+  end
+
   # GET /citations
   # GET /citations.json
   def index
@@ -17,7 +21,7 @@ class CitationsController < ApplicationController
 
     respond_to do |format|
       if @citation.save
-        format.html { redirect_to :back, notice: 'Citation was successfully created.' }
+        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
         format.json { render json: @citation, status: :created, location: @citation }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
@@ -31,7 +35,7 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to :back, notice: 'Citation was successfully updated.' }
+        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
         format.json { head :no_content }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }
@@ -55,20 +59,25 @@ class CitationsController < ApplicationController
   end
 
   def search
-    redirect_to citation_path(params[:citation][:id])
+    if params[:id]
+      redirect_to citation_path(params[:id])
+    else
+      redirect_to citations_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
+
 
   def autocomplete
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @citations.collect do |t|
       lbl = render_to_string(partial: 'tag', citation: t)
-      {id:              t.id,
-       label:           lbl, 
+      {id: t.id,
+       label: lbl,
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html: lbl 
+       label_html: lbl
       }
     end
 
@@ -76,13 +85,13 @@ class CitationsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_citation
-      @citation = Citation.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_citation
+    @citation = Citation.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def citation_params
-      params.require(:citation).permit(:citation_object_type, :citation_object_id, :source_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def citation_params
+    params.require(:citation).permit(:citation_object_type, :citation_object_id, :source_id)
+  end
 end

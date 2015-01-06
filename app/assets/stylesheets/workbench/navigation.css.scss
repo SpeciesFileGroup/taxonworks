@@ -1,11 +1,22 @@
 @import 'palette';
 
+// see navigation_emphasis in palette
+a {
+  color: $color-secondary-2-4;
+  &:visited {
+    color: $color-secondary-2-3;
+  }
+  &:hover {
+    color: $color-secondary-2-0;
+    background-color: $color-secondary-2-2;
+  }
+}
+
+
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
   list-style: none;
   margin: 0; 
-  
-  // background: deepskyblue;
   
   display: -webkit-box;
   display: -moz-box;
@@ -14,18 +25,12 @@
   display: flex;
   
   -webkit-flex-flow: row wrap;
-  justify-content: flex-start;
-}
 
-.horizontal_navbar a {
-  text-decoration: none;
-  display: block;
-  padding: 0 1em; // was 1
- // color: white;
-}
-
-.horizontal_navbar a:hover {
-  background: darken($color-secondary-2-0, 2%);
+  a {
+    text-decoration: none;
+    display: block;
+    padding: 0 1em; // was 1
+  }
 }
 
 @media all and (max-width: 800px) {
@@ -51,6 +56,16 @@
   .horizontal_navbar li:last-of-type a {
     border-bottom: none;
   }
+}
+
+.centered_navbar {
+  @extend .horizontal_navbar;
+  justify-content: center;  
+}
+
+.left_justified_navbar {
+  @extend .horizontal_navbar;
+  justify-content: flex-start;  
 }
 
 #taxonworks_link {

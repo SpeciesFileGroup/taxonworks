@@ -4,43 +4,100 @@
 # 
 class Source < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
-  include Shared::SharedAcrossProjects
-  include Shared::Identifiable
-  include Shared::HasRoles
-  include Shared::Notable
+  include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
+  include Shared::HasRoles
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::SharedAcrossProjects
   include Shared::Taggable
+  include Shared::IsData
+
+  has_paper_trail
 
   has_many :citations, inverse_of: :source, dependent: :destroy
-  has_many :cited_objects, through: :citations, source_type: 'CitedObject'
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 
-  #validate :not_empty
+  after_validation :set_cached_values
+
+  def cited_objects
+    self.citations.collect{|t| t.citation_object}
+  end
 
   def self.find_for_autocomplete(params)
     where('cached LIKE ?', "%#{params[:term]}%") 
   end
 
-
-  # TODO: Test
-  # Create a new instance from a full text citatation.  By default 
+  # Create a new Source instance from a full text citatation.  By default 
   # try to resolve the citation against Crossref, use the returned
   # bibtex to populate the object if it successfully resolves. 
-  # @return[Source::Bibtex.new()] 
-  # returns false  if citation length < 4
+  #
+  # @param citation [String] the full text of the citation to convert
+  # @param resolve [Boolean] whether to resolve against CrossRef, if false then creates a verbatim instance 
+  # @return [Source::BibTex.new] a new instance 
+  # @return [false] a new instance 
   def self.new_from_citation(citation: nil, resolve: true)
-    if citation.length > 3
-      if resolve
-        if bibtext_string = Ref2bibtex.get(citation)
-          return Source::Bibtex.new_from_bibtex(bibtex_string)
-        end
-      end
+    return false if citation.length < 6
+    bibtex_string = Ref2bibtex.get(citation) if resolve
+    if bibtex_string 
+      b = BibTeX.parse(bibtex_string).first
+      return Source::Bibtex.new_from_bibtex(b)
+    else
       return Source::Verbatim.new(verbatim: citation )
     end
   end
 
+  def self.new_from_doi(doi: nil)
+    return false if !doi 
+    bibtex_string = Ref2bibtex.get_bibtex(doi) 
+    if bibtex_string 
+      b = BibTeX.parse(bibtex_string).first
+      return Source::Bibtex.new_from_bibtex(b)
+    end
+    false
+  end
+
+  def self.batch_preview(file: nil, ** args)
+    bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
+    @sources = []
+    bibliography.each do |record|
+      a = Source::Bibtex.new_from_bibtex(record)
+      @sources.push(a)
+    end
+    @sources
+  end
+
+  def self.batch_create(file: nil, ** args)
+    sources = []
+    begin
+      Source.transaction do 
+        bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
+        bibliography.each do |record|
+          a = Source::Bibtex.new_from_bibtex(record)
+          a.save!
+          sources.push(a)
+        end
+      end 
+    rescue
+      raise
+    end
+    sources
+  end
   
+  def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
+    return Source.none if compared_string.nil?
+    order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
+    Source.where('id <> ?', self.to_param).
+      order(order_str).
+      limit(limit)
+end
+
+  protected
+
+  def set_cached_values
+    # in subclasses
+  end
+
 end

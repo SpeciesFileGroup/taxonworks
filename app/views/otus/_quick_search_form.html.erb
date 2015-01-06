@@ -1,7 +1,7 @@
-<%= form_tag(search_otus_path) do %>
+<%= form_tag(search_otus_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'otus',
-                         object:     'otu',
+                         object:     nil,
                          method:     'id',
                          tag_id:     'otu_id_for_quick_search_form',
                          size:       '',

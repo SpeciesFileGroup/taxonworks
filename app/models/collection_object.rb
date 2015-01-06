@@ -1,4 +1,4 @@
-# A CollectionObject is on or more physical things that have been collected.  Ennumerating how many things (@!total) is a 
+# A CollectionObject is on or more physical things that have been collected.  Ennumerating how many things (@!total) is a task of the curator.
 # 
 ## @!attribute total 
 #   @return [Integer]
@@ -50,15 +50,19 @@ class CollectionObject < ActiveRecord::Base
   # TODO: DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
   include Housekeeping
-  include Shared::IsData 
-  include Shared::Identifiable
-  include Shared::Containable
   include Shared::Citable
-  include Shared::Notable
+  include Shared::Containable
   include Shared::DataAttributes
-  include Shared::Taggable
-  include SoftValidation
   include Shared::HasRoles
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::Taggable
+  include Shared::IsData
+  include SoftValidation
+
+  has_paper_trail
+
+  BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -110,6 +114,52 @@ class CollectionObject < ActiveRecord::Base
     # add determinations
     where(id: params[:term]) 
   end
+
+  def self.breakdown_status(collection_objects)
+    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+
+    breakdown = {
+      total_objects: collection_objects.length,
+      collecting_events: {},
+      determinations: {},
+      bio_overview: []
+    }
+
+    breakdown.merge!(breakdown_buffered(collection_objects))
+
+    collection_objects.each do |co|
+      breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event 
+      breakdown[:determinations].merge!(co => co.taxon_determinations)  if co.taxon_determinations.any?
+      breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect{|a| a.name}])
+    end
+
+    breakdown
+  end
+
+  # @return [Hash]
+  #   a unque list of buffered_ values observed in the collection objects passed
+  def self.breakdown_buffered(collection_objects)
+    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    breakdown = {}
+    categories = BUFFERED_ATTRIBUTES 
+    
+    categories.each do |c| 
+      breakdown[c] = []
+    end 
+
+    categories.each do |c|
+      collection_objects.each do |co|
+        breakdown[c].push co.send(c)
+      end
+    end
+
+    categories.each do |c| 
+      breakdown[c].uniq!
+    end
+
+    breakdown
+  end
+
 
   protected
 

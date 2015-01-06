@@ -11,7 +11,7 @@ Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {
 #
 class Protonym < TaxonName
 
-  after_validation :set_cached_names
+  before_save :set_cached_names
 
   alias_method :original_combination_source, :source
 
@@ -19,16 +19,23 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
+  has_one :source_classified_as_relationship, -> {
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  has_one :source_classified_as_taxon_name, through: :source_classified_as_relationship, source: :subject_taxon_name
+
+  has_one :type_taxon_name_classification, -> {
+    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
+  }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
+
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
+
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-  has_one :type_taxon_name_classification, -> {
-    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
-  }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
@@ -38,13 +45,13 @@ class Protonym < TaxonName
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
-      elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
-        
-        # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
     end
@@ -56,7 +63,9 @@ class Protonym < TaxonName
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
-      elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
         relationship = "#{d.inverse_assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
@@ -89,6 +98,8 @@ class Protonym < TaxonName
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
+  
+  # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :that_is_valid, -> {
@@ -200,8 +211,6 @@ class Protonym < TaxonName
     end
   end
 
-
-
   def incorrect_original_spelling
     self.iczn_set_as_incorrect_original_spelling_of_relationship
     #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
@@ -210,6 +219,34 @@ class Protonym < TaxonName
   def incertae_sedis
     self.iczn_uncertain_placement_relationship
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
+  end
+
+  # Returns an Array of TaxonNameRelationship classes that are applicable to this name
+  def original_combination_class_relationships
+    relations = []
+    TaxonNameRelationship::OriginalCombination.descendants.each do |r|
+      relations.push(r) if r.valid_object_ranks.include?(self.rank_string)
+    end
+    relations
+  end
+
+  def original_combination_relationships_and_stubs
+    # TODO: figure out where to really put this, likely in one big sort
+    display_order = [
+      :original_genus, :original_subgenus, :original_species, :original_subspecies
+    ]
+
+    defined_relations = self.original_combination_relationships.all
+    created_already = defined_relations.collect{|a| a.class}
+    new_relations = [] 
+   
+    original_combination_class_relationships.each do |r|
+      new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
+    end
+  
+    (new_relations + defined_relations).sort{|a,b| 
+      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
+    }
   end
 
   protected
@@ -655,12 +692,16 @@ class Protonym < TaxonName
     end
   end
 
-  def set_cached_misspelling
-    self.cached_misspelling = get_cached_misspelling
+  def set_cached
+    self.cached = get_full_name_no_html
   end
 
-  def set_cached_full_name
+  def set_cached_html
     self.cached_html = get_full_name
+  end
+
+  def set_cached_misspelling
+    self.cached_misspelling = get_cached_misspelling
   end
 
   def set_cached_higher_classification

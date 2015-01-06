@@ -1,10 +1,10 @@
 class Person < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
-  include Shared::SharedAcrossProjects
+  include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::DataAttributes
+  include Shared::SharedAcrossProjects
+  include Shared::IsData
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank

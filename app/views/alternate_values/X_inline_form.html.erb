@@ -12,12 +12,12 @@
         </div>
     <% end %>
 
-    <p> Tagging:   <%#= object_tag(@alternate_value.alternate_object) -%>  </p>
+    <p> Tagging:   <%#= object_tag(@alternate_value.alternate_value_object) -%>  </p>
 
     <div class="field">
-      <%= f.label :alternate_object_attribute %>
+      <%= f.label :alternate_value_object_attribute %>
       <br>
-      <%= f.select :alternate_object_attribute, options_for_select(@alternate_value.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_object_attribute) -%>
+      <%= f.select :alternate_value_object_attribute, options_for_select(@alternate_value.alternate_value_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_value_object_attribute) -%>
     </div>
 
     <div class="field">
@@ -28,7 +28,7 @@
     <div class="field">
       <%= f.label :type %>
       <br>
-      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = @alternate_value.type) -%>
+      <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = @alternate_value.type) -%>
     </div>
     <div class="field">
       <%= f.label :language_id %>
@@ -36,9 +36,9 @@
       <%= f.number_field :language_id %>
     </div>
 
-    <%= f.hidden_field :alternate_object_type %>
+    <%= f.hidden_field :alternate_value_object_type %>
 
-    <%= f.hidden_field :alternate_object_id %>
+    <%= f.hidden_field :alternate_value_object_id %>
 
     <div class="actions">
       <%= f.submit %>

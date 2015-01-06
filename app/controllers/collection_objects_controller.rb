@@ -68,9 +68,15 @@ class CollectionObjectsController < ApplicationController
     @collection_objects =  CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  # GET /collection_object/search
   def search
-    redirect_to collection_object_path(params[:collection_object][:id])
+    if params[:id]
+      redirect_to collection_object_path(params[:id])
+    else
+      redirect_to collection_object_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
+
 
   def autocomplete
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model

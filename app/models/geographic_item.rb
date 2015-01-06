@@ -10,7 +10,7 @@
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
+  include Shared::IsData
 
   DATA_TYPES = [:point,
                 :line_string,
@@ -162,11 +162,29 @@ class GeographicItem < ActiveRecord::Base
     "ST_AsBinary(#{self.geo_object_type})"
   end
 
-  # TODO: Find ST_Centroid(g1) method and
+  # TODOne: Find ST_Centroid(g1) method and
   # Return a WKT for the centroid of GeoItem
   def st_centroid
     # GeographicItem.where(id: self.id).select("ST_NPoints(#{self.st_as_binary}) number_points").first['number_points'].to_i
-    GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) centroid").first['centroid']
+    retval = GeographicItem.where(id: self.id).select("id, ST_AsText(ST_Centroid( #{to_geometry_sql}  )) as centroid").first['centroid']
+    return(retval)
+  end
+
+=begin
+SELECT round(CAST(
+		ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
+			As numeric),2) As dist_meters_spheroid
+
+ dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
+----------------------+--------------------+-------------------
+			 70454.92 |           70424.47 |          70438.00
+
+=end
+
+  # Return distance in meters from this object to supplied 'geo_object'
+  def st_distance(geo_object)
+    retval = GeographicItem.where(id: self.id).select("id, ST_Distance_Spheroid( '#{self.geo_object}', '#{geo_object}', '#{Georeference::SPHEROID}') as distance").first['distance']
+    return(retval)
   end
 
   def to_geometry_sql
@@ -328,12 +346,12 @@ class GeographicItem < ActiveRecord::Base
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
-  def self.containing(column_name, *geographic_items)
+  def self.is_contained_in(column_name, *geographic_items)
     if column_name.downcase == 'any'
       part = []
       DATA_TYPES.each { |column|
         unless column == :geometry_collection
-          part.push(GeographicItem.containing("#{column}", geographic_items).to_a)
+          part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
         end
       }
       # todo: change 'id in (?)' to some other sql construct
@@ -341,6 +359,39 @@ class GeographicItem < ActiveRecord::Base
     else
       q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
       where(q)
+    end
+  end
+
+  # @param  column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'poly' to check against 'polygon' or 'multi_polygon', or 'line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
+  # @returns [Scope]
+  def self.is_contained_by(column_name, *geographic_items)
+    column_name.downcase!
+    case column_name
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            if column.to_s.index(column_name.gsub('any_', ''))
+              part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
+            end
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      else
+        q = geographic_items.flatten.collect { |geographic_item|
+          GeographicItem.containing_sql_reverse(column_name, geographic_item)
+        }.join(' or ')
+        where(q)
     end
   end
 
@@ -368,6 +419,12 @@ class GeographicItem < ActiveRecord::Base
   def self.containing_sql(column_name, geographic_item)
     check_geo_params(column_name, geographic_item) ?
       "ST_Contains(#{column_name}::geometry, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'))" :
+      'false'
+  end
+
+  def self.containing_sql_reverse(column_name, geographic_item)
+    check_geo_params(column_name, geographic_item) ?
+      "ST_Contains(GeomFromEWKT('srid=4326;#{geographic_item.geo_object}'), #{column_name}::geometry)" :
       'false'
   end
 

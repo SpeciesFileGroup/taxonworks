@@ -11,14 +11,17 @@ namespace :tw do
 
       begin
         ActiveRecord::Base.transaction do
-          CSV.foreach(args[:data_directory],  return_headers: false) do |row|
+          f = CSV.open(args[:data_directory], :headers => true)
+          #CSV.foreach(args[:data_directory]) do |row|
+          #CSV.foreach(args[:data_directory],  return_headers: false) do |row|
+          f.each do |row|
             r = Repository.new(
-              url: row[0],                       
-              name: row[1],                      
-              is_index_herbariorum: (row[2] == 'yes' ? true : false),
-              acronym: row[3],
-              institutional_LSID: row[8],         
-              status: row[26],                    
+              url: row['URL'],
+              name: row['Name of Biorepository or Institution'],
+              is_index_herbariorum: (row['Index Herbariorum Record'] == 'yes' ? true : false),
+              acronym: row['Institutional ID/Acronym'],
+              institutional_LSID: row['Institutional LSID'],
+              status: row['Status of biorepository'],
             )
             r.save!
           end

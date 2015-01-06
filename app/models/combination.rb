@@ -1,12 +1,6 @@
 class Combination < TaxonName
 
-  def set_cached_original_combination
-    self.cached_original_combination = get_combination
-  end
-
-  def set_cached_full_name
-    self.cached_html = get_combination
-  end
+  # before_save :set_cached_original_combination
 
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
@@ -24,6 +18,11 @@ class Combination < TaxonName
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"} )
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
   end
+  has_one :source_classified_as_relationship, -> {
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
+  has_one :source_classified_as_taxon_name, through: :source_classified_as_relationship, source: :subject_taxon_name
 
   TaxonNameRelationship.descendants.each do |d|
     if d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
@@ -69,5 +68,15 @@ class Combination < TaxonName
   end
 
   #endregion
+
+  protected
+
+  def set_cached_original_combination
+    self.cached_original_combination = get_combination if self.errors.empty?
+  end
+
+  def set_cached_html
+    self.cached_html = get_combination
+  end
 
 end

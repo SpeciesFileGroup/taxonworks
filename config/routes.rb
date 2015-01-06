@@ -1,8 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
-  # Vetted / tested
-
-  # All models that use data controllers should include this concern. 
+  # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
   concern :data_routes do |options|
@@ -11,8 +9,8 @@ TaxonWorks::Application.routes.draw do
       get 'list'
       post 'batch_create'
       post 'batch_preview'
-      post 'search'
       get 'autocomplete'
+      get 'search'
     end
   end
 
@@ -50,27 +48,24 @@ TaxonWorks::Application.routes.draw do
 
   #
   # Unvetted/not fully tested Stubbed
-  # 
+  #
 
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
-  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy]
+  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy, :index]
 
   resources :asserted_distributions do
     concerns [:data_routes]
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
-  resources :citations, except: [:new, :edit, :show] do
+  resources :citations, except: [:edit, :show] do
     concerns [:data_routes]
   end
   resources :collecting_events do
     concerns [:data_routes]
-    collection do
-      get 'test'
-    end
   end
   resources :collection_objects do
     concerns [:data_routes]
@@ -100,7 +95,7 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
-  resources :identifiers, only: [:create, :update, :destroy, :index]
+  resources :identifiers, only: [:new, :create, :update, :destroy, :index]
   resources :images do
     concerns [:data_routes]
   end
@@ -111,7 +106,7 @@ TaxonWorks::Application.routes.draw do
   resources :namespaces do
     concerns [:data_routes]
   end
-  resources :notes, except: [:new, :edit, :show] do
+  resources :notes, except: [:show] do
     collection do
       get 'list'
     end
@@ -130,12 +125,19 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-  resources :serials
+  
+  # TODO: add exceptions 
+  resources :serials do
+    concerns [:data_routes]
+  end
+
+
+
   resources :sources do
     concerns [:data_routes]
   end
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
-  resources :tags, only: [:create, :update, :destroy, :index] do
+  resources :tags, only: [:new, :create, :update, :destroy, :index] do
     concerns [:data_routes]
   end
   resources :taxon_determinations do
@@ -143,18 +145,28 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
+
   resources :taxon_names do
     concerns [:data_routes]
+    member do
+      match 'edit_original_combination_task', to: 'tasks/nomenclature/original_combination#edit', via: 'get'
+      match 'update_original_combination_task', to: 'tasks/nomenclature/original_combination#update', via: 'patch'
+    end
   end
+
   resources :taxon_name_classifications, only: [:create, :update, :destroy]
   resources :taxon_name_relationships do
     collection do
       get 'list'
     end
   end
+
   resources :type_materials do
     concerns [:data_routes]
   end
+
+  match 'verify_accessions_task', to: 'tasks/accessions/verify/material#index', via: 'get'
+ 
 
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'
@@ -162,11 +174,38 @@ TaxonWorks::Application.routes.draw do
   match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
   match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
 
+  match 'build_source_from_crossref_task', to: 'tasks/bibliography/verbatim_reference#new', via: 'get'
+  post 'tasks/bibliography/verbatim_reference/create'
+
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
 
+  match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
+
+  namespace :tasks do
+    namespace :usage do
+      get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
+    end
+  end
+=begin
+  get 'tasks/usage/user_activity#report/:id'
+=end
+
+  namespace :tasks do
+    namespace :gis do
+      get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
+      post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
+      get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
+    end
+  end
+=begin
+  get 'tasks/gis/locality/nearby/:id'
+=end
+
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
+  
+  get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
@@ -209,4 +248,5 @@ TaxonWorks::Application.routes.draw do
   #     # (app/controllers/admin/products_controller.rb)
   #     resources :products
   #   end
+  #
 end

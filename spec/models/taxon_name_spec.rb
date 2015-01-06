@@ -2,12 +2,8 @@ require 'rails_helper'
 
 describe TaxonName, :type => :model do
 
-
   let(:taxon_name) { TaxonName.new }
   before(:all) do
-    # TaxonName.delete_all
-    # TaxonNameRelationship.delete_all
-    
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species    = @subspecies.ancestor_at_rank('species')
     @subgenus   = @subspecies.ancestor_at_rank('subgenus')
@@ -52,7 +48,6 @@ describe TaxonName, :type => :model do
       expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
     end
   end
- 
 
   context 'associations' do
     specify 'responses to source' do
@@ -98,29 +93,28 @@ describe TaxonName, :type => :model do
         end
       end
     end
+  end
 
-    context 'gbif_status' do
-      before(:all) do
-        @t1 = FactoryGirl.create(:iczn_species, name: 'aus', parent: @genus)
-        @t2 = FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus)
-        @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @t2, object_taxon_name: @t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-      end
+  context 'gbif_status' do
+    let(:t1) { FactoryGirl.create(:iczn_species, name: 'aus', parent: @genus) }
+    let(:t2) { FactoryGirl.create(:iczn_species, name: 'bus', parent: @genus) } 
+    let!(:r2) { FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') } # Note the bang (!)
 
-      specify 'valid species' do
-        expect(@t1.gbif_status_array).to eq(['valid'])
-      end
-
-      specify 'synonym' do
-        expect(@t2.gbif_status_array).to eq(['invalidum'])
-      end
-
-      specify 'nomen nudum' do
-        c = FactoryGirl.create(:taxon_name_classification, taxon_name: @t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
-        @t2.reload
-        expect(@t2.gbif_status_array).to eq(['nudum'])
-      end
+    specify 'valid species' do
+      expect(t1.gbif_status_array).to eq(['valid'])
     end
+
+    specify 'synonym' do
+      expect(t2.gbif_status_array).to eq(['invalidum'])
     end
+
+    specify 'nomen nudum' do
+      c = FactoryGirl.create(:taxon_name_classification, taxon_name: t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
+      t2.reload
+      expect(t2.gbif_status_array).to eq(['nudum'])
+    end
+  end
+
 
   context 'instance methods' do
     context 'verbatim_author' do
@@ -213,21 +207,31 @@ describe TaxonName, :type => :model do
     end
 
     context 'class methods from awesome_nested_set' do
-      before {
-        @p = Project.create(name: 'Taxon-name root test.')
-      }
+      let(:p) { Project.create(name: 'Taxon-name root test.') }
 
-      specify 'a second root (parent is nul) in a given project is not allowed' do
-        root2 = FactoryGirl.build(:root_taxon_name)
-        expect(root2.parent).to be_nil
-        expect(root2.valid?).to be_falsey
-        expect(root2.errors.include?(:parent_id)).to be_truthy
-      end
+      context 'root names' do
+        let(:root2) { FactoryGirl.build(:root_taxon_name) }
 
-      specify 'permit multiple roots in different projects' do
-        root2 = FactoryGirl.build(:root_taxon_name, project_id: @p.id)
-        expect(root2.parent).to be_nil
-        expect(root2.valid?).to be_truthy
+        specify 'a second root (parent is nul) in a given project is not allowed' do
+          expect(root2.parent).to be_nil
+          expect(root2.project_id).to eq(1)
+          expect(TaxonName.where(project_id: 1, name: 'Root', parent_id: nil).count).to eq(1)
+          
+          expect(root2.valid?).to be_falsey
+          expect(root2.errors.include?(:parent_id)).to be_truthy
+        end
+
+        specify 'permit multiple roots in different projects' do
+          root2.project_id = p.id
+          expect(root2.parent).to be_nil
+          expect(root2.valid?).to be_truthy
+        end
+
+        specify 'roots can be saved without raising' do
+          root2.project_id = p.id
+          expect(root2.save).to be_truthy
+          expect(TaxonName.where(name: 'Root', project_id: 1).first.save).to be_truthy
+        end
       end
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
@@ -357,9 +361,8 @@ describe TaxonName, :type => :model do
           expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
         end
 
-
         specify 'ICZN species misspelling' do
-          sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+          sp = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
           sp.iczn_set_as_misapplication_of = @species
           expect(sp.save).to be_truthy
           expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
@@ -377,7 +380,18 @@ describe TaxonName, :type => :model do
           t.valid?
           expect(t.cached_author_year).to eq('')
         end
-        
+
+        specify 'parent with parentheses' do
+          c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: '(Dmitriev)', year_of_publication: 2000)
+          expect(c.get_author_and_year).to eq('(Dmitriev, 2000)')
+        end
+
+        specify 'parent without parentheses' do
+          c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: 'Dmitriev', year_of_publication: 2000)
+          expect(c.get_author_and_year).to eq('Dmitriev, 2000')
+        end
+
+
         specify 'original genus subgenus' do
           expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
           @subspecies.original_genus = @genus
@@ -396,36 +410,41 @@ describe TaxonName, :type => :model do
         end
 
         specify 'source_classified_as' do
-          c                      = FactoryGirl.create(:combination, parent: @species)
+          c = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
           expect(c.save).to be_truthy
+          c.reload
+          expect(c.all_taxon_name_relationships.count).to be > 0
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
         
         specify 'different gender' do
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
-          @species.masculine_name = 'vitus'
-          @species.feminine_name  = 'vita'
-          @species.neuter_name    = 'vitum'
-          expect(@species.save).to be_truthy
+          s = FactoryGirl.create(:iczn_species, parent: @genus)
+          expect(s.save).to be_truthy
+          expect(s.get_full_name).to eq('<em>Erythroneura vitis</em>')
+          s.masculine_name = 'vitus'
+          s.feminine_name  = 'vita'
+          s.neuter_name    = 'vitum'
+          expect(s.save).to be_truthy
           gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitus</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vitus</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
           expect(gender.save).to be_truthy
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vita</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vita</em>')
           gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
           expect(gender.save).to be_truthy
-          expect(@species.get_full_name).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitum</em>')
+          expect(s.get_full_name).to eq('<em>Erythroneura vitum</em>')
         end
 
         specify 'misspelled original combination' do
-          g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+          g = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
           g.iczn_set_as_misspelling_of = @genus
           expect(g.save).to be_truthy
           @subspecies.original_genus = g
           @subspecies.reload
           expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
           expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
+          expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
         end
 
         specify 'moving nominotypical taxon' do
@@ -437,7 +456,7 @@ describe TaxonName, :type => :model do
         end
 
         context 'cached homonyms' do
-          before(:all) do
+          before(:each) do
             @g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @tribe, year_of_publication: 1999)
             @g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @tribe, year_of_publication: 2000)
             @s1 = FactoryGirl.create(:relationship_species, name: 'vitatus', parent: @g1, year_of_publication: 1999)
@@ -462,7 +481,9 @@ describe TaxonName, :type => :model do
             expect(@family.cached_secondary_homonym.blank?).to be_truthy
             expect(@g1.cached_secondary_homonym.blank?).to be_truthy
             expect(@g2.cached_secondary_homonym.blank?).to be_truthy
+            expect(@s1.save).to be_truthy
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            expect(@s2.save).to be_truthy
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
           specify 'original genus' do
@@ -474,7 +495,9 @@ describe TaxonName, :type => :model do
             @s2.reload
             expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
             expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
+            @s1.save 
             expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
+            @s2.save
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
             expect(@s1.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
             expect(@s2.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
@@ -482,19 +505,21 @@ describe TaxonName, :type => :model do
             expect(@s2.cached_secondary_homonym_alternative_spelling).to eq('Bus uitata')
           end
         end
-        context 'mismatching cached values' do
-          before(:all) do
-            @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-            @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
-          end
-          specify 'missing cached values' do
-            @s.soft_validate(:cached_names)
-            expect(@s.soft_validations.messages_on(:base).count).to eq(1)
-            @s.fix_soft_validations
-            @s.soft_validate(:cached_names)
-            expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
-          end
-        end
+
+         context 'mismatching cached values' do
+           before(:all) do
+             @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+             @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
+           end
+           specify 'missing cached values' do
+             @s.soft_validate(:cached_names)
+             expect(@s.soft_validations.messages_on(:base).count).to eq(1)
+             @s.fix_soft_validations
+             @s.soft_validate(:cached_names)
+             expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
+           end
+         end
+
       end
 
       context 'when rank ICZN family' do

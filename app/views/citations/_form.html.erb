@@ -11,22 +11,29 @@
         </div>
     <% end %>
 
-    <div class="field">
-      <%= f.label :citation_object_id %>
-      <br>
-      <%#=TODO: @mjy: how to de-reference the controller/object combinations based on actual object type %>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'otus',
-                              :object     => 'citation',
-                              :method     => 'citation_object_id',
-                              :tag_id     => 'citation_object_id_for_citation',
+    <p><strong><%= @citation.citation_object.class.name %>:</strong> <%= object_tag(@citation.citation_object) -%>  </p>
+
+    <!--<div class="field">-->
+      <!--<%#= f.label :citation_object_id %>-->
+      <!--<br>-->
+      <!--<%#=TODO: @mjy: how to de-reference the controller/object combinations based on actual object type %>-->
+      <%#= render :partial => 'workbench/elements/forms/ajax_select',
+#                  :locals  => {:controller => 'otus',
+#                               :object     => 'citation',
+#                               :method     => 'citation_object_id',
+#                               :tag_id     => 'citation_object_id_for_citation',
                               :display    => object_tag(@citation.citation_object)} %>
-    </div>
-    <div class="field">
-      <%= f.label :citation_object_type %>
-      <br>
-      <%= f.text_field :citation_object_type %>
-    </div>
+    <!--</div>-->
+    <!--<div class="field">-->
+      <!--<%#= f.label :citation_object_type %>-->
+      <!--<br>-->
+      <!--<%#= f.text_field :citation_object_type %>-->
+    <!--</div>-->
+
+    <%= f.hidden_field :citation_object_type %>
+
+    <%= f.hidden_field :citation_object_id %>
+
     <div class="field">
       <%= f.label :source_id %>
       <br>

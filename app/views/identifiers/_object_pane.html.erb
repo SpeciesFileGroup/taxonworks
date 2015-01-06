@@ -1,0 +1,10 @@
+<div class="object_pane">
+  <h3> Identifiers </h3>
+  <ul>
+    <% object.identifiers.each do |identifier| -%>
+      <li> <%= identifier_tag(identifier) -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'No identifiers.') if !object.identifiers.any? -%>
+</div>

@@ -67,6 +67,14 @@ class ImagesController < ApplicationController
     @images = Image.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def search
+    if params[:id]
+      redirect_to image_path(params[:id])
+    else
+      redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
   def autocomplete
     @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
 
@@ -79,7 +87,6 @@ class ImagesController < ApplicationController
        label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-
     render :json => data
   end
 

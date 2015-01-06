@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
-ruby '2.1.2'
+ruby '2.1.5'
 
-gem 'rails', '4.1.7'
+gem 'rails', '~> 4.1.8'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
@@ -44,8 +44,9 @@ gem 'bibtex-ruby', '~> 4.0.3'
 gem 'citeproc-ruby'
 #gem 'citeproc'
 gem 'csl-styles'
+gem 'ref2bibtex', '~> 0.0.3'
 
-gem 'ref2bibtex', '~> 0.0.2'
+# gem 'anystyle-parser' # use when we stabilize
 
 # Pagination
 gem 'kaminari'
@@ -72,6 +73,10 @@ gem 'rabl'
 
 gem 'rmagick', '~> 2.13.3'
 
+gem 'exception_notification'
+
+gem 'modularity', '~> 2.0.1'
+
 group :test, :development do
   gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
   gem 'rspec-rails', '~> 3.0' #  
@@ -80,14 +85,14 @@ group :test, :development do
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', git: 'https://github.com/yuki24/did_you_mean.git'   #'~> 0.7' # conflicts with better_erors in part
+  gem 'did_you_mean', '~> 0.9.4'
   gem 'selenium-webdriver'
 end
 
 group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
-  gem 'spring', '~> 1.1.3'
+  gem 'spring', '~> 1.2.0'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.3.1', require: false
 end
@@ -101,7 +106,7 @@ group :test do
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.7.1'
-  gem 'webmock', '~> 1.18.0'
+  gem 'webmock', '~> 1.20.0'
   gem 'vcr', '~> 2.9.2'
   gem 'database_cleaner', '~> 1.3.0'
 # gem 'simplecov', :require => false

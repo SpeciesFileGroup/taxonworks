@@ -4,7 +4,7 @@
   </div>
   <div class="field">
     <%#=	 "#{avf.object.class.to_s}: " %>
-    <%#= object_tag(avf.object.alternate_object) %>
+    <%#= object_tag(avf.object.alternate_value_object) %>
   </div>
   <div class="field">
     <%= avf.label :alternate_value %>
@@ -16,7 +16,7 @@
   <div class="field">
     <%= avf.label :type %>
     <br>
-    <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['synonym', 'AlternateValue::Synonym']], selected = avf.object.type) -%>
+    <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = avf.object.type) -%>
   </div>
   <div class="field">
     <%= avf.label :language_id %>
@@ -24,14 +24,14 @@
     <%= avf.number_field :language_id %>
   </div>
   <div class="field">
-    <%= avf.label :alternate_object_attribute %>
+    <%= avf.label :alternate_value_object_attribute %>
     <br>
-    <%= avf.select :alternate_object_attribute, options_for_select(avf.object.alternate_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = avf.object.alternate_object_attribute) -%>
+    <%= avf.select :alternate_value_object_attribute, options_for_select(avf.object.alternate_value_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = avf.object.alternate_value_object_attribute) -%>
   </div>
 
-  <%#= avf.hidden_field :alternate_object_type %>
+  <%#= avf.hidden_field :alternate_value_object_type %>
 
-  <%= avf.hidden_field :alternate_object_id %>
+  <%= avf.hidden_field :alternate_value_object_id %>
 
   <div class="hide-for-display">
     --------------------AV Separator -------------------------------------------------End

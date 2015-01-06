@@ -43,12 +43,15 @@
 #
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
   include Shared::Citable
+  include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::DataAttributes
+  include Shared::Taggable
+  include Shared::IsData
   include SoftValidation
+
+  has_paper_trail
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -58,6 +61,8 @@ class CollectingEvent < ActiveRecord::Base
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
   has_many :georeferences, dependent: :destroy
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
   # Todo: this needs work
   has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
@@ -122,6 +127,8 @@ class CollectingEvent < ActiveRecord::Base
 
   soft_validate(:sv_minimally_check_for_a_label)
 
+  NEARBY_DISTANCE = 5000
+
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
@@ -144,14 +151,24 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def generate_verbatim_georeference
+    # TODO @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
+    # will occur here
     if verbatim_latitude && verbatim_longitude && !new_record?
       point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
       g     = GeographicItem.new(point: point)
+      r     = get_error_radius
       if g.valid?
         g.save
-        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g))
+        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r))
       end
     end
+  end
+
+  def get_error_radius
+    return nil if verbatim_geolocation_uncertainty.blank?
+    return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
+    nil
+    # TODO: figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
   end
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
@@ -159,14 +176,21 @@ class CollectingEvent < ActiveRecord::Base
     GeographicItem.select('g1.* FROM geographic_items gi').
       join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
       join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
-      where(["(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)", id, id])
+      where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
+  end
+
+  # see how far away we are from another gi
+  def distance_to(geographic_item)
+    # retval = GeographicItem.ordered_by_shortest_distance_from('any', geographic_items.first).limit(1).first
+    retval = self.geographic_items.first.st_distance(geographic_item.geo_object)
+    return(retval)
   end
 
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
     gi     = geographic_items.first
-    pieces = GeographicItem.within_radius_of('any', gi, distance)
+    pieces = GeographicItem.joins(:georeferences).within_radius_of('any', gi, distance)
 
     ce = []
     pieces.each { |o|
@@ -193,7 +217,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
-  # 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI'
+  # Find other CEs that have GRs whose GIs or EGIs are contained in the EGI
   def find_others_contained_in_error
     # find all the GIs and EGIs associated with CEs
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
@@ -225,10 +249,10 @@ class CollectingEvent < ActiveRecord::Base
   end
 
 
-  # Jim, I refactored to return hash, not hash OR array of hashes, and factored out type so
-  # it can be used for any of the constant type sets.
-  #
-  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}]) 
+  # returns either:
+  #  ( {'name' => [GAs]} 
+  # or 
+  # [{'name' => [GAs]}, {'name' => [GAs]}]) 
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
@@ -240,11 +264,11 @@ class CollectingEvent < ActiveRecord::Base
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # we need to use the geographic_area directly
-        gi_list << GeographicItem.containing('any', self.geographic_area.geographic_items)
+        gi_list << GeographicItem.is_contained_in('any', self.geographic_area.geographic_items)
       end
     else
       # gather all the GIs which contain this GI or EGI
-      gi_list << GeographicItem.containing('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
+      gi_list << GeographicItem.is_contained_in('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
     end
 
     # there are a few ways we can end up with no GIs
@@ -270,18 +294,18 @@ class CollectingEvent < ActiveRecord::Base
     name_hash(GeographicAreaType::COUNTRY_LEVEL_TYPES)
   end
 
-# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-#   one hash, consisting of a state name paired with an array of the corresponding GAs, or
-#   an array of all of the hashes (name/GA pairs),
-#   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
   def states_hash
     name_hash(GeographicAreaType::STATE_LEVEL_TYPES)
   end
 
-# returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
-#   one hash, consisting of a county name paired with an array of the corresponding GAs, or
-#   an array of all of the hashes (name/GA pairs),
-#   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  # returns either:   ( {'name' => [GAs]} or [{'name' => [GAs]}, {'name' => [GAs]}])
+  #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
+  #   an array of all of the hashes (name/GA pairs),
+  #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
   def counties_hash
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
@@ -319,8 +343,101 @@ class CollectingEvent < ActiveRecord::Base
     county_or_equivalent_name
   end
 
+=begin
+TODO: @mjy: please fill in any other paths you cqan think of for the acquisition of information for the seven below listed items
+  ce.georeference.geographic_item.centroid
+  ce.georeference.error_geographic_item.centroid
+  ce.verbatim_georeference
+  ce.verbatim_lat/ee.verbatim_lng
+  ce.verbatim_locality
+  ce.geographic_area.geographic_item.centroid
+
+  There are a number of items we can try to get data for to complete the geolocate parameter string:
+
+  'country' can come from:
+    GeographicArea through ce.country_name
+
+  'state' can come from:
+    GeographicArea through ce.state_or_province_name
+
+  'county' can come from:
+    GeographicArea through ce.county_or_equivalent_name
+
+  'locality' can come from:
+    ce.verbatim_locality
+
+  'Latitude', 'Longitude' can come from:
+    GeographicItem through ce.georeferences.geographic_item.centroid
+    GeographicItem through ce.georeferences.error_geographic_item.centroid
+    GeographicArea through ce.geographic_area.geographic_area_map_focus
+
+  'Placename' can come from:
+    ? Copy of 'locality'
+=end
+
+  def geolocate_ui_params_hash
+    parameters = {}
+
+    parameters[:country]   = country_name
+    parameters[:state]     = state_or_province_name
+    parameters[:county]    = county_or_equivalent_name
+    parameters[:locality]  = verbatim_locality
+    parameters[:Placename] = verbatim_locality
+
+    focus = nil
+    # in reverse order of precedence
+    unless geographic_area.nil?
+      focus = geographic_area.geographic_area_map_focus
+    end
+    unless georeferences.count == 0
+      unless georeferences.first.error_geographic_item.nil?
+        # expecting error_geographic_item to be a polygon or multi_polygon
+        focus = georeferences.first.error_geographic_item.st_centroid
+      end
+      unless georeferences.first.geographic_item.nil?
+        # the georeferences.first.geographic_item for a verbatim_data instance is a point
+        focus = georeferences.first.geographic_item
+      end
+    end
+
+    unless focus.nil?
+      parameters[:Longitude] = focus.point.x
+      parameters[:Latitude]  = focus.point.y
+    end
+    @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
+    @geolocate_string  = @geolocate_request.request_params_string
+    @geolocate_hash    = @geolocate_request.request_params_hash
+  end
+
+  def geolocate_ui_params_string
+    if @geolocate_hash.nil?
+      geolocate_ui_params_hash
+    end
+    @geolocate_string
+  end
+
 # class methods
 
+  # @param geographic_item [GeographicItem]
+  # @return [Scope]
+  def self.find_others_contained_within(geographic_item)
+    pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
+    # pieces = GeographicItem.is_contained_by('any', geographic_item)
+    pieces
+
+    ce = []
+    pieces.each { |o|
+      ce.push(o.collecting_events_through_georeferences.to_a)
+      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+    pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+
+    pieces.excluding(self)
+
+  end
+
+  # @param collecting_events [CollectingEvent Scope]
+  # @return [Scope] without self (if included)
   def self.excluding(collecting_events)
     where.not(id: collecting_events)
   end
@@ -341,6 +458,17 @@ class CollectingEvent < ActiveRecord::Base
     # changed from 'cached' to 'verbatim_locality':
   end
 
+  def self.generate_download(scope, project_id)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.with_project_id(project_id).order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect{|i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
+
   protected
 
   # TODO: Draper Candidate
@@ -349,7 +477,7 @@ class CollectingEvent < ActiveRecord::Base
     if verbatim_label.blank?
       cached = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, verbatim_collectors, "\n"].compact.join
     else
-      cached = verbatim_label  
+      cached = verbatim_label
     end
   end
 

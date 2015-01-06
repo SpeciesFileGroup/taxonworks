@@ -78,5 +78,8 @@ TaxonWorks::Application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
   
+  # Load local settings
+  Settings.load_from_file(config, 'config/local_settings.yml', :production) if File.exist?('config/local_settings.yml')
+  
   require 'taxonworks'
 end

@@ -20,16 +20,15 @@ class GeographicAreasController < ApplicationController
   end
 
   def search
-    # @geographic_areas = GeographicArea.with_name_like(params[:name])
-    # @search_string    = params[:name]
-    # render :index
-    # @geo_area_offset = index
-    redirect_to geographic_area_path(params[:geographic_area][:id])
+    if params[:id]
+      redirect_to geographic_area_path(params[:id])
+    else
+      redirect_to geographic_area_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete
     @geographic_areas = GeographicArea.find_for_autocomplete(params)
-
     data = @geographic_areas.collect do |t|
       show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t, params[:term])
       {id:              t.id,
@@ -46,9 +45,6 @@ class GeographicAreasController < ApplicationController
   private
 
   # TODO: move to a concern?
-  def disable_turbolinks
-    @no_turbolinks = true
-  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area

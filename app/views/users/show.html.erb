@@ -2,6 +2,9 @@
   <header>
     <h1><%= object_tag(@user) %></h1>
   </header>
+  <% if @user.api_access_token %>
+  <label>API access token</label>: <span><%= @user.api_access_token %></span>
+  <% end %>
 </article>
 <aside>
   <%= link_to 'Edit account', edit_user_path(@user) %>

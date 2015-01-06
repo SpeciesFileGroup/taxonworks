@@ -2,7 +2,7 @@ module Shared::HasRoles
 
   extend ActiveSupport::Concern
   included do
-    has_many :roles, as: :role_object, validate: false
+    has_many :roles, as: :role_object
   end
 
   def has_roles?

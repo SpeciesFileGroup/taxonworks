@@ -49,7 +49,7 @@ describe Georeference::GeoLocate, :type => :model do
     specify 'with invalid parameters returns a Georeference::GeoLocate instance with errors on :base' do
       VCR.use_cassette('geo-locate-with-build-using-empty-country-param') do
         @a =  Georeference::GeoLocate.build(country: '')
-        expect(@a.errors.include?(:api_request)).to be_truthy\
+        expect(@a.errors.include?(:api_request)).to be_truthy
       end
     end
 
@@ -84,7 +84,7 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify '.request_hash' do
-      expect(georeference_from_build.request_hash.to_s).to eq('{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "hwyX"=>"false", "enableH2O"=>"false", "doUncert"=>"true", "doPoly"=>"true", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}')
+      expect(georeference_from_build.request_hash.to_s).to eq('{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "enableH2O"=>"false", "hwyX"=>"false", "doUncert"=>"true", "doPoly"=>"true", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}')
     end
   end
 
@@ -104,7 +104,7 @@ describe Georeference::GeoLocate, :type => :model do
 
     specify '.build_param_string' do # '.make_request builds a request string' do
       expect(request.build_param_string).to be_truthy
-      expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana&hwyX=false&enableH2O=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
+      expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana&enableH2O=false&hwyX=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
     end
 
     specify '.locate' do

@@ -1,5 +1,5 @@
 <div class="attributes">
-  <p>
+ <p>
     <strong>Geographic area:</strong>
     <%= object_link(@collecting_event.geographic_area) %>
   </p>
@@ -43,13 +43,18 @@
     </p>
 
     <p>
+      <strong>Verbatim latitude:</strong>
+      <%= @collecting_event.verbatim_latitude %>
+    </p>
+
+    <p>
       <strong>Verbatim longitude:</strong>
       <%= @collecting_event.verbatim_longitude %>
     </p>
 
     <p>
-      <strong>Verbatim latitude:</strong>
-      <%= @collecting_event.verbatim_latitude %>
+      <strong>Verbatim datum:</strong>
+      <%= @collecting_event.verbatim_datum %>
     </p>
 
     <p>

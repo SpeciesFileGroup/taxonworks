@@ -1,15 +1,25 @@
-# Notes are text only notes on instances that belong to some project.
-# Notes may not include a pipe ('|'). Pipes are a reserved object separator for output
+# A note is a text annotation on a data instance (record).
+# 
+# Notes are text only notes on instances that belong to some project (e.g. models that include Shared::IsData).
+# For global instances use DataAttribute
+#
+# Notes may include any text excluding pipes ('|'). Pipes are a reserved object separator for output
+#
 class Note < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
 
   belongs_to :note_object, polymorphic: true
-  validates :note_object, presence: true
-  validates_presence_of :note_object_id, :note_object_type
-  validates_presence_of :text
-
+  
   before_validation :not_a_housekeeping_field, :is_valid_attribute, :no_pipes
+
+  # Please DO NOT include the following, they get in the way
+  # of the present housekeeping approach. A not null constraint exists
+  # to catch these at present. 
+  #    validates_associated :note_object
+  #    validates_presence_of :note_object_id, :note_object_type
+  
+  validates_presence_of :text
 
   # Format a note
   def note_string

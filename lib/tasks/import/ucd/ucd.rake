@@ -14,7 +14,7 @@ namespace :tw do
 
         ActiveRecord::Base.transaction do 
           begin
-            @project, @user = initiate_project_and_users
+            @project, @user = initiate_project_and_users('eucharitid', 'John Heraty') # sets user_id/project_id
             @namespace = Namespace.new(name: 'UCD', short_name: 'UCD')
             @namespace.save!
 
@@ -231,7 +231,7 @@ namespace :tw do
         f.each do |row|
           t = Keyword.new(name: row[1], definition: "The topic derived from the UCD keyword for #{row[1]}.") 
           keywords.push t
-          abbreviations.push AlternateValue::Abbreviation.new(alternate_object: t, value: row[0], alternate_object_attribute: :name)
+          abbreviations.push AlternateValue::Abbreviation.new(alternate_value_object: t, value: row[0], alternate_value_object_attribute: :name)
           tags.push Tag.new(keyword: meta_keywords[row[2]], tag_object: t) 
         end
 

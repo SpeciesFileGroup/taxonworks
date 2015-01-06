@@ -36,10 +36,10 @@ describe GeoreferencesController, :type => :controller do
 
   describe "GET index" do
    
-    it "assigns all georeferences as @georeferences" do
+    it "assigns projects's recent georeferences as @recent_objects" do
       georeference = Georeference.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:georeferences)).to eq([georeference])
+      expect(assigns(:recent_objects)).to eq([georeference])
     end
   end
 

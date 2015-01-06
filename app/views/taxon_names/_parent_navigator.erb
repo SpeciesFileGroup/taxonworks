@@ -1,0 +1,12 @@
+<div>
+  <h3>Hierarchy</h3>
+  <% taxon_name.ancestors.each do |p| -%>
+    <%= taxon_name_link(p.metamorphosize)  -%><br>
+  <% end %>
+  
+  <div><br><%= taxon_name_tag(taxon_name) -%></div> <br>
+
+  <% taxon_name.children.each do |p| -%>
+    <%= taxon_name_link(p.metamorphosize)  -%><br>
+  <% end %>
+</div>

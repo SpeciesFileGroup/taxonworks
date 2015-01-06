@@ -84,7 +84,11 @@ class ProjectsController < ApplicationController
   end
 
   def search
-    redirect_to project_path(params[:project][:id])
+    if params[:id]
+      redirect_to project_path(params[:id])
+    else
+      redirect_to projects_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

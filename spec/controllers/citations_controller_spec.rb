@@ -26,7 +26,11 @@ describe CitationsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Citation. As you add validations to Citation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_citation).attributes) }
+  # let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_citation).attributes) }
+  let(:o) { FactoryGirl.create(:valid_otu) }
+  let(:s) { FactoryGirl.create(:valid_source) }
+  let(:valid_attributes) {
+    {citation_object_id: o.id, citation_object_type: o.class.to_s, source_id: s.to_param} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -61,7 +65,8 @@ describe CitationsController, :type => :controller do
 
       it "redirects to :back" do
         post :create, {:citation => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -104,7 +109,7 @@ describe CitationsController, :type => :controller do
       it "redirects to :back" do
         citation = Citation.create! valid_attributes
         put :update, {:id => citation.to_param, :citation => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 

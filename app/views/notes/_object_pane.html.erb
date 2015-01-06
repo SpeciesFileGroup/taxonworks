@@ -1,0 +1,10 @@
+<div class="object_pane">
+  <h3> Notes </h3>
+  <ul>
+    <% object.notes.each do |note| -%>
+      <li> <%= note.text -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'No attached notes.') if !object.notes.any? -%>
+</div>

@@ -37,18 +37,27 @@
           <div class="field">
             <%= f.label :verbatim_locality %>
             <br>
-            <%= f.text_field :verbatim_locality %>
+            <%= f.text_area :verbatim_locality %>
           </div>
-          <div class="field">
-            <%= f.label :verbatim_longitude %>
-            <br>
-            <%= f.text_field :verbatim_longitude %>
-          </div>
+
           <div class="field">
             <%= f.label :verbatim_latitude %>
             <br>
             <%= f.text_field :verbatim_latitude %>
           </div>
+
+          <div class="field">
+            <%= f.label :verbatim_longitude %>
+            <br>
+            <%= f.text_field :verbatim_longitude %>
+          </div>
+
+          <div class="field">
+            <%= f.label :verbatim_datum %>
+            <br>
+            <%= f.text_field :verbatim_datum %>
+          </div>
+
           <div class="field">
             <%= f.label :verbatim_geolocation_uncertainty %>
             <br>
@@ -69,17 +78,16 @@
             <br>
             <%= f.text_field :verbatim_method %>
           </div>
-          <div class="field">
-            <%= f.label :verbatim_elevation %>
-            <br>
-            <%= f.text_field :verbatim_elevation %>
-          </div>
+          <!--<div class="field">-->
+            <!--<%#= f.label :verbatim_elevation %>-->
+            <!--<br>-->
+            <!--<%#= f.text_field :verbatim_elevation %>-->
+          <!--</div>-->
           <div class="field">
             <%= f.label :verbatim_habitat %>
             <br>
             <%= f.text_field :verbatim_habitat %>
           </div>
-
           <div class="field">
             <%= f.label :minimum_elevation %>
             <br>

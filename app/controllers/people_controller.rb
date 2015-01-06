@@ -69,8 +69,13 @@ class PeopleController < ApplicationController
   end
 
   def search
-    redirect_to person_path(params[:person][:id])
+    if params[:id]
+      redirect_to person_path(params[:id])
+    else
+      redirect_to people_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
+
 
   def autocomplete
     @people = Person.find_for_autocomplete(params)

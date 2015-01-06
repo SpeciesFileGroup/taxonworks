@@ -50,8 +50,11 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
+  attr_accessor :iframe_response # used to pass the geolocate from Tulane through
+
+  SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
   # This should probably be moved out to config/initializers/gis
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,
@@ -64,12 +67,13 @@ class Georeference < ActiveRecord::Base
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
   belongs_to :collecting_event
   belongs_to :geographic_item
+  belongs_to :source
 
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
 
-  # TODOone: Break this down into individual validations
+  # TODone: Break this down into individual validations
   # validate :proper_data_is_provided
   validate :add_error_radius
   validate :add_error_depth

@@ -3,6 +3,10 @@ class TagsController < ApplicationController
 
   before_action :set_tag, only: [:update, :destroy]
 
+  def new
+    @tag = Tag.new(tag_params)
+  end
+
   # GET /tags
   # GET /tags.json
   def index
@@ -16,7 +20,7 @@ class TagsController < ApplicationController
     # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to :back, notice: 'Tag was successfully created.' }
+        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
         format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
@@ -36,8 +40,8 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to :back, notice: 'Tag was successfully updated.' }
-        format.json { render json: @tag, status: :ok, location: @tag }
+        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
+        format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html { redirect_to :back, notice: 'Tag was NOT successfully updated.' }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
@@ -57,7 +61,11 @@ class TagsController < ApplicationController
   end
 
   def search
-    redirect_to tag_path(params[:tag][:id])
+    if params[:id]
+      redirect_to tag_path(params[:id])
+    else
+      redirect_to tags_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def autocomplete

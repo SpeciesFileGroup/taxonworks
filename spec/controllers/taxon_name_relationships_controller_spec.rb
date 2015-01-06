@@ -36,10 +36,10 @@ describe TaxonNameRelationshipsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all taxon_name_relationships as @taxon_name_relationships" do
+    it "assigns recent taxon_name_relationships as @recent_objects" do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:taxon_name_relationships)).to eq([taxon_name_relationship])
+      expect(assigns(:recent_objects)).to eq([taxon_name_relationship])
     end
   end
 

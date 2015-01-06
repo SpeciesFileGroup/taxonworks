@@ -72,7 +72,11 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def search
-    redirect_to controlled_vocabulary_term_path_path(params[:controlled_vocabulary_term][:id])
+    if params[:id]
+      redirect_to controlled_vocabulary_term_path(params[:id])
+    else
+      redirect_to controlled_vocabulary_term_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
   end
 
   def list
@@ -103,6 +107,6 @@ class ControlledVocabularyTermsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def controlled_vocabulary_term_params
-      params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :created_by_id, :updated_by_id, :project_id)
+      params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation)
     end
 end

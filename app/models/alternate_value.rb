@@ -1,14 +1,35 @@
+# AlternateValue(s) are annotations on an object or object attribute. Use only when the annotations are related
+#   to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books(publisher2))
+#
+# @!attribute attribute_subject_id
+#   the ID of the thing being annotated
+#
+# @!attribute attribute_subject_type
+#   the kind of thing being annotated
+#
+# @!attribute value
+#   the annotated value
+#
+# @!attribute controlled_vocabulary_term_id
+#   the ID of the controlled vocabulary term - used only for InternalAttribute
+#   Use InternalAttributes when you can precisely define what the alternate value is (e.g. note, MX_ID)
+#
+# @!attribute import_predicate
+#   a string describing the data that has been imported from elsewhere that TW does not have a precise definition for.
+#   Used only with ImportAttribute - use when importing outside data and you don't have a definition of the field.
+#   (e.g. verbatim_notebook_field_6)
+#
 class AlternateValue < ActiveRecord::Base
 
   include Housekeeping::Users
   include Shared::IsData 
 
   belongs_to :language
-  belongs_to :alternate_object, polymorphic: true
+  belongs_to :alternate_value_object, polymorphic: true
 
   validates :language, presence: true, allow_nil: true
-  validates_presence_of :type, :value, :alternate_object_attribute 
-  validates :alternate_object, presence: true
+  validates_presence_of :type, :value, :alternate_value_object_attribute 
+  validates :alternate_value_object, presence: true
 
   before_validation :ensure_object_has_attribute,
                     :ensure_alternate_value_is_not_identical,
@@ -16,9 +37,9 @@ class AlternateValue < ActiveRecord::Base
                     :not_empty_original_value
 
   def original_value
-    (self.alternate_object_attribute && self.alternate_object && self.alternate_object.respond_to?(
-        self.alternate_object_attribute.to_sym) )  ?
-        self.alternate_object.send(self.alternate_object_attribute.to_sym)  : nil
+    (self.alternate_value_object_attribute && self.alternate_value_object && self.alternate_value_object.respond_to?(
+        self.alternate_value_object_attribute.to_sym) )  ?
+        self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym)  : nil
   end
 
   def type_name
@@ -48,9 +69,9 @@ class AlternateValue < ActiveRecord::Base
 
 
   def ensure_object_has_attribute
-    errors.add(:alternate_object_attribute, 'No attribute (column) with that name') if
-        self.alternate_object &&
-            !self.alternate_object.attributes.include?(self.alternate_object_attribute.to_s)
+    errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name') if
+        self.alternate_value_object &&
+            !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
   end 
 
   def ensure_alternate_value_is_not_identical

@@ -1,87 +1,70 @@
-<%= form_for(@georeference.metamorphosize) do |f| %>
-    <% if @georeference.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being saved:</h2>
+<% if @georeference.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being
+      saved:</h2>
 
-          <ul>
-            <% @georeference.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
-
-    <div class='left_floater right_vertical_separator right_column_whitespace nav_column'>
-      <div class="field">
-        <%= f.label :iframe_response %>
-        <br>
-        <%= text_field_tag('georeference[iframe_response]') %>
-      </div>
-
-      <!-- todo @mjy Should this be Ajax picker? (why isn't this comment blue?) -->
-
-      <div class="required">
-        <div class="field">
-          <%= f.label :collecting_event_id %>
-          <br>
-          <%= f.number_field :collecting_event_id %>
-        </div>
-
-        <div class="field">
-          <%= f.label :type %>
-          <br>
-          <%= f.text_field :type, default: 'Georeference::GeoLocate' %>
-        </div>
-      </div>
-
-      <!--
-<!-- <div class="required"> -->
-  <div class="field">
-    <%= f.label :geographic_item_id %><br>
-    <%= f.number_field :geographic_item_id %>
+    <ul>
+      <% @georeference.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
   </div>
-      <!-- </div> -->
-  <div class="field">
-    <%= f.label :error_radius %><br>
-    <%= f.text_field :error_radius %>
-  </div>
-  <div class="field">
-    <%= f.label :error_depth %><br>
-    <%= f.text_field :error_depth %>
-  </div>
-  <div class="field">
-    <%= f.label :error_geographic_item_id %><br>
-    <%= f.number_field :error_geographic_item_id %>
-  </div>
-  <div class="field">
-    <%= f.label :source_id %><br>
-    <%= f.number_field :source_id %>
-  </div>
-  <div class="field">
-    <%= f.label :position %><br>
-    <%= f.number_field :position %>
-  </div>
-  <div class="field">
-    <%= f.label :is_public %><br>
-    <%= f.check_box :is_public %>
-  </div>
-  <div class="field">
-    <%= f.label :api_request %><br>
-    <%= f.text_field :api_request %>
-  </div>
-  <div class="field">
-    <%= f.label :is_undefined_z %><br>
-    <%= f.check_box :is_undefined_z %>
-  </div>
-  <div class="field">
-    <%= f.label :is_median_z %><br>
-    <%= f.check_box :is_median_z %>
-  </div>
-
-  -->
-
-      <div class="actions">
-        <%= f.submit %>
-      </div>
-    </div>
 <% end %>
+
+
+<div class="flexbox">
+  <div class="item item1 one_fifth_width">
+
+    <%= form_for(@georeference.metamorphosize) do |f| %>
+        <div class="field">
+          <%= f.label :iframe_response %>
+          <br>
+          <%= text_field_tag('georeference[iframe_response]') %>
+        </div>
+
+        <%= f.hidden_field :type, value: 'Georeference::GeoLocate' %>
+
+        <div class="required">
+          <div class="field">
+            <%= f.label :collecting_event_id %>
+            <br>
+            <%= render partial: '/workbench/elements/forms/ajax_select',
+                       locals: {controller: 'collecting_events',
+                                    object:     'georeference',
+                                    method:     'collecting_event_id',
+                                    tag_id:     'collecting_event_id_for_georeference',
+                                    display:    collecting_event_tag(@georeference.collecting_event)
+                       } %>
+          </div>
+        </div>
+
+        <div class="field">
+          <%= f.label :source_id %>
+          <br>
+          <%= render :partial => 'workbench/elements/forms/ajax_select',
+                     :locals  => {controller: 'sources',
+                                  object:     'georeference',
+                                  method:     'source_id',
+                                  tag_id:     'source_id_for_georeference',
+                                  display:    source_tag(@georeference.source)
+                     } %>
+        </div>
+
+        <div class="field">
+          <%= f.label :is_public %>
+          <br>
+          <%= f.check_box :is_public %>
+        </div>
+
+        <div class="actions">
+          <%= f.submit %>
+        </div>
+
+    <% end %>
+  </div>
+
+  <div class="item item2">
+    <%= render 'geolocate_iframe' %>
+  </div>
+
+</div>

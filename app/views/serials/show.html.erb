@@ -20,7 +20,7 @@
       <strong>Alternate values:</strong>
       <% for alternate_value in @serial.alternate_values.order('type') %>
           <li>
-            <%= "Type: #{alternate_value.type.gsub('AlternateValue::', '')}, Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_object_attribute}'" %>
+            <%= "Type: #{alternate_value.type.gsub('AlternateValue::', '')}, Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_value_object_attribute}'" %>
             <%#= edit_alternate_value_link(alternate_value) %>
             <%#=	link_to_edit_alternate_value('jsEdit', alternate_value) %>
             <%#= destroy_alternate_value_link(alternate_value) %>

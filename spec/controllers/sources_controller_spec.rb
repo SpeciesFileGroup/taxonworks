@@ -37,10 +37,10 @@ describe SourcesController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all sources as @sources" do
+    it "assigns all sources as @recent_objects" do
       source = Source.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:sources)).to include(source)
+      expect(assigns(:recent_objects)).to include(source)
     end
   end
 

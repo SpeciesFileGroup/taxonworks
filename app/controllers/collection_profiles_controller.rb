@@ -64,7 +64,7 @@ class CollectionProfilesController < ApplicationController
   end
 
   def list
-    @collection_profile = CollectionProfile.order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collection_profiles = CollectionProfile.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   private

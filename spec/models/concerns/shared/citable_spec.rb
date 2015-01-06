@@ -13,9 +13,14 @@ describe 'Citable', :type => :model do
     end
   end
 
-  context 'methods' do
-    specify 'cited?' do
+  context 'instance methods' do
+    specify 'cited? with no citations' do
       expect(class_with_citations.cited?).to eq(false)
+    end
+
+    specify 'cited? with some citations' do
+      class_with_citations.citations << Citation.new(source: FactoryGirl.create(:valid_source_bibtex))
+      expect(class_with_citations.cited?).to eq(true)
     end
   end
 end

@@ -1,21 +1,24 @@
-<div class="flexbox"> 
-  <div class="item item1">
-    <h2><%= model_name_title -%></h2>
-    <span class="subtle"><%= favorite_page_link -%></span>
+<section>
+  <div class="flexbox"> 
+    <div class="item item1 one_fifth_width">
+      <h2><%= model_name_title -%></h2>
+      <span class="subtle"><%= favorite_page_link -%></span>
+    </div>
+
+    <div class="item item2 one_quarter_width">
+      <%= new_for_model_link(@data_model) %><br>
+      <%= list_for_model_link(@data_model) %><br>
+      <%= search_form_for_model(@data_model) %><br>
+      <%= download_for_model_link(@data_model) %><br>
+    </div>
+
+    <div class="item item3 one_quarter_width">
+      <%= render '/shared/data/recent_objects_list' %>
+    </div>
+
+    <div class="item item4">
+      <%= render '/shared/data/batch_load_form' %>
+    </div>
   </div>
 
-  <div class="item item2">
-    <%= new_for_model_link(@data_model) %><br>
-    <%= list_for_model_link(@data_model) %><br>
-    <%= search_form_for_model(@data_model) %><br>
-    <%= download_for_model_link(@data_model) %><br>
-  </div>
-
-  <div class="item item3">
-    <%= render '/shared/data/recent_objects_list' %>
-  </div>
-
-  <div class="item item4">
-    <%= render '/shared/data/batch_load_form' %>
-  </div>
-</div>
+</section>

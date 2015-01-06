@@ -35,10 +35,10 @@ describe SerialsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all serials as @serials" do
+    it "assigns recent serials as @recent_objects" do
       serial = Serial.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:serials)).to eq([serial])
+      expect(assigns(:recent_objects)).to eq([serial])
     end
   end
 

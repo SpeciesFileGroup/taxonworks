@@ -29,35 +29,52 @@ describe ControlledVocabularyTerm, :type => :model do
     expect(controlled_vocabulary_term.errors.include?(:definition)).to be_truthy
   end
 
-  context 'within projects' do
+  specify 'if uri is provided uri_relation must also be provided' do
+    controlled_vocabulary_term.uri = 'http://abc.com/123'
+    expect(controlled_vocabulary_term.valid?).to be_falsey
+    expect(controlled_vocabulary_term.errors.include?(:uri_relation)).to be_truthy
+  end
 
+  specify 'if uri_relation is provided uri must also be provided' do
+    controlled_vocabulary_term.uri_relation = 'skos:narrowMatch'
+    expect(controlled_vocabulary_term.valid?).to be_falsey
+    expect(controlled_vocabulary_term.errors.include?(:uri)).to be_truthy
+  end
+
+  specify 'if uri_relation is provided it must be in SKOS_RELATIONS' do
+    controlled_vocabulary_term.uri_relation = 'skos:not_real_fake'
+    expect(controlled_vocabulary_term.valid?).to be_falsey
+    expect(controlled_vocabulary_term.errors.include?(:uri_relation)).to be_truthy
+  end
+
+  context 'within projects' do
     let(:uri) { 'http://purl.org/net/foo/1' }
 
     specify 'name is unique within projects per type' do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term)
-      b = FactoryGirl.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', same_as_uri: uri))
+      b = FactoryGirl.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', uri: uri, uri_relation: 'skos:closeMatch' ))
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
     end
 
     specify 'definition is unique within projects' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', same_as_uri: uri)
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', same_as_uri: uri)
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:definition)).to be_truthy
     end
 
-    specify 'same_as_uri is unique within projects' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, same_as_uri: uri)
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, same_as_uri: uri)
+    specify 'uri is unique within projects' do
+      a = FactoryGirl.create(:valid_controlled_vocabulary_term, uri: uri,  uri_relation: 'skos:closeMatch')
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, uri: uri, uri_relation: 'skos:closeMatch' )
       expect(b.valid?).to be_falsey
-      expect(b.errors.include?(:same_as_uri)).to be_truthy
+      expect(b.errors.include?(:uri)).to be_truthy
     end
 
     specify 'is case sensitive, i.e. bat and Bat are different' do
       a = FactoryGirl.create(:valid_controlled_vocabulary_term, name: 'blue')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', same_as_uri: :uri)
+      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_truthy
     end
 

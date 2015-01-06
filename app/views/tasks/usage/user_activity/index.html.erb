@@ -1,0 +1,10 @@
+hello world
+
+<%#= @project_members -%>
+<% @project_members.each do |p| -%>
+<%#= object_tag(p) -%>  <%#= p.name -%>
+    <ul>
+      <%= content_tag(:li, link_to(p.name, tasks_usage_user_activity_report_path(p.to_param))) -%>
+    </ul>
+<% end %>
+

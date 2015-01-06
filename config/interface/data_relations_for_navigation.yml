@@ -6,6 +6,8 @@ otus:
 taxon_names: 
   - otus
   - taxon_name_relationships
+taxon_name_relationships:
+  - taxon_names
 collection_objects:
   - collecting_events 
   - taxon_determinations

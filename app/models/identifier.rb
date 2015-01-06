@@ -8,11 +8,14 @@
 # or local, in which case they have a namespace.
 #
 #
-## @!attribute identified_object_id 
+# !! Identifiers should always be created in the context of their parents see spec/lib/identifier_spec.rb for examples  !!
+#
+#
+## @!attribute identifier_object_id 
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
 #
-## @!attribute identified_object_id 
+## @!attribute identifier_object_id 
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #
@@ -34,11 +37,14 @@
 #   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
 #   
 class Identifier < ActiveRecord::Base
+  # TODO: @mjy resolve this to not require project id 
   include Housekeeping
   include Shared::IsData 
 
+  before_save :set_cached_value
+
   # must come before SHORT_NAMES for weird inheritance issue
-  belongs_to :identified_object, polymorphic: :true
+  belongs_to :identifier_object, polymorphic: :true
 
   # TODO: this likely has to be refactored/considered
   # !! If there are inheritance issues with validation the position
@@ -59,23 +65,21 @@ class Identifier < ActiveRecord::Base
     unknown: Identifier::Unknown
   }
 
-  validates :identified_object, presence: true
+  # Please DO NOT include the following: 
+  #   validates :identifier_object, presence: true 
+  #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
-
-  # identifiers are unique across types for a class of objects
-  validates_uniqueness_of :identifier, scope: [:type, :identified_object_type, :namespace_id]
-
-  # no more of one identifier of a type per object 
-  validates_uniqueness_of :type, scope: [:identified_object_id, :identified_object_type, :namespace_id, :project_id] 
-
-  #before_validation :validate_format_of_identifier
 
   # TODO: test  - pendings are in the identifier_spec
   scope :of_type, -> (type) { where(type: Identifier::SHORT_NAMES[type].to_s) }
 
+  def self.find_for_autocomplete(params)
+    where('identifier LIKE ?', "#{params[:term]}%")
+  end
+
   protected
 
-  # validations are currently defined in the subclass using active record validations.
-  #def validate_format_of_identifier;
-  #end
+  def set_cached_value
+  end
+  
 end

@@ -2,7 +2,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
 
   # left_side
   def self.valid_subject_ranks
-    SPECIES_RANK_NAMES_ICN
+    SPECIES_RANK_NAMES_ICN 
   end
 
   # right_side
@@ -29,6 +29,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
   def self.assignable
     true
   end
+
 
 end
 

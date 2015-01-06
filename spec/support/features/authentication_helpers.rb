@@ -61,14 +61,14 @@ module Features
     def spin_up_project_and_users
       @password = 'abcD123!'
 
-      @user = User.create(name: 'Pat User', email: 'user@test.com', password: @password , password_confirmation: @password)
-      @project_administrator = User.create(name: 'Pat Project Administrator', email: 'project_administrator@test.com', password: @password, password_confirmation: @password)
-      @administrator = User.create(name: 'Pat the Administrator', email: 'administrator@test.com', password: @password, password_confirmation: @password, is_administrator: true)
+      @user = User.create(name: 'Pat User', email: 'user@test.com', password: @password, password_confirmation: @password, self_created: true)
+      @project_administrator = User.create(name: 'Pat Project Administrator', email: 'project_administrator@test.com', password: @password, password_confirmation: @password, self_created: true)
+      @administrator = User.create(name: 'Pat the Administrator', email: 'administrator@test.com', password: @password, password_confirmation: @password, is_administrator: true, self_created: true)
 
       @project = Project.create(name: 'My Project', creator: @administrator, updater: @administrator)
-      @project.project_members.build(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
-      @project.project_members.build(creator: @administrator, updater: @administrator, user: @user) # build
-      @project.save!
+
+      @project.project_members.create(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
+      @project.project_members.create(creator: @administrator, updater: @administrator, user: @user) 
     end
   end
 end

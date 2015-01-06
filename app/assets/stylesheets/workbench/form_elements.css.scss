@@ -1,8 +1,7 @@
-
 @import 'palette';
 
 .mx-autocomplete {
-  border: 1px $background_gray dashed;
+  border: 1px $color-secondary-1-3 solid;
 }
 
 form div.required {

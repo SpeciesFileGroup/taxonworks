@@ -20,15 +20,21 @@ require 'rails_helper'
 
 describe IdentifiersController, :type => :controller do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_identifier).attributes )
-  } 
+  # let(:valid_attributes) {
+  #   strip_housekeeping_attributes( FactoryGirl.build(:valid_identifier).attributes )
+  # }
+  let(:o) { FactoryGirl.create(:valid_otu) }
+  let(:valid_attributes) {
+    {type: 'Identifier::Global::Uri',
+     identifier_object_id: o.id,
+     identifier_object_type: o.class.to_s,
+     identifier: "http://uri.org/1234"} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -67,7 +73,7 @@ describe IdentifiersController, :type => :controller do
   # end
 
   before {
-    request.env['HTTP_REFERER'] = list_otus_path # logical example
+    request.env['HTTP_REFERER'] = otu_path(o) # logical example
   }
 
   describe "POST create" do
@@ -86,7 +92,7 @@ describe IdentifiersController, :type => :controller do
 
       it "redirects to :back" do
         post :create, {:identifier => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -94,15 +100,15 @@ describe IdentifiersController, :type => :controller do
       it "assigns a newly created but unsaved identifier as @identifier" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        post :create, {:identifier => { "identified_object_id" => "invalid value" }}, valid_session
+        post :create, {:identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(assigns(:identifier)).to be_a_new(Identifier)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        post :create, {:identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        post :create, {:identifier => {"identifier_object_id" => "invalid value"}}, valid_session
+        expect(response).to render_template("new")
       end
     end
   end
@@ -115,8 +121,8 @@ describe IdentifiersController, :type => :controller do
         # specifies that the Identifier created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(Identifier).to receive(:update).with({ "identified_object_id" => "1" })
-        put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "1" }}, valid_session
+        expect_any_instance_of(Identifier).to receive(:update).with({"identifier_object_id" => "1"})
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "1"}}, valid_session
       end
 
       it "assigns the requested identifier as @identifier" do
@@ -128,7 +134,7 @@ describe IdentifiersController, :type => :controller do
       it "redirects to :back" do
         identifier = Identifier.create! valid_attributes
         put :update, {:id => identifier.to_param, :identifier => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -137,7 +143,7 @@ describe IdentifiersController, :type => :controller do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "invalid value" }}, valid_session
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "invalid value"}}, valid_session
         expect(assigns(:identifier)).to eq(identifier)
       end
 
@@ -145,8 +151,8 @@ describe IdentifiersController, :type => :controller do
         identifier = Identifier.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Identifier).to receive(:save).and_return(false)
-        put :update, {:id => identifier.to_param, :identifier => { "identified_object_id" => "invalid value" }}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        put :update, {:id => identifier.to_param, :identifier => {"identifier_object_id" => "invalid value"}}, valid_session
+        expect(response).to redirect_to(otu_path(o))
       end
     end
   end
@@ -162,7 +168,7 @@ describe IdentifiersController, :type => :controller do
     it "redirects to :back" do
       identifier = Identifier.create! valid_attributes
       delete :destroy, {:id => identifier.to_param}, valid_session
-      expect(response).to redirect_to(list_otus_path)
+      expect(response).to redirect_to(otu_path(o))
     end
   end
 

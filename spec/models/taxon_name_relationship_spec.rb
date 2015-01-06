@@ -2,622 +2,675 @@ require 'rails_helper'
 
 describe TaxonNameRelationship, :type => :model do
 
-  context 'Taxon Name relationships' do
-    before(:all) do
-      TaxonName.delete_all
-      TaxonNameRelationship.delete_all
-      @taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
-      @taxon_name_relationship.valid?
-      @species = FactoryGirl.create(:relationship_species)
-      @genus = @species.ancestor_at_rank('genus')
-      @family = @species.ancestor_at_rank('family')
-      @kingdom = @species.ancestor_at_rank('kingdom')
+  let(:taxon_name_relationship) { TaxonNameRelationship.new }
+
+  before(:all) do
+    TaxonName.delete_all
+    TaxonNameRelationship.delete_all
+
+    @taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
+    @taxon_name_relationship.valid?
+
+    @species = FactoryGirl.create(:relationship_species)
+    @genus = @species.ancestor_at_rank('genus')
+    @family = @species.ancestor_at_rank('family')
+    @kingdom = @species.ancestor_at_rank('kingdom')
+  end
+
+  after(:all) { 
+    TaxonName.delete_all
+    TaxonNameRelationship.delete_all
+    Source.delete_all
+  } 
+
+  context 'required attributes' do
+    specify 'subject (TaxonName)' do
+      expect(taxon_name_relationship.subject_taxon_name = Protonym.new()).to be_truthy
     end
 
-    after(:all) { 
-      TaxonName.delete_all
-      TaxonNameRelationship.delete_all
-      Source.delete_all
-    } 
+    specify 'object (TaxonName)' do
+      expect(taxon_name_relationship.object_taxon_name = Protonym.new()).to be_truthy
+    end
 
-    context 'requires' do
-      context 'associations' do
-        specify 'subject (TaxonName)' do
-          expect(@taxon_name_relationship).to respond_to (:subject_taxon_name)
-        end
-        specify 'object (TaxonName)' do
-          expect(@taxon_name_relationship).to respond_to (:object_taxon_name)
-        end
-        specify 'type' do
-          expect(@taxon_name_relationship).to respond_to (:type)
-        end
-        specify 'disjoint_taxon_name_relationships' do
-          TAXON_NAME_RELATIONSHIPS.each do |r|
-            r1 = r.disjoint_taxon_name_relationships.collect{|i| i.to_s}
-            r1 = ['string'] + r1
-            r1 = r1.collect{|i| i.class.to_s}.uniq
-            expect(r1.first).to eq('String')
-            expect(r1.size).to eq(1)
-          end
-        end
-        specify 'disjoint_subject_classes' do
-          TAXON_NAME_RELATIONSHIPS.each do |r|
-            r1 = r.disjoint_subject_classes.collect{|i| i.to_s}
-            r1 = ['string'] + r1
-            r1 = r1.collect{|i| i.class.to_s}.uniq
-            expect(r1.first).to eq('String')
-            expect(r1.size).to eq(1)
-          end
-        end
-        specify 'disjoint_object_classes' do
-          TAXON_NAME_RELATIONSHIPS.each do |r|
-            r1 = r.disjoint_object_classes.collect{|i| i.to_s}
-            r1 = ['string'] + r1
-            r1 = r1.collect{|i| i.class.to_s}.uniq
-            expect(r1.first).to eq('String')
-            expect(r1.size).to eq(1)
-          end
-        end
-        specify 'valid_object_ranks' do
-          TAXON_NAME_RELATIONSHIPS.each do |r|
-            r1 = r.valid_object_ranks.collect{|i| i.to_s}
-            r1 = ['string'] + r1
-            r1 = r1.collect{|i| i.class.to_s}.uniq
-            expect(r1.first).to eq('String')
-            expect(r1.size).to eq(1)
-          end
-        end
-        specify 'valid_subject_ranks' do
-          TAXON_NAME_RELATIONSHIPS.each do |r|
-            r1 = r.valid_subject_ranks.collect{|i| i.to_s}
-            r1 = ['string'] + r1
-            r1 = r1.collect{|i| i.class.to_s}.uniq
-            expect(r1.first).to eq('String')
-            expect(r1.size).to eq(1)
-          end
-        end
-      end
+    specify 'type' do
+      expect(taxon_name_relationship).to respond_to (:type)
+    end
+  end
 
-      context 'validate' do
-        specify 'subject_taxon_name_id' do
-          expect(@taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
-        end
-        specify 'object_taxon_name_id' do
-          expect(@taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
-        end
-        specify 'type' do
-          expect(@taxon_name_relationship.errors.include?(:type)).to be_truthy
-        end
-
-        specify 'object_taxon_name_id != subject_taxon_name_id' do
-          @taxon_name_relationship.object_taxon_name = @genus
-          @taxon_name_relationship.subject_taxon_name = @genus
-          @taxon_name_relationship.valid?
-          expect(@taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
-        end
-
-        context 'object and subject should share the same potentially_validating code' do
-          specify 'same code' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship)
-            r.valid?
-            expect(r.errors.include?(:object_taxon_name_id)).to be_falsey
-          end
-
-          specify 'different code' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship, object_taxon_name: FactoryGirl.build(:icn_genus))
-            expect(r.valid?).to be_falsey
-            expect(r.errors.include?(:object_taxon_name_id)).to be_truthy
-          end
-
-          specify 'valid object rank' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship)
-            expect(r.valid?).to be_truthy
-            expect(r.errors.include?(:object_taxon_name_id)).to be_falsey
-            expect(r.errors.include?(:subject_taxon_name_id)).to be_falsey
-          end
-
-          specify 'protonym should not have a combination relationships' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @genus, object_taxon_name: @species, type: 'TaxonNameRelationship::Combination::Genus')
-            expect(r.valid?).to be_falsey
-            expect(r.errors.include?(:type)).to be_truthy
-          end
-
-          specify 'subject and object share nomenclatural rank group' do
-            r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @species, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            expect(r.valid?).to be_falsey
-            expect(r.errors.include?(:object_taxon_name_id)).to be_truthy
-          end
-        end
-
-        context 'type' do
-          specify 'invalidly_published when not a TaxonNameRelationship' do
-            @taxon_name_relationship.type = "foo"
-            @taxon_name_relationship.valid?
-            expect(@taxon_name_relationship.errors.include?(:type)).to be_truthy
-            @taxon_name_relationship.type = Specimen
-            @taxon_name_relationship.valid?
-            expect(@taxon_name_relationship.errors.include?(:type)).to be_truthy
-          end
-
-          specify 'validly_published when a TaxonNameRelationship' do
-            @taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
-            @taxon_name_relationship.valid?
-            expect(@taxon_name_relationship.errors.include?(:typification)).to be_falsey
-          end
-        end
-
-        context 'relationships' do
-          specify 'has only one synonym relationship' do
-            s = FactoryGirl.create(:relationship_species, parent: @genus)
-            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            expect(r1.valid?).to be_truthy
-            expect(r1.errors.include?(:subject_taxon_name_id)).to be_falsey
-            r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-            r2.valid?
-            expect(r2.errors.include?(:subject_taxon_name_id)).to be_truthy
-          end
-          specify 'has only one type relationship' do
-            s = FactoryGirl.create(:relationship_species, parent: @genus)
-            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus')
-            expect(r1.valid?).to be_truthy
-            expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
-            r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus::Monotypy')
-            r2.valid?
-            expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
-          end
-          specify 'has only one original genus' do
-            g = FactoryGirl.create(:relationship_genus, parent: @family)
-            s = FactoryGirl.create(:relationship_species, parent: g)
-            r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-            expect(r1.valid?).to be_truthy
-            expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
-            r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-            r2.valid?
-            expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
-          end
-        end
+  context 'associations' do
+    specify 'disjoint_taxon_name_relationships' do
+      TAXON_NAME_RELATIONSHIPS.each do |r|
+        r1 = r.disjoint_taxon_name_relationships.collect{|i| i.to_s}
+        r1 = ['string'] + r1
+        r1 = r1.collect{|i| i.class.to_s}.uniq
+        expect(r1.first).to eq('String')
+        expect(r1.size).to eq(1)
       end
     end
 
-    context 'soft validation' do
-      specify 'required relationship' do
-        s = FactoryGirl.create(:relationship_species, parent: @genus)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-        r1.soft_validate(:validate_required_relationships)
-        # original genus is required
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        s.original_genus = @genus
-        expect(s.save).to be_truthy
-        r1.soft_validate(:validate_required_relationships)
-        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+    specify 'disjoint_subject_classes' do
+      TAXON_NAME_RELATIONSHIPS.each do |r|
+        r1 = r.disjoint_subject_classes.collect{|i| i.to_s}
+        r1 = ['string'] + r1
+        r1 = r1.collect{|i| i.class.to_s}.uniq
+        expect(r1.first).to eq('String')
+        expect(r1.size).to eq(1)
       end
-      specify 'disjoint relationships' do
-        g = FactoryGirl.create(:relationship_genus, parent: @family)
-        s = FactoryGirl.create(:relationship_species, parent: g)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Validating::ConservedName')
-        r1.soft_validate(:validate_disjoint_relationships)
-        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:validate_disjoint_relationships)
-        r2.soft_validate(:validate_disjoint_relationships)
-        #conflicting with r2
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        #conflicting with r1
-        expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+    end
+
+    specify 'disjoint_object_classes' do
+      TAXON_NAME_RELATIONSHIPS.each do |r|
+        r1 = r.disjoint_object_classes.collect{|i| i.to_s}
+        r1 = ['string'] + r1
+        r1 = r1.collect{|i| i.class.to_s}.uniq
+        expect(r1.first).to eq('String')
+        expect(r1.size).to eq(1)
       end
-      specify 'disjoint objects' do
-        g = FactoryGirl.create(:relationship_genus, parent: @family)
-        s = FactoryGirl.create(:relationship_species, parent: g)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
-        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
-        r1.soft_validate(:validate_disjoint_object)
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+    end
+
+    specify 'valid_object_ranks' do
+      TAXON_NAME_RELATIONSHIPS.each do |r|
+        r1 = r.valid_object_ranks.collect{|i| i.to_s}
+        r1 = ['string'] + r1
+        r1 = r1.collect{|i| i.class.to_s}.uniq
+        expect(r1.first).to eq('String')
+        expect(r1.size).to eq(1)
       end
-      specify 'disjoint subject' do
-        g = FactoryGirl.create(:relationship_genus, parent: @family)
-        s = FactoryGirl.create(:relationship_species, parent: g)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
-        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
-        r1.soft_validate(:validate_disjoint_subject)
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-      end
+    end
 
-      context 'specific relationships' do
-        before(:all) do
-          @f1 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
-          @f2 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
-          @g1 = FactoryGirl.create(:relationship_genus, parent: @f1)
-          @g2 = FactoryGirl.create(:relationship_genus, parent: @f2)
-          @s1 = FactoryGirl.create(:relationship_species, parent: @g1)
-          @s2 = FactoryGirl.create(:relationship_species, parent: @g2)
-          @r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
-          @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
-          @source = FactoryGirl.create(:valid_source_bibtex, year: 2000)
-        end
-
-        specify 'objective synonyms should have the same type' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym')
-          r.soft_validate(:objective_synonym_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-
-        specify 'objective synonyms should have the same type specimen' do
-          type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
-          type_material2 = FactoryGirl.create(:valid_type_material, protonym: @s2)
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          r.soft_validate(:objective_synonym_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-          r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
-          r.soft_validate(:objective_synonym_relationship)
-          expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-
-        specify 'subjective synonyms should not have the same type' do
-          @r2.subject_taxon_name = @s1
-          expect(@r2.save).to be_truthy
-          @g2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-
-        specify 'subjective synonyms should have different type specimen' do
-          type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
-          type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: @s2)
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-          r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-
-        specify 'primary homonyms do not share the same original genus' do
-          @s1.original_genus = @g1
-          @s2.original_genus = @g2
-          expect(@s1.save).to be_truthy
-          expect(@s2.save).to be_truthy
-          @s1.reload
-          @s2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'homonyms should be similar' do
-          g =  FactoryGirl.create(:relationship_genus, name: 'Xus', parent: @f1)
-          expect(g.save).to be_truthy
-          expect(@g2.save).to be_truthy
-          g.reload
-          @g2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'primary homonyms should be similar' do
-          sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
-          sp.original_genus = @g1
-          @s2.original_genus = @g1
-          expect(sp.save).to be_truthy
-          expect(@s2.save).to be_truthy
-          sp.reload
-          @s2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'secondary homonyms should be similar' do
-          sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
-          sp.original_genus = @g1
-          @s2.original_genus = @g2
-          expect(sp.save).to be_truthy
-          expect(@s2.save).to be_truthy
-          sp.reload
-          @s2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-
-        specify 'secondary homonyms should be placed in the same genus' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-
-        specify 'secondary homonyms should be changed to primary' do
-          @s2.original_genus = @g1
-          expect(@s2.save).to be_truthy
-          @s2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        end
-
-        specify 'errors on secondary homonym before 1961' do
-          @s2.original_genus = @g1
-          expect(@s2.save).to be_truthy
-          @s2.year_of_publication = 1970
-          expect(@s2.save).to be_truthy
-          @s2.reload
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(2)
-          expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
-          r.source = @source
-          r.soft_validate(:specific_relationship)
-          expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
-        end
-
-        specify 'type species by subsequent designation' do
-          @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-          expect(@r1.save).to be_truthy
-          @r1.reload
-          @r1.soft_validate(:synonym_relationship)
-          expect(@r1.soft_validations.messages_on(:source_id).size).to eq(1)
-        end
-
-        specify 'errors on family synonym before 1961' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
-          r.soft_validate('specific_relationship')
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-          expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
-        end
-
-        specify 'synonym should have a source' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r.soft_validate('synonym_relationship')
-          expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
-        end
-
-        specify 'source should not be older than synonym' do
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r.soft_validate('synonym_relationship')
-          expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
-        end
-
-        specify 'homonym and totally suppressed' do
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
-          r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-          r2.soft_validate('validate_homonym_relationships')
-          expect(r2.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'homonym without nomen novum' do
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-          r1.soft_validate('validate_homonym_relationships')
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName')
-          r1.soft_validate('validate_homonym_relationships')
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r1.fix_soft_validations
-          r1.soft_validate('validate_homonym_relationships')
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'subsequent type designation after 1930' do
-          @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-          expect(@r1.save).to be_truthy
-          @r1.soft_validate('specific_relationship')
-          expect(@r1.soft_validations.messages_on(:type).empty?).to be_truthy
-          @r1.object_taxon_name.year_of_publication = 1950
-          expect(@r1.save).to be_truthy
-          @r1.soft_validate('specific_relationship')
-          expect(@r1.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'secondary homonyms missing combination' do
-          g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-          s1 = FactoryGirl.create(:relationship_species, parent: g1)
-          expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
-          r1.soft_validate('specific_relationship')
-          expect(r1.soft_validations.messages_on(:base).size).to eq(1)
-          c = FactoryGirl.create(:combination, parent: s1)
-          c.combination_genus = @genus
-          expect(c.save).to be_truthy
-          s1.reload
-          r1.soft_validate('specific_relationship')
-          expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
-        end
-      end
-
-      context 'not specific relationships' do
-        specify 'examples' do
-          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
-          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating')
-          r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-          r3 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r1.soft_validate(:not_specific_relationship)
-          r2.soft_validate(:not_specific_relationship)
-          r3.soft_validate(:not_specific_relationship)
-          # reason of being invalid?
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          # primary or secondary homonym?
-          expect(r2.soft_validations.messages_on(:type).size).to eq(1)
-          # objective or subjective synonym?
-          expect(r3.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'fix not specific relationships from synonym to objective synonym' do
-          g1 = FactoryGirl.create(:relationship_genus, parent: @family)
-          g2 = FactoryGirl.create(:relationship_genus, parent: @family)
-          s1 = FactoryGirl.create(:relationship_species, parent: g1)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g1, type: 'TaxonNameRelationship::Typification::Genus')
-          r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g2, type: 'TaxonNameRelationship::Typification::Genus')
-          r1.soft_validate(:not_specific_relationship)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r1.fix_soft_validations
-          r1.soft_validate(:not_specific_relationship)
-          expect(r1.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'same type specimen fix to objective synonym' do
-          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
-          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
-          type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
-          type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r.soft_validate(:not_specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-          r.fix_soft_validations
-          r.soft_validate(:not_specific_relationship)
-          expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'subjective synonyms should have different type specimen' do
-          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
-          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
-          type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
-          type_material2 = FactoryGirl.create(:valid_type_material, protonym: s2)
-          r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-          r.soft_validate(:not_specific_relationship)
-          expect(r.soft_validations.messages_on(:type).size).to eq(1)
-          r.fix_soft_validations
-          r.soft_validate(:not_specific_relationship)
-          expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-          expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'fix not specific relationships from homonym to primary homonym' do
-          s1 = FactoryGirl.create(:relationship_species, parent: @genus)
-          s2 = FactoryGirl.create(:relationship_species, parent: @genus)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-          r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-          r1.soft_validate(:not_specific_relationship)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r1.fix_soft_validations
-          r1.soft_validate(:not_specific_relationship)
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-      end
-
-      specify 'parent is a synonym' do
-        g1 = FactoryGirl.create(:relationship_genus, parent: @family)
-        g2 = FactoryGirl.create(:relationship_genus, parent: @family)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:synonym_linked_to_valid_name)
-        r2.soft_validate(:synonym_linked_to_valid_name)
-        expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-        # parent is a synonym of another taxon
-        expect(r2.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
-        r2.fix_soft_validations
-        r2.soft_validate(:synonym_linked_to_valid_name)
-        # parent updated to valid name
-        expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-      end
-      specify 'synonym should have same parent' do
-        f = FactoryGirl.create(:relationship_family, parent: @kingdom)
-        g1 = FactoryGirl.create(:relationship_genus, parent: f)
-        g2 = FactoryGirl.create(:relationship_genus, parent: @family)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r1.soft_validate(:synonym_linked_to_valid_name)
-        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-        r1.fix_soft_validations
-        r1.soft_validate(:synonym_linked_to_valid_name)
-        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
-        expect(g2.parent_id).to eq(f.id)
-      end
-      specify 'type genus should have the same first letter' do
-        f1 = FactoryGirl.create(:relationship_family, parent: @kingdom)
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f1)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: f1, type: 'TaxonNameRelationship::Typification::Family')
-        r1.soft_validate(:matching_type_genus)
-        expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
-      end
-
-      context 'priority' do
-        before(:all) do
-          @g1 = FactoryGirl.create(:relationship_genus, parent: @family, year_of_publication: 2005)
-          @s1 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2000)
-          @s2 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2001)
-        end
-        specify 'FirstRevisorAction' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'direct priority' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @s1, type: 'TaxonNameClassification::Iczn::Unavailable')
-          @s1.reload
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-          c1.delete
-          @s1.reload
-        end
-        specify 'reverse priority' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-        end
-        specify 'reverse priority original genus' do
-          r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-        end
-        specify 'synonym and homonym or conserved' do
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-          r2.type = 'TaxonNameRelationship::Iczn::Validating::ConservedName'
-          expect(r2.save).to be_truthy
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'synonym and homonym or conserved' do
-          g1 = FactoryGirl.create(:icn_genus)
-          s1 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2000)
-          s2 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2001)
-          s3 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 1999)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-          r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s3, type: 'TaxonNameRelationship::Icn::Accepting::SanctionedName')
-          r1.soft_validate(:validate_priority)
-          expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        end
-        specify 'synonym should be linked to subspecies in subject' do
-          ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-          expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-          r1.fix_soft_validations
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
-          expect(r1.subject_taxon_name_id).to eq(ssp.id)
-        end
-        specify 'synonym should be linked to subspecies in object' do
-          ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
-          r1.fix_soft_validations
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-          expect(r1.object_taxon_name_id).to eq(ssp.id)
-        end
-        specify 'original combination linked to genus is subject' do
-          ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: ssp, object_taxon_name: @s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-          r1.fix_soft_validations
-          r1.soft_validate(:coordinated_taxa)
-          expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
-          expect(r1.subject_taxon_name_id).to eq(@s1.id)
-        end
+    specify 'valid_subject_ranks' do
+      TAXON_NAME_RELATIONSHIPS.each do |r|
+        r1 = r.valid_subject_ranks.collect{|i| i.to_s}
+        r1 = ['string'] + r1
+        r1 = r1.collect{|i| i.class.to_s}.uniq
+        expect(r1.first).to eq('String')
+        expect(r1.size).to eq(1)
       end
     end
   end
 
+  context 'validation' do
+    context 'required attributes' do
+      before(:each) {
+        taxon_name_relationship.valid? 
+      }
+      specify 'subject_taxon_name_id' do
+        expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
+      end
+
+      specify 'object_taxon_name_id' do
+        expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+
+      specify 'type' do
+        expect(taxon_name_relationship.errors.include?(:type)).to be_truthy
+      end
+    end
+
+    specify 'object_taxon_name_id != subject_taxon_name_id' do
+      taxon_name_relationship.object_taxon_name_id = 5
+      taxon_name_relationship.subject_taxon_name_id = 5 
+      taxon_name_relationship.valid?
+      expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+    end
+
+    context 'object and subject should share the same potentially_validating code' do
+      specify 'same code' do
+        r = FactoryGirl.build_stubbed(:type_species_relationship)
+        r.valid?
+        expect(r.errors.include?(:object_taxon_name_id)).to be_falsey
+      end
+
+      specify 'different code' do
+        r = FactoryGirl.build_stubbed(:type_species_relationship, object_taxon_name: FactoryGirl.build(:icn_genus))
+        expect(r.valid?).to be_falsey
+        expect(r.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+
+      specify 'valid object rank' do
+        r = FactoryGirl.build_stubbed(:type_species_relationship)
+        expect(r.valid?).to be_truthy
+        expect(r.errors.include?(:object_taxon_name_id)).to be_falsey
+        expect(r.errors.include?(:subject_taxon_name_id)).to be_falsey
+      end
+
+      specify 'protonym should not have a combination relationships' do
+        r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @genus, object_taxon_name: @species, type: 'TaxonNameRelationship::Combination::Genus')
+        expect(r.valid?).to be_falsey
+        expect(r.errors.include?(:type)).to be_truthy
+      end
+
+      specify 'subject and object share nomenclatural rank group' do
+        r = FactoryGirl.build_stubbed(:type_species_relationship, subject_taxon_name: @species, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        expect(r.valid?).to be_falsey
+        expect(r.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+    end
+
+    context 'type' do
+      specify 'is invalid when not a valid TaxonNameRelationship' do # "invalidly_published when not a TaxonNameRelationship" ?!
+        taxon_name_relationship.type = "foo"
+        taxon_name_relationship.valid?
+        expect(taxon_name_relationship.errors.include?(:type)).to be_truthy
+        taxon_name_relationship.type = 'Specimen'
+        taxon_name_relationship.valid?
+        expect(taxon_name_relationship.errors.include?(:type)).to be_truthy
+      end
+
+      specify 'is valid when a defined TaxonNameRelationship' do
+        taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
+        taxon_name_relationship.valid?
+        expect(taxon_name_relationship.errors.include?(:typification)).to be_falsey
+      end
+    end
+
+    context 'relationships' do
+      specify 'has only one synonym relationship' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        expect(r1.valid?).to be_truthy
+        expect(r1.errors.include?(:subject_taxon_name_id)).to be_falsey
+        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        r2.valid?
+        expect(r2.errors.include?(:subject_taxon_name_id)).to be_truthy
+      end
+
+      specify 'has only one type relationship' do
+        s = FactoryGirl.create(:relationship_species, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus')
+        expect(r1.valid?).to be_truthy
+        expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
+        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @genus, type: 'TaxonNameRelationship::Typification::Genus::Monotypy')
+        r2.valid?
+        expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+
+      specify 'has only one original genus' do
+        g = FactoryGirl.create(:relationship_genus, parent: @family)
+        s = FactoryGirl.create(:relationship_species, parent: g)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        expect(r1.valid?).to be_truthy
+        expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
+        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        r2.valid?
+        expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+    end
+  end
+
+  context 'soft validation' do
+    specify 'required relationship' do
+      s = FactoryGirl.create(:relationship_species, parent: @genus)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+      r1.soft_validate(:validate_required_relationships)
+      # original genus is required
+      expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      s.original_genus = @genus
+      expect(s.save).to be_truthy
+      s.reload
+      expect(s.all_taxon_name_relationships.count).to be > 0
+      r1.soft_validate(:validate_required_relationships)
+      expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+    end
+
+    specify 'disjoint relationships' do
+      g = FactoryGirl.create(:relationship_genus, parent: @family)
+      s = FactoryGirl.create(:relationship_species, parent: g)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Validating::ConservedName')
+      r1.soft_validate(:validate_disjoint_relationships)
+      expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r1.soft_validate(:validate_disjoint_relationships)
+      r2.soft_validate(:validate_disjoint_relationships)
+      #conflicting with r2
+      expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      #conflicting with r1
+      expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+    end
+
+    specify 'disjoint objects' do
+      g = FactoryGirl.create(:relationship_genus, parent: @family)
+      s = FactoryGirl.create(:relationship_species, parent: g)
+      FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
+      r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
+      r1.soft_validate(:validate_disjoint_object)
+      expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+    end
+
+    specify 'disjoint subject' do
+      g = FactoryGirl.create(:relationship_genus, parent: @family)
+      s = FactoryGirl.create(:relationship_species, parent: g)
+      FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
+      r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
+      r1.soft_validate(:validate_disjoint_subject)
+      expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+    end
+
+    context 'specific relationships' do
+      before(:each) do
+        @f1 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
+        @f2 = FactoryGirl.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
+        @g1 = FactoryGirl.create(:relationship_genus, parent: @f1)
+        @g2 = FactoryGirl.create(:relationship_genus, parent: @f2)
+        @s1 = FactoryGirl.create(:relationship_species, parent: @g1)
+        @s2 = FactoryGirl.create(:relationship_species, parent: @g2)
+        @r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
+        @r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
+        @source = FactoryGirl.create(:valid_source_bibtex, year: 2000)
+      end
+
+      specify 'objective synonyms should have the same type' do
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym')
+        r.soft_validate(:objective_synonym_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'objective synonyms should have the same type specimen' do
+        type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
+        type_material2 = FactoryGirl.create(:valid_type_material, protonym: @s2)
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        r.soft_validate(:objective_synonym_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
+        r.soft_validate(:objective_synonym_relationship)
+        expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'subjective synonyms should not have the same type' do
+        @r2.subject_taxon_name = @s1
+        expect(@r2.save).to be_truthy
+        @g2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'subjective synonyms should have different type specimen' do
+        type_material1 = FactoryGirl.create(:valid_type_material, protonym: @s1)
+        type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: @s2)
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'primary homonyms do not share the same original genus' do
+        @s1.original_genus = @g1
+        @s2.original_genus = @g2
+        expect(@s1.save).to be_truthy
+        expect(@s2.save).to be_truthy
+        @s1.reload
+        @s2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'homonyms should be similar' do
+        g =  FactoryGirl.create(:relationship_genus, name: 'Xus', parent: @f1)
+        expect(g.save).to be_truthy
+        expect(@g2.save).to be_truthy
+        g.reload
+        @g2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'primary homonyms should be similar' do
+        sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
+        sp.original_genus = @g1
+        @s2.original_genus = @g1
+        expect(sp.save).to be_truthy
+        expect(@s2.save).to be_truthy
+        sp.reload
+        @s2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'secondary homonyms should be similar' do
+        sp =  FactoryGirl.create(:relationship_species, name: 'xus', parent: @g2)
+        sp.original_genus = @g1
+        @s2.original_genus = @g2
+        expect(sp.save).to be_truthy
+        expect(@s2.save).to be_truthy
+        sp.reload
+        @s2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: sp, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'secondary homonyms should be placed in the same genus' do
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'secondary homonyms should be changed to primary' do
+        @s2.original_genus = @g1
+        expect(@s2.save).to be_truthy
+        @s2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'errors on secondary homonym before 1961' do
+        @s2.original_genus = @g1
+        expect(@s2.save).to be_truthy
+        @s2.year_of_publication = 1970
+        expect(@s2.save).to be_truthy
+        @s2.reload
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        r.source = @source
+        r.soft_validate(:specific_relationship)
+        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+      end
+
+      specify 'type species by subsequent designation' do
+        @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        expect(@r1.save).to be_truthy
+        @r1.reload
+        @r1.soft_validate(:synonym_relationship)
+        expect(@r1.soft_validations.messages_on(:source_id).size).to eq(1)
+      end
+
+      specify 'errors on family synonym before 1961' do
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
+        r.soft_validate('specific_relationship')
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+      end
+
+      specify 'synonym should have a source' do
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r.soft_validate('synonym_relationship')
+        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+      end
+
+      specify 'source should not be older than synonym' do
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r.soft_validate('synonym_relationship')
+        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+      end
+
+      specify 'homonym and totally suppressed' do
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
+        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r2.soft_validate('validate_homonym_relationships')
+        expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+      end
+      specify 'homonym without nomen novum' do
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r1.soft_validate('validate_homonym_relationships')
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName')
+        r1.soft_validate('validate_homonym_relationships')
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r1.fix_soft_validations
+        r1.soft_validate('validate_homonym_relationships')
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'subsequent type designation after 1930' do
+        @r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        expect(@r1.save).to be_truthy
+        @r1.soft_validate('specific_relationship')
+        expect(@r1.soft_validations.messages_on(:type).empty?).to be_truthy
+        @r1.object_taxon_name.year_of_publication = 1950
+        expect(@r1.save).to be_truthy
+        @r1.soft_validate('specific_relationship')
+        expect(@r1.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'secondary homonyms missing combination' do
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+        s1 = FactoryGirl.create(:relationship_species, parent: g1)
+        expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
+        r1.soft_validate('specific_relationship')
+        expect(r1.soft_validations.messages_on(:base).size).to eq(1)
+        c = FactoryGirl.create(:combination, parent: s1)
+        c.combination_genus = @genus
+        expect(c.save).to be_truthy
+        s1.reload
+        r1.soft_validate('specific_relationship')
+        expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+    end
+
+    context 'not specific relationships' do
+      specify 'examples' do
+        s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating')
+        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r3 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r1.soft_validate(:not_specific_relationship)
+        r2.soft_validate(:not_specific_relationship)
+        r3.soft_validate(:not_specific_relationship)
+        # reason of being invalid?
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        # primary or secondary homonym?
+        expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+        # objective or subjective synonym?
+        expect(r3.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'fix not specific relationships from synonym to objective synonym' do
+        g1 = FactoryGirl.create(:relationship_genus, parent: @family)
+        g2 = FactoryGirl.create(:relationship_genus, parent: @family)
+        s1 = FactoryGirl.create(:relationship_species, parent: g1)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g1, type: 'TaxonNameRelationship::Typification::Genus')
+        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g2, type: 'TaxonNameRelationship::Typification::Genus')
+        r1.soft_validate(:not_specific_relationship)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r1.fix_soft_validations
+        r1.soft_validate(:not_specific_relationship)
+        expect(r1.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'same type specimen fix to objective synonym' do
+        s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+        type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
+        type_material2 = FactoryGirl.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r.soft_validate(:not_specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        r.fix_soft_validations
+        r.soft_validate(:not_specific_relationship)
+        expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'subjective synonyms should have different type specimen' do
+        s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+        type_material1 = FactoryGirl.create(:valid_type_material, protonym: s1)
+        type_material2 = FactoryGirl.create(:valid_type_material, protonym: s2)
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r.soft_validate(:not_specific_relationship)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        r.fix_soft_validations
+        r.soft_validate(:not_specific_relationship)
+        expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'fix not specific relationships from homonym to primary homonym' do
+        s1 = FactoryGirl.create(:relationship_species, parent: @genus)
+        s2 = FactoryGirl.create(:relationship_species, parent: @genus)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        r1.soft_validate(:not_specific_relationship)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r1.fix_soft_validations
+        r1.soft_validate(:not_specific_relationship)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+    end
+
+    specify 'parent is a synonym' do
+      g1 = FactoryGirl.create(:relationship_genus, parent: @family)
+      g2 = FactoryGirl.create(:relationship_genus, parent: @family)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r1.soft_validate(:synonym_linked_to_valid_name)
+      r2.soft_validate(:synonym_linked_to_valid_name)
+      expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+      # parent is a synonym of another taxon
+      expect(r2.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+      r2.fix_soft_validations
+      r2.soft_validate(:synonym_linked_to_valid_name)
+      # parent updated to valid name
+      expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+    end
+
+    specify 'synonym should have same parent' do
+      f = FactoryGirl.create(:relationship_family, parent: @kingdom)
+      g1 = FactoryGirl.create(:relationship_genus, parent: f)
+      g2 = FactoryGirl.create(:relationship_genus, parent: @family)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r1.soft_validate(:synonym_linked_to_valid_name)
+      expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+      r1.fix_soft_validations
+      r1.soft_validate(:synonym_linked_to_valid_name)
+      expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
+      expect(g2.parent_id).to eq(f.id)
+    end
+
+    specify 'type genus should have the same first letter' do
+      f1 = FactoryGirl.create(:relationship_family, parent: @kingdom)
+      g1 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f1)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: f1, type: 'TaxonNameRelationship::Typification::Family')
+      r1.soft_validate(:matching_type_genus)
+      expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+    end
+
+    context 'priority' do
+      before(:all) do
+        @g1 = FactoryGirl.create(:relationship_genus, parent: @family, year_of_publication: 2005)
+        @s1 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2000)
+        @s2 = FactoryGirl.create(:relationship_species, parent: @g1, year_of_publication: 2001)
+      end
+
+      specify 'FirstRevisorAction' do
+        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'direct priority' do
+        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @s1, type: 'TaxonNameClassification::Iczn::Unavailable')
+        @s1.reload
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+        c1.delete
+        @s1.reload
+      end
+
+      specify 'reverse priority' do
+        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'reverse priority original genus' do
+        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @g1, object_taxon_name: @s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+      end
+
+      specify 'synonym and homonym or conserved' do
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+        r2.type = 'TaxonNameRelationship::Iczn::Validating::ConservedName'
+        expect(r2.save).to be_truthy
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'synonym and homonym or conserved' do
+        g1 = FactoryGirl.create(:icn_genus)
+        s1 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2000)
+        s2 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 2001)
+        s3 = FactoryGirl.create(:icn_species, parent: g1, year_of_publication: 1999)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s3, type: 'TaxonNameRelationship::Icn::Accepting::SanctionedName')
+        r1.soft_validate(:validate_priority)
+        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+      end
+
+      specify 'synonym should be linked to subspecies in subject' do
+        ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        r1.soft_validate(:coordinated_taxa)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+        r1.fix_soft_validations
+        r1.soft_validate(:coordinated_taxa)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
+        expect(r1.subject_taxon_name_id).to eq(ssp.id)
+      end
+
+      specify 'synonym should be linked to subspecies in object' do
+        ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
+        r1.soft_validate(:coordinated_taxa)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
+        r1.fix_soft_validations
+        r1.soft_validate(:coordinated_taxa)
+        expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+        expect(r1.object_taxon_name_id).to eq(ssp.id)
+      end
+
+      # @proceps - this doesn't reference genera anywhere, and is failing now, please update/rename.
+      # specify 'original combination linked to genus is subject' do
+      #   ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
+      #   r1 = TaxonNameRelationship.create(subject_taxon_name: ssp, object_taxon_name: @s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
+      #   r1.soft_validate(:coordinated_taxa)
+      #   expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+      #   r1.fix_soft_validations
+      #   r1.soft_validate(:coordinated_taxa)
+      #   expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
+      #   expect(r1.subject_taxon_name_id).to eq(@s1.id)
+      # end
+    end
+  end
+
+  context 'usage' do
+    specify 'can be created through assignment by reference to named through relationship' do 
+      s = FactoryGirl.create(:relationship_species, parent: @genus)
+      s.original_genus = @genus
+      expect(s.save).to be_truthy
+      s.reload
+      expect(s.all_taxon_name_relationships.count).to be > 0
+    end
+  end
 
 end

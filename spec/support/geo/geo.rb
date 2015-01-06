@@ -3,6 +3,94 @@
 # require 'indiana'
 # require 'iowa'
 
+# http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
+
+LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #current test case
+                     '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
+                     '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
+                     '40:26:46.302N'                 => '40.446195',
+                     '079:58:55.903W'                => '-79.982195',
+                     '40°26′46″N'                    => '40.446111',
+                     '079°58′56″W'                   => '-79.982222',
+                     '40d 26′ 46″ N'                 => '40.446111',
+                     '079d 58′ 56″ W'                => '-79.982222',
+                     '40.446195N'                    => '40.446195',
+                     '79.982195W'                    => '-79.982195',
+                     '40.446195'                     => '40.446195',
+                     '-79.982195'                    => '-79.982195',
+                     '40° 26.7717'                   => '40.446195',
+                     '-79° 58.93172'                 => '-79.982195',
+                     'N40:26:46.302'                 => '40.446195',
+                     'W079:58:55.903'                => '-79.982195',
+                     'N40°26′46″'                    => '40.446111',
+                     'W079°58′56″'                   => '-79.982222',
+                     'N40d 26′ 46″'                  => '40.446111',
+                     'W079d 58′ 56″'                 => '-79.982222',
+                     'N40.446195'                    => '40.446195',
+                     'W79.982195'                    => '-79.982195',
+                     # some special characters for Dmitry
+                     "  40\u02da26¥46¥S"             => '-40.446111',
+                     '42∞5\'18.1"S'                  => '-42.088361',
+                     'w88∞11\'43.3"'                 => '-88.195361',
+                     "  42\u02da5¥18.1¥S"            => '-42.088361',
+                     "  42º5'18.1'S"                 => '-42.088361',
+                     "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088361',
+                     'w88∫11′43.3″'                  => '-88.195361',
+                     'nan'                           => nil,
+                     'NAN'                           => nil
+
+}
+
+# Dmitry's special cases of º, ', "
+
+# case 1:  ]  42∞5'18.1"S[
+# "\D(\d+) ?[\*∞∫o\u02DA ] ?(\d+) ?[ '¥\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'¥\u02B9\u02BC\u02CA]['¥\u02B9\u02BC\u02CA]? ?([nN]|[sS])"
+
+#  1. Non-digit => dropped
+#  2. 1 or more digits
+#     => group 0
+#  3. 0 or 1 spaces => dropped
+#  4. *, ∞, ∫, o, \u02DA, space
+#     => match for º
+#  5. 0 or 1 spaces => dropped
+#  6. 1 or more digits
+#     => group 1
+#  7. 0 or 1 spaces => dropped
+#  8. space, ', ¥, \u02B9, \u02BC, \u02CA
+#     => match for '
+#  9. 0 or 1 spaces => dropped
+# 10.
+#     a.
+#       1. 1 or more digits
+#       2. period, |, comma, => match for period
+#       3. 1 or more digits
+#     or
+#     b. 1 or more digits
+#      => group 2
+# 11. 0 or 1 spaces => dropped
+# 12. space, ", \u02BA, \u02EE, ', ¥, \u02B9, \u02BC, \u02CA, followed by 0 or 1 of ', ¥, \u02B9, \u02BC, \u02CA
+#     => match for "
+# 13. 0 or 1 spaces => dropped
+# 14. N, S, E, W, case-insensitive cardinal letter
+#     => group 3
+
+# case 2: ] S42∞5'18.1"[
+# "\W([nN]|[sS])\.? ?(\d+) ?[\*∞∫o\u02DA ] ?(\d+) ?[ '¥\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'¥\u02B9\u02BC\u02CA]['¥\u02B9\u02BC\u02CA]?[\.,;]?"
+
+# case 3: ] S42∞5.18'[
+# "\W([nN]|[sS])\.? ?(\d+) ?[\*∞∫o\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '¥\u02B9\u02BC\u02CA][\.,;]?"
+
+# case 4: ]42∞5.18'S[
+# "\D(\d+) ?[\*∞∫o\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '¥\u02B9\u02BC\u02CA]? ?([nN]|[sS])"
+# case 5: ]S42.18∞[
+# "\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*∞∫∫o\u02DA ][\.,;]?"
+
+# case 6: ]42.18∞S[
+# "\D(\d+[\.|,]\d+|\d+) ?[\*∞∫o\u02DA ] ?([nN]|[sS])"
+
+# case 7: ]-12.263[
+# "\D\[(-?\d+[\.|,]\d+|\-?d+)"
+
 #FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
 # this is the factory for use *only* by rspec
@@ -444,7 +532,6 @@ def prepare_test
 
 end
 
-
 def generate_geo_test_objects
 
   prepare_test
@@ -837,7 +924,7 @@ def gen_wkt_files()
   f_poly.close
 end
 
-def generate_political_areas
+def generate_political_areas_with_collecting_events
   #
   # 4 by 4 matrix of squares:
 =begin
@@ -960,13 +1047,13 @@ Two different shapes with the same name, 'East Boxia', and
   shape_o4 = make_box(POINT_M1_P0, 2, 3, 1, 1)
   shape_p4 = make_box(POINT_M1_P0, 3, 3, 1, 1)
 
-  shape_q   = make_box(shape_m1.exterior_ring.points[0], 0, 0, 4, 2)
-  shape_t_1 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_t_2 = make_box(shape_m1.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_u   = make_box(shape_o1.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_q   = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2)
+  shape_t_1 = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_t_2 = make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_u   = make_box(shape_o1[0].exterior_ring.points[0], 0, 0, 2, 2)
 
-  shape_r = make_box(shape_m3.exterior_ring.points[0], 0, 0, 2, 2)
-  shape_s = make_box(shape_o3.exterior_ring.points[0], 0, 0, 2, 2)
+  shape_r = make_box(shape_m3[0].exterior_ring.points[0], 0, 0, 2, 2)
+  shape_s = make_box(shape_o3[0].exterior_ring.points[0], 0, 0, 2, 2)
 
   shape_ob   = make_box(POINT_M1_P0, 0, 0, 2, 4)
   shape_eb_1 = make_box(POINT_M1_P0, 3, 0, 1, 4)
@@ -975,48 +1062,48 @@ Two different shapes with the same name, 'East Boxia', and
   shape_w    = make_box(POINT_M1_P0, 0, 0, 4, 4)
 
   # first, the basic 16 shapes
-  @item_m1   = FactoryGirl.create(:geographic_item, :polygon => shape_m1)
-  @item_n1   = FactoryGirl.create(:geographic_item, :polygon => shape_n1)
-  @item_o1   = FactoryGirl.create(:geographic_item, :polygon => shape_o1)
-  @item_p1   = FactoryGirl.create(:geographic_item, :polygon => shape_p1)
+  @item_m1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m1)
+  @item_n1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n1)
+  @item_o1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o1)
+  @item_p1   = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p1)
 
-  @item_m2 = FactoryGirl.create(:geographic_item, :polygon => shape_m2)
-  @item_n2 = FactoryGirl.create(:geographic_item, :polygon => shape_n2)
-  @item_o2 = FactoryGirl.create(:geographic_item, :polygon => shape_o2)
-  @item_p2 = FactoryGirl.create(:geographic_item, :polygon => shape_p2)
+  @item_m2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m2)
+  @item_n2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n2)
+  @item_o2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o2)
+  @item_p2 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p2)
 
-  @item_m3 = FactoryGirl.create(:geographic_item, :polygon => shape_m3)
-  @item_n3 = FactoryGirl.create(:geographic_item, :polygon => shape_n3)
-  @item_o3 = FactoryGirl.create(:geographic_item, :polygon => shape_o3)
-  @item_p3 = FactoryGirl.create(:geographic_item, :polygon => shape_p3)
+  @item_m3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m3)
+  @item_n3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n3)
+  @item_o3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o3)
+  @item_p3 = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p3)
 
-  @item_m4        = FactoryGirl.create(:geographic_item, :polygon => shape_m4)
-  @item_n4        = FactoryGirl.create(:geographic_item, :polygon => shape_n4)
-  @item_o4        = FactoryGirl.create(:geographic_item, :polygon => shape_o4)
-  @item_p4        = FactoryGirl.create(:geographic_item, :polygon => shape_p4)
+  @item_m4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_m4)
+  @item_n4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_n4)
+  @item_o4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_o4)
+  @item_p4        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_p4)
 
   # next, the big shape, and two sub-shapes
-  @item_q         = FactoryGirl.create(:geographic_item, :polygon => shape_q)
-  @item_t_1       = FactoryGirl.create(:geographic_item, :polygon => shape_t_1)
-  @item_t_2       = FactoryGirl.create(:geographic_item, :polygon => shape_t_2)
-  @item_u         = FactoryGirl.create(:geographic_item, :polygon => shape_u)
+  @item_q         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_q)
+  @item_t_1       = FactoryGirl.create(:geographic_item, :multi_polygon => shape_t_1)
+  @item_t_2       = FactoryGirl.create(:geographic_item, :multi_polygon => shape_t_2)
+  @item_u         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_u)
 
   # then the medium shapes
-  @item_r         = FactoryGirl.create(:geographic_item, :polygon => shape_r)
-  @item_s         = FactoryGirl.create(:geographic_item, :polygon => shape_s)
+  @item_r         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_r)
+  @item_s         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_s)
 
   # secondary country shapes
   # same shape as Q, different object
-  @item_bb        = FactoryGirl.create(:geographic_item, :polygon => shape_q)
+  @item_bb        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_q)
 
   # superseded country shapes
-  @item_ob        = FactoryGirl.create(:geographic_item, :polygon => shape_ob)
-  @item_eb_1      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_1)
-  @item_eb_2      = FactoryGirl.create(:geographic_item, :polygon => shape_eb_2)
-  @item_wb        = FactoryGirl.create(:geographic_item, :polygon => shape_wb)
+  @item_ob        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_ob)
+  @item_eb_1      = FactoryGirl.create(:geographic_item, :multi_polygon => shape_eb_1)
+  @item_eb_2      = FactoryGirl.create(:geographic_item, :multi_polygon => shape_eb_2)
+  @item_wb        = FactoryGirl.create(:geographic_item, :multi_polygon => shape_wb)
 
   # the entire land mass
-  @item_w         = FactoryGirl.create(:geographic_item, :polygon => shape_w)
+  @item_w         = FactoryGirl.create(:geographic_item, :multi_polygon => shape_w)
 
   # now, for the areas, top-down
   @object         = FactoryGirl.create(:valid_geographic_area_stack)
@@ -1029,7 +1116,8 @@ Two different shapes with the same name, 'East Boxia', and
                                       :name                 => 'Great Northern Land Mass',
                                       :geographic_area_type => gat_land_mass,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @earth)
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
@@ -1037,35 +1125,40 @@ Two different shapes with the same name, 'East Boxia', and
                                       :name                 => 'Old Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
   @area_big_boxia = FactoryGirl.build(:level0_geographic_area,
                                       :name                 => 'Big Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil)
+                                      :iso_3166_a2          => nil,
+                                      :parent               => @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.build(:level0_geographic_area,
                               :name                 => 'Q',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'QQQ',
-                              :iso_3166_a2          => 'QQ')
+                              :iso_3166_a2          => 'QQ',
+                              :parent               => @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
   @area_east_boxia_1 = FactoryGirl.build(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB1',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
   @area_east_boxia_2 = FactoryGirl.build(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB2',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
   @area_east_boxia_3 = FactoryGirl.build(:level1_geographic_area,
@@ -1080,7 +1173,8 @@ Two different shapes with the same name, 'East Boxia', and
                                          :name                 => 'West Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'WB1',
-                                         :iso_3166_a2          => nil)
+                                         :iso_3166_a2          => nil,
+                                         :parent               => @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
   @area_west_boxia_3 = FactoryGirl.build(:level1_geographic_area,
@@ -1095,14 +1189,16 @@ Two different shapes with the same name, 'East Boxia', and
                               :name                 => 'R',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'RRR',
-                              :iso_3166_a2          => 'RR')
+                              :iso_3166_a2          => 'RR',
+                              :parent               => @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
   @area_s = FactoryGirl.build(:level0_geographic_area,
                               :name                 => 'S',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'SSS',
-                              :iso_3166_a2          => 'SS')
+                              :iso_3166_a2          => 'SS',
+                              :parent               => @area_land_mass)
   @area_s.geographic_items << @item_s
   @area_s.save
 
@@ -1379,8 +1475,9 @@ Two different shapes with the same name, 'East Boxia', and
   # 16 collecting events, one for each of the smallest boxes
 
   @ce_m1 = FactoryGirl.create(:collecting_event,
-                              :verbatim_label  => '@ce_m1',
-                              :geographic_area => @area_m1)
+                              :verbatim_locality => 'Lesser Boxia Lake',
+                              :verbatim_label    => '@ce_m1',
+                              :geographic_area   => @area_m1)
   @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_m1',
                               :collecting_event      => @ce_m1,
@@ -1459,8 +1556,9 @@ Two different shapes with the same name, 'East Boxia', and
                                 :error_geographic_item => @item_m3,
                                 :geographic_item       => GeographicItem.new(:point => @item_m3.st_centroid))
   @ce_n3   = FactoryGirl.create(:collecting_event,
-                                :verbatim_label  => '@ce_n3',
-                                :geographic_area => @area_n3)
+                                :verbatim_locality => 'Greater Boxia Lake',
+                                :verbatim_label    => '@ce_n3',
+                                :geographic_area   => @area_n3)
   @gr_n3   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_n3',
                                 :collecting_event      => @ce_n3,
@@ -1537,11 +1635,13 @@ Two different shapes with the same name, 'East Boxia', and
 end
 
 def make_box(base, offset_x, offset_y, size_x, size_y)
-  box = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
-                                       RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
-  RSPEC_GEO_FACTORY.polygon(box)
+  box = RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
+  )
+  RSPEC_GEO_FACTORY.multi_polygon([box])
 end
 
 def clean_slate_geo
@@ -1551,7 +1651,7 @@ def clean_slate_geo
   GeographicAreasGeographicItem.delete_all
   Georeference.delete_all
   CollectingEvent.delete_all
-  $user_id = 1
+  $user_id    = 1
   $project_id = 1
 end
 

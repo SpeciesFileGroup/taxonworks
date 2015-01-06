@@ -1,0 +1,13 @@
+<div class="object_pane">
+  <h3> Container </h3>
+
+  <% if container.lead_identifieridentifiers
+
+  <ul>
+    <% container.container_items.each do |item| -%>
+      <li> <%= object_tag(item) -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'Emtyp container.') if !object.container_items_items.any? -%>
+</div>

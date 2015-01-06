@@ -13,30 +13,37 @@
 
   <div class="field">
     <%= f.label :biological_collection_object_id %><br>
-    <%= f.select :biological_collection_object_id, options_from_collection_for_select(CollectionObject.all, :id, :id) %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'collection_objects',
+                         object:     'taxon_determination',
+                         method:     'biological_collection_object_id',
+                         tag_id:     'biological_collection_object_id_for_taxon_determination',
+                         size:       '',
+                         display:    ''} %>
   </div>
 
   <div class="field">
     <%= f.label :otu_id %><br>
-    <%= f.select :otu_id, options_from_collection_for_select(Otu.all, :id, :name) %>
-  </div>
-
-  <div class="field">
-    <%= f.label :position %><br>
-    <%= f.number_field :position %>
+   <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'otus',
+                         object:     'taxon_determination',
+                         method:     'otu_id',
+                         tag_id:     'otu_id_for_taxon_determination',
+                         size:       '',
+                         display:    ''} %>
   </div>
 
   <div class="field">
     <%= f.label :year_made %><br>
-    <%= f.text_field :year_made %>
+    <%= f.text_field :year_made, size: 4 %>
   </div>
   <div class="field">
     <%= f.label :month_made %><br>
-    <%= f.text_field :month_made %>
+    <%= f.text_field :month_made, size: 2 %>
   </div>
   <div class="field">
     <%= f.label :day_made %><br>
-    <%= f.text_field :day_made %>
+    <%= f.text_field :day_made, size: 2 %>
   </div>
   <div class="actions">
     <%= f.submit %>

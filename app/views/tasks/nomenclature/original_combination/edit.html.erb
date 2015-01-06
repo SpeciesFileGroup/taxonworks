@@ -1,0 +1,30 @@
+<h3> Editing original combination for <%= taxon_name_tag(@taxon_name) -%> </h3>
+
+<p> Return to <%= taxon_name_link(@taxon_name.metamorphosize) -%> (does not save!). </p>
+
+<%= form_for(@taxon_name.metamorphosize, url: update_original_combination_task_taxon_name_url)  do |f|  -%>
+  <% @original_combination_relations.each_with_index do |r, i| -%>
+      <div class="field">
+        <%= label_tag r.type_class.inverse_assignment_method.to_s.humanize -%> 
+        <br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+          :locals => {
+            :controller => '/taxon_names',
+            :object => "taxon_name[related_taxon_name_relationships_attributes[#{i}]]",
+            :method => 'subject_taxon_name_id',
+            :tag_id => "subject_taxon_name_id_for_tn_rel_#{i}",
+            :display => (r.subject_taxon_name.cached if r.subject_taxon_name),
+            :size => 60
+          } %>
+      </div>
+
+      <div class="field">
+        <%= label_tag :destroy? -%> 
+        <br>
+        <%= check_box_tag "taxon_name[related_taxon_name_relationships_attributes[#{i}][_destroy]]" %>
+      </div>
+
+      <%= hidden_field_tag("taxon_name[related_taxon_name_relationships_attributes[#{i}][type]]", r.type_name ) -%>
+  <% end %>
+  <%= submit_tag -%>
+<% end %>

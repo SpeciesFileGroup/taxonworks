@@ -1,8 +1,8 @@
 class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelationship::OriginalCombination
 
-  #left_side
+  # left_side
   def self.valid_subject_ranks
-    GENUS_RANK_NAMES
+    GENUS_RANK_NAMES   
   end
 
   # right_side
@@ -23,5 +23,6 @@ class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelat
   def self.assignable
     true
   end
+
 
 end

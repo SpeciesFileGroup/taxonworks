@@ -7,7 +7,7 @@ class SourcesController < ApplicationController
   # GET /sources
   # GET /sources.json
   def index
-    @sources = Source.all
+    @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
   end
 
   # GET /sources/1
@@ -66,7 +66,6 @@ class SourcesController < ApplicationController
 
   def autocomplete
     @sources = Source.find_for_autocomplete(params)
-
     data = @sources.collect do |t|
       {id: t.id,
        label: SourcesHelper.source_tag(t),
@@ -76,19 +75,48 @@ class SourcesController < ApplicationController
        label_html: SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-
     render :json => data 
- 
+  end
+
+  def search
+    if params[:id]
+      redirect_to source_path(params[:id])
+    else
+      redirect_to sources_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def batch_preview
+    @sources = Source.batch_preview(file: params[:file].tempfile)
+    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    cookies[:batch_sources_md5] = sha256.hexdigest
+  end
+
+  def batch_create
+    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    if cookies[:batch_sources_md5] == sha256.hexdigest
+      if @sources = Source.batch_create(params.symbolize_keys.to_h)
+        flash[:notice] = "Successfully batch created #{@sources.count} OTUs."
+      else
+        flash[:notice] = 'Failed to create the sources.'
+      end
+    else
+      flash[:notice] = 'Batch upload must be previewed before it can be created.'
+    end
+    redirect_to sources_path
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_source
-      @source = Source.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def source_params
-      params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim,  :bibtex_type, :nomenclature_date, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
-    end
+
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_source
+    @source = Source.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def source_params
+    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim,  :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
+  end
 end

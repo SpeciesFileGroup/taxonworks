@@ -1,7 +1,7 @@
 class TypeMaterial < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
   include Shared::Citable
+  include Shared::IsData
   include SoftValidation
 
   # Keys are valid values for type_type, values are

@@ -1,103 +1,95 @@
-# Covers both Protonyms and subsequent Combination.
-
+# A taxonomic name (nomenclature only). 
+#
 # @!attribute year_of_publication 
 #   @return [Integer]
-#   The 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
+#     the 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
 #
 # @!attribute source_id 
 #   @return [Integer]
-#   The ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations. 
+#     the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations. 
 #
 # @!attribute lft 
 #   @return [Integer]
-#   A per awesome_nested_set. 
+#     per awesome_nested_set. 
 #
 # @!attribute rgt 
 #   @return [Integer]
-#   A per awesome_nested_set. 
+#     per awesome_nested_set. 
 #
 # @!attribute parent_id
 #   @return [Integer]
-#   The id of the parent taxon. The parent child relationship is exclusively organizational!  All statuses and relationships
-#   of a taxon name must be explicitly defined.  The parent of a taxon name can be thought of the "place where you'd find this
-#   name in a hierarchy if you knew literally *nothing* else about that name." 
+#     The id of the parent taxon. The parent child relationship is exclusively organizational!  All statuses and relationships
+#     of a taxon name must be explicitly defined.  The parent of a taxon name can be thought of the "place where you'd find this
+#     name in a hierarchy if you knew literally *nothing* else about that name." 
 #
 # @!attribute verbatim_author 
 #   @return [String]
-#    The verbatim author string as provided ? is not post-filled in when Source is referenced !?
+#     the verbatim author string as provided ? is not post-filled in when Source is referenced !?
 #
-# @!attribute cached:
+# @!attribute cached
 #   @return [String]
 #    Genus-species combination for genus and lower, monomial for higher. The string has NO html.
 #
-# @!attribute cached_html:
+# @!attribute cached_html
 #   @return [String]
-#   Genus-species combination for the taxon. The string is in html format including <em></em> tags.
+#     Genus-species combination for the taxon. The string is in html format including <em></em> tags.
 #
-# @!attribute cached_author_year:
+# @attribute cached_author_year
 #   @return [String]
-#   Returns author and year string with parentheses where necessarily.
+#     author and year string with parentheses where necessarily.
 #
-# @!attribute cached_higher_classification:
+# @!attribute cached_higher_classification
 #   @return [String]
-#   A concatenated list of higher rank taxa.
+#     a concatenated list of higher rank taxa.
 #
-# @!attribute cached_original_combination:
+# @!attribute cached_original_combination
 #   @return [String]
-#   The name as formed in original combination.
+#     name as formed in original combination.
 #
-# @!attribute cached_classified_as:
+# @!attribute cached_classified_as
 #   @return [String]
-#   Returns [@proces: WHAT?] if the name was classified in different group (e.g. a genus placed in wrong family). 
+#     if the name was classified in different group (e.g. a genus placed in wrong family). 
 #
-# @!attribute cached_primary_homonym
+# @attribute cached_primary_homonym
 #   @return [String]
-#   Original genus and species name. Used to find and validate primary homonyms.
+#     original genus and species name. Used to find and validate primary homonyms.
 #
 # @!attribute cached_secondary_homonym
 #   @return [String]
-#   Current genus and species name. Used to find and validate secondary homonyms.
+#     current genus and species name. Used to find and validate secondary homonyms.
 #
 # @!attribute cached_primary_homonym_alternative_spelling
 #   @return [String]
 #   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
 #
-# @!attribute cached_secondary_homonym_alternative_spelling
+# @attribute cached_secondary_homonym_alternative_spelling
 #   @return [String]
 #   Current genus and species name in alternative spelling. Used to find and validate secondary homonyms.
 #
-# @!attributes masculine_name, feminine_name, neuter_name
+# @attribute masculine_name, feminine_name, neuter_name
 #   @return [String]
-#   Species name which are adjective or participle change depending on the gender of the genus.
-#   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
-#   The gender of the genus also designated as a taxon_name_classification.
+#     Species name which are adjective or participle change depending on the gender of the genus.
+#     3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
+#     The gender of the genus also designated as a taxon_name_classification.
 #
-#
-#
-#
-#
-#
-#
-
-# @!name_with_alternative_spelling
+# @attribute name_with_alternative_spelling
 #   @return [String]
 #   Alternative spelling of the name according to rules of homonymy.
 #
-# @!name_in_gender(gender)
-#   @return [arraty of String]
-#   returns names of all genera where the species was placed.
-#
-# @!all_generic_placements #array of genera where the species was placed
 #
 class TaxonName < ActiveRecord::Base
+
   # Notice about alternate values
   include Housekeeping
-  include Shared::IsData
-  include Shared::Identifiable
-  include Shared::DataAttributes
   include Shared::Citable
-  include SoftValidation
+  include Shared::DataAttributes
+  include Shared::Identifiable
   include Shared::Notable
+  include Shared::IsData
+  include SoftValidation
+
+  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
+  has_paper_trail
 
   acts_as_nested_set scope: [:project_id], dependent: :destroy
 
@@ -111,7 +103,7 @@ class TaxonName < ActiveRecord::Base
                     :validate_source_type,
                     :validate_one_root_per_project
 
-  after_validation :set_cached_names
+  before_save :set_cached_names
 
   belongs_to :source
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
@@ -126,8 +118,7 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
 
-  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
-  has_paper_trail
+  accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
@@ -183,32 +174,31 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
   soft_validate(:sv_cached_names, set: :cached_names)
 
-  # @!all_taxon_name_relationships
-  #   @return array of relationships
-  #   Returns all relationships where this taxon is an object or subject.
+  # @return array of relationships
+  #   all relationships where this taxon is an object or subject.
   def all_taxon_name_relationships
     # !! If self relatinships are every made possible this needs a DISTINCT clause
     TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
                          SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
-  # @!related_taxon_names
-  #   @return array of taxon_names
-  #   Returns all taxon_names which has relationsships to this taxon as an object or subject.
+  # @return [Array of TaxonNames]
+  #     all taxon_names which have relationships to this taxon as an object or subject.
   def related_taxon_names
     TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
                       LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
                       LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
                       WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
   end
-
+  
+  # @return [String]
+  #   rank as human readable shortform, like 'genus' or 'species'
   def rank
     ::RANKS.include?(self.rank_string) ? self.rank_class.rank_name : nil
   end
 
-  # @!rank_string
-  #   @return [String]
-  #   Returns rank as a string.
+  # @return [String]
+  #   rank as a string, like "NomenclaturalRank::Iczn::SpeciesGroup::Species"
   def rank_string
     read_attribute(:rank_class)
   end
@@ -217,84 +207,79 @@ class TaxonName < ActiveRecord::Base
     write_attribute(:rank_class, value.to_s)
   end
 
-  # @!rank_class
-  #   @return [Class]
-  #   Returns rank as class.
+  # @return [Class]
+  #   rank as Class, like NomenclaturalRank::Iczn::SpeciesGroup::Species
   def rank_class
     r = read_attribute(:rank_class)
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
-  # Return the author for this taxon, last name only.  
-  # This is the baseline means of displaying 
-  # taxon name authorship. 
+  # This is the baseline means of displaying taxon name authorship. 
+  # @return
+  #   the author for this taxon, last name only
   def author_string
     if !self.verbatim_author.nil?
       self.verbatim_author
     elsif !self.source_id.nil?
       self.source.authority_name
+    else
+      nil
     end
   end
 
+  # @return [String]
+  #   a 4 digit string representing year of publication, like '1974'
   def year_integer
-    if !self.year_of_publication.nil?
-      self.year_of_publication
-    elsif !self.source_id.nil?
-      self.source.year
-    end
+    return self.year_of_publication if !self.year_of_publication.nil?
+    return self.source.year if !self.source_id.nil?
+    nil
   end
 
-  # @!nomenclature_date
-  #   @return [Date]
-  #   Returns effective date of publication. Used to determine nomenclatural priorities.
+  # @return [Date]
+  #   effective date of publication. Used to determine nomenclatural priorities.
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
       year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
-      self.source ? (self.source.nomenclature_date ? self.source.nomenclature_date.to_time : year) : year
+      self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : year) : year
     else
       obj  = family_before_1961.object_taxon_name
       year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
-      obj.source ? (self.source.nomenclature_date ? obj.source.nomenclature_date.to_time : year) : year
+      obj.source ? (self.source.cached_nomenclature_date ? obj.source.cached_nomenclature_date.to_time : year) : year
     end
   end
 
-  # @!gender_class
-  #   @return [Class]
-  #   Returns gender of a genus as class.
+  # @return [Class]
+  #   gender of a genus as class.
   def gender_class
     c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
     c.nil? ? nil : c.type_class
   end
 
-  # @!gender_name
-  #   @return [String]
-  #   Returns gender of a genus as string.
+  # @return [String]
+  #   gender of a genus as string.
   def gender_name
     c = self.gender_class
     c.nil? ? nil : c.class_name
   end
 
-  # @!part_of_speech_class
-  #   @return [Class]
-  #   Returns part of speech of a species as class.
+  # @return [Class]
+  #   part of speech of a species as class.
   def part_of_speech_class
     c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
     c.nil? ? nil : c.type_class
   end
 
-  # @!part_of_speech_name
-  #   @return [String]
-  #   Returns part of speech of a species as string.
+  # @return [String]
+  #   part of speech of a species as string.
   def part_of_speech_name
     c = self.part_of_speech_class
     c.nil? ? nil : c.class_name
   end
 
-  # @!cached_name_and_author_year
-  #   @return [String]
-  #   Combination of cached_html and cached_author_year.
+  # @return [String]
+  #   combination of cached_html and cached_author_year.
   def cached_name_and_author_year
     if self.rank_string =~ /::(Species|Genus)/
       (self.cached_html.to_s + ' ' + self.cached_author_year.to_s).squish!
@@ -303,16 +288,14 @@ class TaxonName < ActiveRecord::Base
     end
   end
   
-  # @!ancestor_at_rank(rank)
-  #   @return taxon_name
-  #   To find an ancestor at certain rank.
+  # To find an ancestor at certain rank.
+  # @return [TaxonName | nil]
   def ancestor_at_rank(rank)
     TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
 
-  # @!unavailable_or_invalid?
-  #   @return [Bool]
-  #   True or False - @proceps based on what?
+  # TODO: @proceps - based on what?
+  # @return [True|False]
   def unavailable_or_invalid?
     case self.rank_class.nomenclatural_code
       when :iczn
@@ -327,9 +310,7 @@ class TaxonName < ActiveRecord::Base
     return false
   end
 
-  # @!unavailable?
-  #   @return [Bool]
-  #   True or False.
+  # @return [True|False]
   def unavailable?
     if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
       true
@@ -338,9 +319,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # @!get_valid_taxon_name
-  #  @return taxon_name
-  #  Returns a valid taxon_name for an invalid name or self for valid name.
+  # @return [TaxonName]
+  #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name 
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
     (vn.count == 1) ? vn.first.object_taxon_name : self
@@ -356,11 +336,8 @@ class TaxonName < ActiveRecord::Base
 
     s = s2 + s3
     s.compact!
-    if s.empty?
-      ['valid']
-    else
-      s
-    end
+    return ['valid'] if s.empty?
+    s
   end
 
   def name_with_alternative_spelling
@@ -418,7 +395,9 @@ class TaxonName < ActiveRecord::Base
     return n
   end
 
-  def name_in_gender(gender)
+  # @return [Array of Strings]
+  #   names of all genera where the species was placed
+  def name_in_gender(gender = nil)
     case gender
       when 'masculine'
         n = self.masculine_name
@@ -432,7 +411,8 @@ class TaxonName < ActiveRecord::Base
     n.blank? ? self.name : n
   end
 
-  # An array of genera where the species was placed
+  # @return [Array]
+  #   genera where the species was placed
   def all_generic_placements
     valid_name = self.get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
@@ -449,20 +429,29 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_names
     if self.errors.empty?
+
+      set_cached
+
       # if updated, update also sv_cached_names
-      set_cached_full_name
+      set_cached_html
       set_cached_author_year
       set_cached_classified_as
 
       # @proceps this line does nothing:
-      self.cached_original_combination.blank? if self.class == Protonym
+      #self.cached_original_combination.blank? if self.class == Protonym
 
+      # @proceps - move this to Combination
       set_cached_original_combination
     end
   end
 
   # override in subclasses
-  def set_cached_full_name
+  def set_cached
+    true
+  end
+
+  # override in subclasses
+  def set_cached_html
     true
   end
 
@@ -476,7 +465,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_classified_as
-    self.cached_classified_as = get_classified_as
+    self.cached_classified_as = get_cached_classified_as
   end
 
   def get_cached_misspelling
@@ -496,7 +485,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # Returns an Array of ancestors, Root first.
+  # @return [Array of TaxonNames]
+  #   an list of ancestors, Root first
   # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
   def safe_self_and_ancestors
     if self.new_record?
@@ -506,8 +496,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # Returns an array of arrays [rank, prefix, name] for genus and below 
-  #   @taxon_name.full_name_array # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
+  # @return [ [rank, prefix, name], ...] for genus and below 
+  # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
     data   = []
@@ -520,8 +510,9 @@ class TaxonName < ActiveRecord::Base
     data
   end
 
-  # Returns a hash of rank => [prefix, name] for genus and below 
-  #   @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
+  # @!return [ { rank => [prefix, name] }
+  #   Returns a hash of rank => [prefix, name] for genus and below 
+  # @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
   def full_name_hash
     gender = nil
     data   = {}
@@ -534,9 +525,11 @@ class TaxonName < ActiveRecord::Base
     data
   end
 
+  # Returns String, a monomial if names is above genus, or a full epithet if below. 
+  # 
   # TODO: rename to get_full_name (when name is available)
   def get_full_name_no_html
-    return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return name unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d        = full_name_hash
     elements = []
     elements.push(d['genus'])
@@ -680,6 +673,7 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # Returns a String representing the name as originally published
   def get_original_combination
     unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       cached_html = nil
@@ -802,8 +796,7 @@ class TaxonName < ActiveRecord::Base
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
-  # @proceps - this needs to use nomenclatural date, or reference the source when provided
-  # Returns a String with the author and year of the name. Adds parenthesis.  
+  # Returns a String with the author and year of the name. Adds parenthesis.
   #
   def get_author_and_year
     return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
@@ -814,8 +807,8 @@ class TaxonName < ActiveRecord::Base
         with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
       a = [self.author_string]
 
-      if a =~ /^\(.*\)$/ # (Author)
-        a = a[1..-2]
+      if a[0] =~ /^\(.+\)$/ # (Author)
+        a[0] = a[0][1..-2]
         p = true
       else
         p = false
@@ -828,9 +821,16 @@ class TaxonName < ActiveRecord::Base
         ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
       end
 
-      if NomenclaturalRank::Iczn::SpeciesGroup.ancestors.include?(rank)
-        if p = true || ((self.original_combination_genus.name != self.ancestor_at_rank('genus').name) && !self.original_combination_genus.name.to_s.empty?)
+      if SPECIES_RANK_NAMES_ICZN.include?(rank.to_s)
+        if p
           ay = '(' + ay + ')' unless ay.empty?
+        else
+          og = self.original_genus
+          cg = self.ancestor_at_rank('genus')
+          unless og.nil? || cg.nil?
+            ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
+          end
+        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
         end
       end
 
@@ -861,24 +861,33 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_higher_classification
-    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANKS
+    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
     safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
   end
 
-  def get_classified_as
+  def get_cached_classified_as
+    # note defined for Protonym
     unless self.class == Combination || self.class == Protonym
       return nil
     end
-    c = self.source_classified_as
-    if c.nil?
-      nil
-    else
+
+    if c = self.source_classified_as_taxon_name 
       ' (as ' + c.name + ')'
+    else
+      nil
     end
   end
 
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+    t = params[:term]
+    limit = 10 
+    case t.length
+    when 0..3
+    else
+     limit = 10
+    end
+    
+    where('cached ~ ? OR name ~ ?', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
   end
 
   #endregion
@@ -923,9 +932,9 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
+  # @mjy: self.rank_class_was returns old value from the database before replacing it with a new value on update.
   def check_new_rank_class
-    if (self.rank_class != self.rank_class_was) &&
-      !self.rank_class_was.nil?
+    if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
@@ -947,7 +956,9 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_one_root_per_project
-    errors.add(:parent_id, 'Only one root allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+    if new_record? || project_id_changed?
+      errors.add(:parent_id, 'Only one root allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+    end 
   end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)
@@ -1070,45 +1081,48 @@ class TaxonName < ActiveRecord::Base
     false
   end
 
+  # @proceps: see comments in spec.  cached values should be set only after a record is valid, on before_save.
+  # @mjy: cached values should be updated when related taxa change (new genus, or a new original genus). That what is done in this test
+
   def sv_cached_names
-    # if updated, update also set_cached_names
-    cached = true
-    cached = false if self.cached_author_year != get_author_and_year
+       # if updated, update also set_cached_names
+       is_cached = true
+       is_cached = false if self.cached_author_year != get_author_and_year
 
-    if self.class == Protonym && cached # don't run the tests if it's already false
-      if self.cached_html != get_full_name ||
-        self.cached_misspelling != get_cached_misspelling ||
-        self.cached_original_combination != get_original_combination ||
-        self.cached_higher_classification != get_higher_classification ||
-        self.cached_primary_homonym != get_genus_species(:original, :self) ||
-        self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-        self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
-        cached = false
-      end
-    end
+       if self.class == Protonym && cached # don't run the tests if it's already false
+         if self.cached_html != get_full_name ||
+           self.cached_misspelling != get_cached_misspelling ||
+           self.cached_original_combination != get_original_combination ||
+           self.cached_higher_classification != get_higher_classification ||
+           self.cached_primary_homonym != get_genus_species(:original, :self) ||
+           self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+           self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+           is_cached = false
+         end
+       end
 
-    if self.class == Combination && cached
-      if self.cached_html != get_combination || self.cached_original_combination != get_combination
-        cached = false
-      end
-    end
+       if self.class == Combination && cached
+         if self.cached_html != get_combination || self.cached_original_combination != get_combination
+           is_cached = false
+         end
+       end
 
-    soft_validations.add(
-      :base, 'Cached values should be updated',
-      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
-    ) if !cached
-  end
+       soft_validations.add(
+         :base, 'Cached values should be updated',
+         fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+       ) if !is_cached
+     end
 
-  def sv_fix_cached_names
-    begin
-      TaxonName.transaction do
-        self.save
-        return true
-      end
-    rescue
-    end
-    false
-  end
+   def sv_fix_cached_names
+     begin
+       TaxonName.transaction do
+         self.save
+         return true
+       end
+     rescue
+     end
+     false
+   end
 
   def sv_validate_parent_rank
     true # see validation in Protonym.rb

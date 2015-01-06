@@ -1,0 +1,10 @@
+<div class="object_pane">
+  <h3> Citations </h3>
+  <ul>
+    <% object.citations.each do |citation| -%>
+      <li> <%= citation.source.cached -%> </li>
+    <% end %>
+  </ul>
+
+  <%= content_tag(:em, 'No citations.') if !object.citations.any? -%>
+</div>

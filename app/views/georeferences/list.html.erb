@@ -30,11 +30,11 @@
   <tbody>
   <% @georeferences.each do |georeference| %>
       <tr>
-        <td><%= object_tag(georeference.geographic_item) %></td>
+        <td><%= georeference.geographic_item_id %></td>
         <td><%= object_tag(georeference.collecting_event) %></td>
         <td><%= georeference.error_radius %></td>
         <td><%= georeference.error_depth %></td>
-        <td><%= object_tag(georeference.error_geographic_item) %></td>
+        <td><%= georeference.error_geographic_item_id %></td>
         <td><%= georeference.type %></td>
         <td><%= object_tag(georeference.source) %></td>
         <td><%= georeference.position %></td>

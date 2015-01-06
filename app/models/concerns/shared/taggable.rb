@@ -9,8 +9,8 @@ module Shared::Taggable
     scope :without_tags, -> { includes(:tags).where(tags: {id: nil}) }
   end 
 
-  def tagged?
-    self.tags.count > 0
+  def has_tags?
+    self.tags.any?
   end
 
 end

@@ -10,9 +10,10 @@
   }
 
   .attribute_set_title {
-    border-bottom: 1px solid $background_gray;
+    border-bottom: 1px solid $color-secondary-2-0;
     font:caption;
-    font-color: $title_gray;  
+    background-color: $color-secondary-2-1;
+    color: $color-secondary-2-0;
   }
 
   .attribute_set {

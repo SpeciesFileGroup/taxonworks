@@ -1,9 +1,9 @@
-<%= form_tag(search_images_path) do %>
+<%= form_tag(search_sources_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'images',
-                         object:     'image',
+               locals:  {controller: 'sources',
+                         object:     nil,
                          method:     'id',
-                         tag_id:     'image_id_for_quick_search_form',
+                         tag_id:     'source_id_for_quick_search_form',
                          size:       '',
                          display:    ''} %>
     <%= submit_tag 'Show' %>

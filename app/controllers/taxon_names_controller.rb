@@ -78,13 +78,13 @@ class TaxonNamesController < ApplicationController
     @taxon_names = TaxonName.find_for_autocomplete(params.merge(project_id: @sessions_current_project_id))
 
     data = @taxon_names.collect do |t|
+      str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
       {id:              t.id,
-       label:           TaxonNamesHelper.taxon_name_tag(t),
+       label:           t.cached, 
        response_values: {
-         # 'taxon_name[id]' => t.id, <- pretty sure this will bork things.
          params[:method] => t.id
        },
-       label_html:      TaxonNamesHelper.taxon_name_tag(t) 
+       label_html:      str
       }
     end
 

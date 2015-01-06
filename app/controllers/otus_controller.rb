@@ -24,7 +24,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) 
   end
 
   # POST /otus
@@ -68,8 +68,8 @@ class OtusController < ApplicationController
   end
 
   def search
-    if params[:otu] && params[:otu][:id]
-      redirect_to otu_path(params[:otu][:id])
+    if params[:id] 
+      redirect_to otu_path(params[:id])
     else
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
@@ -90,7 +90,6 @@ class OtusController < ApplicationController
     render :json => data
   end
 
-  # batch is demo only ... 
   def batch_preview
     @otus = Otu.batch_preview(file: params[:file].tempfile)
   end

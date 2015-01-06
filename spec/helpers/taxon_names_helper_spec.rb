@@ -12,10 +12,6 @@ describe TaxonNamesHelper, :type => :helper do
       expect(parent_taxon_name_for_select(taxon_name)).to eq('Root')
     end
 
-    specify '::taxon_name_tag' do
-      expect(TaxonNamesHelper.taxon_name_tag(taxon_name)).to eq('Adidae')
-    end
-
     specify '#taxon_name_tag' do
       expect(taxon_name_tag(taxon_name)).to eq('Adidae')
     end
