@@ -23,6 +23,11 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :source_classified_as_taxon_name, through: :source_classified_as_relationship, source: :subject_taxon_name
+
+  has_one :type_taxon_name_classification, -> {
+    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
+  }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
+
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
@@ -32,10 +37,6 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
-  has_one :type_taxon_name_classification, -> {
-    where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
-  }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
-
   has_many :type_materials, class_name: 'TypeMaterial'
 
   TaxonNameRelationship.descendants.each do |d|
@@ -44,13 +45,13 @@ class Protonym < TaxonName
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
-      elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
-        
-        # has_many d.assignment_method.to_sym, through: relationships, source: :object_taxon_name
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
     end
@@ -62,7 +63,9 @@ class Protonym < TaxonName
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
-      elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
         relationship = "#{d.inverse_assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
@@ -95,6 +98,8 @@ class Protonym < TaxonName
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
+  
+  # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :that_is_valid, -> {

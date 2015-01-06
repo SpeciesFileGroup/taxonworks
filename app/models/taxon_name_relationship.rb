@@ -14,12 +14,15 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
-  before_validation :validate_type,
-    :validate_subject_and_object_share_code,
-    :validate_valid_subject_and_object,
-    :validate_subject_and_object_ranks,
-    :validate_uniqueness_of_synonym_subject,
-    :validate_uniqueness_of_typification_object
+  validate :validate_type, :validate_subject_and_object_are_not_identical
+
+  with_options unless: '!subject_taxon_name || !object_taxon_name' do |v|
+    v.validate :validate_subject_and_object_share_code,
+      :validate_uniqueness_of_typification_object,
+      :validate_uniqueness_of_synonym_subject,
+      :validate_object_must_equal_subject_for_uncertain_placement,
+      :validate_subject_and_object_ranks
+  end
 
   soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
   soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships)
@@ -29,14 +32,12 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship)
   soft_validate(:sv_synonym_relationship, set: :synonym_relationship)
   soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship)
-
-  # @proceps: this method doesn't seem to exist:  soft_validate(:sv_matching_types, set: :matching_types)
-
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
   soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
+  # @proceps: this method doesn't seem to exist:  soft_validate(:sv_matching_types, set: :matching_types)
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -49,8 +50,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :not_self, -> (id) {where('id <> ?', id )}
 
   def is_combination?
-    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type.to_s)
-  end
+    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type)
+  end.to_s
 
   def aliases
     []
@@ -117,7 +118,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def type_name
-    r = self.type.to_s
+    r = self.type
     TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r : nil
   end
 
@@ -136,31 +137,35 @@ class TaxonNameRelationship < ActiveRecord::Base
   #region Validation
 
   def validate_type
-    if type.nil?
-      true
-    elsif !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+    if !TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
-    elsif object_taxon_name.class.to_s == 'Protonym'
-      errors.add(:type, "'#{type}' is not a valid taxon name relationship") if /TaxonNameRelationship::Combination::/.match(self.type.to_s)
-    elsif object_taxon_name.class.to_s == 'Combination'
-      errors.add(:type, "'#{type}' is not a valid taxon name relationship") unless /TaxonNameRelationship::Combination::/.match(self.type.to_s)
+    end
+
+    if object_taxon_name.class.to_s == 'Protonym'
+      errors.add(:type, "'#{type}' is not a valid taxon name relationship") if /TaxonNameRelationship::Combination::/.match(self.type)
+    end
+
+    if object_taxon_name.class.to_s == 'Combination'
+      errors.add(:type, "'#{type}' is not a valid taxon name relationship") unless /TaxonNameRelationship::Combination::/.match(self.type)
     end
   end
 
   #TODO: validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 
   def validate_subject_and_object_share_code
-    if object_taxon_name.class.to_s == 'Protonym' && subject_taxon_name.class.to_s == 'Protonym'
+    if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
       errors.add(:object_taxon_name_id, 'The related taxon is from different potentially_validating code') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
-  def validate_valid_subject_and_object
-    if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
-      true
-    elsif self.object_taxon_name_id == self.subject_taxon_name_id
+  def validate_subject_and_object_are_not_identical
+    if self.object_taxon_name_id == self.subject_taxon_name_id
       errors.add(:object_taxon_name_id, 'Taxon should not refer to itself')
-    elsif self.object_taxon_name_id != self.subject_taxon_name.parent_id && self.type_name == 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    end
+  end
+
+  def validate_object_must_equal_subject_for_uncertain_placement
+    if self.object_taxon_name_id != self.subject_taxon_name.parent_id && self.type_name == 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       errors.add(:object_taxon_name_id, 'The parent and related taxon should match')
     end
   end
@@ -168,24 +173,28 @@ class TaxonNameRelationship < ActiveRecord::Base
   def validate_subject_and_object_ranks
     tname = self.type_name
     if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
-      if !!self.subject_taxon_name && !!self.object_taxon_name
-        unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-          errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
-          errors.add(:type, 'Not compatible with the rank of this taxon')
-        end
+      unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
+        errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
+        errors.add(:type, 'Not compatible with the rank of this taxon')
       end
-      if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        rank_group = self.subject_taxon_name.rank_class.parent
-        unless rank_group == self.object_taxon_name.rank_class.parent
-          errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
-        end
+    end
+
+    if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+      rank_group = self.subject_taxon_name.rank_class.parent
+      unless rank_group == self.object_taxon_name.rank_class.parent
+        errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
       end
-      if object_taxon_name.class.to_s == 'Protonym'
+    end
+
+    if object_taxon_name
+      if object_taxon_name.type == 'Protonym'
         unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
           errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
           errors.add(:type, 'Not compatible with the rank of related taxon')
         end
-      else # combination
+      end
+
+      if object_taxon_name.type == 'Combination'
         unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
           soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
           soft_validations.add(:type, 'Not compatible with the rank of related taxon')
@@ -195,17 +204,13 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_uniqueness_of_synonym_subject
-    if self.subject_taxon_name.nil? || self.object_taxon_name.nil? || self.type.nil?
-      true
-    elsif /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self.id||0).empty?
+    if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self.id||0).empty?
       errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
     end
   end
 
   def validate_uniqueness_of_typification_object
-    if self.subject_taxon_name.nil? || self.object_taxon_name.nil?
-      true
-    elsif /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self.id||0).empty?
+    if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self.id||0).empty?
       errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
     end
   end
@@ -215,7 +220,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   #region Soft Validation
 
   def sv_validate_required_relationships
-    object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type.to_s}
+    object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
       soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.safe_constantize.object_relationship_name}")

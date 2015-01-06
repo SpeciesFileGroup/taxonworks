@@ -1,7 +1,11 @@
 require 'rails_helper'
 require 'ranks'
 
+
+
 describe 'Ranks' do
+
+  Rails.application.eager_load!
 
   context 'constants' do
     context 'are build without error from config/initializers/ranks.rb' do

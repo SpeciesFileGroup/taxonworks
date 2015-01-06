@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe NomenclaturalRank, :type => :model do
 
+  Rails.application.eager_load!
+
   specify 'ranks should have an integer index' do
     rank_class = Ranks.lookup(:iczn, 'family')
     rank_class2 = Ranks.lookup(:iczn, 'genus')

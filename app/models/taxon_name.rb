@@ -440,6 +440,7 @@ class TaxonName < ActiveRecord::Base
       # @proceps this line does nothing:
       #self.cached_original_combination.blank? if self.class == Protonym
 
+      # @proceps - move this to Combination
       set_cached_original_combination
     end
   end
@@ -865,14 +866,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_cached_classified_as
+    # note defined for Protonym
     unless self.class == Combination || self.class == Protonym
       return nil
     end
-    c = self.source_classified_as_taxon_name
-    if c.nil?
-      nil
-    else
+
+    if c = self.source_classified_as_taxon_name 
       ' (as ' + c.name + ')'
+    else
+      nil
     end
   end
 

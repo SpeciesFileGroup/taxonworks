@@ -413,6 +413,8 @@ describe TaxonName, :type => :model do
           c = FactoryGirl.create(:combination, parent: @species)
           c.source_classified_as = @family
           expect(c.save).to be_truthy
+          c.reload
+          expect(c.all_taxon_name_relationships.count).to be > 0
           expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
         
