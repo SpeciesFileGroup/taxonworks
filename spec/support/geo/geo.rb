@@ -5,7 +5,7 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195361', #current test case
+LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #current test case
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
                      '40:26:46.302N'                 => '40.446195',
