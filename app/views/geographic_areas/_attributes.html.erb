@@ -9,8 +9,8 @@
   </p>
 
   <!--<p>-->
-    <!--<strong>Name:</strong>-->
-    <!--<%#= @geographic_area.name -%>-->
+  <!--<strong>Name:</strong>-->
+  <!--<%#= @geographic_area.name -%>-->
   <!--</p>-->
 
   <p>
@@ -59,10 +59,16 @@
       <%= link_to('(Collecting events within)', tasks_gis_locality_within_path(@geographic_area.geographic_items.first.id)) %>
       <div id="map_canvas" style="width:320px; height: 240px;"></div>
     </p>
+
+    <!--<p>-->
+      <!--<strong> Geographic items within: </strong>-->
+      <!--<%#= geographic_item_links(GeographicArea.find_others_contained_within(@geographic_area.geographic_items.first)) -%>-->
+    <!--</p>-->
+
   <% end %>
 
   <p>
-    <strong> Geographic items (shapes): </strong>
+    <strong> Geographic items (shape IDs): </strong>
     <%= geographic_item_links(@geographic_area.geographic_items) -%>
   </p>
 

@@ -151,6 +151,24 @@ class GeographicArea < ActiveRecord::Base
     where(search_term).includes(:parent, :geographic_area_type).order(:name).limit(limit)
   end
 
+  # @param geographic_item [GeographicItem]
+  # @return [Scope]
+  def self.find_others_contained_within(geographic_item)
+    pieces = GeographicItem.is_contained_by('any', geographic_item)
+    pieces
+
+    # ce = []
+    # pieces.each { |o|
+    #   ce.push(o.collecting_events_through_georeferences.to_a)
+    #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    # }
+    # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+    #
+    pieces.excluding(geographic_item)
+
+  end
+
+
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
   end
