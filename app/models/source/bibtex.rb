@@ -278,8 +278,6 @@ class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
 
-  before_validation :create_authors, if: '!authors_to_create.nil?'
-
   # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)
@@ -301,6 +299,8 @@ class Source::Bibtex < Source
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
 
   #region validations
+  before_validation :create_authors, if: '!authors_to_create.nil?'
+
   validates_inclusion_of :bibtex_type,
     in:      ::VALID_BIBTEX_TYPES,
     message: '%{value} is not a valid source type'
@@ -639,8 +639,8 @@ class Source::Bibtex < Source
   def create_authors
     begin
       Person.transaction do
-        authors_to_create.each do |ary|
-          p = Person.create!(ary)
+        authors_to_create.each do |shs|
+          p = Person.create!(shs)
           self.author_roles.build(person: p)
         end
       end
