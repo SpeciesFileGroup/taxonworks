@@ -6,6 +6,8 @@ class Person < ActiveRecord::Base
   include Shared::SharedAcrossProjects
   include Shared::IsData
 
+  has_paper_trail
+
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
 

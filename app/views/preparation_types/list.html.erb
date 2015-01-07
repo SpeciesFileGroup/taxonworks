@@ -1,0 +1,33 @@
+<h1>Listing preparation types</h1>
+
+<%= paginate @preparation_types %> <%= page_entries_info @preparation_types %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Definition</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @preparation_types.each do |preparation_type| %>
+      <tr>
+        <td><%= preparation_type.institution %></td>
+        <td><%= preparation_type.name %></td>
+        <td><%= preparation_type.short_name %></td>
+        <td><%= preparation_type.verbatim_short_name %></td>
+        <td><%= preparation_type.updated_at %></td>
+        <td><%= object_tag(preparation_type.updater) %></td>
+        <td><%= link_to 'Show', preparation_type %></td>
+        <td><%= link_to 'Edit', edit_preparation_type_path(preparation_type) %></td>
+        <td><%= link_to 'Destroy', preparation_type, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
