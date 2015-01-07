@@ -34,10 +34,13 @@ class Source < ActiveRecord::Base
   # try to resolve the citation against Crossref, use the returned
   # bibtex to populate the object if it successfully resolves. 
   #
+  # Once created followup with .create_related_people_and_roles to create related people.
+  #
   # @param citation [String] the full text of the citation to convert
   # @param resolve [Boolean] whether to resolve against CrossRef, if false then creates a verbatim instance 
   # @return [Source::BibTex.new] a new instance 
-  # @return [false] a new instance 
+  # @return [Source::Verbatim.new] a new instance 
+  # @return [false] 
   def self.new_from_citation(citation: nil, resolve: true)
     return false if citation.length < 6
     bibtex_string = Ref2bibtex.get(citation) if resolve

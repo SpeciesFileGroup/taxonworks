@@ -9,6 +9,13 @@
       </div>
     </div>
 
+    <div>
+      <div class="field">
+        <%= label_tag :also_create_people_records_from_authors_and_editors? %>
+        <%= check_box_tag :create_roles, false  %>
+      </div>
+    </div>
+
     <div class="actions">
       <%= submit_tag :create %>
     </div>

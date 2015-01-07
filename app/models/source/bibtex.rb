@@ -454,7 +454,6 @@ class Source::Bibtex < Source
     rescue ActiveRecord::RecordInvalid
       raise 
     end
-
     true
   end
 
