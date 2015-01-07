@@ -161,12 +161,16 @@ function getTypeData(thisType) {
     ;
 
     if (thisType.type == "Point") {
+        xgtlt(thisType.coordinates[0]);
+        ygtlt(thisType.coordinates[1]); //box check
         gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
     }
     ;
 
     if (thisType.type == "MultiPoint") {
         for (var l = 0; l < thisType.coordinates.length; l++) {
+            //xgtlt(thisType.coordinates[j][k][l][0]);
+            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
             gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
@@ -179,6 +183,8 @@ function getTypeData(thisType) {
         gLinePoints[m] = [];
         lLinePoints[n] = [];
         for (var l = 0; l < thisType.coordinates.length; l++) {
+            //xgtlt(thisType.coordinates[j][k][l][0]);
+            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
             gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
@@ -191,6 +197,8 @@ function getTypeData(thisType) {
             var n = lLinePoints.length;
             gLinePoints[m] = [];
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
+                //xgtlt(thisType.coordinates[j][k][l][0]);
+                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
                 gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
@@ -205,6 +213,8 @@ function getTypeData(thisType) {
             var m = gPolyPoints.length;
             gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
+                //xgtlt(thisType.coordinates[j][k][l][0]);
+                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
                 gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
