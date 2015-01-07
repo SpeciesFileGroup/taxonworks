@@ -44,11 +44,14 @@ namespace :tw do
 
             #        Rake::Task["tw:project_import:eucharitid:inspect_original_files"].execute
 
-
+            @ref_index = {} 
             Rake::Task["tw:project_import:eucharitid:build_sources"].execute
 
-        #  Rake::Task["tw:project_import:eucharitid:build_higher_classification"].execute
-        #  Rake::Task["tw:project_import:eucharitid:handle_genera"].execute
+            puts ap(@ref_index)
+
+
+            Rake::Task["tw:project_import:eucharitid:build_higher_classification"].execute
+            Rake::Task["tw:project_import:eucharitid:handle_genera"].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -97,10 +100,13 @@ namespace :tw do
         path = @args[:data_directory] + 'BA_REF.txt'
         raise "file #{path} not found" if not File.exists?(path)
 
-        # BA_REF: RFCITNO, RFBOOKPP, RFSUMMARY, RFREPRINT, ENTERED, RFNOTESP, RFNOTESF 
+        # BA_REF: RFBOOKPP, RFSUMMARY, RFREPRINT, ENTERED, RFNOTESP, RFNOTESF 
 
         # TODO: add as import_attributes
-        #   RFDATE  => not worthin parsing the differences in this mixed bag
+        #   RFDATE  => not worth parsing the differences in this mixed bag
+
+        # add as identifier
+        # RFCITNO (already indexed)
 
         # RFBOOK 
         # RFTIT
@@ -128,6 +134,7 @@ namespace :tw do
         book_pp = []
 
         f.each do |row|
+          puts row['RFCITNO']
           dates.push([row['RFYRPUBL'], row['RFDATE'], row['RFYRPRINT']    ])
           book.push row['RFBOOK']
           book_pp.push [ row['RFBOOKPP'], row['RFPP']]
@@ -163,8 +170,6 @@ namespace :tw do
             raise row['RFTYPE']
           end
 
-
-
          s = Source::Bibtex.create(
                                    address: row['RFCITY'], 
                                    pages: pages,
@@ -186,6 +191,7 @@ namespace :tw do
            push invalid s  
          else
            all.push s
+           @ref_index.merge!(row['RFCITNO'] => s)
          end
 
         end
@@ -201,8 +207,6 @@ namespace :tw do
         f.close
       end
 
-
-
       task :build_higher_classification => [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
@@ -210,7 +214,6 @@ namespace :tw do
         eucharitidae = TaxonName.create(name: 'Eucharitidae', parent: root, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family')
 
         eurytomidae = TaxonName.create(name: 'Eurytomidae', parent: root, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family')
-
 
         f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
         higher = []
@@ -237,7 +240,6 @@ namespace :tw do
         ap tribes.uniq 
       end
 
-
       task :handle_genera => [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
@@ -246,15 +248,26 @@ namespace :tw do
 
         f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
 
-
         invalid = []
         f.each do |row|
+
+          authors = row['GNAUTH'].gsub(/\sand\s|&|,/, "!").split('!')
+          citation_code = authors[0][0..5].strip
+          authors[1..authors.length].each do |a|
+            a.strip!
+            citation_code += a[0..1]
+          end 
+
+          citation_code += (row['GNYEAR'].to_s + row['GNLET'].to_s )
+          citation_code.gsub!(/[\[\]]/, '')
+
+          puts citation_code
+          puts "!! not found" if !@ref_index[citation_code]
 
           # Handle valid genera
           if !(row['VGENUS'] =~ /Aa/i) 
 
             if row['GNSTATUS'] == "AV"
-
               parent_name = [ row['TRIBE'], row['SUBTRIBE'], row['SUBFAM'] ].compact.first
               parent = TaxonName.where(name: parent_name).first
 
@@ -265,7 +278,6 @@ namespace :tw do
                 verbatim_author: row['GNAUTH'],
                 rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus'
               )
-
 
               invalid.push [t.valid?, row['OGENUS'], parent_name] if !t.valid?
             end
