@@ -33,6 +33,8 @@
       <h2> Do </h2>
       <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%> <br>
 
+      <%= yield :do -%>
+
       <h3> Annotate </h3>
       <%= annotate_links(object: object) -%>
 
