@@ -195,15 +195,15 @@ namespace :tw do
          end
 
         end
-        ap volp.compact.uniq
-        ap invalid
-        ap book.compact.uniq
+      #  ap volp.compact.uniq
+      #  ap invalid
+      #  ap book.compact.uniq
 
        #puts "DATES"
        #ap dates
         
-        puts 'BOOK PP'
-        ap book_pp
+       # puts 'BOOK PP'
+       # ap book_pp
         f.close
       end
 
@@ -244,12 +244,38 @@ namespace :tw do
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
 
+        codes = {} 
+
         aa_records = []
 
         f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
 
         invalid = []
+
+        av_rels = {
+          "EU" => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', 
+          "HJ" => 'TaxonNameRelationship::Iczn::Invalidating::Homonym',
+        }
+        av_stats_2_classifications = {
+          "AV" => nil, # - accepted valid name (nothing to add)
+          "IS" => nil,
+          "LC" => nil,
+          "MG" => nil,
+          "MI" => nil,
+          "PR" => nil,
+          "RH" => nil 
+          "RN" => nil,
+          "SD" => nil,
+          "SH" => nil,
+          "SJ" => nil,
+          "SN" => nil,
+          "SU" => nil,
+          "TR" => nil,
+        }
+
         f.each do |row|
+
+          codes.merge!(row['GNSTATUS'] => nil)
 
           authors = row['GNAUTH'].gsub(/\sand\s|&|,/, "!").split('!')
           citation_code = authors[0][0..5].strip
@@ -288,6 +314,8 @@ namespace :tw do
 
         puts "INVALID AV GENUS RECORDS:"
         ap invalid
+
+        ap codes
 
         # ap aa_records.uniq!
       end 
