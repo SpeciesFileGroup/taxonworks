@@ -57,9 +57,13 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class IncorrectOriginalSpelling < TaxonNameClassification::Iczn::Unavailable
     extend InnerClass
+
+    LABEL = 'incorrect original spelling (ICZN)'
+
     def self.gbif_status
       'negatum'
     end
+  
   end
 
   class LessThanTwoLetters < TaxonNameClassification::Iczn::Unavailable
@@ -68,6 +72,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class NotLatin < TaxonNameClassification::Iczn::Unavailable
     extend InnerClass
+    LABEL = 'not Latin (ICZN)'
   end
 
   class NotLatinizedAfter1899 < TaxonNameClassification::Iczn::Unavailable

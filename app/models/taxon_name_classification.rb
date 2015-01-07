@@ -1,3 +1,5 @@
+# A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
+# 
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -24,47 +26,10 @@ class TaxonNameClassification < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
-  # years of applicability for each class
-  def self.code_applicability_start_year
-    1
-  end
-
-  def self.code_applicability_end_year
-    9999
-  end
-
-  def self.applicable_ranks
-    []
-  end
-
-  def self.disjoint_taxon_name_classes
-    []
-  end
-
-  # Return a String with the "common" name for this class.
-  def self.class_name
-    self.name.demodulize.underscore.humanize.downcase
-  end
-
-  def self.possible_species_endings
-    nil
-  end
-
-  def self.questionable_species_endings
-    nil
-  end
-
-  def self.possible_genus_endings
-    nil
-  end
-
-  def self.gbif_status
-    nil
-  end
-
+  
   def type_name
     r = self.type.to_s
-    TAXON_NAME_CLASS_NAMES.include?(r) ? r : nil
+    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -73,21 +38,81 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def type_class
     r = read_attribute(:type).to_s
-    r = TAXON_NAME_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
+    r = TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r.safe_constantize : nil
     r
   end
 
   def validate_taxon_name_classlassification
-    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASS_NAMES.include?(self.type.to_s)
+    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
+
+  # @return [String]
+  #  a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
+  def self.class_name
+   const_defined?(:LABEL, false) ? self::LABEL : self.name.demodulize.underscore.humanize.downcase
+  end
+
+  # Attributes can be overridden in descendants
+
+  # @return [Integer]
+  #   the minimum year of applicability for this class, defaults to 1
+  def self.code_applicability_start_year
+    1
+  end
+
+  # @return [Integer]
+  #   the last year of applicability for this class, defaults to 9999 
+  def self.code_applicability_end_year
+    9999
+  end
+ 
+  # @return [Array of Strings of NomenclaturalRank names]
+  #   nomenclatural ranks to which this class is applicable, that is, only {TaxonName}s of these {NomenclaturalRank}s may be classified as this class
+  def self.applicable_ranks
+    []
+  end
+
+  # @return [Array of Strings of TaxonNameClassification names]
+  #   the disjoint (inapplicable) {TaxonNameClassification}s for this class, that is, {TaxonName}s classified as this class can not be additionally classified under these classes 
+  def self.disjoint_taxon_name_classes
+    []
+  end
+
+
+  # @return [String, nil]
+  #  if applicable, a DWC gbif status for this class 
+  def self.gbif_status
+    nil
+  end
+
+  # TODO: Perhaps not inherit these three methods?
+  
+  # @return [Array of Strings]
+  #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  def self.possible_species_endings
+    []  # was nil
+  end
+
+  # @proceps please clarify the meaning here
+  # @return [Array of Strings]
+  #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  def self.questionable_species_endings
+    [] # was nil 
+  end
+
+  # @return [Array of Strings]
+  #   the possible suffixes for a {TaxonName} name (genus) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  def self.possible_genus_endings
+    [] # was nil
+  end
+
 
   #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
 
   #region Soft validation
 
   def sv_proper_classification
-    # type is a string already 
-    if TAXON_NAME_CLASS_NAMES.include?(self.type)
+    if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
         soft_validations.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
@@ -146,10 +171,13 @@ class TaxonNameClassification < ActiveRecord::Base
   
   private
 
+
+  # TODO: move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
   
+  # TODO: move these to a shared library (see NomenclaturalRank too)
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
@@ -158,6 +186,7 @@ class TaxonNameClassification < ActiveRecord::Base
     ans    
   end
  
+  # TODO: move these to a shared library (see NomenclaturalRank too)
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end

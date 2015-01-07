@@ -21,7 +21,7 @@
 
   <div class="field">
     <%= f.label :type, 'Classification/status' %><br>
-    <%= f.text_field :type %>
+    <%= f.select :type,  taxon_name_classification_options(@taxon_name_classification.taxon_name) %>
   </div>
 
 

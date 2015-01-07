@@ -182,7 +182,7 @@ class TaxonName < ActiveRecord::Base
                          SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
-  # @return [Array of TaxonNames]
+  # @return [Array of TaxonName]
   #     all taxon_names which have relationships to this taxon as an object or subject.
   def related_taxon_names
     TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
@@ -198,7 +198,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [String]
-  #   rank as a string, like "NomenclaturalRank::Iczn::SpeciesGroup::Species"
+  #   rank (Kindom, Phylum...) as a string, like {NomenclaturalRank::Iczn::SpeciesGroup::Species}
   def rank_string
     read_attribute(:rank_class)
   end
@@ -207,8 +207,8 @@ class TaxonName < ActiveRecord::Base
     write_attribute(:rank_class, value.to_s)
   end
 
-  # @return [Class]
-  #   rank as Class, like NomenclaturalRank::Iczn::SpeciesGroup::Species
+  # @return [NomenclaturalRank class]
+  #   rank as a {NomenclaturalRank} class, like {NomenclaturalRank::Iczn::SpeciesGroup::Species}
   def rank_class
     r = read_attribute(:rank_class)
     Ranks.valid?(r) ? r.safe_constantize : r
@@ -485,7 +485,7 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # @return [Array of TaxonNames]
+  # @return [Array of TaxonName]
   #   an list of ancestors, Root first
   # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
   def safe_self_and_ancestors
@@ -982,9 +982,10 @@ class TaxonName < ActiveRecord::Base
     unless correct_name_format
       invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
       invalid_statuses = invalid_statuses & self.taxon_name_classifications.collect { |c| c.type_class.to_s }
-      misspellings     = TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
-                                                            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-                                                            TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
+      misspellings     = TaxonNameRelationship.collect_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
+        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+        TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
       misspellings     = misspellings & self.taxon_name_relationships.collect { |c| c.type_class.to_s }
       if invalid_statuses.empty? && misspellings.empty?
         soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')

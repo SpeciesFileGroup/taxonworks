@@ -10,7 +10,7 @@ class TaxonNameClassificationsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_classification.save
-        format.html { redirect_to :back, notice: 'Taxon name classification was successfully created.' }
+        format.html { redirect_to @taxon_name_classification.taxon_name.metamorphosize, notice: 'Taxon name classification was successfully created.' }
         format.json { render json: @taxon_name_classification, status: :created, location: @taxon_name_classification.metamorphosize }
       else
         format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully created.' }

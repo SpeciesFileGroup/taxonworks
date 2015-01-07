@@ -8,8 +8,16 @@ describe TaxonNameClassification, :type => :model do
     TaxonNameClassification.delete_all
   }
 
-  context "validation" do
+  specify 'that .class_name(s) do not overlap' do
+    existing_names = []
+    TaxonNameClassification.descendants.each do |klass|
+      name = klass.class_name
+      expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
+      existing_names.push name
+    end
+  end
 
+  context "validation" do
     context "requires" do
       before (:all) do
         @taxon_name_classification = FactoryGirl.build(:taxon_name_classification)
@@ -23,7 +31,7 @@ describe TaxonNameClassification, :type => :model do
       end
 
       specify 'disjoint_taxon_name_relationships' do
-        TAXON_NAME_CLASSES.each do |r|
+        TAXON_NAME_CLASSIFICATION_CLASSES.each do |r|
           r1 = r.disjoint_taxon_name_classes.collect{|i| i.to_s}
           r1 = ['a'] + r1
           r1 = r1.collect{|i| i.class.to_s}.uniq
@@ -33,7 +41,7 @@ describe TaxonNameClassification, :type => :model do
       end
 
       specify 'applicable_ranks' do
-        TAXON_NAME_CLASSES.each do |r|
+        TAXON_NAME_CLASSIFICATION_CLASSES.each do |r|
           r1 = r.applicable_ranks.collect{|i| i.to_s}
           r1 = ['a'] + r1
           r1 = r1.collect{|i| i.class.to_s}.uniq

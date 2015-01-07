@@ -1,5 +1,11 @@
 class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassification::Iczn::Unavailable
 
+  LABEL = 'nomen nudum (ICZN)'
+
+  def self.gbif_status
+    'nudum'
+  end
+
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable::Excluded,
@@ -8,15 +14,10 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
-  def self.gbif_status
-    'nudum'
-  end
-
   module InnerClass
-    
     def disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes +
-          [TaxonNameClassification::Iczn::Unavailable::NomenNudum.to_s]
+        [TaxonNameClassification::Iczn::Unavailable::NomenNudum.to_s]
     end
   end
   
