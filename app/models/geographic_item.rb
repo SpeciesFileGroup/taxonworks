@@ -11,6 +11,7 @@
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData
+  include Shared::SharedAcrossProjects
 
   DATA_TYPES = [:point,
                 :line_string,

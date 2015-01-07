@@ -8,6 +8,7 @@
 class Language < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData 
+  include Shared::IsApplicationData
 
   has_many :serials
   has_many :sources

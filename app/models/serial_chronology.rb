@@ -1,6 +1,8 @@
 class SerialChronology < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData
+  include Shared::SharedAcrossProjects
+
   # may need include Shared::DataAttributes for note equivalent - not sure - eef
 
 
