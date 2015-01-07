@@ -157,7 +157,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :taxon_name_classifications, only: [:create, :update, :destroy]
+  resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
   resources :taxon_name_relationships do
     collection do
       get 'list'
