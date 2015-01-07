@@ -53,7 +53,7 @@ function initialize_map(options) {
 
 function get_window_center() {
     if (center_long == undefined) {
-        center_long = 0.5 * (xmax + xmin) - 180.0;
+        center_long = 0.5 * (xmax + xmin); // - 180.0;
     }
     ;
     if (center_lat == undefined) {
@@ -61,7 +61,7 @@ function get_window_center() {
     }
     ;
     if (xmax > 359.0 && xmin < 1) {
-        gzoom = 2;
+        gzoom = 1.0;
     }
     // center_long =  0.5*(xmax + xmin);
     // center_lat = 0.5*(ymax + ymin);
@@ -272,11 +272,11 @@ function createPolygon(coords, color) {
 };
 
 function xgtlt(xtest) {
-    if (xtest + 180.0 > xmax) {
+    if (xtest + 180.0 >= xmax) {
         xmax = xtest + 180.0;
     }
     ;
-    if (xtest + 180.0 < xmin) {
+    if (xtest + 180.0 <= xmin) {
         xmin = xtest + 180.0;
     }
     ;
