@@ -1,7 +1,7 @@
 class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name_classification, only: [:update, :destroy]
+  before_action :set_taxon_name_classification, only: [ :update, :destroy]
 
   # POST /taxon_name_classifications
   # POST /taxon_name_classifications.json
@@ -31,6 +31,10 @@ class TaxonNameClassificationsController < ApplicationController
         format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def new
+    @taxon_name_classification = TaxonNameClassification.new(taxon_name: TaxonName.find(params.permit(:taxon_name_id)['taxon_name_id']))
   end
 
   # DELETE /taxon_name_classifications/1

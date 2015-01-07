@@ -1,7 +1,10 @@
+<% content_for :do do %>
+  <%= link_to 'Add status/classification', new_taxon_name_classification_path(taxon_name_id: @taxon_name.to_param) -%>
+<% end %>
+
+
 <% content_for :tasks do %>
-
   <%= render(partial: 'tasks') -%>
-
 <% end %>
 
 <% content_for :show_navigation do %>

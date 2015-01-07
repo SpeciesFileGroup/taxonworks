@@ -11,14 +11,20 @@
     </div>
   <% end %>
 
+
   <div class="field">
-    <%= f.label :taxon_name_id %><br>
-    <%= f.number_field :taxon_name_id %>
+    <%= f.label :for %><br>
+    <h3><%= object_tag(@taxon_name_classification.taxon_name) -%></h3>
   </div>
+
+  <%= f.hidden_field :taxon_name_id %>
+
   <div class="field">
-    <%= f.label :type %><br>
+    <%= f.label :type, 'Classification/status' %><br>
     <%= f.text_field :type %>
   </div>
+
+
   <div class="actions">
     <%= f.submit %>
   </div>

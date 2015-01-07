@@ -21,6 +21,7 @@ describe TaxonNameClassification, :type => :model do
       specify "type" do
         expect(@taxon_name_classification.errors.include?(:type)).to be_truthy
       end
+
       specify 'disjoint_taxon_name_relationships' do
         TAXON_NAME_CLASSES.each do |r|
           r1 = r.disjoint_taxon_name_classes.collect{|i| i.to_s}
@@ -30,6 +31,7 @@ describe TaxonNameClassification, :type => :model do
           expect(r1.size).to eq(1)
         end
       end
+
       specify 'applicable_ranks' do
         TAXON_NAME_CLASSES.each do |r|
           r1 = r.applicable_ranks.collect{|i| i.to_s}
