@@ -10,7 +10,13 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def create
     @source = Source.new_from_citation(citation: params[:citation])
     if @source.save 
-      flash[:notice] = 'Successfully created a new record, resolved to bibtex format.'
+      if params[:create_roles]
+        if @source.create_related_people_and_roles 
+          flash[:notice] = "Successfully created from resolution to bibtex, also created #{@source.roles.count} people as authors/editors."
+        else
+          flash[:notice] = "Successfully created from resolution to bibtex, associated People records were not created."
+        end
+      end
     else
       flash[:notice] = 'There was an error creating the record.'
     end
