@@ -21,6 +21,7 @@ class SerialsController < ApplicationController
   # GET /serials/1
   # GET /serials/1.json
   def show
+    # TODO put computation here for displaying alternate values?
   end
 
   # GET /serials/new
