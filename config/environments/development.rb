@@ -32,6 +32,8 @@ TaxonWorks::Application.configure do
   # Load local settings
   Settings.load_from_file(config, 'config/local_settings.yml', :development) if File.exist?('config/local_settings.yml')
 
+  BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
+
   require 'taxonworks'
   require 'taxonworks_autoload'
 end
