@@ -10,6 +10,10 @@ class SourcesController < ApplicationController
     @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
   end
 
+  def list
+    @sources = Source.order(:id).page(params[:page])
+  end
+
   # GET /sources/1
   # GET /sources/1.json
   def show

@@ -18,10 +18,8 @@
   <tbody>
   <% @preparation_types.each do |preparation_type| %>
       <tr>
-        <td><%= preparation_type.institution %></td>
         <td><%= preparation_type.name %></td>
-        <td><%= preparation_type.short_name %></td>
-        <td><%= preparation_type.verbatim_short_name %></td>
+        <td><%= preparation_type.definition %></td>
         <td><%= preparation_type.updated_at %></td>
         <td><%= object_tag(preparation_type.updater) %></td>
         <td><%= link_to 'Show', preparation_type %></td>
