@@ -200,7 +200,14 @@ TaxonWorks::Application.routes.draw do
       post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
       get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
     end
+
+    namespace :serials do
+      get 'serial/similar', to: 'serial#similar', as: 'serial_similar'
+      # get 'serial/update'
+      # get 'serial/within'
+    end
   end
+
 =begin
   get 'tasks/gis/locality/nearby/:id'
 =end
