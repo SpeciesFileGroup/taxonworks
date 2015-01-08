@@ -53,9 +53,9 @@ describe TaxonNameClassificationsController, :type => :controller do
         expect(assigns(:taxon_name_classification)).to be_persisted
       end
 
-      it "redirects to :back" do
+      it "redirects to the associated TaxonName page" do
         post :create, {:taxon_name_classification => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(taxon_name_path(TaxonNameClassification.last.taxon_name))
       end
     end
 
