@@ -18,6 +18,18 @@
     </div>
 
     <div class="field">
+      <%= f.label :verbatim_author %>
+      <br>
+      <%= f.text_field :verbatim_author %>
+    </div>
+
+    <div class="field">
+      <%= f.label :year_of_publication %>
+      <br>
+      <%= f.number_field :year_of_publication %>
+    </div>
+
+    <div class="field">
       <%= f.label :rank %>
       <br>
       <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
@@ -36,28 +48,37 @@
     </div>
 
     <div class="field">
-      <%= f.label :year_of_publication %>
-      <br>
-      <%= f.number_field :year_of_publication %>
-    </div>
-    <div class="field">
-      <%= f.label :verbatim_author %>
-      <br>
-      <%= f.text_field :verbatim_author %>
-    </div>
-
-
-    <div class="field">
       <%= f.label :source %>
       <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 locals:  {controller: 'sources',
-                           object:     'taxon_name',
-                           method:     'source_id',
-                           tag_id:     'source_id_for_taxon_name',
-                           size:       '50%',
-                           display:    source_tag(@taxon_name.source)} %>
+      <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
+                 {controller: 'sources',
+                  object: 'taxon_name',
+                  method: 'source_id',
+                  tag_id: 'source_id_for_taxon_name',
+                  size: '50%',
+                  display: source_tag(@taxon_name.source)}) 
+                %>
+            </div>
+
+
+    <div class="field">
+      <%= f.label :feminine_name %>
+      <br>
+      <%= f.text_field :feminine_name %>
     </div>
+
+    <div class="field">
+      <%= f.label :masculine_name %>
+      <br>
+      <%= f.text_field :masculine_name %>
+    </div>
+
+    <div class="field">
+      <%= f.label :neuter_name %>
+      <br>
+      <%= f.text_field :neuter_name %>
+    </div>
+
 
 
     <%= f.hidden_field :type %>
