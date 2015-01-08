@@ -363,8 +363,9 @@ SELECT round(CAST(
     end
   end
 
-  # @param  column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'poly' to check against 'polygon' or 'multi_polygon', or 'line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
-  # @returns [Scope]
+  # @param  column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
+  # @param  geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
+  # @returns [GeographicItem Scope] ActiveRecord Relation containing the items the shape of which is contained in the geographic_item[s] supplied.
   def self.is_contained_by(column_name, *geographic_items)
     column_name.downcase!
     case column_name
@@ -392,7 +393,7 @@ SELECT round(CAST(
         q = geographic_items.flatten.collect { |geographic_item|
           GeographicItem.containing_sql_reverse(column_name, geographic_item)
         }.join(' or ')
-        where(q)
+        where(q) # .excluding(geographic_items)
     end
   end
 
