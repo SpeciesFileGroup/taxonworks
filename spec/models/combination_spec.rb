@@ -2,25 +2,35 @@ require 'rails_helper'
 
 describe Combination, :type => :model do
 
-  before(:all) do
-    TaxonName.delete_all
- # end
+  let(:source) { }
 
- # before(:all) do
+  before(:all) do
+
+    TaxonName.delete_all
+
     @family = FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000)
     @combination = FactoryGirl.create(:combination, parent: @family)
     @source = FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
   end
-  
+
   after(:all) do
     TaxonName.delete_all
     Source.delete_all 
   end
 
+  specify 'source_classified_as' do
+    # Failing because save off does not allow combiantion to be rankless.
+    @combination.source_classified_as = @family
+    expect(@combination.save).to be_truthy
+    @combination.reload
+    expect(@combination.all_taxon_name_relationships.count).to be > 0
+    expect(@combination.cached_classified_as).to eq(' (as Cicadellidae)')
+  end
+
   context 'associations' do
     context 'has_one' do
       context 'taxon_name_relationships' do
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
+        Combination::APPLICABLE_RANKS.each do |rank|
           method = "#{rank}_taxon_name_relationship" 
           specify method do
             expect(@combination).to respond_to(method)
@@ -29,48 +39,28 @@ describe Combination, :type => :model do
       end
 
       context 'taxon_names' do
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
+        Combination::APPLICABLE_RANKS.each do |rank|
           specify rank do
             expect(@combination).to respond_to(rank.to_sym)
           end
         end
       end
 
-      context 'has_one' do
-        TaxonNameRelationship.descendants.each do |d|
-          if d.respond_to?(:assignment_method) and d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
-            relationship = "#{d.inverse_assignment_method}_relationship".to_sym
-            relationships = "#{d.assignment_method}_relationships".to_sym
-            method = d.inverse_assignment_method.to_sym
-            methods = d.assignment_method.to_s.pluralize.to_sym
-
-            specify relationship do
-              expect(@combination).to respond_to(relationship)
-            end
-            specify relationships do
-              expect(@combination).to respond_to(relationships)
-            end
-            specify method do
-              expect(@combination).to respond_to(method)
-            end
-            specify methods do
-              expect(@combination).to respond_to(methods)
-            end
-          end
-        end
-      end
-
-        context 'cached name' do
+      context 'cached name' do
         before(:all) do
           @genus = FactoryGirl.create(:relationship_genus, parent: @family)
           @species = FactoryGirl.create(:relationship_species, parent: @genus)
           @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
+
           @combination1 = FactoryGirl.create(:combination, parent: @species)
+
           FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @species, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Species')
         end
+
         specify 'empty' do
           expect(@combination1.get_combination).to eq('<em>vitis</em>')
         end
+
         specify 'genus' do
           #@combination1.combination_genus = @genus
           FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Genus')
@@ -114,7 +104,7 @@ describe Combination, :type => :model do
         @subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: @genus)
         @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @subgenus)
       end
-      
+
       specify 'a genus group name used as a subgenus' do
         c = FactoryGirl.create(:combination, parent: @subgenus)
         c.genus = @genus

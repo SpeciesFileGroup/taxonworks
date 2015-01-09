@@ -408,15 +408,6 @@ describe TaxonName, :type => :model do
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
         end
-
-        specify 'source_classified_as' do
-          c = FactoryGirl.create(:combination, parent: @species)
-          c.source_classified_as = @family
-          expect(c.save).to be_truthy
-          c.reload
-          expect(c.all_taxon_name_relationships.count).to be > 0
-          expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
-        end
         
         specify 'different gender' do
           s = FactoryGirl.create(:iczn_species, parent: @genus)
