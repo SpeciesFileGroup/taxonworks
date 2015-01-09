@@ -30,7 +30,7 @@ describe 'Namespaces', :type => :feature do
       end
 
       specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Namespaces'
+        expect(page).to have_content 'Listing namespaces'
       end
     end
 

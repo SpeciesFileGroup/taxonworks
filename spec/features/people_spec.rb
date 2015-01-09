@@ -25,11 +25,11 @@ describe 'People', :type => :feature do
 
     describe 'GET /people/list' do
       before do
-        visit people_path
+        visit list_people_path
       end
 
       specify 'that it renders without error' do
-        expect(page).to have_content 'Listing People'
+        expect(page).to have_content 'Listing people'
       end
     end
 
