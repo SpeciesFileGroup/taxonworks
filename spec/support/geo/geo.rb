@@ -1646,17 +1646,17 @@ end
 
 def clean_slate_geo
   GeographicItem.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
   GeographicAreaType.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
   GeographicArea.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
   GeographicAreasGeographicItem.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
   Georeference.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+  ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
   CollectingEvent.delete_all
-  # ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
+  ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
   $user_id    = 1
   $project_id = 1
 end
