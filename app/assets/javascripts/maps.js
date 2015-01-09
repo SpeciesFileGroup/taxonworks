@@ -90,7 +90,9 @@ function get_window_center() {
         center_lat = 0.5 * (ymax + ymin);
     }
     ;
-    if (wx <= 0.5) {gzoom = 9};
+    if (wx <= 0.1) {gzoom =11};
+    if (wx > 0.1) {gzoom = 10};
+    if (wx > 0.2) {gzoom = 9};
     if (wx > 0.5) {gzoom = 8};
     if (wx > 1.0) {gzoom = 7};
     if (wx > 2.5) {gzoom = 6};
