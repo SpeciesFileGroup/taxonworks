@@ -3,9 +3,6 @@ require 'rails_helper'
 describe Georeference, :type => :model do
 
   after(:all) {
-    GeographicItem.destroy_all
-    Georeference.destroy_all
-    CollectingEvent.destroy_all
     clean_slate_geo
   }
 
@@ -265,7 +262,10 @@ describe Georeference, :type => :model do
 
   context 'scopes' do
 
-    before(:all) { generate_geo_test_objects }
+    before(:all) {
+      clean_slate_geo
+      generate_geo_test_objects
+    }
 
     before(:each) {
       # build some geo-references for testing using existing factories and geometries, something roughly like this

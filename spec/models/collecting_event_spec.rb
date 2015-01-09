@@ -199,6 +199,7 @@ describe CollectingEvent, :type => :model do
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
       before(:all) {
+        clean_slate_geo
         generate_ce_test_objects
       }
       after(:all) {

@@ -26,9 +26,9 @@
               <td>
                 <%= collecting_event.verbatim_locality %>
               </td>
-              <!--<td>-->
-                <!--<%#= distance_between(@collecting_event, collecting_event) %>-->
-              <!--</td>-->
+              <td>
+                <%= distance_between(@collecting_event, collecting_event) %>
+              </td>
               <td>
                 <%= link_to(collecting_event.id.to_s, collecting_event_path(collecting_event.id)) %>
               </td>

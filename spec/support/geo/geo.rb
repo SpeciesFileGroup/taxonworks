@@ -690,7 +690,7 @@ def generate_geo_test_objects
     item_d:       @item_d.id
   }
 
-  my_debug = false
+  my_debug = true
 
   if my_debug
     puts
@@ -1646,11 +1646,17 @@ end
 
 def clean_slate_geo
   GeographicItem.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
   GeographicAreaType.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
   GeographicArea.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
   GeographicAreasGeographicItem.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
   Georeference.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
   CollectingEvent.delete_all
+  # ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
   $user_id    = 1
   $project_id = 1
 end

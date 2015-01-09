@@ -3,6 +3,7 @@ require_relative '../support/geo/geo'
 
 describe GeographicItem, :type => :model do
   before(:all) {
+    clean_slate_geo
     generate_ce_test_objects # includes generate_geo_test_objects
   }
 
@@ -698,7 +699,7 @@ describe GeographicItem, :type => :model do
         expect(pieces).to eq(@all_gi)
       end
 
-      specify '::containing - returns objects which contain another objects.' do
+      specify '::is_contained_in - returns objects which contained in another object.' do
 
         expect(GeographicItem.is_contained_in('not_a_column_name', @p1).to_a).to eq([])
         expect(GeographicItem.is_contained_in('point', 'Some devious SQL string').to_a).to eq([])
@@ -722,7 +723,29 @@ describe GeographicItem, :type => :model do
         expect(GeographicItem.is_contained_in('polygon', @p19).to_a).to include(@b1, @b)
       end
 
-      specify '::excluding([]) drop selves from any list of objects' do
+      specify '::is_contained_by - returns objects which are contained by other objects.' do
+
+        expect(GeographicItem.is_contained_by('not_a_column_name', @p1).to_a).to eq([])
+        expect(GeographicItem.is_contained_by('point', 'Some devious SQL string').to_a).to eq([])
+
+        # three things inside k
+        expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to eq([@p1, @p2, @p3])
+        # one thing outside k
+        expect(GeographicItem.is_contained_by('any', @p4).excluding(@p4).to_a).to eq([])
+        # three things inside and one thing outside k
+        expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to include(@p0, @p1, @p2, @p3, @p12, @p13, @item_a)
+        # one thing inside one thing, and another thing inside another thing
+        expect(GeographicItem.is_contained_by('any', [@e1, @k]).to_a).to include(@p1, @p11)
+        # one thing (p19) inside a polygon (b) with interior, and another inside the interior which is NOT included
+        # (p18).
+        expect(GeographicItem.is_contained_by('any', @b).excluding(@b).to_a).to eq([@p19])
+        # three things inside two things. Notice that the outer ring of b is co-incident with b1, and thus 'contained'.
+        expect(GeographicItem.is_contained_by('any', [@b1, @b2]).excluding([@b1, @b2]).to_a).to eq([@p18, @p19, @b])
+        # both b and b1 contain p19, which gets returned only once
+        expect(GeographicItem.is_contained_by('any', [@b1, @b]).to_a).to include(@p19)
+      end
+
+      specify '::excluding([]) drop specifc item[s] from any scope (list of objects.)' do
         # @p2 would have been in the list, except for the exclude
         expect(GeographicItem.excluding([@p2]).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, @p17])
         # @p2 would *not* have been in the list anyway
@@ -760,7 +783,7 @@ describe GeographicItem, :type => :model do
       #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
       # SELECT  "geographic_items".* FROM "geographic_items"  WHERE (st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0))'))) LIMIT 4
       specify "::disjoint_from list of objects (uses 'and')." do
-        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(4).to_a).to contain_exactly(@b1, @b2, @b, @g1)
+        expect(GeographicItem.disjoint_from('polygon', [@e1, @e2, @e3, @e4, @e5]).limit(1).to_a).to contain_exactly(@g2)
       end
 
       specify '::within_radius_of returns objects within a specific distance of an object.' do
