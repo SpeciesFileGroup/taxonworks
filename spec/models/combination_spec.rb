@@ -5,7 +5,6 @@ describe Combination, :type => :model do
   let(:source) { }
 
   before(:all) do
-
     TaxonName.delete_all
 
     @family = FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000)

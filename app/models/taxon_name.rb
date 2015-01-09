@@ -111,11 +111,11 @@ class TaxonName < ActiveRecord::Base
 
   belongs_to :source
 
-# has_one :source_classified_as_relationship, -> {
-#   where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
-# }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-# has_one :source_classified_as, through: :source_classified_as_relationship, source: :subject_taxon_name # was source_classified_as_taxon_name
+  has_one :source_classified_as_relationship, -> {
+    where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 
+  }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
 
+  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name # source_classified_as_taxon_name
 
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
@@ -878,12 +878,12 @@ class TaxonName < ActiveRecord::Base
 
   def get_cached_classified_as
     # note defined for Protonym
-    unless self.class == Combination || self.class == Protonym
+    unless self.type == 'Combination' || self.type == 'Protonym'
       return nil
     end
 
     if c = self.source_classified_as
-      ' (as ' + c.name + ')'
+      " (as #{c.name})" 
     else
       nil
     end

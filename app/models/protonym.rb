@@ -20,11 +20,6 @@ class Protonym < TaxonName
     }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
-  has_one :source_classified_as_relationship, -> {
-    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-  has_one :source_classified_as_taxon_name, through: :source_classified_as_relationship, source: :subject_taxon_name
-
   has_one :type_taxon_name_classification, -> {
     where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
   }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
@@ -48,7 +43,7 @@ class Protonym < TaxonName
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
       end
 
-      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
@@ -66,7 +61,7 @@ class Protonym < TaxonName
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
 
-      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
         relationship = "#{d.inverse_assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
