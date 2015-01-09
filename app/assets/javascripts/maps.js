@@ -11,11 +11,14 @@ var gLinePoints = [];
 var gPolyPoints = [];
 
 var lPoints = [];
-var lLinePoints = [];
 
 // bounds for calculating center point
-var xmin = 360.0;
-var xmax = 0.0;
+    // divide longitude checks by hemisphere
+var xminp = 180.0;       //return to 0-based coordinates
+var xmaxp = 0.0;
+var xminm = 0.0;         //return to 0-based coordinates
+var xmaxm = -180.0;
+
 var ymin = 90.0;
 var ymax = -90.0;
 
@@ -53,19 +56,37 @@ function initialize_map(options) {
 
 function get_window_center() {
     if (center_long == undefined) {
-        center_long = 0.5 * (xmax + xmin); // - 180.0;
+        //determine case of area extent
+        center_long = 0.0;
+        if ((xmaxm = 0.0) && (xminp = 0.0)) {               // covers GB
+            center_long = 0.5 * (xmaxp + xminm);            //get the mean about 0
+        }
+        else if ((xmaxp = 180.0) && (xminm = -180.0)) {     // covers USA and Russia == overlap +/- 180
+            center_long = 0.5 * (xminp - xmaxm);           // bias to
+        }
+        else if ((xminp > 0.0) && (xmaxp < 180.0)) {
+            center_long = 0.5 * (xmaxp + xminp);             //get the mean -- this computation assumes -180 is next to +180
+        }
+        else if ((xminm > -180.0) && (xmaxp < 0.0)) {
+            center_long = 0.5 * (xmaxm + xminm);             //get the mean -- this computation assumes -180 is next to +180
+        };
     }
     ;
     if (center_lat == undefined) {
         center_lat = 0.5 * (ymax + ymin);
     }
     ;
-    if (xmax > 359.0 && xmin < 1) {
-        gzoom = 1.0;
-    }
+    //if (xmax > 359.0 && xmin < 1) {
+    //    gzoom = 1.0;
+    //}
+    //if ((xmax - xmin) > 0.05) {  gzoom = 300.0/(xmax - xmin);   // 1280 vs 360 since gzoom poorly understood
+    //}
     // center_long =  0.5*(xmax + xmin);
     // center_lat = 0.5*(ymax + ymin);
-
+    if (gzoom < 2.0) {gzoom = 1.0};
+    if (gzoom < 3.0) {gzoom = 2.0};
+    if (gzoom > 4.0) {gzoom = 4.0};
+    alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
@@ -179,9 +200,7 @@ function getTypeData(thisType) {
 
     if (thisType.type == "LineString") {
         var m = gLinePoints.length;
-        var n = lLinePoints.length;
         gLinePoints[m] = [];
-        lLinePoints[n] = [];
         for (var l = 0; l < thisType.coordinates.length; l++) {
             //xgtlt(thisType.coordinates[j][k][l][0]);
             //ygtlt(thisType.coordinates[j][k][l][1]); //box check
@@ -194,7 +213,6 @@ function getTypeData(thisType) {
     if (thisType.type == "MultiLineString") {
         for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
             var m = gLinePoints.length;
-            var n = lLinePoints.length;
             gLinePoints[m] = [];
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
                 //xgtlt(thisType.coordinates[j][k][l][0]);
@@ -272,14 +290,23 @@ function createPolygon(coords, color) {
 };
 
 function xgtlt(xtest) {
-    if (xtest + 180.0 >= xmax) {
-        xmax = xtest + 180.0;
+
+    if (xtest < 0) {            // if western hemisphere,
+        if (xtest > xmaxm) {    // xmaxm initially -180
+            xmaxm = xtest;
+        }
+        if (xtest <= xminm) {   // xminm initially 0
+           xminm = xtest;
+        }
+     }
+    else {                      // eastern hemisphere
+        if (xtest >= xmaxp) {   // xmaxp initially 0
+            xmaxp = xtest;
+        }
+        if (xtest <= xminp) {   // xminp initially 180
+            xminp = xtest;
+        }
     }
-    ;
-    if (xtest + 180.0 <= xmin) {
-        xmin = xtest + 180.0;
-    }
-    ;
 };
 
 function ygtlt(ytest) {
