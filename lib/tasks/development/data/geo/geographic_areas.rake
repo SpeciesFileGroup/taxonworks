@@ -115,6 +115,7 @@ namespace :tw do
           f = Support::Database.pg_restore(database, 'georeferences', data_store)
           ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
 
+          GeographicArea.rebuild!
           puts "#{Time.now.strftime "%H:%M:%S"}."
         end
 
