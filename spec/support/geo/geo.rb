@@ -690,7 +690,7 @@ def generate_geo_test_objects
     item_d:       @item_d.id
   }
 
-  my_debug = true
+  my_debug = false
 
   if my_debug
     puts
