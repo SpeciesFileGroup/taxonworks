@@ -175,7 +175,9 @@ class TaxonName < ActiveRecord::Base
       where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
   }
 
- scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
+  # TODO move to shared code
+  scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
+  scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
 
   validates_presence_of :type, message: 'Type is not specified'
   validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
