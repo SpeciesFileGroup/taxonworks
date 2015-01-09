@@ -21,6 +21,10 @@
 #     The id of the parent taxon. The parent child relationship is exclusively organizational!  All statuses and relationships
 #     of a taxon name must be explicitly defined.  The parent of a taxon name can be thought of the "place where you'd find this
 #     name in a hierarchy if you knew literally *nothing* else about that name." 
+#     There are 3 simple rules for determening the parent of a Protonym or Combination:
+#     1) the parent must always be at least one rank higher than the target names rank
+#     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
+#     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
 # @!attribute verbatim_author 
 #   @return [String]
@@ -106,6 +110,13 @@ class TaxonName < ActiveRecord::Base
   before_save :set_cached_names
 
   belongs_to :source
+
+# has_one :source_classified_as_relationship, -> {
+#   where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::SourceClassifiedAs'")
+# }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+# has_one :source_classified_as, through: :source_classified_as_relationship, source: :subject_taxon_name # was source_classified_as_taxon_name
+
+
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
 
@@ -871,7 +882,7 @@ class TaxonName < ActiveRecord::Base
       return nil
     end
 
-    if c = self.source_classified_as_taxon_name 
+    if c = self.source_classified_as
       ' (as ' + c.name + ')'
     else
       nil

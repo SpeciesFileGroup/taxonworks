@@ -27,6 +27,8 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
+
+
   # Create the has_one associations
   APPLICABLE_RANKS.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
@@ -38,7 +40,11 @@ class Combination < TaxonName
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"})
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
+
+     accepts_nested_attributes_for rank.to_sym
   end
+
+  
 
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
 
