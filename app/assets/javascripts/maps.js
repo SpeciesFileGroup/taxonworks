@@ -58,17 +58,21 @@ function get_window_center() {
     if (center_long == undefined) {
         //determine case of area extent
         center_long = 0.0;
-        //if ()
+        wm = 0.0        // western hemisphere default area width
+        wp = 0.0        // eastern hemisphere default area width
+        if (xmaxm >= xminm) {wm = xmaxm - xminm}    // width of western area, if present
+        if (xmaxp >= xminp) {wp = xmaxp - xminp}    // width of eastern area, if present
+        wx = wm + wp;                               // total width of "contiguous" area
         if ((xmaxm > -180.0) && (xminp < 180.0)) {               // covers GB, and any non-crosssing +/-180
-            wp = xmaxp;             // width of eastern side
-            wm = -xminm;
+            //wp = xmaxp;             // width of eastern side
+            //wm = -xminm;  //seems wrong
             if (wp >= wm) {center_long = xmaxp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
             if (wp < wm) {center_long = xminm + 0.5 * (wp + wm)}     // then favor western hemisphere
             //center_long = 0.5 * (xmaxp + xminm);            //get the mean about 0
         }
         else if ((xmaxp > 179.0) && (xminm < -179.0)) {     // covers USA and Russia == overlap +/- 180
-            wp = 180.0 - xminp;
-            wm = -(-180 -xmaxm);
+            //wp = 180.0 - xminp;
+            //wm = -(-180 -xmaxm);
             if (wp > wm) {center_long = xminp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
             if (wp < wm) {center_long = xmaxm + 0.5 * (wp + wm)}     // then favor western hemisphere
 
@@ -86,17 +90,16 @@ function get_window_center() {
         center_lat = 0.5 * (ymax + ymin);
     }
     ;
-    //if (xmax > 359.0 && xmin < 1) {
-    //    gzoom = 1.0;
-    //}
-    //if ((xmax - xmin) > 0.05) {  gzoom = 300.0/(xmax - xmin);   // 1280 vs 360 since gzoom poorly understood
-    //}
-    // center_long =  0.5*(xmax + xmin);
-    // center_lat = 0.5*(ymax + ymin);
-    if (gzoom < 2.0) {gzoom = 1.0};
-    if (gzoom < 3.0) {gzoom = 2.0};
-    if (gzoom > 4.0) {gzoom = 4.0};
-    //alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
+    if (wx <= 0.5) {gzoom = 9};
+    if (wx > 0.5) {gzoom = 8};
+    if (wx > 1.0) {gzoom = 7};
+    if (wx > 2.5) {gzoom = 6};
+    if (wx > 5.0) {gzoom = 5};
+    if (wx > 10.0) {gzoom = 4};
+    if (wx > 40.0) {gzoom = 3};
+    if (wx > 80.0) {gzoom = 2};
+    if (wx > 160.0) {gzoom = 1};
+    //alert('wx = ' + wx + '\ngzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
