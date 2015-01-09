@@ -59,21 +59,25 @@ function get_window_center() {
         //determine case of area extent
         center_long = 0.0;
         //if ()
-        if ((xmaxm == 0.0) && (xminp == 0.0)) {               // covers GB
-            center_long = 0.5 * (xmaxp + xminm);            //get the mean about 0
+        if ((xmaxm > -180.0) && (xminp < 180.0)) {               // covers GB, and any non-crosssing +/-180
+            wp = xmaxp;             // width of eastern side
+            wm = -xminm;
+            if (wp >= wm) {center_long = xmaxp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
+            if (wp < wm) {center_long = xminm + 0.5 * (wp + wm)}     // then favor western hemisphere
+            //center_long = 0.5 * (xmaxp + xminm);            //get the mean about 0
         }
         else if ((xmaxp > 179.0) && (xminm < -179.0)) {     // covers USA and Russia == overlap +/- 180
             wp = 180.0 - xminp;
             wm = -(-180 -xmaxm);
-            if (wp > wm) {center_long = xminp + 0.5 * (wp + wm)}     // then eastern hemisphere
-            if (wp < wm) {center_long = xmaxm - 0.5 * (wp + wm)}     // then western hemisphere
+            if (wp > wm) {center_long = xminp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
+            if (wp < wm) {center_long = xmaxm + 0.5 * (wp + wm)}     // then favor western hemisphere
 
             //center_long = 0.5 * (xmaxm - xmaxp);           // bias to
         }
-        else if ((xminp > 0.0) && (xmaxp < 180.0) && (xminp < xmaxp)) {  // if not wll-to-wall and has eastern content
+        else if ((xminp > 0.0) && (xmaxp < 180.0) && (xminp < xmaxp)) {  // if not wall-to-wall and has (ALL) eastern content
             center_long = 0.5 * (xmaxp + xminp);             //get the mean -- this computation assumes -180 is next to +180
         }
-        else if ((xminm > -180.0) && (xmaxm < 0.0)) {
+        else if ((xminm > -180.0) && (xmaxm < 0.0) && (xmaxm > xminm)) {  // if not wall-to-wall and has (ALL) western content
             center_long = 0.5 * (xmaxm + xminm);             //get the mean -- this computation assumes -180 is next to +180
         };
     }
@@ -92,7 +96,7 @@ function get_window_center() {
     if (gzoom < 2.0) {gzoom = 1.0};
     if (gzoom < 3.0) {gzoom = 2.0};
     if (gzoom > 4.0) {gzoom = 4.0};
-    //alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
+    alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
