@@ -96,7 +96,7 @@ function get_window_center() {
     if (gzoom < 2.0) {gzoom = 1.0};
     if (gzoom < 3.0) {gzoom = 2.0};
     if (gzoom > 4.0) {gzoom = 4.0};
-    alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
+    //alert('gzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
