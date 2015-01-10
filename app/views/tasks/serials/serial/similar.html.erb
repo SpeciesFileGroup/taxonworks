@@ -1,3 +1,17 @@
-<h1>Tasks: Serials with similar names</h1>
+<%= form_tag tasks_serials_serial_similar_path do %>
 
-<strong>Made it here! - Do I need to use a partial?</strong>
+    <h2>List serials with similar names</h2>
+
+    <strong>Made it here! - Do I need to use a partial?</strong>
+
+    <div>
+      <div class="field">
+        <%= label_tag :enter_a_search_string %>
+        <%= text_field :search_string, :str %>
+      </div>
+    </div>
+
+<% end %>
+
+
+
