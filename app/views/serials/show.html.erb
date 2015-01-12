@@ -1,77 +1,86 @@
 <!-- Below is the old code -->
 <div style="display:none">
-<p id="notice"><%= notice %></p>
+  <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @serial.name %>
-</p>
-<div style="display:none">
-  For alternate_values:
-  <ul>
-    <li>
-      Enumerate by type (sorted), show value and attribute (more?)
-    </li>
-    <li>
-      With edit/remove links for each.
-    </li>
-  </ul>
-</div>
-<% if @serial.alternate_values.any? %>
-    <ol>
-      <strong>Alternate values:</strong>
-      <% for alternate_value in @serial.alternate_values.order('type') %>
-          <li>
-            <%= "Type: #{alternate_value.type.gsub('AlternateValue::', '')}, Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_value_object_attribute}'" %>
-            <%#= edit_alternate_value_link(alternate_value) %>
-            <%#=	link_to_edit_alternate_value('jsEdit', alternate_value) %>
-            <%#= destroy_alternate_value_link(alternate_value) %>
-            <%#=	link_to_destroy_alternate_value('jsDestroy', alternate_value) %>
-          </li>
-      <% end %>
-    </ol>
-<% end %>
+  <p>
+    <strong>Name:</strong>
+    <%= @serial.name %>
+  </p>
+
+  <div style="display:none">
+    For alternate_values:
+    <ul>
+      <li>
+        Enumerate by type (sorted), show value and attribute (more?)
+      </li>
+      <li>
+        With edit/remove links for each.
+      </li>
+    </ul>
+  </div>
+  <% if @serial.alternate_values.any? %>
+      <ol>
+        <strong>Alternate values:</strong>
+        <% for alternate_value in @serial.alternate_values.order('type') %>
+            <li>
+              <%= "Type: #{alternate_value.type.gsub('AlternateValue::', '')}, Value: '#{alternate_value.value}', Attribute: '#{alternate_value.alternate_value_object_attribute}'" %>
+              <%#= edit_alternate_value_link(alternate_value) %>
+              <%#=	link_to_edit_alternate_value('jsEdit', alternate_value) %>
+              <%#= destroy_alternate_value_link(alternate_value) %>
+              <%#=	link_to_destroy_alternate_value('jsDestroy', alternate_value) %>
+            </li>
+        <% end %>
+      </ol>
+  <% end %>
 <%#= add_alternate_value_link(object: @serial, user: sessions_current_user) -%>
 
-<p>
-  <strong>Publisher:</strong>
-  <%= @serial.publisher %>
-</p>
+  <p>
+    <strong>Publisher:</strong>
+    <%= @serial.publisher %>
+  </p>
 
-<p>
-  <strong>Place published:</strong>
-  <%= @serial.place_published %>
-</p>
+  <p>
+    <strong>Place published:</strong>
+    <%= @serial.place_published %>
+  </p>
 
-<p>
-  <strong>Primary language:</strong>
-  <%= @serial.primary_language_id %>
-</p>
+  <p>
+    <strong>Primary language:</strong>
+    <%= @serial.primary_language_id %>
+  </p>
 
-<p>
-  <strong>First year of issue:</strong>
-  <%= @serial.first_year_of_issue %>
-</p>
+  <p>
+    <strong>First year of issue:</strong>
+    <%= @serial.first_year_of_issue %>
+  </p>
 
-<p>
-  <strong>Last year of issue:</strong>
-  <%= @serial.last_year_of_issue %>
-</p>
+  <p>
+    <strong>Last year of issue:</strong>
+    <%= @serial.last_year_of_issue %>
+  </p>
 
-<!--<p>-->
+  <!--<p>-->
   <!--<strong>Created by:</strong>-->
   <!--<%#= @serial.created_by_id %>-->
-<!--</p>-->
+  <!--</p>-->
 
-<!--<p>-->
+  <!--<p>-->
   <!--<strong>Updated by:</strong>-->
   <!--<%#= @serial.updated_by_id %>-->
-<!--</p>-->
+  <!--</p>-->
 
 
-
-<%= link_to 'Edit', edit_serial_path(@serial) %> |
-<%= link_to 'Back', serials_path %>
+  <%= link_to 'Edit', edit_serial_path(@serial) %> |
+  <%= link_to 'Back', serials_path %>
 </div>
- | <%= link_to 'Similar serials', tasks_serials_serial_similar_path(@serial) %>
+
+
+
+
+<%= content_for :see  -%>
+    <%#= link_to 'Similar serials', tasks_serials_serial_similar_path(@serial) %>
+    <%= tasks_serials_serial_similar_link(@serial) %>
+<%#= end %>
+
+<%= render(partial: 'shared/shared_data/user_defined/show', locals: {object: @serial}) -%>
 
