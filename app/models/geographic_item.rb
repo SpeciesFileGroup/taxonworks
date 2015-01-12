@@ -532,8 +532,28 @@ SELECT round(CAST(
     data
   end
 
+  # TODO: deprecate
+  # @return [String]
   def to_geo_json
-    RGeo::GeoJSON.encode(self.geo_object).to_json
+     RGeo::GeoJSON.encode(self.geo_object).to_json
+  end
+
+  # @return [Hash]
+  def to_geo_json2
+   {
+     "type" => "feature",
+     "geometry" => RGeo::GeoJSON.encode(self.geo_object),
+     "properties" => {
+       "geographic_item" => {'id' => self.id} 
+     }
+   }
+  end
+
+  # @return [a Feature] 
+  def to_geo_json_using_entity_factory
+    f = RGeo::GeoJSON::EntityFactory.new
+    inserted_attributes = {foo: "bar"} # some of self.attributes, but not all
+    f.feature(self.geo_object, self.id, inserted_attributes)
   end
 
   def to_a
