@@ -48,7 +48,7 @@ initialize = function () {
 
     initialize_map(myOptions);
     //add_shapes_to_map();      // old home-brew interpreter and range/bounds/center function
-    if (data["type"] != "Feature" || data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
+    if (data["type"] != "Feature" && data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
         datastring = JSON.stringify(data);
         datastring = '{ "type": "Feature", "geometry": ' + datastring + '}';
         datafeature = JSON.parse(datastring);
@@ -56,6 +56,7 @@ initialize = function () {
     }
         map.data.setStyle({fillColor: '#880000', strokeOpacity: 0.5, strokeWeight: 1, fillOpacity: 0.3})
         map.data.addGeoJson(data);
+
         centerofmap = map.getCenter();      // not getting desired result
         map.setMap(map);
 
