@@ -202,7 +202,8 @@ TaxonWorks::Application.routes.draw do
     end
 
     namespace :serials do
-      get 'serial/similar', to: 'serial#similar', as: 'serial_similar'
+      get 'serial/similar:id', to: 'serial#similar', as: 'serial_similar'
+      post 'serial/similar:id', to: 'serial#similar', as: 'serial_similar'
       # get 'serial/update'
       # get 'serial/within'
     end
