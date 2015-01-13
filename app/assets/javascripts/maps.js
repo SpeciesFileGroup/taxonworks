@@ -59,7 +59,7 @@ initialize = function () {
 
     centerofmap = map.getCenter();      // not getting desired result
     map.data.setStyle(function(feature) {
-        var color = '#440000';
+        var color = '#440000';  // dimmer red
         if (feature.getProperty('isColorful')) {
             color = feature.getProperty('fillColor');
         }
@@ -69,10 +69,10 @@ initialize = function () {
             strokeWeight: 1
         });
     });
-    // When the user clicks, set 'isColorful', changing the color of the letters.
+    // When the user clicks, set 'isColorful', changing the color of the feature.
     map.data.addListener('click', function(event) {
         event.feature.setProperty('isColorful', true);
-        event.feature.setProperty('fillColor', "#CC0000");
+        event.feature.setProperty('fillColor', "#CC0000");  //brighter red
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -80,7 +80,7 @@ initialize = function () {
     // defined in the function passed to setStyle()
     map.data.addListener('mouseover', function(event) {
         map.data.revertStyle();
-        map.data.overrideStyle(event.feature, {fillColor: '#880000'});
+        map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
     });
 
     map.data.addListener('mouseout', function(event) {
