@@ -203,7 +203,7 @@ TaxonWorks::Application.routes.draw do
 
     namespace :serials do
       get 'serial/similar:id', to: 'serial#similar', as: 'serial_similar'
-      post 'serial/similar:id', to: 'serial#similar', as: 'serial_similar'
+      post 'serial/update_similar:id', to: 'serial#update_similar', as: 'update_serial_similar'
       # get 'serial/update'
       # get 'serial/within'
     end
