@@ -40,5 +40,10 @@ module Utilities::Strings
     [a,(b.to_i + 1), c].compact.join
   end
 
+  # adds a second single quote to escape apostrophe in SQL query strings
+  def self.escape_single_quote(string)
+    return nil if string.blank?
+    string.gsub("'", "''")
+  end
 end
 
