@@ -193,6 +193,7 @@ TaxonWorks::Application.routes.draw do
 =begin
   get 'tasks/usage/user_activity#report/:id'
 =end
+  match 'find_similar_serials_task', to: 'tasks/serials/serial#similar', via: 'get'
 
   namespace :tasks do
     namespace :gis do
