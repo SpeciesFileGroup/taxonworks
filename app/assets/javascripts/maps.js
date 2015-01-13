@@ -28,18 +28,18 @@ var center_lat;
 var center_lat_long;
 
 // zoom level
-var gzoom = 4;
+var gzoom = 0;
 
 var initialize;
 
 initialize = function () {
     // bounds = new google.maps.LatLngBounds();
-    get_data();
-    get_window_center();
+    //get_data();
+    //get_window_center();
 
     var myOptions = {
         zoom: gzoom,
-        center: center_lat_long,
+        center: {lat:40, lng: 0}, //center_lat_long, set to 0,0
         mapTypeControl: true,
         mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
         navigationControl: true,
@@ -47,7 +47,18 @@ initialize = function () {
     };
 
     initialize_map(myOptions);
-    add_shapes_to_map();
+    //add_shapes_to_map();      // old home-brew interpreter and range/bounds/center function
+    if (data["type"] != "Feature" || data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
+        datastring = JSON.stringify(data);
+        datastring = '{ "type": "Feature", "geometry": ' + datastring + '}';
+        datafeature = JSON.parse(datastring);
+        data = datafeature;
+    }
+        map.data.setStyle({fillColor: '#880000', strokeOpacity: 0.5, strokeWeight: 1, fillOpacity: 0.3})
+        map.data.addGeoJson(data);
+        centerofmap = map.getCenter();      // not getting desired result
+        map.setMap(map);
+
 };
 
 function initialize_map(options) {
@@ -58,12 +69,12 @@ function get_window_center() {
     if (center_long == undefined) {
         //determine case of area extent
         center_long = 0.0;
-        wm = 0.0        // western hemisphere default area width
-        wp = 0.0        // eastern hemisphere default area width
+        wm = 0.0;        // western hemisphere default area width
+        wp = 0.0;        // eastern hemisphere default area width
         if (xmaxm >= xminm) {wm = xmaxm - xminm}    // width of western area, if present
         if (xmaxp >= xminp) {wp = xmaxp - xminp}    // width of eastern area, if present
         wx = wm + wp;                               // total width of "contiguous" area
-        if ((xmaxm > -180.0) && (xminp < 180.0)) {               // covers GB, and any non-crosssing +/-180
+        if ((xmaxm > -180.0) && (xminp < 180.0)) {               // covers GB, and any non-crossing +/-180
             //wp = xmaxp;             // width of eastern side
             //wm = -xminm;  //seems wrong
             if (wp >= wm) {center_long = xmaxp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
