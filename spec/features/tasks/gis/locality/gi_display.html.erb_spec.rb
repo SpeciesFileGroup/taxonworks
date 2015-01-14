@@ -11,9 +11,10 @@ describe "tasks/gis/locality/gi_display.html.erb", :type => :feature do
     clean_slate_geo
   end
 
-  it 'renders the collecting_events_nearby partial' do
+  it 'renders the geographic_areas_within partial' do
     @collecting_event = @ce_p1
     @geographic_item  = @collecting_event.georeferences.first.error_geographic_item
+    # this triggers 'Collecting events within', which renders gi_display
     visit ("tasks/gis/locality/within/#{@geographic_item.id}")
     expect(page).to have_content(/Task: Contained within/)
   end
