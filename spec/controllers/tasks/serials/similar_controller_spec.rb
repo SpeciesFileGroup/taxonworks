@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tasks::Serials::SerialController, :type => :controller do
+describe Tasks::Serials::SimilarController, :type => :controller do
 
   describe "GET similar" do
     it "returns http success" do

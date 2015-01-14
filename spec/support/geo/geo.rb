@@ -136,12 +136,12 @@ GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 2
 GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
 GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
   [RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
-        RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
-        RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
-        RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
-        RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
+                                                                                                                                                       RSPEC_GEO_FACTORY.line_string(
+                                                                                                                                                         [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
+                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
+                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
+                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
+                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
@@ -714,6 +714,22 @@ def generate_ce_test_objects
                               :api_request      => 'gr10',
                               :collecting_event => @ce_p0,
                               :geographic_item  => @p10) #  2
+
+  gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+
+  # now, for the areas, top-down
+  object        = FactoryGirl.create(:valid_geographic_area_stack)
+
+  # first, level 0 areas
+  earth         = GeographicArea.where(:name => 'Earth').first
+
+  @ga_k = FactoryGirl.create(:geographic_area,
+                             name:                 'k',
+                             level0:               earth,
+                             parent:               earth,
+                             data_origin:          'ce_test_objects',
+                             geographic_area_type: gat_land_mass)
+  @ga_k.geographic_items << @k
 
   @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1 collect_event test')
   @gr01  = FactoryGirl.create(:georeference_verbatim_data,
@@ -1657,8 +1673,8 @@ def clean_slate_geo
   ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
   CollectingEvent.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
-  $user_id    = 1
-  $project_id = 1
+  # $user_id    = 1
+  # $project_id = 1
 end
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.

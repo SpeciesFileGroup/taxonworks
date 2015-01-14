@@ -192,6 +192,10 @@ TaxonWorks::Application.routes.draw do
       get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
     end
   end
+=begin
+  get 'tasks/usage/user_activity#report/:id'
+=end
+  match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
 
   namespace :tasks do
     namespace :gis do
@@ -201,12 +205,16 @@ TaxonWorks::Application.routes.draw do
     end
 
     namespace :serials do
-      get 'serial/similar:id', to: 'serial#similar', as: 'serial_similar'
-      post 'serial/update_similar:id', to: 'serial#update_similar', as: 'update_serial_similar'
+      get 'similar/like:id', to: 'similar#like', as: 'similar_serial'
+      post 'serial/update_find:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
       # get 'serial/update'
       # get 'serial/within'
     end
   end
+
+=begin
+  get 'tasks/gis/locality/nearby/:id'
+=end
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'

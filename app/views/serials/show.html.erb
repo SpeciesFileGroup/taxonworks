@@ -77,10 +77,13 @@
 
 
 
-<%= content_for :see  -%>
+<%= content_for :see do -%>
     <%#= link_to 'Similar serials', tasks_serials_serial_similar_path(@serial) %>
-    <%= tasks_serials_serial_similar_link(@serial) %>
-<%#= end %>
+    <p>
+      <%= link_to('Similar', tasks_serials_similar_serial_path(@serial.to_param)) %>
+    </p>
+
+<% end %>
 
 <%= render(partial: 'shared/shared_data/user_defined/show', locals: {object: @serial}) -%>
 
