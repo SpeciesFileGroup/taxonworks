@@ -81,6 +81,7 @@ initialize = function () {
     map.data.addListener('mouseover', function(event) {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
+        map.data.overrideStyle(event.feature, {strokeWeight: 4});       //embolden borders
     });
 
     map.data.addListener('mouseout', function(event) {
