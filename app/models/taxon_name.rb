@@ -314,7 +314,8 @@ class TaxonName < ActiveRecord::Base
   # TODO: @proceps - based on what?
   # @return [True|False]
   def unavailable_or_invalid?
-    case self.rank_class.nomenclatural_code
+    if self.rank_class
+      case self.rank_class.nomenclatural_code
       when :iczn
         if !TaxonNameRelationship::Iczn::Invalidating.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
           return true
@@ -323,6 +324,7 @@ class TaxonName < ActiveRecord::Base
         if !TaxonNameRelationship::Icn::Unaccepting.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
           return true
         end
+      end
     end
     return false
   end
@@ -951,25 +953,27 @@ class TaxonName < ActiveRecord::Base
   def sv_validate_name
     correct_name_format = false
 
-    # TODO: name these Regexp somewhere
-    if (self.name =~ /^[a-zA-Z]*$/) ||
-      (self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-      (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*-[a-zA-Z]*$/) ||
-      (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-      (self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
-      correct_name_format = true
-    end
+    if self.rank_class
+      # TODO: name these Regexp somewhere
+      if (self.name =~ /^[a-zA-Z]*$/) ||
+          (self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*-[a-zA-Z]*$/) ||
+          (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
+          (self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
+        correct_name_format = true
+      end
 
-    unless correct_name_format
-      invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-      invalid_statuses = invalid_statuses & self.taxon_name_classifications.collect { |c| c.type_class.to_s }
-      misspellings     = TaxonNameRelationship.collect_to_s(
-        TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
-        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-        TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
-      misspellings     = misspellings & self.taxon_name_relationships.collect { |c| c.type_class.to_s }
-      if invalid_statuses.empty? && misspellings.empty?
-        soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
+      unless correct_name_format
+        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
+        invalid_statuses = invalid_statuses & self.taxon_name_classifications.collect { |c| c.type_class.to_s }
+        misspellings     = TaxonNameRelationship.collect_to_s(
+          TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
+          TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+          TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
+        misspellings     = misspellings & self.taxon_name_relationships.collect { |c| c.type_class.to_s }
+        if invalid_statuses.empty? && misspellings.empty?
+          soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
+        end
       end
     end
 
@@ -1083,11 +1087,12 @@ class TaxonName < ActiveRecord::Base
          end
        end
 
-       if self.class == Combination && cached
-         if self.cached_html != get_combination || self.cached_original_combination != get_combination
-           is_cached = false
-         end
-       end
+     # Combination caching is handled in Combination
+     # if self.class == Combination && cached
+     #   if self.cached_html != get_combination || self.cached_original_combination != get_combination
+     #     is_cached = false
+     #   end
+     # end
 
        soft_validations.add(
          :base, 'Cached values should be updated',

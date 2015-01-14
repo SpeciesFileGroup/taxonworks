@@ -153,6 +153,11 @@ describe Combination, :type => :model do
   end
 
   context 'soft validation' do
+
+    specify 'runs all validations without error' do
+      expect(combination.soft_validate()).to be_truthy
+    end
+
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
       expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey

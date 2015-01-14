@@ -102,17 +102,17 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
-  soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
-  soft_validate(:sv_missing_relationships, set: :missing_relationships)
-  soft_validate(:sv_missing_classifications, set: :missing_classifications)
-  soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
-  soft_validate(:sv_type_placement, set: :type_placement)
-  soft_validate(:sv_primary_types, set: :primary_types)
-  soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
-  soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
-  soft_validate(:sv_parent_priority, set: :parent_priority)
-  soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
-  soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
+ soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
+ soft_validate(:sv_missing_relationships, set: :missing_relationships)
+ soft_validate(:sv_missing_classifications, set: :missing_classifications)
+ soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
+ soft_validate(:sv_type_placement, set: :type_placement)
+ soft_validate(:sv_primary_types, set: :primary_types)
+ soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
+ soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
+ soft_validate(:sv_parent_priority, set: :parent_priority)
+ soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
+ soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
 
   before_validation :check_format_of_name,
                     :validate_rank_class_class,
@@ -122,39 +122,42 @@ class Protonym < TaxonName
                     :validate_source_type,
                     :new_parent_taxon_name
 
-  def family_group_endigns
+  def family_group_endings
     %w{ini ina inae idae oidae odd ad oidea}
   end
 
   def list_of_coordinated_names
-    if self.incorrect_original_spelling.nil?
-      search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
-      if !!search_rank
-        if search_rank =~ /Family/
-          z = Protonym.family_group_base(self.name)
-          search_name = z.nil? ? nil : family_group_endigns.collect{|i| z+i}
-          #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+    list = []
+    if self.rank_string
+      if self.incorrect_original_spelling.nil?
+        search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+        if !!search_rank
+          if search_rank =~ /Family/
+            z = Protonym.family_group_base(self.name)
+            search_name = z.nil? ? nil : family_group_endings.collect{|i| z+i}
+            #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+          else
+            search_name = self.name
+          end
         else
-          search_name = self.name
+          search_name = nil
         end
-      else
-        search_name = nil
-      end
 
-      unless search_name.nil?
-        list = Protonym.ancestors_and_descendants_of(self).
+        unless search_name.nil?
+          list = Protonym.ancestors_and_descendants_of(self).
             with_rank_class_including(search_rank).
             with_name_in_array(search_name).
             as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
-        #list1 = self.ancestors_and_descendants                               # scope with parens
-        #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
-        #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
-        #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+          #list1 = self.ancestors_and_descendants                               # scope with parens
+          #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
+          #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
+          #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+        else
+          list = []
+        end
       else
-        list = []
+        list = [self.incorrect_original_spelling.object_taxon_name]
       end
-    else
-      list = [self.incorrect_original_spelling.object_taxon_name]
     end
     return list
   end
@@ -266,13 +269,13 @@ class Protonym < TaxonName
     end
   end
 
-
-
   def sv_validate_parent_rank
-    if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.incertae_sedis
-      true
-    elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
-      soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
+    if self.rank_class
+      if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.incertae_sedis
+        true
+      elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
+        soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
+      end
     end
   end
 
@@ -505,33 +508,37 @@ class Protonym < TaxonName
   end
 
   def sv_primary_types
-    if self.rank_class.parent.to_s =~ /Species/
-      if self.type_materials.primary.empty? && self.type_materials.syntypes.empty?
-        soft_validations.add(:base, 'Primary type is not selected')
-      elsif self.type_materials.primary.count > 1 || (!self.type_materials.primary.empty? && !self.type_materials.syntypes.empty?)
-        soft_validations.add(:base, 'More than one primary type are selected')
+    if self.rank_class
+      if self.rank_class.parent.to_s =~ /Species/
+        if self.type_materials.primary.empty? && self.type_materials.syntypes.empty?
+          soft_validations.add(:base, 'Primary type is not selected')
+        elsif self.type_materials.primary.count > 1 || (!self.type_materials.primary.empty? && !self.type_materials.syntypes.empty?)
+          soft_validations.add(:base, 'More than one primary type are selected')
+        end
       end
     end
   end
 
   def sv_single_sub_taxon
-    rank = self.rank_class.to_s
-    if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
-      sisters = self.parent.descendants.with_rank_class(rank)
-      if rank =~ /Family/
-        z = Protonym.family_group_base(self.name)
-        search_name = z.nil? ? nil : family_group_endigns.collect{|i| z+i}
-        a = sisters.collect{|i| Protonym.family_group_base(i.name) }
-        sister_names = a.collect{|z| family_group_endigns.collect{|i| z+i} }.flatten
-      else
-        search_name = [self.name]
-        sister_names = sisters.collect{|i| i.name }
-      end
-      if search_name.include?(self.parent.name) && sisters.count == 1
-        soft_validations.add(:base, "This taxon is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name}")
-      elsif !sister_names.include?(self.parent.name)
-        soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name}",
-                             fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} was added to nominal #{self.parent.rank_class.rank_name}")
+    if self.rank_class
+      rank = self.rank_class.to_s
+      if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
+        sisters = self.parent.descendants.with_rank_class(rank)
+        if rank =~ /Family/
+          z = Protonym.family_group_base(self.name)
+          search_name = z.nil? ? nil : family_group_endings.collect{|i| z+i}
+          a = sisters.collect{|i| Protonym.family_group_base(i.name) }
+          sister_names = a.collect{|z| family_group_endings.collect{|i| z+i} }.flatten
+        else
+          search_name = [self.name]
+          sister_names = sisters.collect{|i| i.name }
+        end
+        if search_name.include?(self.parent.name) && sisters.count == 1
+          soft_validations.add(:base, "This taxon is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name}")
+        elsif !sister_names.include?(self.parent.name)
+          soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name}",
+                               fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} was added to nominal #{self.parent.rank_class.rank_name}")
+        end
       end
     end
   end
@@ -567,16 +574,18 @@ class Protonym < TaxonName
   end
 
   def sv_parent_priority
-    rank_group = self.rank_class.parent
-    parent = self.parent
+    if self.rank_class
+      rank_group = self.rank_class.parent
+      parent = self.parent
 
-    if parent && rank_group == parent.rank_class.parent
-      unless self.unavailable_or_invalid?
-        date1 = self.nomenclature_date
-        date2 = parent.nomenclature_date
-        unless date1.nil? || date2.nil?
-          if date1 < date2
-            soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} should not be older than parent #{parent.rank_class.rank_name}")
+      if parent && rank_group == parent.rank_class.parent
+        unless self.unavailable_or_invalid?
+          date1 = self.nomenclature_date
+          date2 = parent.nomenclature_date
+          unless date1.nil? || date2.nil?
+            if date1 < date2
+              soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} should not be older than parent #{parent.rank_class.rank_name}")
+            end
           end
         end
       end
@@ -620,50 +629,52 @@ class Protonym < TaxonName
   end
 
   def sv_potential_homonyms
-    unless (self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty?) #  self.unavailable_or_invalid?
-      if self.id == self.lowest_rank_coordinated_taxon.id
-        rank_base = self.rank_class.parent.to_s
-        name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
-        possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-        list1 = reduce_list_of_synonyms(possible_primary_homonyms)
-        if !list1.empty?
-          list1.each do |s|
-            if rank_base =~ /Species/
-              soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_name_and_author_year}")
-                                 #  fix: :sv_fix_add_relationship('iczn_set_as_primary_homonym_of'.to_sym, s.id),
-                                 #  success_message: 'Primary homonym relationship was added',
-                                 #  failure_message: 'Fail to add a relationship')
-            elsif
-              soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_name_and_author_year}")
-            end
-          end
-        else
-          name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
-          possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-          list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
-          if !list2.empty?
-            list2.each do |s|
+    if self.parent
+      unless (self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty?) #  self.unavailable_or_invalid?
+        if self.id == self.lowest_rank_coordinated_taxon.id
+          rank_base = self.rank_class.parent.to_s
+          name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
+          possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          list1 = reduce_list_of_synonyms(possible_primary_homonyms)
+          if !list1.empty?
+            list1.each do |s|
               if rank_base =~ /Species/
-                soft_validations.add(:base, "Taxon could be a primary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_name_and_author_year}")
+                #  fix: :sv_fix_add_relationship('iczn_set_as_primary_homonym_of'.to_sym, s.id),
+                #  success_message: 'Primary homonym relationship was added',
+                #  failure_message: 'Fail to add a relationship')
               elsif
-                soft_validations.add(:base, "Taxon could be an homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_name_and_author_year}")
               end
             end
-          elsif rank_base =~ /Species/
-            name3 = self.cached_secondary_homonym ? self.cached_secondary_homonym : nil
-            possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-            list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
-            if !list3.empty?
-              list3.each do |s|
-                soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
+          else
+            name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
+            possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+            list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
+            if !list2.empty?
+              list2.each do |s|
+                if rank_base =~ /Species/
+                  soft_validations.add(:base, "Taxon could be a primary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                elsif
+                  soft_validations.add(:base, "Taxon could be an homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                end
               end
-            else
-              name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alternative_spelling : nil
-              possible_secondary_homonyms_alternative_spelling = name4 ? Protonym.with_secondary_homonym_alternative_spelling(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
-              list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alternative_spelling)
-              if !list4.empty?
-                list4.each do |s|
-                  soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+            elsif rank_base =~ /Species/
+              name3 = self.cached_secondary_homonym ? self.cached_secondary_homonym : nil
+              possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
+              if !list3.empty?
+                list3.each do |s|
+                  soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
+                end
+              else
+                name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alternative_spelling : nil
+                possible_secondary_homonyms_alternative_spelling = name4 ? Protonym.with_secondary_homonym_alternative_spelling(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+                list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alternative_spelling)
+                if !list4.empty?
+                  list4.each do |s|
+                    soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                  end
                 end
               end
             end

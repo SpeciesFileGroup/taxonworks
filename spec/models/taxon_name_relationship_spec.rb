@@ -440,8 +440,9 @@ describe TaxonNameRelationship, :type => :model do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
         r1.soft_validate('specific_relationship')
         expect(r1.soft_validations.messages_on(:base).size).to eq(1)
-        c = FactoryGirl.create(:combination, parent: s1)
-        c.combination_genus = @genus
+
+        # @proceps, I didn't quite get to updating this yet. 
+        c = Combination.new(genus: @genus, species: @species) 
         expect(c.save).to be_truthy
         s1.reload
         r1.soft_validate('specific_relationship')
