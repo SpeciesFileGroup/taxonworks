@@ -696,7 +696,9 @@ def generate_geo_test_objects
     puts
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
-
+    all_file = File.new('./tmp/all_file.json', 'w')
+    all_file.write(@all_items.to_geo_json_feature)
+    all_file.close
   end
   @debug_names
 end
