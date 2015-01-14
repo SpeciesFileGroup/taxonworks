@@ -28,7 +28,7 @@ var center_lat;
 var center_lat_long;
 
 // zoom level
-var gzoom = 0;
+var gzoom = 1;
 
 var initialize;
 
@@ -54,11 +54,40 @@ initialize = function () {
         datafeature = JSON.parse(datastring);
         data = datafeature;
     }
-        map.data.setStyle({fillColor: '#880000', strokeOpacity: 0.5, strokeWeight: 1, fillOpacity: 0.3})
-        map.data.addGeoJson(data);
+    map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3})
+    map.data.addGeoJson(data);
 
-        centerofmap = map.getCenter();      // not getting desired result
-        map.setMap(map);
+    centerofmap = map.getCenter();      // not getting desired result
+    map.data.setStyle(function(feature) {
+        var color = '#440000';  // dimmer red
+        if (feature.getProperty('isColorful')) {
+            color = feature.getProperty('fillColor');
+        }
+        return /** @type {google.maps.Data.StyleOptions} */({
+            fillColor: color,
+            strokeColor: "black",
+            strokeWeight: 1
+        });
+    });
+    // When the user clicks, set 'isColorful', changing the color of the feature.
+    map.data.addListener('click', function(event) {
+        event.feature.setProperty('isColorful', true);
+        event.feature.setProperty('fillColor', "#CC0000");  //brighter red
+    });
+
+    // When the user hovers, tempt them to click by outlining the letters.
+    // Call revertStyle() to remove all overrides. This will use the style rules
+    // defined in the function passed to setStyle()
+    map.data.addListener('mouseover', function(event) {
+        map.data.revertStyle();
+        map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
+        map.data.overrideStyle(event.feature, {strokeWeight: 4});       //embolden borders
+    });
+
+    map.data.addListener('mouseout', function(event) {
+        map.data.revertStyle();
+    });
+    map.setMap(map);
 
 };
 
