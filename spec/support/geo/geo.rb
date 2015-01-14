@@ -1673,8 +1673,8 @@ def clean_slate_geo
   ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
   CollectingEvent.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
-  $user_id    = 1
-  $project_id = 1
+  # $user_id    = 1
+  # $project_id = 1
 end
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.
