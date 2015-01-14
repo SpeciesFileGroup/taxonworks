@@ -266,6 +266,8 @@ class Protonym < TaxonName
     end
   end
 
+
+
   def sv_validate_parent_rank
     if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.incertae_sedis
       true

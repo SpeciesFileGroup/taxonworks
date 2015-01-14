@@ -251,8 +251,9 @@ class TaxonName < ActiveRecord::Base
     nil
   end
 
-  # @return [Date]
-  #   effective date of publication. Used to determine nomenclatural priorities.
+  # Used to determine nomenclatural priorities
+  # @return [Time]
+  #   effective date of publication.
   def nomenclature_date
     return nil if self.id.nil?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -267,7 +268,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [Class]
-  #   gender of a genus as class.
+  #   gender of a genus as class
   def gender_class
     c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
     c.nil? ? nil : c.type_class
@@ -982,10 +983,10 @@ class TaxonName < ActiveRecord::Base
   def sv_missing_fields
     soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
-                         fix:             :sv_fix_missing_author,
+                         fix: :sv_fix_missing_author,
                          success_message: 'Author was updated') if self.verbatim_author.blank?
     soft_validations.add(:year_of_publication, 'Year is missing',
-                         fix:             :sv_fix_missing_year,
+                         fix: :sv_fix_missing_year,
                          success_message: 'Year was updated') if self.year_of_publication.nil?
   end
 

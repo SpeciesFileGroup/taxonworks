@@ -1,28 +1,49 @@
 # A {Combination} has no name, it exists to group related Protonyms into an epithet.
 #
-# A nomenclator name, composed of existing {Protonym}s. Each record reflects the subsequent use of one or more protonyms.  
+# A nomenclator name, composed of existing {Protonym}s. Each record reflects the subsequent use of two or more protonyms.  
 # Only the first use of a combination is stored here, subsequence uses of this combination are referenced in citations. 
 #
 # They are applicable to genus group names and finer epithets.
 #
-# ```ruby
+# All elements of the combination must be defined, nothing is assumed based on the relationhip to the parent.
+#
 #  c = Combination.new
 #  c.genus = a_protonym_genus  
+#  c.species = a_protonym_species
 #  c.save # => true
-#  c.genus_taxon_name_relationship  # A TaxonNameRelationship::Combination::Genus
-# ```
+#  c.genus_taxon_name_relationship  # => A instance of TaxonNameRelationship::Combination::Genus
+#
+#  # or
+#
+#  c = Combination.new(genus: genus_protonym, species: species_protonym)
+#
 #
 # @!attribute combination_verbatim_name 
+#   Use with caution, and sparingly! If the combination of values from Protonyms can not reflect the formulation of the combination as provided by the original author that string can be provided here.
+#   The verbatim value is not further parsed. It is only provided to clarify what the combination looked like when first published.
+#   The following recommendations are made:
+#     1) The provided string should visually reflect as close as possible what was seen in the publication itself, including 
+#     capitalization, accented characters etc. 
+#     2) The full epithet (combination) should be provided, not just the differing component part (see 3 below).
+#     3) Misspellings can be more acurately reflected by creating new Protonyms.
+#   Example uses:
+#     1) Jones 1915 publishes Aus aus. Smith 1920 uses, literally "Aus (Bus) Janes 1915". 
+#        It is clear "Janes" is "Jones", therefor "Aus (Bus) Janes 1915" is provided as combination_verbatim_name.
+#     2) Smith 1800 publishes Aus Jonesi (i.e. Aus jonesi). The combination_combination_verbatim name is used to
+#        provide the fact that Jonesi was capitalized.  
+#     3) "Aus brocen" is used for "Aus broken".  If the curators decide not to create a new protonym, perhaps because
+#        they feel "brocen" was a printing press error that left off the straight bit of the "k" then they should minimally
+#        include "Aus brocen" in this field, rather than just "brocen". An alternative is to create a new Protonym "brocen".
 #   @return [String]
-#     if differing from the auto-combined version fo the protonym the full epithet is provided here 
 #
-# @!attribute parent_id
-#   the parent is the parent of the highest ranked component protonym, it is automatically set, 
-#   i.e. it should never be assigned directly 
-#  @return [Integer]
+#
+# @!attribute parent_id 
+#   the parent is the parent of the highest ranked component protonym, it is automatically set i.e. it should never be assigned directly 
+#   @return [Integer]
 #   
 class Combination < TaxonName
 
+  # The ranks that can be used to build combinations.
   APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
 
   before_validation :set_parent
@@ -51,11 +72,13 @@ class Combination < TaxonName
 
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
 
-  validate :at_least_one_protonym_is_included,
+  validate :at_least_two_protonyms_are_included,
     :parent_is_properly_set
 
   soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
-  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
+  soft_validate(:sv_source_not_older_than_description, set: :dates)
+  soft_validate(:sv_year_of_publication_matches_source, set: :dates)
+  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
 
   # @return [Array of TaxonName]
   #   pre-ordered by rank 
@@ -67,8 +90,8 @@ class Combination < TaxonName
     end
   end
 
+  # Overrides {TaxonName#full_name_hash}  
   # @return [Hash]
-  #   overrides @taxon_name.full_name_hash
   def full_name_hash
     gender = nil
     data   = {}
@@ -81,7 +104,7 @@ class Combination < TaxonName
   end
 
   # @return [Array of TaxonNames, nil]
-  #   return the component names for this combination prior to it being saved
+  #   the component names for this combination prior (used to return values prior to save) to it being saved
   def protonyms_by_rank
     result = {}
     APPLICABLE_RANKS.each do |rank|
@@ -92,6 +115,18 @@ class Combination < TaxonName
     result
   end
 
+  # @return [Array of Integer]
+  #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
+  def publication_years 
+    description_years = protonyms.collect{|a| a.nomenclature_date.year}.compact
+  end
+
+  # @return [Integer, nil]
+  #   the earliest year (nomenclature) that a component Protonym was published on 
+  def earliest_protonym_year
+    publication_years.sort.first
+  end
+
   protected
 
   # @return [Array of TaxonNames, nil]
@@ -100,15 +135,27 @@ class Combination < TaxonName
     APPLICABLE_RANKS.collect{|r| self.send(r)}.compact
   end
 
-  # Easily handled by enumerating years of individual protonyms
-  def sv_source_older_then_description
-    date1 = self.nomenclature_date
-    date2 = parent ? self.parent.nomenclature_date : nil
-    if date1 && date2
-      soft_validations.add(:year_of_publication, 'The combination is older than the name') if date2 - date1 > 0
+  # TODO: this is a TaxonName level validation, it doesn't belong here 
+  def sv_year_of_publication_matches_source
+    source_year = self.source.nomenclature_year if self.source
+    if self.year_of_publication && source_year
+      soft_validations.add(:year_of_publication, 'the asserted published date is not the same as provided by the source') if source_year != self.year_of_publication
     end
-    if !!self.source && !!self.year_of_publication
-      soft_validations.add(:source_id, 'The year of publication and the year of source do not match') if self.source.year != self.year_of_publication
+  end
+
+  def sv_source_not_older_than_description
+    source_year = self.source.nomenclature_year if self.source
+    target_year = earliest_protonym_year
+    if source_year && target_year
+      soft_validations.add(:source_id, 'the published date for the source is older than a name in the combination') if source_year < target_year
+    end
+  end
+
+  def sv_year_of_publication_not_older_than_protonyms
+    combination_year = self.year_of_publication
+    target_year = earliest_protonym_year
+    if combination_year && target_year
+      soft_validations.add(:year_of_publication, 'the asserted published date is older than a name in the combination') if combination_year < target_year
     end
   end
 
@@ -117,7 +164,6 @@ class Combination < TaxonName
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
-  # The parent_id of a Combination is the parent_id of the genus (or highest) name in the epithet, it is automatically set
   def set_parent
     names = self.protonyms 
     if names.count > 0
@@ -135,7 +181,7 @@ class Combination < TaxonName
 
   # validations
 
-  # The parent of a combination is the parent of the highest ranked protonym in that combination 
+  # The parent of a Combination is the parent of the highest ranked protonym in that combination 
   def parent_is_properly_set
     check = protonyms.first
     if self.parent && check && check.parent
@@ -143,8 +189,8 @@ class Combination < TaxonName
     end
   end
 
-  def at_least_one_protonym_is_included
-    errors.add(:base, 'Combination includes no protonyms, it is not valid') if protonyms.empty? 
+  def at_least_two_protonyms_are_included
+    errors.add(:base, 'Combination includes no protonyms, it is not valid') if protonyms.count < 2 
   end
 
 end

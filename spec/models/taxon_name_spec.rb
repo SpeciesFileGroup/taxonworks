@@ -174,16 +174,14 @@ describe TaxonName, :type => :model do
     end
 
     context 'nomenclature_date' do
-      before(:all) do
-        @f1 = FactoryGirl.create(:relationship_family, year_of_publication: 1900)
-        @f2 = FactoryGirl.create(:relationship_family, year_of_publication: 1950)
-      end
+      let(:f1) {FactoryGirl.create(:relationship_family, year_of_publication: 1900)}
+      let(:f2) {FactoryGirl.create(:relationship_family, year_of_publication: 1950)} 
       specify 'simple case' do
-        expect(@f2.nomenclature_date.year).to eq(1950)
+        expect(f2.nomenclature_date.year).to eq(1950)
       end
       specify 'family replacement before 1961' do
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
-        expect(@f2.nomenclature_date.year).to eq(1900)
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: f2, object_taxon_name: f1, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
+        expect(f2.nomenclature_date.year).to eq(1900)
       end
     end
   end
