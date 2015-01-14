@@ -1,6 +1,7 @@
 module GeographicItemsHelper
   def json_tag(geographic_item)
-    geographic_item.to_geo_json.html_safe
+    retval = geographic_item.to_geo_json_feature.html_safe
+    retval
   end
 
   def center_coord_tag(geographic_item)

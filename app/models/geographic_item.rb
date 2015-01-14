@@ -135,7 +135,7 @@ class GeographicItem < ActiveRecord::Base
       when :multi_polygon
         retval = o[0].exterior_ring.point_n(0)
       when :geometry_collection
-        to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+        to_geo_json_1 =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
         retval = Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
       else
         retval = nil
@@ -145,7 +145,7 @@ class GeographicItem < ActiveRecord::Base
 
   # Return an Array of [latitude, longitude] for the first point of GeoItem
   def start_point
-    to_geo_json =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+    to_geo_json_1 =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
     [$2.to_f, $1.to_f]
 
     o = st_start_point
@@ -532,28 +532,20 @@ SELECT round(CAST(
     data
   end
 
-  # TODO: deprecate
-  # @return [String]
-  def to_geo_json
-     RGeo::GeoJSON.encode(self.geo_object).to_json
+  def to_geo_json_1
+    RGeo::GeoJSON.encode(self.geo_object).to_json
   end
 
-  # @return [Hash]
-  def to_geo_json2
-   {
-     "type" => "feature",
-     "geometry" => RGeo::GeoJSON.encode(self.geo_object),
-     "properties" => {
-       "geographic_item" => {'id' => self.id} 
-     }
-   }
-  end
-
-  # @return [a Feature] 
-  def to_geo_json_using_entity_factory
-    f = RGeo::GeoJSON::EntityFactory.new
-    inserted_attributes = {foo: "bar"} # some of self.attributes, but not all
-    f.feature(self.geo_object, self.id, inserted_attributes)
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geo_object),
+      'properties' => {
+        'geographic_item' => {
+          'id' => self.id}
+      }
+    }
+    retval.to_json
   end
 
   def to_a

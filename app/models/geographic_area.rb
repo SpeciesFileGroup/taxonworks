@@ -213,6 +213,10 @@ class GeographicArea < ActiveRecord::Base
     retval
   end
 
+  def default_geo_json
+    default_geographic_item.to_geo_json2
+  end
+
   def geo_object
     default_geographic_item
   end
