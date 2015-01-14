@@ -49,21 +49,27 @@ describe Protonym, :type => :model do
         expect(@protonym).to respond_to(:original_form)
         expect(@protonym).to respond_to(:source_classified_as)
       end
+
       specify 'type_of_relationships' do
         expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
       end
+
       specify 'type_of_taxon_names' do
         expect(@protonym.type_of_taxon_names).to eq([@genus])
       end
+
       specify 'type species' do
         expect(@genus.type_species). to eq(@protonym)
       end
+
       specify 'type species relationship' do
         expect(@genus.type_species_relationship.id). to eq(@species_type_of_genus.id)
       end
+
       specify 'type of genus' do
         expect(@protonym.type_of_genus.first). to eq(@genus)
       end
+
       specify 'type of genus relationship' do
         expect(@protonym.type_of_genus_relationships.first.id). to eq(@species_type_of_genus.id)
       end
@@ -71,13 +77,14 @@ describe Protonym, :type => :model do
 
     context 'has_one' do
       TaxonNameRelationship.descendants.each do |d|
-        if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination/)
+
+        if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
             relationship = "#{d.assignment_method}_relationship".to_sym
             relationships = "#{d.inverse_assignment_method}_relationships".to_sym
             method = d.assignment_method.to_sym
             methods = d.inverse_assignment_method.to_s.pluralize.to_sym
-          elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification|SourceClassifiedAs)/
+          elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # 
             relationship = "#{d.inverse_assignment_method}_relationship".to_sym
             relationships = "#{d.assignment_method}_relationships".to_sym
             method = d.inverse_assignment_method.to_sym
@@ -245,6 +252,10 @@ describe Protonym, :type => :model do
       @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')
     end
 
+    specify 'run all soft validations without error' do
+      expect(protonym.soft_validate()).to be_truthy
+    end
+
     context 'validate project_id' do
       specify 'project_id = 1' do
         expect(@subspecies.project_id).to eq(1)
@@ -406,6 +417,7 @@ describe Protonym, :type => :model do
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'only one subtribe in a tribe' do
         @subtribe.soft_validate(:single_sub_taxon)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_falsey

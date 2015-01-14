@@ -194,9 +194,9 @@ require 'csl/styles'
 #   Year must be between 1000 and now + 2 years inclusive
 #   
 # @!attribute stated_year
-
-
-
+#
+# @!attribute cached_nomenclature_date
+#   @return 
 #
 # @!attribute note
 #   BibTeX standard field (required for types: unpublished)(optional for types:)
@@ -604,11 +604,18 @@ class Source::Bibtex < Source
   #endregion has_<attribute>? section
 
   #region time/date related
-  
-  # @return[Time] alias for cached_nomenclature_date, computed if not yet saved
+ 
+  # An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
+  # @return [Date] 
   def date
     set_cached_nomenclature_date if !self.persisted?
     self.cached_nomenclature_date
+  end
+
+  # The effective year of publication as per nomenclatural rules.
+  # @return [Integer]
+  def nomenclature_year
+    date.year
   end
 
   def set_cached_nomenclature_date

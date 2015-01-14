@@ -28,6 +28,7 @@ describe TaxonName, :type => :model do
       end
     end
 
+
     specify 'ICN' do
       variety = FactoryGirl.create(:icn_variety)
       expect(variety.ancestors.length).to be >= 17
@@ -47,6 +48,8 @@ describe TaxonName, :type => :model do
       expect(variety.save).to be_truthy
       expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
     end
+
+
   end
 
   context 'associations' do
@@ -174,16 +177,14 @@ describe TaxonName, :type => :model do
     end
 
     context 'nomenclature_date' do
-      before(:all) do
-        @f1 = FactoryGirl.create(:relationship_family, year_of_publication: 1900)
-        @f2 = FactoryGirl.create(:relationship_family, year_of_publication: 1950)
-      end
+      let(:f1) {FactoryGirl.create(:relationship_family, year_of_publication: 1900)}
+      let(:f2) {FactoryGirl.create(:relationship_family, year_of_publication: 1950)} 
       specify 'simple case' do
-        expect(@f2.nomenclature_date.year).to eq(1950)
+        expect(f2.nomenclature_date.year).to eq(1950)
       end
       specify 'family replacement before 1961' do
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
-        expect(@f2.nomenclature_date.year).to eq(1900)
+        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: f2, object_taxon_name: f1, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
+        expect(f2.nomenclature_date.year).to eq(1900)
       end
     end
   end
@@ -337,6 +338,7 @@ describe TaxonName, :type => :model do
         taxon_name.valid?
         expect(taxon_name.errors.include?(:rank_class)).to be_falsey
       end
+
       specify 'is invalidly_published when not a NomenclaturalRank subclass' do
         taxon_name.rank_class = 'foo'
         taxon_name.valid?
@@ -407,15 +409,6 @@ describe TaxonName, :type => :model do
           @subgenus.original_genus = @genus
           @subgenus.reload
           expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
-        end
-
-        specify 'source_classified_as' do
-          c = FactoryGirl.create(:combination, parent: @species)
-          c.source_classified_as = @family
-          expect(c.save).to be_truthy
-          c.reload
-          expect(c.all_taxon_name_relationships.count).to be > 0
-          expect(c.cached_classified_as).to eq(' (as Cicadellidae)')
         end
         
         specify 'different gender' do
@@ -593,25 +586,16 @@ describe TaxonName, :type => :model do
       end
 
       specify 'valid icn names' do
-        s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus')
-        s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        s.name = 'a-aus'
-        s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        s.name = 'aus-aus'
-        s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        s.name = 'aus × aus'
-        s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        s.name = '× aus'
-        s.soft_validate(:validate_name)
-        expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        s.name = 'aus aus'
+        [ 'aus', 'a-aus', 'aus-aus', 'aus × aus', '× aus' ].each do |name|
+          s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: name )
+          s.soft_validate(:validate_name)
+          expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
+        end
+        s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus aus')
         s.soft_validate(:validate_name)
         expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
       end
+
       specify 'unavailable' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
         s.soft_validate(:validate_name)

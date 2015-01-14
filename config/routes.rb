@@ -1,5 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -83,6 +84,11 @@ TaxonWorks::Application.routes.draw do
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end
+
+  resources :combinations, only:[:create, :update, :destroy, :new] do
+    concerns [:data_routes]
+  end
+
   resources :data_attributes, only: [:create, :update, :destroy, :index]
   resources :geographic_area_types
   resources :geographic_areas do
@@ -134,8 +140,6 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-
-
   resources :sources do
     concerns [:data_routes]
   end
@@ -169,8 +173,6 @@ TaxonWorks::Application.routes.draw do
   end
 
   match 'verify_accessions_task', to: 'tasks/accessions/verify/material#index', via: 'get'
- 
-
   match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
   post 'tasks/accessions/quick/verbatim_material/create'
 

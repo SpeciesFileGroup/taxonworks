@@ -1,192 +1,237 @@
 require 'rails_helper'
-
 describe Combination, :type => :model do
 
-  before(:all) do
-    TaxonName.delete_all
- # end
+  let(:combination) { Combination.new }
+  let(:source_older_than_combination) { FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
+  let(:family) { FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
+  let(:genus ) {FactoryGirl.create(:relationship_genus, parent: family, year_of_publication: 1950)}
+  let(:species) { FactoryGirl.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
+  let(:species2) { FactoryGirl.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
 
- # before(:all) do
-    @family = FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000)
-    @combination = FactoryGirl.create(:combination, parent: @family)
-    @source = FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev')
-  end
-  
-  after(:all) do
-    TaxonName.delete_all
-    Source.delete_all 
-  end
+  let(:basic_combination) {Combination.new(genus: genus, species: species) }
 
   context 'associations' do
     context 'has_one' do
-      context 'taxon_name_relationships' do
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
+      context 'taxon_name_relationship' do
+        Combination::APPLICABLE_RANKS.each do |rank|
           method = "#{rank}_taxon_name_relationship" 
           specify method do
-            expect(@combination).to respond_to(method)
+            expect(combination.send("#{method}=", TaxonNameRelationship.new)).to be_truthy
           end 
         end
       end
 
-      context 'taxon_names' do
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.each do |rank|
+      context 'taxon_name' do
+        Combination::APPLICABLE_RANKS.each do |rank|
           specify rank do
-            expect(@combination).to respond_to(rank.to_sym)
+            expect(combination.send("#{rank}=", Protonym.new)).to be_truthy
           end
-        end
-      end
-
-      context 'has_one' do
-        TaxonNameRelationship.descendants.each do |d|
-          if d.respond_to?(:assignment_method) and d.name.to_s =~ /TaxonNameRelationship::(Combination|SourceClassifiedAs)/
-            relationship = "#{d.inverse_assignment_method}_relationship".to_sym
-            relationships = "#{d.assignment_method}_relationships".to_sym
-            method = d.inverse_assignment_method.to_sym
-            methods = d.assignment_method.to_s.pluralize.to_sym
-
-            specify relationship do
-              expect(@combination).to respond_to(relationship)
-            end
-            specify relationships do
-              expect(@combination).to respond_to(relationships)
-            end
-            specify method do
-              expect(@combination).to respond_to(method)
-            end
-            specify methods do
-              expect(@combination).to respond_to(methods)
-            end
-          end
-        end
-      end
-
-        context 'cached name' do
-        before(:all) do
-          @genus = FactoryGirl.create(:relationship_genus, parent: @family)
-          @species = FactoryGirl.create(:relationship_species, parent: @genus)
-          @species2 = FactoryGirl.create(:relationship_species, name: 'comes', parent: @genus)
-          @combination1 = FactoryGirl.create(:combination, parent: @species)
-          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @species, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Species')
-        end
-        specify 'empty' do
-          expect(@combination1.get_combination).to eq('<em>vitis</em>')
-        end
-        specify 'genus' do
-          #@combination1.combination_genus = @genus
-          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Genus')
-          @combination1.reload
-          expect(@combination1.get_combination).to eq('<em>Erythroneura vitis</em>')
-          #@combination1.combination_subgenus = @genus
-          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Subgenus')
-          @combination1.reload
-          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em>')
-          #@combination1.combination_subspecies = @species2
-          FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @species2, object_taxon_name: @combination1, type: 'TaxonNameRelationship::Combination::Subspecies')
-          @combination1.reload
-          expect(@combination1.get_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis comes</em>')
         end
       end
     end
   end
 
   context 'validation' do
-    context 'requires' do
-      before do
-        @combination.valid?
+    before{combination.valid?}
+    specify 'is invalid without at least two protonyms' do
+      expect(combination.errors.include?(:base)).to be_truthy
+    end
+
+    specify 'is valid with two protonyms' do
+      c = Combination.new(genus: genus, species: species) 
+      expect(c.errors.include?(:base)).to be_falsey
+    end
+
+    specify 'name must be nil' do
+      expect(combination.errors.include?(:name)).to be_falsey
+    end
+
+    # Double check?!
+    specify 'rank_class is optional' do
+      expect(combination.errors.include?(:rank_class)).to be_falsey
+    end
+  end
+
+  specify 'type is Combination' do
+    expect(combination.type).to eq('Combination')
+  end
+
+  context 'instance methods' do
+    context '#protonyms' do
+      specify 'are returned for unsaved Combinations' do
+        expect(basic_combination.protonyms).to eq([genus, species])
       end
 
-      specify 'name to be nil' do
-        expect(@combination.errors.include?(:name)).to be_falsey
-      end
-
-      specify 'type is Combination' do
-        expect(@combination.type).to eq('Combination')
-      end
-
-      specify 'rank_class is optional' do
-        expect(@combination.errors.include?(:rank_class)).to be_falsey
+      specify 'are returned for saved Combinations' do
+        expect(basic_combination.save).to be_truthy
+        expect(basic_combination.protonyms).to eq([genus, species])
       end
     end
 
-    context 'usage' do
-      before(:each) do
-        @genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
-        @subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: @genus)
-        @species = FactoryGirl.create(:iczn_species, name: 'bus', parent: @subgenus)
-      end
-      
-      specify 'a genus group name used as a subgenus' do
-        c = FactoryGirl.create(:combination, parent: @subgenus)
-        c.genus = @genus
-        c.subgenus = @subgenus
-        expect(c.valid?).to be_truthy
-        expect(c.genus.name).to eq('Aus')
-        expect(c.subgenus.name).to eq('Bus')
-      end
-      specify 'species group names used under a different genus' do
-        c = FactoryGirl.create(:combination, parent: @species)
-        c.genus = @genus
-        c.species = @species
-        expect(c.valid?).to be_truthy
-        expect(c.genus.name).to eq('Aus')
-        expect(c.species.name).to eq('bus')
+    context '#protonyms_by_rank' do
+      specify 'for a quadrinomial' do
+        combination.genus = genus
+        combination.subgenus = genus
+        combination.species = species
+        combination.subspecies = species2 
+        expect(combination.protonyms_by_rank).to eq(
+          'genus' => genus,
+          'subgenus' => genus,
+          'species' => species,
+          'subspecies' => species2
+        )
       end
     end
+
+    context '#full_name_hash (overrides @taxon_name.full_name_hash)' do
+      specify 'with genus' do
+        combination.genus = genus
+        expect(combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"]})
+      end
+
+      specify 'with genus and species' do
+        expect(basic_combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"], "species"=>[nil, "vitis"]})
+      end
+
+      specify 'with quadrinomial' do
+        combination.genus = genus
+        combination.subgenus = genus
+        combination.species = species
+        combination.subspecies = species2 
+        expect(combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"], "subgenus"=>[nil, "Erythroneura"],  "species"=>[nil, "vitis"], "subspecies"=>[nil, "comes"]})
+      end
+    end
+
+    specify '#source_classified_as' do
+      basic_combination.source_classified_as = family
+      expect(basic_combination.save).to be_truthy
+      expect(basic_combination.all_taxon_name_relationships.count).to be > 0
+      expect(basic_combination.cached_classified_as).to eq(' (as Aidae)')
+    end
+
+    specify '#earliest_protonym_year' do
+      basic_combination.subspecies = species2 # 1952 ( with genus 1950, species 1951)
+      expect(basic_combination.earliest_protonym_year).to eq(1950)
+    end
+
+    specify '#publication_years' do
+      basic_combination.subspecies = species2 # 1952 ( with genus 1950, species 1951)
+      expect(basic_combination.publication_years).to eq([1950, 1951, 1952])
+    end
+  end
+
+  context 'cached values' do
+    specify 'cached' do
+      basic_combination.save
+      expect(basic_combination.cached).to eq('Erythroneura vitis')
+    end
+
+    context 'cached_html' do
+      specify 'with genus and species' do
+        basic_combination.save
+        expect(basic_combination.cached_html).to eq('<em>Erythroneura vitis</em>')
+      end
+
+      specify 'with a quadrinomial' do
+        combination.genus = genus
+        combination.subgenus = genus 
+        combination.species = species
+        combination.subspecies = species2 
+        combination.save
+        expect(combination.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis comes</em>')
+      end
+    end
+
+    specify 'cached values update on changed relationship' do
+      basic_combination.save
+      expect(basic_combination.cached).to eq('Erythroneura vitis')
+      basic_combination.species = species2
+      expect(basic_combination.save).to be_truthy
+      expect(basic_combination.cached).to eq('Erythroneura comes')
+    end
+
   end
 
   context 'soft validation' do
 
+    specify 'runs all validations without error' do
+      expect(combination.soft_validate()).to be_truthy
+    end
+
     specify 'missing source and year' do
-      @combination.soft_validate(:missing_fields)
-      expect(@combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
-      expect(@combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+      combination.soft_validate(:missing_fields)
+      expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+      expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
     end
 
-    specify 'year of combination and year of source does not match' do
-      c = FactoryGirl.build(:combination, year_of_publication: 1950, parent: @family, source: @source)
-      c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:source_id).count).to eq(1)
-      c.year_of_publication = 1940
-      expect(c.valid?).to be_truthy
-      c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:source_id).empty?).to be_truthy
+    specify 'year of combination and year of source do not match' do
+      combination.source = source_older_than_combination  # 1940
+      combination.year_of_publication = 1950
+      combination.soft_validate(:dates)
+      expect(combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
     end
 
-    specify 'combination is older than taxon' do
-      c = FactoryGirl.create(:combination, year_of_publication: 1900, parent: @family)
-      @family.year_of_publication = 1940
-      expect(@family.save).to be_truthy
-      c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:year_of_publication).count).to eq(1)
-      c.year_of_publication = 1940
-      expect(c.valid?).to be_truthy
-      c.soft_validate(:source_older_then_description)
-      expect(c.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+    specify 'source.year_of_publication can not be older than protonym nomenclature dates' do
+      combination.source = source_older_than_combination  # 1940
+      combination.genus = genus    # 1950
+      combination.soft_validate(:dates)
+      expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
     end
 
-    specify 'duplicate combination' do
-      genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @family)
-      species = FactoryGirl.create(:iczn_species, name: 'bus', parent: genus)
-      c1 = FactoryGirl.create(:combination, parent: species)
-      c2 = FactoryGirl.create(:combination, parent: species)
-      #c1.combination_genus = genus
-      #c1.combination_species = species
-      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: c1, type: 'TaxonNameRelationship::Combination::Genus')
-      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: species, object_taxon_name: c1, type: 'TaxonNameRelationship::Combination::Species')
+    specify 'year_of_publication can not be older than protonym nomenclature_dates' do
+      basic_combination.year_of_publication = 1940
+      expect(basic_combination.save).to be_truthy
+      basic_combination.soft_validate(:dates)
+      expect(basic_combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
+    end
+
+    specify 'duplicate combinations are detected' do
+      c1 = Combination.new
+      c1.genus = genus
+      c1.species = species
       expect(c1.save).to be_truthy
-      c1.reload
-      #c2.combination_genus = genus
-      #c2.combination_species = species
-      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: c2, type: 'TaxonNameRelationship::Combination::Genus')
-      FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: species, object_taxon_name: c2, type: 'TaxonNameRelationship::Combination::Species')
+      c2 = Combination.new
+      c2.genus = genus
+      c2.species = species
       expect(c2.save).to be_truthy
-      c2.reload
-      expect(c1.cached_original_combination).to eq('<em>Aus bus</em>')
-      expect(c2.cached_original_combination).to eq('<em>Aus bus</em>')
       c1.soft_validate(:combination_duplicates)
-      # duplicate combination
       expect(c1.soft_validations.messages_on(:base).count).to eq(1)
     end
+  end
 
+  context 'usage' do
+    let(:genus) {FactoryGirl.create(:iczn_genus, name: 'Aus', parent: family)}
+    let(:subgenus) {FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: genus) }
+    let(:species) {FactoryGirl.create(:iczn_species, name: 'bus', parent: subgenus) }
+
+    specify 'parent is assigned as parent of highest ranking taxon' do
+      combination.genus = genus
+      combination.species = species
+      expect(combination.save).to be_truthy
+      expect(combination.parent).to eq(family)
+    end
+
+    context 'with .new() relationships are created' do
+      specify '#related_taxon_name_relationships are created by assignment to taxon name' do
+        expect(basic_combination.save).to be_truthy
+        expect(basic_combination.related_taxon_name_relationships.size).to eq(2)
+        expect(basic_combination.taxon_name_relationships.size).to eq(0) # Combination is on the right side, not left
+      end
+
+      specify '#combination_taxon_names' do
+        expect(basic_combination.save).to be_truthy
+        expect(basic_combination.combination_taxon_names.to_a).to include(genus, species) 
+      end
+
+      specify '#combination_relationships' do
+        expect(basic_combination.save).to be_truthy
+        expect(basic_combination.combination_relationships.count).to eq(2) 
+      end
+
+      specify 'generated taxon name relationships are the right type' do
+        expect(basic_combination.save).to be_truthy
+        expect(basic_combination.related_taxon_name_relationships.pluck('type')).to include('TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Genus') 
+      end
+    end
   end
 end
