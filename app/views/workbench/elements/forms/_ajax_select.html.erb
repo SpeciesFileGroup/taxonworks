@@ -19,4 +19,6 @@
        <%= ((size ||= nil).nil? ? 'style="width:98%;"' : "size=\"#{size}\"").html_safe -%>
        type="text"
        value="<%= display ? display.html_safe : nil %>"
-/>
+       />
+
+       <%= hidden_field object, method -%> 

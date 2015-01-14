@@ -97,17 +97,17 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set scope: [:project_id], dependent: :destroy
 
-  before_validation :set_type_if_empty,
-                    :check_format_of_name,
-                    :validate_rank_class_class,
-                    :validate_parent_rank_is_higher,
-                    :validate_parent_is_set,
-                    :check_new_rank_class,
-                    :check_new_parent_class,
-                    :validate_source_type,
-                    :validate_one_root_per_project
-
+  before_validation :set_type_if_empty
   before_save :set_cached_names
+
+  validate :check_format_of_name,
+    :validate_rank_class_class,
+    :validate_parent_rank_is_higher,
+    :validate_parent_is_set,
+    :check_new_rank_class,
+    :check_new_parent_class,
+    :validate_source_type,
+    :validate_one_root_per_project
 
   belongs_to :source
 
@@ -131,6 +131,7 @@ class TaxonName < ActiveRecord::Base
 
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
 
+  scope :ordered_by_rank, -> { order(:lft) } # TODO: test
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
@@ -540,11 +541,11 @@ class TaxonName < ActiveRecord::Base
     data
   end
 
-  # Returns String, a monomial if names is above genus, or a full epithet if below. 
-  # 
+  # @return [String]
+  #  a monomial if names is above genus, or a full epithet if below. 
   # TODO: rename to get_full_name (when name is available)
   def get_full_name_no_html
-    return name unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return name unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) || self.type == 'Combination'
     d        = full_name_hash
     elements = []
     elements.push(d['genus'])
@@ -554,9 +555,12 @@ class TaxonName < ActiveRecord::Base
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
   end
 
+
   # TODO: rename to get_full_name_html
+  # @return [String]
+  #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name
-    return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) || self.type == 'Combination'
     d        = full_name_hash
     elements = []
     eo       = '<em>'
@@ -688,13 +692,14 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # TODO: refactor to use us a hash!
   # Returns a String representing the name as originally published
   def get_original_combination
     unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       cached_html = nil
     else
       relationships = self.original_combination_relationships
-      relationships = relationships.sort_by { |r| r.type_class.order_index }
+      relationships = relationships.sort_by{|r| r.type_class.order_index }
       genus         = ''
       subgenus      = ''
       superspecies  = ''
@@ -705,25 +710,25 @@ class TaxonName < ActiveRecord::Base
           when 'original genus'
             genus  = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
             gender = i.subject_taxon_name.gender_name
-          when 'original subgenus' then
+          when 'original subgenus' 
             subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original section' then
+          when 'original section' 
             subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original subsection' then
+          when 'original subsection' 
             subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original series' then
+          when 'original series' 
             subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original subseries' then
+          when 'original subseries' 
             subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'original species' then
+          when 'original species' 
             species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original subspecies' then
+          when 'original subspecies' 
             species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original variety' then
+          when 'original variety' 
             species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original subvariety' then
+          when 'original subvariety' 
             species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'original form' then
+          when 'original form' 
             species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
         end
       end
@@ -736,53 +741,6 @@ class TaxonName < ActiveRecord::Base
       elsif self.rank_string =~ /Species/
         species += '<em>' + self.name_with_misspelling(nil) + '</em> '
         genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
-      end
-      subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
-      cached_html.blank? ? nil : cached_html
-    end
-  end
-
-  def get_combination
-    unless self.class == Combination
-      cached_html = nil
-    else
-      relationships = self.combination_relationships
-      relationships = relationships.sort_by { |r| r.type_class.order_index }
-      genus         = ''
-      subgenus      = ''
-      superspecies  = ''
-      species       = ''
-      gender        = nil
-      relationships.each do |i|
-        case i.type_class.object_relationship_name
-          when 'genus'
-            genus  = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-            gender = i.subject_taxon_name.gender_name
-          when 'subgenus' then
-            subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'section' then
-            subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'subsection' then
-            subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'series' then
-            subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'subseries' then
-            subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
-          when 'species' then
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'subspecies' then
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'variety' then
-            species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'subvariety' then
-            species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'form' then
-            species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          when 'subform' then
-            species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
-          else
-        end
       end
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
@@ -903,6 +861,13 @@ class TaxonName < ActiveRecord::Base
     end
     
     where('cached ~ ? OR name ~ ?', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
+  end
+
+  # A proxy for a scope
+  # @return [Array of TaxonName] 
+  #   ordered by rank
+  def self.sort_by_rank(taxon_names)
+    taxon_names.sort!{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)} 
   end
 
   #endregion

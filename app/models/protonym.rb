@@ -67,7 +67,6 @@ class Protonym < TaxonName
         has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
       end
     end
-
   end
 
   scope :named, -> (name) {where(name: name)}
