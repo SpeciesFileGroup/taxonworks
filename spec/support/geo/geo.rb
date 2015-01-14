@@ -696,6 +696,7 @@ def generate_geo_test_objects
     puts
     @debug_names.collect { |k, v| print "#{' ' * 4}" + v.to_s + ": " + k.to_s }
     puts @debug_names.invert[@p1]
+
   end
   @debug_names
 end
