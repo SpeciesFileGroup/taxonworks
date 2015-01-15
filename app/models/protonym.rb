@@ -17,7 +17,7 @@ class Protonym < TaxonName
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-    }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
   has_one :type_taxon_name_classification, -> {
@@ -26,12 +26,12 @@ class Protonym < TaxonName
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
-    }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
-    }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
   has_many :type_materials, class_name: 'TypeMaterial'
 
@@ -93,7 +93,7 @@ class Protonym < TaxonName
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
-  
+
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
@@ -102,25 +102,25 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
- soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
- soft_validate(:sv_missing_relationships, set: :missing_relationships)
- soft_validate(:sv_missing_classifications, set: :missing_classifications)
- soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
- soft_validate(:sv_type_placement, set: :type_placement)
- soft_validate(:sv_primary_types, set: :primary_types)
- soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
- soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
- soft_validate(:sv_parent_priority, set: :parent_priority)
- soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
- soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
+  soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
+  soft_validate(:sv_missing_relationships, set: :missing_relationships)
+  soft_validate(:sv_missing_classifications, set: :missing_classifications)
+  soft_validate(:sv_species_gender_agreement, set: :species_gender_agreement)
+  soft_validate(:sv_type_placement, set: :type_placement)
+  soft_validate(:sv_primary_types, set: :primary_types)
+  soft_validate(:sv_validate_coordinated_names, set: :validate_coordinated_names)
+  soft_validate(:sv_single_sub_taxon, set: :single_sub_taxon)
+  soft_validate(:sv_parent_priority, set: :parent_priority)
+  soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
+  soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
 
   before_validation :check_format_of_name,
-                    :validate_rank_class_class,
-                    :validate_parent_rank_is_higher,
-                    :check_new_rank_class,
-                    :check_new_parent_class,
-                    :validate_source_type,
-                    :new_parent_taxon_name
+    :validate_rank_class_class,
+    :validate_parent_rank_is_higher,
+    :check_new_rank_class,
+    :check_new_parent_class,
+    :validate_source_type,
+    :new_parent_taxon_name
 
   def family_group_endings
     %w{ini ina inae idae oidae odd ad oidea}
@@ -177,8 +177,8 @@ class Protonym < TaxonName
   end
 
   def self.family_group_base(name_string)
-      name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-      $1
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
+    $1
   end
 
   def get_primary_type
@@ -237,11 +237,11 @@ class Protonym < TaxonName
     defined_relations = self.original_combination_relationships.all
     created_already = defined_relations.collect{|a| a.class}
     new_relations = [] 
-   
+
     original_combination_class_relationships.each do |r|
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
     end
-  
+
     (new_relations + defined_relations).sort{|a,b| 
       display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
     }
@@ -376,37 +376,37 @@ class Protonym < TaxonName
   end
 
   def sv_validate_coordinated_names
-      list_of_coordinated_names.each do |t|
-        foo = matching_primary_types(t, self)
-        soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
-        soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
-        soft_validations.add(:base, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Genus/ && self.gender_class != t.gender_class
-        soft_validations.add(:base, "The part of speech does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
-        soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
-        soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_subgenus == t.original_subgenus
-        soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_species == t.original_species
-        soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
-        soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
-                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
-        soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless matching_primary_types(self, t)
-        sttnr = self.type_taxon_name_relationship
-        tttnr = t.type_taxon_name_relationship
-        unless sttnr.nil? || tttnr.nil?
-          soft_validations.add(:base, "The type species relationship does not match with the relationship of the coordinated #{t.rank_class.rank_name}",
+    list_of_coordinated_names.each do |t|
+      foo = matching_primary_types(t, self)
+      soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
+      soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
+      soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
+      soft_validations.add(:base, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Genus/ && self.gender_class != t.gender_class
+      soft_validations.add(:base, "The part of speech does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
+      soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
+      soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_subgenus == t.original_subgenus
+      soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_species == t.original_species
+      soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
+      soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
+      soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless matching_primary_types(self, t)
+      sttnr = self.type_taxon_name_relationship
+      tttnr = t.type_taxon_name_relationship
+      unless sttnr.nil? || tttnr.nil?
+        soft_validations.add(:base, "The type species relationship does not match with the relationship of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless sttnr.type == tttnr.type
-        end
       end
+    end
 
   end
 
@@ -551,12 +551,12 @@ class Protonym < TaxonName
         if rank =~ /Family/
           name = Protonym.family_group_base(self.parent.name)
           case self.rank_class.rank_name
-            when 'subfamily'
-              name += 'inae'
-            when 'tribe'
-              name += 'ini'
-            when 'subtribe'
-              name += 'ina'
+          when 'subfamily'
+            name += 'inae'
+          when 'tribe'
+            name += 'ini'
+          when 'subtribe'
+            name += 'ina'
           end
         else
           name = [p.name]
@@ -687,7 +687,7 @@ class Protonym < TaxonName
   def set_cached_names
     super 
     if self.errors.empty?
-  
+
       set_cached_higher_classification
       set_primary_homonym
       set_primary_homonym_alternative_spelling
@@ -736,17 +736,17 @@ class Protonym < TaxonName
     self.cached_original_combination = get_original_combination
   end
 
-#  def sv_fix_add_relationship(method, object_id)
-#    begin
-#      Protonym.transaction do
-#        self.save
-#        return true
-#      end
-#    rescue
-#      return false
-#    end
-#  false
-#  end
+  #  def sv_fix_add_relationship(method, object_id)
+  #    begin
+  #      Protonym.transaction do
+  #        self.save
+  #        return true
+  #      end
+  #    rescue
+  #      return false
+  #    end
+  #  false
+  #  end
 
   #endregion
 

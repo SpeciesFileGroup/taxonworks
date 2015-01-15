@@ -2,12 +2,12 @@ require 'rails_helper'
 
 describe "tasks/gis/locality/gi_display.html.erb", :type => :feature do
 
-  before(:all) do
+  before(:each) do
     sign_in_user_and_select_project
     generate_ce_test_objects
   end
 
-  after(:all) do
+  after(:each) do
     clean_slate_geo
   end
 

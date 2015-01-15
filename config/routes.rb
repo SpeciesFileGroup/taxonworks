@@ -51,10 +51,6 @@ TaxonWorks::Application.routes.draw do
   # Unvetted/not fully tested Stubbed
   #
 
-  get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
-  post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
-  match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
-
   resources :alternate_values, only: [:new, :edit, :create, :update, :destroy, :index]
 
   resources :asserted_distributions do
@@ -184,6 +180,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
+  get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
+  post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
+  match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
   match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
 

@@ -77,7 +77,6 @@ describe Protonym, :type => :model do
 
     context 'has_one' do
       TaxonNameRelationship.descendants.each do |d|
-
         if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
             relationship = "#{d.assignment_method}_relationship".to_sym

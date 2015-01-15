@@ -49,8 +49,9 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
   scope :not_self, -> (id) {where('id <> ?', id )}
 
+  # TODO: SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
-    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type)
+    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type) 
   end.to_s
 
   def aliases
