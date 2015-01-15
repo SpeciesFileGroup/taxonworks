@@ -8,7 +8,7 @@ describe 'lib/gis/geo_json' do
   context 'outputting GeoJSON "Feature"s ' do
 
     specify 'that a geographic_item can produce a properly formed feature' do
-
+      pending
     end
   end
 end
