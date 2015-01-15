@@ -136,12 +136,12 @@ GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 2
 GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
 GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
   [RSPEC_GEO_FACTORY.polygon(
-                                                                                                                                                       RSPEC_GEO_FACTORY.line_string(
-                                                                                                                                                         [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
-                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
-                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
-                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
-                                                                                                                                                          RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             RSPEC_GEO_FACTORY.line_string(
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
@@ -1529,7 +1529,7 @@ Two different shapes with the same name, 'East Boxia', and
 
   @ce_m2   = FactoryGirl.create(:collecting_event,
                                 :verbatim_label  => '@ce_m2 in Big Boxia',
-                                :geographic_area => nil)
+                                :geographic_area => @area_big_boxia)
   @gr_m2   = FactoryGirl.create(:georeference_verbatim_data,
                                 :api_request           => 'gr_m2 in Big Boxia',
                                 :collecting_event      => @ce_m2,
@@ -1602,7 +1602,7 @@ Two different shapes with the same name, 'East Boxia', and
                                        :geographic_item       => GeographicItem.new(:point => @item_m4.st_centroid))
   @ce_n4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_n4',
-                                       :geographic_area => nil)
+                                       :geographic_area => @area_old_boxia)
   @gr_n4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n4',
                                        :collecting_event      => @ce_n4,
@@ -1620,7 +1620,7 @@ Two different shapes with the same name, 'East Boxia', and
   # ce_p4 does not have a geographic_area
   @ce_p4          = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_p4',
-                                       :geographic_area => nil)
+                                       :geographic_area => @area_p4)
   @gr_p4          = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_p4',
                                        :collecting_event      => @ce_p4,
@@ -1635,7 +1635,7 @@ Two different shapes with the same name, 'East Boxia', and
   # collecting events in superseded country
   @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_old_boxia_1',
-                                       :geographic_area => nil)
+                                       :geographic_area => @area_old_boxia)
   @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_m2_ob',
                                        :collecting_event      => @ce_old_boxia_1,
@@ -1643,13 +1643,42 @@ Two different shapes with the same name, 'East Boxia', and
                                        :geographic_item       => GeographicItem.new(:point => @item_m2.st_centroid))
   @ce_old_boxia_2 = FactoryGirl.create(:collecting_event,
                                        :verbatim_label  => '@ce_old_boxia_2',
-                                       :geographic_area => nil)
+                                       :geographic_area => @area_old_boxia)
   @gr_n3_ob       = FactoryGirl.create(:georeference_verbatim_data,
                                        :api_request           => 'gr_n3_ob',
                                        :collecting_event      => @ce_old_boxia_2,
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_n3.st_centroid))
 
+  political_names = {
+    ce_m1:          @ce_m1,
+    ce_o1:          @ce_o1,
+    ce_p1:          @ce_p1,
+    ce_m2:          @ce_m2,
+    ce_n2:          @ce_n2,
+    ce_o2:          @ce_o2,
+    ce_m3:          @ce_m3,
+    ce_n3:          @ce_n3,
+    ce_m4:          @ce_m4,
+    ce_n4:          @ce_n4,
+    ce_o4:          @ce_o4,
+    ce_p4:          @ce_p4,
+    ce_old_boxia_1: @ce_old_boxia_1,
+    ce_old_boxia_2: @ce_old_boxia_2
+  }
+
+  my_debug = true
+
+  item_collection = []
+  if my_debug
+    all_file = File.new('./tmp/political_file.json', 'w')
+    political_names.collect { |key, value|
+      item_collection.push(value.geographic_area.geographic_items.first)
+      item_collection.push(value.georeferences.first.geographic_item)
+    }
+    all_file.write(Gis::GeoJSON.feature_collection(item_collection).to_json)
+    all_file.close
+  end
 
 end
 

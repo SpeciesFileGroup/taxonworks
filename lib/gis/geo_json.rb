@@ -45,7 +45,7 @@ def self.feature_collection(objects)
   }
   objects.each_with_index do |o, i|
     json = o.to_geo_json_feature.merge('id' => i)
-    result['features'].push json
+    result['features'].push(json)
   end
   result
 end
