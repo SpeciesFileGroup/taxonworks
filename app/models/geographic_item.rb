@@ -545,7 +545,7 @@ SELECT round(CAST(
           'id' => self.id}
       }
     }
-    retval.to_json
+    retval
   end
 
   def to_a

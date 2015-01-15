@@ -1,6 +1,6 @@
 module GeographicItemsHelper
   def json_tag(geographic_item)
-    retval = geographic_item.to_geo_json_feature.html_safe
+    retval = geographic_item.to_geo_json_feature.to_json.html_safe
     retval
   end
 

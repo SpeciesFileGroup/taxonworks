@@ -3,11 +3,11 @@
 <p id="notice"><%= notice %></p>
 
 
-<%= render(partial: 'map_header', locals: {geographic_item: @geographic_item}) -%>
+<%= render(partial: 'map_header', locals: {geographic_items: [@geographic_item]}) -%>
 
 <div class="flexbox">
   <div class="item item1">
-    <div id="map_canvas" style="width:340px; height: 520px;"></div>
+    <div id="map_canvas" style="width:512px; height: 256px;"></div>
   </div>
 
   <div class="item item2">

@@ -1,10 +1,11 @@
 <%= content_for :head do %>
   <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
+<!--//    var data = <%#= Gis::GeoJSON.feature_collection(@geographic_area.geographic_items).to_json.html_safe %>;-->
 
   <script language="javascript" >
-    var data = <%= json_tag(geographic_item) %>;
+    var data = <%= Gis::GeoJSON.feature_collection(geographic_items).to_json.html_safe %>;
   </script>
-  <%= javascript_include_tag "maps" %>
+  <%#= javascript_include_tag "maps" %>
 
   <script language="javascript">
    $(document).ready(initialize);

@@ -48,16 +48,17 @@ initialize = function () {
 
     initialize_map(myOptions);
     //add_shapes_to_map();      // old home-brew interpreter and range/bounds/center function
-    if (data["type"] != "Feature" && data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
-        datastring = JSON.stringify(data);
-        datastring = '{ "type": "Feature", "geometry": ' + datastring + '}';
-        datafeature = JSON.parse(datastring);
-        data = datafeature;
-    }
+    //if (data["type"] != "Feature" && data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
+    //    datastring = JSON.stringify(data);
+    //    datastring = '{ "type": "Feature", "geometry": ' + datastring + '}';
+    //    datafeature = JSON.parse(datastring);
+    //    data = datafeature;
+    //}
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3})
     map.data.addGeoJson(data);
 
-    centerofmap = map.getCenter();      // not getting desired result
+    //centerofmap = map.getCenter();      // not getting desired result
+   zoomAndCenter(map)
     map.data.setStyle(function(feature) {
         var color = '#440000';  // dimmer red
         if (feature.getProperty('isColorful')) {
@@ -87,12 +88,60 @@ initialize = function () {
     map.data.addListener('mouseout', function(event) {
         map.data.revertStyle();
     });
-    map.setMap(map);
+    //map.setMap(map);
 
 };
 
 function initialize_map(options) {
     map = new google.maps.Map(document.getElementById("map_canvas"), options);
+}
+
+function zoomAndCenter(map) {
+    var bounds = new google.maps.LatLngBounds();
+    map.data.forEach(function(feature) {
+        processPoints(feature.getGeometry(), bounds.extend, bounds)
+    });
+    map.fitBounds(bounds);
+}
+
+//function zoomAndCenter(map) {
+//    var bounds = new google.maps.LatLngBounds();
+//    map.data.forEach(function(feature) {
+//        processPoints(feature.getGeometry(), bounds.extend, bounds);
+//    });
+//    map.fitBounds(bounds);
+//}
+
+/**
+ * Process each point in a Geometry, regardless of how deep the points may lie.
+ * @param {google.maps.Data.Geometry} geometry The structure to process
+ * @param {function(google.maps.LatLng)} callback A function to call on each
+ *     LatLng point encountered (e.g. Array.push)
+ * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
+ *     myArray)
+ */
+//function processPoints(geometry, callback, thisArg) {
+//    if (geometry instanceof google.maps.LatLng) {
+//        callback.call(thisArg, geometry);
+//    } else if (geometry instanceof google.maps.Data.Point) {
+//        callback.call(thisArg, geometry.get());
+//    } else {
+//        geometry.getArray().forEach(function(g) {
+//            processPoints(g, callback, thisArg);
+//        });
+//    }
+//}
+//
+function processPoints(geometry, callback, thisArg) {
+    if(geometry instanceof google.maps.LatLng) {
+        callback.call(thisArg, geometry)
+} else if (geometry instanceof google.maps.Data.Point) {
+    callback.call(thisArg, geometry.get());
+    } else {
+        geometry.getArray().forEach(function(g) {
+            processPoints(g, callback, thisArg);
+        });
+    }
 }
 
 function get_window_center() {

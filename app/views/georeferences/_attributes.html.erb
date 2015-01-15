@@ -1,4 +1,4 @@
-<%= render(partial: 'geographic_items/map_header', locals: {geographic_item: @georeference.error_geographic_item}) -%>
+<%= render(partial: 'geographic_items/map_header', locals: {geographic_items: [@georeference.error_geographic_item, @georeference.geographic_item]}) -%>
 
 <div class="attributes"> 
   <p>
