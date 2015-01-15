@@ -1,17 +1,26 @@
-<%= form_tag(tasks_serials_similar_like_path(@serial.to_param)) do |f| %>
+<h2>List serials with names like mine</h2>
 
-    <h2>List serials with names like mine</h2>
+<strong>Made it here!</strong>
+<p>I am <%= @serial.id %>. With name <%= @serial.name -%></p>
+<p> Do I need to use a partial? </p>
+<p> 3 segments on the display - one for my info, one for find box and one for results </p>
+<p> Matt says not to include the find box...</p>
 
-    <strong>Made it here!</strong>
-    <p>I am <%= @serial.id %>.</p>
-    <p> Do I need to use a partial? </p>
-    <p> 3 segments on the display - one for my info, one for find box and one for results </p>
+<ul>
+  <% @similar_serials.each do |serial| -%>
+      <li> <%= serial_tag(serial) -%>
+        <%= link_to('similar',tasks_serials_similar_serial_path(serial)) -%>
+        <%= link_to('edit', edit_serial_path(serial)) -%>
+      </li>
+  <% end %>
+</ul>
 
+<%= form_tag(tasks_serials_similar_serial_path(@serial.to_param)) do |f| %>
     <div>
       <div class="field">
         <%= label_tag :enter_a_search_string %>
         <%= text_field :search_string, :str %>
       </div>
     </div>
-
+    <%= submit_tag -%>
 <% end %>

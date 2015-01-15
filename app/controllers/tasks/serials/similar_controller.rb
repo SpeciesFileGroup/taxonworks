@@ -8,13 +8,13 @@ class Tasks::Serials::SimilarController < ApplicationController
   end
   #GET  similar_serials? or Get serial/similar:id
   def like
-    a=1
-    # this is where you do the computation of similar things.
-    # stick values in an @var, then page can access
+    @serial = Serial.find(params[:id])
+    @similar_serials = @serial.nearest_by_levenshtein(@serial.name[0..254])
+# this is where you do the computation of similar things.
+# stick values in an @var, then page can access
 
-    # serials like me
+# serials like me
   end
-
   #POST update_similar:id?
   # goal is to reload similar serial with new search parameter
   def update_find

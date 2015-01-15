@@ -1,11 +1,11 @@
 # Values must be named task routes, _path will be appended
 # TODO: This is directional graph, load it as such, with edges b/w unique tasks.
 ---
+find_similar_serials_task:
+  - serials
 build_biocuration_groups_task:
   - quick_verbatim_material_task
 quick_verbatim_material_task:
   - build_biocuration_groups_task
 update_original_combination_task:
----
-find_similar_serials_task:
-  - serials
+
