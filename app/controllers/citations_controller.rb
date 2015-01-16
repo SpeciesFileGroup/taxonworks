@@ -24,7 +24,7 @@ class CitationsController < ApplicationController
         format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
         format.json { render json: @citation, status: :created, location: @citation }
       else
-        format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
+        format.html { render 'new', notice: 'Citation was NOT successfully created.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class CitationsController < ApplicationController
         format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }
+        format.html { render 'new', notice: 'Citation was NOT successfully updated.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
