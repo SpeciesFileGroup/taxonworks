@@ -28,7 +28,6 @@ describe TaxonName, :type => :model do
       end
     end
 
-
     specify 'ICN' do
       variety = FactoryGirl.create(:icn_variety)
       expect(variety.ancestors.length).to be >= 17
@@ -67,7 +66,7 @@ describe TaxonName, :type => :model do
       end
 
       specify 'respond to taxon_name_relationships' do
-        expect(taxon_name).to respond_to(:taxon_name_relationships)
+        expect(taxon_name.taxon_name_relationships << TaxonNameRelationship.new()).to be_truthy
       end
 
       context 'methods related to taxon_name_relationship associations (returning Array)' do
@@ -348,7 +347,6 @@ describe TaxonName, :type => :model do
 
     context 'name' do
       context 'validate cached values' do
-      
         specify 'ICZN ' do
           @subspecies.valid?
           expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')

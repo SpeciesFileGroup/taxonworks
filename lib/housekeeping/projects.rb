@@ -24,7 +24,6 @@ module Housekeeping::Projects
   end
 
   module ClassMethods
-
     # Scopes
     def in_project(project)
       where(project: project)

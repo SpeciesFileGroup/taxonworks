@@ -11,8 +11,6 @@ Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {
 #
 class Protonym < TaxonName
 
-  before_save :set_cached_names
-
   alias_method :original_combination_source, :source
 
   has_one :type_taxon_name_relationship, -> {
@@ -121,6 +119,20 @@ class Protonym < TaxonName
     :check_new_parent_class,
     :validate_source_type,
     :new_parent_taxon_name
+
+
+  # @return [Array of Strings]
+  #   genera where the species was placed
+  def all_generic_placements
+    valid_name = self.get_valid_taxon_name
+    return nil unless valid_name.rank_string !=~/Species/
+    descendants_and_self = valid_name.descendants + [self]
+    relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
+    relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
+  end
+
+
+
 
   def family_group_endings
     %w{ini ina inae idae oidae odd ad oidea}

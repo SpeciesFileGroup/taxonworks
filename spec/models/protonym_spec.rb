@@ -14,6 +14,15 @@ describe Protonym, :type => :model do
     Source.delete_all
   end
 
+  context 'validation' do
+    before do
+      protonym.valid?
+    end
+    specify 'name' do
+      expect(protonym.errors.include?(:name)).to be_truthy
+    end
+  end
+
   context 'associations' do
     before(:all) do
       @family = FactoryGirl.create(:relationship_family, name: 'Aidae', parent: @order)
@@ -30,25 +39,11 @@ describe Protonym, :type => :model do
                                                  type: 'TaxonNameRelationship::Typification::Family')
     end
 
-    # TODO: Is this really has_many?
+
     context 'has_many' do
       specify 'original_combination_relationships' do 
         expect(@protonym).to respond_to(:original_combination_relationships)
-        expect(@genus).to respond_to(:type_species)
-        expect(@family).to respond_to(:type_genus)
-        expect(@protonym).to respond_to(:original_genus)
-        expect(@protonym).to respond_to(:original_subgenus)
-        expect(@protonym).to respond_to(:original_section)
-        expect(@protonym).to respond_to(:original_subsection)
-        expect(@protonym).to respond_to(:original_series)
-        expect(@protonym).to respond_to(:original_subseries)
-        expect(@protonym).to respond_to(:original_species)
-        expect(@protonym).to respond_to(:original_subspecies)
-        expect(@protonym).to respond_to(:original_variety)
-        expect(@protonym).to respond_to(:original_subvariety)
-        expect(@protonym).to respond_to(:original_form)
-        expect(@protonym).to respond_to(:source_classified_as)
-      end
+     end
 
       specify 'type_of_relationships' do
         expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
@@ -76,6 +71,33 @@ describe Protonym, :type => :model do
     end
 
     context 'has_one' do
+      context 'combionation (broad sense) based relationships' do
+        specify 'type related' do
+          expect(protonym).to respond_to(:type_species)    
+          expect(protonym).to respond_to(:type_genus)
+        end
+
+        specify 'original combination related' do
+          expect(protonym.original_genus = Protonym.new).to be_truthy 
+          expect(protonym.original_subgenus = Protonym.new).to be_truthy 
+          expect(protonym.original_section = Protonym.new).to be_truthy 
+          expect(protonym.original_subsection = Protonym.new).to be_truthy 
+          expect(protonym.original_series = Protonym.new).to be_truthy
+          expect(protonym.original_subseries = Protonym.new).to be_truthy
+          expect(protonym.original_species = Protonym.new).to be_truthy
+          expect(protonym.original_subspecies = Protonym.new).to be_truthy 
+          expect(protonym.original_variety = Protonym.new).to be_truthy 
+          expect(protonym.original_subvariety = Protonym.new).to be_truthy 
+          expect(protonym.original_form = Protonym.new).to be_truthy 
+          # @proceps missing subform?
+        end
+
+        specify 'originally classified' do
+          expect(protonym.source_classified_as = Protonym.new).to be_truthy
+        end
+     end
+    
+   
       TaxonNameRelationship.descendants.each do |d|
         if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
@@ -198,6 +220,7 @@ describe Protonym, :type => :model do
       extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
     end
+
     specify 'assign a type species to a genus' do
       expect(@g.type_species = @s).to be_truthy
       expect(@g.save).to be_truthy
@@ -210,6 +233,7 @@ describe Protonym, :type => :model do
       expect(@s.type_of_relationships.first.class).to eq(TaxonNameRelationship::Typification::Genus)
       expect(@s.type_of_relationships.first.object_taxon_name).to eq(@g)
     end
+
     specify 'synonym has at most one valid name' do
       genus = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @f)
       genus.iczn_set_as_subjective_synonym_of = @g
@@ -220,14 +244,6 @@ describe Protonym, :type => :model do
     end
   end
 
-  context 'validation' do
-    before do
-      protonym.valid?
-    end
-    specify 'name' do
-      expect(protonym.errors.include?(:name)).to be_truthy
-    end
-  end
 
   context 'soft_validation' do
     before(:each) do
@@ -447,6 +463,7 @@ describe Protonym, :type => :model do
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
     end
+
     context 'missing classifications' do
       specify 'gender of genus is not selected' do
         @genus.soft_validate(:missing_classifications)
@@ -455,6 +472,7 @@ describe Protonym, :type => :model do
         @genus.soft_validate(:missing_classifications)
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+ 
       specify 'part of speech of species is not selected' do
         @species.soft_validate(:missing_classifications)
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
@@ -462,11 +480,13 @@ describe Protonym, :type => :model do
         @species.soft_validate(:missing_classifications)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+  
       specify 'possible gender' do
         g = FactoryGirl.create(:relationship_genus, name: 'Cyclops', parent: @family)
         g.soft_validate(:missing_classifications)
         expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_truthy
       end
+   
       specify 'missing alternative spellings for species participle' do
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
         @species.soft_validate(:species_gender_agreement)
@@ -475,6 +495,7 @@ describe Protonym, :type => :model do
         expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(1)
         c1.destroy
       end
+    
       specify 'unnecessary alternative spellings for species noun' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
@@ -483,6 +504,7 @@ describe Protonym, :type => :model do
         expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
       end
+
       specify 'unproper noun names' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
@@ -491,6 +513,7 @@ describe Protonym, :type => :model do
         expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
       end
+
       specify 'proper noun names' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'niger', feminine_name: 'nigra', neuter_name: 'nigrum')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
@@ -499,6 +522,7 @@ describe Protonym, :type => :model do
         expect(s.soft_validations.messages_on(:feminine_name).empty?).to be_truthy
         expect(s.soft_validations.messages_on(:neuter_name).empty?).to be_truthy
       end
+
       specify 'species matches genus' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'niger')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')

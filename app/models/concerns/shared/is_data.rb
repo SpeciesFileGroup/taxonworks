@@ -40,4 +40,7 @@ module Shared::IsData
     false
   end
 
+  module ClassMethods
+  end 
+
 end

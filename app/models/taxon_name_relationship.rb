@@ -1,3 +1,5 @@
+# A NOMEN based relationship between two Protonyms.
+#
 class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -275,7 +277,8 @@ class TaxonNameRelationship < ActiveRecord::Base
         elsif s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
-      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary' #!
+
         if s.original_genus == o.original_genus && !s.original_genus.nil?
           soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
@@ -283,20 +286,33 @@ class TaxonNameRelationship < ActiveRecord::Base
         elsif s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
-        soft_validations.add(:base, 'No combination available showing both species placed in the same genus') if (s.all_generic_placements & o.all_generic_placements).empty?
+
+        if (s.all_generic_placements & o.all_generic_placements).empty?
+          soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
+        end
+
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+       
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_genus == o.original_genus && !s.original_genus.nil?
         soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
+       
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
         end
-        soft_validations.add(:base, 'No combination available showing both species placed in the same genus') if (s.all_generic_placements & o.all_generic_placements).empty?
+       
+        byebug 
+        if (s.all_generic_placements & o.all_generic_placements).empty?
+          soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
+        end
+
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         if !!self.source_id
           soft_validations.add(:source_id, 'Taxon should be accepted as a replacement name before 1961') if self.source.year > 1960
         end
+
+
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
       when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'

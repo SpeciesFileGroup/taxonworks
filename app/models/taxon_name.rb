@@ -83,7 +83,6 @@
 #
 class TaxonName < ActiveRecord::Base
 
-  # Notice about alternate values
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
@@ -92,10 +91,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships.
-  has_paper_trail
-
-  acts_as_nested_set scope: [:project_id], dependent: :destroy
+  acts_as_nested_set scope: [:project_id], dependent: :destroy # really?!  raise is safer, but impossible to nuke branches
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
@@ -117,17 +113,15 @@ class TaxonName < ActiveRecord::Base
 
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name # source_classified_as_taxon_name
 
-  has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
-
-  #relationships as a subject
-  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
-
-  #relationships as an object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :destroy
-
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+  has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
+  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
+  
+  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
+  has_paper_trail
 
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
 
@@ -142,7 +136,7 @@ class TaxonName < ActiveRecord::Base
     where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR
            ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
            (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-          taxon_name.lft, taxon_name.rgt, taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
+           taxon_name.lft, taxon_name.rgt, taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
 
   # A specific relationship
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
@@ -172,12 +166,14 @@ class TaxonName < ActiveRecord::Base
   scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
   scope :without_taxon_name_relationships, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-      joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-      where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
   }
 
-  # TODO move to shared code
+  # TODO move to shared code (Shared::IsData)
   scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
+
+
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
 
   validates_presence_of :type, message: 'Type is not specified'
@@ -243,6 +239,7 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # TODO: rename to reflect returning of string
   # @return [String]
   #   a 4 digit string representing year of publication, like '1974'
   def year_integer
@@ -430,16 +427,6 @@ class TaxonName < ActiveRecord::Base
     n.blank? ? self.name : n
   end
 
-  # @return [Array]
-  #   genera where the species was placed
-  def all_generic_placements
-    valid_name = self.get_valid_taxon_name
-    return nil unless valid_name.rank_string !=~/Species/
-    descendants_and_self = valid_name.descendants + [self]
-    relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
-    relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
-  end
-
   #region Set cached fields
 
   def set_type_if_empty
@@ -448,7 +435,6 @@ class TaxonName < ActiveRecord::Base
 
   def set_cached_names
     if self.errors.empty?
-
       set_cached
 
       # if updated, update also sv_cached_names
@@ -580,58 +566,6 @@ class TaxonName < ActiveRecord::Base
 
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
   end
-
-  # DEPRECATED.  Was not actually building full names for non-saved data.
-  # def get_full_name2
-  #   # see config/initializers/ranks for GENUS_AND_SPECIES_RANKS
-  #   unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-  #     cached_html = nil
-  #   else
-  #     genus        = ''
-  #     subgenus     = ''
-  #     superspecies = ''
-  #     species      = ''
-  #     gender       = nil
-  #     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off
-  #       if GENUS_AND_SPECIES_RANK_NAMES.include?(i.rank_string)
-  #         case i.rank_class.rank_name
-  #           when 'genus'
-  #             genus  = '<em>' + i.name + '</em> '
-  #             gender = i.gender_name
-  #           when 'subgenus' then
-  #             subgenus += '<em>' + i.name + '</em> '
-  #           when 'section' then
-  #             subgenus += 'sect. <em>' + i.name + '</em> '
-  #           when 'subsection' then
-  #             subgenus += 'subsect. <em>' + i.name + '</em> '
-  #           when 'series' then
-  #             subgenus += 'ser. <em>' + i.name + '</em> '
-  #           when 'subseries' then
-  #             subgenus += 'subser. <em>' + i.name + '</em> '
-  #           when 'species group' then
-  #             superspecies += '<em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'species' then
-  #             species += '<em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'subspecies' then
-  #             species += '<em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'variety' then
-  #             species += 'var. <em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'subvariety' then
-  #             species += 'subvar. <em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'form' then
-  #             species += 'f. <em>' + i.name_in_gender(gender) + '</em> '
-  #           when 'subform' then
-  #             species += 'subf. <em>' + i.name_in_gender(gender) + '</em> '
-  #           else
-  #         end
-  #       end
-  #     end
-  #     subgenus     = '(' + subgenus.squish + ') ' unless subgenus.empty?
-  #     superspecies = '(' + superspecies.squish + ') ' unless superspecies.empty?
-  #     cached_html  = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
-  #     cached_html.blank? ? nil : cached_html
-  #   end
-  # end
 
   def genus_name_elements(*args)
     [nil, args[0].name]
