@@ -25,15 +25,27 @@ describe Gis::GeoJSON do
     end
 
     context 'geographic_area' do
-      pending
+      specify 'that a geographic_area can produce a properly formed feature' do
+        pending
+        expect(Gis::GeoJSON.feature_collection([@ce_p1.geographic_area]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0.0]},"properties":{"geographic_item":{"id":31}},"id":0}]}')
+      end
+
     end
 
     context 'georeference' do
-      pending
+      specify 'that a georeference can produce a properly formed feature' do
+        pending
+        expect(Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0.0]},"properties":{"geographic_item":{"id":31}},"id":0}]}')
+      end
+
     end
 
     context 'collecting_event' do
-      pending
+      specify 'that a collecting_event can produce a properly formed feature' do
+        pending
+        expect(Gis::GeoJSON.feature_collection([@ce_p1]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0.0]},"properties":{"geographic_item":{"id":31}},"id":0}]}')
+      end
+
     end
   end
 end

@@ -221,6 +221,20 @@ class GeographicArea < ActiveRecord::Base
     default_geographic_item
   end
 
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_items.first.geo_object),
+      'properties' => {
+        'geographic_area' => {
+          'id' => self.id}
+      }
+    }
+    retval
+  end
+
+
+
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
   # provide a point on which to focus the map.  Return 'nil' if there are no GIs in the chain.
   def geographic_area_map_focus
