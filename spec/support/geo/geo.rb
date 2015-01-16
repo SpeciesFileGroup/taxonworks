@@ -521,13 +521,12 @@ def prepare_test
   if u.nil?
     u = FactoryGirl.create(:valid_user, id: 1)
   end
+  $user_id    = u.id
 
   p = Project.order(:id).first
   if p.nil?
     p = FactoryGirl.create(:valid_project, id: 1)
   end
-
-  $user_id    = u.id
   $project_id = p.id
 
 end
@@ -1650,27 +1649,27 @@ Two different shapes with the same name, 'East Boxia', and
                                        :error_geographic_item => @item_ob,
                                        :geographic_item       => GeographicItem.new(:point => @item_n3.st_centroid))
 
-  political_names = {
-    ce_m1:          @ce_m1,
-    ce_o1:          @ce_o1,
-    ce_p1:          @ce_p1,
-    ce_m2:          @ce_m2,
-    ce_n2:          @ce_n2,
-    ce_o2:          @ce_o2,
-    ce_m3:          @ce_m3,
-    ce_n3:          @ce_n3,
-    ce_m4:          @ce_m4,
-    ce_n4:          @ce_n4,
-    ce_o4:          @ce_o4,
-    ce_p4:          @ce_p4,
-    ce_old_boxia_1: @ce_old_boxia_1,
-    ce_old_boxia_2: @ce_old_boxia_2
-  }
+  my_debug = false
 
-  my_debug = true
-
-  item_collection = []
   if my_debug
+    political_names = {
+      ce_m1:          @ce_m1,
+      ce_o1:          @ce_o1,
+      ce_p1:          @ce_p1,
+      ce_m2:          @ce_m2,
+      ce_n2:          @ce_n2,
+      ce_o2:          @ce_o2,
+      ce_m3:          @ce_m3,
+      ce_n3:          @ce_n3,
+      ce_m4:          @ce_m4,
+      ce_n4:          @ce_n4,
+      ce_o4:          @ce_o4,
+      ce_p4:          @ce_p4,
+      ce_old_boxia_1: @ce_old_boxia_1,
+      ce_old_boxia_2: @ce_old_boxia_2
+    }
+    item_collection = []
+
     all_file = File.new('./tmp/political_file.json', 'w')
     political_names.collect { |key, value|
       item_collection.push(value.geographic_area.geographic_items.first)
