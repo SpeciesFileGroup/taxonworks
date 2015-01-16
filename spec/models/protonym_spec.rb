@@ -42,8 +42,8 @@ describe Protonym, :type => :model do
 
     context 'has_many' do
       specify 'original_combination_relationships' do 
-        expect(@protonym).to respond_to(:original_combination_relationships)
-     end
+        expect(protonym).to respond_to(:original_combination_relationships)
+      end
 
       specify 'type_of_relationships' do
         expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
@@ -70,34 +70,24 @@ describe Protonym, :type => :model do
       end
     end
 
-    context 'has_one' do
-      context 'combionation (broad sense) based relationships' do
-        specify 'type related' do
-          expect(protonym).to respond_to(:type_species)    
-          expect(protonym).to respond_to(:type_genus)
-        end
+    context 'combination (broad sense) based relationships' do
+      specify 'type related (has one)' do
+        expect(protonym).to respond_to(:type_species)    
+        expect(protonym).to respond_to(:type_genus)
+      end
 
-        specify 'original combination related' do
-          expect(protonym.original_genus = Protonym.new).to be_truthy 
-          expect(protonym.original_subgenus = Protonym.new).to be_truthy 
-          expect(protonym.original_section = Protonym.new).to be_truthy 
-          expect(protonym.original_subsection = Protonym.new).to be_truthy 
-          expect(protonym.original_series = Protonym.new).to be_truthy
-          expect(protonym.original_subseries = Protonym.new).to be_truthy
-          expect(protonym.original_species = Protonym.new).to be_truthy
-          expect(protonym.original_subspecies = Protonym.new).to be_truthy 
-          expect(protonym.original_variety = Protonym.new).to be_truthy 
-          expect(protonym.original_subvariety = Protonym.new).to be_truthy 
-          expect(protonym.original_form = Protonym.new).to be_truthy 
-          # @proceps missing subform?
+      context 'original description/combination' do
+        specify 'original_combination_source' do
+          expect(protonym).to respond_to(:original_combination_source)
         end
+      end
 
-        specify 'originally classified' do
-          expect(protonym.source_classified_as = Protonym.new).to be_truthy
-        end
-     end
-    
-   
+      specify 'originally classified' do
+        expect(protonym.source_classified_as = Protonym.new).to be_truthy
+      end
+    end
+
+    context 'added via TaxonNameRelationships' do
       TaxonNameRelationship.descendants.each do |d|
         if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
@@ -113,17 +103,19 @@ describe Protonym, :type => :model do
           end
 
           specify relationship do
-            expect(@protonym).to respond_to(relationship)
+            expect(protonym).to respond_to(relationship)
           end
           specify relationships do
-            expect(@protonym).to respond_to(relationships)
+            expect(protonym).to respond_to(relationships)
           end
           specify method do
-            expect(@protonym).to respond_to(method)
+            expect(protonym.send("#{method}=", Protonym.new)).to be_truthy 
           end
+
           specify methods do
-            expect(@protonym).to respond_to(methods)
+            expect(protonym).to respond_to(methods)
           end
+
         end
       end
 
@@ -133,16 +125,18 @@ describe Protonym, :type => :model do
           expect(@genus.type_taxon_name).to eq(@protonym)
           expect(@family.type_taxon_name).to eq(@genus)
         end 
+
         specify 'type_taxon_name_relationship' do
-          expect(@protonym).to respond_to(:type_taxon_name_relationship)
+          expect(protonym).to respond_to(:type_taxon_name_relationship)
           expect(@genus.type_taxon_name_relationship.id).to eq(@species_type_of_genus.id)
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
         end 
+
         specify 'has at most one has_type relationship' do
           extra_type_relation = FactoryGirl.build_stubbed(:taxon_name_relationship,
-                                                  subject_taxon_name: @genus,
-                                                  object_taxon_name: @family,
-                                                  type: 'TaxonNameRelationship::Typification::Family')
+                                                          subject_taxon_name: @genus,
+                                                          object_taxon_name: @family,
+                                                          type: 'TaxonNameRelationship::Typification::Family')
           # Handled by TaxonNameRelationship validates_uniqueness_of :subject_taxon_name_id,  scope: [:type, :object_taxon_name_id]
           expect(extra_type_relation.valid?).to be_falsey
         end
@@ -154,29 +148,9 @@ describe Protonym, :type => :model do
           c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
           expect(c2.valid?).to be_falsey
         end
-      end
-
-      context 'original description' do
-        specify 'original_combination_source' do
-          expect(@protonym).to respond_to(:original_combination_source)
-        end
-
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
-          method = "original_#{rank}_relationship"
-          specify method do
-            expect(@protonym).to respond_to(method)
-          end 
-        end
-
-        %w{genus subgenus section subsection series subseries species subspecies variety subvariety form}.each do |rank|
-          method = "original_#{rank}"
-          specify method do
-            expect(@protonym).to respond_to(method)
-          end
-        end
-      end
+      end 
     end
-  end
+  end # end associations
 
   context 'usage' do
     before(:each) do
@@ -193,6 +167,7 @@ describe Protonym, :type => :model do
       expect(@s.original_genus_relationship.subject_taxon_name).to eq(@o)
       expect(@s.original_genus_relationship.object_taxon_name).to eq(@s)
     end
+
     specify 'has at most one original description genus' do
       expect(@s.original_combination_relationships.count).to eq(0)
       # Example 1) recasting
@@ -243,7 +218,6 @@ describe Protonym, :type => :model do
       expect(genus.taxon_name_relationships.size).to be(1)
     end
   end
-
 
   context 'soft_validation' do
     before(:each) do
