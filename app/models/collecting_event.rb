@@ -416,7 +416,20 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     @geolocate_string
   end
 
-# class methods
+  def to_geo_json_feature
+    geometry = RGeo::GeoJSON.encode(self.georeferences.first.geographic_item.geo_object)
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => geometry,
+      'properties' => {
+        'collecting_event' => {
+          'id' => self.id}
+      }
+    }
+    retval
+  end
+
+  # class methods
 
   # @param geographic_item [GeographicItem]
   # @return [Scope]

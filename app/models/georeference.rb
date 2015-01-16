@@ -196,6 +196,19 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  def to_geo_json_feature
+    geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => geometry,
+      'properties' => {
+        'georeference' => {
+          'id' => self.id}
+      }
+    }
+    retval
+  end
+
   protected
 
   # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
