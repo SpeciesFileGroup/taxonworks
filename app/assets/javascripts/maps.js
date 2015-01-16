@@ -103,21 +103,13 @@ function initialize_map(options) {
     map = new google.maps.Map(document.getElementById("map_canvas"), options);
 }
 
-function zoomAndCenter(map) {
+function zoomAndCenter(map) {       // for use with Google bounds method
     var bounds = new google.maps.LatLngBounds();
     map.data.forEach(function(feature) {
         processPoints(feature.getGeometry(), bounds.extend, bounds)
     });
     map.fitBounds(bounds);
 }
-
-//function zoomAndCenter(map) {
-//    var bounds = new google.maps.LatLngBounds();
-//    map.data.forEach(function(feature) {
-//        processPoints(feature.getGeometry(), bounds.extend, bounds);
-//    });
-//    map.fitBounds(bounds);
-//}
 
 /**
  * Process each point in a Geometry, regardless of how deep the points may lie.
@@ -127,18 +119,7 @@ function zoomAndCenter(map) {
  * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
  *     myArray)
  */
-//function processPoints(geometry, callback, thisArg) {
-//    if (geometry instanceof google.maps.LatLng) {
-//        callback.call(thisArg, geometry);
-//    } else if (geometry instanceof google.maps.Data.Point) {
-//        callback.call(thisArg, geometry.get());
-//    } else {
-//        geometry.getArray().forEach(function(g) {
-//            processPoints(g, callback, thisArg);
-//        });
-//    }
-//}
-//
+
 function processPoints(geometry, callback, thisArg) {
     if(geometry instanceof google.maps.LatLng) {
         callback.call(thisArg, geometry)
@@ -151,7 +132,7 @@ function processPoints(geometry, callback, thisArg) {
     }
 }
 
-function get_window_center() {
+function get_window_center() {      // for use with homebrew geoJSON scanner/enumerator
     if (center_long == undefined) {
         //determine case of area extent
         center_long = 0.0;
@@ -184,7 +165,7 @@ function get_window_center() {
     }
     ;
     if (center_lat == undefined) {
-        center_lat = 0.5 * (ymax + ymin);
+        center_lat = 0.5 * (ymax + ymin); ////  * 1.125;
     }
     ;
     if (wx <= 0.1) {gzoom =11};
@@ -241,7 +222,7 @@ function add_shapes_to_map() {
     //    map.fitBounds(bounds);
 };
 
-function get_Data() {
+function get_Data() {       //this is the scanner version; no google objects are created
     /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
      Assumptions:
      data is a hash
@@ -265,7 +246,8 @@ function get_Data() {
             if (typeof (data[i].type) != "undefined") {
                 if (data[i].type == "FeatureCollection") {
                     for (var j = 0; j < data[i].features.length; j++) {
-                        getFeature(data[i].features[j]);
+                        //getFeature(data[i].features[j]);
+                        getFeature(data[i].features[j]);  //getTypeData(data[i].features[j].geometry);
                     }
                 }
             if (data[i].type == "GeometryCollection") {
@@ -286,12 +268,10 @@ function get_Data() {
  ;
 
 function getFeature(thisFeature) {
-
-        getTypeData(thisFeature.geometry);
-
+    getTypeData(thisFeature.geometry);
 }
 
-function getTypeData(thisType) {
+function getTypeData(thisType) {        // this version does not create google objects
 
     if (thisType.type == "FeatureCollection") {
         for (var i = 0; i < thisType.features.length; i++) {
@@ -318,7 +298,6 @@ function getTypeData(thisType) {
     if (thisType.type == "Point") {
         xgtlt(thisType.coordinates[0]);
         ygtlt(thisType.coordinates[1]); //box check
-        //gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
     }
     ;
 
@@ -326,19 +305,15 @@ function getTypeData(thisType) {
         for (var l = 0; l < thisType.coordinates.length; l++) {
             xgtlt(thisType.coordinates[l][0]);
             ygtlt(thisType.coordinates[l][1]); //box check
-            //gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
     }
     ;
 
     if (thisType.type == "LineString") {
-        //var m = gLinePoints.length;
-        //gLinePoints[m] = [];
         for (var l = 0; l < thisType.coordinates.length; l++) {
             xgtlt(thisType.coordinates[l][0]);
             ygtlt(thisType.coordinates[l][1]); //box check
-            //gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
     }
@@ -351,7 +326,6 @@ function getTypeData(thisType) {
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
                 xgtlt(thisType.coordinates[k][l][0]);
                 ygtlt(thisType.coordinates[k][l][1]); //box check
-                //gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
         }
@@ -362,12 +336,9 @@ function getTypeData(thisType) {
     if (thisType.type == "Polygon") {
         for (var k = 0; k < thisType.coordinates.length; k++) {
             // k enumerates polygons, l enumerates points
-            //var m = gPolyPoints.length;
-            //gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
                 xgtlt(thisType.coordinates[k][l][0]);
                 ygtlt(thisType.coordinates[k][l][1]); //box check
-                //gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
         }
@@ -378,12 +349,9 @@ function getTypeData(thisType) {
     if (thisType.type == "MultiPolygon") {
         for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
             for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
-                //var m = gPolyPoints.length;
-                //gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
                 for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
                     xgtlt(thisType.coordinates[j][k][l][0]);
                     ygtlt(thisType.coordinates[j][k][l][1]); //box check
-                    //gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
                 }
                 ;
             }
@@ -394,7 +362,7 @@ function getTypeData(thisType) {
     ;
 };        //getFeatureData
 
-//function get_data() {
+//function get_data() {         // this version creates the google objects, without preserving features
 //    /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
 //     Assumptions:
 //     data is a hash
