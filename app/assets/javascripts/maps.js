@@ -39,7 +39,7 @@ initialize = function () {
 
     var myOptions = {
         zoom: gzoom,
-        center: {lat:40, lng: 0}, //center_lat_long, set to 0,0
+        center: {lat:0, lng: 0}, //center_lat_long, set to 0,0
         mapTypeControl: true,
         mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
         navigationControl: true,
@@ -58,7 +58,14 @@ initialize = function () {
     map.data.addGeoJson(data);
 
     //centerofmap = map.getCenter();      // not getting desired result
-   zoomAndCenter(map)
+
+   //zoomAndCenter(map)
+
+    get_Data();
+    get_window_center();
+    map.setCenter(center_lat_long);
+    map.setZoom(gzoom);
+
     map.data.setStyle(function(feature) {
         var color = '#440000';  // dimmer red
         if (feature.getProperty('isColorful')) {
@@ -234,7 +241,7 @@ function add_shapes_to_map() {
     //    map.fitBounds(bounds);
 };
 
-function get_data() {
+function get_Data() {
     /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
      Assumptions:
      data is a hash
@@ -256,24 +263,46 @@ function get_data() {
         ;
         for (var i = 0; i < data.length; i++) {
             if (typeof (data[i].type) != "undefined") {
-                if (data[i].type == "GeometryCollection") {
-                    for (var j = 0; j < data[i].geometries.length; j++) {
-                        getTypeData(data[i].geometries[j]);
+                if (data[i].type == "FeatureCollection") {
+                    for (var j = 0; j < data[i].features.length; j++) {
+                        getFeature(data[i].features[j]);
                     }
-                    ;
                 }
-                else {
-                    getTypeData(data[i]);
-                }    //data.type
+            if (data[i].type == "GeometryCollection") {
+                for (var j = 0; j < data[i].geometries.length; j++) {
+                    getTypeData(data[i].geometries[j]);
+                }
+                ;
             }
-            ;     //data[i] != undefined
-        }        // for i
+            else {
+                getTypeData(data[i]);
+            }    //data.type
+        }
+        ;     //data[i] != undefined
+     }        // for i
     }
     ;         //data != undefined
-};
+ }
+ ;
 
-// detect and extract geometry types from higher level enumerator, recursible
+function getFeature(thisFeature) {
+
+        getTypeData(thisFeature.geometry);
+
+}
+
 function getTypeData(thisType) {
+
+    if (thisType.type == "FeatureCollection") {
+        for (var i = 0; i < thisType.features.length; i++) {
+            if (typeof (thisType.features[i].type) != "undefined") {
+                getFeature(thisType.features[i]);		//  recurse if FeatureCollection
+            }
+            ;     //thisType != undefined
+        }
+        ;       //for i
+    }
+    ;
 
     if (thisType.type == "GeometryCollection") {
         for (var i = 0; i < thisType.geometries.length; i++) {
@@ -289,27 +318,27 @@ function getTypeData(thisType) {
     if (thisType.type == "Point") {
         xgtlt(thisType.coordinates[0]);
         ygtlt(thisType.coordinates[1]); //box check
-        gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
+        //gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
     }
     ;
 
     if (thisType.type == "MultiPoint") {
         for (var l = 0; l < thisType.coordinates.length; l++) {
-            //xgtlt(thisType.coordinates[j][k][l][0]);
-            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-            gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+            xgtlt(thisType.coordinates[l][0]);
+            ygtlt(thisType.coordinates[l][1]); //box check
+            //gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
     }
     ;
 
     if (thisType.type == "LineString") {
-        var m = gLinePoints.length;
-        gLinePoints[m] = [];
+        //var m = gLinePoints.length;
+        //gLinePoints[m] = [];
         for (var l = 0; l < thisType.coordinates.length; l++) {
-            //xgtlt(thisType.coordinates[j][k][l][0]);
-            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-            gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+            xgtlt(thisType.coordinates[l][0]);
+            ygtlt(thisType.coordinates[l][1]); //box check
+            //gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
         }
         ;
     }
@@ -317,12 +346,12 @@ function getTypeData(thisType) {
 
     if (thisType.type == "MultiLineString") {
         for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
-            var m = gLinePoints.length;
-            gLinePoints[m] = [];
+            //var m = gLinePoints.length;
+            //gLinePoints[m] = [];
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
-                //xgtlt(thisType.coordinates[j][k][l][0]);
-                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-                gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+                xgtlt(thisType.coordinates[k][l][0]);
+                ygtlt(thisType.coordinates[k][l][1]); //box check
+                //gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
         }
@@ -333,12 +362,12 @@ function getTypeData(thisType) {
     if (thisType.type == "Polygon") {
         for (var k = 0; k < thisType.coordinates.length; k++) {
             // k enumerates polygons, l enumerates points
-            var m = gPolyPoints.length;
-            gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
+            //var m = gPolyPoints.length;
+            //gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
-                //xgtlt(thisType.coordinates[j][k][l][0]);
-                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-                gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+                xgtlt(thisType.coordinates[k][l][0]);
+                ygtlt(thisType.coordinates[k][l][1]); //box check
+                //gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
             }
             ;
         }
@@ -349,12 +378,12 @@ function getTypeData(thisType) {
     if (thisType.type == "MultiPolygon") {
         for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
             for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
-                var m = gPolyPoints.length;
-                gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
+                //var m = gPolyPoints.length;
+                //gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
                 for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
                     xgtlt(thisType.coordinates[j][k][l][0]);
                     ygtlt(thisType.coordinates[j][k][l][1]); //box check
-                    gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
+                    //gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
                 }
                 ;
             }
@@ -363,36 +392,167 @@ function getTypeData(thisType) {
         ;
     }
     ;
-};        //getTypeData
+};        //getFeatureData
 
-
-function createPoint(coords, color) {
-    return new google.maps.Marker({
-        position: coords,
-        map: map
-    });
-};
-
-//		function createLine(coords, color) {
-//			return new google.maps.Polyline({
-//				paths: coords,
-//				geodesic: false,
-//				strokeColor: "#FF0000",
-//				strokeOpacity: 0.5,
-//				strokeWeight: 3
-//			});
-//		};
-
-function createPolygon(coords, color) {
-    return new google.maps.Polygon({
-        paths: coords,
-        strokeColor: "black",
-        strokeOpacity: 0.8,
-        strokeWeight: 1,
-        fillColor: color,
-        fillOpacity: 0.3
-    });
-};
+//function get_data() {
+//    /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
+//     Assumptions:
+//     data is a hash
+//     Multi- geometry types are composed of simple (homogeneous) types: Point, LineString, Polygon
+//     these are collected as xPoints[], xLinePoints[], xPolyPoints[]; x = g | l for google and leafletjs respectively
+//     this leaves ambiguous the association of attributes to the objects (e.g., color, etc.)
+//     New realization: there may or may not be GeometryCollections, which may contain any type, including GeometryCollection !  $#!+
+//     */
+//    if (typeof (data) != 'undefined') {
+//        var dataArray = [];
+//        if (data instanceof Array) {
+//        }      // if already an array, then do nothing
+//        else    // convert it to an array
+//        {
+//            dataArray[0] = data;
+//            data = [];
+//            data[0] = dataArray[0];
+//        }
+//        ;
+//        for (var i = 0; i < data.length; i++) {
+//            if (typeof (data[i].type) != "undefined") {
+//                if (data[i].type == "GeometryCollection") {
+//                    for (var j = 0; j < data[i].geometries.length; j++) {
+//                        getTypeData(data[i].geometries[j]);
+//                    }
+//                    ;
+//                }
+//                else {
+//                    getTypeData(data[i]);
+//                }    //data.type
+//            }
+//            ;     //data[i] != undefined
+//        }        // for i
+//    }
+//    ;         //data != undefined
+//};
+//
+//// detect and extract geometry types from higher level enumerator, recursible
+//function getTypeData(thisType) {
+//
+//    if (thisType.type == "GeometryCollection") {
+//        for (var i = 0; i < thisType.geometries.length; i++) {
+//            if (typeof (thisType.geometries[i].type) != "undefined") {
+//                getTypeData(thisType.geometries[i]);		//  recurse if GeometryCollection
+//            }
+//            ;     //thisType != undefined
+//        }
+//        ;       //for i
+//    }
+//    ;
+//
+//    if (thisType.type == "Point") {
+//        xgtlt(thisType.coordinates[0]);
+//        ygtlt(thisType.coordinates[1]); //box check
+//        gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
+//    }
+//    ;
+//
+//    if (thisType.type == "MultiPoint") {
+//        for (var l = 0; l < thisType.coordinates.length; l++) {
+//            //xgtlt(thisType.coordinates[j][k][l][0]);
+//            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
+//            gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (thisType.type == "LineString") {
+//        var m = gLinePoints.length;
+//        gLinePoints[m] = [];
+//        for (var l = 0; l < thisType.coordinates.length; l++) {
+//            //xgtlt(thisType.coordinates[j][k][l][0]);
+//            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
+//            gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (thisType.type == "MultiLineString") {
+//        for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
+//            var m = gLinePoints.length;
+//            gLinePoints[m] = [];
+//            for (var l = 0; l < thisType.coordinates[k].length; l++) {
+//                //xgtlt(thisType.coordinates[j][k][l][0]);
+//                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
+//                gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+//            }
+//            ;
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (thisType.type == "Polygon") {
+//        for (var k = 0; k < thisType.coordinates.length; k++) {
+//            // k enumerates polygons, l enumerates points
+//            var m = gPolyPoints.length;
+//            gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
+//            for (var l = 0; l < thisType.coordinates[k].length; l++) {
+//                //xgtlt(thisType.coordinates[j][k][l][0]);
+//                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
+//                gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
+//            }
+//            ;
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (thisType.type == "MultiPolygon") {
+//        for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
+//            for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
+//                var m = gPolyPoints.length;
+//                gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
+//                for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
+//                    xgtlt(thisType.coordinates[j][k][l][0]);
+//                    ygtlt(thisType.coordinates[j][k][l][1]); //box check
+//                    gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
+//                }
+//                ;
+//            }
+//            ;
+//        }
+//        ;
+//    }
+//    ;
+//};        //getTypeData
+//
+//
+//function createPoint(coords, color) {
+//    return new google.maps.Marker({
+//        position: coords,
+//        map: map
+//    });
+//};
+//
+////		function createLine(coords, color) {
+////			return new google.maps.Polyline({
+////				paths: coords,
+////				geodesic: false,
+////				strokeColor: "#FF0000",
+////				strokeOpacity: 0.5,
+////				strokeWeight: 3
+////			});
+////		};
+//
+//function createPolygon(coords, color) {
+//    return new google.maps.Polygon({
+//        paths: coords,
+//        strokeColor: "black",
+//        strokeOpacity: 0.8,
+//        strokeWeight: 1,
+//        fillColor: color,
+//        fillOpacity: 0.3
+//    });
+//};
 
 function xgtlt(xtest) {
 
