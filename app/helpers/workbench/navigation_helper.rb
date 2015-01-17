@@ -101,6 +101,7 @@ module Workbench::NavigationHelper
   def annotate_links(object: object)
     [add_alternate_value_link(object: object),
      add_citation_link(object: object),
+     add_data_attribute_link(object: object),
      add_identifier_link(object: object),
      add_note_link(object: object),
      add_tag_link(object: object)

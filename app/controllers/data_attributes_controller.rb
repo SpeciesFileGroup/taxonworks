@@ -3,17 +3,17 @@ class DataAttributesController < ApplicationController
 
   before_action :set_data_attribute, only: [:update, :destroy]
 
+  # GET /data_attributes/new
+  def new
+    @data_attribute = DataAttribute.new(data_attribute_params)
+  end
+
   # GET /data_attributes
   # GET /data_attributes.json
   def index
     @data_attributes = DataAttribute.all
   end
 
-  # # GET /data_attributes/new
-  # def new
-  #   @data_attribute = DataAttribute.new
-  # end
-  #
   # # GET /data_attributes/1/edit
   # def edit
   # end
@@ -25,7 +25,7 @@ class DataAttributesController < ApplicationController
 
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to :back, notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to @data_attribute.data_attribute_object.metamorphosize, notice: 'Data attribute was successfully created.' }
         format.json { render json: @data_attribute, status: :created, location: @data_attribute }
       else
         format.html { redirect_to :back, notice: 'Data attribute was NOT successfully created.' }
@@ -39,7 +39,7 @@ class DataAttributesController < ApplicationController
   def update
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
-        format.html { redirect_to :back, notice: 'Data attribute was successfully updated.' }
+        format.html { redirect_to @data_attribute.data_attribute_object.metamorphosize, notice: 'Data attribute was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { redirect_to :back, notice: 'Data attribute was NOT successfully updated.' }
@@ -66,8 +66,12 @@ class DataAttributesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def data_attribute_params
-    params.require(:data_attribute).permit(:type, :attribute_subject_id, :attribute_subject_type,
-                                           :controlled_vocabulary_term, :import_predicate,
-                                           :value)
+    params.require(:data_attribute).permit(
+        :type,
+        :attribute_subject_id,
+        :attribute_subject_type,
+        :controlled_vocabulary_term,
+        :import_predicate,
+        :value)
   end
 end
