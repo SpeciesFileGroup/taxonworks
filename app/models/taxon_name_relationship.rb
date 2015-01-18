@@ -301,7 +301,6 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
         end
        
-        byebug 
         if (s.all_generic_placements & o.all_generic_placements).empty?
           soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
         end
