@@ -1,5 +1,25 @@
 require 'rails_helper'
 
+# TO resolve with Proceps
+#   - we have relationships for gender 'TaxonNameClassification::Latinized::Gender::Feminine', we need to resolve these vs. TaxonName masculine etc. forms
+#      - this is a string / string relatinoships, that doesn't imply Protonym status, perhaps we need a new class of String (basically a Nomenclator class?!)
+# a- we need to write tests for all instance methods, including:
+#   all_generic_placements  
+#   list_of_coordinated_names
+#   lowest_rank_coordinated_taxon
+#   ancestors_and_descendants
+#   get_primary_type
+#   matching_primary_types
+#   incorrect_originall_spelling
+#   incertae_sedis
+#   original_combination_class_relationships
+#   original_combination_relationships_and_stubs
+#
+#
+# and class methods
+#   family_group_base ( should move to FamilyGroup rank spec likely)
+#
+
 describe Protonym, :type => :model do
   let(:protonym) { Protonym.new }
   before(:all) do
@@ -44,42 +64,11 @@ describe Protonym, :type => :model do
       specify 'original_combination_relationships' do 
         expect(protonym).to respond_to(:original_combination_relationships)
       end
-
-      specify 'type_of_relationships' do
-        expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
-      end
-
-      specify 'type_of_taxon_names' do
-        expect(@protonym.type_of_taxon_names).to eq([@genus])
-      end
-
-      specify 'type species' do
-        expect(@genus.type_species). to eq(@protonym)
-      end
-
-      specify 'type species relationship' do
-        expect(@genus.type_species_relationship.id). to eq(@species_type_of_genus.id)
-      end
-
-      specify 'type of genus' do
-        expect(@protonym.type_of_genus.first). to eq(@genus)
-      end
-
-      specify 'type of genus relationship' do
-        expect(@protonym.type_of_genus_relationships.first.id). to eq(@species_type_of_genus.id)
-      end
     end
 
-    context 'combination (broad sense) based relationships' do
-      specify 'type related (has one)' do
-        expect(protonym).to respond_to(:type_species)    
-        expect(protonym).to respond_to(:type_genus)
-      end
-
-      context 'original description/combination' do
-        specify 'original_combination_source' do
-          expect(protonym).to respond_to(:original_combination_source)
-        end
+    context 'has_one' do
+      specify 'original_combination_source' do
+        expect(protonym).to respond_to(:original_combination_source)
       end
 
       specify 'originally classified' do
@@ -115,10 +104,11 @@ describe Protonym, :type => :model do
           specify methods do
             expect(protonym).to respond_to(methods)
           end
-
         end
       end
+    end
 
+    context 'example usage' do
       context 'typification' do
         specify 'type_taxon_name' do
           expect(@genus).to respond_to(:type_taxon_name)
@@ -149,6 +139,30 @@ describe Protonym, :type => :model do
           expect(c2.valid?).to be_falsey
         end
       end 
+
+      specify 'type_of_relationships' do
+        expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
+      end
+
+      specify 'type_of_taxon_names' do
+        expect(@protonym.type_of_taxon_names).to eq([@genus])
+      end
+
+      specify 'type species' do
+        expect(@genus.type_species).to eq(@protonym)
+      end
+
+      specify 'type species relationship' do
+        expect(@genus.type_species_relationship.id).to eq(@species_type_of_genus.id)
+      end
+
+      specify 'type of genus' do
+        expect(@protonym.type_of_genus.first).to eq(@genus)
+      end
+
+      specify 'type of genus relationship' do
+        expect(@protonym.type_of_genus_relationships.first.id).to eq(@species_type_of_genus.id)
+      end
     end
   end # end associations
 

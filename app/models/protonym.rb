@@ -131,9 +131,7 @@ class Protonym < TaxonName
     relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
   end
 
-
-
-
+  # TODO: make a constant somewhere, it's def not a instance method
   def family_group_endings
     %w{ini ina inae idae oidae odd ad oidea}
   end
@@ -231,7 +229,8 @@ class Protonym < TaxonName
     #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
   end
 
-  # Returns an Array of TaxonNameRelationship classes that are applicable to this name
+  # return [Array of TaxonNameRelationship] 
+  #   classes that are applicable to this name, as deterimned by Rank
   def original_combination_class_relationships
     relations = []
     TaxonNameRelationship::OriginalCombination.descendants.each do |r|
@@ -315,6 +314,7 @@ class Protonym < TaxonName
     end
   end
 
+  # Why protected
   def genus_suggested_gender
     return nil unless self.rank_class.to_s =~/Genus/
     TaxonNameClassification::Latinized::Gender.descendants.each do |g|
@@ -379,6 +379,7 @@ class Protonym < TaxonName
     end
   end
 
+  # why protected
   def species_questionable_ending(g, n)
     return nil unless self.rank_class.to_s =~/Species/
     g.questionable_species_endings.each do |e|
