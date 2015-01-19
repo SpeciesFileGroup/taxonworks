@@ -11,7 +11,7 @@ describe 'Users' do
 
   # new start
 
-  describe 'when user is signed in' do # before user signs in, s/he is on /signin page
+  context 'when user is signed in' do # before user signs in, s/he is on /signin page
     context 'when user is worker' do # worker tests valid for project admin and admin
       before {
         sign_in_user
@@ -134,124 +134,119 @@ describe 'Users' do
       it 'should list users' do
         expect(page).to have_selector('h1', text: 'Users')
       end
-
-
     end
 
 
- describe 'GET /users' do    # this is users/index page? Only signed in admins can see it
-    context 'when administrator' do
-      before {
-        sign_in_administrator
-        visit users_path
-      }
-      it 'should list users' do
-        expect(page).to have_selector('h1', text: 'Users')
-        expect(page).to have_content("#{@user.email}")
-        expect(page).to have_link('Administration')
+    describe 'GET /users' do    # this is users/index page? Only signed in admins can see it
+      context 'when administrator' do
+        before {
+          sign_in_administrator
+          visit users_path
+        }
+        it 'should list users' do
+          expect(page).to have_selector('h1', text: 'Users')
+          expect(page).to have_content("#{@user.email}")
+          expect(page).to have_link('Administration')
+        end
+      end
+
+      context 'when not an administrator' do   # how would a non administrator get to this page? By entering the URL manually in the browser's address bar
+        before { 
+          sign_in_user
+          visit users_path 
+        }
+        it 'should redirect to dashboard and provide a notice' do
+          expect(page.current_path).to eq('/') # TODO: eq(dashboard_path) doesn't work and the fact that root is also dashboard#index is being assumed rather than tested
+          expect(page).to have_content('Please sign in as an administrator.') 
+        end
       end
     end
 
-   context 'when not an administrator' do   # how would a non administrator get to this page? By entering the URL manually in the browser's address bar
-     before { 
-       sign_in_user
-       visit users_path 
-     }
-     it 'should redirect to dashboard and provide a notice' do
-       expect(page.current_path).to eq('/') # TODO: eq(dashboard_path) doesn't work and the fact that root is also dashboard#index is being assumed rather than tested
-       expect(page).to have_content('Please sign in as an administrator.') 
-     end
-   end
- end
+    describe 'GET /users/:id' do    # this is user show
 
- describe 'GET /users/:id' do    # this is user show
+      context 'when logged in on dashboard' do
+        before {
+          sign_in_user
+          visit user_path(@user)
+        }
 
-   context 'when logged in on dashboard' do
-     before {
-       sign_in_user
-       visit user_path(@user)
-     }
-
-    describe 'basic attributes contents' do
-      it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
+        describe 'basic attributes contents' do
+          it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
       
-      describe 'API access token' do
-        let(:token_label) { 'API access token' }
+          describe 'API access token' do
+            let(:token_label) { 'API access token' }
         
-        context 'when there is no token' do
-          it 'doesn\'t show the API access token label' do
-            expect(page).to_not have_content(token_label)
+            context 'when there is no token' do
+              it 'doesn\'t show the API access token label' do
+                expect(page).to_not have_content(token_label)
+              end
+            end
+        
+            context 'when there is a token' do
+              before {
+                @user.generate_api_access_token
+                @user.save       
+                visit user_path(@user)
+              }
+          
+              it 'shows the API access token label' do
+                expect(page).to have_content(token_label)
+              end
+          
+              it 'shows the API access token string' do
+                expect(page).to have_content(@user.api_access_token)
+              end
+            end
           end
+      
+          it 'provides a link to edit the account' do
+            expect(page).to have_link('Edit account', href: edit_user_path(@user))
+          end
+          it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
+            expect(page).to have_link('View my statistics', href: user_statistics_path)
+            # what projects I belong, currently logged into projects,
+          end
+        end 
+      end
+
+      context 'when editing self' do         # this is either edit oneself or an admin editing someone else
+        before {
+          sign_in_user
+          visit edit_user_path(@user)
+        }
+   
+        it 'should let user edit their account information' do
+          txt = "Edit user #{@user.id}"
+          expect(page).to have_selector('h1', txt)
+          expect(page).to have_title("#{txt} | TaxonWorks")
+          fill_in 'Email', with: 'edit_user_modified@example.com'
+          fill_in 'Password', with: '1234ZZZ!'
+          fill_in 'Password confirmation', with: '1234ZZZ!'
+          click_button 'Update User'
+   
+          expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
         end
-        
-        context 'when there is a token' do
+      end
+
+      context 'when editing someone else' do
+        context 'and logged in as administrator' do
           before {
-            @user.generate_api_access_token
-            @user.save       
-            visit user_path(@user)
+            sign_in_administrator
+            visit edit_user_path(@user)
           }
-          
-          it 'shows the API access token label' do
-            expect(page).to have_content(token_label)
-          end
-          
-          it 'shows the API access token string' do
-            expect(page).to have_content(@user.api_access_token)
-          end
+          it 'should render'
+        end
+
+        context 'and not logged in as administrator' do  # where is this prompt?
+          it 'should redirect to dashboard and provide a notice'
+        end
+
+        context 'and logged in as a project_administrator' do        # where is this prompt?
+          before {
+          }
+          it 'should redirect to dashboard and provide a notice'
         end
       end
-      
-      it 'provides a link to edit the account' do
-        expect(page).to have_link('Edit account', href: edit_user_path(@user))
-      end
-      it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
-        expect(page).to have_link('View my statistics', href: user_statistics_path)
-        # what projects I belong, currently logged into projects,
-      end
-    end 
-   end
-
-
-    context 'when editing self' do         # this is either edit oneself or an admin editing someone else
-      before {
-        sign_in_user
-        visit edit_user_path(@user)
-      }
-   
-      it 'should let user edit their account information' do
-        txt = "Edit user #{@user.id}"
-        expect(page).to have_selector('h1', txt)
-        expect(page).to have_title("#{txt} | TaxonWorks")
-        fill_in 'Email', with: 'edit_user_modified@example.com'
-        fill_in 'Password', with: '1234ZZZ!'
-        fill_in 'Password confirmation', with: '1234ZZZ!'
-        click_button 'Update User'
-   
-        expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
-   
-   
-      end
-   end
-
- context 'when editing someone else' do
-   context 'and logged in as administrator' do
-     before {
-       sign_in_administrator
-       visit edit_user_path(@user)
-     }
-     it 'should render' 
-   end
-
-   context 'and not logged in as administrator' do  # where is this prompt?
-     it 'should redirect to dashboard and provide a notice'
-   end
-
-   context 'and logged in as a project_administrator' do        # where is this prompt?
-     before {
-     }
-     it 'should redirect to dashboard and provide a notice'
-   end
- end
+    end
   end
-end
 end
