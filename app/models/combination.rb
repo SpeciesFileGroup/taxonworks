@@ -76,9 +76,9 @@ class Combination < TaxonName
     :parent_is_properly_set
 
   soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
-  soft_validate(:sv_source_not_older_than_description, set: :dates)
   soft_validate(:sv_year_of_publication_matches_source, set: :dates)
   soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
+  soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
 
   # @return [Array of TaxonName]
   #   pre-ordered by rank 
@@ -143,7 +143,7 @@ class Combination < TaxonName
     end
   end
 
-  def sv_source_not_older_than_description
+  def sv_source_not_older_than_protonyms
     source_year = self.source.nomenclature_year if self.source
     target_year = earliest_protonym_year
     if source_year && target_year

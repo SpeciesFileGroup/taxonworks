@@ -283,10 +283,10 @@ describe Protonym, :type => :model do
     context 'year and source do not match' do
       specify 'A taxon had not been described at the date of the reference' do
         p = FactoryGirl.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: @source, parent: @genus)
-        p.soft_validate(:source_older_then_description)
+        p.soft_validate(:dates)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_truthy
         p.year_of_publication = 2000
-        p.soft_validate(:source_older_then_description)
+        p.soft_validate(:sv_source_not_older_then_description)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_falsey
       end
     end
@@ -373,6 +373,7 @@ describe Protonym, :type => :model do
         @subfamily.type_genus = nil
         expect(@subfamily.save).to be_truthy
       end
+
       specify 'mismatching author and year in incorrect_original_spelling' do
         s1 = FactoryGirl.create(:relationship_species, name: 'aus', verbatim_author: 'Dmitriev', year_of_publication: 2000, parent: @genus)
         s2 = FactoryGirl.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
@@ -387,6 +388,7 @@ describe Protonym, :type => :model do
         expect(s2.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(s2.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
+
       specify 'mismatching type specimens' do
         ssp = FactoryGirl.create(:iczn_subspecies, name: 'vitis', parent: @species)
         type_material = FactoryGirl.create(:valid_type_material, protonym: ssp)

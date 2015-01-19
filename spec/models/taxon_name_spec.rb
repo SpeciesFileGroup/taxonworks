@@ -3,6 +3,7 @@ require 'rails_helper'
 describe TaxonName, :type => :model do
 
   let(:taxon_name) { TaxonName.new }
+
   before(:all) do
     @subspecies = FactoryGirl.create(:iczn_subspecies)
     @species    = @subspecies.ancestor_at_rank('species')
@@ -270,6 +271,12 @@ describe TaxonName, :type => :model do
     end
   end
 
+  context 'soft validation' do
+    specify 'run all soft validations without error' do
+      expect(taxon_name.soft_validate).to be_truthy
+    end
+  end
+
   context 'validation' do
     before(:each) do
       taxon_name.valid?
@@ -459,6 +466,7 @@ describe TaxonName, :type => :model do
             expect(@s1.valid?).to be_truthy
             expect(@s2.valid?).to be_truthy
           end
+
           specify 'primary homonym' do
             expect(@family.cached_primary_homonym).to eq('Cicadellidae')
             expect(@tribe.cached_primary_homonym).to eq('Erythroneurini')
@@ -468,6 +476,7 @@ describe TaxonName, :type => :model do
             expect(@s1.cached_primary_homonym.blank?).to be_truthy
             expect(@s2.cached_primary_homonym.blank?).to be_truthy
           end
+
           specify 'secondary homonym' do
             expect(@family.cached_secondary_homonym.blank?).to be_truthy
             expect(@g1.cached_secondary_homonym.blank?).to be_truthy
@@ -477,6 +486,7 @@ describe TaxonName, :type => :model do
             expect(@s2.save).to be_truthy
             expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
           end
+
           specify 'original genus' do
             @s1.original_genus = @g1
             @s2.original_genus = @g1

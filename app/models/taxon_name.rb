@@ -180,10 +180,12 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
   validates_presence_of :name, message: 'Name is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
 
+
+
+  byebug # TN
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
-  soft_validate(:sv_source_older_then_description, set: :source_older_then_description)
   soft_validate(:sv_cached_names, set: :cached_names)
 
   # @return array of relationships
@@ -1055,10 +1057,6 @@ class TaxonName < ActiveRecord::Base
 
   def sv_missing_classifications
     true # see validation in Protonym.rb
-  end
-
-  def sv_source_older_then_description
-    true # see validation in Protonym.rb and Combination.rb
   end
 
   def sv_species_gender_agreement

@@ -153,7 +153,6 @@ describe Combination, :type => :model do
   end
 
   context 'soft validation' do
-
     specify 'runs all validations without error' do
       expect(combination.soft_validate()).to be_truthy
     end

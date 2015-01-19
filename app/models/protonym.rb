@@ -100,6 +100,9 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
+
+  byebug # P
+
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
   soft_validate(:sv_missing_classifications, set: :missing_classifications)
@@ -111,6 +114,7 @@ class Protonym < TaxonName
   soft_validate(:sv_parent_priority, set: :parent_priority)
   soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
   soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
+  soft_validate(:sv_source_not_older_then_description, set: :dates)
 
   before_validation :check_format_of_name,
     :validate_rank_class_class,
@@ -119,7 +123,6 @@ class Protonym < TaxonName
     :check_new_parent_class,
     :validate_source_type,
     :new_parent_taxon_name
-
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -274,7 +277,7 @@ class Protonym < TaxonName
 
   #region Soft validation
 
-  def sv_source_older_then_description
+  def sv_source_not_older_then_description
     if self.source && self.year_of_publication
       soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
     end
