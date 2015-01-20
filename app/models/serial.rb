@@ -7,6 +7,7 @@
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
   include Shared::DataAttributes  # equivalent of a note for a global class
   include Shared::Identifiable
