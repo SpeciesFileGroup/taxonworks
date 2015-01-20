@@ -76,6 +76,11 @@
 #
 module SoftValidation
 
+  ANCESTORS_WITH_SOFT_VALIDATIONS = 
+    Hash.new do |h, klass|
+      h[klass.name] = (klass.ancestors.select{|a| a.respond_to?(:soft_validates?) && a.soft_validates?} - [klass] ) # a < ActiveRecord::Base && would be faster but requires AR in spec 
+    end
+
   # A SoftValidations instance contains a set of SoftValidations
   # and some code that tracks whether those validations have
   # been fixed, etc.
@@ -252,8 +257,16 @@ module SoftValidation
       true
     end
 
+    # @return [True]
+    #   indicates that this class has included SoftValidation 
     def soft_validates?
       true
+    end
+
+    # @return [Boolean]
+    #    true if at least on soft_validate() exists in *this* class
+    def has_self_soft_validations?
+      self.soft_validation_methods[self.name] && self.soft_validation_methods[self.name][:all].count > 0
     end
 
     # an internal accessor for self.soft_validation_methods 
@@ -265,7 +278,7 @@ module SoftValidation
     #    whether to also return the ancestors validation methods 
     def soft_validators(set: :all, include_ancestors: true)
       methods = []
-      klass_validators = self.soft_validation_methods[self.name][set]
+      klass_validators = self.soft_validation_methods[self.name][set] if has_self_soft_validations?  
       methods += klass_validators if !klass_validators.nil? 
       if include_ancestors
         ancestor_klasses_with_validation.each do |klass|
@@ -276,7 +289,7 @@ module SoftValidation
     end
 
     def ancestor_klasses_with_validation
-      self.ancestors.select{|a| a.respond_to?(:soft_validates?) && a.soft_validates?} - [self]  # a < ActiveRecord::Base && would be faster but requires AR in spec
+      ANCESTORS_WITH_SOFT_VALIDATIONS[self]
     end
   end
 
