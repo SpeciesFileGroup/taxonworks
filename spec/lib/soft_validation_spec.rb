@@ -6,39 +6,57 @@ require 'rails_helper'
 describe 'SoftValidation' do
   context 'class methods' do
     specify 'soft_validations' do
-      expect(Softy.soft_validation_methods).to eq({all: []})
+      expect(Softy.soft_validation_methods).to eq('Softy' => {all: []})
+    end
+
+    context 'accessing soft_validations' do
+      specify 'soft_validators() returns individual methods from soft_validation_methods' do
+        expect(Softy.soft_validators).to eq([])
+      end
+
     end
 
     context 'adding soft validations' do
       # reset the hash for each test
-      before(:each) {Softy.soft_validation_methods = {all: []} }
+      before(:each) {Softy.soft_validation_methods = {'Softy' => {all: []}} }
+
 
       specify 'basic use: soft_validate(:method)' do
         expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
-        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+        expect(Softy.soft_validation_methods['Softy'][:all]).to eq([:haz_cheezburgers?])
       end
 
       specify 'assigment to a named set of validations: soft_validate(:method, set: :set_name)' do
         expect(Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)).to be_truthy
-        expect(Softy.soft_validation_methods[:all]).to eq([:needs_moar_cheez?])
-        expect(Softy.soft_validation_methods[:cheezy]).to eq([:needs_moar_cheez?])
+        expect(Softy.soft_validation_methods['Softy'][:all]).to eq([:needs_moar_cheez?])
+        expect(Softy.soft_validation_methods['Softy'][:cheezy]).to eq([:needs_moar_cheez?])
       end
     end
 
     context 'soft_validations between classes' do
-      before(:all) {
-        Softy.soft_validation_methods = {all: []}
-        OtherSofty.soft_validation_methods = {all: []}
+      before(:each) {
+        Softy.soft_validation_methods['Softy'] = {all: []}
+        OtherSofty.soft_validation_methods['OtherSofty'] = {all: []}
       }
 
-      specify 'methods assigned to one class are not available to another' do
-        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
-        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
-        expect(OtherSofty.soft_validation_methods[:all]).to eq([])
-        expect(OtherSofty.soft_validate(:foo)).to be_truthy
-        expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
-        expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+      specify 'methods assigned to parent are available to child' do
+        Softy.soft_validate(:yucky_cheezburgers?)
+        expect(OtherSofty.soft_validators).to include(:yucky_cheezburgers?)
       end
+
+      specify 'methods assigned to child are not merged with parents' do
+        OtherSofty.soft_validate(:haz_cheezburgers?)
+        expect(Softy.soft_validation_methods['Softy'][:all]).to eq([])
+      end
+
+    # specify 'methods assigned to one class are not available to another' do
+    #   expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
+    #   expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+    #   expect(OtherSofty.soft_validation_methods[:all]).to eq([])
+    #   expect(OtherSofty.soft_validate(:foo)).to be_truthy
+    #   expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
+    #   expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
+    # end
     end
   end
 
@@ -65,7 +83,7 @@ describe 'SoftValidation' do
   context 'example usage' do
     before(:each) do 
       # Stub the validation methods 
-      Softy.soft_validation_methods = {all: []}
+      Softy.soft_validation_methods = {'Softy' => {all: []}}
       Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)
       Softy.soft_validate(:haz_cheezburgers?)
     end 
@@ -217,6 +235,11 @@ end
 class Softy 
   include SoftValidation
 
+  # stub AR ancestors method
+  def self.ancestors
+    []
+  end
+
   def self.column_names
     ['mohr']
   end 
@@ -249,6 +272,11 @@ class OtherSofty < Softy
   # soft_validate(:bar)
   def self.column_names
     ['lezz']
+  end
+
+  # Stub ancestors method
+  def self.ancestors
+   [Softy]
   end 
 end
 

@@ -233,20 +233,21 @@ module SoftValidation
   end
 
   extend ActiveSupport::Concern
- 
+
   included do
     attr_accessor :soft_validation_result
     class_attribute :soft_validation_methods, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
-    # @soft_validation_methods = {all: []} 
-    self.soft_validation_methods = {all: []} 
+    self.soft_validation_methods = {self.name => { all: [] }}
   end
 
   module ClassMethods
     def soft_validate(method, options = {})
-      self.soft_validation_methods[:all] << method 
+      self.soft_validation_methods[self.name] ||= {}
+      self.soft_validation_methods[self.name][:all] ||= [] 
+      self.soft_validation_methods[self.name][:all] << method 
       if options[:set]
-        self.soft_validation_methods[options[:set]] ||= []
-        self.soft_validation_methods[options[:set]] << method 
+        self.soft_validation_methods[self.name][options[:set]] ||= []
+        self.soft_validation_methods[self.name][options[:set]] << method 
       end
       true
     end
@@ -254,7 +255,30 @@ module SoftValidation
     def soft_validates?
       true
     end
+
+    # an internal accessor for self.soft_validation_methods 
+    # @return [Array of Symbol]
+    #   the names of the soft validation methods 
+    # @param [:set, Symbol]
+    #   the set to return
+    # @param [:ancestors, Boolean]
+    #    whether to also return the ancestors validation methods 
+    def soft_validators(set: :all, ancestors: true)
+      methods = self.soft_validation_methods[self.name][set] 
+      if ancestors
+        ancestor_klasses_with_validation.each do |klass|
+          methods += klass.soft_validators(set: set, ancestors: false)
+        end
+      end
+      methods
+    end
+
+    def ancestor_klasses_with_validation
+      self.ancestors.select{|a|  a.soft_validates?} # a < ActiveRecord::Base && would be faster but requires AR in spec
+    end
   end
+
+  # instance methods
 
   def soft_validations    
     @soft_validation_result ||= SoftValidations.new(self)    
@@ -264,8 +288,9 @@ module SoftValidation
     @soft_validation_result = nil 
   end 
 
-  # @param [Symbol] set the set of soft validations to run
-  def soft_validate(set = :all)
+  # @param [:set, Symbol]  set the set of soft validations to run
+  # @param [:ancestors, Boolean] wether to also validate ancestors soft validations
+  def soft_validate(set: :all, ancestors: true)
     clear_soft_validations
     soft_validations
     sets = case set.class.name
@@ -278,7 +303,7 @@ module SoftValidation
            end
 
     sets.each do |set| 
-      self.class.soft_validation_methods[set].each do |s|
+      self.class.soft_validators(set: set, ancestors: ancestors).each do |s|
         self.send(s)
       end
     end
