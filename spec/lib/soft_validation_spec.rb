@@ -49,6 +49,20 @@ describe 'SoftValidation' do
         expect(Softy.soft_validation_methods['Softy'][:all]).to eq([])
       end
 
+      context 'accessed via soft_validators' do
+        specify 'soft_validator returns a single instance of the method when method assigned to parent' do
+          Softy.soft_validate(:haz_cheezburgers?)
+          expect(Softy.soft_validators).to eq([:haz_cheezburgers?])
+          expect(OtherSofty.soft_validators).to eq([:haz_cheezburgers?])
+        end
+
+        specify 'soft_validator returns a single instance of the method when method assigned to child' do
+          OtherSofty.soft_validate(:haz_cheezburgers?)
+          expect(Softy.soft_validators).to eq([])
+          expect(OtherSofty.soft_validators).to eq([:haz_cheezburgers?])
+        end
+      end
+
     # specify 'methods assigned to one class are not available to another' do
     #   expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
     #   expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])

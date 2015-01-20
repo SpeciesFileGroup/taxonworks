@@ -528,19 +528,22 @@ describe TaxonName, :type => :model do
           @family.valid?
           expect(@family.errors.include?(:name)).to be_falsey
         end
+
         specify "is invalidly_published when not ending in '-idae'" do
           taxon_name.name       = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_truthy
         end
+
         specify 'is invalidly_published when not capitalized' do
           taxon_name.name       = 'fooidae'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
           taxon_name.valid?
           expect(taxon_name.errors.include?(:name)).to be_truthy
         end
-        specify 'species name starting with apper case' do
+
+        specify 'species name starting with upper case' do
           taxon_name.name       = 'Aus'
           taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
           taxon_name.soft_validate(:validate_name)

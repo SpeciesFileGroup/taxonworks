@@ -263,18 +263,20 @@ module SoftValidation
     #   the set to return
     # @param [:ancestors, Boolean]
     #    whether to also return the ancestors validation methods 
-    def soft_validators(set: :all, ancestors: true)
-      methods = self.soft_validation_methods[self.name][set] 
-      if ancestors
+    def soft_validators(set: :all, include_ancestors: true)
+      methods = []
+      klass_validators = self.soft_validation_methods[self.name][set]
+      methods += klass_validators if !klass_validators.nil? 
+      if include_ancestors
         ancestor_klasses_with_validation.each do |klass|
-          methods += klass.soft_validators(set: set, ancestors: false)
+          methods += klass.soft_validators(set: set, include_ancestors: false)
         end
       end
-      methods
+      methods 
     end
 
     def ancestor_klasses_with_validation
-      self.ancestors.select{|a|  a.soft_validates?} # a < ActiveRecord::Base && would be faster but requires AR in spec
+      self.ancestors.select{|a| a.respond_to?(:soft_validates?) && a.soft_validates?} - [self]  # a < ActiveRecord::Base && would be faster but requires AR in spec
     end
   end
 
@@ -288,9 +290,10 @@ module SoftValidation
     @soft_validation_result = nil 
   end 
 
+  # @return [True] 
   # @param [:set, Symbol]  set the set of soft validations to run
   # @param [:ancestors, Boolean] wether to also validate ancestors soft validations
-  def soft_validate(set: :all, ancestors: true)
+  def soft_validate(set = :all, include_ancestors = true)
     clear_soft_validations
     soft_validations
     sets = case set.class.name
@@ -302,9 +305,9 @@ module SoftValidation
              [set.to_sym]
            end
 
-    sets.each do |set| 
-      self.class.soft_validators(set: set, ancestors: ancestors).each do |s|
-        self.send(s)
+    sets.each do |s| 
+      self.class.soft_validators(set: s, include_ancestors: include_ancestors).each do |m|
+        self.send(m)
       end
     end
     soft_validations.validated = true
