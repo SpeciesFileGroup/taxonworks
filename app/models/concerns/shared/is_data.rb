@@ -13,23 +13,27 @@ module Shared::IsData
   # Determines whether the instance can be annotated
   # in one of the following ways
   def has_alternate_values?
-    self.class.ancestors.include?(Shared::AlternateValues)
+    self.class < Shared::AlternateValues
   end
 
   def has_citations?
-    self.class.ancestors.include?(Shared::Citable)
+    self.class < Shared::Citable
+  end
+
+  def has_data_attributes?
+    self.class < Shared::DataAttributes
   end
 
   def has_identifiers?
-    self.class.ancestors.include?(Shared::Identifiable)
+    self.class < Shared::Identifiable
   end
 
   def has_notes?
-    self.class.ancestors.include?(Shared::Notable)
+    self.class < Shared::Notable
   end
 
   def has_tags?
-    self.class.ancestors.include?(Shared::Taggable)
+    self.class < Shared::Taggable
   end
 
   # Also need to check has_one relationships
@@ -40,7 +44,20 @@ module Shared::IsData
     false
   end
 
+  # Contains all "annotations" for this instance
+  # @return [Hash]
+  def annotations_hash
+    result = {}
+    result.merge!('alternate values' => self.alternate_values) if self.has_alternate_values? && self.alternate_values.any?
+    result.merge!('citations' => self.citations) if self.has_citations? && self.citations.any?
+    result.merge!('data attributes' => self.data_attributes) if self.has_data_attributes? && self.data_attributes.any?
+    result.merge!('identifiers' => self.identifiers) if self.has_identifiers? && self.identifiers.any?
+    result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
+    result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
+    result
+  end
+
   module ClassMethods
-  end 
+  end
 
 end
