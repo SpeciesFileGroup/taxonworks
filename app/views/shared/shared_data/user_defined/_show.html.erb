@@ -19,12 +19,13 @@
       <%= render object_attributes_partial_path(object.metamorphosize) %>
       <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
       <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-      <%= render(partial: '/alternate_values/object_pane', locals: {object: object}) %>
-      <%= render(partial: '/citations/object_pane', locals: {object: object}) %>
-      <%= render(partial: '/data_attributes/object_pane', locals: {object: object}) %>
-      <%= render(partial: '/identifiers/object_pane', locals: {object: object}) %>
-      <%= render(partial: '/notes/object_pane', locals: {object: object}) %>
-      <%= render(partial: '/tags/object_pane', locals: {object: object}) %>
+      <%= render(partial: '/alternate_values/object_pane', locals: {object: object}) if object.has_alternate_values? %>
+      <%= render(partial: '/citations/object_pane', locals: {object: object}) if object.has_citations? %>
+      <%= render(partial: '/data_attributes/object_pane', locals: {object: object})  if object.has_data_attributes? %>
+      <%= render(partial: '/identifiers/object_pane', locals: {object: object}) if object.has_identifiers? %>
+      <%= render(partial: '/notes/object_pane', locals: {object: object}) if object.has_notes? %>
+      <%= render(partial: '/tags/object_pane', locals: {object: object}) if object.has_tags? %>
+
     </div>
   </div>
 
