@@ -15,8 +15,8 @@ namespace :tw do
         # @serial_lang_note = Predicate.find_or_create_by(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
       end
 
-      desc 'call like "rake tw:import:serial:build_SF_serials[/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt] user_id=1 project_id=1" '
-      task :build_SF_serials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_4_build_SF_serials[/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt] user_id=1 project_id=1" '
+      task :serials_4_build_SF_serials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './SFSerialExport.txt')
 
         # can/should? be run after MXserial import
@@ -302,8 +302,8 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
       end # task
 
 
-      desc 'call like "rake tw:import:serial:add_SF_serial_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1 project_id=1" '
-      task :add_SF_serial_IDs, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_5_add_SF_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1 project_id=1" '
+      task :serials_5_add_SF_IDs, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './SFImportIDmap.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -409,8 +409,8 @@ SFImportIDMap.txt
         end
       end #end task
 
-      desc 'call like "rake tw:import:serial:add_SF_serial_alt_names[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 project_id=1" '
-      task :add_altnames_SFserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 project_id=1" '
+      task :serials_6_add_SF_altnames, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './SFaltnames.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0

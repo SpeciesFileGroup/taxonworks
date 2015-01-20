@@ -16,8 +16,8 @@ namespace :tw do
         @serial_lang_note     = Predicate.find_or_create_by(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
       end
 
-      desc 'call like "rake tw:import:serial:build_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1 project_id=1" '
-      task :build_MXserials, [:data_directory1] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_1_build_MX[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1 project_id=1" '
+      task :serials_1_build_MX, [:data_directory1] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory1 => './treeMXmerge-final.txt')
 
         # TODO: check checksums of incoming files?
@@ -266,8 +266,8 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
       end # task
 
 
-      desc 'call like "rake tw:import:serial:add_duplicate_MXserials[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1 project_id=1" '
-      task :add_duplicate_MXserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_2_add_MX_duplicates[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1 project_id=1" '
+      task :serials_2_add_MX_duplicates, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './treeMXduplicates.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -419,8 +419,8 @@ to save without raising
       end #end task
 
 
-      desc 'call like "rake tw:import:serial:add_chronologies_MXserials[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
-      task :add_chronologies_MXserials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_3_add_MX_chronologies[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
+      task :serials_3_add_MX_chronologies, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0

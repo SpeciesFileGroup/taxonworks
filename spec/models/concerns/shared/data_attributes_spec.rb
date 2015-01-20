@@ -10,6 +10,8 @@ describe 'DataAttributes', :type => :model do
       expect(class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_truthy
       expect(class_with_data_attributes.data_attributes.size).to eq(1)
       expect(class_with_data_attributes.save).to be_truthy
+      expect(class_with_data_attributes.data_attributes.any?).to eq(true)
+      expect(class_with_data_attributes.data_attributes.first.id.nil?).to eq(false)
     end
   end
 
@@ -19,8 +21,8 @@ describe 'DataAttributes', :type => :model do
     }
 
 
-    specify 'has_data_attributes?' do
-      expect(class_with_data_attributes.has_data_attributes?).to eq(false)
+    specify 'has any data attributes?' do
+      expect(class_with_data_attributes.data_attributes.any?).to eq(false)
     end
 
     specify 'keyword_value_hash' do
@@ -34,8 +36,8 @@ describe 'DataAttributes', :type => :model do
 
   context 'adding lots of attributes' do
     specify 'add_import_attributes(hash) should add multiple pairs of ImportAttributes' do
-      skip 
-    end 
+      skip
+    end
   end
 
 end

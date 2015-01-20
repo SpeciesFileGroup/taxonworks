@@ -2,13 +2,11 @@ module Shared::DataAttributes
   extend ActiveSupport::Concern
 
   included do
-    has_many :data_attributes, as: :attribute_subject, validate: false
+    has_many :data_attributes, as: :attribute_subject, validate: true
     accepts_nested_attributes_for :data_attributes
   end 
 
-  def has_data_attributes?
-    self.data_attributes.count > 0
-  end
+  # to find if a record has attributes associated with it do  object.data_attributes.any?
 
   def keyword_value_hash
     self.data_attributes.inject({}) do |hsh, a|   
