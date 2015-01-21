@@ -153,22 +153,46 @@ class GeographicArea < ActiveRecord::Base
   end
 
   # @param geographic_item [GeographicItem]
-  # @return [Scope]
-  def self.find_others_contained_within(geographic_item)
-    pieces = GeographicItem.is_contained_by('any', geographic_item)
+  # @return [Scope] of geographic_items
+  def self.find_others_contained_by(geographic_area)
+    pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
     pieces
 
-    # ce = []
-    # pieces.each { |o|
-    #   ce.push(o.collecting_events_through_georeferences.to_a)
-    #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    # }
-    # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
-    #
-    pieces.excluding(geographic_item)
+    others = []
+    pieces.each { |o|
+      others.push(o.collecting_events_through_georeferences.to_a)
+      others.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+    pieces = CollectingEvent.where('id in (?)', others.flatten.map(&:id).uniq)
+
+    pieces.excluding(geographic_area)
 
   end
 
+  # @param geographic_item [GeographicItem]
+  # @return [Scope] of geographic_items
+  def self.find_others_contained_in(geographic_area)
+    pieces = GeographicItem.is_contained_in('any', geographic_area.geo_object)
+    pieces
+
+    others = []
+    pieces.each { |o|
+      others.push(o.collecting_events_through_georeferences.to_a)
+      others.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+    pieces = CollectingEvent.where('id in (?)', others.flatten.map(&:id).uniq)
+
+    pieces.excluding(geographic_area)
+
+  end
+
+  # @param latitude [Double] Decimal degrees
+  # @param longitude [Double] Decimal degrees
+  # @return [Scope] of all area which contain the point specified
+  def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
+    point = GeographicItem.new(Georeference::FACTORY.point(longitude, latitude))
+    GeographicItem.is_contained_in('any_poly', point)
+  end
 
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
