@@ -195,6 +195,7 @@ TaxonWorks::Application.routes.draw do
   get 'tasks/usage/user_activity#report/:id'
 =end
   match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
+  match 'find_serials_like_me/:id', to: 'tasks/serials/similar#like', via: 'get', as: :find_serials_like_me
 
   namespace :tasks do
     namespace :gis do
@@ -204,8 +205,8 @@ TaxonWorks::Application.routes.draw do
     end
 
     namespace :serials do
-      get 'similar/like:id', to: 'similar#like', as: 'similar_serial'
-      post 'serial/update_find:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
+#      get 'similar/like/:id', to: 'similar#like', as: 'find_serials_like_me'
+      post 'serial/update_find/:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
       # get 'serial/update'
       # get 'serial/within'
     end
