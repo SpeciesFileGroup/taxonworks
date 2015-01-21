@@ -9,7 +9,8 @@ module DataAttributesHelper
 
   def data_attribute_tag(data_attribute)
     return nil if data_attribute.nil?
-    "#{data_attribute.cached} (#{data_attribute.type.demodulize.titleize.humanize})"
+    "#{data_attribute.controlled_vocabulary_term_id} (#{data_attribute.type.demodulize.titleize.humanize})"
   end
+
 
 end

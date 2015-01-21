@@ -41,4 +41,8 @@ module NotesHelper
     destroy_object_link(note)
   end
 
+  def note_tag(note)
+    return nil if note.nil?
+    note.text
+  end
 end
