@@ -394,7 +394,7 @@ SFImportIDMap.txt
               if s.valid?
                 s.save
               else
-                msg = "skipping -- invalid on save : tmpID #{importID} : #{ns.errors.messages} "
+                msg = "skipping -- invalid on save : tmpID #{importID} : #{s.errors.messages} "
                 error_msg << msg
                 # raise 's not valid'
               end
