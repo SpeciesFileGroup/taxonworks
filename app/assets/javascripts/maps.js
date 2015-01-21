@@ -95,8 +95,13 @@ initialize = function () {
     map.data.addListener('mouseout', function(event) {
         map.data.revertStyle();
     });
-    //map.setMap(map);
 
+    google.maps.event.addListener(map, 'click', function (event) {
+        var mapLatLng = event.latLng;
+        lat = mapLatLng.lat();
+        lng = mapLatLng.lng();
+        document.getElementById('taxonworks_link').text = 'TaxonWorks  Latitude = ' + lat + ' , Longitude = ' + lng;
+    });
 };
 
 function initialize_map(options) {
@@ -161,7 +166,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     if (center_lat == undefined) {
         wy = ymax - ymin;
         center_lat = 0.5 * (ymax + ymin);
-        cutoff = 60.0
+        cutoff = 65.0
         if(/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
             angle = ymax - cutoff;
             if (center_lat < 0) {
@@ -173,7 +178,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
         }
     }
     ;
-    if(wy > 0.5 * wx) {wx = wy * 3.0}
+    if(wy > 0.5 * wx) {wx = wy * 2.5}
     if (wx <= 0.1) {gzoom =11};
     if (wx > 0.1) {gzoom = 10};
     if (wx > 0.2) {gzoom = 9};
