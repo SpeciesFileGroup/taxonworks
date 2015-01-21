@@ -348,18 +348,47 @@ SELECT round(CAST(
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
   def self.is_contained_in(column_name, *geographic_items)
-    if column_name.downcase == 'any'
-      part = []
-      DATA_TYPES.each { |column|
-        unless column == :geometry_collection
-          part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
-        end
-      }
-      # todo: change 'id in (?)' to some other sql construct
-      GeographicItem.where(id: part.flatten.map(&:id))
-    else
-      q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
-      where(q)
+    # if column_name.downcase == 'any'
+    #   part = []
+    #   DATA_TYPES.each { |column|
+    #     unless column == :geometry_collection
+    #       part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
+    #     end
+    #   }
+    #   # todo: change 'id in (?)' to some other sql construct
+    #   GeographicItem.where(id: part.flatten.map(&:id))
+    # else
+    #   q = geographic_items.flatten.collect { |geographic_item| GeographicItem.containing_sql(column_name, geographic_item) }.join(' or ')
+    #   where(q)
+    # end
+
+    column_name.downcase!
+    case column_name
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            if column.to_s.index(column_name.gsub('any_', ''))
+              part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
+            end
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      else
+        q = geographic_items.flatten.collect { |geographic_item|
+          GeographicItem.containing_sql(column_name, geographic_item)
+        }.join(' or ')
+        where(q) # .excluding(geographic_items)
     end
   end
 

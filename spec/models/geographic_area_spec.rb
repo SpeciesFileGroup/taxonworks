@@ -351,4 +351,36 @@ describe GeographicArea, :type => :model do
 
   end
 
+  context 'find_others... responses from geographic_areas' do
+
+    before(:all) do
+      clean_slate_geo
+      generate_political_areas_with_collecting_events
+      # generate_geo_test_objects
+    end
+
+    after(:all) do
+      clean_slate_geo
+      User.delete_all
+      Project.delete_all
+      ActiveRecord::Base.connection.reset_pk_sequence!('users')
+      ActiveRecord::Base.connection.reset_pk_sequence!('projects')
+    end
+
+    specify('find_others_contained_in')do
+      pending
+      expect(GeographicArea.find_others_contained_in(@area_land_mass)).to include(@item_n3)
+    end
+
+    specify('find_others_contained_by') do
+      pending
+      expect(GeographicArea.find_others_contained_by(@area_old_boxia)).to include(@area_r)
+    end
+
+    specify('find_by_lat_;ong') do
+      pending
+      expect(GeographicArea.find_by_lat_long(@area_old_boxia)).to include(@area_r)
+    end
+  end
+
 end
