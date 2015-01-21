@@ -8,9 +8,17 @@ describe DataAttribute, :type => :model do
       attribute.valid?
     }
     context 'requires' do
-      specify 'attribute_subject' do
-        expect(attribute.errors.include?(:attribute_subject)).to be_truthy
+
+      # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
+      specify 'attribute_subject' do 
+        # this eliminate all model based validation requirements
+        attribute.type = 'ImportAttribute'
+        attribute.value = 'asdf'
+        attribute.import_predicate = 'jkl'
+        expect{attribute.save}.to raise_error ActiveRecord::StatementInvalid
       end
+
+
 
       specify 'value' do
         expect(attribute.errors.include?(:value)).to be_truthy
