@@ -191,9 +191,7 @@ TaxonWorks::Application.routes.draw do
       get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
     end
   end
-=begin
-  get 'tasks/usage/user_activity#report/:id'
-=end
+  
   match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
 
   namespace :tasks do
@@ -210,10 +208,6 @@ TaxonWorks::Application.routes.draw do
       # get 'serial/within'
     end
   end
-
-=begin
-  get 'tasks/gis/locality/nearby/:id'
-=end
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
