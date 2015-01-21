@@ -1,0 +1,48 @@
+# All tasks with routes (/task) may be human named and described here.  Prefix is required.
+#
+# friendly_name:
+#   prefix: :as_exported_in_rake_routes
+#
+# potentially other properties/attributes:
+#
+#  type:  
+#    - :create
+#    - :read
+#    - :update
+#    - :destroy
+# description: "Some sentance discription.'
+#   
+---
+edit_original_combination:
+  :prefix: 'edit_original_combination_task_taxon_name'
+update_original_combination:
+  :prefix: 'update_original_combination_task_taxon_name'
+verify_accessions:
+  :prefix: 'verify_accessions_task'
+quick_new_verbatim_material:
+  :prefix: 'quick_verbatim_material_task'
+create_verbatim_material:
+  :prefix: 'tasks_accessions_quick_verbatim_material_create'
+build_biocuration_group:
+  :prefix: 'build_biocuration_groups_task' 
+build_source_from_crossref:
+  :prefix: 'build_source_from_crossref_task'
+create_reference_from_verbatim_citation:
+  :prefix: 'tasks_bibliography_verbatim_reference_create'
+browse_user_activity:
+  :prefix: 'user_activity_task'
+report_user_activity:
+  :prefix: 'tasks_usage_user_activity_report'
+find_similar_serials:
+  :prefix: 'find_similar_serials_task'
+nearby_localities:
+  :prefix: 'tasks_gis_locality_nearby'
+update_nearby_localities:
+  :prefix: 'tasks_gis_locality_update'
+show_contained_localities:
+  :prefix: 'tasks_gis_locality_within'
+show_similar_serials:
+  :prefix: 'tasks_serials_similar_serial' 
+update_found_similar_serials:
+  :prefix: 'tasks_serials_update_serial_find'
+
