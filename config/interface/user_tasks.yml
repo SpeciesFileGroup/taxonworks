@@ -1,20 +1,30 @@
 # All tasks with routes (/task) may be human named and described here.  Prefix is required.
 #
+# Required - 
 # friendly_name:
-#   prefix: :as_exported_in_rake_routes
+#   :prefix: :as_exported_in_rake_routes
 #
-# potentially other properties/attributes:
+# Optional attributes 
+# Provide a help text description.
+#   :description: 'A full sentence or two describing the purpose of this task.'
 #
+# Display some navigation links, these can not link to instances
+#   :related_paths: 
+#    - :some_full_path
+#    - :another_full_path
+#
+#
+# Potential future options
 #  type:  
 #    - :create
 #    - :read
 #    - :update
 #    - :destroy
-# description: "Some sentance discription.'
 #   
 ---
 edit_original_combination:
   :prefix: 'edit_original_combination_task_taxon_name'
+  :description: 'Create or edit the original combination for this taxon name.'
 update_original_combination:
   :prefix: 'update_original_combination_task_taxon_name'
 verify_accessions:
