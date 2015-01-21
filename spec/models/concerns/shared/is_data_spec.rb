@@ -36,5 +36,5 @@ end
 
 class TestIsData < ActiveRecord::Base
   include FakeTable
-  include Shared::IsData
+  include Shared::IsData 
 end

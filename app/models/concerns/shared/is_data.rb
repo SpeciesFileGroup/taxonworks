@@ -13,27 +13,27 @@ module Shared::IsData
   # Determines whether the instance can be annotated
   # in one of the following ways
   def has_alternate_values?
-    self.class < Shared::AlternateValues
+    self.class < Shared::AlternateValues ? true : false
   end
 
   def has_citations?
-    self.class < Shared::Citable
+    self.class < Shared::Citable ? true : false
   end
 
   def has_data_attributes?
-    self.class < Shared::DataAttributes
+    self.class < Shared::DataAttributes ? true : false
   end
 
   def has_identifiers?
-    self.class < Shared::Identifiable
+    self.class < Shared::Identifiable ? true : false
   end
 
   def has_notes?
-    self.class < Shared::Notable
+    self.class < Shared::Notable ? true : false
   end
 
   def has_tags?
-    self.class < Shared::Taggable
+    self.class < Shared::Taggable ? true : false
   end
 
   # Also need to check has_one relationships
