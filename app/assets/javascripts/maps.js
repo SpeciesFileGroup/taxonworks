@@ -28,7 +28,7 @@ var center_lat;
 var center_lat_long;
 
 // zoom level
-var gzoom = 1;
+var gzoom = 1;      // default to fairly far out
 
 var initialize;
 
@@ -131,43 +131,49 @@ function processPoints(geometry, callback, thisArg) {
         });
     }
 }
-
-function get_window_center() {      // for use with homebrew geoJSON scanner/enumerator
+        // this function fails on single point, esp in western hemisphere
+function get_window_center() {      // for use with home-brew geoJSON scanner/enumerator
     if (center_long == undefined) {
         //determine case of area extent
         center_long = 0.0;
         wm = 0.0;        // western hemisphere default area width
         wp = 0.0;        // eastern hemisphere default area width
-        if (xmaxm >= xminm) {wm = xmaxm - xminm}    // width of western area, if present
-        if (xmaxp >= xminp) {wp = xmaxp - xminp}    // width of eastern area, if present
+        if ((xminp == 180.0) && (xmaxp == 0.0)) {    //if no points, null out the range for this hemisphere
+            xminp = 0.0;
+        }
+        if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
+            xmaxm = 0.0;
+        }
+        wm = xmaxm - xminm;    // width of western area, if present
+        wp = xmaxp - xminp;    // width of eastern area, if present
+        xmm = xminm + 0.5 * wm;     // midpoint of west
+        xmp = xminp + 0.5 * wp;     // midpoint of east
         wx = wm + wp;                               // total width of "contiguous" area
-        if ((xmaxm > -180.0) && (xminp < 180.0)) {               // covers GB, and any non-crossing +/-180
-            //wp = xmaxp;             // width of eastern side
-            //wm = -xminm;  //seems wrong
-            if (wp >= wm) {center_long = xmaxp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
-            if (wp < wm) {center_long = xminm + 0.5 * (wp + wm)}     // then favor western hemisphere
-            //center_long = 0.5 * (xmaxp + xminm);            //get the mean about 0
+        center_long = xmm + xmp;    //as signed, unless overlaps +/-180
+        if(wm > wp){                // serious cheat: pick mean longitude of wider group
+            center_long = xmm       // "works" since there are so few cases that span
+        }                           // the Antimeridian
+        if(wm < wp){
+            center_long = xmp
         }
-        else if ((xmaxp > 179.0) && (xminm < -179.0)) {     // covers USA and Russia == overlap +/- 180
-            //wp = 180.0 - xminp;
-            //wm = -(-180 -xmaxm);
-            if (wp > wm) {center_long = xminp - 0.5 * (wp + wm)}     // then favor eastern hemisphere
-            if (wp < wm) {center_long = xmaxm + 0.5 * (wp + wm)}     // then favor western hemisphere
-
-            //center_long = 0.5 * (xmaxm - xmaxp);           // bias to
-        }
-        else if ((xminp > 0.0) && (xmaxp < 180.0) && (xminp < xmaxp)) {  // if not wall-to-wall and has (ALL) eastern content
-            center_long = 0.5 * (xmaxp + xminp);             //get the mean -- this computation assumes -180 is next to +180
-        }
-        else if ((xminm > -180.0) && (xmaxm < 0.0) && (xmaxm > xminm)) {  // if not wall-to-wall and has (ALL) western content
-            center_long = 0.5 * (xmaxm + xminm);             //get the mean -- this computation assumes -180 is next to +180
-        };
     }
     ;
     if (center_lat == undefined) {
-        center_lat = 0.5 * (ymax + ymin); ////  * 1.125;
+        wy = ymax - ymin;
+        center_lat = 0.5 * (ymax + ymin);
+        cutoff = 60.0
+        if(/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
+            angle = ymax - cutoff;
+            if (center_lat < 0) {
+                angle = ymin + cutoff;
+            }
+            offset = Math.cos((angle /*- center_lat*/)/ (180.0/3.1415926535));
+            offset = 0.1 * (ymax-ymin)/offset;
+            center_lat = center_lat + offset;
+        }
     }
     ;
+    if(wy > 0.5 * wx) {wx = wy * 3.0}
     if (wx <= 0.1) {gzoom =11};
     if (wx > 0.1) {gzoom = 10};
     if (wx > 0.2) {gzoom = 9};
