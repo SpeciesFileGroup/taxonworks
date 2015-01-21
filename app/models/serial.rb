@@ -2,7 +2,7 @@
 #
 # @!attribute primary_language_id 
 #   @return [Integer]
-#   The id of the Language  langauge of this serial.  According to the ISSN a new ISSN is minted for a journal that changes languages.
+#   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for any journal that changes languages.
 #
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type

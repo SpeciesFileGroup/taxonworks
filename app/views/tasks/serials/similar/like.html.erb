@@ -9,13 +9,13 @@
 <ul>
   <% @similar_serials.each do |serial| -%>
       <li> <%= serial_tag(serial) -%>
-        <%= link_to('similar',tasks_serials_similar_serial_path(serial)) -%>
+        <%= link_to('similar',find_serials_like_me_path(serial)) -%>
         <%= link_to('edit', edit_serial_path(serial)) -%>
       </li>
   <% end %>
 </ul>
 
-<%= form_tag(tasks_serials_similar_serial_path(@serial.to_param)) do |f| %>
+<%= form_tag(find_serials_like_me_path(@serial.to_param)) do |f| %>
     <div>
       <div class="field">
         <%= label_tag :enter_a_search_string %>

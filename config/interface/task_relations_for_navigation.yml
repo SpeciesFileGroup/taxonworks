@@ -3,6 +3,8 @@
 ---
 find_similar_serials_task:
   - serials
+find_serials_like_me:
+  - serials
 build_biocuration_groups_task:
   - quick_verbatim_material_task
 quick_verbatim_material_task:
