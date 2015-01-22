@@ -28,7 +28,7 @@ class AssertedDistribution < ActiveRecord::Base
     # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     term = params[:term]
     include(:geographic_area, :otu, :source).
-        where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term})
+      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term})
   end
 
   #region Soft validation
@@ -45,6 +45,24 @@ class AssertedDistribution < ActiveRecord::Base
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end
     end
+  end
+
+  #end region
+
+  #region Class methods
+
+  # @param options [Hash] of e.g., {otu_id: 5, source_id: 5, latitude: '12.12', longitude: '12.312'}
+  # @ return an array of new AssertedDistributions.
+  def self.stub_new(options = {})
+
+    areas  = GeographicArea.find_by_lat_long(options[:latitude], options[:longitude])
+    options.delete(:latitude)
+    options.delete(:longitude)
+    result = []
+    areas.each do |ga|
+      result.push(AssertedDistribution.new(options.merge(:geographic_area_id => ga.id)))
+    end
+    result
   end
 
   #end region
