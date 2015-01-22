@@ -11,4 +11,4 @@
   <%= link_to('Georeference', new_georeference_path(georeference: {collecting_event_id: @collecting_event.to_param})) -%>
 <% end %> 
 
-<%= render(partial: 'shared/data/show', locals: {object: @collecting_event}) -%>
+<%= render(partial: 'shared/data/project/show', locals: {object: @collecting_event}) -%>
