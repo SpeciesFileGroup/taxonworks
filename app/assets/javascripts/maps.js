@@ -64,6 +64,7 @@ initialize = function () {
     get_Data();
     get_window_center();
     //document.getElementById('map_coords').html = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6);
+// converted to jQuery syntax
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6)) ;
 
     map.setCenter(center_lat_long);
@@ -84,6 +85,8 @@ initialize = function () {
     map.data.addListener('click', function(event) {
         event.feature.setProperty('isColorful', true);
         event.feature.setProperty('fillColor', "#CC0000");  //brighter red
+        var mapLatLng = event.latLng;
+        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -101,10 +104,10 @@ initialize = function () {
 
     google.maps.event.addListener(map, 'click', function (event) {
         var mapLatLng = event.latLng;
-        lat = mapLatLng.lat();
-        lng = mapLatLng.lng();
+        //lat = mapLatLng.lat();
+        //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
-        $("#map_coords").html('Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6)) ;
+        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
     });
 };
 
