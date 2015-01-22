@@ -63,7 +63,8 @@ initialize = function () {
 
     get_Data();
     get_window_center();
-    document.getElementById('map_coords').text = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6);
+    //document.getElementById('map_coords').html = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6);
+    $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6)) ;
 
     map.setCenter(center_lat_long);
     map.setZoom(gzoom);
@@ -102,7 +103,8 @@ initialize = function () {
         var mapLatLng = event.latLng;
         lat = mapLatLng.lat();
         lng = mapLatLng.lng();
-        document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
+        //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
+        $("#map_coords").html('Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6)) ;
     });
 };
 
