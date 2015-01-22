@@ -1,6 +1,4 @@
 TaxonWorks::Application.routes.draw do
-
-
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -14,6 +12,8 @@ TaxonWorks::Application.routes.draw do
       get 'search'
     end
   end
+
+
 
   root 'dashboard#index'
 
@@ -44,7 +44,6 @@ TaxonWorks::Application.routes.draw do
   match '/administration', to: 'administration#index', via: 'get'
 
   resources :project_members
-
   resources :pinboard_items, only: [:create, :destroy]
 
   #
@@ -152,8 +151,8 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_names do
     concerns [:data_routes]
     member do
-      match 'edit_original_combination_task', to: 'tasks/nomenclature/original_combination#edit', via: 'get'
-      match 'update_original_combination_task', to: 'tasks/nomenclature/original_combination#update', via: 'patch'
+      match 'edit_protonym_original_combination_task', to: 'tasks/nomenclature/original_combination#edit', via: 'get'
+      match 'update_protonym_original_combination_task', to: 'tasks/nomenclature/original_combination#update', via: 'patch'
     end
   end
 
@@ -168,15 +167,89 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  match 'verify_accessions_task', to: 'tasks/accessions/verify/material#index', via: 'get'
-  match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
-  post 'tasks/accessions/quick/verbatim_material/create'
+#  match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
+#  post 'tasks/accessions/quick/verbatim_material/create'
 
-  match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
-  match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
+#  match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
+#  match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
 
-  match 'build_source_from_crossref_task', to: 'tasks/bibliography/verbatim_reference#new', via: 'get'
-  post 'tasks/bibliography/verbatim_reference/create'
+  # match 'build_source_from_crossref_task', to: 'tasks/bibliography/verbatim_reference#new', via: 'get'
+  # post 'tasks/bibliography/verbatim_reference/create'
+
+
+
+  # match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
+
+# namespace :tasks do
+#   namespace :usage do
+#     get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
+#   end
+# end
+  
+#  match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
+
+ #namespace :tasks do
+ #  namespace :gis do
+ #    get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
+ #    post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
+ #    get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
+ #  end
+
+  # namespace :serials do
+  #   get 'similar/like:id', to: 'similar#like', as: 'similar_serial'
+  #   post 'serial/update_find:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
+  #   # get 'serial/update'
+  #   # get 'serial/within'
+  # end
+#  end
+
+  # All task scoped routes must be named with the suffix '_task'
+
+  scope :tasks  do
+    scope :gis, controller: 'tasks/gis/locality' do
+      get ':id', action: 'nearby', as: 'nearby_locality_task'
+      get ':id', action: 'update', as: 'update_locality_task'
+      get ':id', action: 'within', as: 'within_locality_task'
+    end
+
+    scope :serials, controller: 'tasks/serials/similar' do
+      get ':id', action: 'like', as: 'similar_serials_task'
+      post ':id', action: 'update', as: 'update_serial_find_task'
+      get 'find', as: 'find_similar_serials_task'
+      post 'find', as: 'return_similar_serials_task' 
+    end
+
+    scope :usage, controller: 'tasks/usage/user_activity' do
+      get ':id', action: 'report', as: 'user_activity_report_task' 
+    end 
+    
+    scope :accessions do
+      scope :verify do
+        scope :material, controller: 'tasks/accessions/verify/material' do
+          get 'index', as: 'verify_accessions_task'
+        end
+      end
+
+      scope :quick,  controller: 'tasks/accessions/quick/verbatim_material' do
+        get 'new', as: 'quick_verbatim_material_task'
+        post 'create', as: 'create_verbatim_material_task'
+      end
+    end
+
+    scope :bibliography do
+      scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
+        get 'new',  as: 'new_verbatim_reference_task'
+        post 'create', as: 'create_verbatim_reference_task'
+      end
+    end
+
+    scope :controlled_vocabularies do
+      scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
+        get 'build_collection', as: 'build_biocuration_groups_task' 
+        post 'build_biocuration_group', as: 'build_biocuration_group_task' 
+      end
+    end
+  end
 
   resources :users, except: :new
   match '/signup', to: 'users#new', via: 'get'
@@ -184,30 +257,6 @@ TaxonWorks::Application.routes.draw do
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
-  match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
-
-  namespace :tasks do
-    namespace :usage do
-      get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
-    end
-  end
-  
-  match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
-
-  namespace :tasks do
-    namespace :gis do
-      get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
-      post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
-      get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
-    end
-
-    namespace :serials do
-      get 'similar/like:id', to: 'similar#like', as: 'similar_serial'
-      post 'serial/update_find:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
-      # get 'serial/update'
-      # get 'serial/within'
-    end
-  end
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'

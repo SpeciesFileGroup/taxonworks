@@ -11,9 +11,29 @@
 # support for tracking, testing, and integrating
 # tasks.
 #
-#
 module UserTasks
-  
-  TASKS = YAML.load_file(Rails.root + 'config/interface/user_tasks.yml') 
+
+  # A conviencience wrapper for handling user task related metadata 
+  class UserTask
+    attr_accessor :name, :prefix, :description, :related_tasks
+
+    def initialize(data)
+      raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil? || data[1][:prefix].empty?
+      
+      @name = data[0]
+      @prefix = data[1][:prefix]
+      @description = data[1][:description]
+      @related_tasks = data[1][:related_prefixes]
+    end
+
+    def path
+      send("#{@prefix}_path")
+    end
+  end
+
+  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/user_tasks.yml') 
+  TASKS = TASK_DATA.collect{|td| UserTask.new(td) } 
 
 end
+
+

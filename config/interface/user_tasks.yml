@@ -8,11 +8,10 @@
 # Provide a help text description.
 #   :description: 'A full sentence or two describing the purpose of this task.'
 #
-# Display some navigation links, these can not link to instances
-#   :related_paths: 
+# Display some navigation links, these can not link to instances, must be a route prefix
+#   :related_prefixes: 
 #    - :some_full_path
 #    - :another_full_path
-#
 #
 # Potential future options
 #  type:  
@@ -23,10 +22,10 @@
 #   
 ---
 edit_original_combination:
-  :prefix: 'edit_original_combination_task_taxon_name'
-  :description: 'Create or edit the original combination for this taxon name.'
+  :prefix: 'edit_protonym_original_combination_task'
+  :description: 'Create or edit the original combination for this protonym.'
 update_original_combination:
-  :prefix: 'update_original_combination_task_taxon_name'
+  :prefix: 'update_protonym_original_combination_task'
 verify_accessions:
   :prefix: 'verify_accessions_task'
 quick_new_verbatim_material:
