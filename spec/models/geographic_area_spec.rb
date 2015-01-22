@@ -377,9 +377,10 @@ describe GeographicArea, :type => :model do
       expect(GeographicArea.find_others_contained_by(@area_old_boxia)).to include(@area_r)
     end
 
-    specify('find_by_lat_;ong') do
-      pending
-      expect(GeographicArea.find_by_lat_long(@area_old_boxia)).to include(@area_r)
+    specify('find_by_lat_long') do
+      # pending
+      point = @gr_n3_ob.geographic_item.geo_object
+      expect(GeographicArea.find_by_lat_long(point.y, point.x)).to include(@area_r, @area_rn3, @area_old_boxia, @area_n3, @area_land_mass)
     end
   end
 

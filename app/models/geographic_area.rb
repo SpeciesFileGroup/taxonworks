@@ -190,8 +190,13 @@ class GeographicArea < ActiveRecord::Base
   # @param longitude [Double] Decimal degrees
   # @return [Scope] of all area which contain the point specified
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    point = GeographicItem.new(Georeference::FACTORY.point(longitude, latitude))
-    GeographicItem.is_contained_in('any_poly', point)
+    # point = GeographicItem.new(point: Georeference::FACTORY.point(longitude, latitude))
+    point = Georeference::FACTORY.point(longitude, latitude)
+    #GeographicItem.is_contained_in('any_poly', point)
+    # areas = GeographicItem.is_contained_in('any_poly', point)
+    where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}')) OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
+    retval = GeographicArea.joins(:geographic_items).where(where_clause)
+    retval
   end
 
   def children_at_level1
