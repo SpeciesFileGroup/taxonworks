@@ -1,7 +1,8 @@
 <navigation>
 <ul class="task_bar horizontal_navbar">
   <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
-  <% named_route = controller.request.path.gsub('/', '')  -%>
+  <% named_route = controller.request.path.gsub(/\/\d+/,'') # gets rid of trailing ID -%>
+  <% named_route = named_route.gsub('/', '') # gets rid of /'s in the path  -%>
   <% if !TASK_RELATIONS_FOR_NAVIGATION[named_route].nil? %>  
     <% TASK_RELATIONS_FOR_NAVIGATION[named_route].each do |l| -%>
       <%= content_tag(:li, link_to(l.humanize.downcase, send("#{l}_path"))) -%>
