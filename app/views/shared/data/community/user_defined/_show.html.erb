@@ -17,8 +17,8 @@
 
     <div class="attributes">
       <%= render object_attributes_partial_path(object.metamorphosize) %>
-      <%= render partial: '/shared/data/show/housekeeping', locals: {object: object} -%>
-      <%= render(partial: '/shared/data/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+      <%= render partial: '/shared/data/project/show/housekeeping', locals: {object: object} -%>
+      <%= render(partial: '/shared/data/project/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
 
       <% object.annotations_hash.each do |title, values| -%>
           <%= content_tag(:h3, title.humanize)  -%>

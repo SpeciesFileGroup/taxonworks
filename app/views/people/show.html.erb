@@ -15,8 +15,8 @@
   <div class="item item2">
     <h2> <%= person_tag(@person) -%> </h2>
     <%= render object_attributes_partial_path(@person.metamorphosize) %>
-    <%= render partial: '/shared/data/show/housekeeping', locals: {object: @person} -%>
-    <%= render(partial: '/shared/data/show/soft_validation', locals: {object: @person}) if @person.class.respond_to?(:soft_validates?) -%>
+    <%= render partial: '/shared/data/project/show/housekeeping', locals: {object: @person} -%>
+    <%= render(partial: '/shared/data/project/show/soft_validation', locals: {object: @person}) if @person.class.respond_to?(:soft_validates?) -%>
   </div>
 
   <div class="item item3">
