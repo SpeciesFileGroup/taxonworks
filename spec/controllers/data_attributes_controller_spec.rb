@@ -46,6 +46,11 @@ describe DataAttributesController, :type => :controller do
   }
 
   describe "POST create" do
+
+    before {
+      request.env['HTTP_REFERER'] = new_data_attribute_path
+    }
+
     describe "with valid params" do
       it "creates a new DataAttribute" do
         expect {
@@ -77,12 +82,17 @@ describe DataAttributesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(new_data_attribute_path)
       end
     end
   end
 
   describe "PUT update" do
+
+    before {
+      request.env['HTTP_REFERER'] = data_attribute_path(1)
+    }
+
     describe "with valid params" do
       it "updates the requested data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
@@ -121,7 +131,7 @@ describe DataAttributesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
         put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(data_attribute_path(1))
       end
     end
   end

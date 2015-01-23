@@ -94,8 +94,7 @@ describe CitationsController, :type => :controller do
 
   describe "PUT update" do
 
-
-    before {
+     before {
       request.env['HTTP_REFERER'] = citation_path(1)
     }
 

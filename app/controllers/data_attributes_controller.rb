@@ -25,7 +25,7 @@ class DataAttributesController < ApplicationController
 
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to @data_attribute.data_attribute_object.metamorphosize, notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully created.' }
         format.json { render json: @data_attribute, status: :created, location: @data_attribute }
       else
         format.html { redirect_to :back, notice: 'Data attribute was NOT successfully created.' }
@@ -39,7 +39,7 @@ class DataAttributesController < ApplicationController
   def update
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
-        format.html { redirect_to @data_attribute.data_attribute_object.metamorphosize, notice: 'Data attribute was successfully updated.' }
+        format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { redirect_to :back, notice: 'Data attribute was NOT successfully updated.' }
