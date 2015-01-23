@@ -84,6 +84,10 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_area_types
   resources :geographic_areas do
     concerns [:data_routes]
+    collection do
+      post 'display_coordinates'
+      get 'display_coordinates', as: "getdisplaycoordinates"
+    end
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items

@@ -1,0 +1,63 @@
+<%= form_for(@asserted_distribution) do |f| %>
+    <% if @asserted_distribution.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@asserted_distribution.errors.count, "error") %> prohibited this asserted_distribution from
+            being saved:</h2>
+
+          <ul>
+            <% @asserted_distribution.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="required">
+      <div class="field">
+        <%= f.label :otu_id %>
+        <br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals => {:controller => 'otus',
+                               :object => 'asserted_distribution',
+                               :method => 'otu_id',
+                               :tag_id => 'otu_id_for_asserted_distribution',
+                               :display => otu_tag(@asserted_distribution.otu),
+                               :size => 20} %>
+
+      </div>
+      <div class="field">
+        <%= f.label :geographic_area %>
+        <br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals => {:controller => 'geographic_areas',
+                               :object => 'asserted_distribution',
+                               :method => 'geographic_area_id',
+                               :tag_id => 'geographic_area_id_for_asserted_distribution',
+                               :display => geographic_area_tag(@asserted_distribution.geographic_area),
+                               :size => 20} %>
+      </div>
+      <div class="field">
+        <%= f.label :source_id %>
+        <br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals => {:controller => 'sources',
+                               :object => 'asserted_distribution',
+                               :method => 'source_id',
+                               :tag_id => 'source_id_for_asserted_distribution',
+                               :display => source_tag(@asserted_distribution.source),
+                               :size => 20} %>
+      </div>
+    </div>
+    <div class="optional">
+      <div class="field">
+        <%= f.label :is_absent %>
+        <br>
+        <%= f.check_box :is_absent %>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+
+<% end %>
