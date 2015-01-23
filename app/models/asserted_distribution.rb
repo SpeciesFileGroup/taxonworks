@@ -55,7 +55,7 @@ class AssertedDistribution < ActiveRecord::Base
   # @ return an array of new AssertedDistributions.
   def self.stub_new(options = {})
 
-    areas  = GeographicArea.find_by_lat_long(options[:latitude], options[:longitude])
+    areas = GeographicArea.find_by_lat_long(options[:latitude], options[:longitude])
     options.delete(:latitude)
     options.delete(:longitude)
     result = []
@@ -63,6 +63,22 @@ class AssertedDistribution < ActiveRecord::Base
       result.push(AssertedDistribution.new(options.merge(:geographic_area_id => ga.id)))
     end
     result
+  end
+
+  #end region
+
+  #region Instance methods
+
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'properties' => {
+        'asserted_distribution' => {
+          'id' => self.id}
+      }
+    }
+    retval
   end
 
   #end region

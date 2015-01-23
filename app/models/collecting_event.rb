@@ -418,7 +418,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
 
   def to_geo_json_feature
     geometry = RGeo::GeoJSON.encode(self.georeferences.first.geographic_item.geo_object)
-    retval = {
+    retval   = {
       'type'       => 'Feature',
       'geometry'   => geometry,
       'properties' => {
@@ -455,7 +455,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     where.not(id: collecting_events)
   end
 
-# Rich-  add a comment indicating why this is here if you want this to persist for a temporary period of time).
+  # Rich-  add a comment indicating why this is here if you want this to persist for a temporary period of time).
   def self.test
     result = []
     colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
@@ -475,7 +475,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     CSV.generate do |csv|
       csv << column_names
       scope.with_project_id(project_id).order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect{|i|
+        csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
