@@ -86,7 +86,7 @@ initialize = function () {
         event.feature.setProperty('isColorful', true);
         event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         var mapLatLng = event.latLng;
-        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6)) ;
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -107,7 +107,7 @@ initialize = function () {
         //lat = mapLatLng.lat();
         //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
-        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6)) ;
     });
 };
 
