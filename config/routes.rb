@@ -1,6 +1,5 @@
 TaxonWorks::Application.routes.draw do
 
-
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -81,7 +80,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :combinations, only:[:create, :update, :destroy, :new] do
+  resources :combinations, only: [:create, :update, :destroy, :new] do
     concerns [:data_routes]
   end
 
@@ -130,7 +129,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-  
+
   # TODO: add exceptions 
   resources :serials do
     concerns [:data_routes]
@@ -191,7 +190,7 @@ TaxonWorks::Application.routes.draw do
       get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
     end
   end
-  
+
   match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
   match 'find_serials_like_me/:id', to: 'tasks/serials/similar#like', via: 'get', as: :find_serials_like_me
 
@@ -200,19 +199,22 @@ TaxonWorks::Application.routes.draw do
       get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
       post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
       get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
+
+      get 'asserted_distribution/new', to: 'asserted_distribution#new', as: 'asserted_distribution_new'
+      get 'asserted_distribution/create', to: 'asserted_distribution#create', as: 'asserted_distribution_create'
     end
 
     namespace :serials do
 #      get 'similar/like/:id', to: 'similar#like', as: 'find_serials_like_me'
-      post 'serial/update_find/:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
-      # get 'serial/update'
-      # get 'serial/within'
+      post 'serial/update_find/:id', to: 'similar#update_find', as: 'update_serial_find' # do I still need this? - eef
+# get 'serial/update'
+# get 'serial/within'
     end
   end
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
-  
+
   get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
   # Example of regular route:

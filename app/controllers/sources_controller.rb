@@ -1,7 +1,7 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_sign_in 
+  before_action :require_sign_in
   before_action :set_source, only: [:show, :edit, :update, :destroy]
 
   # GET /sources
@@ -70,16 +70,16 @@ class SourcesController < ApplicationController
 
   def autocomplete
     @sources = Source.find_for_autocomplete(params)
-    data = @sources.collect do |t|
-      {id: t.id,
-       label: SourcesHelper.source_tag(t),
+    data     = @sources.collect do |t|
+      {id:              t.id,
+       label:           SourcesHelper.source_tag(t),
        response_values: {
-         params[:method] => t.id  
+         params[:method] => t.id
        },
-       label_html: SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-    render :json => data 
+    render :json => data
   end
 
   def search
@@ -91,8 +91,8 @@ class SourcesController < ApplicationController
   end
 
   def batch_preview
-    @sources = Source.batch_preview(file: params[:file].tempfile)
-    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    @sources                    = Source.batch_preview(file: params[:file].tempfile)
+    sha256                      = Digest::SHA256.file(params[:file].tempfile)
     cookies[:batch_sources_md5] = sha256.hexdigest
   end
 
@@ -100,7 +100,7 @@ class SourcesController < ApplicationController
     sha256 = Digest::SHA256.file(params[:file].tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
       if @sources = Source.batch_create(params.symbolize_keys.to_h)
-        flash[:notice] = "Successfully batch created #{@sources.count} OTUs."  #TODO I think this should say Sources?
+        flash[:notice] = "Successfully batch created #{@sources.count} OTUs." #TODO I think this should say Sources?
       else
         flash[:notice] = 'Failed to create the sources.'
       end
@@ -113,7 +113,6 @@ class SourcesController < ApplicationController
   private
 
 
-
   # Use callbacks to share common setup or constraints between actions.
   def set_source
     @source = Source.find(params[:id])
@@ -121,6 +120,6 @@ class SourcesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
-    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim,  :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
+    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim, :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url)
   end
 end
