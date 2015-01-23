@@ -56,11 +56,11 @@ class Georeference < ActiveRecord::Base
 
   SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
   # This should probably be moved out to config/initializers/gis
-  FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
-                                               projection_srid:         4326,
-                                               projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
-                                               uses_lenient_assertions: true,
-                                               has_z_coordinate:        true)
+  FACTORY  = RGeo::Geographic.projected_factory(srid:                    4326,
+                                                projection_srid:         4326,
+                                                projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+                                                uses_lenient_assertions: true,
+                                                has_z_coordinate:        true)
 
   acts_as_list scope: [:collecting_event]
 
@@ -198,7 +198,7 @@ class Georeference < ActiveRecord::Base
 
   def to_geo_json_feature
     geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
-    retval = {
+    retval   = {
       'type'       => 'Feature',
       'geometry'   => geometry,
       'properties' => {

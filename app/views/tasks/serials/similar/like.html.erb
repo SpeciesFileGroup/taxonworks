@@ -1,6 +1,48 @@
-<h2>List serials with names like mine</h2>
+<h2>Task: List serials with names like mine</h2>
 
-<strong>Made it here!</strong>
+<div class="flexbox" id="like_serial"  >
+  <div class="item item1 one_fifth_width">
+    <ul class="no_bullets">
+      <!-- All serials must have a name & id; all other attributes are optional -->
+      <li><dfn class="dfn_bold">Serial:</dfn>  <%= @serial.name -%> </li>
+      <li><dfn class="dfn_bold"></dfn>  <%= @serial.id -%> </li>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">publisher:</dfn> <%= @serial.publisher -%></li>
+      <% ) unless @serial.publisher.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+      <% ( -%>
+          <li><dfn  class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+      <% ) unless @serial.place_published.blank?   -%>
+
+      <!--
+      <dt class="dt_inline">first year of issue:</dt>  <dd> <%= @serial.id -%></dd>
+      <dt class="dt_inline">last year of issue:</dt>  <dd> <%= @serial.id -%></dd>
+      <dt class="dt_inline">translated from:</dt>  <dd> <%= @serial.id -%></dd>
+      <dt class="dt_inline">notes:</dt>  <dd> <%= @serial.id -%></dd>
+      <dt class="dt_inline">identifiers:</dt>  <dd> <%= @serial.id -%></dd>
+      <dt class="dt_inline">data_attributes:</dt>  <dd> <%= @serial.id -%></dd>
+      -->
+    </ul>
+
+  </div>
+</div>
 <p>I am <%= @serial.id %>. With name <%= @serial.name -%></p>
 <p> Do I need to use a partial? </p>
 <p> 3 segments on the display - one for my info, one for find box and one for results </p>

@@ -190,12 +190,9 @@ class GeographicArea < ActiveRecord::Base
   # @param longitude [Double] Decimal degrees
   # @return [Scope] of all area which contain the point specified
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    # point = GeographicItem.new(point: Georeference::FACTORY.point(longitude, latitude))
-    point = Georeference::FACTORY.point(longitude, latitude)
-    #GeographicItem.is_contained_in('any_poly', point)
-    # areas = GeographicItem.is_contained_in('any_poly', point)
+    point        = Georeference::FACTORY.point(longitude, latitude)
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}')) OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
-    retval = GeographicArea.joins(:geographic_items).where(where_clause)
+    retval       = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
   end
 
@@ -263,7 +260,6 @@ class GeographicArea < ActiveRecord::Base
   end
 
 
-
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
   # provide a point on which to focus the map.  Return 'nil' if there are no GIs in the chain.
   def geographic_area_map_focus
@@ -291,8 +287,8 @@ class GeographicArea < ActiveRecord::Base
       parameters[:Latitude]  = item.point.y
     end
     @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
-    @geolocate_string = @geolocate_request.request_params_string
-    @geolocate_hash   = @geolocate_request.request_params_hash
+    @geolocate_string  = @geolocate_request.request_params_string
+    @geolocate_hash    = @geolocate_request.request_params_hash
   end
 
   # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"

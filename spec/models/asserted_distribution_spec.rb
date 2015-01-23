@@ -8,11 +8,11 @@ describe AssertedDistribution, :type => :model do
   context 'associations' do
     context 'belongs_to' do
       specify 'otu' do
-        expect(asserted_distribution.otu = Otu.new).to be_truthy 
+        expect(asserted_distribution.otu = Otu.new).to be_truthy
       end
 
       specify 'source' do
-        expect(asserted_distribution.source = Source.new).to be_truthy 
+        expect(asserted_distribution.source = Source.new).to be_truthy
       end
 
       specify 'geographic_area' do
@@ -40,19 +40,48 @@ describe AssertedDistribution, :type => :model do
 
   context 'soft validation' do
     # Can't miss source, it's required by definition
-   specify 'is_absent - False' do
-      ga = FactoryGirl.create(:level2_geographic_area)
+    specify 'is_absent - False' do
+      ga  = FactoryGirl.create(:level2_geographic_area)
       ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
       ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
     specify 'is_absent - True' do
-      ga = FactoryGirl.create(:level2_geographic_area)
+      ga  = FactoryGirl.create(:level2_geographic_area)
       ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga)
       ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: 1)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+    end
+  end
+
+  context 'stub_new' do
+
+    let(:otu) { FactoryGirl.create(:valid_otu) }
+    let(:source) { FactoryGirl.create(:valid_source) }
+
+    before(:all) do
+      clean_slate_geo
+      generate_political_areas_with_collecting_events
+    end
+
+    after(:all) do
+      clean_slate_geo
+      User.delete_all
+      Project.delete_all
+      ActiveRecord::Base.connection.reset_pk_sequence!('users')
+      ActiveRecord::Base.connection.reset_pk_sequence!('projects')
+    end
+
+    specify 'creates some number of ADs' do
+      # pending
+      point = @gr_n3_ob.geographic_item.geo_object
+      areas = AssertedDistribution.stub_new({otu_id:    otu.id,
+                                             source_id: source.id,
+                                             latitude:  point.y,
+                                             longitude: point.x}).map(&:geographic_area)
+      expect(areas.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
     end
   end
 
