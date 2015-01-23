@@ -201,7 +201,7 @@ TaxonWorks::Application.routes.draw do
       get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
 
       get 'asserted_distribution/new', to: 'asserted_distribution#new', as: 'asserted_distribution_new'
-      get 'asserted_distribution/create', to: 'asserted_distribution#create', as: 'asserted_distribution_create'
+      post 'asserted_distribution/create', to: 'asserted_distribution#create', as: 'asserted_distribution_create'
     end
 
     namespace :serials do
