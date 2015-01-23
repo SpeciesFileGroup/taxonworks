@@ -5,6 +5,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   # GET quick_verbatim_material_task
   def new
     @material = Material::QuickVerbatimResponse.new
+    @related_routes = UserTasks.related_routes('quick_verbatim_material_task')
     set_variable_variables(@material)
   end
 

@@ -1,4 +1,6 @@
-# All routes scoped to /tasks may be annotated here
+# !! YOU MUST RESTART THE SERVER FOR CHANGES HERE TO TAKE AFFECT !!
+# 
+# All routes scoped to /tasks _may_ be further annotated here.
 # YAML is organized by:
 #
 # prefix: 
@@ -8,11 +10,12 @@
 # Valid attributes (* required)
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
-#   related_prefixes - array members must be route prefixes and may include user tasks or data prefixes
-#   
+#   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
+#   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
+#
 ---
 nearby_locality_task:
-  name: 
+  name:  
   related:
     - collecting_event
 update_locality_task:
@@ -36,7 +39,12 @@ user_activity_report_task:
 verify_accessions_task:
   name: 
 quick_verbatim_material_task:
-  name: 
+  hub: true
+  name:  'Quick verbatim material'
+  description: 'Create new specimen or lot records with verbatim data only.' 
+  related: 
+    - namespaces
+    - build_biocuration_groups_task
 create_verbatim_material_task:
   name: 
 new_verbatim_reference_task:

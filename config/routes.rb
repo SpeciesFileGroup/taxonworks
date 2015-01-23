@@ -13,8 +13,6 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-
-
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
@@ -23,7 +21,12 @@ TaxonWorks::Application.routes.draw do
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
 
-  match '/papertrail', to: 'papertrail#papertrail', via: :get
+  # Note singular 'resource' 
+  resource :hub, controller: 'hub', only: [:index] do
+    get '/', action: :index
+    get 'order_tabs'
+    post 'update_tab_order'
+  end
 
   resources :projects do
     concerns [:data_routes]
@@ -31,13 +34,6 @@ TaxonWorks::Application.routes.draw do
       get 'select'
       get 'settings_for'
     end
-  end
-
-  # Note singular 'resource' 
-  resource :hub, controller: 'hub', only: [:index] do
-    get '/', action: :index
-    get 'order_tabs'
-    post 'update_tab_order'
   end
 
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
@@ -166,45 +162,7 @@ TaxonWorks::Application.routes.draw do
   resources :type_materials do
     concerns [:data_routes]
   end
-
-#  match 'quick_verbatim_material_task', to: 'tasks/accessions/quick/verbatim_material#new', via: 'get'
-#  post 'tasks/accessions/quick/verbatim_material/create'
-
-#  match 'build_biocuration_groups_task', to: 'tasks/controlled_vocabularies/biocuration#build_collection', via: 'get'
-#  match 'build_biocuration_group', to: 'tasks/controlled_vocabularies/biocuration#build_biocuration_group', via: 'post'
-
-  # match 'build_source_from_crossref_task', to: 'tasks/bibliography/verbatim_reference#new', via: 'get'
-  # post 'tasks/bibliography/verbatim_reference/create'
-
-
-
-  # match 'user_activity_task', to: 'tasks/usage/user_activity#index', via: 'get'
-
-# namespace :tasks do
-#   namespace :usage do
-#     get 'user_activity/:id', to: 'user_activity#report', as: 'user_activity_report'
-#   end
-# end
   
-#  match 'find_similar_serials_task', to: 'tasks/serials/similar#find', via: [:get, :post]
-
- #namespace :tasks do
- #  namespace :gis do
- #    get 'locality/nearby/:id', to: 'locality#nearby', as: 'locality_nearby'
- #    post 'locality/update/:id', to: 'locality#update', as: 'locality_update'
- #    get 'locality/within/:id', to: 'locality#within', as: 'locality_within'
- #  end
-
-  # namespace :serials do
-  #   get 'similar/like:id', to: 'similar#like', as: 'similar_serial'
-  #   post 'serial/update_find:id', to: 'similar#update_find', as: 'update_serial_find'  # do I still need this? - eef
-  #   # get 'serial/update'
-  #   # get 'serial/within'
-  # end
-#  end
-
-  # All task scoped routes must be named with the suffix '_task'
-
   scope :tasks  do
     scope :gis, controller: 'tasks/gis/locality' do
       get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
@@ -226,7 +184,7 @@ TaxonWorks::Application.routes.draw do
     scope :accessions do
       scope :verify do
         scope :material, controller: 'tasks/accessions/verify/material' do
-          get 'index', as: 'verify_accessions_task'
+          get 'index/:by', action: :index, as: 'verify_accessions_task'
         end
       end
 
@@ -257,6 +215,7 @@ TaxonWorks::Application.routes.draw do
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
   match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
 
+  match '/papertrail', to: 'papertrail#papertrail', via: :get
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'

@@ -1,5 +1,10 @@
 
-<% UserTasks::TASKS.each do |task| -%>
-    <%= content_tag(:li, link_to(task.name, task.path)) %>
-<% end %>
-
+<h3> Tasks (all) </h3>
+<div>
+  <p> To see tasks organized by function or subject use the <%= link_to('related', hub_path(list: 'related') ) -%> link on the hub navigation bar. </p>
+  <ul>
+    <% UserTasks.hub_tasks.each do |task| -%>
+      <li> <%= link_to(task.name, send(task.path)) -%> <span class="notice"> <%= task.description -%> </span>
+    <% end %>
+  </ul>
+</div>
