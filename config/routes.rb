@@ -202,6 +202,7 @@ TaxonWorks::Application.routes.draw do
 
       get 'asserted_distribution/new', to: 'asserted_distribution#new', as: 'asserted_distribution_new'
       post 'asserted_distribution/create', to: 'asserted_distribution#create', as: 'asserted_distribution_create'
+      post 'asserted_distribution/generate_choices', to: 'asserted_distribution#generate_choices', as: 'asserted_distribution_generate_choices'
     end
 
     namespace :serials do
