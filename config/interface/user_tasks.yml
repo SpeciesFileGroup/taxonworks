@@ -27,6 +27,8 @@ update_serial_find_task:
   name: 
 find_similar_serials_task:
   name: 
+  related:
+    - serials
 return_similar_serials_task:
   name: 
 user_activity_report_task:
@@ -42,7 +44,11 @@ new_verbatim_reference_task:
 create_verbatim_reference_task:
   name: 
 build_biocuration_groups_task:
-  name: 
+  name:
+  related: 
+    - build_biocuration_group_task 
 build_biocuration_group_task:
   name: 
+  related: 
+    - build_biocuration_groups_task
 
