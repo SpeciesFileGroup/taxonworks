@@ -207,14 +207,14 @@ TaxonWorks::Application.routes.draw do
 
   scope :tasks  do
     scope :gis, controller: 'tasks/gis/locality' do
-      get ':id', action: 'nearby', as: 'nearby_locality_task'
-      get ':id', action: 'update', as: 'update_locality_task'
-      get ':id', action: 'within', as: 'within_locality_task'
+      get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
+      get 'update/:id', action: 'update', as: 'update_locality_task'
+      get 'within/:id', action: 'within', as: 'within_locality_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
-      get ':id', action: 'like', as: 'similar_serials_task'
-      post ':id', action: 'update', as: 'update_serial_find_task'
+      get 'like/:id', action: 'like', as: 'similar_serials_task'
+      post 'update/:id', action: 'update', as: 'update_serial_find_task'
       get 'find', as: 'find_similar_serials_task'
       post 'find', as: 'return_similar_serials_task' 
     end

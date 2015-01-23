@@ -15,19 +15,23 @@ module UserTasks
 
   # A conviencience wrapper for handling user task related metadata 
   class UserTask
-    attr_accessor :name, :prefix, :description, :related_tasks
+    attr_accessor :name, :prefix, :description, :related
 
     def initialize(data)
-      raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil? || data[1][:prefix].empty?
-      
-      @name = data[0]
-      @prefix = data[1][:prefix]
-      @description = data[1][:description]
-      @related_tasks = data[1][:related_prefixes]
+      raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil? 
+      attributes = data[1] 
+      @prefix = data[0] 
+      @name = attributes[:name]
+      @description = attributes[:description]
+      @related = attributes[:related]
     end
 
     def path
-      send("#{@prefix}_path")
+      "#{@prefix}_path"
+    end
+
+    def url
+      "#{@prefix}_url"
     end
   end
 
