@@ -17,8 +17,10 @@ module Shared::Notable
     s == "" ? nil : s
   end
 
+=begin deprecated - has_notes? is defined in is_data to mean that the class is notable.
   def has_notes?
     self.notes.any?
   end
+=end
 
 end

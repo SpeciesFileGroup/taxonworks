@@ -95,16 +95,15 @@ describe 'Notable', :type => :model do
   end
 
   context 'methods' do
-    specify 'has_notes? with no notes' do
-      expect(class_with_note.has_notes?).to eq(false)
-    end
-
-    specify 'has_notes? with some notes' do
-      class_with_note.notes << Note.new(text: "Foo")
-      expect(class_with_note.has_notes?).to eq(true)
-    end
- 
-
+    # has_notes has changed to mean that the class is notable (see is_data.rb)
+    # specify 'has_notes? with no notes' do
+    #   expect(class_with_note.has_notes?).to eq(true)
+    # end
+    #
+    # specify 'has_notes? with some notes' do
+    #   class_with_note.notes << Note.new(text: "Foo")
+    #   expect(class_with_note.has_notes?).to eq(true)
+    # end
   end
 end
 
