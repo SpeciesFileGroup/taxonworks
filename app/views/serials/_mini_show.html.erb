@@ -1,0 +1,66 @@
+<ul class="no_bullets">
+  <!-- All serials must have a name & id; all other attributes are optional -->
+  <li><dfn class="dfn_bold">Serial:</dfn>  <%= @serial.name -%> </li>
+  <li><dfn class="dfn_bold">Id:</dfn>  <%= @serial.id -%> </li>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">publisher:</dfn> <%= @serial.publisher -%></li>
+  <% ) unless @serial.publisher.blank? -%>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+  <% ) unless @serial.place_published.blank? -%>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">first year of issue:</dfn> <%= @serial.first_year_of_issue -%></li>
+  <% ) unless @serial.first_year_of_issue.blank? -%>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">last year of issue:</dfn> <%= @serial.last_year_of_issue -%></li>
+  <% ) unless @serial.last_year_of_issue.blank? -%>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">translated from:</dfn>
+        <%= translation = Serial.find(@serial.translated_from_serial)
+            link_to(translation.name, show_serial_path(translation)) -%></li>
+  <% ) unless @serial.translated_from_serial.blank? -%>
+
+  <% if (@serial.notes.any?) -%>
+      <li><dfn class="dfn_bold">notes (internal to project):</dfn> <%= @serial.concatenated_notes_string -%></li>
+  <% end -%>
+
+
+  <% if (@serial.identified?) -%>
+      <% if @serial.identifiers.count == 1 -%>
+          <li><dfn class="dfn_bold">identifiers:</dfn>
+            <% @serial.identifiers.to_a[0].type -%>
+            &nbsp;&nbsp;
+            <% ident.identifier.to_s -%> /li>
+      <% else -%>
+          <li><dfn class="dfn_bold">identifiers:</dfn>
+            <ul style="list-style-type:none">
+              <% @serial.identifiers.each do |ident| -%>
+                  <li>
+                    <% if ident.type == "Identifier::Global::Uri" -%>
+                        <%= link_to(identifier_tag(ident), ident.cached) -%>
+                    <% else -%>
+                        <%= identifier_tag(ident) -%>
+                    <% end -%>
+                  </li>
+              <% end %>
+            </ul>
+          </li>
+      <% end -%>
+  <% end -%>
+
+  <% ( -%>
+      <li><dfn class="dfn_bold">place published:</dfn> <%= @serial.place_published -%></li>
+  <% ) unless @serial.place_published.blank? -%>
+
+  <!--
+
+      <dt class="dt_inline">notes:</dt>  <dd> <%= @serial.id -%></dd>
+      show both project notes & cross project notes are in data_attributes
+      <dt class="dt_inline">data_attributes:</dt>  <dd> <%= @serial.id -%></dd>
+      -->
+</ul>

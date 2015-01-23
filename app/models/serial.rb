@@ -2,14 +2,15 @@
 #
 # @!attribute primary_language_id 
 #   @return [Integer]
-#   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for any journal that changes languages.
+#   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for a journal that changes languages.
 #
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type
   include Housekeeping::Users
   include Housekeeping::Timestamps  # needed for the views
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
-  include Shared::DataAttributes  # equivalent of a note for a global class
+  include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
+  include Shared::Notable # project note
   include Shared::Identifiable
   include Shared::SharedAcrossProjects
   include Shared::Taggable
@@ -77,6 +78,10 @@ class Serial < ActiveRecord::Base
   soft_validate(:sv_duplicate?)
 
   # Instance methods
+
+  # Serial notes: are stored as DataAttribute of type InternalAttribute with Predicate 'Serial Note'
+  # Serials may also have a language note with Predicate 'Serial Language Note'
+
 
   # Find similar serials to me
   # NOTE: Levenshtein in postgres requires all strings be 255 or fewer
