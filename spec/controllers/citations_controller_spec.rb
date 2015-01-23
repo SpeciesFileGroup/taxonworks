@@ -46,10 +46,15 @@ describe CitationsController, :type => :controller do
   end
 
   before {
-    request.env['HTTP_REFERER'] = list_otus_path # logical example
+    request.env['HTTP_REFERER'] = otu_path(o)
   }
 
   describe "POST create" do
+
+    before {
+      request.env['HTTP_REFERER'] = new_citation_path
+    }
+
     describe "with valid params" do
       it "creates a new Citation" do
         expect {
@@ -74,20 +79,25 @@ describe CitationsController, :type => :controller do
       it "assigns a newly created but unsaved citation as @citation" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        post :create, {:citation => {bar: 'foo'}}, valid_session
+        post :create, {:citation => {source_id: nil}}, valid_session
         expect(assigns(:citation)).to be_a_new(Citation)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        post :create, {:citation => {bar: 'foo'}}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        post :create, {:citation => {source_id: nil}}, valid_session
+        expect(response).to redirect_to(new_citation_path)
       end
     end
   end
 
   describe "PUT update" do
+
+     before {
+      request.env['HTTP_REFERER'] = citation_path(1)
+    }
+
     describe "with valid params" do
       it "updates the requested citation" do
         citation = Citation.create! valid_attributes
@@ -118,7 +128,7 @@ describe CitationsController, :type => :controller do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => {bar: 'Foo'}}, valid_session
+        put :update, {:id => citation.to_param, :citation => {source_id: nil}}, valid_session
         expect(assigns(:citation)).to eq(citation)
       end
 
@@ -126,13 +136,18 @@ describe CitationsController, :type => :controller do
         citation = Citation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Citation).to receive(:save).and_return(false)
-        put :update, {:id => citation.to_param, :citation => {bar: 'Foo'}}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        put :update, {:id => citation.to_param, :citation => {source_id: nil}}, valid_session
+        expect(response).to redirect_to(citation_path(1))
       end
     end
   end
 
   describe "DELETE destroy" do
+
+    before {
+      request.env['HTTP_REFERER'] = otu_path(o)
+    }
+
     it "destroys the requested citation" do
       citation = Citation.create! valid_attributes
       expect {
@@ -143,7 +158,7 @@ describe CitationsController, :type => :controller do
     it "redirects to :back" do
       citation = Citation.create! valid_attributes
       delete :destroy, {:id => citation.to_param}, valid_session
-      expect(response).to redirect_to(list_otus_path)
+      expect(response).to redirect_to(otu_path(o))
     end
   end
 
