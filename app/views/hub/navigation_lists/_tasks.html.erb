@@ -1,5 +1,10 @@
-<%= content_tag :li, link_to('Quick verbatim materials', quick_verbatim_material_task_path) %>
-<%= content_tag :li, link_to('Biocuration collections', build_biocuration_groups_task_path) %>
-<%= content_tag :li, link_to('Verbatim reference', build_source_from_crossref_task_path) %>
-<%= content_tag :li, link_to('Find similar serials', find_similar_serials_task_path) %>
-<%= content_tag :li, link_to('User activity', user_activity_task_path) %>
+
+<h3> Tasks (all) </h3>
+<div>
+  <p> To see tasks organized by function or subject use the <%= link_to('related', hub_path(list: 'related') ) -%> link on the hub navigation bar. </p>
+  <ul>
+    <% UserTasks.hub_tasks.each do |task| -%>
+      <li> <%= link_to(task.name, send(task.path)) -%> <span class="notice"> <%= task.description -%> </span>
+    <% end %>
+  </ul>
+</div>
