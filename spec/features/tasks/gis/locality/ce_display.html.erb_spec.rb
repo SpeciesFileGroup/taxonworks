@@ -14,7 +14,7 @@ describe "tasks/gis/locality/ce_display.html.erb", :type => :feature do
   it 'renders the collecting_events_nearby partial' do
     @collecting_event = @ce_p1
     # this triggers 'nearby', which renders ce_display
-    visit ("tasks/gis/locality/nearby/#{@collecting_event.id}")
+    visit (nearby_locality_task_path( @collecting_event.id)  )
     expect(page).to have_content(/Task: Nearby localities/)
   end
 

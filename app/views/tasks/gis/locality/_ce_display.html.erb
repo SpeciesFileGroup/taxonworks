@@ -11,7 +11,7 @@
     </td>
     <td align="left" valign="top" height="15" id="top">
 
-      <%= form_tag(tasks_gis_locality_update_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) do |f| %>
+      <%= form_tag(update_locality_task_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) do |f| %>
 
           <table border="1">
             <thead>Distance select (<%= @nearby_distance %> meters) :</thead>
