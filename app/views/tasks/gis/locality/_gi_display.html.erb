@@ -10,7 +10,10 @@
   <tr>
     <td colspan="2">
       <table border='1'>
-        <thead>Results for collecting events which are contained within area named <%= @geographic_item.geographic_areas.first.name %>: <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %></thead>
+        <thead> Results for collecting events which are contained within area named 
+          <%= @geographic_item.geographic_areas.first.name %>: 
+          <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %>
+        </thead>
         <tr>
           <th>Verbatim Locality</th>
           <th>Collecting Event ID</th>
@@ -30,7 +33,7 @@
                 <%= collecting_event_georeference_count(collecting_event) %>
               </td>
               <td>
-                <%= link_to('nearby', tasks_gis_locality_nearby_path(collecting_event.to_param, nearby_distance: @nearby_distance)) %>
+                <%= link_to('nearby', nearby_locality_task_path(collecting_event.to_param, nearby_distance: @nearby_distance)) %>
               </td>
             </tr>
         <% } %>
