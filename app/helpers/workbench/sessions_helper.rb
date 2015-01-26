@@ -15,6 +15,8 @@ module Workbench::SessionsHelper
     @sessions_current_user ||= User.find_by(remember_token: remember_token)
   end
 
+  alias_method :current_user, :sessions_current_user
+
   def sessions_current_user_id
     sessions_current_user ? sessions_current_user.id : nil
   end
