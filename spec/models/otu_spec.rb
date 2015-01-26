@@ -150,6 +150,6 @@ describe Otu, :type => :model do
     it_behaves_like 'identifiable'
     it_behaves_like 'data_attributes'
     it_behaves_like 'taggable'
-    it_behaves_like 'alternate_values'
+    #it_behaves_like 'alternate_values'
   end
 end

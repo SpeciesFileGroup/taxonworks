@@ -181,4 +181,14 @@ describe Serial, :type => :model do
       end
     end
   end
+
+  context 'concerns' do
+    it_behaves_like 'alternate_values'
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'notable'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'taggable'
+    # TODO should it include IsData? SharedAcrossProjects?
+  end
+
 end

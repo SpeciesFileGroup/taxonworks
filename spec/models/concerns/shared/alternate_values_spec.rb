@@ -60,6 +60,9 @@ describe 'AlternateValues', :type => :model do
         expect(class_with_alternate_values.all_values_for(:string)).to \
           eq(['gibberish', 'test1', 'Testing alternate values', 'tst', 'tast1'].sort)
       end
+      # TODO Test that can add an alternate value on something in list, and can't for something not in list
+      # That columns in ALTERNATE_VALUES_ON are actually in the DB
+      # SHould have at least one value in array
     end
 
     context 'class methods' do
@@ -69,13 +72,13 @@ describe 'AlternateValues', :type => :model do
         expect(TestAlternateValue.with_alternate_value_on('string', 'foo').to_a).to eq([])
       end
     end
-
   end
 end
 
 class TestAlternateValue < ActiveRecord::Base
   include FakeTable
   include Shared::AlternateValues
+  #TODO (Matt already has) Test for existence of ALTERNATE_VALUES_ON,
 end
 
 

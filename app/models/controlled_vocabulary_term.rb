@@ -8,6 +8,9 @@ class ControlledVocabularyTerm < ActiveRecord::Base
 
   has_paper_trail
 
+  # Class constants
+  ALTERNATE_VALUES_FOR = [:name, :definition]
+
   validates_presence_of :name, :definition, :type
   validates_length_of :definition, minimum: 4
 

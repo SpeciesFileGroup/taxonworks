@@ -10,7 +10,7 @@
 #
 class Otu < ActiveRecord::Base
   include Housekeeping
-  include Shared::AlternateValues
+  #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
   include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiable
@@ -20,6 +20,9 @@ class Otu < ActiveRecord::Base
   include SoftValidation
 
   has_paper_trail
+
+  # Class constants
+  #ALTERNATE_VALUES_FOR = [:name] # 1/26/15 with MJY - not going to allow alternate values in Burlap
 
   belongs_to :taxon_name, inverse_of: :otus
 

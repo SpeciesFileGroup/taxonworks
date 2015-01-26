@@ -20,6 +20,7 @@ class Serial < ActiveRecord::Base
   has_paper_trail
 
   # Class constants
+  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]
   # Class variables
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many

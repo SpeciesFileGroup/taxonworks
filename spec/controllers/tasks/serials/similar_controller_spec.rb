@@ -4,7 +4,8 @@ describe Tasks::Serials::SimilarController, :type => :controller do
 
   describe "GET similar" do
     it "returns http success" do
-      get :similar
+      s=FactoryGirl.create(:valid_serial)
+      get :like, {:id => s.to_param}
       expect(response).to have_http_status(:success)
     end
   end
