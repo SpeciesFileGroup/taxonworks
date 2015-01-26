@@ -13,6 +13,13 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas/1
   # GET /geographic_areas/1.json
   def show
+    # GeographicArea.idontknow()
+  end
+
+  def display_coordinates
+    @asserted_distribution = AssertedDistribution.new
+    @json_coors = params.to_json
+    render partial: "/asserted_distributions/quick_form"
   end
 
   def list

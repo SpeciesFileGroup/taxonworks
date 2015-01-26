@@ -8,7 +8,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   belongs_to :taxon_name
 
-  before_validation :validate_taxon_name_classlassification
+  before_validation :validate_taxon_name_classification
   validates_presence_of :taxon_name, presence: true
   validates_presence_of :type, presence: true
   validates_uniqueness_of :taxon_name_id, scope: :type
@@ -40,10 +40,6 @@ class TaxonNameClassification < ActiveRecord::Base
     r = read_attribute(:type).to_s
     r = TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r.safe_constantize : nil
     r
-  end
-
-  def validate_taxon_name_classlassification
-    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
 
   # @return [String]
@@ -171,6 +167,9 @@ class TaxonNameClassification < ActiveRecord::Base
   
   private
 
+  def validate_taxon_name_classification
+    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
+  end
 
   # TODO: move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)

@@ -72,13 +72,15 @@ describe 'AlternateValues', :type => :model do
         expect(TestAlternateValue.with_alternate_value_on('string', 'foo').to_a).to eq([])
       end
     end
+
   end
 end
 
 class TestAlternateValue < ActiveRecord::Base
   include FakeTable
   include Shared::AlternateValues
-  #TODO (Matt already has) Test for existence of ALTERNATE_VALUES_ON,
+
+  ALTERNATE_VALUES_FOR = [:string]
 end
 
 

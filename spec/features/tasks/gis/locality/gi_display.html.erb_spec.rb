@@ -16,7 +16,7 @@ describe "tasks/gis/locality/gi_display.html.erb", :type => :feature do
     @geographic_item  = @collecting_event.georeferences.first.error_geographic_item
     # this triggers 'Collecting events within', which renders gi_display
     visit (within_locality_task_path(@geographic_item.id))
-    expect(page).to have_content(/Task: Contained within/)
+    expect(page).to have_content(/Task: Localities contained within area/)
   end
 
 end

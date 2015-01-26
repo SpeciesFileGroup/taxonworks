@@ -84,6 +84,10 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_area_types
   resources :geographic_areas do
     concerns [:data_routes]
+    collection do
+      post 'display_coordinates'
+      get 'display_coordinates', as: "getdisplaycoordinates"
+    end
   end
   resources :geographic_areas_geographic_items
   resources :geographic_items
@@ -168,6 +172,12 @@ TaxonWorks::Application.routes.draw do
       get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
       get 'update/:id', action: 'update', as: 'update_locality_task'
       get 'within/:id', action: 'within', as: 'within_locality_task'
+    end
+
+    scope :gis, controller: 'tasks/gis/asserted_distribution' do
+      get 'new', action: 'new', as: 'new_asserted_distribution_task'
+      post 'create', action: 'create', as: 'create_asserted_distribution_task'
+      post 'generate_choices/:id', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

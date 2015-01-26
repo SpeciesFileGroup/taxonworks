@@ -24,7 +24,7 @@
         <td><%= note.note_object_attribute %></td>
         <td><%= object_tag(note.creator) %></td>
         <td><%= object_tag(note.updater) %></td>
-        <td><%= link_to 'Show', note.note_object %></td>
+        <td><%= link_to 'Show', note.note_object.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_note_path(note) %></td>
         <td><%= link_to 'Destroy', note, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
