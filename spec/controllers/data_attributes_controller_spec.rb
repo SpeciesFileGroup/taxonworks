@@ -26,7 +26,15 @@ describe DataAttributesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # DataAttribute. As you add validations to DataAttribute, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_data_attribute).attributes) }
+  let(:o) {FactoryGirl.create(:valid_otu) }
+  let(:p) {FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+  let(:valid_attributes) { 
+    { type: 'InternalAttribute',
+      attribute_subject_id: o.id,
+      attribute_subject_type: o.class.name,
+      controlled_vocabulary_term_id: p.id,
+      value: "ABCD" }
+  } 
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -35,7 +43,7 @@ describe DataAttributesController, :type => :controller do
 
   describe "GET index" do
     it "assigns all data_attributes as @data_attributes" do
-      data_attribute = DataAttribute.create! valid_attributes
+      data_attribute = DataAttribute.create!(valid_attributes)
       get :index, {}, valid_session
       expect(assigns(:data_attributes)).to eq([data_attribute])
     end
@@ -46,7 +54,6 @@ describe DataAttributesController, :type => :controller do
   }
 
   describe "POST create" do
-
     before {
       request.env['HTTP_REFERER'] = new_data_attribute_path
     }
@@ -66,7 +73,7 @@ describe DataAttributesController, :type => :controller do
 
       it "redirects to :back" do
         post :create, {:data_attribute => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 
@@ -88,7 +95,6 @@ describe DataAttributesController, :type => :controller do
   end
 
   describe "PUT update" do
-
     before {
       request.env['HTTP_REFERER'] = data_attribute_path(1)
     }
@@ -113,7 +119,7 @@ describe DataAttributesController, :type => :controller do
       it "redirects to :back" do
         data_attribute = DataAttribute.create! valid_attributes
         put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(otu_path(o))
       end
     end
 

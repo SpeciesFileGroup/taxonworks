@@ -70,7 +70,7 @@ class DataAttributesController < ApplicationController
         :type,
         :attribute_subject_id,
         :attribute_subject_type,
-        :controlled_vocabulary_term,
+        :controlled_vocabulary_term_id,
         :import_predicate,
         :value)
   end

@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe DataAttribute, :type => :model do
-  let (:attribute) {DataAttribute.new}
+  let(:attribute) {DataAttribute.new}
+
 
   context 'validation' do
     before(:each) {
@@ -9,7 +10,6 @@ describe DataAttribute, :type => :model do
     }
     context 'requires' do
 
-      # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
       specify 'attribute_subject' do 
         # this eliminate all model based validation requirements
         attribute.type = 'ImportAttribute'
@@ -17,8 +17,6 @@ describe DataAttribute, :type => :model do
         attribute.import_predicate = 'jkl'
         expect{attribute.save}.to raise_error ActiveRecord::StatementInvalid
       end
-
-
 
       specify 'value' do
         expect(attribute.errors.include?(:value)).to be_truthy
@@ -28,6 +26,8 @@ describe DataAttribute, :type => :model do
         expect(attribute.errors.include?(:type)).to be_truthy
       end
     end
+
+    specify 
 
     # Hmmm.. review this
     specify 'key/value is unique' do
