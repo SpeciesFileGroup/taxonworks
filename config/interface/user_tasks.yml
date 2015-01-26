@@ -18,10 +18,11 @@ nearby_locality_task:
   name:  
   related:
     - collecting_event
+    - geographic_area
 update_locality_task:
   name: 
 within_locality_task:
-  name: 
+  name:
 similar_serials_task:
   name: 
   related:

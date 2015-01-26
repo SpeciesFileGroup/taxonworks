@@ -2,6 +2,7 @@ class Tasks::Gis::LocalityController < ApplicationController
   include TaskControllerConfiguration
 
   def nearby
+    @related_routes = UserTasks.related_routes('nearby_locality_task')
     @collecting_event = CollectingEvent.find(params[:id])
     # @nearby_distance = 5000
     @nearby_distance  = params['nearby_distance'].to_i
@@ -54,6 +55,7 @@ class Tasks::Gis::LocalityController < ApplicationController
   end
 
   def within
+    @related_routes = UserTasks.related_routes('nearby_locality_task')
     @geographic_item = GeographicItem.find(params[:id])
     @collecting_events = CollectingEvent.find_others_contained_within(@geographic_item)
   end

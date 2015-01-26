@@ -21,7 +21,7 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/new
   def new
-    @collecting_event = CollectingEvent.find(georeference_params[:collecting_event_id]) if georeference_params[:collecting_event_id]
+    @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
     @georeference = Georeference.new(collecting_event: @collecting_event)
   end
 

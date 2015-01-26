@@ -174,6 +174,12 @@ TaxonWorks::Application.routes.draw do
       get 'within/:id', action: 'within', as: 'within_locality_task'
     end
 
+    scope :gis, controller: 'tasks/gis/asserted_distribution' do
+      get 'new', action: 'new', as: 'new_asserted_distribution_task'
+      post 'create', action: 'create', as: 'create_asserted_distribution_task'
+      post 'generate_choices/:id', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
+    end
+
     scope :serials, controller: 'tasks/serials/similar' do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
       post 'update/:id', action: 'update', as: 'update_serial_find_task'
