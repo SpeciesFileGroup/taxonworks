@@ -1,30 +1,37 @@
-<h2>Task: List serials with names like mine</h2>
+<h2>Task: List similar serials by name </h2>
 
 <div class="flexbox" id="like_serial"  >
   <div class="item item1 one_fifth_width">
-    <%= render(partial: 'serials/mini_show', locals: {object: @serial}) -%>
+    <%= render(partial: 'serials/attributes') -%>
+    <%= link_to('back', serial_path(@serial)) -%> 
   </div>
-</div>
-<p>I am <%= @serial.id %>. With name <%= @serial.name -%></p>
-<p> Do I need to use a partial? </p>
-<p> 3 segments on the display - one for my info, one for find box and one for results </p>
-<p> Matt says not to include the find box...</p>
 
-<ul>
-  <% @similar_serials.each do |serial| -%>
-      <li> <%= serial_tag(serial) -%>
-        <%= link_to('similar',find_serials_like_me_path(serial)) -%>
-        <%= link_to('edit', edit_serial_path(serial)) -%>
-      </li>
-  <% end %>
-</ul>
+  <div class="item item1 one_half_width">
+    <table>
+      <tr><th>name</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </td> 
+        <% @similar_serials.each do |serial| -%>
+          <tr>
+            <td><%= link_to(serial.name, serial_path(serial)) -%></td>
+            <td><%= link_to('similar',similar_serials_task_path(serial)) -%></td>
+            <td><%= link_to('edit', edit_serial_path(serial)) -%></td>
 
-<%= form_tag(find_serials_like_me_path(@serial.to_param)) do |f| %>
-    <div>
-      <div class="field">
-        <%= label_tag :enter_a_search_string %>
-        <%= text_field :search_string, :str %>
-      </div>
+            <% serial.annotations_hash.keys.sort.each do |k| -%>
+              <td><%= serial.annotations_hash[k].collect{|o| object_tag(o)}.join("; ").html_safe -%></td>
+            <% end %>
+
+          </tr>
+        <% end %>
+      </table>
+
     </div>
-    <%= submit_tag -%>
-<% end %>
+
+</div>
+
+
+
+
+

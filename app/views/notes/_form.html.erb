@@ -16,18 +16,12 @@
     <div class="field">
       <%= f.label :text %>
       <br>
-      <%= f.text_field :text %>
+      <%= f.text_area :text %>
     </div>
 
     <%= f.hidden_field :note_object_type %>
-
     <%= f.hidden_field :note_object_id %>
 
-    <!--<div class="field">-->
-    <!--<%#= f.label :note_object_attribute %>-->
-    <!--<br>-->
-    <!--<%#= f.text_field :note_object_attribute %>-->
-    <!--</div>-->
     <div class="actions">
       <%= f.submit %>
     </div>

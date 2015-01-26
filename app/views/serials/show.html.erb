@@ -2,7 +2,7 @@
 
     <ul class="no_bullets">
       <!-- new content should be in <li> -->
-      <%= content_tag(:li, tasks_serials_serial_similar_link(@serial)) %>
+      <%= content_tag(:li, link_to('Similar serials', similar_serials_task_path(@serial))) %>
     </ul>
 
 <% end %>

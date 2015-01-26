@@ -1,11 +1,14 @@
 <div class="alternate-value-record">
+
   <div class="hide-for-display">
     Start---------------AV Separator ----------------------------------------------------
   </div>
+
   <div class="field">
     <%#=	 "#{avf.object.class.to_s}: " %>
     <%#= object_tag(avf.object.alternate_value_object) %>
   </div>
+
   <div class="field">
     <%= avf.label :alternate_value %>
     <%= avf.hidden_field :_destroy, class: 'destroy_field' %>
@@ -13,16 +16,19 @@
     <br>
     <%= avf.text_area :value, rows: 3 %>
   </div>
+
   <div class="field">
     <%= avf.label :type %>
     <br>
     <%= avf.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = avf.object.type) -%>
   </div>
+
   <div class="field">
     <%= avf.label :language_id %>
     <br>
     <%= avf.number_field :language_id %>
   </div>
+
   <div class="field">
     <%= avf.label :alternate_value_object_attribute %>
     <br>

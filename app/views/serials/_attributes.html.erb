@@ -14,4 +14,20 @@
     <%= @serial.place_published %>
   </p>
 
+ <p>
+    <strong>First year of issue:</strong>
+    <%= @serial.first_year_of_issue %>
+  </p>
+
+  <p>
+    <strong>Last year of issue:</strong>
+    <%= @serial.last_year_of_issue %>
+  </p>
+
+  <p>
+    <strong>Translated from serial:</strong>
+    <%= object_link(@serial.translated_from_serial) -%>
+  </p>
+
+
 </div>
