@@ -10,6 +10,8 @@ class Tasks::Serials::SimilarController < ApplicationController
   def like
     @serial = Serial.find(params[:id])
     @similar_serials = @serial.nearest_by_levenshtein(@serial.name[0..254])
+    @related_routes = UserTasks.related_routes('similar_serials_task')
+
 # this is where you do the computation of similar things.
 # stick values in an @var, then page can access
 
