@@ -140,16 +140,18 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    terms = params[:term].split
+    term = params[:term]
+    terms = term.split
     limit = 100
-    case params[:term].length
+    case term.length
       when 0..3
         limit = 10
       else
         limit = 40
     end
+
     search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
-    where(search_term).includes(:parent, :geographic_area_type).order(:name).limit(limit)
+    self.where(name: term) + self.where(search_term).includes(:parent, :geographic_area_type).order('length(name)', :name).limit(limit)
   end
 
   # @param geographic_item [GeographicItem]
@@ -212,7 +214,7 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).where(geographic_area_types: {name: geographic_area_types})
   end
 
-  # Returns a HASH with keys pointing to each of the four level components of the ID.  Matches values in original data.
+  # @return [Hash] keys point to each of the four level components of the ID.  Matches values in original data.
   def tdwg_ids
     {lvl1: self.tdwgID.slice(0),
      lvl2: self.tdwgID.slice(0, 2),
