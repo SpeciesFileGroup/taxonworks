@@ -58,6 +58,8 @@
 
     <div class="actions">
       <%= f.submit %>
+      <input type="hidden" id="json_coors">
+      <%= @json_coors.html_safe %>
+      </input>
     </div>
-
 <% end %>

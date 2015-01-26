@@ -87,6 +87,13 @@ initialize = function () {
         event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         var mapLatLng = event.latLng;
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+        $.get('display_coordinates?lat=' + mapLatLng.lat().toFixed(9) + '&lon=' + mapLatLng.lng().toFixed(9),
+            function(coors, status){
+                //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+                map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+                //$("#map_coords").html(coors);
+                $("#map_coords").append(coors);
+            });
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -114,7 +121,8 @@ initialize = function () {
         function(coors, status){
             //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
             map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-        $("#map_coords").html(coors);
+            //$("#map_coords").html(coors);
+            $("#map_coords").append(coors);
         });
 
         //$.post("display_coordinates",

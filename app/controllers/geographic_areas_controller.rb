@@ -18,6 +18,7 @@ class GeographicAreasController < ApplicationController
 
   def display_coordinates
     @asserted_distribution = AssertedDistribution.new
+    @json_coors = params.to_json
     render partial: "/asserted_distributions/quick_form"
   end
 
