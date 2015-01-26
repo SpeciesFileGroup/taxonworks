@@ -194,4 +194,12 @@ describe Person, :type => :model do
     skip "If person is updated then udpate their Bibtex::Author/Editor fields"
   end
 
+  context 'concerns' do
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
+    it_behaves_like 'alternate_values'
+    # TODO should it include IsData? SharedAcrossProjects?
+  end
+
 end

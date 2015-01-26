@@ -3,10 +3,14 @@ class Person < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
+  include Shared::AlternateValues
   include Shared::SharedAcrossProjects
   include Shared::IsData
 
   has_paper_trail
+
+  # Class constants
+  ALTERNATE_VALUES_FOR = [:last_name, :first_name]
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank

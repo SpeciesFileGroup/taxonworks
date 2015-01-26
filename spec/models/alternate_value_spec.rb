@@ -38,7 +38,7 @@ describe AlternateValue do
     end
 
     specify 'alternate_value_object_attribute is legal column of alternate_value_object' do
-      alternate_value.alternate_value_object = FactoryGirl.build_stubbed(:valid_protonym)
+      alternate_value.alternate_value_object = FactoryGirl.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
@@ -48,7 +48,7 @@ describe AlternateValue do
     end
 
     specify 'value is not identical to existing value' do
-      alternate_value.alternate_value_object = FactoryGirl.build_stubbed(:valid_otu, name: 'foo')
+      alternate_value.alternate_value_object = FactoryGirl.build(:valid_serial, name: 'foo')
       alternate_value.alternate_value_object_attribute = 'name'
       alternate_value.value = 'foo'
       alternate_value.valid?
@@ -67,9 +67,9 @@ describe AlternateValue do
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do
-      otu = FactoryGirl.build_stubbed(:valid_otu, name: '')
-      alternate_value.alternate_value_object = otu
-      alternate_value.alternate_value_object_attribute = 'name'
+      sb = FactoryGirl.build_stubbed(:valid_source_bibtex)    # relies on valid_source_bibtex not having an assigned author
+      alternate_value.alternate_value_object = sb
+      alternate_value.alternate_value_object_attribute = 'author'
       alternate_value.value = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:value)).to be_truthy
@@ -83,29 +83,29 @@ describe AlternateValue do
 
   context 'scopes' do
     specify 'with_alternate_value_on' do
-      o = FactoryGirl.build(:valid_otu)
+      o = FactoryGirl.build(:valid_serial)
       o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_value_object: o, value: 'foo') 
       o.save!
 
-      expect(Otu.with_alternate_value_on(:name, 'foo').count).to eq(1)
-      expect(Otu.with_alternate_value_on(:name, 'foo').first.id).to eq(o.id) # see the otu_factory
+      expect(Serial.with_alternate_value_on(:name, 'foo').count).to eq(1)
+      expect(Serial.with_alternate_value_on(:name, 'foo').first.id).to eq(o.id) # see the serial_factory
     end
   end
 
   context 'use' do
     specify 'adding an alternate value' do 
-      o = FactoryGirl.build(:valid_otu, name: 'my concept')
-      o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_value_object: o, value: 'foo') 
-      expect(o.save).to be_truthy
-      expect(o.alternate_values.count).to eq(1)
+      s = FactoryGirl.build(:valid_serial)
+      s.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_value_object: s, value: 'JOR')
+      expect(s.save).to be_truthy
+      expect(s.alternate_values.count).to eq(1)
     end
 
     specify 'original_value' do
       expect(alternate_value).to respond_to(:original_value)
-
-      o = FactoryGirl.build(:valid_otu, name: 'my concept')
+      tmp = 'my journal'
+      o = FactoryGirl.build(:valid_serial, name: tmp)
       v = FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'foo', alternate_value_object_attribute: 'name', alternate_value_object: o ) 
-      expect(v.original_value).to eq('my concept') # see the otu_factory
+      expect(v.original_value).to eq(tmp) # see the serial_factory
     end
   end
 
