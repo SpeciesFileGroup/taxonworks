@@ -76,6 +76,8 @@ end
 class TestAlternateValue < ActiveRecord::Base
   include FakeTable
   include Shared::AlternateValues
+
+  ALTERNATE_VALUES_FOR = [:string]
 end
 
 
