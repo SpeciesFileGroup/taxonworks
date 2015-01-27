@@ -1,5 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe "asserted_distribution/new.html.erb", :type => :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe 'tasks/gis/asserted_distribution/new', :type => :view do
+  context '' do
+    specify '' do
+      pending
+    end
+  end
 end
