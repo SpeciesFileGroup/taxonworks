@@ -1,9 +1,9 @@
 <%= content_for :do do -%>
-  <ul class="no_bullets">
-    <!-- new content should be in <li> -->
-    <%= content_tag(:li, link_to('Add New Asserted Distribution by Map', 
-                                 new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}))) %>
-  </ul>
+    <ul class="no_bullets">
+      <!-- new content should be in <li> -->
+      <%= content_tag(:li, link_to('Add New Asserted Distribution by Map',
+                                   new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}))) %>
+    </ul>
 <% end %>
 
 

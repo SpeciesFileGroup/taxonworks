@@ -1,2 +1,11 @@
 <h1>Task: New Asserted Distribution by Map</h1>
-<p>Find me in app/views/tasks/gis/asserted_distribution/new.html.erb</p>
+<p>
+  OTU: <%= OtusHelper.otu_tag(@otu) %>
+  <%= link_to('back', otu_path(@otu)) %>
+</p>
+<%= render(partial: 'map_header', locals: {otu: @otu}) -%>
+
+<div id="map_canvas" style="width:512px; height: 256px;"></div>
+<span id="map_coords"></span>
+
+

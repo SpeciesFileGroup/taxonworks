@@ -1,0 +1,15 @@
+<%= content_for :head do %>
+  <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
+<!--//    var data = <%#= Gis::GeoJSON.feature_collection(@geographic_area.geographic_items).to_json.html_safe %>;-->
+
+  <script language="javascript" >
+    var data = nil <%#= Gis::GeoJSON.feature_collection(geographic_items).to_json.html_safe %>;
+  </script>
+  <%#= javascript_include_tag "maps" %>
+
+  <script language="javascript">
+   $(document).ready(initialize);
+   $(document).on('page:load', initialize);
+   // google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+<% end %>

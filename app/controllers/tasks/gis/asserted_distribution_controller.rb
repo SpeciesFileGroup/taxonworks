@@ -1,5 +1,7 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
   def new
+    # Otu.something
+    @otu = Otu.find(params[:asserted_distribution][:otu_id])
 
   end
 
