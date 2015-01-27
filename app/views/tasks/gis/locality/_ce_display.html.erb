@@ -3,21 +3,18 @@
   <strong>Locality:</strong>
   <%= @collecting_event.verbatim_locality %>
 </p>
-<table border='1' style="left: 0px; width: 100%; top: 0px; height: 99px">
+<table>
   <tbody>
   <tr>
-    <td width="99px">
+    <td class="one_third_width">
       <pre><%= collecting_event_tag(@collecting_event) %></pre>
     </td>
     <td align="left" valign="top" height="15" id="top">
-
-      <%= form_tag(update_locality_task_path(@collecting_event.to_param, nearby_distance: @nearby_distance)) do |f| %>
-
-          <table border="1">
-            <thead>Distance select (<%= @nearby_distance %> meters) :</thead>
+      <%= form_tag(update_locality_task_path(@collecting_event.to_param, nearby_distance: @nearby_distance), method: :get) do |f| %>
+          <table>
+            <thead>Filter localities by distance (currently: <%= @nearby_distance %> meters) :</thead>
             <tr>
               <td>
-                <%#=	 distance_select_tag(:digit1, '1') %>
                 <%= label_tag(:digit1, '1') %>
                 <%= radio_button_tag(:digit1, '1', checked = is_checked(:digit1, '1')) %>
               </td>
@@ -82,7 +79,7 @@
   </tr>
   <tr>
     <td colspan="2">
-      <table border='1'>
+      <table>
         <thead>Results for distance of <%= @nearby_distance %> meters: <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %></thead>
         <tr>
           <th>Verbatim Locality</th>

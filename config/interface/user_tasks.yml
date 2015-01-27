@@ -17,8 +17,8 @@
 nearby_locality_task:
   name:  
   related:
-    - collecting_event
-    - geographic_area
+    - collecting_events
+    - geographic_areas
 update_locality_task:
   name: 
 within_locality_task:
@@ -26,7 +26,7 @@ within_locality_task:
 similar_serials_task:
   name: 
   related:
-    - serial
+    - serials
 update_serial_find_task:
   name: 
 find_similar_serials_task:

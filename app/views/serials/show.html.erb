@@ -1,10 +1,8 @@
 <%= content_for :see do -%>
-
     <ul class="no_bullets">
-      <!-- new content should be in <li> -->
+      
       <%= content_tag(:li, link_to('Similar serials', similar_serials_task_path(@serial))) %>
     </ul>
-
 <% end %>
 
 <%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @serial}) -%>

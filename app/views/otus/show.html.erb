@@ -1,7 +1,11 @@
 <%= content_for :do do -%>
-    <p>
-      <%= link_to('Add New Asserted Distribution by Map', new_asserted_distribution_task_path(@otu.to_param)) %>
-    </p>
+  <ul class="no_bullets">
+    <!-- new content should be in <li> -->
+    <%= content_tag(:li, link_to('Add New Asserted Distribution by Map', 
+                                 new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}))) %>
+  </ul>
 <% end %>
+
+
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @otu}) -%>
