@@ -2,9 +2,19 @@
 <p>
   OTU: <%= OtusHelper.otu_tag(@otu) %>
   <%= link_to('back', otu_path(@otu)) %>
+  <%= form_tag(asserted_distributions_url, id: "cadu") do %>
+  <%= render :partial => 'workbench/elements/forms/ajax_select',
+             :locals  => {:controller => '/sources',
+                          :object     => 'asserted_distribution',
+                          :method     => 'source_id',
+                          :tag_id     => 'source_id_for_asserted_distribution',
+                          :display    => ''} %>
 </p>
+      <%= hidden_field_tag(:otu_id, @otu.to_param ) %>
+      <%= hidden_field_tag(:lat ) %>
+      <%= hidden_field_tag(:lon ) %>
+<% end %>
 <%= render(partial: 'map_header', locals: {otu: @otu}) -%>
-
 <div id="map_canvas" style="width:512px; height: 256px;"></div>
 <span id="map_coords"></span>
 

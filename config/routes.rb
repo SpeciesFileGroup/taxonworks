@@ -178,6 +178,8 @@ TaxonWorks::Application.routes.draw do
       get 'new', action: 'new', as: 'new_asserted_distribution_task'
       post 'create', action: 'create', as: 'create_asserted_distribution_task'
       post 'generate_choices/:id', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
+      post 'display_coordinates'
+      get 'display_coordinates', as: "getdisplaycoordinates"
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
