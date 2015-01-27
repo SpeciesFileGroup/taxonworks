@@ -1,14 +1,15 @@
-
 <%= content_for :see do -%>
-  <% if @collecting_event.georeferences.any? %>
-    <p>
-    <%= link_to('Nearby', nearby_locality_task_path(@collecting_event.to_param, nearby_distance: 5000)) %>
-    </p>
-  <% end %>
-<% end %> 
+    <% if @collecting_event.georeferences.any? %>
+        <ul class="no_bullets">
+          <%= content_tag(:li, link_to('Nearby', nearby_locality_task_path(@collecting_event.to_param, nearby_distance: 5000))) %>
+        </ul>
+    <% end %>
+<% end %>
 
 <%= content_for :tasks do %>
-  <%= link_to('Georeference', new_georeference_path(georeference: {collecting_event_id: @collecting_event.to_param})) -%>
-<% end %> 
+    <ul class="no_bullets">
+      <%= content_tag(:li, link_to('Georeference', new_georeference_path(georeference: {collecting_event_id: @collecting_event.to_param}))) -%>
+    </ul>
+<% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collecting_event}) -%>
