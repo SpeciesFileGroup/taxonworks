@@ -120,9 +120,11 @@ initialize = function () {
         $.get('display_coordinates?lat=' + mapLatLng.lat().toFixed(9) + '&lon=' + mapLatLng.lng().toFixed(9),
         function(coors, status){
             //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-            map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+            //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
             //$("#map_coords").html(coors);
             $("#map_coords").append(coors);
+            coors_element = JSON.parse(document.getElementById('json_coors').value);
+            map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
         });
 
         //$.post("display_coordinates",
@@ -195,6 +197,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     }
     ;
     if (center_lat == undefined) {
+        if((ymax == -90) && (ymin == 90)) {ymax = 90.0; ymin = -90.0;}      // no data, so set whole earth limits
         wy = ymax - ymin;
         center_lat = 0.5 * (ymax + ymin);
         cutoff = 65.0
@@ -209,6 +212,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
         }
     }
     ;
+
     if(wy > 0.5 * wx) {wx = wy * 2.5}
     if (wx <= 0.1) {gzoom =11};
     if (wx > 0.1) {gzoom = 10};
@@ -220,7 +224,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     if (wx > 10.0) {gzoom = 4};
     if (wx > 40.0) {gzoom = 3};
     if (wx > 80.0) {gzoom = 2};
-    if (wx > 160.0) {gzoom = 1};
+    if (wx > 160.0 || (wx + wy) == 0) {gzoom = 1};
     //alert('wx = ' + wx + '\ngzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };

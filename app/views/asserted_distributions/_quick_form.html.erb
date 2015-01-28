@@ -5,8 +5,6 @@
     <%= f.hidden_field(:geographic_area_id) %>
     <div class="actions">
       <%= f.submit %>
-      <input type="hidden" id="json_coors" name="new_from_map">
-      <%= @json_coors.html_safe %>
-      </input>
+      <input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> ' />
     </div>
 <% end %>
