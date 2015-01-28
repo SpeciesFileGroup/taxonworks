@@ -12,14 +12,18 @@
         </div>
     <% end %>
 
-    <p> <strong><%= @alternate_value.alternate_value_object.class.name %>:</strong> <%= object_tag(@alternate_value.alternate_value_object) -%>  </p>
+    <p> <strong><%= @alternate_value.alternate_value_object.class.name %>:</strong>
+      <%= object_tag(@alternate_value.alternate_value_object) -%>
+    </p>
 
     <div class="field">
       <%= f.label :alternate_value_object_attribute %>
       <br>
-      <%= f.select :alternate_value_object_attribute, options_for_select(@alternate_value.alternate_value_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_value_object_attribute) -%>
+      <%= f.select :alternate_value_object_attribute,
+                   options_for_select(@alternate_value.alternate_value_object.class::ALTERNATE_VALUES_FOR.map(&:to_sym),
+                                      selected = @alternate_value.alternate_value_object_attribute) -%>
     </div>
-
+                                                                                                 1
     <div class="field">
       <%= f.label :value %>
       <br>
