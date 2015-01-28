@@ -22,13 +22,13 @@
 class AlternateValue < ActiveRecord::Base
 
   include Housekeeping::Users
-  include Shared::IsData 
+  include Shared::IsData
 
   belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
 
   validates :language, presence: true, allow_nil: true
-  validates_presence_of :type, :value, :alternate_value_object_attribute 
+  validates_presence_of :type, :value, :alternate_value_object_attribute
   validates :alternate_value_object, presence: true
 
   before_validation :ensure_object_has_attribute,
@@ -38,8 +38,8 @@ class AlternateValue < ActiveRecord::Base
 
   def original_value
     (self.alternate_value_object_attribute && self.alternate_value_object && self.alternate_value_object.respond_to?(
-        self.alternate_value_object_attribute.to_sym) )  ?
-        self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym)  : nil
+      self.alternate_value_object_attribute.to_sym)) ?
+      self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym) : nil
   end
 
   def type_name
@@ -69,14 +69,21 @@ class AlternateValue < ActiveRecord::Base
 
 
   def ensure_object_has_attribute
-    errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name') if
-        self.alternate_value_object &&
-            !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
-  end 
+    # object must not only have this attribute, it must also be explicitly listed in ALTERNATE_VALUE_FOR
+
+    if self.alternate_value_object &&
+      !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
+      errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name')
+    else
+      if self.alternate_value_object &&
+        !self.alternate_value_object.class::ALTERNATE_VALUES_FOR.include?(self.alternate_value_object_attribute.to_sym)
+        errors.add(:alternate_value_object_attribute, 'Attribute (column) does not allow alternate values.')
+      end
+    end
+  end
 
   def ensure_alternate_value_is_not_identical
-    errors.add(:value, 'Value is not alternate, is identical to existing value') if
-        (self.value == self.original_value)
+    errors.add(:value, 'Value is not alternate, is identical to existing value') if (self.value == self.original_value)
   end
 
   def not_empty_original_value
