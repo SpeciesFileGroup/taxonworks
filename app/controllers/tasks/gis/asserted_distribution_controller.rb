@@ -2,7 +2,8 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   def new
     # Otu.something
     @otu = Otu.find(params[:asserted_distribution][:otu_id])
-
+    areas = GeographicArea.with_name_and_parent_name(['Champaign', 'Illinois'])
+    @feature_collection = TaxonWorks::Gis::GeoJSON.feature_collection(areas)
   end
 
   def create
