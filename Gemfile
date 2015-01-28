@@ -37,7 +37,7 @@ gem 'jquery-turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set', '~> 3.0.1' 
+gem 'awesome_nested_set', '~> 3.0.2' 
 
 # BibTex handling
 gem 'bibtex-ruby', '~> 4.0.3'

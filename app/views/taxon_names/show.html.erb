@@ -1,23 +1,30 @@
 <% content_for :do do %>
-  <%= link_to 'Add status/classification', new_taxon_name_classification_path(taxon_name_id: @taxon_name.to_param) -%>
-<% end %>
+  <% if @taxon_name.is_protonym? -%>
+    <ul>
+      <%= content_tag(:li, link_to('New status/classification', new_taxon_name_classification_path(taxon_name_id: @taxon_name.to_param))) -%>
+      <%= content_tag(:li, new_combination_for_protonym_link(@taxon_name)) -%>
+    </ul>
+  <% end %>
 
+  <% content_for :tasks do %>
+    <%= render(partial: 'tasks') -%>
+  <% end %>
 
-<% content_for :tasks do %>
-  <%= render(partial: 'tasks') -%>
 <% end %>
 
 <% content_for :show_navigation do %>
-  <%= render( 'parent_navigator', taxon_name: @taxon_name) -%>
+  <%= render('parent_navigator', taxon_name: @taxon_name) -%>
 <% end %>
 
 <% content_for :see do %>
-  <h3> Classifications / Status </h3>
-  <%= render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) -%>
+  <% if @taxon_name.is_protonym? -%>
+    <h3> Classifications / Status </h3>
+    <%= render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) -%>
+
+    <h3> Combinations </h3>
+    <%= render(partial: '/combinations/unordered_list', locals: {combinations: @taxon_name.combinations}) -%>
+  <% end %>
 <% end %>
 
 
-
-
 <%= render(partial: 'shared/data/project/show', locals: {object: @taxon_name}) -%>
-

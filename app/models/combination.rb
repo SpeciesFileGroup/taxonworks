@@ -17,6 +17,14 @@
 #
 #  c = Combination.new(genus: genus_protonym, species: species_protonym)
 #
+# Getters and setters for each of the APPLICABLE_RANKS are available:
+#   genus subgenus section subsection series subseries species subspecies variety subvariety form subform
+#   genus_id subgenus_id section_id subsection_id series_id subseries_id species_id subspecies_id variety_id subvariety_id form_id subform_id
+# You can things like (notice mix/match of _id or not): 
+#   c = Combination.new(genus_id: @genus_protonym.id, subspecies: @some_species_group)
+#   c.species_id = Protonym.find(some_species_id).id
+# or
+#   c.species = Protonym.find(some_species_id)
 #
 # @!attribute combination_verbatim_name 
 #   Use with caution, and sparingly! If the combination of values from Protonyms can not reflect the formulation of the combination as provided by the original author that string can be provided here.
@@ -36,7 +44,6 @@
 #        include "Aus brocen" in this field, rather than just "brocen". An alternative is to create a new Protonym "brocen".
 #   @return [String]
 #
-#
 # @!attribute parent_id 
 #   the parent is the parent of the highest ranked component protonym, it is automatically set i.e. it should never be assigned directly 
 #   @return [Integer]
@@ -55,8 +62,7 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
-  # Create the has_one associations
-  APPLICABLE_RANKS.each do |rank|
+ APPLICABLE_RANKS.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"}) },
@@ -68,6 +74,25 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
+  
+    attr_accessor "#{rank}_id".to_sym
+    method = "#{rank}_id"
+
+    define_method(method) { 
+      if self.send(rank)
+        self.send(rank).id
+      else
+        nil
+      end 
+    }
+
+    define_method("#{method}=") {|value|
+      if !value.blank?
+        if n = Protonym.find(value)
+          self.send("#{rank}=", n) 
+        end
+      end
+    } 
   end
 
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
@@ -104,7 +129,7 @@ class Combination < TaxonName
   end
 
   # @return [Array of TaxonNames, nil]
-  #   the component names for this combination prior (used to return values prior to save) to it being saved
+  #   the component names for this combination prior to it being saved (used to return values prior to save)
   def protonyms_by_rank
     result = {}
     APPLICABLE_RANKS.each do |rank|
@@ -118,7 +143,7 @@ class Combination < TaxonName
   # @return [Array of Integer]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years 
-    description_years = protonyms.collect{|a| a.nomenclature_date.year}.compact
+    description_years = protonyms.collect{|a| a.nomenclature_date ? a.nomenclature_date.year : nil}.compact
   end
 
   # @return [Integer, nil]

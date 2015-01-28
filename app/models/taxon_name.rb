@@ -18,13 +18,14 @@
 #
 # @!attribute parent_id
 #   @return [Integer]
-#     The id of the parent taxon. The parent child relationship is exclusively organizational!  All statuses and relationships
-#     of a taxon name must be explicitly defined.  The parent of a taxon name can be thought of the "place where you'd find this
-#     name in a hierarchy if you knew literally *nothing* else about that name." 
+#     The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
+#     of a taxon name must be explicitly defined via taxon name relatinoships or classifications. The parent of a taxon name 
+#     can be thought of the "place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name." 
+#     In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
 #     There are 3 simple rules for determening the parent of a Protonym or Combination:
-#     1) the parent must always be at least one rank higher than the target names rank
-#     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
-#     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
+#       1) the parent must always be at least one rank higher than the target names rank
+#       2) the parent of a synonym (any sense) is the parent of the synonym's valid name
+#       3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
 # @!attribute verbatim_author 
 #   @return [String]
@@ -91,7 +92,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  acts_as_nested_set scope: [:project_id], dependent: :destroy # really?!  raise is safer, but impossible to nuke branches
+  acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
@@ -301,10 +302,19 @@ class TaxonName < ActiveRecord::Base
     end
   end
   
-  # To find an ancestor at certain rank.
-  # @return [TaxonName | nil]
+  # @return [TaxonName | nil] an ancestor at the specified rank
   def ancestor_at_rank(rank)
     TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
+  end
+
+  # @return [Array of TaxonName] ancestors of type 'Protonym'
+  def ancestor_protonyms
+    TaxonName.ancestors_of(self).where(type: 'Protonym')
+  end
+
+# @return [Array of TaxonName] descendants of type 'Protonym'
+  def descendant_protonyms
+    TaxonName.descendants_of(self).where(type: 'Protonym')
   end
 
   # TODO: @proceps - based on what?
@@ -475,6 +485,14 @@ class TaxonName < ActiveRecord::Base
   def get_cached_misspelling
     misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
     misspelling.empty? ? nil : true
+  end
+
+  def is_protonym?
+    self.type == 'Protonym'
+  end
+
+  def is_combination?
+    self.type == 'Combination' 
   end
 
   # Returns an Array of ancestors
@@ -793,10 +811,10 @@ class TaxonName < ActiveRecord::Base
     case t.length
     when 0..3
     else
-     limit = 10
+      limit = 20
     end
     
-    where('cached ~ ? OR name ~ ?', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
+    where('(cached  ~~* ?) OR (name  ~~* ?)', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
   end
 
   # A proxy for a scope

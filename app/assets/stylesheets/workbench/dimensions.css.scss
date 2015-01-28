@@ -25,3 +25,11 @@ $viewport_width: 1024;
 .four_character_width {
   width: 4em;
 }
+
+// this might belong elsewhere
+.attributes  {
+  p {
+    width:100%;
+    word-wrap:break-word;
+  }
+}
