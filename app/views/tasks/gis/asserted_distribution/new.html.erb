@@ -14,7 +14,7 @@
       <%= hidden_field_tag(:lat ) %>
       <%= hidden_field_tag(:lon ) %>
 <% end %>
-<%= render(partial: 'map_header', locals: {otu: @otu}) -%>
+<%= render(partial: 'map_header', locals: {otu: @otu, feature_collection: @feature_collection}) -%>
 <div id="map_canvas" style="width:512px; height: 256px;"></div>
 <span id="map_coords"></span>
 

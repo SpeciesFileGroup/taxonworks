@@ -1,10 +1,11 @@
 <%= content_for :head do %>
-  <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
-<!--//    var data = <%#= Gis::GeoJSON.feature_collection(@geographic_area.geographic_items).to_json.html_safe %>;-->
+    <%= javascript_include_tag 'http://maps.googleapis.com/maps/api/js?v=3.exp' -%>
+    <!--//    var data = <%#= Gis::GeoJSON.feature_collection(@geographic_area.geographic_items).to_json.html_safe %>;-->
 
-  <script language="javascript">
-   $(document).ready(initialize);
-   $(document).on('page:load', initialize);
-   // google.maps.event.addDomListener(window, 'load', initialize);
-  </script>
+    <script language="javascript">
+        var data = <%= feature_collection.to_json.html_safe %>;
+        $(document).ready(initialize);
+        $(document).on('page:load', initialize);
+        // google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
 <% end %>
