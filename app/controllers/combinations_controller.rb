@@ -6,8 +6,12 @@ class CombinationsController < ApplicationController
 
   # GET /combinations/new
   def new
-    @protonym = Protonym.find(params(:taxon_name_id)) if params[:taxon_name_id]
-    @combination = Combination.new()
+    if params[:taxon_name_id]
+      @protonym = Protonym.find(params[:taxon_name_id])
+      @combination = Combination.new(@protonym.rank => @protonym)
+    else
+      @combination = Combination.new()
+    end
   end
 
   # GET /combinations/1/edit
@@ -16,10 +20,12 @@ class CombinationsController < ApplicationController
 
   # POST /combinations.json
   def create
+
     @combination = Combination.new(combination_params)
     respond_to do |format|
       if @combination.save
-        format.html { redirect_to @combination.metamorphosize, notice: 'Combination was successfully created.' }
+        byebug
+        format.html { redirect_to taxon_names_path, notice: 'Combination was successfully created.' }
         format.json { render :show, status: :created, location: @combination.metamorphosize }
       else
         format.html { render :new }
@@ -47,7 +53,7 @@ class CombinationsController < ApplicationController
   def destroy
     @combination.destroy
     respond_to do |format|
-      format.html { redirect_to combinations_url }
+      format.html { redirect_to taxon_names_url }
       format.json { head :no_content }
     end
   end
@@ -60,6 +66,6 @@ class CombinationsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def combination_params
-    params.require(:combination).permit()
+    params.require(:combination).permit(:source_id, *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym})
   end
 end

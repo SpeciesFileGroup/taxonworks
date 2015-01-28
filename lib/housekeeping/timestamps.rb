@@ -2,9 +2,6 @@
 module Housekeeping::Timestamps
   extend ActiveSupport::Concern
 
-  included do
-  end
-
   module ClassMethods
     # Scopes
     def created_this_week

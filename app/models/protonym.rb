@@ -1,7 +1,7 @@
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
 
-# A *monomial* TaxonNames first usage. This follows Pyle's concept almost exactly.
+# A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format. 
 #   subject                      object
@@ -30,6 +30,12 @@ class Protonym < TaxonName
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
+  has_many :combination_relationships, -> {
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
+  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+
+  has_many :combinations, through: :combination_relationships, source: :object_taxon_name
 
   has_many :type_materials, class_name: 'TypeMaterial'
 

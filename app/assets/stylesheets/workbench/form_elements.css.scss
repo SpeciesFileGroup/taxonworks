@@ -13,3 +13,14 @@ form div.required {
     }
   }
 }
+
+.inline_fields {
+  .field {
+    br {
+      display: none;
+    }
+    input {
+      padding-left: 1em;
+    }
+  }
+}

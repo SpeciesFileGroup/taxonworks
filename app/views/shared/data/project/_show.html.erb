@@ -39,15 +39,14 @@
       <br>
       <br>
       <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-
+      <h3> Annotate </h3>
+      <%= annotate_links(object: object) -%>
+      <br>
+ 
       <div style="padding:1em 0em;"> 
         <%= yield :do -%>
       </div>
 
-      <h3> Annotate </h3>
-      <%= annotate_links(object: object) -%>
-      <br>
-      <br>
       <%= yield :tasks -%>
     </div>
 

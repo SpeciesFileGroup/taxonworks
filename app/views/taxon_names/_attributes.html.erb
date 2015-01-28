@@ -27,7 +27,7 @@
   <p>
     <strong>Rank:</strong>
     <%= @taxon_name.rank %>
-    (<%= @taxon_name.rank_class.nomenclatural_code ? (@taxon_name.rank_class.nomenclatural_code.upcase) : content_tag(:em, 'ERROR')  -%>)
+    (<%= rank_tag(@taxon_name) -%>)
   </p>
 
   <p>
@@ -52,9 +52,6 @@
     <strong>Neuter name:</strong>
     <%= @taxon_name.neuter_name %>
   </p>
-
-
-
 
   </div>
 

@@ -32,4 +32,16 @@ module TaxonNamesHelper
     link_to('Edit original combination.', edit_protonym_original_combination_task_path(taxon_name)) if GENUS_AND_SPECIES_RANK_NAMES.include?(taxon_name.rank_string)
   end
 
+  def rank_tag(taxon_name)
+    case taxon_name.type
+    when 'Protonym'
+      if @taxon_name.rank_class
+        @taxon_name.rank.upcase
+      else
+        content_tag(:em, 'ERROR')
+      end
+    when 'Combination'
+        content_tag(:em, 'n/a')
+    end
+  end
 end

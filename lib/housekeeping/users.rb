@@ -50,11 +50,15 @@ module Housekeeping::Users
     self.created_by_id ||= $user_id
   end
 
-  # TODO: test this
-  def set_updated_by_id
+  # TODO: test this!!!!!!
+  def set_updated_by_id 
     if !self.updated_by_id_changed?
       self.updated_by_id = $user_id
     end
+  end
+
+  def only_awesome_set_indexing? 
+    self.changes.keys.sort == ['lft', 'rgt']
   end
 
 end

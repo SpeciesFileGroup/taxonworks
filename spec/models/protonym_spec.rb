@@ -3,7 +3,7 @@ require 'rails_helper'
 # TO resolve with Proceps
 #   - we have relationships for gender 'TaxonNameClassification::Latinized::Gender::Feminine', we need to resolve these vs. TaxonName masculine etc. forms
 #      - this is a string / string relatinoships, that doesn't imply Protonym status, perhaps we need a new class of String (basically a Nomenclator class?!)
-# a- we need to write tests for all instance methods, including:
+#  - we need to write tests for all instance methods, including:
 #   all_generic_placements  
 #   list_of_coordinated_names
 #   lowest_rank_coordinated_taxon
@@ -22,6 +22,7 @@ require 'rails_helper'
 
 describe Protonym, :type => :model do
   let(:protonym) { Protonym.new }
+
   before(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
@@ -52,7 +53,6 @@ describe Protonym, :type => :model do
                                                   subject_taxon_name: @protonym,
                                                   object_taxon_name: @genus,
                                                   type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
-
       @genus_type_of_family = FactoryGirl.create(:taxon_name_relationship,
                                                  subject_taxon_name: @genus,
                                                  object_taxon_name: @family,
@@ -63,6 +63,14 @@ describe Protonym, :type => :model do
     context 'has_many' do
       specify 'original_combination_relationships' do 
         expect(protonym).to respond_to(:original_combination_relationships)
+      end
+
+      specify 'combination_relationships' do 
+        expect(protonym).to respond_to(:combination_relationships)
+      end
+
+      specify 'combinations' do 
+        expect(protonym).to respond_to(:combinations)
       end
     end
 
@@ -255,14 +263,12 @@ describe Protonym, :type => :model do
       @source = FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')
     end
 
-    specify 'run all soft validations without error' do
-      expect(protonym.soft_validate()).to be_truthy
+    specify 'sanity check that project_id is set correctly in factories' do
+      expect(@subspecies.project_id).to eq(1)
     end
 
-    context 'validate project_id' do
-      specify 'project_id = 1' do
-        expect(@subspecies.project_id).to eq(1)
-      end
+    specify 'run all soft validations without error' do
+      expect(protonym.soft_validate()).to be_truthy
     end
 
     context 'valid parent rank' do
@@ -924,6 +930,27 @@ describe Protonym, :type => :model do
         end
       end
     end
+
+    context 'combinations' do
+      let(:root) { Protonym.where(name: 'Root').first }
+      let(:genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: root) }
+      let(:alternate_genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Bus', parent: root) }
+      let(:species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: genus) }
+
+      context 'relationships are created when Combinations are created' do
+        before(:each) { Combination.create!(genus: alternate_genus, species: species) }
+        specify '#combination_relationships' do
+          expect(species.combination_relationships.count).to eq(1)
+          expect(alternate_genus.combination_relationships.count).to eq(1)
+        end
+
+        specify '#combinations' do
+          expect(species.combination_relationships.count).to eq(1)
+          expect(alternate_genus.combination_relationships.count).to eq(1)
+        end
+      end
+    end
+
   end
 
 end

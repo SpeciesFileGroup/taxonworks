@@ -76,7 +76,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :combinations, only:[:create, :edit, :update, :destroy, :new] do
+  resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
   end
 
