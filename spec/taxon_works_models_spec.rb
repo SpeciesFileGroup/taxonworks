@@ -4,6 +4,7 @@ require 'rails_helper'
 describe TaxonWorks do
   #let(:model_data) {} # Models that inherit ActiveRecord::Base
 
+  #todo need to fix it so that the error message appears along with the project name.
   context 'Models that have alternate values' do
     ActiveRecord::Base.descendants.each { |model|
       if model < Shared::AlternateValues
