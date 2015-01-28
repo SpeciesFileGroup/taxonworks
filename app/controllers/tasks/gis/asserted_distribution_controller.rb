@@ -4,8 +4,8 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   def new
     # Otu.something
     @otu = Otu.find(params[:asserted_distribution][:otu_id])
-    areas = GeographicArea.with_name_and_parent_name(['Champaign', 'Illinois'])
-    @feature_collection = ::Gis::GeoJSON.feature_collection(areas)
+    @feature_collection = ::Gis::GeoJSON.feature_collection([])
+    @source = Source.find(1)
   end
 
   def create
@@ -20,10 +20,15 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
     @asserted_distribution = AssertedDistribution.new
     @json_coors = params.to_json
     # @otu = Otu.find(params[:asserted_distribution][:otu_id])
-    @otu = Otu.find(1)
+    # @otu = Otu.find(@otu)
     # @source = Source.find(params[:asserted_distribution][:source_id])
-    @source = Source.find(1)
-    @asserted_distributions = [AssertedDistribution.new(otu: @otu, source: @source, geographic_area_id: 236)]
+    # @source = Source.find(1)
+    click_point = GeographicItem.new(point: Georeference::FACTORY.point(params["lat"], params["lon"]))
+    click_items = GeographicItem.is_contained_in('any_poly', click_point)
+    click_areas = click_items.geographic_areas
+    # areas = GeographicArea.with_name_and_parent_name(['Champaign', 'Illinois'])
+    @feature_collection = ::Gis::GeoJSON.feature_collection(click_areas)
+    @asserted_distributions = [AssertedDistribution.new(otu: @otu, source: @source )]
     render partial: "/asserted_distributions/quick_form", collection: @asserted_distributions, as: :asserted_distribution
 
   end
