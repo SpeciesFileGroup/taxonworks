@@ -24,7 +24,6 @@ class CombinationsController < ApplicationController
     @combination = Combination.new(combination_params)
     respond_to do |format|
       if @combination.save
-        byebug
         format.html { redirect_to taxon_names_path, notice: 'Combination was successfully created.' }
         format.json { render :show, status: :created, location: @combination.metamorphosize }
       else
