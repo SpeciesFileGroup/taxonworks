@@ -1,0 +1,31 @@
+<table>
+  <thead>Existing Distributions</thead>
+  <tr>
+    <th>Geographic Area</th>
+    <th>Source</th>
+    <th>Updater</th>
+    <th>Updated On</th>
+    <th></th>
+  </tr>
+  <tbody>
+  <% AssertedDistribution.where(otu_id: otu.id).each { |distribution| %>
+      <tr>
+        <td>
+          <%#= GeographicAreasHelper.geographic_area_tag(distribution.geographic_area) %>
+        </td>
+        <td>
+          <%#= SourcesHelper.source_tag(distribution.source) %>
+        </td>
+        <td>
+          <%#= user_tag(User.where(id: distribution.updated_by_id)) %>
+        </td>
+        <td>
+          <%#= object_time_since_update_tag(distribution) %> <!--ago-->
+        </td>
+        <td>
+          <%#= link_to 'destroy', distribution, method: :delete, data: { confirm: 'Are you sure?' } %>
+        </td>
+      </tr>
+  <% } %>
+  </tbody>
+</table>

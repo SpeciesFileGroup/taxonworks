@@ -1,4 +1,6 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
+  before_action :disable_turbolinks, only: [:new]
+
   def new
     # Otu.something
     @otu = Otu.find(params[:asserted_distribution][:otu_id])
