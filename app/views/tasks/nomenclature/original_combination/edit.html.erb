@@ -2,7 +2,7 @@
 
 <p> Return to <%= taxon_name_link(@taxon_name.metamorphosize) -%> (does not save!). </p>
 
-<%= form_for(@taxon_name.metamorphosize, url: update_original_combination_task_taxon_name_url)  do |f|  -%>
+<%= form_tag(update_protonym_original_combination_task_url(@taxon_name.metamorphosize), method: :patch)  do |f|  -%>
   <% @original_combination_relations.each_with_index do |r, i| -%>
       <div class="field">
         <%= label_tag r.type_class.inverse_assignment_method.to_s.humanize -%> 

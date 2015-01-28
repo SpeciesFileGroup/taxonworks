@@ -1,6 +1,33 @@
 <h1>New combination</h1>
+<%= link_to('back', @protonym) -%>
+<%= form_for(@combination) do |f| -%>
+    <div class="field">
+      <%= f.label :source_id %>
+      <br>
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
+                 :locals  => {controller: 'sources',
+                              object:     'combination',
+                              method:     'source_id',
+                              tag_id:     'source_id_for_combination',
+                              display:    source_tag(@combination.source),
+                              size:       55
+                 } %>
+    </div>
 
-<%= form_for @combination do |f| -%>
-
-
+    <% Combination::APPLICABLE_RANKS.each do |rank| -%>
+        <%= rank -%>:
+        <% if @protonym && @protonym.rank_string == rank -%>
+            <%= object_tag(@protonym) -%>
+        <% else %>
+            <%= render partial: 'workbench/elements/forms/ajax_select',
+                       locals:  {controller: '/taxon_names',
+                                 object:     "combination_#{rank}",
+                                 method:     "#{rank}_id",
+                                 tag_id:     "taxon_name_id_for_combination_#{rank}",
+                                 display:    taxon_name_tag(@combination.send(rank)),
+                                 size:       55} %>
+            <br>
+        <% end %>
+    <% end %>
+    <%= submit_tag %>
 <% end %>

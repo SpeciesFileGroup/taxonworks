@@ -29,7 +29,7 @@ module TaxonNamesHelper
   end
 
   def edit_original_combination_task_link(taxon_name)
-    link_to('Edit original combination.', edit_original_combination_task_taxon_name_path(taxon_name)) if GENUS_AND_SPECIES_RANK_NAMES.include?(taxon_name.rank_string)
+    link_to('Edit original combination.', edit_protonym_original_combination_task_path(taxon_name)) if GENUS_AND_SPECIES_RANK_NAMES.include?(taxon_name.rank_string)
   end
 
 end

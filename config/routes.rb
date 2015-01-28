@@ -76,7 +76,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :combinations, only:[:create, :update, :destroy, :new] do
+  resources :combinations, only:[:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
   end
 
@@ -150,10 +150,6 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_names do
     concerns [:data_routes]
-    member do
-      match 'edit_protonym_original_combination_task', to: 'tasks/nomenclature/original_combination#edit', via: 'get'
-      match 'update_protonym_original_combination_task', to: 'tasks/nomenclature/original_combination#update', via: 'patch'
-    end
   end
 
   resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
@@ -168,6 +164,14 @@ TaxonWorks::Application.routes.draw do
   end
   
   scope :tasks  do
+
+    scope :nomenclature do
+      scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
+        get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
+        patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
+      end
+    end
+
     scope :gis, controller: 'tasks/gis/locality' do
       get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
       get 'update/:id', action: 'update', as: 'update_locality_task'
