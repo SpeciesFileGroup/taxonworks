@@ -1,0 +1,11 @@
+<%= form_tag(search_serials_path, {method: :go}) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'namespaces',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'serial_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

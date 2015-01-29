@@ -1,0 +1,11 @@
+<%= form_tag(search_preparation_types_path, {method: :go}) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'preparation_types',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'preparation_type_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%#= button_to 'Edit', edit_otu_path %>
+    <%= submit_tag 'Show' %>
+<% end %>

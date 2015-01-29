@@ -9,4 +9,13 @@ module SerialsHelper
     SerialsHelper.serial_tag(serial)
   end
 
+  def serial_link(serial)
+    return nil if serial.nil?
+    link_to(SerialsHelper.serial_tag(serial).html_safe, serial)
+  end
+
+  def serials_search_form
+    render('/serials/quick_search_form')
+  end
+
 end
