@@ -3,6 +3,9 @@
     <%= f.hidden_field(:otu_id) %>
     <%= f.hidden_field(:source_id) %>
     <%= f.hidden_field(:geographic_area_id) %>
+    <div>
+      <%=	 @click_area_names %>
+    </div>
     <div class="actions">
       <%= f.submit %>
       <input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> ' />
