@@ -42,6 +42,10 @@ describe UsersController, :type => :routing do
     it "routes to #password_reset" do
       expect(get("/password_reset/TOKEN")).to route_to("users#password_reset", :token => 'TOKEN')
     end
+    
+    it "routes to #set_password" do
+      expect(patch("/set_password/TOKEN")).to route_to("users#set_password", :token => 'TOKEN')
+    end
 
   end
 end

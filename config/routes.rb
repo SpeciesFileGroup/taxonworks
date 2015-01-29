@@ -229,7 +229,8 @@ TaxonWorks::Application.routes.draw do
   match '/signup', to: 'users#new', via: 'get'
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
-  match '/password_reset/:token', to: 'users#password_reset', via: 'get', as: 'password_reset'
+  get '/password_reset/:token', to: 'users#password_reset', as: 'password_reset'
+  patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
 

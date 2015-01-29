@@ -63,9 +63,9 @@ class UsersController < ApplicationController
   
   # GET /forgot_password
   def forgot_password
-    
+
   end
-  
+
   # POST /send_password_reset
   def send_password_reset
     user = User.find_by_email(params[:email])
@@ -78,7 +78,32 @@ class UsersController < ApplicationController
       else
         flash[:notice] = "The supplied e-mail does not belong to a registered user"
       end
-    end    
+    else
+      token = user.generate_password_reset_token
+      $user_id = user.id
+      user.save
+      UserMailer.password_reset_email(user, token).deliver
+    end
+  end
+  
+  # GET /password_reset
+  def password_reset
+    @user = User.find_by_password_reset_token(RandomToken.digest(params[:token]))
+    render 'invalid_token.html.erb' unless @user && @user.password_reset_token_date < 1.day.ago
+  end
+  
+  # PATCH /set_password
+  def set_password
+    @user = User.find_by_password_reset_token!(RandomToken.digest(params[:token]))
+    $user_id = @user.id
+    @user.require_password_presence
+    @user.password_reset_token = nil
+    if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
+      flash[:success] = 'Password successfuly changed.'
+      redirect_to root_path
+    else
+      render 'password_reset.html.erb'
+    end
   end
 
   private

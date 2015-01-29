@@ -219,21 +219,56 @@ describe UsersController, :type => :controller do
     end
     
     context "when valid e-mail" do
-      before do
-        user = FactoryGirl.create(:valid_user)
-        post :send_password_reset, { :email => user.email }, valid_session      
-      end
+      let(:user) { FactoryGirl.create(:valid_user) }
       
-      it "renders e-mail sent notification page" do
+      describe "response to browser" do
+        before { post :send_password_reset, { :email => user.email }, valid_session }
 
-        expect(response).to render_template(:send_password_reset)
-      end
+        it "renders e-mail sent notification page" do
+          expect(response).to render_template(:send_password_reset)
+        end
       
-      it "does not set flash[:notice]" do
-        expect(flash[:notice]).to be_nil
+        it "does not set flash[:notice]" do
+          expect(flash[:notice]).to be_nil
+        end
+      end
+     
+      describe "mailing" do 
+        it "sends an e-mail" do
+          count = ActionMailer::Base.deliveries.count + 1
+          post :send_password_reset, { :email => user.email }, valid_session 
+          expect(ActionMailer::Base.deliveries.count).to eq(count)
+        end
       end
     end
+  end
+  
+  describe "GET password_reset" do
 
+    context "when invalid token" do
+      it "renders invalid token template" do
+        get :password_reset, { token: 'INVALID' }
+        expect(response).to render_template('users/invalid_token.html.erb')
+      end
+    end
+    
+    context "when token expired" do
+      let(:token) do
+        $user_id = 1
+        user = User.find_by_id($user_id)
+        token = user.generate_password_reset_token
+        user.save!
+        token
+      end
+      
+      it "renders invalid token template" do
+        Timecop.travel(Date.today + 1) do
+          get :password_reset, { token: token }
+          expect(response).to render_template('users/invalid_token.html.erb')
+        end
+      end
+    end
+    
   end
 
 end
