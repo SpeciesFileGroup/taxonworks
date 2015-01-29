@@ -15,7 +15,7 @@ module TaxonNamesHelper
   end
 
   def taxon_name_for_select(taxon_name)
-    taxon_name.name
+    taxon_name.name if taxon_name
   end
 
   # @taxon_name.parent.andand.display_name(:type => :for_select_list)
