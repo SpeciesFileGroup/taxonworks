@@ -6,6 +6,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions
   # GET /asserted_distributions.json
   def index
+    @token_auth_form = form_authenticity_token
     @recent_objects = AssertedDistribution.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
@@ -16,6 +17,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/new
   def new
+    @token_auth_form = form_authenticity_token
     @asserted_distribution = AssertedDistribution.new
   end
 
@@ -26,8 +28,8 @@ class AssertedDistributionsController < ApplicationController
   # POST /asserted_distributions
   # POST /asserted_distributions.json
   def create
+    @token_auth_form = form_authenticity_token
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
-
     respond_to do |format|
       if @asserted_distribution.save
         if params["new_from_map"]
@@ -68,10 +70,12 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def list
+    @token_auth_form = form_authenticity_token
     @asserted_distributions = AssertedDistribution.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
+    @token_auth_form = form_authenticity_token
     @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
 
     data = @asserted_distributions.collect do |t|

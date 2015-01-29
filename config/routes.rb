@@ -181,9 +181,8 @@ TaxonWorks::Application.routes.draw do
     scope :gis, controller: 'tasks/gis/asserted_distribution' do
       get 'new', action: 'new', as: 'new_asserted_distribution_task'
       post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      post 'generate_choices/:id', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
-      post 'display_coordinates'
-      get 'display_coordinates', as: "getdisplaycoordinates"
+      # post 'generate_choices', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
+      get 'generate_choices'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

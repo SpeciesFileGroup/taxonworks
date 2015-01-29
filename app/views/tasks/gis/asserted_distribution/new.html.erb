@@ -13,11 +13,9 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
                                   :tag_id     => 'source_id_for_asserted_distribution',
                                   :display    => ''} %>
           <%= check_box_tag('LockBox', 'Lock') %>
-          </p>
-          <%= hidden_field_tag(:otu_id, @otu.to_param) %>
-          <%= hidden_field_tag(:lat) %>
-          <%= hidden_field_tag(:lon) %>
       <% end %>
+      </p>
+    <span id="qnadf"></span>
       </div>
 
   <div class="item item2">
