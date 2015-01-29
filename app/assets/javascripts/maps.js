@@ -123,8 +123,15 @@ initialize = function () {
             //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
             //$("#map_coords").html(coors);
             $("#map_coords").append(coors);
-            coors_element = JSON.parse(document.getElementById('json_coors').value);
-            map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
+            //coors_element = JSON.parse(document.getElementById('json_coors').value);
+            //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
+
+            data = JSON.parse(document.getElementById('feat_coll').value);
+            map.data.addGeoJson(data);
+            get_Data();
+            get_window_center();
+            map.setCenter(center_lat_long);
+            map.setZoom(gzoom);
         });
 
         //$.post("display_coordinates",

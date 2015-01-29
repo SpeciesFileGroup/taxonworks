@@ -9,5 +9,6 @@
     <div class="actions">
       <%= f.submit %>
       <input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> ' />
+      <input type='hidden' id='feat_coll' name='feat_from_map' value=' <%= @feature_collection.to_json.html_safe %> ' />
     </div>
 <% end %>
