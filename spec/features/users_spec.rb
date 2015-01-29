@@ -249,4 +249,52 @@ describe 'Users' do
       end
     end
   end
+
+  context 'when user is not signed in' do
+    before(:all) { ProjectsAndUsers.spin_up_projects_users_and_housekeeping }
+    after(:all) { ProjectsAndUsers.clean_slate }
+    before { visit root_path }
+    
+    feature 'password reset' do
+      before { click_link 'forgot password?' }
+      
+      scenario 'invalid email' do
+        fill_in 'Email', with: 'invalid@example.com'
+        click_button 'Send e-mail'
+        
+        expect(page).to have_text('The supplied e-mail does not belong to a registered user')
+      end
+      
+      scenario 'empty email' do
+        click_button 'Send e-mail'
+        
+        expect(page).to have_text('No e-mail was given')
+      end
+      
+      context 'valid email' do
+        before do
+          fill_in 'Email', with: 'person1@example.com'
+          click_button 'Send e-mail'
+        end
+        
+        scenario 'request password reset' do
+          password = '12345678abcd'
+          expect(page).to have_content('Password reset request sent!')
+          mail = ActionMailer::Base.deliveries.last
+          path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
+          visit path
+          fill_in 'Password', with: password
+          fill_in 'Password confirmation', with: password
+          click_button 'Change password'
+          expect(page).to have_content('Password successfuly changed')
+          fill_in 'Email', with: 'person1@example.com'
+          fill_in 'Password', with: password
+          click_button 'Sign in'
+          expect(page).to have_content('Dashboard')
+          visit path
+          expect(page).to have_content('The token is not valid or has been expired.')
+        end
+      end
+    end
+  end
 end

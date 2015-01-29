@@ -171,6 +171,10 @@ class User < ActiveRecord::Base
   def generate_api_access_token
     self.api_access_token = RandomToken.generate
   end
+  
+  def require_password_presence
+    @require_password_presence = true
+  end
 
   private
 
@@ -179,7 +183,7 @@ class User < ActiveRecord::Base
   end
 
   def validate_password?
-    password.present? || password_confirmation.present?
+    password.present? || password_confirmation.present? || @require_password_presence
   end
 
   def configure_self_created
