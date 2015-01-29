@@ -66,7 +66,6 @@ initialize = function () {
     //document.getElementById('map_coords').html = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6);
 // converted to jQuery syntax
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6)) ;
-
     map.setCenter(center_lat_long);
     map.setZoom(gzoom);
 
@@ -86,8 +85,9 @@ initialize = function () {
         event.feature.setProperty('isColorful', true);
         event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         var mapLatLng = event.latLng;
-        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6)) ;
-        $.get('display_coordinates?lat=' + mapLatLng.lat().toFixed(9) + '&lon=' + mapLatLng.lng().toFixed(9),
+        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6))
+        + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
+        $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
             function(coors, status){
                 //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
                 map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
@@ -117,12 +117,15 @@ initialize = function () {
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
         //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
 
-        $.get('display_coordinates?lat=' + mapLatLng.lat().toFixed(9) + '&lon=' + mapLatLng.lng().toFixed(9),
+        source_id = document.getElementsByName("asserted_distribution[source_id]")[0].value;
+        otu_id = $("#otu_id").val();
+        $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
+            + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
         function(coors, status){
             //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
             //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
             //$("#map_coords").html(coors);
-            $("#map_coords").append(coors);
+            $("#qnadf").html(coors);
             //coors_element = JSON.parse(document.getElementById('json_coors').value);
             //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 

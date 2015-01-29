@@ -54,13 +54,10 @@ class AssertedDistribution < ActiveRecord::Base
   # @param options [Hash] of e.g., {otu_id: 5, source_id: 5, latitude: '12.12', longitude: '12.312'}
   # @ return an array of new AssertedDistributions.
   def self.stub_new(options = {})
-
-    areas = GeographicArea.find_by_lat_long(options[:latitude], options[:longitude])
-    options.delete(:latitude)
-    options.delete(:longitude)
+    areas = GeographicArea.find_by_lat_long(options['latitude'], options['longitude'])
     result = []
     areas.each do |ga|
-      result.push(AssertedDistribution.new(options.merge(:geographic_area_id => ga.id)))
+      result.push(AssertedDistribution.new(source_id: options['source_id'], otu_id: options['otu_id'], geographic_area: ga))
     end
     result
   end
