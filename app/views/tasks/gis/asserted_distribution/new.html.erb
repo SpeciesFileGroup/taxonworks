@@ -4,10 +4,7 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
 <div class="flexbox">
   <div class="item item1">
     <p>
-
       <%= form_tag(generate_choices_url, id: 'cadu') do %>
-       
-       
           Source
               <%= render :partial => 'workbench/elements/forms/ajax_select',
                          :locals  => {:controller => '/sources',

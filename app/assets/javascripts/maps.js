@@ -10,10 +10,10 @@ var gPoints = [];		//googlemaps arrays
 var gLinePoints = [];
 var gPolyPoints = [];
 
-var lPoints = [];
+// var lPoints = [];
 
 // bounds for calculating center point
-    // divide longitude checks by hemisphere
+// divide longitude checks by hemisphere
 var xminp = 180.0;       //return to 0-based coordinates
 var xmaxp = 0.0;
 var xminm = 0.0;         //return to 0-based coordinates
