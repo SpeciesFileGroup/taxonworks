@@ -96,7 +96,7 @@
       }
     }
 
-  }
+  };
 
   $.fn.ajaxify = function(options) {
     var handlers = {

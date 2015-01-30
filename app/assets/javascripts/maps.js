@@ -10,10 +10,10 @@ var gPoints = [];		//googlemaps arrays
 var gLinePoints = [];
 var gPolyPoints = [];
 
-var lPoints = [];
+// var lPoints = [];
 
 // bounds for calculating center point
-    // divide longitude checks by hemisphere
+// divide longitude checks by hemisphere
 var xminp = 180.0;       //return to 0-based coordinates
 var xmaxp = 0.0;
 var xminm = 0.0;         //return to 0-based coordinates
@@ -54,7 +54,7 @@ initialize = function () {
     //    datafeature = JSON.parse(datastring);
     //    data = datafeature;
     //}
-    map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3})
+    map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
     //centerofmap = map.getCenter();      // not getting desired result
@@ -115,27 +115,37 @@ initialize = function () {
         //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+     
+     
         //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
-
-        source_id = document.getElementsByName("asserted_distribution[source_id]")[0].value;
-        otu_id = $("#otu_id").val();
-        $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
-            + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-        function(coors, status){
-            //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-            //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-            //$("#map_coords").html(coors);
-            $("#qnadf").html(coors);
+        $("#latitude").val(mapLatLng.lat());
+        $("#longitude").val(mapLatLng.lng());
+        
+          $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
+            $("#qnadf").html(local_data['html']);
             //coors_element = JSON.parse(document.getElementById('json_coors').value);
             //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-            data = JSON.parse(document.getElementById('feat_coll').value);
-            map.data.addGeoJson(data);
-            get_Data();
-            get_window_center();
-            map.setCenter(center_lat_long);
-            map.setZoom(gzoom);
-        });
+            map.data.addGeoJson(local_data['feature_collection']);
+         
+            data = local_data['feature_collection']; 
+         // get_Data();
+         // get_window_center();
+         // map.setCenter(center_lat_long);
+         // map.setZoom(gzoom);
+          },
+          'json' // I expect a JSON response
+          );
+
+
+      //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
+      //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
+     
+      //    function(coors, status){
+      //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+      //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+      //    //$("#map_coords").html(coors);
+       //        });
 
         //$.post("display_coordinates",
         //    {lat: mapLatLng.lat().toFixed(9),
@@ -199,7 +209,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
         wx = wm + wp;                               // total width of "contiguous" area
         center_long = xmm + xmp;    //as signed, unless overlaps +/-180
         if(wm > wp){                // serious cheat: pick mean longitude of wider group
-            center_long = xmm       // "works" since there are so few cases that span
+            center_long = xmm;       // "works" since there are so few cases that span
         }                           // the Antimeridian
         if(wm < wp){
             center_long = xmp
@@ -210,7 +220,7 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
         if((ymax == -90) && (ymin == 90)) {ymax = 90.0; ymin = -90.0;}      // no data, so set whole earth limits
         wy = ymax - ymin;
         center_lat = 0.5 * (ymax + ymin);
-        cutoff = 65.0
+        cutoff = 65.0;
         if(/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
             angle = ymax - cutoff;
             if (center_lat < 0) {

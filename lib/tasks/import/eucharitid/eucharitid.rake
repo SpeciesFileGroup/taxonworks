@@ -228,7 +228,7 @@ namespace :tw do
 
         higher.each do |subfam, tribe, subtribe|
           s = TaxonName.find_or_create_by(name: subfam, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', parent_id: eucharitidae.to_param)
-#         byebug if !subfam.valid?
+#         # byebug if !subfam.valid?
           t = TaxonName.find_or_create_by(name: tribe, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', parent_id: s.id) if !s.nil? && !tribe.nil?
           # there are no tribes! 
         end

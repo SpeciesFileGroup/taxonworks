@@ -84,5 +84,4 @@ describe AssertedDistribution, :type => :model do
       expect(areas.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
     end
   end
-
 end

@@ -1,7 +1,7 @@
-<navigation id="hub_tabs">
+<nav id="hub_tabs">
   <ul class='centered_navbar'>
     <% @sessions_current_user.hub_tab_order.each do |t| -%>
       <%= content_tag(:li, link_to(t, hub_path(list: t))) -%> 
     <% end -%>
   </ul>
-</navigation>
+</nav>

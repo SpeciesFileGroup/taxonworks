@@ -292,7 +292,7 @@ describe Protonym, :type => :model do
         p.soft_validate(:dates)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_truthy
         p.year_of_publication = 2000
-        p.soft_validate(:sv_source_not_older_then_description)
+        p.soft_validate(:dates)
         expect(p.soft_validations.messages_on(:source_id).empty?).to be_falsey
       end
     end

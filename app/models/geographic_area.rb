@@ -192,7 +192,7 @@ class GeographicArea < ActiveRecord::Base
   # @param longitude [Double] Decimal degrees
   # @return [Scope] of all area which contain the point specified
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    point        = Georeference::FACTORY.point(longitude, latitude)
+    point = "POINT(#{longitude} #{latitude})"
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}')) OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
     retval       = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
@@ -250,9 +250,11 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def to_geo_json_feature
+    geo_id = self.geographic_items.order(:id).pluck(:id).first
     retval = {
       'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_items.first.geo_object),
+      'geometry'   => JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) foo from geographic_items where id=#{geo_id};")[0]['foo']),
+#      'geometry'   => GeographicItem.find_by_sql("select ST_AsGeoJSON(multi_polygon::geometry) foo from geographic_items where id = #{geo_id};")['foo']  , # RGeo::GeoJSON.encode(self.geographic_items.first.geo_object),
       'properties' => {
         'geographic_area' => {
           'id' => self.id}

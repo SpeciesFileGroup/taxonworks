@@ -1,4 +1,4 @@
-<navigation id="quick_bar">
+<nav id="quick_bar">
   <ul class="horizontal_navbar left_justified">
     <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
     <%= content_tag(:li, link_to(controller_name.humanize.downcase, send("#{controller_name}_path"))) -%>
@@ -8,6 +8,6 @@
         <% end %>
     <% end %>
   </ul>
-</navigation>
+</nav>
 
 

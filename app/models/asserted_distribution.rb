@@ -4,9 +4,9 @@ class AssertedDistribution < ActiveRecord::Base
   include SoftValidation
   include Shared::IsData
 
-  belongs_to :otu
-  belongs_to :geographic_area
-  belongs_to :source
+  belongs_to :otu, validate: { presence: true }
+  belongs_to :geographic_area, validate: { presence: true }
+  belongs_to :source, validate:  { presence: true }
 
   validates_presence_of :otu_id, message: 'Taxon is not specified'
   validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
@@ -51,12 +51,11 @@ class AssertedDistribution < ActiveRecord::Base
 
   #region Class methods
 
-  # @param options [Hash] of e.g., {otu_id: 5, source_id: 5, latitude: '12.12', longitude: '12.312'}
-  # @ return an array of new AssertedDistributions.
+  # @param options [Hash] of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
+  # @return an array of new AssertedDistributions.
   def self.stub_new(options = {})
-    areas = GeographicArea.find_by_lat_long(options['latitude'], options['longitude'])
     result = []
-    areas.each do |ga|
+    options['geographic_areas'].each do |ga|
       result.push(AssertedDistribution.new(source_id: options['source_id'], otu_id: options['otu_id'], geographic_area: ga))
     end
     result

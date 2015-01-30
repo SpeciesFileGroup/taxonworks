@@ -84,11 +84,10 @@ describe Gis::GeoJSON do
 
     context 'asserted_distribution' do
       specify 'that an asserted_distribution can produce a properly formed feature' do
-        point         = @gr_n3_ob.geographic_item.geo_object
+        # To fix: provide a geographic area array for below
         distributions = AssertedDistribution.stub_new({otu_id:    otu.id,
                                                        source_id: source.id,
-                                                       latitude:  point.y,
-                                                       longitude: point.x})
+                                                       geographic_areas: [ ]})
         distributions.map(&:save!)
         expect(Gis::GeoJSON.feature_collection(distributions).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[33.0,28.0,0.0],[37.0,28.0,0.0],[37.0,24.0,0.0],[33.0,24.0,0.0],[33.0,28.0,0.0]]]]},"properties":{"asserted_distribution":{"id":1}},"id":0},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[33.0,28.0,0.0],[35.0,28.0,0.0],[35.0,24.0,0.0],[33.0,24.0,0.0],[33.0,28.0,0.0]]]]},"properties":{"asserted_distribution":{"id":2}},"id":1},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[33.0,26.0,0.0],[35.0,26.0,0.0],[35.0,24.0,0.0],[33.0,24.0,0.0],[33.0,26.0,0.0]]]]},"properties":{"asserted_distribution":{"id":3}},"id":2},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[34.0,26.0,0.0],[35.0,26.0,0.0],[35.0,25.0,0.0],[34.0,25.0,0.0],[34.0,26.0,0.0]]]]},"properties":{"asserted_distribution":{"id":4}},"id":3},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[34.0,26.0,0.0],[35.0,26.0,0.0],[35.0,25.0,0.0],[34.0,25.0,0.0],[34.0,26.0,0.0]]]]},"properties":{"asserted_distribution":{"id":5}},"id":4}]}')
       end

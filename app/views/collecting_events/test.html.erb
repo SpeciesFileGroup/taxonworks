@@ -265,7 +265,7 @@
             var infoWindow = new google.maps.InfoWindow({
                 content: '<div style="width: 100px">' + coords[1].name + '<br />' + collectionDateList[colorIndex] + '<br />' + collectorList[colorIndex] + '<br />Lat: ' + coords[0].lat().toPrecision(6) +
                         '<br />Lng: ' + coords[0].lng().toPrecision(6) + '</div>'
-            })
+            });
         colorIndex++; if (colorIndex > 9) colorIndex = 0;
         google.maps.event.addListener(marker, 'click', function () {
             //map.panTo(coordinate);
@@ -333,8 +333,8 @@
             type: 'poly'
         };
         //var colorList = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'gray', 'white'];
-        var collectorList = ["Rich Flood", "Matt Yoder", "David Eades", "Ed Dewalt", "Sam Heads", "Jarod Michael Thomas", "Andrew Miller", "R. Loy Phillippe", "Mike Murphy", "unknown"]
-        var collectionDateList = ["01-May-2012", "May 2, 2013", "April 3 2011", "04MAR2004", "Jan 5, 2009", "Feb 6 2000", "December 7, 1941", "08OCT08", "Nov. 11, 1918", "12/12/2012", "13/13/13"]
+        var collectorList = ["Rich Flood", "Matt Yoder", "David Eades", "Ed Dewalt", "Sam Heads", "Jarod Michael Thomas", "Andrew Miller", "R. Loy Phillippe", "Mike Murphy", "unknown"];
+        var collectionDateList = ["01-May-2012", "May 2, 2013", "April 3 2011", "04MAR2004", "Jan 5, 2009", "Feb 6 2000", "December 7, 1941", "08OCT08", "Nov. 11, 1918", "12/12/2012", "13/13/13"];
         var colorIndex = 0;
         // initial thoughts on hash-based datum to accompany markers
         /*
