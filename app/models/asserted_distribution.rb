@@ -4,9 +4,9 @@ class AssertedDistribution < ActiveRecord::Base
   include SoftValidation
   include Shared::IsData
 
-  belongs_to :otu
-  belongs_to :geographic_area
-  belongs_to :source
+  belongs_to :otu, validate: { presence: true }
+  belongs_to :geographic_area, validate: { presence: true }
+  belongs_to :source, validate:  { presence: true }
 
   validates_presence_of :otu_id, message: 'Taxon is not specified'
   validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'

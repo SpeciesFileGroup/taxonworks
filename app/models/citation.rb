@@ -12,14 +12,11 @@ class Citation < ActiveRecord::Base
   validates_presence_of :citation_object_id, :citation_object_type, :source_id
   validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id]
 
-  # TODO: @mjy What *is* the right construct for 'Citation'?
   def self.find_for_autocomplete(params)
-
-
-
- #   includes(:source).where(sources: {cached:  })
-    where('citation_object_type LIKE ?', "#{params[:term]}%")
-  
+    term = params['term']
+    ending = term + '%'
+    wrapped = '%' + term + '%'  
+    joins(:source).where('sources.cached ILIKE ? OR sources.cached ILIKE ? OR citation_object_type LIKE ?', ending, wrapped, ending)
   end
 
 end

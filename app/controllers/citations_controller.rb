@@ -69,7 +69,6 @@ class CitationsController < ApplicationController
 
   def autocomplete
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
     data = @citations.collect do |t|
       lbl = render_to_string(partial: 'tag', citation: t)
       {id: t.id,
