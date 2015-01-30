@@ -1,9 +1,10 @@
-  <%= form_for(asserted_distribution) do |f| %>
-      <table border="1" style="width: 100%">
+<%= form_for(asserted_distribution) do |f| %>
+    <table border="1" style="width: 100%">
       <input name="authenticity_token" id="authenticity_token" type="hidden" value="<%= @token_auth_form %>"/>
       <tr>
         <td style="width: 56%">
-          <%= object_tag(asserted_distribution.geographic_area) %>
+          <%#= object_tag(asserted_distribution.geographic_area) %>
+          <%= GeographicAreasHelper.geographic_area_autocomplete_tag(asserted_distribution.geographic_area) %>
           <%= f.hidden_field(:otu_id) %>
           <%= f.hidden_field(:source_id) %>
           <%= f.hidden_field(:geographic_area_id) %>
@@ -15,7 +16,7 @@
           <%= f.submit("Create") %>
         </td>
       </tr>
-      </table>
-  <% end %>
-  <input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> '/>
-  <input type='hidden' id='feat_coll' name='feat_from_map' value=' <%= @feature_collection.to_json.html_safe %> '/>
+    </table>
+<% end %>
+<input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> '/>
+<input type='hidden' id='feat_coll' name='feat_from_map' value=' <%= @feature_collection.to_json.html_safe %> '/>

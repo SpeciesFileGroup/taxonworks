@@ -3,20 +3,29 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
 <%= link_to('back', otu_path(@otu)) %>
 <div class="flexbox">
   <div class="item item1">
-    <p>
-      <%= form_tag(asserted_distributions_url, id: "cadu") do %>
-          Source
-          <%= render :partial => 'workbench/elements/forms/ajax_select',
-                     :locals  => {:controller => '/sources',
-                                  :object     => 'asserted_distribution',
-                                  :method     => 'source_id',
-                                  :tag_id     => 'source_id_for_asserted_distribution',
-                                  :display    => ''} %>
-          <%= check_box_tag('LockBox', 'Lock') %>
-      <% end %>
-      </p>
+    <table>
+      <tr>
+        <%= form_tag(asserted_distributions_url, id: "cadu") do %>
+            <td>
+              Source:
+            </td>
+            <td>
+              <%= render :partial => 'workbench/elements/forms/ajax_select',
+                         :locals  => {:controller => '/sources',
+                                      :object     => 'asserted_distribution',
+                                      :method     => 'source_id',
+                                      :tag_id     => 'source_id_for_asserted_distribution',
+                                      :display    => ''} %>
+            </td>
+            <td>
+              <%= check_box_tag('LockBox', 'Lock') %>
+              <%= label_tag('Lock') %>
+            </td>
+        <% end %>
+      </tr>
+    </table>
     <span id="qnadf"></span>
-      </div>
+  </div>
 
   <div class="item item2">
     <%= render(partial: 'map_header', locals: {otu: @otu, feature_collection: @feature_collection}) -%>
