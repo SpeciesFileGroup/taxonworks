@@ -3,6 +3,12 @@ class TaxonNameClassificationsController < ApplicationController
 
   before_action :set_taxon_name_classification, only: [ :update, :destroy]
 
+  # GET /taxon_name_relationships
+  # GET /taxon_name_relationships.json
+  def index
+    @recent_objects = TaxonNameClassification.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+  end
+
   # POST /taxon_name_classifications
   # POST /taxon_name_classifications.json
   def create
@@ -45,6 +51,10 @@ class TaxonNameClassificationsController < ApplicationController
       format.html { redirect_to :back, notice: 'Taxon name classification was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @taxon_name_classifications = TaxonNameClassification.with_project_id($project_id).order(:id).page(params[:page])
   end
 
   private
