@@ -64,7 +64,9 @@ class TaxonDetermination < ActiveRecord::Base
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
-
+  def self.find_for_autocomplete(params)
+    where(id: params[:term])
+  end
 
   protected
 

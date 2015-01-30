@@ -57,6 +57,30 @@ class TaxonNameClassificationsController < ApplicationController
     @taxon_name_classifications = TaxonNameClassification.with_project_id($project_id).order(:id).page(params[:page])
   end
 
+  # GET /taxon_name_classifications/search
+  def search
+    if params[:id]
+      redirect_to taxon_name_classification_path(params[:id])
+    else
+      redirect_to taxon_name_classification_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @taxon_name_classifications = taxon_name_classification.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = @taxon_name_classifications.collect do |t|
+      {id: t.id,
+       label: TaxonNameClassificationsHelper.taxon_name_classification_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: TaxonNameClassificationsHelper.taxon_name_classification_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_taxon_name_classification

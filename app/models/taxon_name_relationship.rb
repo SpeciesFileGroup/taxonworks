@@ -135,6 +135,10 @@ class TaxonNameRelationship < ActiveRecord::Base
     r
   end
 
+  def self.find_for_autocomplete(params)
+    where(id: params[:term])
+  end
+
   protected
 
   #region Validation
