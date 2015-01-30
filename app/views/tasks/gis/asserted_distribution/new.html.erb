@@ -9,24 +9,24 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
        
        
           Source
-          <%= render :partial => 'workbench/elements/forms/ajax_select',
-                     :locals  => {:controller => '/sources',
-                                  :object     => 'asserted_distribution',
-                                  :method     => 'source_id',
-                                  :tag_id     => 'source_id_for_asserted_distribution',
-                                  :display    => ''} %>
-          <%= check_box_tag('LockBox', 'Lock') %>
+              <%= render :partial => 'workbench/elements/forms/ajax_select',
+                         :locals  => {:controller => '/sources',
+                                      :object     => 'asserted_distribution',
+                                      :method     => 'source_id',
+                                      :tag_id     => 'source_id_for_asserted_distribution',
+                                      :display    => ''} %>
+              <%= check_box_tag('LockBox', 'Lock') %>
           <%= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%> 
 
 
           <%= hidden_field_tag(:latitude, '22.593726') -%> 
           <%= hidden_field_tag(:longitude, '5.625000') -%> 
           <%= submit_tag -%>
-      <% end %>
+        <% end %>
          
       </p>
     <span id="qnadf"></span>
-      </div>
+  </div>
 
   <div class="item item2">
     <%= render(partial: 'map_header', locals: {otu: @otu, feature_collection: @feature_collection}) -%>

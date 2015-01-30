@@ -12,11 +12,6 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   end
 
   def generate_choices
-#   click_point = GeographicItem.new(point: Georeference::FACTORY.point(params['longitude'], params['latitude']))
-#   click_items = GeographicItem.is_contained_in('any_poly', click_point)
-#   click_areas = click_items.map(&:geographic_areas).flatten
-#  
-#   @click_area_names = click_areas.map(&:name)
 
     geographic_areas = GeographicArea.find_by_lat_long(
       params['latitude'].to_f, 
@@ -39,5 +34,5 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
 
   def collection_params(params)
     params.require(:asserted_distribution).permit(:source_id, :otu_id)
-  end
+end
 end
