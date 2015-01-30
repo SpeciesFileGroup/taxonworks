@@ -19,8 +19,8 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
           <%= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%> 
 
 
-          <%= hidden_field_tag(:latitude, '22.593726') -%> 
-          <%= hidden_field_tag(:longitude, '5.625000') -%> 
+          <%= hidden_field_tag(:latitude) -%> 
+          <%= hidden_field_tag(:longitude ) -%> 
           <%= submit_tag -%>
         <% end %>
          
