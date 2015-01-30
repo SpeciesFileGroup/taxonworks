@@ -295,14 +295,14 @@ describe TaxonName, :type => :model do
             @subspecies.valid?
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
           end
 
           specify 'ICZN subspecies' do
             @subspecies.valid?
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
           end
 
           specify 'ICZN species misspelling' do
@@ -337,16 +337,16 @@ describe TaxonName, :type => :model do
 
 
           specify 'original genus subgenus' do
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
+            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
             @subspecies.original_genus = @genus
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura ssp</em>')
+            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
             @subspecies.original_subgenus = @genus
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>ssp</em>')
+            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitata</em>')
             @subspecies.original_species = @species
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis ssp</em>')
+            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
             expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em>')
             @subgenus.original_genus = @genus
             @subgenus.reload
@@ -378,7 +378,7 @@ describe TaxonName, :type => :model do
             @subspecies.original_genus = g
             @subspecies.reload
             expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
-            expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] ssp</em>')
+            expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] vitata</em>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 

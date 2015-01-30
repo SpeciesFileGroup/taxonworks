@@ -447,6 +447,7 @@ describe TaxonNameRelationship, :type => :model do
         c = Combination.new(genus: g1, species: s1)
         expect(c.save).to be_truthy
         s1.reload
+        @species.save
         r1.soft_validate('specific_relationship')
         expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
       end

@@ -138,7 +138,7 @@ FactoryGirl.define do
     end
 
     factory :iczn_subspecies do
-      name 'ssp'
+      name 'vitata'
       association :parent, factory: :iczn_species
       association :source, factory: :valid_source_bibtex, year: 1900
       year_of_publication 1900
