@@ -115,27 +115,37 @@ initialize = function () {
         //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+     
+     
         //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
-
-        source_id = document.getElementsByName("asserted_distribution[source_id]")[0].value;
-        otu_id = $("#otu_id").val();
-        $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
-            + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-        function(coors, status){
-            //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-            //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-            //$("#map_coords").html(coors);
-            $("#qnadf").html(coors);
+        $("#latitude").val(mapLatLng.lat());
+        $("#longitude").val(mapLatLng.lng());
+        
+          $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
+            $("#qnadf").html(local_data['html']);
             //coors_element = JSON.parse(document.getElementById('json_coors').value);
             //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-            data = JSON.parse(document.getElementById('feat_coll').value);
-            map.data.addGeoJson(data);
-            get_Data();
-            get_window_center();
-            map.setCenter(center_lat_long);
-            map.setZoom(gzoom);
-        });
+            map.data.addGeoJson(local_data['feature_collection']);
+         
+            data = local_data['feature_collection']; 
+         // get_Data();
+         // get_window_center();
+         // map.setCenter(center_lat_long);
+         // map.setZoom(gzoom);
+          },
+          'json' // I expect a JSON response
+          );
+
+
+      //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
+      //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
+     
+      //    function(coors, status){
+      //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+      //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+      //    //$("#map_coords").html(coors);
+       //        });
 
         //$.post("display_coordinates",
         //    {lat: mapLatLng.lat().toFixed(9),

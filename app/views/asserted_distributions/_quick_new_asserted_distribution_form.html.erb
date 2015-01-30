@@ -3,20 +3,23 @@
   
   <table border="1" style="width: 100%">
     <tr>
-      <td style="width: 56%">
+      <td class='one_third_width'>
         <%= object_tag(asserted_distribution.geographic_area) %>
         <%= f.hidden_field(:otu_id) %>
         <%= f.hidden_field(:source_id) %>
         <%= f.hidden_field(:geographic_area_id) %>
       </td>
-      <td>
+      <td class='one_third_width' > 
+        <%= asserted_distribution.geographic_area.data_origin -%>
+      </td>
+      <td class='one_third_width'>
         <%= f.check_box :is_absent %>
         <%= f.label('Absent') %></td>
+     </td>
       <td>
         <%= f.submit("Create") %>
       </td>
     </tr>
   </table>
 <% end %>
-<input type='hidden' id='json_coors' name='new_from_map' value=' <%= @json_coors.html_safe %> '/>
-<input type='hidden' id='feat_coll' name='feat_from_map' value=' <%= @feature_collection.to_json.html_safe %> '/>
+
