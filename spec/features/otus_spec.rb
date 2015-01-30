@@ -17,12 +17,6 @@ describe 'Otus', :type => :feature do
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)  
       }
   
-      describe 'create a new otu' do
-        before {visit new_otu_path}
-        specify ' ' do
-        end
-      end
-
       describe 'GET /otus' do
         before {
           visit otus_path
@@ -75,6 +69,19 @@ describe 'Otus', :type => :feature do
           expect(page).to have_link('Next')
         end
       end
+    end
+
+    context 'creating a new OTU' do
+      specify 'I can exercise the New link feature' do
+        visit otus_path                   # when I visit the otus_path
+        expect(page).to have_link('New')  # it has a new link
+        click_link('New')                 # when I click the new link
+        fill_in 'Name', with: 'test'      # and I fill out the name field with "test"
+        click_button 'Create Otu'         # and I click 'create otu'
+        # then I get the message 'Otu 'test' was successfully created
+        expect(page).to have_content('Otu was successfully created.')
+      end
+
     end
   end
 end
