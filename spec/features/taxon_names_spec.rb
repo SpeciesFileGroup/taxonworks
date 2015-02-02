@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe 'TaxonNames', :type => :feature do
+  Capybara.default_wait_time = 5
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { taxon_names_path }
@@ -66,13 +67,43 @@ describe 'TaxonNames', :type => :feature do
       visit taxon_names_path # when I visit the taxon_names_path
     }
     specify 'testing new TaxonName', js: true do
-      click_link('New')  # when I click the new link
+      click_link('New') # when I click the new link
 
       fill_in 'Name', with: 'Fooidae' # and I fill out the name field with "Fooidae"
       # and I select 'family (ICZN)' from the Rank select *
       select('family (ICZN)', :from => 'taxon_name_rank_class')
-      fill_in 'Enter a search for Taxon_names', with: 'root'
-      #select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
+
+=begin
+  none of the following worked
+      #find('Parent')
+      #find('mx-autocomplete ajaxPicker ui-autocomplete-input')
+      #find('Enter a search for Taxon_names')
+      # find('find and select taxon_names')
+      #find('taxon_name_parent_id')
+      # find('taxon_name[parent_id]')
+      # find('ui-id-1')
+
+      query =  'root'
+      find('taxon_name[parent_id]').native.send_keys(*query.chars)
+=end
+      parent = find_by_id('parent_id_for_name')
+
+      # trigger the auto-complete
+      # fill_in 'Enter a search for Taxon_names', with: 'root'
+      # find_by_id('parent_id_for_name').native.send_key
+      parent.native.send_key 'r'
+      parent.native.send_key 'o'
+      parent.native.send_key 'o'
+      parent.native.send_key 't'
+
+      sleep 5 # so the drop down list has time to load
+
+      # Capybara::ElementNotFound: Unable to find select box "taxon_name_parent_id"
+      # select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
+
+      #ui-id-1 "ui-autocomplete ui-front ui-menu ui-widget ui-widget-content"
+      page.execute_script " $('li.ui-autocomplete').trigger('mouseenter').click(); "
+
       click_button 'Create Taxon name' # when I click the 'Create Taxon name' button
       # then I get the message "Taxon name 'Foodiae' was successfully created"
       expect(page).to have_content('Taxon name was successfully created.')
