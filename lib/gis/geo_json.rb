@@ -37,18 +37,18 @@ module Gis::GeoJSON
      }
 =end
 
-# @param objects [Array of instances that respond to .to_geo_json_1]
-def self.feature_collection(objects)
-  result = {
-      'type'       => 'FeatureCollection',
-      'features'   => []
-  }
-  objects.each_with_index do |o, i|
-    json = o.to_geo_json_feature.merge('id' => i)
-    result['features'].push(json)
+# @param objects [Array of instances that respond to .to_geo_json_feature]
+  def self.feature_collection(objects)
+    result = {
+      'type'     => 'FeatureCollection',
+      'features' => []
+    }
+    objects.each_with_index do |o, i|
+      json = o.to_geo_json_feature.merge('id' => i)
+      result['features'].push(json)
+    end
+    result
   end
-  result
-end
 
 # # @return [a Feature]
 # def to_geo_json_using_entity_factory

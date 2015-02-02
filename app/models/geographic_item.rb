@@ -487,7 +487,7 @@ SELECT round(CAST(
   # return the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
     DATA_TYPES.each do |t|
-      return t if !self.send(t).nil?
+      return t unless self.send(t).nil?
     end
     nil
   end
@@ -525,7 +525,9 @@ SELECT round(CAST(
 
 
   def data_type?
-    DATA_TYPES.each { |item| return item if !self.send(item).nil? }
+    DATA_TYPES.each { |item|
+      return item unless self.send(item).nil?
+    }
   end
 
   # Return the geo_object as a set of points with object type as key like:
@@ -566,9 +568,15 @@ SELECT round(CAST(
   end
 
   def to_geo_json_feature
+    type = self.data_type?
+    if type == :geometry_collection
+      geometry = RGeo::GeoJSON.encode(self.geo_object)
+    else
+      geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{type.to_s}::geometry) geo_json from geographic_items where id=#{self.id};")[0]['geo_json'])
+    end
     retval = {
       'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geo_object),
+      'geometry'   => geometry,
       'properties' => {
         'geographic_item' => {
           'id' => self.id}
