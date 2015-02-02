@@ -65,6 +65,7 @@ describe 'TaxonNames', :type => :feature do
     before {
       sign_in_user_and_select_project
       visit taxon_names_path # when I visit the taxon_names_path
+      FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil))
     }
     specify 'testing new TaxonName', js: true do
       click_link('New') # when I click the new link
@@ -98,14 +99,21 @@ describe 'TaxonNames', :type => :feature do
       parent.native.send_key 't'
      sleep 5 # so the drop down list has time to load
 =end
+=begin
       fill_in "Enter a search for Taxon_names", :with => "root"
       choose_autocomplete_result "Root (nomenclatural rank)", "#Enter a search for Taxon_names"
+=end
 
       # Capybara::ElementNotFound: Unable to find select box "taxon_name_parent_id"
       # select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
 
       #ui-id-1 "ui-autocomplete ui-front ui-menu ui-widget ui-widget-content"
-      page.execute_script " $('li.ui-autocomplete').trigger('mouseenter').click(); "
+      #page.execute_script " $('li.ui-autocomplete').trigger('mouseenter').click(); "
+
+      fill_autocomplete('parent_id_for_name', with: 'root')
+
+
+
 
       click_button 'Create Taxon name' # when I click the 'Create Taxon name' button
       # then I get the message "Taxon name 'Foodiae' was successfully created"
@@ -113,6 +121,7 @@ describe 'TaxonNames', :type => :feature do
     end
   end
 
+=begin
   def choose_autocomplete_result(item_text, input_selector="input[data-autocomplete]")
     page.execute_script %Q{ $('#{input_selector}').trigger("focus") }
     page.execute_script %Q{ $('#{input_selector}').trigger("keydown") }
@@ -122,8 +131,21 @@ describe 'TaxonNames', :type => :feature do
     page.should have_selector item_selector
     page.execute_script %Q{ $("#{item_selector}").trigger("mouseenter").trigger("click"); }
   end
-end
+=end
 
+  def fill_autocomplete(field, options = {})
+    fill_in field, with: options[:with]
+
+    page.execute_script %Q{ $('##{field}').trigger('focus') }
+    page.execute_script %Q{ $('##{field}').trigger('keydown') }
+    selector = %Q{ul.ui-autocomplete li.ui-menu-item a:contains("#{options[:select]}")}
+
+    page.should have_selector('ul.ui-autocomplete li.ui-menu-item a')
+    sleep 2  # here only so my human eye can see what is happening - remove in final test
+    page.execute_script %Q{ $('#{selector}').trigger('mouseenter').click() }
+  end
+
+end
 
 
 
