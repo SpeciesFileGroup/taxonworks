@@ -250,11 +250,17 @@ class GeographicArea < ActiveRecord::Base
   end
 
   def to_geo_json_feature
-    geo_id = self.geographic_items.order(:id).pluck(:id).first
+    object = self.geographic_items.order(:id).first
+    type = object.data_type?
+    if type == :geometry_collection
+      geometry = RGeo::GeoJSON.encode(object)
+    else
+      geo_id = self.geographic_items.order(:id).pluck(:id).first
+      geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{type.to_s}::geometry) foo from geographic_items where id=#{geo_id};")[0]['foo'])
+    end
     retval = {
       'type'       => 'Feature',
-      'geometry'   => JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) foo from geographic_items where id=#{geo_id};")[0]['foo']),
-#      'geometry'   => GeographicItem.find_by_sql("select ST_AsGeoJSON(multi_polygon::geometry) foo from geographic_items where id = #{geo_id};")['foo']  , # RGeo::GeoJSON.encode(self.geographic_items.first.geo_object),
+      'geometry'   => geometry,
       'properties' => {
         'geographic_area' => {
           'id' => self.id}
