@@ -127,11 +127,17 @@ function add_map_listeners() {
 
         $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
                 $("#qnadf").html(local_data['html']);
+
                 //coors_element = JSON.parse(document.getElementById('json_coors').value);
                 //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
                 //initialize_map(myOptions);
                 map.data.addGeoJson(local_data['feature_collection']);
+
+                // select with jquery the butons, and bind the listener event 
+                // $("[id^=button_]")... {
+                //
+                // }
 
                 data = local_data['feature_collection'];
                 get_Data();

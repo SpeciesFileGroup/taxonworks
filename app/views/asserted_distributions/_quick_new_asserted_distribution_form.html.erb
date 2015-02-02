@@ -17,7 +17,7 @@
           <%= f.label('Absent') %></td>
      </td>
         <td>
-          <%= f.submit("Create") %>
+          <%= f.submit("Create", id: "button_#{asserted_distribution.geographic_area.to_param}") %>
         </td>
       </tr>
     </table>

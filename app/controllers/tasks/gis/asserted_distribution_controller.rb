@@ -26,7 +26,7 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
              html:               render_to_string(partial:    'asserted_distributions/quick_new_asserted_distribution_form',
                                                   collection: @asserted_distributions,
                                                   as:         :asserted_distribution,
-                                                  locals:     {token: form_authenticity_token}),
+                                                  locals:     {token: form_authenticity_token }),
              feature_collection: @feature_collection,
            }
   end
