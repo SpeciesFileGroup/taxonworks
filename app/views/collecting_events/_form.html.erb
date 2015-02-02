@@ -1,7 +1,7 @@
 <%= form_for(@collecting_event) do |f| %>
     <% if @collecting_event.errors.any? %>
         <div id="error_explanation">
-          <h2><%= pluralize(@collecting_event.errors.count, "error") %> prohibited this collecting_event from being
+          <h2><%= pluralize(@collecting_event.errors.count, 'error') %> prohibited this collecting_event from being
             saved:</h2>
 
           <ul>

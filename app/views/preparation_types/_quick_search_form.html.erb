@@ -1,4 +1,4 @@
-<%= form_tag(search_preparation_types_path, {method: :go}) do %>
+<%= form_tag(search_preparation_types_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'preparation_types',
                          object:     nil,

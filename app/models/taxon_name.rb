@@ -744,7 +744,7 @@ class TaxonName < ActiveRecord::Base
       ay = (a + [self.year_integer]).compact.join(', ')
       obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-      unless (misapplication.empty? || obj.author_string.blank?)
+      unless misapplication.empty? || obj.author_string.blank?
         ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
       end
 
@@ -774,10 +774,10 @@ class TaxonName < ActiveRecord::Base
       t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
       ay = t.compact.join(' ')
 
-      unless (basionym.empty? || b_sub.author_string.blank?)
+      unless basionym.empty? || b_sub.author_string.blank?
         ay = '(' + b_sub.author_string + ') ' + ay
       end
-      unless (misapplication.empty? || m_obj.author_string.blank?)
+      unless misapplication.empty? || m_obj.author_string.blank?
         ay += ' nec ' + [m_obj.author_string]
         t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
       end

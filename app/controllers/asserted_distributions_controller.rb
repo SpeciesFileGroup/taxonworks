@@ -29,7 +29,7 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
-        if params["new_from_map"]
+        if params['new_from_map']
           format.html { redirect_to new_asserted_distribution_task_path(otu_id: @asserted_distribution.otu.to_param), notice: 'Asserted distribution was successfully created.' }
           else
           format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }

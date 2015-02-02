@@ -104,7 +104,7 @@ class Otu < ActiveRecord::Base
   # Generate a CSV version of the raw Otus table for the given project_id
   # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
   def self.generate_download(project_id: nil)
-    CSV.generate() do |csv|
+    CSV.generate do |csv|
       csv << column_names
       all.with_project_id(project_id).order(id: :asc).each do |otu|
         csv << otu.attributes.values_at(*column_names)

@@ -1,7 +1,7 @@
 <%= form_for(@taxon_name_relationship.metamorphosize) do |f| %>
   <% if @taxon_name_relationship.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@taxon_name_relationship.errors.count, "error") %> prohibited this taxon_name_relationship from being saved:</h2>
+      <h2><%= pluralize(@taxon_name_relationship.errors.count, 'error') %> prohibited this taxon_name_relationship from being saved:</h2>
 
       <ul>
       <% @taxon_name_relationship.errors.full_messages.each do |msg| %>

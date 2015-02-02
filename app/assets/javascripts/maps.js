@@ -80,6 +80,10 @@ initialize = function () {
             strokeWeight: 1
         });
     });
+    add_map_listeners();
+};
+
+function add_map_listeners() {
     // When the user clicks, set 'isColorful', changing the color of the feature.
     map.data.addListener('click', function(event) {
         event.feature.setProperty('isColorful', true);
@@ -87,13 +91,13 @@ initialize = function () {
         var mapLatLng = event.latLng;
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6))
         + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-        $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
-            function(coors, status){
-                //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-                map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-                //$("#map_coords").html(coors);
-                $("#map_coords").append(coors);
-            });
+            $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
+                function(coors, status){
+                    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+                    map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+                    //$("#map_coords").html(coors);
+                    $("#map_coords").append(coors);
+                });
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -115,47 +119,54 @@ initialize = function () {
         //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
-     
-     
+
+
         //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
         $("#latitude").val(mapLatLng.lat());
         $("#longitude").val(mapLatLng.lng());
-        
-          $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
-            $("#qnadf").html(local_data['html']);
-            //coors_element = JSON.parse(document.getElementById('json_coors').value);
-            //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-            map.data.addGeoJson(local_data['feature_collection']);
-         
-            data = local_data['feature_collection']; 
-         // get_Data();
-         // get_window_center();
-         // map.setCenter(center_lat_long);
-         // map.setZoom(gzoom);
-          },
-          'json' // I expect a JSON response
-          );
+        $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
+                $("#qnadf").html(local_data['html']);
 
+                //coors_element = JSON.parse(document.getElementById('json_coors').value);
+                //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-      //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
-      //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-     
-      //    function(coors, status){
-      //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-      //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-      //    //$("#map_coords").html(coors);
-       //        });
+                //initialize_map(myOptions);
+                map.data.addGeoJson(local_data['feature_collection']);
+
+                // select with jquery the butons, and bind the listener event 
+                // $("[id^=button_]")... {
+                //
+                // }
+
+                data = local_data['feature_collection'];
+                get_Data();
+                get_window_center();
+                map.setCenter(center_lat_long);
+                map.setZoom(gzoom);
+                //add_map_listeners();
+                //map.setMap();
+            },
+            'json' // I expect a JSON response
+        );
+        //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
+        //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
+
+        //    function(coors, status){
+        //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+        //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+        //    //$("#map_coords").html(coors);
+        //        });
 
         //$.post("display_coordinates",
         //    {lat: mapLatLng.lat().toFixed(9),
         //     lon: mapLatLng.lng().toFixed(9)},
         //function(coors, status){
         //    map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-            //$("#map_coords").html(coors);
+        //$("#map_coords").html(coors);
         //});
     });
-};
+    }
 
 function initialize_map(options) {
     map = new google.maps.Map(document.getElementById("map_canvas"), options);
@@ -220,20 +231,22 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
         if((ymax == -90) && (ymin == 90)) {ymax = 90.0; ymin = -90.0;}      // no data, so set whole earth limits
         wy = ymax - ymin;
         center_lat = 0.5 * (ymax + ymin);
-        cutoff = 65.0;
-        if(/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
-            angle = ymax - cutoff;
-            if (center_lat < 0) {
-                angle = ymin + cutoff;
+        if(Math.abs(center_lat) > 1.0) {        // if vertical center very close to equator
+            cutoff = 65.0;
+            if (/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
+                angle = ymax - cutoff;
+                if (center_lat < 0) {
+                    angle = ymin + cutoff;
+                }
+                offset = Math.cos((angle /*- center_lat*/) / (180.0 / 3.1415926535));
+                offset = 0.1 * (ymax - ymin) / offset;
+                center_lat = center_lat + offset;
             }
-            offset = Math.cos((angle /*- center_lat*/)/ (180.0/3.1415926535));
-            offset = 0.1 * (ymax-ymin)/offset;
-            center_lat = center_lat + offset;
         }
     }
     ;
 
-    if(wy > 0.5 * wx) {wx = wy * 2.5}
+    if(wy > 0.5 * wx) {wx = wy * 2.0}
     if (wx <= 0.1) {gzoom =11};
     if (wx > 0.1) {gzoom = 10};
     if (wx > 0.2) {gzoom = 9};
@@ -288,7 +301,20 @@ function add_shapes_to_map() {
     //    map.fitBounds(bounds);
 };
 
+function reset_center_and_bounds() {
+    center_long = undefined;    // clear previous history
+    center_lat = undefined;     // so that center is recalculated
+    xminp = 180.0;       //return to 0-based coordinates
+    xmaxp = 0.0;
+    xminm = 0.0;         //return to 0-based coordinates
+    xmaxm = -180.0;
+
+    ymin = 90.0;
+    ymax = -90.0;
+}
+
 function get_Data() {       //this is the scanner version; no google objects are created
+    reset_center_and_bounds();
     /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
      Assumptions:
      data is a hash
@@ -621,7 +647,7 @@ function ygtlt(ytest) {
 
 function createPointL(coords, color) {
     return new L.marker(coords, { color: color });
-    var marker = L.marker([51.5, -0.09]).addTo(map);
+   // var marker = L.marker([51.5, -0.09]).addTo(map);
 };
 
 //		function createLineL(coords, color) {
