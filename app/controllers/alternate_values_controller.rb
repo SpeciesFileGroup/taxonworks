@@ -5,6 +5,7 @@ class AlternateValuesController < ApplicationController
 
   def new
     @alternate_value = AlternateValue.new(alternate_value_params)
+    @recent_objects = AlternateValue.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   def edit
@@ -14,7 +15,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values
   # GET /alternate_values.json
   def index
-    @alternate_values = AlternateValue.all
+    @recent_objects = AlternateValue.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /alternate_values
@@ -53,6 +54,19 @@ class AlternateValuesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to :back, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def list
+    @alternate_values = AlternateValue.with_project_id($project_id).order(:id).page(params[:page])
+  end
+
+  # GET /alternate_values/search
+  def search
+    if params[:id]
+      redirect_to alternate_value_path(params[:id])
+    else
+      redirect_to alternate_value_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 

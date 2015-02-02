@@ -46,8 +46,9 @@ TaxonWorks::Application.routes.draw do
   # Unvetted/not fully tested Stubbed
   #
 
-  resources :alternate_values, only: [:new, :edit, :create, :update, :destroy, :index]
-
+  resources :alternate_values do
+    concerns [:data_routes]
+  end
   resources :asserted_distributions do
     concerns [:data_routes]
   end

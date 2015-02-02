@@ -1,0 +1,38 @@
+<h1>Listing alternate values</h1>
+
+<%= paginate @alternate_values %> <%= page_entries_info @alternate_values %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Alternate value</th>
+    <th>Alternate value type</th>
+    <th>Identifier</th>
+    <th>Type</th>
+    <th>Cached identifier</th>
+    <th>Namespace</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @identifiers.each do |identifier| %>
+      <tr>
+        <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
+        <td><%= identifier.identifier_object_type %></td>
+        <td><%= identifier.identifier %></td>
+        <td><%= identifier.type %></td>
+        <td><%= identifier.cached %></td>
+        <td><%= identifier.namespace_id %></td>
+        <td><%= identifier.updated_at %></td>
+        <td><%= object_tag(identifier.updater) %></td>
+        <td><%= link_to 'Show', identifier.identifier_object.metamorphosize %></td>
+        <td><%= link_to 'Destroy', identifier.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
