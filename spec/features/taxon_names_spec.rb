@@ -86,6 +86,7 @@ describe 'TaxonNames', :type => :feature do
       query =  'root'
       find('taxon_name[parent_id]').native.send_keys(*query.chars)
 =end
+=begin
       parent = find_by_id('parent_id_for_name')
 
       # trigger the auto-complete
@@ -95,8 +96,10 @@ describe 'TaxonNames', :type => :feature do
       parent.native.send_key 'o'
       parent.native.send_key 'o'
       parent.native.send_key 't'
-
-      sleep 5 # so the drop down list has time to load
+     sleep 5 # so the drop down list has time to load
+=end
+      fill_in "Enter a search for Taxon_names", :with => "root"
+      choose_autocomplete_result "Root (nomenclatural rank)", "#Enter a search for Taxon_names"
 
       # Capybara::ElementNotFound: Unable to find select box "taxon_name_parent_id"
       # select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
@@ -108,6 +111,16 @@ describe 'TaxonNames', :type => :feature do
       # then I get the message "Taxon name 'Foodiae' was successfully created"
       expect(page).to have_content('Taxon name was successfully created.')
     end
+  end
+
+  def choose_autocomplete_result(item_text, input_selector="input[data-autocomplete]")
+    page.execute_script %Q{ $('#{input_selector}').trigger("focus") }
+    page.execute_script %Q{ $('#{input_selector}').trigger("keydown") }
+    # Set up a selector, wait for it to appear on the page, then use it.
+    sleep 3
+    item_selector = "ul.ui-autocomplete li.ui-menu-item a:contains('#{item_text}')"
+    page.should have_selector item_selector
+    page.execute_script %Q{ $("#{item_selector}").trigger("mouseenter").trigger("click"); }
   end
 end
 
