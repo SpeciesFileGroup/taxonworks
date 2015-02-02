@@ -14,7 +14,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
         if @source.create_related_people_and_roles 
           flash[:notice] = "Successfully created from resolution to bibtex, also created #{@source.roles.count} people as authors/editors."
         else
-          flash[:notice] = "Successfully created from resolution to bibtex, associated People records were not created."
+          flash[:notice] = 'Successfully created from resolution to bibtex, associated People records were not created.'
         end
       end
     else

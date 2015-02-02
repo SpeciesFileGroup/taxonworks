@@ -4,7 +4,7 @@
 
   <div>Identifer: <%= object_tag(@identifier) -%> </div>
   <div>Container: <%= object_tag(@container) -%> </div>
-  <div> <%= @breakdown[:bio_overview].collect{|total, bioclassifications| total.to_s + " " + bioclassifications.join(", ") }.join("; ") -%> </div>
+  <div> <%= @breakdown[:bio_overview].collect{|total, bioclassifications| total.to_s + ' ' + bioclassifications.join(', ') }.join('; ') -%> </div>
 </div>
 
 

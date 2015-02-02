@@ -57,7 +57,7 @@ class UsersController < ApplicationController
   # DELETE /users/:id
   def destroy
     User.find(params[:id]).destroy
-    flash[:success] = "Account has been deleted."
+    flash[:success] = 'Account has been deleted.'
     redirect_to root_url
   end
   
@@ -74,9 +74,9 @@ class UsersController < ApplicationController
       redirect_to :forgot_password
     
       if params[:email].blank?
-        flash[:notice] = "No e-mail was given"
+        flash[:notice] = 'No e-mail was given'
       else
-        flash[:notice] = "The supplied e-mail does not belong to a registered user"
+        flash[:notice] = 'The supplied e-mail does not belong to a registered user'
       end
     else
       token = user.generate_password_reset_token

@@ -10,7 +10,7 @@ class CombinationsController < ApplicationController
       @protonym = Protonym.find(params[:taxon_name_id])
       @combination = Combination.new(@protonym.rank => @protonym)
     else
-      @combination = Combination.new()
+      @combination = Combination.new
     end
   end
 

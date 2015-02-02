@@ -476,7 +476,7 @@ class Source::Bibtex < Source
   def authority_name
     case self.authors.count
     when 0
-      if (self.author.blank?)
+      if self.author.blank?
         return ('')
       else        # build off the last names only of .authors
         b = self.to_bibtex
@@ -628,11 +628,11 @@ class Source::Bibtex < Source
 
   def cached_string
     bx_entry = self.to_bibtex
-    if bx_entry.key.blank? then
+    if bx_entry.key.blank?
       bx_entry.key = 'tmpID'
     end
-    key             = bx_entry.key
-    bx_bibliography = BibTeX::Bibliography.new()
+    key = bx_entry.key
+    bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)
 
     cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
@@ -654,7 +654,6 @@ class Source::Bibtex < Source
       errors.add(:base, 'invalid author parameters')
     end
   end
-
 
   def set_cached_values
     if self.errors.empty?
@@ -694,20 +693,20 @@ class Source::Bibtex < Source
   end
 
   def sv_has_title
-    if (self.title.blank?)
+    if self.title.blank?
       soft_validations.add(:title, 'There is no title associated with this source.')
     end
   end
 
   def sv_has_some_type_of_year
-    if (!has_some_year?)
+    if !has_some_year?
       soft_validations.add(:year, 'There is no year or stated year associated with this source.')
       soft_validations.add(:stated_year, 'There is no or stated year year associated with this source.')
     end
   end
 
   def sv_year_exists
-    if (year.blank?)
+    if year.blank?
       soft_validations.add(:year, 'There is no year associated with this source.')
     elsif year < 1700
       soft_validations.add(:year, 'This year is prior to the 1700s')
@@ -719,21 +718,21 @@ class Source::Bibtex < Source
   end
 
   def sv_is_article_missing_journal
-    if (self.bibtex_type == 'article')
-      if (self.journal.blank?)
+    if self.bibtex_type == 'article'
+      if self.journal.blank?
         soft_validations.add(:bibtex_type, 'The article is missing a journal name.')
       end
     end
   end
 
   def sv_has_a_publisher
-    if (self.publisher.blank?)
+    if self.publisher.blank?
       soft_validations.add(:publisher, 'There is no publisher associated with this source.')
     end
   end
 
   def sv_has_booktitle
-    if (self.booktitle.blank?)
+    if self.booktitle.blank?
       soft_validations.add(:booktitle, 'There is no book title associated with this source.')
     end
   end
@@ -746,13 +745,13 @@ class Source::Bibtex < Source
   end
 
   def sv_has_school
-    if (self.school.blank?)
+    if self.school.blank?
       soft_validations.add(:school, 'There is no school associated with this thesis.')
     end
   end
 
   def sv_has_institution
-    if (self.institution.blank?)
+    if self.institution.blank?
       soft_validations.add(:institution, 'There is not institution associated with this tech report.')
     end
   end

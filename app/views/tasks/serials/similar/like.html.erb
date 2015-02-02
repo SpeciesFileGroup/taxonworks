@@ -20,7 +20,7 @@
             <td><%= link_to('edit', edit_serial_path(serial)) -%></td>
 
             <% serial.annotations_hash.keys.sort.each do |k| -%>
-              <td><%= serial.annotations_hash[k].collect{|o| object_tag(o)}.join("; ").html_safe -%></td>
+              <td><%= serial.annotations_hash[k].collect{|o| object_tag(o)}.join('; ').html_safe -%></td>
             <% end %>
 
           </tr>

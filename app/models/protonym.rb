@@ -649,7 +649,7 @@ class Protonym < TaxonName
 
   def sv_potential_homonyms
     if self.parent
-      unless (self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty?) #  self.unavailable_or_invalid?
+      unless self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty? #  self.unavailable_or_invalid?
         if self.id == self.lowest_rank_coordinated_taxon.id
           rank_base = self.rank_class.parent.to_s
           name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil

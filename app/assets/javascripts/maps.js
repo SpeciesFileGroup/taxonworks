@@ -621,7 +621,7 @@ function ygtlt(ytest) {
 
 function createPointL(coords, color) {
     return new L.marker(coords, { color: color });
-    var marker = L.marker([51.5, -0.09]).addTo(map);
+   // var marker = L.marker([51.5, -0.09]).addTo(map);
 };
 
 //		function createLineL(coords, color) {

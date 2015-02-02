@@ -64,7 +64,7 @@ class AlternateValue < ActiveRecord::Base
   protected
 
   def validate_alternate_value_type
-    errors.add(:type, "Is not valid type") if !self.type.nil? and !ALTERNATE_VALUE_CLASS_NAMES.include?(self.type.to_s)
+    errors.add(:type, 'Is not valid type') if !self.type.nil? and !ALTERNATE_VALUE_CLASS_NAMES.include?(self.type.to_s)
   end
 
 
