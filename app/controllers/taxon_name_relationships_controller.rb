@@ -66,7 +66,30 @@ class TaxonNameRelationshipsController < ApplicationController
   def list
     @taxon_name_relationships = TaxonNameRelationship.with_project_id($project_id).order(:id).page(params[:page]) 
   end
-  
+
+  # GET /taxon_name_relationships/search
+  def search
+    if params[:id]
+      redirect_to taxon_name_relationship_path(params[:id])
+    else
+      redirect_to taxon_name_relationship_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @taxon_name_relationships = taxon_name_relationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = @taxon_name_relationships.collect do |t|
+      {id: t.id,
+       label: TaxonNameRelationshipsHelper.taxon_name_relationship_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: TaxonNameRelationshipsHelper.taxon_name_relationship_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

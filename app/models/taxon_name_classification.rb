@@ -26,7 +26,6 @@ class TaxonNameClassification < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
-  
   def type_name
     r = self.type.to_s
     TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
@@ -164,7 +163,11 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   #endregion
-  
+
+  def self.find_for_autocomplete(params)
+    where(id: params[:term])
+  end
+
   private
 
   def validate_taxon_name_classification

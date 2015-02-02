@@ -6,7 +6,8 @@ class RangedLotCategoriesController < ApplicationController
   # GET /ranged_lot_categories
   # GET /ranged_lot_categories.json
   def index
-    @ranged_lot_categories = RangedLotCategory.all
+    # @ranged_lot_categories = RangedLotCategory.all
+    @recent_objects = RangedLotCategory.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # GET /ranged_lot_categories/1
@@ -61,6 +62,10 @@ class RangedLotCategoriesController < ApplicationController
       format.html { redirect_to ranged_lot_categories_url }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @ranged_lot_categories = RangedLotCategory.with_project_id($project_id).order(:id).page(params[:page])
   end
 
   private

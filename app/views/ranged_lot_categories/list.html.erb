@@ -1,0 +1,35 @@
+<h1>Listing ranged lot categories</h1>
+
+<%= paginate @ranged_lot_categories %> <%= page_entries_info @ranged_lot_categories %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Minimum value</th>
+    <th>Maximum value</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th>Project</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @ranged_lot_categories.each do |ranged_lot_category| %>
+      <tr>
+        <td><%= ranged_lot_category.name %></td>
+        <td><%= ranged_lot_category.minimum_value %></td>
+        <td><%= ranged_lot_category.maximum_value %></td>
+        <td><%= ranged_lot_category.created_by_id %></td>
+        <td><%= ranged_lot_category.updated_by_id %></td>
+        <td><%= ranged_lot_category.project_id %></td>
+        <td><%= link_to 'Show', ranged_lot_category %></td>
+        <td><%= link_to 'Edit', edit_ranged_lot_category_path(ranged_lot_category) %></td>
+        <td><%= link_to 'Destroy', ranged_lot_category, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

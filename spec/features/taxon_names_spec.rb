@@ -18,17 +18,17 @@ describe 'TaxonNames', :type => :feature do
   end
 
   context 'signed in as a user, with some records created' do
-    let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge( source: nil) ) }
+    let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
     before {
       sign_in_user_and_select_project
       5.times {
-          FactoryGirl.create(:iczn_family, user_project_attributes(@user, @project).merge(parent: p, source: nil) )
+        FactoryGirl.create(:iczn_family, user_project_attributes(@user, @project).merge(parent: p, source: nil))
       }
     }
-    
+
     describe 'GET /taxon_names/list' do
       before do
-        visit list_taxon_names_path 
+        visit list_taxon_names_path
       end
 
       specify 'that it renders without error' do
@@ -50,7 +50,36 @@ describe 'TaxonNames', :type => :feature do
       end
     end
   end
+
+  context 'new link is present on taxon names page' do
+    before { sign_in_user_and_select_project }
+
+    specify 'new link is present' do
+      visit taxon_names_path # when I visit the taxon_names_path
+      expect(page).to have_link('New') # it has a new link
+    end
+  end
+
+  context 'creating a new TaxonName' do
+    before {
+      sign_in_user_and_select_project
+      visit taxon_names_path # when I visit the taxon_names_path
+    }
+    specify 'testing new TaxonName', js: true do
+      click_link('New')  # when I click the new link
+
+      fill_in 'Name', with: 'Fooidae' # and I fill out the name field with "Fooidae"
+      # and I select 'family (ICZN)' from the Rank select *
+      select('family (ICZN)', :from => 'taxon_name_rank_class')
+      fill_in 'Enter a search for Taxon_names', with: 'root'
+      #select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
+      click_button 'Create Taxon name' # when I click the 'Create Taxon name' button
+      # then I get the message "Taxon name 'Foodiae' was successfully created"
+      expect(page).to have_content('Taxon name was successfully created.')
+    end
+  end
 end
+
 
 
 

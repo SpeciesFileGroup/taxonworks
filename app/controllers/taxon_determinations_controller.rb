@@ -13,8 +13,6 @@ class TaxonDeterminationsController < ApplicationController
     @taxon_determinations = TaxonDetermination.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
-
-
   # GET /taxon_determinations/1
   # GET /taxon_determinations/1.json
   def show
@@ -69,6 +67,30 @@ class TaxonDeterminationsController < ApplicationController
     end
   end
 
+  # GET /taxon_determinations/search
+  def search
+    if params[:id]
+      redirect_to taxon_determination_path(params[:id])
+    else
+      redirect_to taxon_determination_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @taxon_determinations = taxon_determination.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = @taxon_determinations.collect do |t|
+      {id: t.id,
+       label: TaxonDeterminationsHelper.taxon_determination_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: TaxonDeterminationsHelper.taxon_determination_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+      }
+    end
+
+    render :json => data
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_taxon_determination
@@ -77,6 +99,6 @@ class TaxonDeterminationsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def taxon_determination_params
-      params.require(:taxon_determination).permit(:biological_collection_object_id, :otu_id, :position, :year_made, :month_made, :day_made, :created_by_id, :updated_by_id, :project_id)
+      params.require(:taxon_determination).permit(:biological_collection_object_id, :taxon_determination_id, :position, :year_made, :month_made, :day_made, :created_by_id, :updated_by_id, :project_id)
     end
 end

@@ -124,7 +124,14 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :public_contents, only: [:create, :update, :destroy]
-  resources :ranged_lot_categories
+
+  # resources :ranged_lot_categories
+  resources :ranged_lot_categories do
+    collection do
+      get 'list'
+    end
+  end
+
   resources :repositories do
     concerns [:data_routes]
   end
@@ -152,7 +159,13 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
+  # resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
+  resources :taxon_name_classifications do
+    collection do
+      get 'list'
+    end
+  end
+
   resources :taxon_name_relationships do
     collection do
       get 'list'
