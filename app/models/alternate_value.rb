@@ -38,8 +38,8 @@ class AlternateValue < ActiveRecord::Base
 
   def original_value
     (self.alternate_value_object_attribute && self.alternate_value_object && self.alternate_value_object.respond_to?(
-      self.alternate_value_object_attribute.to_sym)) ?
-      self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym) : nil
+        self.alternate_value_object_attribute.to_sym)) ?
+        self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym) : nil
   end
 
   def type_name
@@ -61,6 +61,10 @@ class AlternateValue < ActiveRecord::Base
     self.name.demodulize.underscore.humanize.downcase
   end
 
+  def self.find_for_autocomplete(params)
+    where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+  end
+
   protected
 
   def validate_alternate_value_type
@@ -72,11 +76,11 @@ class AlternateValue < ActiveRecord::Base
     # object must not only have this attribute, it must also be explicitly listed in ALTERNATE_VALUE_FOR
 
     if self.alternate_value_object &&
-      !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
+        !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
       errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name')
     else
       if self.alternate_value_object &&
-        !self.alternate_value_object.class::ALTERNATE_VALUES_FOR.include?(self.alternate_value_object_attribute.to_sym)
+          !self.alternate_value_object.class::ALTERNATE_VALUES_FOR.include?(self.alternate_value_object_attribute.to_sym)
         errors.add(:alternate_value_object_attribute, 'Attribute (column) does not allow alternate values.')
       end
     end

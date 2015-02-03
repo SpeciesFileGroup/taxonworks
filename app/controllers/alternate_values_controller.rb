@@ -5,7 +5,6 @@ class AlternateValuesController < ApplicationController
 
   def new
     @alternate_value = AlternateValue.new(alternate_value_params)
-    @recent_objects = AlternateValue.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   def edit
@@ -15,7 +14,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values
   # GET /alternate_values.json
   def index
-    @recent_objects = AlternateValue.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = AlternateValue.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /alternate_values
@@ -58,7 +57,7 @@ class AlternateValuesController < ApplicationController
   end
 
   def list
-    @alternate_values = AlternateValue.with_project_id($project_id).order(:id).page(params[:page])
+    @alternate_values = AlternateValue.where(project_id: $project_id).order(:id).page(params[:page])
   end
 
   # GET /alternate_values/search
@@ -68,6 +67,22 @@ class AlternateValuesController < ApplicationController
     else
       redirect_to alternate_value_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
+  end
+
+  def autocomplete
+    @alternate_values = AlternateValue.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @alternate_values.collect do |t|
+      str = render_to_string(partial: 'tag', locals: {alternate_value: t})
+      {id: t.id,
+       label: str,
+       response_values: {
+           params[:method] => t.id},
+       label_html: str
+      }
+    end
+
+    render :json => data
   end
 
   private
