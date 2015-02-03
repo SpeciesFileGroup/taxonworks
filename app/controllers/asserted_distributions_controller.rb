@@ -29,11 +29,16 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
-        if params['new_from_map']
-          format.html { redirect_to new_asserted_distribution_task_path(otu_id: @asserted_distribution.otu.to_param), notice: 'Asserted distribution was successfully created.' }
-          else
+        if params[:return_to]
+          @lock_source = params['lock_source']
+          source_id    = (@lock_source ? params[:source_id] : nil)
+          format.html { redirect_to new_asserted_distribution_task_path(asserted_distribution: {
+                                                                          otu_id:    @asserted_distribution.otu.to_param,
+                                                                          source_id: source_id}),
+                                    notice: 'Asserted distribution was successfully created.' }
+        else
           format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
-          end
+        end
         format.json { render :show, status: :created, location: @asserted_distribution }
       else
         format.html { render :new }
@@ -72,11 +77,11 @@ class AssertedDistributionsController < ApplicationController
 
   def autocomplete
     @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data = @asserted_distributions.collect do |t|
+    data                    = @asserted_distributions.collect do |t|
       {id:              t.id,
        label:           AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html:      AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
@@ -86,7 +91,7 @@ class AssertedDistributionsController < ApplicationController
 
 
   def search
-    if params[:id] 
+    if params[:id]
       redirect_to asserted_distribution_path(params[:id])
     else
       redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -94,13 +99,13 @@ class AssertedDistributionsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_asserted_distribution
-      @asserted_distribution = AssertedDistribution.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_asserted_distribution
+    @asserted_distribution = AssertedDistribution.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def asserted_distribution_params
-      params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :source_id, :is_absent)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def asserted_distribution_params
+    params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :source_id, :is_absent)
+  end
 end

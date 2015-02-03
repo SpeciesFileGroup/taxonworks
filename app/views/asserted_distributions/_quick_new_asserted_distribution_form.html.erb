@@ -7,7 +7,9 @@
         <%= object_tag(asserted_distribution.geographic_area) %>
           <%= f.hidden_field(:otu_id) %>
           <%= f.hidden_field(:source_id) %>
-          <%= f.hidden_field(:geographic_area_id) %>
+        <%= f.hidden_field(:geographic_area_id) %>
+        <%= hidden_field_tag(:return_to, new_asserted_distribution_task_path) %>
+        <%= hidden_field_tag(:lock_source, lock_source) %>
         </td>
       <td class='one_third_width' > 
         <%= asserted_distribution.geographic_area.data_origin -%>

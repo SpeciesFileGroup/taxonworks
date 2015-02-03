@@ -201,10 +201,7 @@ class Georeference < ActiveRecord::Base
     retval   = {
       'type'       => 'Feature',
       'geometry'   => geometry,
-      'properties' => {
-        'georeference' => {
-          'id' => self.id}
-      }
+      'properties' => {'georeference' => {'id' => self.id}}
     }
     retval
   end

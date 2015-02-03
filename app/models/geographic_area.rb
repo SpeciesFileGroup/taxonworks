@@ -256,7 +256,7 @@ class GeographicArea < ActiveRecord::Base
    #  geometry = RGeo::GeoJSON.encode(object)
    #else
       geo_id = self.geographic_items.order(:id).pluck(:id).first
-      geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) foo from geographic_items where id=#{geo_id};")[0]['foo'])
+      geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
    # end
     retval = {
       'type'       => 'Feature',

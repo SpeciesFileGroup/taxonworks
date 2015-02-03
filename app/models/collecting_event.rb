@@ -418,7 +418,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
 
   def to_geo_json_feature
     # geometry = RGeo::GeoJSON.encode(self.georeferences.first.geographic_item.geo_object)
-    geo_item =self.georeferences.first.geographic_item
+    geo_item = self.georeferences.first.geographic_item
     geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_item.data_type?.to_s}::geometry) geo_json from geographic_items where id=#{geo_item.id};")[0]['geo_json'])
     retval   = {
       'type'       => 'Feature',
