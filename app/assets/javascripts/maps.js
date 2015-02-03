@@ -86,18 +86,24 @@ initialize = function () {
 function add_map_listeners() {
     // When the user clicks, set 'isColorful', changing the color of the feature.
     map.data.addListener('click', function(event) {
-        event.feature.setProperty('isColorful', true);
-        event.feature.setProperty('fillColor', "#CC0000");  //brighter red
-        var mapLatLng = event.latLng;
-        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6))
-        + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-            $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
-                function(coors, status){
-                    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-                    map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-                    //$("#map_coords").html(coors);
-                    $("#map_coords").append(coors);
-                });
+        if(event.feature.getProperty('isColorful')) {
+            event.feature.setProperty('isColorful', false);
+            event.feature.setProperty('fillColor', "#440000");  //dimmer red
+        }
+        else {
+            event.feature.setProperty('isColorful', true);
+            event.feature.setProperty('fillColor', "#CC0000");  //brighter red
+        };
+            var mapLatLng = event.latLng;
+            $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6))
+            + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
+                $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
+                    function (coors, status) {
+                        //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
+                        map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
+                        //$("#map_coords").html(coors);
+                        $("#map_coords").append(coors);
+                    });
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -131,7 +137,7 @@ function add_map_listeners() {
                 //coors_element = JSON.parse(document.getElementById('json_coors').value);
                 //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-                //initialize_map(myOptions);
+                map.data.forEach(function(feature) {map.data.remove(feature);});
                 map.data.addGeoJson(local_data['feature_collection']);
 
                 // select with jquery the butons, and bind the listener event 

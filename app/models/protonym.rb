@@ -132,7 +132,7 @@ class Protonym < TaxonName
   def all_generic_placements
     valid_name = self.get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
-    descendants_and_self = valid_name.descendants + [self]
+    descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
   end

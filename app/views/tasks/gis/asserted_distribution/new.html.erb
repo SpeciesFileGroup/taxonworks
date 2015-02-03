@@ -12,13 +12,10 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
                                       :method     => 'source_id',
                                       :tag_id     => 'source_id_for_asserted_distribution',
                                       :display    => ''} %>
-              <%= check_box_tag('LockBox', 'Lock') %>
-          <%= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%> 
-
-
+              <%= check_box_tag('lock_source', @lock_source) %>Lock
+          <%= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%>
           <%= hidden_field_tag(:latitude) -%> 
           <%= hidden_field_tag(:longitude ) -%> 
-          <%= submit_tag -%>
         <% end %>
          
       </p>

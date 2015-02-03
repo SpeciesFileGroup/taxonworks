@@ -2,11 +2,12 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   before_action :disable_turbolinks, only: [:new]
 
   def new
-    # Otu.something
-    @otu                = Otu.find(params[:asserted_distribution][:otu_id])
+    @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
+    # @otu                = Otu.find(params[:asserted_distribution][:otu_id])
+    # todo: this needs to be tested and accounted for in maps.js
     @feature_collection = ::Gis::GeoJSON.feature_collection([])
-    source_id           = params[:asserted_distribution][:source_id]
-    @source             = Source.find(source_id) unless source_id.nil?
+    # source_id           = params[:asserted_distribution][:source_id]
+    # @source             = Source.find(source_id) unless source_id.blank?
   end
 
   def create
@@ -26,7 +27,7 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
              html:               render_to_string(partial:    'asserted_distributions/quick_new_asserted_distribution_form',
                                                   collection: @asserted_distributions,
                                                   as:         :asserted_distribution,
-                                                  locals:     {token: form_authenticity_token }),
+                                                  locals:     {token: form_authenticity_token, lock_source: (params['lock_source'] ? 'true' : false)}),
              feature_collection: @feature_collection,
            }
   end
