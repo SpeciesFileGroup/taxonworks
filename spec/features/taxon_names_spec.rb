@@ -74,64 +74,13 @@ describe 'TaxonNames', :type => :feature do
       # and I select 'family (ICZN)' from the Rank select *
       select('family (ICZN)', :from => 'taxon_name_rank_class')
 
-=begin
-  none of the following worked
-      #find('Parent')
-      #find('mx-autocomplete ajaxPicker ui-autocomplete-input')
-      #find('Enter a search for Taxon_names')
-      # find('find and select taxon_names')
-      #find('taxon_name_parent_id')
-      # find('taxon_name[parent_id]')
-      # find('ui-id-1')
-
-      query =  'root'
-      find('taxon_name[parent_id]').native.send_keys(*query.chars)
-=end
-=begin
-      parent = find_by_id('parent_id_for_name')
-
-      # trigger the auto-complete
-      # fill_in 'Enter a search for Taxon_names', with: 'root'
-      # find_by_id('parent_id_for_name').native.send_key
-      parent.native.send_key 'r'
-      parent.native.send_key 'o'
-      parent.native.send_key 'o'
-      parent.native.send_key 't'
-     sleep 5 # so the drop down list has time to load
-=end
-=begin
-      fill_in "Enter a search for Taxon_names", :with => "root"
-      choose_autocomplete_result "Root (nomenclatural rank)", "#Enter a search for Taxon_names"
-=end
-
-      # Capybara::ElementNotFound: Unable to find select box "taxon_name_parent_id"
-      # select('79251', :from =>'taxon_name_parent_id') # and I select "Root (nomenclatural rank)" in the ajax dropdown *
-
-      #ui-id-1 "ui-autocomplete ui-front ui-menu ui-widget ui-widget-content"
-      #page.execute_script " $('li.ui-autocomplete').trigger('mouseenter').click(); "
-
       fill_autocomplete('parent_id_for_name', with: 'root')
-
-
-
 
       click_button 'Create Taxon name' # when I click the 'Create Taxon name' button
       # then I get the message "Taxon name 'Foodiae' was successfully created"
       expect(page).to have_content('Taxon name was successfully created.')
     end
   end
-
-=begin
-  def choose_autocomplete_result(item_text, input_selector="input[data-autocomplete]")
-    page.execute_script %Q{ $('#{input_selector}').trigger("focus") }
-    page.execute_script %Q{ $('#{input_selector}').trigger("keydown") }
-    # Set up a selector, wait for it to appear on the page, then use it.
-    sleep 3
-    item_selector = "ul.ui-autocomplete li.ui-menu-item a:contains('#{item_text}')"
-    page.should have_selector item_selector
-    page.execute_script %Q{ $("#{item_selector}").trigger("mouseenter").trigger("click"); }
-  end
-=end
 
   def fill_autocomplete(field, options = {})
     fill_in field, with: options[:with]
@@ -140,8 +89,8 @@ describe 'TaxonNames', :type => :feature do
     page.execute_script %Q{ $('##{field}').trigger('keydown') }
     selector = %Q{ul.ui-autocomplete li.ui-menu-item a:contains("#{options[:select]}")}
 
-    page.should have_selector('ul.ui-autocomplete li.ui-menu-item a')
-    sleep 2  # here only so my human eye can see what is happening - remove in final test
+    expect(page).to have_selector('ul.ui-autocomplete li.ui-menu-item a')
+    #sleep 2  # here only so my human eye can see what is happening - remove in final test
     page.execute_script %Q{ $('#{selector}').trigger('mouseenter').click() }
   end
 
