@@ -5,7 +5,7 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
   <div class="item item1">
     <p>
       <%= form_tag(generate_choices_url, id: 'cadu') do %>
-          Source
+          Source <span id="sourceError"></span>
               <%= render :partial => 'workbench/elements/forms/ajax_select',
                          :locals  => {:controller => '/sources',
                                       :object     => 'asserted_distribution',

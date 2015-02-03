@@ -125,7 +125,7 @@ function add_map_listeners() {
         //lng = mapLatLng.lng();
         //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
         $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
-
+        if(check_preemption()) {return;};
 
         //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
         $("#latitude").val(mapLatLng.lat());
@@ -137,7 +137,7 @@ function add_map_listeners() {
                 //coors_element = JSON.parse(document.getElementById('json_coors').value);
                 //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
 
-                map.data.forEach(function(feature) {map.data.remove(feature);});
+                map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
                 map.data.addGeoJson(local_data['feature_collection']);
 
                 // select with jquery the butons, and bind the listener event 
@@ -194,6 +194,16 @@ function zoomAndCenter(map) {       // for use with Google bounds method
  * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
  *     myArray)
  */
+
+function check_preemption() {
+    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since no id
+        $("#sourceError").text(" must be set before selecting area !");
+        return true;
+    }
+    else {
+        $("#sourceError").text("");
+        return false;}
+}
 
 function processPoints(geometry, callback, thisArg) {
     if(geometry instanceof google.maps.LatLng) {
