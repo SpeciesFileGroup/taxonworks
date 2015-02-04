@@ -214,7 +214,7 @@ describe GeographicArea, :type => :model do
     }
 
     specify 'retrieving the geo_object' do
-      expect(@geographic_area.default_geographic_item).to eq(@gi)
+      expect(@geographic_area.default_geographic_item.to_param).to eq(@gi.to_param)
     end
   end
 
