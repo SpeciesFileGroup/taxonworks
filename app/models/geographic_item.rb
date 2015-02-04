@@ -121,30 +121,36 @@ class GeographicItem < ActiveRecord::Base
     result
   end
 
-  def st_start_point
-    # return the first POINT of self as an RGeo::Feature::Point
-    o = geo_object
-    case geo_object_type
-      when :point
-        retval = o
-      when :line_string
-        retval = o.point_n(0)
-      when :polygon
-        retval = o.exterior_ring.point_n(0)
-      when :multi_point
-        retval = o[0]
-      when :multi_line_string
-        retval = o[0].point_n(0)
-      when :multi_polygon
-        retval = o[0].exterior_ring.point_n(0)
-      when :geometry_collection
-        to_geo_json_1 =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
-        retval = Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
-      else
-        retval = nil
-    end
-    retval
-  end
+# def st_start_point
+#   # return the first POINT of self as an RGeo::Feature::Point
+#   o = geo_object
+#   case geo_object_type
+#     when :point
+#       retval = self.st_start_point #       retval = o
+#     when :line_string
+#       retval = self.st_start_point
+#       # retval = o.point_n(0)
+#     when :polygon
+#       retval = self.st_start_point
+#   #    retval = o.exterior_ring.point_n(0)
+#     when :multi_point
+#       retval = self.st_start_point
+##       retval = o[0]
+#     when :multi_line_string
+#       retval = self.st_start_point
+##       retval = o[0].point_n(0)
+#     when :multi_polygon
+#       retval = self.st_start_point
+#        retval = o[0].exterior_ring.point_n(0)
+#     when :geometry_collection
+#       retval = self.st_start_point
+#      # to_geo_json_1 =~ /(-{0,1}\d+\.{0,1}\d*),(-{0,1}\d+\.{0,1}\d*)/
+#      # retval = Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
+#     else
+#       retval = nil
+#   end
+#   retval
+# end
 
   # Return an Array of [latitude, longitude] for the first point of GeoItem
   def start_point
@@ -522,6 +528,7 @@ SELECT round(CAST(
     nil
   end
 
+  # TODO: factor out to individual subclasses
   # Return the geo_object as a set of points with object type as key like:
   # {
   #  points:  [],
@@ -577,35 +584,9 @@ SELECT round(CAST(
     retval
   end
 
-  def to_a
-    # get our object and return the set of points as an array
-    we_are = self.geo_object
-
-    if we_are
-      data = []
-      case self.geo_type
-        when :point
-          data = point_to_a(self.point)
-        when :line_string
-          data = line_string_to_a(self.line_string)
-        when :polygon
-          data = polygon_to_a(self.polygon)
-        when :multi_point
-          data = multi_point_to_a(self.multi_point)
-        when :multi_line_string
-          data = multi_line_string_to_a(self.multi_line_string)
-        when :multi_polygon
-          data = multi_polygon_to_a(self.multi_polygon)
-        #when :geometry_collection
-        #  data = geometry_collection_to_a(self.geometry_collection)
-        else
-          # do nothing
-      end
-      data
-    else
-      []
-    end
-  end
+  # def to_a
+  #   see subclasses, perhaps not tested
+  # end
 
   protected
 
@@ -692,6 +673,7 @@ SELECT round(CAST(
     {polygons: self.to_a}
   end
 
+  # TODO: refactor to subclasses or remove completely, likely not useful given geojson capabilities
   def geometry_collection_to_hash(geometry_collection)
     # TODO: this method does *not* use the object_to_hash method, expect for the recursive geometry_collection.
     data = {
@@ -764,6 +746,15 @@ SELECT round(CAST(
     data
   end
 
+
+  # TODO: deprecate fully in favour of providing ids
+  def self.check_geo_params(column_name, geographic_item)
+    return true 
+    # (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
+  end
+
+  # validation
+
   def some_data_is_provided
     data = []
     DATA_TYPES.each do |item|
@@ -777,11 +768,6 @@ SELECT round(CAST(
       end
     end
     true
-  end
-
-  def self.check_geo_params(column_name, geographic_item)
-    return true 
-    # (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
   end
 
 end

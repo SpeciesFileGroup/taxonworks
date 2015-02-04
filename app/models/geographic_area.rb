@@ -258,7 +258,7 @@ class GeographicArea < ActiveRecord::Base
 
   def to_geo_json_feature
     # object = self.geographic_items.order(:id).first
-    #type = object.data_type?
+    #type = object.geo_type
    #if type == :geometry_collection
    #  geometry = RGeo::GeoJSON.encode(object)
    #else

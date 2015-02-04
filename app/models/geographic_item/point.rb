@@ -3,6 +3,15 @@ class GeographicItem::Point < GeographicItem
   validates_presence_of :point
   validate :check_point_limits
 
+  def to_a
+    point_to_a(self.point)
+  end
+
+ # return the first POINT of self as an RGeo::Feature::Point
+  def st_start_point
+    self.geo_object
+  end
+
   protected
 
   def check_point_limits
