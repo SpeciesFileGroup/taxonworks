@@ -71,7 +71,6 @@ class AlternateValue < ActiveRecord::Base
     errors.add(:type, 'Is not valid type') if !self.type.nil? and !ALTERNATE_VALUE_CLASS_NAMES.include?(self.type.to_s)
   end
 
-
   def ensure_object_has_attribute
     # object must not only have this attribute, it must also be explicitly listed in ALTERNATE_VALUE_FOR
 
