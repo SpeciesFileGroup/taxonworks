@@ -21,7 +21,7 @@
 #
 class AlternateValue < ActiveRecord::Base
 
-  include Housekeeping::Users
+  include Housekeeping
   include Shared::IsData
 
   belongs_to :language
@@ -63,6 +63,10 @@ class AlternateValue < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+  end
+
+  def klass_name
+    self.class.class_name
   end
 
   protected

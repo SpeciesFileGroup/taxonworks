@@ -5,12 +5,12 @@
 <table>
   <thead>
   <tr>
+    <th>Alternate value object type</th>
     <th>Alternate value object</th>
     <th>Alternate value object attribute</th>
     <th>Alternate value</th>
     <th>Alternate value type</th>
     <th>Language</th>
-    <th>Alternate value object type</th>
     <th>Last modified</th>
     <th>Updated by</th>
     <th></th>
@@ -21,15 +21,15 @@
   <tbody>
   <% @alternate_values.each do |alternate_value| %>
       <tr>
+        <td><%= alternate_value.alternate_value_object_type %></td>
         <td><%= object_tag(alternate_value.alternate_value_object.metamorphosize) %></td>
         <td><%= alternate_value.alternate_value_object_attribute %></td>
         <td><%= alternate_value.value %></td>
-        <td><%= alternate_value.type %></td>
+        <td><%= alternate_value.klass_name %></td>
         <td><%= object_tag(alternate_value.language) %></td>
-        <td><%= alternate_value.alternate_value_object_type %></td>
         <td><%= alternate_value.updated_at %></td>
         <td><%= object_tag(alternate_value.updater) %></td>
-        <td><%= link_to 'Show', alternate_value.alternate_value_object.metamorphosize %></td>
+        <td><%= link_to 'Context', alternate_value.alternate_value_object.metamorphosize %></td>
         <td><%= link_to 'Destroy', alternate_value.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>

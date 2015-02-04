@@ -57,7 +57,7 @@ class AlternateValuesController < ApplicationController
   end
 
   def list
-    @alternate_values = AlternateValue.where(project_id: $project_id).order(:id).page(params[:page])
+    @alternate_values = AlternateValue.where(project_id: $project_id).order(:alternate_value_object_type).page(params[:page])
   end
 
   # GET /alternate_values/search
