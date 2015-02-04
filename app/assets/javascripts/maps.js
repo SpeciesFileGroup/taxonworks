@@ -4,16 +4,17 @@
  */
 
 var map;	// google map object
-var data; // TaxonWorks jSON data
+var data; // TaxonWorks jSON data object
 
-var gPoints = [];		//googlemaps arrays
-var gLinePoints = [];
-var gPolyPoints = [];
+//var gPoints = [];		// arrays for pushing
+//var gLinePoints = []; // google maps graphic
+//var gPolyPoints = []; // objects by type
 
 // var lPoints = [];
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
+// variables below used by stripped-down get_Data to compute bounds
 var xminp = 180.0;       //return to 0-based coordinates
 var xmaxp = 0.0;
 var xminm = 0.0;         //return to 0-based coordinates
@@ -57,7 +58,7 @@ initialize = function () {
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
-    //centerofmap = map.getCenter();      // not getting desired result
+    //centerofmap = map.getCenter();      // not getting desired result, since .addGeoJson does not extend bounds above
 
    //zoomAndCenter(map)
 
@@ -82,6 +83,10 @@ initialize = function () {
     });
     add_map_listeners();
 };
+
+function initialize_map(options) {
+    map = new google.maps.Map(document.getElementById("map_canvas"), options);
+}
 
 function add_map_listeners() {
     // When the user clicks, set 'isColorful', changing the color of the feature.
@@ -155,27 +160,17 @@ function add_map_listeners() {
             },
             'json' // I expect a JSON response
         );
-        //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
-        //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-
-        //    function(coors, status){
-        //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-        //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-        //    //$("#map_coords").html(coors);
-        //        });
-
-        //$.post("display_coordinates",
-        //    {lat: mapLatLng.lat().toFixed(9),
-        //     lon: mapLatLng.lng().toFixed(9)},
-        //function(coors, status){
-        //    map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-        //$("#map_coords").html(coors);
-        //});
     });
-    }
+}           // add_listeners end
 
-function initialize_map(options) {
-    map = new google.maps.Map(document.getElementById("map_canvas"), options);
+function check_preemption() {       // page-specific check for postback prerequisites
+    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since name no id
+        $("#sourceError").text(" \xA0 Please set a source before selecting an area !");
+        return true;
+    }
+    else {
+        $("#sourceError").text("");
+        return false;}
 }
 
 function zoomAndCenter(map) {       // for use with Google bounds method
@@ -194,16 +189,6 @@ function zoomAndCenter(map) {       // for use with Google bounds method
  * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
  *     myArray)
  */
-
-function check_preemption() {
-    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since no id
-        $("#sourceError").text(" must be set before selecting area !");
-        return true;
-    }
-    else {
-        $("#sourceError").text("");
-        return false;}
-}
 
 function processPoints(geometry, callback, thisArg) {
     if(geometry instanceof google.maps.LatLng) {
@@ -278,46 +263,46 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
-function add_shapes_to_map() {
-    if (typeof (gPoints) != 'undefined') {
-        var gPoint;
-        for (var k = 0; k < gPoints.length; k++) {
-            gPoint = createPoint(gPoints[k], "#880000");
-            gPoint.setMap(map);
-        }
-        ;
-    }
-    ;
+//function add_shapes_to_map() {
+//    if (typeof (gPoints) != 'undefined') {
+//        var gPoint;
+//        for (var k = 0; k < gPoints.length; k++) {
+//            gPoint = createPoint(gPoints[k], "#880000");
+//            gPoint.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (typeof (gLinePoints) != 'undefined') {
+//        for (var k = 0; k < gLinePoints.length; k++) {
+//            //	var gLine = createLine(gLinePoints[k], "black");	//did not work!!!??!!!???
+//            var gLine = new google.maps.Polyline({
+//                path: gLinePoints[k],
+//                geodesic: false,
+//                strokeColor: '#FF0000',
+//                strokeOpacity: 0.5,
+//                strokeWeight: 1
+//            });
+//            gLine.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (typeof (gPolyPoints) != 'undefined') {
+//        var gPoly;
+//        for (var k = 0; k < gPolyPoints.length; k++) {
+//            gPoly = createPolygon(gPolyPoints[k], "#880000");
+//            gPoly.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//    //    map.fitBounds(bounds);
+//};
 
-    if (typeof (gLinePoints) != 'undefined') {
-        for (var k = 0; k < gLinePoints.length; k++) {
-            //	var gLine = createLine(gLinePoints[k], "black");	//did not work!!!??!!!???
-            var gLine = new google.maps.Polyline({
-                path: gLinePoints[k],
-                geodesic: false,
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.5,
-                strokeWeight: 1
-            });
-            gLine.setMap(map);
-        }
-        ;
-    }
-    ;
-
-    if (typeof (gPolyPoints) != 'undefined') {
-        var gPoly;
-        for (var k = 0; k < gPolyPoints.length; k++) {
-            gPoly = createPolygon(gPolyPoints[k], "#880000");
-            gPoly.setMap(map);
-        }
-        ;
-    }
-    ;
-    //    map.fitBounds(bounds);
-};
-
-function reset_center_and_bounds() {
+function reset_center_and_bounds() {        // used to
     center_long = undefined;    // clear previous history
     center_lat = undefined;     // so that center is recalculated
     xminp = 180.0;       //return to 0-based coordinates
@@ -659,19 +644,6 @@ function ygtlt(ytest) {
         ymin = ytest;
     }
     ;
-};
-
-function createPointL(coords, color) {
-    return new L.marker(coords, { color: color });
-   // var marker = L.marker([51.5, -0.09]).addTo(map);
-};
-
-//		function createLineL(coords, color) {
-//			return new L.Polyline(coords, { color: color });
-//		};
-
-function createPolygonL(coords, color) {
-    return new L.Polygon(coords, { color: color });
 };
 
 
