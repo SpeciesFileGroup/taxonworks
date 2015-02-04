@@ -146,10 +146,24 @@ function add_map_listeners() {
                 map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
                 map.data.addGeoJson(local_data['feature_collection']);
 
-                // select with jquery the butons, and bind the listener event 
+                // select with jquery the buttons, and bind the listener event
                 // $("[id^=button_]")... {
                 //
                 // }
+                $("[id^=button_]").mouseover(function() {
+                    var this_id = this.id;
+                    var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+                    var jj = 0;
+                    map.data.forEach(function(feature) {
+                        jj = jj + 1;
+                        if(map.data.getFeatureById(jj).getProperty('geographic_area').id == area_id) {
+                           //map.data.getFeatureById(01).getProperty('geographic_area')
+                            map.data.overrideStyle(map.data.getFeatureById(jj).getProperty('geographic_area'), {fillColor: '#880000'});  // mid-level red
+                            map.data.overrideStyle(map.data.getFeatureById(jj).getProperty('geographic_area'), {strokeWeight: 4});       //embolden borders
+
+                        }
+                    });
+                })
 
                 data = local_data['feature_collection'];
                 get_Data();
@@ -174,35 +188,6 @@ function check_preemption() {       // page-specific check for postback prerequi
         return false;}
 }
 
-function zoomAndCenter(map) {       // for use with Google bounds method
-    var bounds = new google.maps.LatLngBounds();
-    map.data.forEach(function(feature) {
-        processPoints(feature.getGeometry(), bounds.extend, bounds)
-    });
-    map.fitBounds(bounds);
-}
-
-/**
- * Process each point in a Geometry, regardless of how deep the points may lie.
- * @param {google.maps.Data.Geometry} geometry The structure to process
- * @param {function(google.maps.LatLng)} callback A function to call on each
- *     LatLng point encountered (e.g. Array.push)
- * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
- *     myArray)
- */
-
-function processPoints(geometry, callback, thisArg) {
-    if(geometry instanceof google.maps.LatLng) {
-        callback.call(thisArg, geometry)
-} else if (geometry instanceof google.maps.Data.Point) {
-    callback.call(thisArg, geometry.get());
-    } else {
-        geometry.getArray().forEach(function(g) {
-            processPoints(g, callback, thisArg);
-        });
-    }
-}
-        // this function fails on single point, esp in western hemisphere
 function get_window_center() {      // for use with home-brew geoJSON scanner/enumerator
     if (center_long == undefined) {
         //determine case of area extent
@@ -264,44 +249,6 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
-//function add_shapes_to_map() {
-//    if (typeof (gPoints) != 'undefined') {
-//        var gPoint;
-//        for (var k = 0; k < gPoints.length; k++) {
-//            gPoint = createPoint(gPoints[k], "#880000");
-//            gPoint.setMap(map);
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (typeof (gLinePoints) != 'undefined') {
-//        for (var k = 0; k < gLinePoints.length; k++) {
-//            //	var gLine = createLine(gLinePoints[k], "black");	//did not work!!!??!!!???
-//            var gLine = new google.maps.Polyline({
-//                path: gLinePoints[k],
-//                geodesic: false,
-//                strokeColor: '#FF0000',
-//                strokeOpacity: 0.5,
-//                strokeWeight: 1
-//            });
-//            gLine.setMap(map);
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (typeof (gPolyPoints) != 'undefined') {
-//        var gPoly;
-//        for (var k = 0; k < gPolyPoints.length; k++) {
-//            gPoly = createPolygon(gPolyPoints[k], "#880000");
-//            gPoly.setMap(map);
-//        }
-//        ;
-//    }
-//    ;
-//    //    map.fitBounds(bounds);
-//};
 
 function reset_center_and_bounds() {        // used to
     center_long = undefined;    // clear previous history

@@ -3,7 +3,7 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
 <%= link_to('back', otu_path(@otu)) %>
 <div class="flexbox">
   <div class="item item1">
-    <table>
+    <p>
       <%= form_tag(generate_choices_url, id: 'cadu') do %>
           Source <span id="sourceError" style="color: #DD0000"></span>
               <%= render :partial => 'workbench/elements/forms/ajax_select',
@@ -18,7 +18,7 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
           <%= hidden_field_tag(:longitude ) -%> 
         <% end %>
          
-      </table>
+      </p>
     <span id="qnadf"></span>
   </div>
 
