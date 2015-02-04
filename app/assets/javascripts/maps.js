@@ -4,16 +4,18 @@
  */
 
 var map;	// google map object
-var data; // TaxonWorks jSON data
+var data; // TaxonWorks jSON data object
 
-var gPoints = [];		//googlemaps arrays
-var gLinePoints = [];
-var gPolyPoints = [];
+//var gPoints = [];		// arrays for pushing
+//var gLinePoints = []; // google maps graphic
+//var gPolyPoints = []; // objects by type
+//                      // rendered via add_shapes_to_map
 
 // var lPoints = [];
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
+// variables below used by stripped-down get_Data to compute bounds
 var xminp = 180.0;       //return to 0-based coordinates
 var xmaxp = 0.0;
 var xminm = 0.0;         //return to 0-based coordinates
@@ -57,7 +59,7 @@ initialize = function () {
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
-    //centerofmap = map.getCenter();      // not getting desired result
+    //centerofmap = map.getCenter();      // not getting desired result, since .addGeoJson does not extend bounds above
 
    //zoomAndCenter(map)
 
@@ -82,6 +84,10 @@ initialize = function () {
     });
     add_map_listeners();
 };
+
+function initialize_map(options) {
+    map = new google.maps.Map(document.getElementById("map_canvas"), options);
+}
 
 function add_map_listeners() {
     // When the user clicks, set 'isColorful', changing the color of the feature.
@@ -155,27 +161,17 @@ function add_map_listeners() {
             },
             'json' // I expect a JSON response
         );
-        //$.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9)
-        //    + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-
-        //    function(coors, status){
-        //    //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-        //    //map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-        //    //$("#map_coords").html(coors);
-        //        });
-
-        //$.post("display_coordinates",
-        //    {lat: mapLatLng.lat().toFixed(9),
-        //     lon: mapLatLng.lng().toFixed(9)},
-        //function(coors, status){
-        //    map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-        //$("#map_coords").html(coors);
-        //});
     });
-    }
+}           // add_listeners end
 
-function initialize_map(options) {
-    map = new google.maps.Map(document.getElementById("map_canvas"), options);
+function check_preemption() {       // page-specific check for postback prerequisites
+    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since name no id
+        $("#sourceError").text(" \xA0 Please set a source before selecting an area !");
+        return true;
+    }
+    else {
+        $("#sourceError").text("");
+        return false;}
 }
 
 function zoomAndCenter(map) {       // for use with Google bounds method
@@ -194,16 +190,6 @@ function zoomAndCenter(map) {       // for use with Google bounds method
  * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
  *     myArray)
  */
-
-function check_preemption() {
-    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since no id
-        $("#sourceError").text(" must be set before selecting area !");
-        return true;
-    }
-    else {
-        $("#sourceError").text("");
-        return false;}
-}
 
 function processPoints(geometry, callback, thisArg) {
     if(geometry instanceof google.maps.LatLng) {
@@ -278,46 +264,46 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
-function add_shapes_to_map() {
-    if (typeof (gPoints) != 'undefined') {
-        var gPoint;
-        for (var k = 0; k < gPoints.length; k++) {
-            gPoint = createPoint(gPoints[k], "#880000");
-            gPoint.setMap(map);
-        }
-        ;
-    }
-    ;
+//function add_shapes_to_map() {
+//    if (typeof (gPoints) != 'undefined') {
+//        var gPoint;
+//        for (var k = 0; k < gPoints.length; k++) {
+//            gPoint = createPoint(gPoints[k], "#880000");
+//            gPoint.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (typeof (gLinePoints) != 'undefined') {
+//        for (var k = 0; k < gLinePoints.length; k++) {
+//            //	var gLine = createLine(gLinePoints[k], "black");	//did not work!!!??!!!???
+//            var gLine = new google.maps.Polyline({
+//                path: gLinePoints[k],
+//                geodesic: false,
+//                strokeColor: '#FF0000',
+//                strokeOpacity: 0.5,
+//                strokeWeight: 1
+//            });
+//            gLine.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//
+//    if (typeof (gPolyPoints) != 'undefined') {
+//        var gPoly;
+//        for (var k = 0; k < gPolyPoints.length; k++) {
+//            gPoly = createPolygon(gPolyPoints[k], "#880000");
+//            gPoly.setMap(map);
+//        }
+//        ;
+//    }
+//    ;
+//    //    map.fitBounds(bounds);
+//};
 
-    if (typeof (gLinePoints) != 'undefined') {
-        for (var k = 0; k < gLinePoints.length; k++) {
-            //	var gLine = createLine(gLinePoints[k], "black");	//did not work!!!??!!!???
-            var gLine = new google.maps.Polyline({
-                path: gLinePoints[k],
-                geodesic: false,
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.5,
-                strokeWeight: 1
-            });
-            gLine.setMap(map);
-        }
-        ;
-    }
-    ;
-
-    if (typeof (gPolyPoints) != 'undefined') {
-        var gPoly;
-        for (var k = 0; k < gPolyPoints.length; k++) {
-            gPoly = createPolygon(gPolyPoints[k], "#880000");
-            gPoly.setMap(map);
-        }
-        ;
-    }
-    ;
-    //    map.fitBounds(bounds);
-};
-
-function reset_center_and_bounds() {
+function reset_center_and_bounds() {        // used to
     center_long = undefined;    // clear previous history
     center_lat = undefined;     // so that center is recalculated
     xminp = 180.0;       //return to 0-based coordinates
@@ -331,7 +317,7 @@ function reset_center_and_bounds() {
 
 function get_Data() {       //this is the scanner version; no google objects are created
     reset_center_and_bounds();
-    /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
+    /*		get data object encoded as geoJSON and disseminate to google (deprecated: and leaflet arrays)
      Assumptions:
      data is a hash
      Multi- geometry types are composed of simple (homogeneous) types: Point, LineString, Polygon
@@ -470,167 +456,8 @@ function getTypeData(thisType) {        // this version does not create google o
     ;
 };        //getFeatureData
 
-//function get_data() {         // this version creates the google objects, without preserving features
-//    /*		get data object encoded as geoJSON and disseminate to google and leaflet arrays
-//     Assumptions:
-//     data is a hash
-//     Multi- geometry types are composed of simple (homogeneous) types: Point, LineString, Polygon
-//     these are collected as xPoints[], xLinePoints[], xPolyPoints[]; x = g | l for google and leafletjs respectively
-//     this leaves ambiguous the association of attributes to the objects (e.g., color, etc.)
-//     New realization: there may or may not be GeometryCollections, which may contain any type, including GeometryCollection !  $#!+
-//     */
-//    if (typeof (data) != 'undefined') {
-//        var dataArray = [];
-//        if (data instanceof Array) {
-//        }      // if already an array, then do nothing
-//        else    // convert it to an array
-//        {
-//            dataArray[0] = data;
-//            data = [];
-//            data[0] = dataArray[0];
-//        }
-//        ;
-//        for (var i = 0; i < data.length; i++) {
-//            if (typeof (data[i].type) != "undefined") {
-//                if (data[i].type == "GeometryCollection") {
-//                    for (var j = 0; j < data[i].geometries.length; j++) {
-//                        getTypeData(data[i].geometries[j]);
-//                    }
-//                    ;
-//                }
-//                else {
-//                    getTypeData(data[i]);
-//                }    //data.type
-//            }
-//            ;     //data[i] != undefined
-//        }        // for i
-//    }
-//    ;         //data != undefined
-//};
-//
-//// detect and extract geometry types from higher level enumerator, recursible
-//function getTypeData(thisType) {
-//
-//    if (thisType.type == "GeometryCollection") {
-//        for (var i = 0; i < thisType.geometries.length; i++) {
-//            if (typeof (thisType.geometries[i].type) != "undefined") {
-//                getTypeData(thisType.geometries[i]);		//  recurse if GeometryCollection
-//            }
-//            ;     //thisType != undefined
-//        }
-//        ;       //for i
-//    }
-//    ;
-//
-//    if (thisType.type == "Point") {
-//        xgtlt(thisType.coordinates[0]);
-//        ygtlt(thisType.coordinates[1]); //box check
-//        gPoints.push(new google.maps.LatLng(thisType.coordinates[1], thisType.coordinates[0]));
-//    }
-//    ;
-//
-//    if (thisType.type == "MultiPoint") {
-//        for (var l = 0; l < thisType.coordinates.length; l++) {
-//            //xgtlt(thisType.coordinates[j][k][l][0]);
-//            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-//            gPoints.push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (thisType.type == "LineString") {
-//        var m = gLinePoints.length;
-//        gLinePoints[m] = [];
-//        for (var l = 0; l < thisType.coordinates.length; l++) {
-//            //xgtlt(thisType.coordinates[j][k][l][0]);
-//            //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-//            gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[l][1], thisType.coordinates[l][0]));
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (thisType.type == "MultiLineString") {
-//        for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
-//            var m = gLinePoints.length;
-//            gLinePoints[m] = [];
-//            for (var l = 0; l < thisType.coordinates[k].length; l++) {
-//                //xgtlt(thisType.coordinates[j][k][l][0]);
-//                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-//                gLinePoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-//            }
-//            ;
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (thisType.type == "Polygon") {
-//        for (var k = 0; k < thisType.coordinates.length; k++) {
-//            // k enumerates polygons, l enumerates points
-//            var m = gPolyPoints.length;
-//            gPolyPoints[m] = [];		//create a new coordinate/point array for this (m/n) polygon
-//            for (var l = 0; l < thisType.coordinates[k].length; l++) {
-//                //xgtlt(thisType.coordinates[j][k][l][0]);
-//                //ygtlt(thisType.coordinates[j][k][l][1]); //box check
-//                gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[k][l][1], thisType.coordinates[k][l][0]));
-//            }
-//            ;
-//        }
-//        ;
-//    }
-//    ;
-//
-//    if (thisType.type == "MultiPolygon") {
-//        for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
-//            for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
-//                var m = gPolyPoints.length;
-//                gPolyPoints[m] = []; //create a new coordinate/point array for this (m/n) polygon
-//                for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
-//                    xgtlt(thisType.coordinates[j][k][l][0]);
-//                    ygtlt(thisType.coordinates[j][k][l][1]); //box check
-//                    gPolyPoints[m].push(new google.maps.LatLng(thisType.coordinates[j][k][l][1], thisType.coordinates[j][k][l][0]));
-//                }
-//                ;
-//            }
-//            ;
-//        }
-//        ;
-//    }
-//    ;
-//};        //getTypeData
-//
-//
-//function createPoint(coords, color) {
-//    return new google.maps.Marker({
-//        position: coords,
-//        map: map
-//    });
-//};
-//
-////		function createLine(coords, color) {
-////			return new google.maps.Polyline({
-////				paths: coords,
-////				geodesic: false,
-////				strokeColor: "#FF0000",
-////				strokeOpacity: 0.5,
-////				strokeWeight: 3
-////			});
-////		};
-//
-//function createPolygon(coords, color) {
-//    return new google.maps.Polygon({
-//        paths: coords,
-//        strokeColor: "black",
-//        strokeOpacity: 0.8,
-//        strokeWeight: 1,
-//        fillColor: color,
-//        fillOpacity: 0.3
-//    });
-//};
 
-function xgtlt(xtest) {
+function xgtlt(xtest) {         // point-wise x-bound extender
 
     if (xtest < 0) {            // if western hemisphere,
         if (xtest > xmaxm) {    // xmaxm initially -180
@@ -650,7 +477,7 @@ function xgtlt(xtest) {
     }
 };
 
-function ygtlt(ytest) {
+function ygtlt(ytest) {         // point-wise y-bound extender
     if (ytest > ymax) {
         ymax = ytest;
     }
@@ -659,19 +486,6 @@ function ygtlt(ytest) {
         ymin = ytest;
     }
     ;
-};
-
-function createPointL(coords, color) {
-    return new L.marker(coords, { color: color });
-   // var marker = L.marker([51.5, -0.09]).addTo(map);
-};
-
-//		function createLineL(coords, color) {
-//			return new L.Polyline(coords, { color: color });
-//		};
-
-function createPolygonL(coords, color) {
-    return new L.Polygon(coords, { color: color });
 };
 
 
