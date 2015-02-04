@@ -29,7 +29,7 @@ describe 'CollectingEvents', :type => :feature do
     end
 
     specify 'that it renders without error' do
-      expect(page).to have_content 'Listing Collecting Events'
+      expect(page).to have_content 'Listing collecting events'
     end
   end
 
