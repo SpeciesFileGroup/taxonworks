@@ -77,11 +77,11 @@ describe AssertedDistribution, :type => :model do
     specify 'creates some number of ADs' do
       # pending
       point = @gr_n3_ob.geographic_item.geo_object
-      areas = AssertedDistribution.stub_new({otu_id:    otu.id,
-                                             source_id: source.id,
-                                             latitude:  point.y,
-                                             longitude: point.x}).map(&:geographic_area)
-      expect(areas.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
+      areas = GeographicArea.find_by_lat_long(point.y, point.x)
+      stubs = AssertedDistribution.stub_new({'otu_id'           => otu.id,
+                                             'source_id'        => source.id,
+                                             'geographic_areas' => areas}).map(&:geographic_area)
+      expect(stubs.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
     end
   end
 end
