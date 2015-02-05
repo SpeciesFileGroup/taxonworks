@@ -5,6 +5,16 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
+SIMPLE_SHAPES = {
+  point:  'POINT(10 10 0)',
+  line_string: 'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
+  polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',   
+  multi_point: 'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
+  multi_line_string: 'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))' ,
+  multi_polygon: 'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
+  geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
+}
+
 LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #current test case
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
@@ -535,70 +545,70 @@ def generate_geo_test_objects
 
   prepare_test
 
-  @p0  = FactoryGirl.build(:geographic_item, :point => POINT0.as_binary) # 0
-  @p1  = FactoryGirl.build(:geographic_item, :point => POINT1.as_binary) # 1
-  @p2  = FactoryGirl.build(:geographic_item, :point => POINT2.as_binary) # 2
-  @p3  = FactoryGirl.build(:geographic_item, :point => POINT3.as_binary) # 3
-  @p4  = FactoryGirl.build(:geographic_item, :point => POINT4.as_binary) # 4
-  @p5  = FactoryGirl.build(:geographic_item, :point => POINT5.as_binary) # 5
-  @p6  = FactoryGirl.build(:geographic_item, :point => POINT6.as_binary) # 6
-  @p7  = FactoryGirl.build(:geographic_item, :point => POINT7.as_binary) # 7
-  @p8  = FactoryGirl.build(:geographic_item, :point => POINT8.as_binary) # 8
-  @p9  = FactoryGirl.build(:geographic_item, :point => POINT9.as_binary) # 9
-  @p10 = FactoryGirl.build(:geographic_item, :point => POINT10.as_binary) # 10
-  @p11 = FactoryGirl.build(:geographic_item, :point => POINT11.as_binary) # 11
-  @p12 = FactoryGirl.build(:geographic_item, :point => POINT12.as_binary) # 12
-  @p13 = FactoryGirl.build(:geographic_item, :point => POINT13.as_binary) # 13
-  @p14 = FactoryGirl.build(:geographic_item, :point => POINT14.as_binary) # 14
-  @p15 = FactoryGirl.build(:geographic_item, :point => POINT15.as_binary) # 15
-  @p16 = FactoryGirl.build(:geographic_item, :point => POINT16.as_binary) # 16
-  @p17 = FactoryGirl.build(:geographic_item, :point => POINT17.as_binary) # 17
-  @p18 = FactoryGirl.build(:geographic_item, :point => POINT18.as_binary) # 18
-  @p19 = FactoryGirl.build(:geographic_item, :point => POINT19.as_binary) # 19
-  @p20 = FactoryGirl.build(:geographic_item, :point => POINT20.as_binary) # 20
-  @p21 = FactoryGirl.build(:geographic_item, :point => POINT21.as_binary) # 21
-  @p22 = FactoryGirl.build(:geographic_item, :point => POINT22.as_binary) # 22
+  @p0  = FactoryGirl.build(:geographic_item_point, :point => POINT0.as_binary) # 0
+  @p1  = FactoryGirl.build(:geographic_item_point, :point => POINT1.as_binary) # 1
+  @p2  = FactoryGirl.build(:geographic_item_point, :point => POINT2.as_binary) # 2
+  @p3  = FactoryGirl.build(:geographic_item_point, :point => POINT3.as_binary) # 3
+  @p4  = FactoryGirl.build(:geographic_item_point, :point => POINT4.as_binary) # 4
+  @p5  = FactoryGirl.build(:geographic_item_point, :point => POINT5.as_binary) # 5
+  @p6  = FactoryGirl.build(:geographic_item_point, :point => POINT6.as_binary) # 6
+  @p7  = FactoryGirl.build(:geographic_item_point, :point => POINT7.as_binary) # 7
+  @p8  = FactoryGirl.build(:geographic_item_point, :point => POINT8.as_binary) # 8
+  @p9  = FactoryGirl.build(:geographic_item_point, :point => POINT9.as_binary) # 9
+  @p10 = FactoryGirl.build(:geographic_item_point, :point => POINT10.as_binary) # 10
+  @p11 = FactoryGirl.build(:geographic_item_point, :point => POINT11.as_binary) # 11
+  @p12 = FactoryGirl.build(:geographic_item_point, :point => POINT12.as_binary) # 12
+  @p13 = FactoryGirl.build(:geographic_item_point, :point => POINT13.as_binary) # 13
+  @p14 = FactoryGirl.build(:geographic_item_point, :point => POINT14.as_binary) # 14
+  @p15 = FactoryGirl.build(:geographic_item_point, :point => POINT15.as_binary) # 15
+  @p16 = FactoryGirl.build(:geographic_item_point, :point => POINT16.as_binary) # 16
+  @p17 = FactoryGirl.build(:geographic_item_point, :point => POINT17.as_binary) # 17
+  @p18 = FactoryGirl.build(:geographic_item_point, :point => POINT18.as_binary) # 18
+  @p19 = FactoryGirl.build(:geographic_item_point, :point => POINT19.as_binary) # 19
+  @p20 = FactoryGirl.build(:geographic_item_point, :point => POINT20.as_binary) # 20
+  @p21 = FactoryGirl.build(:geographic_item_point, :point => POINT21.as_binary) # 21
+  @p22 = FactoryGirl.build(:geographic_item_point, :point => POINT22.as_binary) # 22
 
-  @a  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_A.as_binary) # 23
-  @b1 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B_OUTER.as_binary) # 24
-  @b2 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B_INNER.as_binary) # 25
-  @b  = FactoryGirl.build(:geographic_item, :polygon => SHAPE_B.as_binary) # 26
-  @c1 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C1) # 27
-  @c2 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C2) # 28
-  @c3 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_C3) # 29
-  @c  = FactoryGirl.build(:geographic_item, :multi_line_string => SHAPE_C.as_binary) # 30
-  @d  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_D.as_binary) # 31
-  @e1 = FactoryGirl.build(:geographic_item, :polygon => POLY_E1.as_binary) # 32
-  @e2 = FactoryGirl.build(:geographic_item, :polygon => POLY_E2.as_binary) # 33
-  @e3 = FactoryGirl.build(:geographic_item, :polygon => POLY_E3.as_binary) # 34
-  @e4 = FactoryGirl.build(:geographic_item, :polygon => POLY_E4.as_binary) # 35
-  @e5 = FactoryGirl.build(:geographic_item, :polygon => POLY_E5.as_binary) # 36
-  @e  = FactoryGirl.build(:geographic_item, :geometry_collection => SHAPE_E.as_binary) # 37
-  @f1 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_F1.as_binary) # 38
-  @f2 = FactoryGirl.build(:geographic_item, :line_string => SHAPE_F2.as_binary) # 39
-  @f  = FactoryGirl.build(:geographic_item, :multi_line_string => SHAPE_F.as_binary) # 40
-  @g1 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G1.as_binary) # 41
-  @g2 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G2.as_binary) # 42
-  @g3 = FactoryGirl.build(:geographic_item, :polygon => SHAPE_G3.as_binary) # 43
-  @g  = FactoryGirl.build(:geographic_item, :multi_polygon => SHAPE_G.as_binary) # 44
-  @h  = FactoryGirl.build(:geographic_item, :multi_point => SHAPE_H.as_binary) # 45
-  @i  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_I) # 46
-  @j  = FactoryGirl.build(:geographic_item, :geometry_collection => SHAPE_J) # 47
-  @k  = FactoryGirl.build(:geographic_item, :polygon => SHAPE_K.as_binary) # 48
-  @l  = FactoryGirl.build(:geographic_item, :line_string => SHAPE_L.as_binary) # 49
+  @a  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_A.as_binary) # 23
+  @b1 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_B_OUTER.as_binary) # 24
+  @b2 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_B_INNER.as_binary) # 25
+  @b  = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_B.as_binary) # 26
+  @c1 = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_C1) # 27
+  @c2 = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_C2) # 28
+  @c3 = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_C3) # 29
+  @c  = FactoryGirl.build(:geographic_item_multi_line_string, :multi_line_string => SHAPE_C.as_binary) # 30
+  @d  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_D.as_binary) # 31
+  @e1 = FactoryGirl.build(:geographic_item_polygon, :polygon => POLY_E1.as_binary) # 32
+  @e2 = FactoryGirl.build(:geographic_item_polygon, :polygon => POLY_E2.as_binary) # 33
+  @e3 = FactoryGirl.build(:geographic_item_polygon, :polygon => POLY_E3.as_binary) # 34
+  @e4 = FactoryGirl.build(:geographic_item_polygon, :polygon => POLY_E4.as_binary) # 35
+  @e5 = FactoryGirl.build(:geographic_item_polygon, :polygon => POLY_E5.as_binary) # 36
+  @e  = FactoryGirl.build(:geographic_item_geometry_collection, :geometry_collection => SHAPE_E.as_binary) # 37
+  @f1 = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_F1.as_binary) # 38
+  @f2 = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_F2.as_binary) # 39
+  @f  = FactoryGirl.build(:geographic_item_multi_line_string, :multi_line_string => SHAPE_F.as_binary) # 40
+  @g1 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_G1.as_binary) # 41
+  @g2 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_G2.as_binary) # 42
+  @g3 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_G3.as_binary) # 43
+  @g  = FactoryGirl.build(:geographic_item_multi_polygon, :multi_polygon => SHAPE_G.as_binary) # 44
+  @h  = FactoryGirl.build(:geographic_item_multi_point, :multi_point => SHAPE_H.as_binary) # 45
+  @i  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_I) # 46
+  @j  = FactoryGirl.build(:geographic_item_geometry_collection, :geometry_collection => SHAPE_J) # 47
+  @k  = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_K.as_binary) # 48
+  @l  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_L.as_binary) # 49
 
-  @r2020 = FactoryGirl.build(:geographic_item, :point => ROOM2020.as_binary) # 50
-  @r2022 = FactoryGirl.build(:geographic_item, :point => ROOM2022.as_binary) # 51
-  @r2024 = FactoryGirl.build(:geographic_item, :point => ROOM2024.as_binary) # 52
-  @rooms = FactoryGirl.build(:geographic_item, :multi_point => ROOMS20NN.as_binary) # 53
+  @r2020 = FactoryGirl.build(:geographic_item_point, :point => ROOM2020.as_binary) # 50
+  @r2022 = FactoryGirl.build(:geographic_item_point, :point => ROOM2022.as_binary) # 51
+  @r2024 = FactoryGirl.build(:geographic_item_point, :point => ROOM2024.as_binary) # 52
+  @rooms = FactoryGirl.build(:geographic_item_multi_point, :multi_point => ROOMS20NN.as_binary) # 53
 
-  @all_items    = FactoryGirl.build(:geographic_item, :geometry_collection => ALL_SHAPES.as_binary) # 54
-  @outer_limits = FactoryGirl.build(:geographic_item, :line_string => CONVEX_HULL.exterior_ring.as_binary) # 55
+  @all_items    = FactoryGirl.build(:geographic_item_geometry_collection, :geometry_collection => ALL_SHAPES.as_binary) # 54
+  @outer_limits = FactoryGirl.build(:geographic_item_line_string, :line_string => CONVEX_HULL.exterior_ring.as_binary) # 55
 
-  @item_a = FactoryGirl.build(:geographic_item, polygon: BOX_1)
-  @item_b = FactoryGirl.build(:geographic_item, polygon: BOX_2)
-  @item_c = FactoryGirl.build(:geographic_item, polygon: BOX_3)
-  @item_d = FactoryGirl.build(:geographic_item, polygon: BOX_4)
+  @item_a = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_1)
+  @item_b = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_2)
+  @item_c = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_3)
+  @item_d = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_4)
 
   @all_gi = [@p0, @p1, @p2, @p3, @p4,
              @p5, @p6, @p7, @p8, @p9,

@@ -14,7 +14,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values
   # GET /alternate_values.json
   def index
-    @alternate_values = AlternateValue.all
+    @recent_objects = AlternateValue.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /alternate_values
@@ -54,6 +54,35 @@ class AlternateValuesController < ApplicationController
       format.html { redirect_to :back, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @alternate_values = AlternateValue.where(project_id: $project_id).order(:alternate_value_object_type).page(params[:page])
+  end
+
+  # GET /alternate_values/search
+  def search
+    if params[:id]
+      redirect_to alternate_value_path(params[:id])
+    else
+      redirect_to alternate_value_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @alternate_values = AlternateValue.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @alternate_values.collect do |t|
+      str = render_to_string(partial: 'tag', locals: {alternate_value: t})
+      {id: t.id,
+       label: str,
+       response_values: {
+           params[:method] => t.id},
+       label_html: str
+      }
+    end
+
+    render :json => data
   end
 
   private

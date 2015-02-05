@@ -55,7 +55,7 @@ class CitationsController < ApplicationController
   end
 
   def list
-    @citations = Citation.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @citations = Citation.with_project_id($project_id).order(:citation_object_type).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search

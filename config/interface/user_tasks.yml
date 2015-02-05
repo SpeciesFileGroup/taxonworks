@@ -41,7 +41,7 @@ verify_accessions_task:
   name: 
 quick_verbatim_material_task:
   hub: true
-  name:  'Quick verbatim material'
+  name: 'Quick verbatim material'
   description: 'Create new specimen or lot records with verbatim data only.' 
   related: 
     - namespaces
@@ -49,11 +49,15 @@ quick_verbatim_material_task:
 create_verbatim_material_task:
   name: 
 new_verbatim_reference_task:
-  name: 
+  hub: true 
+  name: 'New source from citation.'
+  description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
 create_verbatim_reference_task:
   name: 
 build_biocuration_groups_task:
-  name:
+  hub: true
+  name: 'Manage biocuration types and groups.'
+  description: 'Create bio-curration curategories that are used to organize physical collections (e.g. specimens and lots).'
   related: 
     - build_biocuration_group_task 
 build_biocuration_group_task:

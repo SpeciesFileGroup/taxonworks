@@ -22,7 +22,6 @@ class Otu < ActiveRecord::Base
   has_paper_trail
 
   # Class constants
-  #ALTERNATE_VALUES_FOR = [:name] # 1/26/15 with MJY - not going to allow alternate values in Burlap
 
   belongs_to :taxon_name, inverse_of: :otus
 

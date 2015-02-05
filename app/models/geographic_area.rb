@@ -228,6 +228,13 @@ class GeographicArea < ActiveRecord::Base
     self.data_origin[-1]
   end
 
+  # @return [GeographicItem, nil] 
+  #   a "preferred" geographic item for this geogrpahic area, where preference
+  #   is based on an ordering of source gazeteers, the order being
+  #   1) Natural Earth Countries
+  #   2) Natural Earth States
+  #   3) GADM
+  #   4) everything else (at present, TDWG)
   def default_geographic_item
     # Postgis specific.
     retval = GeographicAreasGeographicItem.where(:geographic_area_id => self.id).order(
@@ -251,7 +258,7 @@ class GeographicArea < ActiveRecord::Base
 
   def to_geo_json_feature
     # object = self.geographic_items.order(:id).first
-    #type = object.data_type?
+    #type = object.geo_type
    #if type == :geometry_collection
    #  geometry = RGeo::GeoJSON.encode(object)
    #else

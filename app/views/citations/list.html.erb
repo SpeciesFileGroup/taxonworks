@@ -5,8 +5,8 @@
 <table>
   <thead>
     <tr>
-      <th>Citation object</th>
       <th>Citation object type</th>
+      <th>Citation object</th>
       <th>Source</th>
       <th>Last modified</th>
       <th>Updated by</th>
@@ -19,12 +19,12 @@
   <tbody>
     <% @citations.each do |citation| %>
       <tr>
-        <td><%= object_tag(citation.citation_object) %></td>
         <td><%= citation.citation_object_type %></td>
+        <td><%= object_tag(citation.citation_object) %></td>
         <td><%= source_tag(citation.source) %></td>
         <td><%= citation.updated_at %></td>
         <td><%= object_tag(citation.updater) %></td>
-        <td><%= link_to 'Show cited data', citation.citation_object %></td>
+        <td><%= link_to 'Context', citation.citation_object.metamorphosize %></td>
         <td><%= link_to 'Destroy', citation, method: :delete, data: { confirm: 'Are you sure?' } -%></td>
       </tr>
     <% end %>
