@@ -92,7 +92,7 @@ function initialize_map(options) {
 function add_map_listeners() {
     // When the user clicks, set 'isColorful', changing the color of the feature.
     map.data.addListener('click', function(event) {
-        if(event.feature.getProperty('isColorful')) {
+        if(event.feature.getProperty('isColorful')) {           // newer code to reset selected color
             event.feature.setProperty('isColorful', false);
             event.feature.setProperty('fillColor', "#440000");  //dimmer red
         }
@@ -157,12 +157,16 @@ function add_map_listeners() {
                         //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
                         this_feature = feature;
                         this_property = this_feature.getProperty('geographic_area');
-                        if(this_property.id == area_id) {
+                        if(this_property.id != area_id) {
                            //map.data.getFeatureById(01).getProperty('geographic_area')
-                            map.data.overrideStyle(this_feature, {fillColor: '#FFFFFF'});  //  red
-                            map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
-                            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});
+                            map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
+                            map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
                             jj = jj + 1;
+                        }
+                        if(this_property.id == area_id) {
+                            map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
+                            map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
+                            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
                         }
                     });
                 })
