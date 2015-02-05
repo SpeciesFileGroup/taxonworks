@@ -7,6 +7,10 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.new(identifier_params)
   end
 
+  # GET /identifers/1/edit
+  def edit
+  end
+
   # GET /identifiers
   # GET /identifiers.json
   def index
@@ -50,6 +54,19 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to :back, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def list
+    @identifier = Identifier.where(project_id: $project_id).order(:attribute_subject_type).page(params[:page])
+  end
+
+  # GET /identifier/search
+  def search
+    if params[:id]
+      redirect_to identifier_path(params[:id])
+    else
+      redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 
