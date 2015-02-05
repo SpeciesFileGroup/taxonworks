@@ -71,13 +71,13 @@ describe 'TaxonNames', :type => :feature do
     specify 'testing new TaxonName', js: true do
       click_link('New') # when I click the new link
 
-      fill_in 'Name', with: 'Fooidae' # and I fill out the name field with "Fooidae"
+      fill_in('Name', with: 'Fooidae') # and I fill out the name field with "Fooidae"
       # and I select 'family (ICZN)' from the Rank select *
       select('family (ICZN)', :from => 'taxon_name_rank_class')
 
       fill_autocomplete('parent_id_for_name', with: 'root')
 
-      click_button 'Create Taxon name' # when I click the 'Create Taxon name' button
+      click_button('Create Taxon name') # when I click the 'Create Taxon name' button
       # then I get the message "Taxon name 'Foodiae' was successfully created"
       expect(page).to have_content('Taxon name was successfully created.')
     end
