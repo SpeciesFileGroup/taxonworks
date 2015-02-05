@@ -161,7 +161,7 @@ class Georeference < ActiveRecord::Base
         retval = nil
       else
         # if this object is a point
-        case geographic_item.geo_type
+        case geographic_item.geo_object_type
           when :point
             p0      = self.geographic_item.geo_object
             delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) # 111319.490779206 meters/degree
