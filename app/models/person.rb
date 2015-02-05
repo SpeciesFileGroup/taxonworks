@@ -47,7 +47,7 @@ class Person < ActiveRecord::Base
 
 
   def name
-    [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ')
+    [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ').strip
   end
 
   def is_author?
