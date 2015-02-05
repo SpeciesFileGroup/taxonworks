@@ -31,8 +31,7 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       if @person.save
-        msg = "Person '#{@person.name}' was successfully created."
-        format.html { redirect_to @person.metamorphosize, notice: msg }
+        format.html { redirect_to @person.metamorphosize, notice: "Person '#{@person.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @person }
       else
         format.html { render action: 'new' }
