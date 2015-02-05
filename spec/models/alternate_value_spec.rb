@@ -74,11 +74,6 @@ describe AlternateValue do
       alternate_value.valid?
       expect(alternate_value.errors.include?(:value)).to be_truthy
     end
-
-    specify 'can not add alternate values to NON_ANNOTATABLE_COLUMNS' do
-      skip
-    end
-
   end
 
   context 'scopes' do
@@ -106,6 +101,26 @@ describe AlternateValue do
       o = FactoryGirl.build(:valid_serial, name: tmp)
       v = FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'foo', alternate_value_object_attribute: 'name', alternate_value_object: o ) 
       expect(v.original_value).to eq(tmp) # see the serial_factory
+    end
+
+    specify 'project_id is not set for community data (Shared::SharedAcrossProjects)' do
+      o = FactoryGirl.build(:valid_serial, name: 'The Serial')
+      alternate_value.alternate_value_object = o
+      alternate_value.alternate_value_object_attribute = 'name'
+      alternate_value.value = 'T.S.'
+      alternate_value.type = 'AlternateValue::Abbreviation'
+      expect(alternate_value.valid?).to be(true)
+      expect(alternate_value.project_id).to eq(nil)
+    end
+  
+    specify 'project_id is set for non community data' do
+      o = FactoryGirl.build(:valid_controlled_vocabulary_term)
+      alternate_value.alternate_value_object = o
+      alternate_value.alternate_value_object_attribute = 'name'
+      alternate_value.value = 'T.S.'
+      alternate_value.type = 'AlternateValue::Abbreviation'
+      expect(alternate_value.valid?).to be(true)
+      expect(alternate_value.project_id).to eq(1)
     end
   end
 
