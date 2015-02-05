@@ -2,12 +2,9 @@ require 'rspec'
 require 'rails_helper'
 
 describe TaxonWorks do
-  #let(:model_data) {} # Models that inherit ActiveRecord::Base
-
   # Since Rails doesn't load classes unless it needs them, so you must eager load them to get all the models.
   Rails.application.eager_load!
 
-  #todo need to fix it so that the error message appears along with the project name.
   context 'model includes/attributes' do
     ActiveRecord::Base.descendants.each { |model|
 
@@ -32,6 +29,13 @@ describe TaxonWorks do
           expect(model.new).to respond_to(:annotated_object) 
         end
       end
+
+      if model.attributes.include?(:project_id)
+        it "#{model} should include Housekeeping::Projects" do
+          expect(model <= Housekeeping::Projects).to be_true
+        end
+      end
+
     }
   end
 

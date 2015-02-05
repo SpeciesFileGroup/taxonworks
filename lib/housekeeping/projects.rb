@@ -48,5 +48,13 @@ module Housekeeping::Projects
     # end
   end
 
+  def annotates?
+    (self.class <= Shared::Annotates) ? true : false
+  end 
+
+  def is_community?
+    (self.class <= Shared::SharedAcrossProjects) ? true : false
+  end
+
 end
 
