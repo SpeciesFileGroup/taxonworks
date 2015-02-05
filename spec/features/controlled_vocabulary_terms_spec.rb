@@ -68,8 +68,8 @@ describe 'ControlledVocabularyTerms', :type => :feature do
 
       click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
 
-      # then I get the message "Topic 'tests' was successfully created" *
-      expect(page).to have_content('Controlled vocabulary term was successfully created.')
+      # then I get the message "Topic 'tests' was successfully created"
+      expect(page).to have_content("Topic 'tests' was successfully created")
     end
  end
 end

@@ -100,16 +100,7 @@ function add_map_listeners() {
             event.feature.setProperty('isColorful', true);
             event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         };
-            var mapLatLng = event.latLng;
-            $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6))
-            + '&asserted_distribution[source_id]=' + source_id + '&asserted_distribution[otu_id]=' + otu_id,
-                $.get('generate_choices?latitude=' + mapLatLng.lat().toFixed(9) + '&longitude=' + mapLatLng.lng().toFixed(9),
-                    function (coors, status) {
-                        //map.setCenter(new google.maps.LatLng(coors["lat"],coors["lon"]));
-                        map.setCenter(mapLatLng);       // since coors is no longer being sent back as coords
-                        //$("#map_coords").html(coors);
-                        $("#map_coords").append(coors);
-                    });
+        addClickListener(event);
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -126,68 +117,7 @@ function add_map_listeners() {
     });
 
     google.maps.event.addListener(map, 'click', function (event) {
-        var mapLatLng = event.latLng;
-        //lat = mapLatLng.lat();
-        //lng = mapLatLng.lng();
-        //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
-        $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
-        if(check_preemption()) {return;};
-
-        //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
-        $("#latitude").val(mapLatLng.lat());
-        $("#longitude").val(mapLatLng.lng());
-
-        $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
-                $("#qnadf").html(local_data['html']);
-
-                //coors_element = JSON.parse(document.getElementById('json_coors').value);
-                //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
-
-                map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
-                map.data.addGeoJson(local_data['feature_collection']);
-
-                // select with jquery the buttons, and bind the listener event
-
-                 $("[id^=button_]").mouseover(function() {       // set mouseover for each area
-                    var this_id = this.id;
-                    var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-                    var jj = 1;
-                    map.data.forEach(function(feature) {        // find by geographic area id
-                        jj = jj + 1 - 1;
-                        //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
-                        this_feature = feature;
-                        this_property = this_feature.getProperty('geographic_area');
-                        if(this_property.id != area_id) {
-                           //map.data.getFeatureById(01).getProperty('geographic_area')
-                            map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
-                            map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-                            jj = jj + 1;
-                        }
-                        if(this_property.id == area_id) {
-                            map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
-                            map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
-                            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
-                        }
-                    });
-                })
-                $("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
-                    var this_id = this.id;                      // var this since it goes out of scope with .forEach
-                    map.data.forEach(function(feature) {        // find by geographic area id
-                        if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
-                                                                // 'button_'.length, 'button_abc...xyz'.length
-                    });
-                })
-
-                data = local_data['feature_collection'];
-                get_Data();
-                get_window_center();
-                map.setCenter(center_lat_long);
-                map.setZoom(gzoom);
-                //add_map_listeners();
-                //map.setMap();
-            },
-            'json' // I expect a JSON response
-        );
+        addClickListener(event);
     });
 }           // add_listeners end
 
@@ -199,6 +129,72 @@ function check_preemption() {       // page-specific check for postback prerequi
     else {
         $("#sourceError").text("");
         return false;}
+}
+
+function addClickListener(event) {
+    var mapLatLng = event.latLng;
+    //lat = mapLatLng.lat();
+    //lng = mapLatLng.lng();
+    //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
+    $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
+    if(check_preemption()) {return;};
+
+    //$("#map_canvas").after('<br />Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ', Longitude = ' + mapLatLng.lng().toFixed(6) + '<br />') ;
+    $("#latitude").val(mapLatLng.lat());
+    $("#longitude").val(mapLatLng.lng());
+
+    $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
+            $("#qnadf").html(local_data['html']);
+
+            //coors_element = JSON.parse(document.getElementById('json_coors').value);
+            //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
+
+            map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
+            map.data.addGeoJson(local_data['feature_collection']);
+
+            // select with jquery the buttons, and bind the listener event
+
+            $("[id^=button_]").mouseover(function() {       // set mouseover for each area
+                var this_id = this.id;
+                var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+                var jj = 1;
+                map.data.forEach(function(feature) {        // find by geographic area id
+                    jj = jj + 1 - 1;
+                    //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
+                    this_feature = feature;
+                    this_property = this_feature.getProperty('geographic_area');
+                    if(this_property.id != area_id) {
+                        //map.data.getFeatureById(01).getProperty('geographic_area')
+                        map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
+                        map.data.overrideStyle(this_feature, {strokeWeight: 1});       // erase borders
+                        map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
+                        jj = jj + 1;
+                    }
+                    if(this_property.id == area_id) {
+                        map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
+                        map.data.overrideStyle(this_feature, {strokeWeight: 3});       //embolden borders
+                        map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
+                    }
+                });
+            })
+            $("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
+                var this_id = this.id;                      // var this since it goes out of scope with .forEach
+                map.data.forEach(function(feature) {        // find by geographic area id
+                    if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
+                    // 'button_'.length, 'button_abc...xyz'.length
+                });
+            })
+
+            data = local_data['feature_collection'];
+            get_Data();
+            get_window_center();
+            map.setCenter(center_lat_long);
+            map.setZoom(gzoom);
+            //add_map_listeners();
+            //map.setMap();
+        },
+        'json' // I expect a JSON response
+    );
 }
 
 function get_window_center() {      // for use with home-brew geoJSON scanner/enumerator

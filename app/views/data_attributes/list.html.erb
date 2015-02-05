@@ -1,0 +1,40 @@
+<h1>Listing data attributes</h1>
+
+<%= paginate @data_attributes %> <%= page_entries_info @data_attributes %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Attribute subject type</th>
+    <th>Type</th>
+    <th>Attribute subject</th>
+    <th>Predicate</th>
+    <th>Value</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th>Project</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @data_attributes.each do |data_attribute| %>
+      <tr>
+        <td><%= data_attribute.attribute_subject_type %></td>
+        <td><%= data_attribute.type %></td>
+        <td><%= object_tag(data_attribute.attribute_subject) %></td>
+        <td><%= data_attribute_predicate_tag(data_attribute) %></td>
+        <td><%= data_attribute.value %></td>
+        <td><%= data_attribute.created_by_id %></td>
+        <td><%= data_attribute.updated_by_id %></td>
+        <td><%= data_attribute.project_id %></td>
+        <td><%= link_to 'Context', data_attribute.attribute_subject.metamorphosize %></td>
+        <td><%= data_attribute_edit_link(data_attribute) %></td>
+        <td><%= link_to 'Destroy', data_attribute.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+

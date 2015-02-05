@@ -79,7 +79,7 @@ describe 'Otus', :type => :feature do
         fill_in 'Name', with: 'test'      # and I fill out the name field with "test"
         click_button 'Create Otu'         # and I click 'create otu'
         # then I get the message 'Otu 'test' was successfully created
-        expect(page).to have_content('Otu was successfully created.')
+        expect(page).to have_content("Otu 'test' was successfully created.")
       end
 
     end
