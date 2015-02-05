@@ -83,22 +83,26 @@ class TaxonNameClassification < ActiveRecord::Base
   # TODO: Perhaps not inherit these three methods?
   
   # @return [Array of Strings]
-  #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
+  #   used to validate gender agreement of species name with a genus
   def self.possible_species_endings
-    []  # was nil
+    []
   end
 
-  # @proceps please clarify the meaning here
   # @return [Array of Strings]
   #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
   def self.questionable_species_endings
-    [] # was nil 
+    []
   end
 
   # @return [Array of Strings]
   #   the possible suffixes for a {TaxonName} name (genus) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
   def self.possible_genus_endings
-    [] # was nil
+    []
+  end
+
+  def self.nomen_uri
+    const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
 

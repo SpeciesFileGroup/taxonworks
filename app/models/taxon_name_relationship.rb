@@ -139,6 +139,10 @@ class TaxonNameRelationship < ActiveRecord::Base
     where(id: params[:term])
   end
 
+  def self.nomen_uri
+    const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
+  end
+
   protected
 
   #region Validation
