@@ -47,5 +47,27 @@ describe 'People', :type => :feature do
       end
     end
   end
+
+  context 'creating a new person' do
+    before {
+      sign_in_user_and_select_project
+      visit people_path       # when I visit the people_path
+    }
+    specify 'people_path should have a new link' do
+      expect(page).to have_link('New') # it has a new link
+
+    end
+    specify 'adding the new person' do
+      click_link('New') # when I click the new link
+
+      choose('person_type_personvetted')# and I select the radio button 'vetted'
+      fill_in('Last name', with: 'Wombat')# and I fill out the last name field with "Wombat"
+      fill_in('First name', with: 'Hieronymus')# and I fill out the first name field with "Hieronymus"
+      click_button('Create Person')# when I click the 'Create Person' button
+      expect(page).to have_content("Person 'Hieronymus Wombat' was successfully created.")
+      # then I get the message "Person 'Hieronymus Wombat' was successfully created."
+      # actual message "Person was successfully created."
+    end
+  end
 end
 
