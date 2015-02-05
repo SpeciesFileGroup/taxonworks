@@ -44,8 +44,12 @@ module Shared::IsData
     false
   end
 
+  def annotates?
+    (self.class <= Shared::Annotates) ? true : false
+  end 
+
   def is_community?
-    self.class <= Shared::SharedAcrossProjects ? true : false
+    (self.class <= Shared::SharedAcrossProjects) ? true : false
   end
 
   # Contains all "annotations" for this instance

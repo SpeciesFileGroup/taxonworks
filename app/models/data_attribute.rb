@@ -34,4 +34,10 @@ class DataAttribute < ActiveRecord::Base
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
   end
 
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    attribute_subject
+  end
+
 end

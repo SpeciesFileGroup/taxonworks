@@ -10,8 +10,8 @@ module Housekeeping::Projects
     # these are added to the model
     belongs_to :project, inverse_of: related_instances
 
-    before_validation :set_project_id #, on: :create
-    validates :project, presence: true, unless: 'self.annotates_community?'
+    before_validation :set_project_id, unless: 'self.annotates? && self.annotates_community?'
+    validates :project, presence: true, unless: 'self.annotates? && self.annotates_community?'
 
     before_save :prevent_alteration_in_other_projects
     before_destroy :prevent_alteration_in_other_projects
@@ -35,7 +35,7 @@ module Housekeeping::Projects
   end
 
   def set_project_id
-    if self.new_record? && (self.class <= Shared::Annotates) && !self.annotates_community?
+    if self.new_record?
       self.project_id ||= $project_id
     end
   end

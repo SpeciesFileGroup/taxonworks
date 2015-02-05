@@ -8,8 +8,9 @@ describe TaxonWorks do
   Rails.application.eager_load!
 
   #todo need to fix it so that the error message appears along with the project name.
-  context 'Models that have alternate values' do
+  context 'model includes/attributes' do
     ActiveRecord::Base.descendants.each { |model|
+
       if model < Shared::AlternateValues
         it "#{model} should define the array ALTERNATE_VALUES_FOR" do
           expect(model::ALTERNATE_VALUES_FOR).to be_an(Array), "#{model} is missing ALTERNATE_VALUES_FOR"
@@ -26,7 +27,7 @@ describe TaxonWorks do
         end
       end
 
-      if model < Shared::Annotates
+      if model <= Shared::Annotates
         it "#{model} should define an #annotated_object method" do
           expect(model.new).to respond_to(:annotated_object) 
         end
