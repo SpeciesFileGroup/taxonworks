@@ -44,6 +44,10 @@ module Shared::IsData
     false
   end
 
+  def is_community?
+    self.class <= Shared::SharedAcrossProjects ? true : false
+  end
+
   # Contains all "annotations" for this instance
   # @return [Hash]
   def annotations_hash

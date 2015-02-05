@@ -1,7 +1,7 @@
 class Tag < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
-
+  include Shared::Annotates
 
   acts_as_list scope: [:keyword_id]
 
@@ -23,6 +23,12 @@ class Tag < ActiveRecord::Base
     # todo: @mjy below code is running but not giving results we want
     terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
     joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms) # "#{params[:term]}%" )
+  end
+
+  # @return [TagObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    tag_object
   end
 
   protected

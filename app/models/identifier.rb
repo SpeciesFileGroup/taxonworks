@@ -40,6 +40,7 @@ class Identifier < ActiveRecord::Base
   # TODO: @mjy resolve this to not require project id 
   include Housekeeping
   include Shared::IsData 
+  include Shared::Annotates
 
   before_save :set_cached_value
 
@@ -75,6 +76,12 @@ class Identifier < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     where('identifier LIKE ?', "#{params[:term]}%")
+  end
+
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    identifier_object  
   end
 
   protected

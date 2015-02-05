@@ -8,6 +8,7 @@
 class Note < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
+  include Shared::Annotates
 
   belongs_to :note_object, polymorphic: true
   
@@ -25,11 +26,17 @@ class Note < ActiveRecord::Base
   def note_string
     "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? "" : "[on: #{note_object_attribute}]")
   end
+
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    note_object 
+  end
   
   protected
   def no_pipes
     if !self.text.blank?
-      errors.add(:text, 'TW notes may not contain a pipe (|)') if self[:text].include?('|')
+      errors.add(:text, 'TW notes may not contain a pipe (|)') if self.text.include?('|')
     end
   end
 

@@ -20,9 +20,9 @@
 #   (e.g. verbatim_notebook_field_6)
 #
 class AlternateValue < ActiveRecord::Base
-
   include Housekeeping
   include Shared::IsData
+  include Shared::Annotates
 
   belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
@@ -67,6 +67,12 @@ class AlternateValue < ActiveRecord::Base
 
   def klass_name
     self.class.class_name
+  end
+
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    alternate_value_object 
   end
 
   protected

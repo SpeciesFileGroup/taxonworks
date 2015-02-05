@@ -19,8 +19,9 @@
 #   The type of DataAttribute (Rails STI). 
 #
 class DataAttribute < ActiveRecord::Base
-  include Housekeeping::Users
+  include Housekeeping
   include Shared::IsData 
+  include Shared::Annotates
 
   belongs_to :attribute_subject, polymorphic: true
   # Please DO NOT include the following:  (follows Identifier approach)
@@ -28,4 +29,11 @@ class DataAttribute < ActiveRecord::Base
   #   validates :attribute_subject, presence: true
   validates_presence_of :type, :value
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type]
+
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    attribute_subject 
+  end
+  
 end

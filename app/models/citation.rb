@@ -3,6 +3,7 @@
 class Citation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
+  include Shared::Annotates
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
@@ -17,6 +18,12 @@ class Citation < ActiveRecord::Base
     ending = term + '%'
     wrapped = '%' + term + '%'  
     joins(:source).where('sources.cached ILIKE ? OR sources.cached ILIKE ? OR citation_object_type LIKE ?', ending, wrapped, ending)
+  end
+
+  # @return [NoteObject]
+  #   alias to simplify reference across classes 
+  def annotated_object
+    citation_object 
   end
 
 end
