@@ -64,10 +64,9 @@ describe 'People', :type => :feature do
       fill_in('Last name', with: 'Wombat')# and I fill out the last name field with "Wombat"
       fill_in('First name', with: 'Hieronymus')# and I fill out the first name field with "Hieronymus"
       click_button('Create Person')# when I click the 'Create Person' button
-      expect(page).to have_content("Person 'Hieronymus Wombat' was successfully created.")
       # then I get the message "Person 'Hieronymus Wombat' was successfully created."
-      # actual message "Person was successfully created."
-    end
+      expect(page).to have_content("Person 'Hieronymus Wombat' was successfully created.")
+     end
   end
 end
 
