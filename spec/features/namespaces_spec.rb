@@ -48,5 +48,25 @@ describe 'Namespaces', :type => :feature do
       end
     end
   end
+
+  context 'creating a new namespace' do
+    before {
+      sign_in_administrator
+      visit namespaces_path #  visit the namespaces_path
+    }
+    specify 'namespaces_path should have a new link' do
+      expect(page).to have_link('New') # it has a new link
+    end
+
+    specify 'adding the new namespace' do
+      click_link('New') # when I click the new link
+      fill_in('Full name', with: 'Things Pat Collected') # and I fill out the Full name field with "Things Pat Collected"
+      fill_in('Short name', with: 'tpd') # and I fill out the Short name field with "tpd"
+      click_button('Create Namespace') # when I click the 'Create Namespace' button
+      # then I get the message "Namespace 'Things Pat Collected" was successfully created"
+      expect(page).to have_content("Namespace 'Things Pat Collected' was successfully created")
+      # response is actually 'Namespace was successfully created.'
+    end
+   end
 end
 
