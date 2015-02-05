@@ -4,7 +4,7 @@
 #
 # @!attribute value 
 #   @return [String]
-#   The user provided data, e.g. RFD literal or objectobject, i.e. RDF literal, i.e. data in a cell of a spreadsheet.  Always required.
+#   The user provided data, e.g. RFD literal or object, i.e. RDF literal, i.e. data in a cell of a spreadsheet.  Always required.
 #
 # @!attribute attribute_subject_id 
 #   @return [Integer]
@@ -28,4 +28,9 @@ class DataAttribute < ActiveRecord::Base
   #   validates :attribute_subject, presence: true
   validates_presence_of :type, :value
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type]
+
+  def self.find_for_autocomplete(params)
+    where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+  end
+
 end

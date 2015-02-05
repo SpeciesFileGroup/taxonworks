@@ -16,6 +16,8 @@
       :</strong> <%= object_tag(@data_attribute.attribute_subject) -%>  </p>
 
     <%= f.hidden_field :type, value: 'InternalAttribute' %>
+    <%= f.hidden_field :attribute_subject_type %>
+    <%= f.hidden_field :attribute_subject_id %>
     <div class="field">
       <%= f.label 'Import predicate' %>
       <br>

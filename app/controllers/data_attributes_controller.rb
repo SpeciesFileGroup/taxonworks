@@ -11,7 +11,7 @@ class DataAttributesController < ApplicationController
   # GET /data_attributes
   # GET /data_attributes.json
   def index
-    @data_attributes = DataAttribute.all
+    @recent_objects = DataAttribute.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
   # # GET /data_attributes/1/edit
@@ -56,6 +56,35 @@ class DataAttributesController < ApplicationController
       format.html { redirect_to :back, notice: 'Data attribute was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @data_attributes = DataAttribute.where(project_id: $project_id).order(:attribute_subject_type).page(params[:page])
+  end
+
+  # GET /data_attributes/search
+  def search
+    if params[:id]
+      redirect_to data_attribute_path(params[:id])
+    else
+      redirect_to data_attribute_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @data_attributes = DataAttribute.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @data_attributes.collect do |t|
+      str = render_to_string(partial: 'tag', locals: {data_attribute: t})
+      {id: t.id,
+       label: str,
+       response_values: {
+           params[:method] => t.id},
+       label_html: str
+      }
+    end
+
+    render :json => data
   end
 
   private

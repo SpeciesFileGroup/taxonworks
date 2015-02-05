@@ -20,10 +20,33 @@ describe InternalAttribute, :type => :model do
     expect(InternalAttribute.create(predicate: predicate, value: '1234', attribute_subject: otu)).to be_truthy
   end
 
+  specify '#predicate returns' do
+    i =  InternalAttribute.create(predicate: predicate, value: '1234', attribute_subject: otu)
+    expect(i.predicate).to eq(predicate)
+    i.reload
+    expect(i.predicate).to eq(predicate)
+  end
+
   specify 'a valid record can be created with reference to superclass' do
-    expect(DataAttribute.create(
+    i = DataAttribute.create(
       controlled_vocabulary_term_id:  predicate.id,
-      value: '1234', attribute_subject: otu)).to be_truthy
+      type: 'InternalAttribute',
+      value: '1234', attribute_subject: otu)
+    expect(i.valid?).to be(true)
+
+  end
+
+  specify 'a valid record can be created with reference to superclass' do
+    i = DataAttribute.create!(
+               controlled_vocabulary_term_id:  predicate.id,
+                type: 'InternalAttribute',
+               value: '1234', attribute_subject: otu
+    )
+    expect(i.valid?).to be(true)
+
+    o = DataAttribute.find(i.id)
+    expect(o.predicate).to eq(i.predicate)
+    expect(o.predicate).to eq(predicate)
   end
 end
 
