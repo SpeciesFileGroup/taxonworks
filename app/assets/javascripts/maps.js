@@ -166,12 +166,13 @@ function addClickListener(event) {
                     if(this_property.id != area_id) {
                         //map.data.getFeatureById(01).getProperty('geographic_area')
                         map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
+                        map.data.overrideStyle(this_feature, {strokeWeight: 1});       // erase borders
                         map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
                         jj = jj + 1;
                     }
                     if(this_property.id == area_id) {
                         map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
-                        map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
+                        map.data.overrideStyle(this_feature, {strokeWeight: 3});       //embolden borders
                         map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
                     }
                 });
