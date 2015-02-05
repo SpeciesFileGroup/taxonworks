@@ -78,8 +78,8 @@ describe 'TaxonNames', :type => :feature do
       fill_autocomplete('parent_id_for_name', with: 'root')
 
       click_button('Create Taxon name') # when I click the 'Create Taxon name' button
-      # then I get the message "Taxon name 'Foodiae' was successfully created"
-      expect(page).to have_content('Taxon name was successfully created.')
+      # then I get the message "Taxon name 'Foodiae' was successfully created."
+      expect(page).to have_content("Taxon name 'Fooidae' was successfully created.")
     end
   end
 end
