@@ -9,4 +9,5 @@ class GeographicItem::MultiLineString < GeographicItem
   def st_start_point
     geo_object[0].point_n(0)
   end
+
 end

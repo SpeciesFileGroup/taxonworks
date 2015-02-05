@@ -7,9 +7,14 @@ class GeographicItem::Point < GeographicItem
     point_to_a(self.point)
   end
 
- # return the first POINT of self as an RGeo::Feature::Point
+  # @return [RGeo::Feature::Point] 
+  #   the first POINT of self 
   def st_start_point
     self.geo_object
+  end
+
+  def rendering_hash
+    point_to_hash(self.point)
   end
 
   protected

@@ -10,4 +10,8 @@ class GeographicItem::LineString < GeographicItem
     geo_object.point_n(0)
   end
 
+  def rendering_hash
+    line_string_to_hash(self.line_string)
+  end
+
 end

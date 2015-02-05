@@ -617,42 +617,92 @@ describe GeographicItem, :type => :model do
       expect(@item_d.st_centroid).to eq('POINT(-0 -0)')
     end
 
-    specify '#start_point returns a lat/lng of the first point of the GeoObject' do
-      # center point
-      expect(@p0.start_point).to eq([0.0, 0.0])
-      # multi_point
-      expect(@h.start_point).to eq([-14.0, 3.0])
-      # upper left quadrant - line_string
-      expect(@a.start_point).to eq([21.0, -32.0])
-      # upper right quadrant - multi_line_string
-      expect(@c.start_point).to eq([21.0, 23.0])
-      # lower left quadrant - polygon
-      expect(@k.start_point).to eq([-11.0, -33.0])
-      # lower right quadrant
-      expect(@i.start_point).to eq([-14.0, 27.0])
-      # multi_polygon
-      expect(@g.start_point).to eq([2.3, 28.0])
-      # geometry_collection
-      expect(@all_items.start_point).to eq(@a.start_point)
+    specify '#center_coords' do
+      expect(@item_d.center_coords).to eq(["-0", "-0"])
     end
 
-    specify '#st_start_point returns the first point of the GeoObject' do
-      # center point
-      expect(@p0.st_start_point.to_s).to eq('POINT (0.0 0.0 0.0)')
-      # multi_point
-      expect(@h.st_start_point.to_s).to eq('POINT (3.0 -14.0 0.0)')
-      # upper left quadrant - line_string
-      expect(@a.st_start_point.to_s).to eq('POINT (-32.0 21.0 0.0)')
-      # upper right quadrant - multi_line_string
-      expect(@c.st_start_point.to_s).to eq('POINT (23.0 21.0 0.0)')
-      # lower left quadrant - polygon
-      expect(@k.st_start_point.to_s).to eq('POINT (-33.0 -11.0 0.0)')
-      # lower right quadrant
-      expect(@i.st_start_point.to_s).to eq("POINT (27.0 -14.0 0.0)")
-      # multi_polygon
-      expect(@g.st_start_point.to_s).to eq("POINT (28.0 2.3 0.0)")
-      # geometry_collection
-      expect(@all_items.st_start_point.to_s).to eq(@a.st_start_point.to_s)
+    context '#start_point returns a lat/lng of the first point of the GeoObject' do
+      specify 'for a point' do
+        # center point
+        expect(@p0.start_point).to eq([0.0, 0.0])
+      end
+
+      specify 'for a multi_point' do
+        # multi_point
+        expect(@h.start_point).to eq([-14.0, 3.0])
+      end
+
+      specify 'for a line_string' do
+        # upper left quadrant - line_string
+        expect(@a.start_point).to eq([21.0, -32.0])
+      end
+
+      specify 'for a multi_line_string' do
+        # upper right quadrant - multi_line_string
+        expect(@c.start_point).to eq([21.0, 23.0])
+      end
+
+      specify 'for a polygon' do
+        # lower left quadrant - polygon
+        expect(@k.start_point).to eq([-11.0, -33.0])
+      end
+
+      specify 'for a polygon(?)' do
+        # lower right quadrant
+        expect(@i.start_point).to eq([-14.0, 27.0])
+      end
+      
+      specify 'for a multi_polygon' do
+        # multi_polygon
+        expect(@g.start_point).to eq([2.3, 28.0])
+      end
+
+      specify 'for a geometry collection' do
+        # geometry_collection
+        expect(@all_items.start_point).to eq(@a.start_point)
+      end
+    end
+
+    context '#st_start_point returns the first POINT of the GeoObject' do
+      specify 'for a point' do 
+        # center point
+        expect(@p0.st_start_point.to_s).to eq('POINT (0.0 0.0 0.0)')
+      end
+
+      specify 'for a multi_point' do 
+        # multi_point
+        expect(@h.st_start_point.to_s).to eq('POINT (3.0 -14.0 0.0)')
+      end
+
+      specify 'for a line_string' do
+        # upper left quadrant - line_string
+        expect(@a.st_start_point.to_s).to eq('POINT (-32.0 21.0 0.0)')
+      end
+
+      specify 'for a multi_line_string' do
+        # upper right quadrant - multi_line_string
+        expect(@c.st_start_point.to_s).to eq('POINT (23.0 21.0 0.0)')
+      end
+ 
+      specify 'for a polygon' do
+        # lower left quadrant - polygon
+        expect(@k.st_start_point.to_s).to eq('POINT (-33.0 -11.0 0.0)')
+      end
+  
+      specify 'for a polygon(?)' do
+        # lower right quadrant
+        expect(@i.st_start_point.to_s).to eq("POINT (27.0 -14.0 0.0)")
+      end
+   
+      specify 'for a multi_polygon' do
+        # multi_polygon
+        expect(@g.st_start_point.to_s).to eq("POINT (28.0 2.3 0.0)")
+      end
+    
+      specify 'for a geometry_collection' do
+        # geometry_collection
+        expect(@all_items.st_start_point.to_s).to eq(@a.st_start_point.to_s)
+      end
     end
   end
 

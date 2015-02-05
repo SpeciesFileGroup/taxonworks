@@ -9,4 +9,8 @@ class GeographicItem::Polygon < GeographicItem
   def st_start_point
     geo_object.exterior_ring.point_n(0)
   end
+
+  def rendering_hash
+    polygon_to_hash(self.polygon)
+  end
 end
