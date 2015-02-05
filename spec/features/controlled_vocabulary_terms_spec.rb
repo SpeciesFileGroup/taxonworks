@@ -21,10 +21,10 @@ describe 'ControlledVocabularyTerms', :type => :feature do
     end
 
     context 'with some records created' do
-      let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge( source: nil) ) }
+      let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
       before {
         5.times {
-          FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project) )
+          FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
         }
       }
 
@@ -52,5 +52,24 @@ describe 'ControlledVocabularyTerms', :type => :feature do
         end
       end
     end
-  end
+
+    specify 'controlled_vocabulary_terms_path should have a new link' do
+      visit controlled_vocabulary_terms_path
+      expect(page).to have_link('New') # it has a new link
+
+    end
+    specify 'adding a new controlled vocabulary term' do
+      visit controlled_vocabulary_terms_path
+      click_link('New') # when I click the new link
+
+      select('Topic', from: 'controlled_vocabulary_term_type') # I select 'Topic' from the Type dropdown
+      fill_in('Name', with: 'tests')   # I fill in the name field with "tests"
+      fill_in('Definition', with: 'This is a definition.') # I fill in the definition field with "This is a definition."
+
+      click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
+
+      # then I get the message "Topic 'tests' was successfully created" *
+      expect(page).to have_content('Controlled vocabulary term was successfully created.')
+    end
+ end
 end
