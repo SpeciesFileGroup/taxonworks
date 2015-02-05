@@ -147,21 +147,30 @@ function add_map_listeners() {
                 map.data.addGeoJson(local_data['feature_collection']);
 
                 // select with jquery the buttons, and bind the listener event
-                // $("[id^=button_]")... {
-                //
-                // }
-                $("[id^=button_]").mouseover(function() {
+
+                 $("[id^=button_]").mouseover(function() {       // set mouseover for each area
                     var this_id = this.id;
                     var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-                    var jj = 0;
-                    map.data.forEach(function(feature) {
-                        jj = jj + 1;
-                        if(map.data.getFeatureById(jj).getProperty('geographic_area').id == area_id) {
+                    var jj = 1;
+                    map.data.forEach(function(feature) {        // find by geographic area id
+                        jj = jj + 1 - 1;
+                        //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
+                        this_feature = feature;
+                        this_property = this_feature.getProperty('geographic_area');
+                        if(this_property.id == area_id) {
                            //map.data.getFeatureById(01).getProperty('geographic_area')
-                            map.data.overrideStyle(map.data.getFeatureById(jj).getProperty('geographic_area'), {fillColor: '#880000'});  // mid-level red
-                            map.data.overrideStyle(map.data.getFeatureById(jj).getProperty('geographic_area'), {strokeWeight: 4});       //embolden borders
-
+                            map.data.overrideStyle(this_feature, {fillColor: '#FFFFFF'});  //  red
+                            map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
+                            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});
+                            jj = jj + 1;
                         }
+                    });
+                })
+                $("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
+                    var this_id = this.id;                      // var this since it goes out of scope with .forEach
+                    map.data.forEach(function(feature) {        // find by geographic area id
+                        if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
+                                                                // 'button_'.length, 'button_abc...xyz'.length
                     });
                 })
 
