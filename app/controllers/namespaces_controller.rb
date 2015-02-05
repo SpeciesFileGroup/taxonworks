@@ -32,7 +32,7 @@ class NamespacesController < ApplicationController
 
     respond_to do |format|
       if @namespace.save
-        format.html { redirect_to @namespace, notice: 'Namespace was successfully created.' }
+        format.html { redirect_to @namespace, notice: "Namespace '#{@namespace.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @namespace }
       else
         format.html { render action: 'new' }

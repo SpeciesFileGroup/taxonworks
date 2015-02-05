@@ -63,9 +63,8 @@ describe 'Namespaces', :type => :feature do
       fill_in('Full name', with: 'Things Pat Collected') # and I fill out the Full name field with "Things Pat Collected"
       fill_in('Short name', with: 'tpd') # and I fill out the Short name field with "tpd"
       click_button('Create Namespace') # when I click the 'Create Namespace' button
-      # then I get the message "Namespace 'Things Pat Collected" was successfully created"
+      # then I get the message "Namespace 'Things Pat Collected' was successfully created"
       expect(page).to have_content("Namespace 'Things Pat Collected' was successfully created")
-      # response is actually 'Namespace was successfully created.'
     end
    end
 end
