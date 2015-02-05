@@ -29,8 +29,9 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
+        msg = "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."
         redirect_url = (request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new') ? controlled_vocabulary_term_path(@controlled_vocabulary_term) : :back)
-        format.html { redirect_to redirect_url, notice: 'Controlled vocabulary term was successfully created.' } # !! new behaviour to test
+        format.html { redirect_to redirect_url, notice: msg } # !! new behaviour to test
         format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize}
       else
         format.html { 
