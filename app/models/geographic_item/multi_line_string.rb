@@ -10,4 +10,8 @@ class GeographicItem::MultiLineString < GeographicItem
     geo_object[0].point_n(0)
   end
 
+  def rendering_hash
+    multi_line_string_to_hash(self.multi_line_string)
+  end
+
 end

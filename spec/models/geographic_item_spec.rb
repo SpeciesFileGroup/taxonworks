@@ -150,9 +150,9 @@ describe GeographicItem, :type => :model do
       expect(geographic_item).to respond_to(:geo_object_type)
     end
 
-    specify '#geo_type when item not saved' do
+    specify '#geo_object_type when item not saved' do
       geographic_item.point = SIMPLE_SHAPES[:point]
-      expect(geographic_item.geo_type).to eq(:point) 
+      expect(geographic_item.geo_object_type).to eq(:point) 
     end
   end
 

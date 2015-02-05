@@ -38,23 +38,22 @@ class GeographicItem < ActiveRecord::Base
   has_many :georeferences
   has_many :georeferences_through_error_geographic_item, class_name: 'Georeference', foreign_key: :error_geographic_item_id
 
-  # more explicity because we can also go through Geographic Area
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
   has_many :collecting_events_through_georeference_error_geographic_item, through: :georeferences_through_error_geographic_item, source: :collecting_event
 
   before_validation :set_type_if_geography_present
+
   validates_presence_of :type
-
   validate :some_data_is_provided
-
-
 
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
-  # A scope that limits the result to those GeographicItems that have a collecting event
-  # through either the geographic_item or the error_geographic_item
+  # return [Scope]
+  #   A scope that limits the result to those GeographicItems that have a collecting event
+  #   through either the geographic_item or the error_geographic_item
+  # 
   # A raw SQL join approach for comparison
   #
   # GeographicItem.joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
@@ -90,8 +89,6 @@ class GeographicItem < ActiveRecord::Base
     where(id: geographic_item.id).select("ST_IsValid(#{geographic_item.st_as_binary_sql}) is_valid")
   end
 
-  # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
-
   # @return [Boolean]
   #   whether stored shape is ST_IsValid
   def is_valid_geometry?
@@ -99,9 +96,9 @@ class GeographicItem < ActiveRecord::Base
   end
 
   # @return [Integer]
-  #  the number of points in the geometry
+  #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: self.id).pluck("ST_NPoints(#{self.geo_type}::geometry) number_points").first 
+    GeographicItem.where(id: self.id).pluck("ST_NPoints(#{self.geo_object_type}::geometry)").first 
   end
 
   # @return [Array of GeographicArea]
@@ -143,7 +140,7 @@ class GeographicItem < ActiveRecord::Base
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    GeographicItem.where(id: self.to_param).pluck("ST_AsEWKT(ST_Centroid(#{self.geo_type}::geometry))").first.gsub(/SRID=\d*;/, '')
+    GeographicItem.where(id: self.to_param).pluck("ST_AsEWKT(ST_Centroid(#{self.geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Array]
@@ -234,7 +231,7 @@ SELECT round(CAST(
   def self.contains?(geo_object_a, geo_object_b)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
-    where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
+    where{ st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
   end
 
   # TODO(?): as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
@@ -249,7 +246,6 @@ SELECT round(CAST(
         # todo: change 'id in (?)' to some other sql construct
 
         GeographicItem.where(id: pieces.flatten.map(&:id))
-
       else
         q = geographic_items.flatten.collect { |geographic_item|
           "ST_Intersects(#{column_name}, '#{geographic_item.geo_object}'    )" # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
@@ -259,34 +255,16 @@ SELECT round(CAST(
       end
     end 
 
+    # @return [Scope]
+    # TODO: not used?
     def st_intersects(column_name = :multi_polygon, geometry)
       geographic_item = GeographicItem.arel_table
       Arel::Nodes::NamedFunction.new('ST_Intersects', geographic_item[column_name], geometry)
     end
   end # class << self
 
-
-  # Trying with Arel
-  # setup an Arel table
-  #  append conditions with each loop to the table
-  #  project the result
-  #  geographic_items = GeographicItem.arel_table
-  #  conditions = []
-  #  st_distances = []
-
-  #  g1 = geographic_items.alias
-  # g1[:id].eq(geographic_item.id).project(column)
-
-  #  DATA_TYPES.each do |column|
-  #    
-  #  g2 = geographic_items.where(geographic_items[:id].eq(geographic_item.id))
-  #  g3 = g2[column]
-
-  #    a = Arel::Nodes::NamedFunction.new("st_distance", [ geographic_items[column.to_sym], g2 ] ) 
-  #    conditions.push(where(a.lt(distance)))
-  #  end 
-
-  # distance is measured in meters
+  # @return [Scope]
+  #   distance is measured in meters
   def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       pieces = []
@@ -298,7 +276,7 @@ SELECT round(CAST(
       GeographicItem.where(id: pieces.flatten.map(&:id))
     else
       if check_geo_params(column_name, geographic_item)
-        where("st_distance(#{column_name}, (#{select_geography_sql(geographic_item.to_param, geographic_item.geo_type)})) < #{distance}")
+        where("st_distance(#{column_name}, (#{select_geography_sql(geographic_item.to_param, geographic_item.geo_object_type)})) < #{distance}")
       else
         where("false")
       end
@@ -307,8 +285,8 @@ SELECT round(CAST(
 
   # @return [String]
   #   a SQL select statement that returns the geography for the geographic_item with the specified id
-  def self.select_geography_sql(geographic_item_id, geo_type)
-    "SELECT #{geo_type} from geographic_items where id = #{geographic_item_id}"
+  def self.select_geography_sql(geographic_item_id, geo_object_type)
+    "SELECT #{geo_object_type} from geographic_items where id = #{geographic_item_id}"
   end
 
   # @return [String]
@@ -316,11 +294,13 @@ SELECT round(CAST(
   #   that are disjoint from the passed geographic_items
   def self.disjoint_from(column_name, *geographic_items)
     q = geographic_items.flatten.collect { |geographic_item|
-      "ST_DISJOINT(#{column_name}::geometry, (#{geometry_sql(geographic_item.to_param, geographic_item.geo_type)}))"
+      "ST_DISJOINT(#{column_name}::geometry, (#{geometry_sql(geographic_item.to_param, geographic_item.geo_object_type)}))"
     }.join(' and ')
     where (q)
   end
 
+  # @return [Scope]
+  #   
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
@@ -353,9 +333,10 @@ SELECT round(CAST(
     end
   end
 
+  # @return [Scope] 
+  #    containing the items the shape of which is contained in the geographic_item[s] supplied.
   # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
   # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
-  # @return [GeographicItem Scope] ActiveRecord Relation containing the items the shape of which is contained in the geographic_item[s] supplied.
   def self.is_contained_by(column_name, *geographic_items)
     column_name.downcase!
     case column_name
@@ -426,7 +407,7 @@ SELECT round(CAST(
   end
 
   # @return [String]
-  #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the source_column_name, i.e. geo_type)
+  #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the source_column_name, i.e. geo_object_type)
   def self.geometry_sql(geographic_item_id = nil, source_column_name = nil)
     return 'false' if geographic_item_id.nil? || source_column_name.nil?
     "select geom_alias_tbl.#{source_column_name}::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = #{geographic_item_id}"
@@ -438,8 +419,6 @@ SELECT round(CAST(
   #end
 
   def self.select_distance_with_geo_object(column_name, geographic_item)
-    # q = select_distance(column_name, geographic_item)
-    # select { '*' }.select_distance(column_name, geographic_item)
     select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
   end
 
@@ -448,16 +427,15 @@ SELECT round(CAST(
   end
 
   def self.excluding(geographic_items)
-    # where{ geographic_items.flatten.collect { |geographic_item| "id != #{geographic_item.id}" }.join(' and ')}
     where.not(id: geographic_items)
   end
 
   def excluding_self
-    # GeograohicItem.excluding(self)
     where.not(id: self.id)
   end
 
-  # return the first-found object, according to the list of DATA_TYPES, or nil
+  # @return [Symbol]
+  #   the geo type (i.e. column like :point, :multipolygon).  References  the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
     if self.class.name == 'GeographicItem'
       geo_type 
@@ -466,6 +444,8 @@ SELECT round(CAST(
     end
   end
 
+  # @return [RGeo instance, nil]
+  #    the Rgeo shape
   def geo_object
     if r = geo_object_type
       self.send(r)
@@ -497,48 +477,16 @@ SELECT round(CAST(
     !self.near(geo_object, distance)
   end
 
-  # @return [Symbol]
-  #   returns the attribute (column name) containing data
-  def geo_type 
-    DATA_TYPES.each { |item|
-      return item if self.send(item)
-    }
-    nil
-  end
-
-  # TODO: factor out to individual subclasses
-  # Return the geo_object as a set of points with object type as key like:
-  # {
-  #  points:  [],
-  #  lines:   [],
-  #  polygons: []
-  #  }
-  def rendering_hash
-    data = {}
-    if self.geo_object
-      case self.geo_type
-      when :multi_line_string
-        data = multi_line_string_to_hash(self.multi_line_string)
-      when :multi_polygon
-        data = multi_polygon_to_hash(self.multi_polygon)
-      when :geometry_collection
-        data = self.geometry_collection_to_hash(self.geometry_collection)
-      else
-        # do nothing
-      end
-    end
-
-    data.delete_if { |key, value| value == [] } # remove any keys with empty arrays
-    data
-  end
-
-  # Necessary for GeometryCollection
+  # @return [GeoJSON hash]
+  #    via Rgeo apparently necessary for GeometryCollection
   def rgeo_to_geo_json
     RGeo::GeoJSON.encode(self.geo_object).to_json
   end
 
+  # @return [GeoJSON hash]
+  #   raw Postgis (much faster)
   def to_geo_json
-    JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{self.geo_type.to_s}::geometry) from geographic_items where id=#{self.id};").first)
+    JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{self.geo_object_type.to_s}::geometry) from geographic_items where id=#{self.id};").first)
   end
 
   # @return [GeoJSON Feature]
@@ -560,6 +508,16 @@ SELECT round(CAST(
   # end
 
   protected
+
+  # @return [Symbol]
+  #   returns the attribute (column name) containing data
+  #   nearly all methods should use #geo_object_type, not geo_type
+  def geo_type 
+    DATA_TYPES.each { |item|
+      return item if self.send(item)
+    }
+    nil
+  end
 
   def set_type_if_geography_present
     if self.type.blank?
@@ -645,78 +603,6 @@ SELECT round(CAST(
   end
 
   # TODO: refactor to subclasses or remove completely, likely not useful given geojson capabilities
-  def geometry_collection_to_hash(geometry_collection)
-    # TODO: this method does *not* use the object_to_hash method, expect for the recursive geometry_collection.
-    data = {
-      points:   [],
-      lines:    [],
-      polygons: []
-    }
-    geometry_collection.each { |it|
-      case it.geometry_type.type_name
-      when 'Point'
-        # POINT (-88.241421 40.091565 757.0)
-        point = point_to_hash(it)[:points]
-        # TODO: would it really be better to use object_to_hash here?  Structure-wise, perhaps, but it really is faster to do it here directly, I think...
-        data[:points].push(point_to_a(it))
-      when /^Line[S]*/ #when 'Line' or 'LineString'
-        # LINESTRING (-32.0 21.0 0.0, -25.0 21.0 0.0, -25.0 16.0 0.0, -21.0 20.0 0.0)
-        data[:lines].push(line_string_to_a(it))
-      when 'Polygon'
-        # POLYGON ((-14.0 23.0 0.0, -14.0 11.0 0.0, -2.0 11.0 0.0, -2.0 23.0 0.0, -8.0 21.0 0.0, -14.0 23.0 0.0), (-11.0 18.0 0.0, -8.0 17.0 0.0, -6.0 20.0 0.0, -4.0 16.0 0.0, -7.0 13.0 0.0, -11.0 14.0 0.0, -11.0 18.0 0.0))
-        # note: only the exterior_ring is processed
-        data[:polygons].push(polygon_to_a(it))
-        # in the cases of the multi-objects, break each down to its constituent parts (i.e., remove its identity as a multi-whatever), and record those parts
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0), (5.0 -16.0 0.0), (4.0 -17.9 0.0), (7.0 -17.9 0.0))
-        multi_point_to_a(it).each { |point|
-          data[:points].push(point)
-        }
-      when 'MultiLineString'
-        # MULTILINESTRING ((23.0 21.0 0.0, 16.0 21.0 0.0, 16.0 16.0 0.0, 11.0 20.0 0.0), (4.0 12.6 0.0, 16.0 12.6 0.0, 16.0 7.6 0.0), (21.0 12.6 0.0, 26.0 12.6 0.0, 22.0 17.6 0.0))
-        multi_line_string_to_a(it).each { |line_string|
-          data[:lines].push(line_string)
-        }
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        it.each { |polygon|
-          polygon_data = []
-          polygon.exterior_ring.points.each { |point|
-            polygon_data.push([point.x, point.y]) }
-          data[:polygons].push(polygon_data)
-        }
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (LINESTRING (-32.0 21.0 0.0, -25.0 21.0 0.0, -25.0 16.0 0.0, -21.0 20.0 0.0), POLYGON ((-14.0 23.0 0.0, -14.0 11.0 0.0, -2.0 11.0 0.0, -2.0 23.0 0.0, -8.0 21.0 0.0, -14.0 23.0 0.0), (-11.0 18.0 0.0, -8.0 17.0 0.0, -6.0 20.0 0.0, -4.0 16.0 0.0, -7.0 13.0 0.0, -11.0 14.0 0.0, -11.0 18.0 0.0)), MULTILINESTRING ((23.0 21.0 0.0, 16.0 21.0 0.0, 16.0 16.0 0.0, 11.0 20.0 0.0), (4.0 12.6 0.0, 16.0 12.6 0.0, 16.0 7.6 0.0), (21.0 12.6 0.0, 26.0 12.6 0.0, 22.0 17.6 0.0)), LINESTRING (-33.0 11.0 0.0, -24.0 4.0 0.0, -26.0 13.0 0.0, -31.0 4.0 0.0, -33.0 11.0 0.0), GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0))), MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0)), MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0)), ((22.0 -6.8 0.0, 22.0 -9.8 0.0, 16.0 -6.8 0.0, 22.0 -6.8 0.0)), ((16.0 2.3 0.0, 14.0 -2.8 0.0, 18.0 -2.8 0.0, 16.0 2.3 0.0))), MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0), (5.0 -16.0 0.0), (4.0 -17.9 0.0), (7.0 -17.9 0.0)), LINESTRING (27.0 -14.0 0.0, 18.0 -21.0 0.0, 20.0 -12.0 0.0, 25.0 -23.0 0.0), GEOMETRYCOLLECTION (MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0)), ((22.0 -6.8 0.0, 22.0 -9.8 0.0, 16.0 -6.8 0.0, 22.0 -6.8 0.0)), ((16.0 2.3 0.0, 14.0 -2.8 0.0, 18.0 -2.8 0.0, 16.0 2.3 0.0))), MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0), (5.0 -16.0 0.0), (4.0 -17.9 0.0), (7.0 -17.9 0.0)), LINESTRING (27.0 -14.0 0.0, 18.0 -21.0 0.0, 20.0 -12.0 0.0, 25.0 -23.0 0.0)), POLYGON ((-33.0 -11.0 0.0, -33.0 -23.0 0.0, -21.0 -23.0 0.0, -21.0 -11.0 0.0, -27.0 -13.0 0.0, -33.0 -11.0 0.0)), LINESTRING (-16.0 -15.5 0.0, -22.0 -20.5 0.0), MULTIPOINT ((-88.241421 40.091565 757.0), (-88.241417 40.09161 757.0), (-88.241413 40.091655 757.0)), POINT (0.0 0.0 0.0), POINT (-29.0 -16.0 0.0), POINT (-25.0 -18.0 0.0), POINT (-28.0 -21.0 0.0), POINT (-19.0 -18.0 0.0), POINT (3.0 -14.0 0.0), POINT (6.0 -12.9 0.0), POINT (5.0 -16.0 0.0), POINT (4.0 -17.9 0.0), POINT (7.0 -17.9 0.0), POINT (32.2 22.0 0.0), POINT (-17.0 7.0 0.0), POINT (-9.8 5.0 0.0), POINT (-10.7 0.0 0.0), POINT (-30.0 21.0 0.0), POINT (-25.0 18.3 0.0), POINT (-23.0 18.0 0.0), POINT (-19.6 -13.0 0.0), POINT (-7.6 14.2 0.0), POINT (-4.6 11.9 0.0), POINT (-8.0 -4.0 0.0), POINT (-4.0 -3.0 0.0), POINT (-10.0 -6.0 0.0))
-        collection_hash = geometry_collection_to_hash(it)
-        collection_hash.each_key { |key|
-          collection_hash[key].each { |item|
-            data[key].push(item) }
-          #case key
-          #  when :points
-          #    collection_hash[:points].each { |point|
-          #      data[:points].push(point)
-          #    }
-          #  when :lines
-          #    collection_hash[:lines].each { |line|
-          #      data[:lines].push(line)
-          #    }
-          #  when :polygons
-          #    collection_hash[:polygons].each { |polygon|
-          #      data[:polygons].push(polygon)
-          #    }
-          #  else
-          #  leave everything as it is
-          #end
-        }
-      else
-        # leave everything as it is...
-      end
-    }
-    # remove any keys with empty arrays
-    data.delete_if { |key, value| value == [] }
-    data
-  end
-
   # TODO: deprecate fully in favour of providing ids
   def self.check_geo_params(column_name, geographic_item)
     return true 

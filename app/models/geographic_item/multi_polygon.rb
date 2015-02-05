@@ -9,5 +9,9 @@ class GeographicItem::MultiPolygon < GeographicItem
  def st_start_point
     geo_object[0].exterior_ring.point_n(0)
  end
+ 
+ def rendering_hash
+   multi_polygon_to_hash(self.multi_polygon)
+ end
 
 end
