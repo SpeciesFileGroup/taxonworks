@@ -73,7 +73,7 @@ describe 'TaxonNames', :type => :feature do
 
       fill_in('Name', with: 'Fooidae') # and I fill out the name field with "Fooidae"
       # and I select 'family (ICZN)' from the Rank select *
-      select('family (ICZN)', :from => 'taxon_name_rank_class')
+      select('family (ICZN)', from: 'taxon_name_rank_class')
 
       fill_autocomplete('parent_id_for_name', with: 'root')
 
