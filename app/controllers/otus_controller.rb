@@ -34,7 +34,8 @@ class OtusController < ApplicationController
 
     respond_to do |format|
       if @otu.save
-        format.html { redirect_to @otu, notice: 'Otu was successfully created.' }
+        format.html { redirect_to @otu,
+                     notice: "Otu '#{@otu.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @otu }
       else
         format.html { render action: 'new' }
