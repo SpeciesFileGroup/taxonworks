@@ -1,6 +1,9 @@
 require 'rspec'
 require 'rails_helper'
 
+# These are meta-model tests, to c
+#
+# 
 describe TaxonWorks do
   # Since Rails doesn't load classes unless it needs them, so you must eager load them to get all the models.
   Rails.application.eager_load!
@@ -30,12 +33,11 @@ describe TaxonWorks do
         end
       end
 
-      if model.attributes.include?(:project_id)
+      if model.column_names.include?('project_id') 
         it "#{model} should include Housekeeping::Projects" do
-          expect(model <= Housekeeping::Projects).to be_true
+          expect(model <= Housekeeping::Projects).to be(true)
         end
       end
-
     }
   end
 
