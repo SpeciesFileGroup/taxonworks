@@ -33,7 +33,7 @@ describe TaxonWorks do
         end
       end
 
-      if model.column_names.include?('project_id') 
+      if model.column_names.include?('project_id') && !model.name == 'ProjectMember'
         it "#{model} should include Housekeeping::Projects" do
           expect(model <= Housekeeping::Projects).to be(true)
         end
