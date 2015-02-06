@@ -26,7 +26,7 @@
         <td><%= identifier.identifier %></td>
         <td><%= identifier.klass_name %></td>
         <td><%= identifier.cached %></td>
-        <td><%= identifier.namespace_id %></td>
+        <td><%= namespace_from_identifier_tag(identifier) %></td>
         <td><%= identifier.updated_at %></td>
         <td><%= object_tag(identifier.updater) %></td>
         <td><%= link_to 'Context', identifier.identifier_object.metamorphosize %></td>
