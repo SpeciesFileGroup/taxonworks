@@ -19,7 +19,7 @@ describe GeographicItemsController, :type => :controller do
 
   describe "GET show" do
     it "assigns the requested geographic_item as @geographic_item" do
-      geographic_item = GeographicItem.create! valid_attributes
+      geographic_item = GeographicItem.create!(valid_attributes)
       get :show, {:id => geographic_item.to_param}, valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item)
     end
@@ -27,7 +27,7 @@ describe GeographicItemsController, :type => :controller do
 
   describe "GET edit" do
     it "assigns the requested geographic_item as @geographic_item" do
-      geographic_item = GeographicItem.create! valid_attributes
+      geographic_item = GeographicItem.create!( valid_attributes)
       get :edit, {:id => geographic_item.to_param}, valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item)
     end
@@ -36,7 +36,7 @@ describe GeographicItemsController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       it "updates the requested geographic_item" do
-        geographic_item = GeographicItem.create! valid_attributes
+        geographic_item = GeographicItem.create!( valid_attributes)
         # Assuming there are no other geographic_items in the database, this
         # specifies that the GeographicItem created on the previous line
         # receives the :update_attributes message with whatever params are
@@ -46,13 +46,13 @@ describe GeographicItemsController, :type => :controller do
       end
 
       it "assigns the requested geographic_item as @geographic_item" do
-        geographic_item = GeographicItem.create! valid_attributes
+        geographic_item = GeographicItem.create!( valid_attributes)
         put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
         expect(assigns(:geographic_item)).to eq(geographic_item)
       end
 
       it "redirects to the geographic_item" do
-        geographic_item = GeographicItem.create! valid_attributes
+        geographic_item = GeographicItem.create!( valid_attributes)
         put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
         expect(response).to redirect_to(geographic_item)
       end
@@ -60,7 +60,7 @@ describe GeographicItemsController, :type => :controller do
 
     describe "with invalid params" do
       it "assigns the geographic_item as @geographic_item" do
-        geographic_item = GeographicItem.create! valid_attributes
+        geographic_item = GeographicItem.create!( valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
         put :update, {:id => geographic_item.to_param, :geographic_item => { "point" => "invalid value" }}, valid_session
@@ -68,7 +68,7 @@ describe GeographicItemsController, :type => :controller do
       end
 
       it "re-renders the 'edit' template" do
-        geographic_item = GeographicItem.create! valid_attributes
+        geographic_item = GeographicItem.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
         put :update, {:id => geographic_item.to_param, :geographic_item => { "point" => "invalid value" }}, valid_session
@@ -79,14 +79,14 @@ describe GeographicItemsController, :type => :controller do
 
   describe "DELETE destroy" do
     it "destroys the requested geographic_item" do
-      geographic_item = GeographicItem.create! valid_attributes
+      geographic_item = GeographicItem.create!(valid_attributes)
       expect {
         delete :destroy, {:id => geographic_item.to_param}, valid_session
       }.to change(GeographicItem, :count).by(-1)
     end
 
     it "redirects to the geographic_items list" do
-      geographic_item = GeographicItem.create! valid_attributes
+      geographic_item = GeographicItem.create!(valid_attributes)
       delete :destroy, {:id => geographic_item.to_param}, valid_session
       expect(response).to redirect_to(geographic_items_url)
     end
