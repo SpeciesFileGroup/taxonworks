@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Accepting < TaxonNameRelationship::Icn
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000370'
+
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

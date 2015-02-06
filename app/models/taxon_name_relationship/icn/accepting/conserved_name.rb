@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Accepting::ConservedName < TaxonNameRelationship::Icn::Accepting
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000389'
+
   def self.assignable
     true
   end

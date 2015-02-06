@@ -1,5 +1,7 @@
 class TaxonNameClassification::Latinized::Gender::Masculine < TaxonNameClassification::Latinized::Gender
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000048'
+
   def self.possible_genus_endings
     %w(ops ites oides ides odes istes)
   end

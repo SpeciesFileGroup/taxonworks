@@ -1,5 +1,7 @@
 class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassification::Latinized::Gender
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000047'
+
   def self.possible_genus_endings
     %w(a)
   end

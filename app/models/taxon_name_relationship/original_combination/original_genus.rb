@@ -25,5 +25,4 @@ class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelat
     true
   end
 
-
 end

@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelationship::Iczn::Validating
 
+  NOMEN_URI=''
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Iczn::Validating::UncertainPlacement,

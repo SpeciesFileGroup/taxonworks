@@ -1,5 +1,7 @@
 class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassification::Latinized::Gender
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000049'
+
   def self.possible_genus_endings
     %w(um on u)
   end
@@ -13,6 +15,5 @@ class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassificati
         TaxonNameClassification::Latinized::Gender::Masculine.possible_species_endings -
         self.possible_species_endings
   end
-
 
 end

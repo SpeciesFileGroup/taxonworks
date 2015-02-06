@@ -1,4 +1,7 @@
 class TaxonNameRelationship::Iczn < TaxonNameRelationship
+
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000233'
+
   validates_uniqueness_of :subject_taxon_name_id, scope: :type
 
   # left_side
@@ -19,6 +22,5 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
     ICN_TAXON_NAME_CLASSIFICATION_NAMES +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
-
 
 end

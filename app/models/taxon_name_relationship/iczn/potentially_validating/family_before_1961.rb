@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < TaxonNameRelationship::Iczn::PotentiallyValidating
 
+  NOMEN_URI=''
+
   # left_side
   def self.valid_subject_ranks
     FAMILY_RANK_NAMES_ICZN

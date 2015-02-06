@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship::Iczn::Invalidating
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage) +
@@ -19,7 +21,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   def self.object_relationship_name
     'homonym'
   end
-
 
   def self.assignment_method
     # bus.set_as_iczn_homonym_of(aus)

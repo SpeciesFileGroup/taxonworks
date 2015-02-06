@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic < TaxonNameRelationship::Icn::Unaccepting::Synonym
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000393'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym,
@@ -13,7 +15,6 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic < TaxonNameRel
   def self.object_relationship_name
     'homotypic synonym'
   end
-
 
   def self.assignment_method
     # bus.set_as_icn_homotypic_synonym_of(aus)

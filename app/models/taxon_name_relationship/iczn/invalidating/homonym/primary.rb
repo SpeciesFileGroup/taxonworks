@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRelationship::Iczn::Invalidating::Homonym
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000290'
+
   # left_side
   def self.valid_subject_ranks
     SPECIES_RANK_NAMES_ICZN
@@ -9,7 +11,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
   def self.valid_object_ranks
     SPECIES_RANK_NAMES_ICZN
   end
-
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
