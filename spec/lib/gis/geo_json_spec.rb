@@ -20,11 +20,13 @@ describe Gis::GeoJSON do
   end
 
   context 'outputting GeoJSON "Feature"s ' do
-    let(:feature_index) { '1' } 
+    let(:feature_index) { '1' }
     context 'geographic_item' do
       specify 'that a geographic_item can produce a properly formed feature' do
         # pending
-        expect(Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0]},"properties":{"geographic_item":{"id":31}},"id":1}]}')
+        test_json   = Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item])
+        test_object = RGeo::GeoJSON.decode(test_json)
+        expect(test_object).to eq({})
       end
 
       specify 'that multiple features can be produced by geographic_items' do
@@ -57,18 +59,14 @@ describe Gis::GeoJSON do
       end
 
       specify 'that the geographic_item type "geometry_collection" produce GeoJSON' do
-        collection = GeographicItem.create(geometry_collection: SIMPLE_SHAPES[:geometry_collection])
-        expect(Gis::GeoJSON.feature_collection([collection])).to eq( 
-                                                                   {"type"=> "FeatureCollection",
-                                                                    "features"=> [
-                                                                      {"type" => "Feature", 
-                                                                       "geometry" => { 
-                                                                        "st_asgeojson" => { 
-                                                                          "type" => "GeometryCollection",
-                                                                          "geometries" => [ {"type" => "Polygon","coordinates" => [[[0,0,0],[10,0,0],[10,10,0],[0,10,0],[0,0,0]]]},
-                                                                                            {"type" => "Point","coordinates" => [10,10,0]}]}}, 
-                                                                        "properties" => {"geographic_item" => {"id" => collection.id }},
-                                                                        "id" => feature_index}]})
+        collection         = GeographicItem.create(geometry_collection: SIMPLE_SHAPES[:geometry_collection])
+        feature_collection = Gis::GeoJSON.feature_collection([collection])
+        expect(feature_collection).to eq(
+                                        {'type' => 'FeatureCollection',
+                                         'features' => [
+                                           {'type' => 'Feature',
+                                            'geometry' => '{"type":"GeometryCollection","geometries":[{"type":"Polygon","coordinates":[[[0,0,0],[10,0,0],[10,10,0],[0,10,0],[0,0,0]]]},{"type":"Point","coordinates":[10,10,0]}]}',
+                                            'properties' => {'geographic_item' => {'id' => collection.id}}, 'id' => feature_index}]})
       end
 
     end

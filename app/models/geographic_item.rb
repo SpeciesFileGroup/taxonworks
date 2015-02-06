@@ -489,9 +489,8 @@ SELECT round(CAST(
   # @return [GeoJSON hash]
   #   raw Postgis (much faster)
   def to_geo_json
-    item = GeographicItem.connection.select_all("select ST_AsGeoJSON(#{self.geo_object_type.to_s}::geometry) from geographic_items where id=#{self.id};")
-    # JSON.parse(item.first)
-    item.first
+    retval = GeographicItem.connection.select_all("select ST_AsGeoJSON(#{self.geo_object_type.to_s}::geometry) from geographic_items where id=#{self.id};").first['st_asgeojson']
+    retval
   end
 
   # @return [GeoJSON Feature]

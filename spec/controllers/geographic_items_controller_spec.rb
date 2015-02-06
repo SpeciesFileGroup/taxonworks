@@ -9,7 +9,7 @@ describe GeographicItemsController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    { point: 'POINT(10 10)' }
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_item).attributes )
   }
 
   # This should return the minimal set of values that should be in the session
@@ -42,8 +42,8 @@ describe GeographicItemsController, :type => :controller do
         # specifies that the GeographicItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(GeographicItem).to receive(:update).with({"point" => ""})
-        put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => ""}}, valid_session
+        expect_any_instance_of(GeographicItem).to receive(:update).with({'point' => ""})
+        put :update, {:id => geographic_item.to_param, :geographic_item => {'point' => ""}}, valid_session
       end
 
       it "assigns the requested geographic_item as @geographic_item" do
