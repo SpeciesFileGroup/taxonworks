@@ -10,7 +10,6 @@ describe TaxonWorks do
 
   context 'model includes/attributes' do
     ActiveRecord::Base.descendants.each { |model|
-
       if model < Shared::AlternateValues
         it "#{model} should define the array ALTERNATE_VALUES_FOR" do
           expect(model::ALTERNATE_VALUES_FOR).to be_an(Array), "#{model} is missing ALTERNATE_VALUES_FOR"
@@ -41,4 +40,43 @@ describe TaxonWorks do
     }
   end
 
+  context 'nilifying blanks' do
+    let(:m) { TaxonWorksModels::GenericModel.new }
+
+    specify 'strings are converted to nil' do
+        m.string = ""
+        m.save
+        expect(m.string).to eq(nil)
+    end
+
+    specify 'text is converted to nil' do
+      m.text = ""
+      m.save
+      expect(m.text).to eq(nil)
+    end
+
+    specify 'boolean is untouched when false' do
+      m.boolean = false
+      m.save
+      expect(m.boolean).to eq(false)
+    end
+
+    specify 'integer 0 is untouched' do
+      m.integer = 0
+      m.save
+      expect(m.integer).to eq(0)
+    end
+
+
+
+
+  end
+
 end
+
+module TaxonWorksModels
+  class GenericModel  < ActiveRecord::Base 
+    include FakeTable  
+  end
+end
+

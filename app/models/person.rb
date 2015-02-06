@@ -1,3 +1,5 @@
+
+
 class Person < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::DataAttributes
