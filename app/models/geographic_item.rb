@@ -13,6 +13,9 @@ class GeographicItem < ActiveRecord::Base
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
+  # an internal variable for use in super calls, holds a geo_json hash (temporarily)
+  attr_accessor :geometry
+
   LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<lon>-?\d+\.?\d*)/) 
 
   DATA_TYPES = [:point,
@@ -494,9 +497,10 @@ SELECT round(CAST(
   # @return [GeoJSON Feature]
   #   the shape as a Feature/Feature Collection
   def to_geo_json_feature
+    @geometry ||= to_geo_json
     retval = {
       'type'       => 'Feature',
-      'geometry'   => to_geo_json,
+      'geometry'   => self.geometry,
       'properties' => {
         'geographic_item' => {
           'id' => self.id}

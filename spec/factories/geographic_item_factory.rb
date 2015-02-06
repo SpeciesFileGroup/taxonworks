@@ -17,7 +17,7 @@ FactoryGirl.define do
   end
 
   factory :geographic_item, traits: [:creator_and_updater] do
-    factory :valid_geographic_item, aliases: [:geographic_item_with_point_a], :class => 'GeographicItem::Point' do
+    factory :valid_geographic_item, aliases: [:geographic_item_with_point_a]  do
       point { GI_POINT_A }
     end
 
