@@ -58,7 +58,7 @@ class IdentifiersController < ApplicationController
   end
 
   def list
-    @identifier = Identifier.where(project_id: $project_id).order(:attribute_subject_type).page(params[:page])
+    @identifiers = Identifier.where(project_id: $project_id).order(:cached).page(params[:page])
   end
 
   # GET /identifier/search

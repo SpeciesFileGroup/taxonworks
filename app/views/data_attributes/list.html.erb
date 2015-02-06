@@ -10,7 +10,7 @@
     <th>Attribute subject</th>
     <th>Predicate</th>
     <th>Value</th>
-    <th>Created by</th>
+    <th>Last modified</th>
     <th>Updated by</th>
     <th>Project</th>
     <th></th>
@@ -27,8 +27,8 @@
         <td><%= object_tag(data_attribute.attribute_subject) %></td>
         <td><%= data_attribute_predicate_tag(data_attribute) %></td>
         <td><%= data_attribute.value %></td>
-        <td><%= data_attribute.created_by_id %></td>
-        <td><%= data_attribute.updated_by_id %></td>
+        <td><%= data_attribute.updated_at %></td>
+        <td><%= data_attribute.updated_at %></td>
         <td><%= data_attribute.project_id %></td>
         <td><%= link_to 'Context', data_attribute.attribute_subject.metamorphosize %></td>
         <td><%= data_attribute_edit_link(data_attribute) %></td>

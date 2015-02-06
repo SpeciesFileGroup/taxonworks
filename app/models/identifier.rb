@@ -84,6 +84,14 @@ class Identifier < ActiveRecord::Base
     identifier_object  
   end
 
+  def self.class_name
+    self.name.demodulize.underscore.humanize.downcase
+  end
+
+  def klass_name
+    self.class.class_name
+  end
+
   protected
 
   def set_cached_value
