@@ -32,7 +32,7 @@ class PreparationTypesController < ApplicationController
 
     respond_to do |format|
       if @preparation_type.save
-        format.html { redirect_to @preparation_type, notice: 'Preparation type was successfully created.' }
+        format.html { redirect_to @preparation_type, notice: "Preparation type '#{@preparation_type.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @preparation_type }
       else
         format.html { render action: 'new' }
