@@ -7,9 +7,8 @@
   <tr>
     <th>Identified object type</th>
     <th>Identified object</th>
-    <th>Identifier</th>
-    <th>Type</th>
     <th>Cached identifier</th>
+    <th>Type</th>
     <th>Namespace</th>
     <th>Last modified</th>
     <th>Updated by</th>
@@ -23,9 +22,8 @@
       <tr>
         <td><%= identifier.identifier_object_type %></td>
         <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
-        <td><%= identifier.identifier %></td>
-        <td><%= identifier.klass_name %></td>
         <td><%= identifier.cached %></td>
+        <td><%= identifier.klass_name %></td>
         <td><%= namespace_from_identifier_tag(identifier) %></td>
         <td><%= identifier.updated_at %></td>
         <td><%= object_tag(identifier.updater) %></td>
