@@ -14,7 +14,7 @@ class IdentifiersController < ApplicationController
   # GET /identifiers
   # GET /identifiers.json
   def index
-    @identifiers = Identifier.all
+    @recent_objects = Identifier.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /identifiers

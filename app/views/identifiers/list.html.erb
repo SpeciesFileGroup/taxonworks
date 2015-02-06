@@ -1,0 +1,36 @@
+<h1>Listing identifiers</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Identified object</th>
+    <th>Identified object type</th>
+    <th>Identifier</th>
+    <th>Type</th>
+    <th>Cached identifier</th>
+    <th>Namespace</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @identifiers.each do |identifier| %>
+      <tr>
+        <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
+        <td><%= identifier.identifier_object_type %></td>
+        <td><%= identifier.identifier %></td>
+        <td><%= identifier.type %></td>
+        <td><%= identifier.cached %></td>
+        <td><%= identifier.namespace_id %></td>
+        <td><%= identifier.created_by_id %></td>
+        <td><%= identifier.updated_by_id %></td>
+        <td><%= link_to 'Show', identifier.identifier_object.metamorphosize %></td>
+        <td><%= link_to 'Destroy', identifier.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+

@@ -32,6 +32,13 @@ module IdentifiersHelper
     "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})"
   end
 
+  def identifier_link(identifier)
+    return nil if identifier.nil?
+    link_to(identifier(identifier).html_safe, data_attribute)
+  end
 
+  def identifiers_search_form
+    render('/data_attributes/quick_search_form')
+  end
 
 end
