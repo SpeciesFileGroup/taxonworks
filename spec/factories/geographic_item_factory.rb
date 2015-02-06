@@ -1,10 +1,6 @@
 require_relative '../support/geo/geo'
 FactoryGirl.define do
 
-  trait :geographic_item_point do
-    FactoryGirl.build(:geographic_item_point)
-  end
-
   minLat = -85
   maxLat = 85
   minLng = -180
