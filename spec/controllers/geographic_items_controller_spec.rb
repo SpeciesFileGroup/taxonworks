@@ -2,15 +2,15 @@ require 'rails_helper'
 
 describe GeographicItemsController, :type => :controller do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
+  let(:valid_attributes) {
     { point: 'POINT(10 10)' }
-  } 
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -28,7 +28,7 @@ describe GeographicItemsController, :type => :controller do
 
   describe "GET edit" do
     it "assigns the requested geographic_item as @geographic_item" do
-      geographic_item = GeographicItem.create!( valid_attributes)
+      geographic_item = GeographicItem.create!(valid_attributes)
       get :edit, {:id => geographic_item.to_param}, valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
     end
@@ -37,23 +37,23 @@ describe GeographicItemsController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       it "updates the requested geographic_item" do
-        geographic_item = GeographicItem.create!( valid_attributes)
+        geographic_item = GeographicItem.create!(valid_attributes)
         # Assuming there are no other geographic_items in the database, this
         # specifies that the GeographicItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(GeographicItem).to receive(:update).with({ "point" => "" })
-        put :update, {:id => geographic_item.to_param, :geographic_item => { "point" => "" }}, valid_session
+        expect_any_instance_of(GeographicItem).to receive(:update).with({"point" => ""})
+        put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => ""}}, valid_session
       end
 
       it "assigns the requested geographic_item as @geographic_item" do
-        geographic_item = GeographicItem.create!( valid_attributes)
+        geographic_item = GeographicItem.create!(valid_attributes)
         put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
         expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
       end
 
       it "redirects to the geographic_item" do
-        geographic_item = GeographicItem.create!( valid_attributes)
+        geographic_item = GeographicItem.create!(valid_attributes)
         put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
         expect(response).to redirect_to(geographic_item)
       end
@@ -61,10 +61,10 @@ describe GeographicItemsController, :type => :controller do
 
     describe "with invalid params" do
       it "assigns the geographic_item as @geographic_item" do
-        geographic_item = GeographicItem.create!( valid_attributes)
+        geographic_item = GeographicItem.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-        put :update, {:id => geographic_item.to_param, :geographic_item => { "point" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, valid_session
         expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
       end
 
@@ -72,7 +72,7 @@ describe GeographicItemsController, :type => :controller do
         geographic_item = GeographicItem.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-        put :update, {:id => geographic_item.to_param, :geographic_item => { "point" => "invalid value" }}, valid_session
+        put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, valid_session
         expect(response).to render_template("edit")
       end
     end
