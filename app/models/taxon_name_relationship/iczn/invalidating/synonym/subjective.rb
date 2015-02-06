@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonNameRelationship::Iczn::Invalidating::Synonym
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000285'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
@@ -15,7 +17,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
   def self.object_relationship_name
     'subjective synonym'
   end
-
 
   def self.assignment_method
     # bus.set_as_iczn_subjective_synonym_of(aus)

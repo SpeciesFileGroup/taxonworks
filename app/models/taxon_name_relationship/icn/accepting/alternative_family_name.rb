@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRelationship::Icn::Accepting
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000371'
+
   #left_side
   def self.valid_subject_ranks
     FAMILY_RANK_NAMES_ICN

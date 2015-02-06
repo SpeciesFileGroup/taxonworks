@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < TaxonNameRelationship::Iczn::PotentiallyValidating
 
+  NOMEN_URI=''
+
   def self.subject_relationship_name
     'reinstated name'
   end

@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::Icn::Unaccepting
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000372'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting) +
@@ -13,7 +15,6 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   def self.object_relationship_name
     'junior synonym'
   end
-
 
   def self.assignment_method
     # bus.set_as_icn_synonym_of(aus)

@@ -1,5 +1,7 @@
 class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate < TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000384'
+
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +
         [TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished.to_s] +

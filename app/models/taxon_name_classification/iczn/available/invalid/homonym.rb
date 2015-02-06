@@ -1,5 +1,7 @@
 class TaxonNameClassification::Iczn::Available::Invalid::Homonym < TaxonNameClassification::Iczn::Available::Invalid
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000043'
+
   LABEL = 'homonym, ICZN'
 
   def self.disjoint_taxon_name_classes

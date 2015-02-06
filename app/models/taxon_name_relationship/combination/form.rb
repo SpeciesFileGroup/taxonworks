@@ -24,7 +24,6 @@ class TaxonNameRelationship::Combination::Form < TaxonNameRelationship::Combinat
     :combination_form
   end
 
-
   def self.assignable
     true
   end

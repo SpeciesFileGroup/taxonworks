@@ -24,22 +24,51 @@ describe Gis::GeoJSON do
     context 'geographic_item' do
       specify 'that a geographic_item can produce a properly formed feature' do
         # pending
-        test_json   = Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item])
-        test_object = RGeo::GeoJSON.decode(test_json)
-        expect(test_object).to eq({})
+        object = @ce_p1.georeferences.first.geographic_item
+        json   = Gis::GeoJSON.feature_collection([object])
+        expect(json).to eq({'type'     => 'FeatureCollection',
+                            'features' => [{'type'       => 'Feature',
+                                            'geometry'   => {'type'        => 'Point',
+                                                             'coordinates' => [36.5, 27.5, 0]},
+                                            'properties' => {'geographic_item' => {'id' => object.id}},
+                                            'id'         => feature_index.to_i}]})
       end
 
       specify 'that multiple features can be produced by geographic_items' do
-        expect(Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item,
-                                                @ce_old_boxia_2.georeferences.first.geographic_item]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0]},"properties":{"geographic_item":{"id":31}},"id":0},{"type":"Feature","geometry":{"type":"Point","coordinates":[34.5,25.5,0]},"properties":{"geographic_item":{"id":42}},"id":1}]}')
+        object_1 = @ce_p1.georeferences.first.geographic_item
+        object_2 = @ce_old_boxia_2.georeferences.first.geographic_item
+        json     = Gis::GeoJSON.feature_collection([object_1, object_2])
+        expect(json).to eq({'type'     => 'FeatureCollection',
+                            'features' => [{'type'       => 'Feature',
+                                            'geometry'   => {'type'        => 'Point',
+                                                             'coordinates' => [36.5, 27.5, 0]},
+                                            'properties' => {'geographic_item' => {'id' => object_1}},
+                                            'id'         => feature_index.to_i},
+                                           {'type'       => 'Feature',
+                                            'geometry'   => {'type'        => 'Point',
+                                                             'coordinates' => [34.5, 25.5, 0]},
+                                            'properties' => {'geographic_item' => {'id' => object_2}},
+                                            'id'         => 2}]})
       end
 
       specify 'that the geographic_item type "point" produce GeoJSON' do
-        expect(Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[36.5,27.5,0]},"properties":{"geographic_item":{"id":31}},"id":0}]}')
+        json = Gis::GeoJSON.feature_collection([@ce_p1.georeferences.first.geographic_item])
+        expect(json).to eq({'type'     => 'FeatureCollection',
+                            'features' => [{'type'       => 'Feature',
+                                            'geometry'   => {'type'        => 'Point',
+                                                             'coordinates' => [36.5, 27.5, 0]},
+                                            'properties' => {'geographic_item' => {'id' => 31}},
+                                            'id'         => feature_index}]})
       end
 
       specify 'that the geographic_item type "line_string" produce GeoJSON' do
-        expect(Gis::GeoJSON.feature_collection([@a]).to_json).to eq('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-32,21,0],[-25,21,0],[-25,16,0],[-21,20,0]]},"properties":{"geographic_item":{"id":66}},"id":0}]}')
+        json = Gis::GeoJSON.feature_collection([@a])
+        expect(json).to eq({"type"     => "FeatureCollection",
+                            "features" => [{"type"       => "Feature",
+                                            "geometry"   => {"type"        => "LineString",
+                                                             "coordinates" => [[-32, 21, 0], [-25, 21, 0], [-25, 16, 0], [-21, 20, 0]]},
+                                            "properties" => {"geographic_item" => {"id" => 66}},
+                                            "id"         => feature_index}]})
       end
 
       specify 'that the geographic_item type "polygon" produce GeoJSON' do
@@ -62,18 +91,18 @@ describe Gis::GeoJSON do
         collection         = GeographicItem.create(geometry_collection: SIMPLE_SHAPES[:geometry_collection])
         feature_collection = Gis::GeoJSON.feature_collection([collection])
         expect(feature_collection).to eq(
-                                        {'type' => 'FeatureCollection',
+                                        {'type'     => 'FeatureCollection',
                                          'features' => [
-                                           {'type' => 'Feature',
-                                            'geometry' => {
-                                             "type" => "GeometryCollection",
-                                             "geometries" => [
-                                               {"type" => "Polygon","coordinates" => [[[0,0,0],[10,0,0],[10,10,0],[0,10,0],[0,0,0]]]},
-                                               {"type" => "Point","coordinates" => [10,10,0]}
-                                             ]
-                                           },
-                                           'properties' => {'geographic_item' => {'id' => collection.id}}, 'id' => feature_index.to_i
-                                        }]})
+                                           {'type'       => 'Feature',
+                                            'geometry'   => {
+                                              'type'       => 'GeometryCollection',
+                                              'geometries' => [
+                                                {'type' => 'Polygon', 'coordinates' => [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [0, 0, 0]]]},
+                                                {'type' => 'Point', 'coordinates' => [10, 10, 0]}
+                                              ]
+                                            },
+                                            'properties' => {'geographic_item' => {'id' => collection.id}}, 'id' => feature_index.to_i
+                                           }]})
       end
 
     end

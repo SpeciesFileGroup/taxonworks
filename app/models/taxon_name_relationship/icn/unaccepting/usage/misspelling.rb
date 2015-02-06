@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRelationship::Icn::Unaccepting::Usage
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000375'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,

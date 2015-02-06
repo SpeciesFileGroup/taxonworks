@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total < TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000283'
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym) +

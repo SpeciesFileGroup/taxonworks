@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < TaxonNameRelationship::Iczn::PotentiallyValidating
 
+  NOMEN_URI=''
+
   def self.assignable
     true
   end

@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameRelationship::Iczn::Invalidating::Homonym
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000291'
+
   # left_side
   def self.valid_subject_ranks
     SPECIES_RANK_NAMES_ICZN
@@ -23,7 +25,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   def self.object_relationship_name
     'secondary homonym'
   end
-
 
   def self.assignment_method
     # bus.set_as_iczn_secondary_homonym_of(aus)

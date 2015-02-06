@@ -30,6 +30,5 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
     true
   end
 
-
 end
 

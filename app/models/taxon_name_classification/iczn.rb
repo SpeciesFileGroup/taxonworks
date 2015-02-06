@@ -1,5 +1,7 @@
 class TaxonNameClassification::Iczn < TaxonNameClassification
 
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000107'
+
   def self.applicable_ranks
    ICZN 
   end
