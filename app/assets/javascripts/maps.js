@@ -138,9 +138,7 @@ function addClickServicesListeners(event) {     // click event passed in
             $("[id^=button_]").mouseover(function() {       // set mouseover for each area
                 var this_id = this.id;
                 var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-                var jj = 1;
                 map.data.forEach(function(feature) {        // find by geographic area id
-                    jj = jj + 1 - 1;
                     //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
                     this_feature = feature;
                     this_property = this_feature.getProperty('geographic_area');
@@ -149,7 +147,6 @@ function addClickServicesListeners(event) {     // click event passed in
                         map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
                         map.data.overrideStyle(this_feature, {strokeWeight: 1});       // erase borders
                         map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-                        jj = jj + 1;
                     }
                     if(this_property.id == area_id) {
                         map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
