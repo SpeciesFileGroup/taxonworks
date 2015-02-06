@@ -65,8 +65,15 @@ describe Gis::GeoJSON do
                                         {'type' => 'FeatureCollection',
                                          'features' => [
                                            {'type' => 'Feature',
-                                            'geometry' => '{"type":"GeometryCollection","geometries":[{"type":"Polygon","coordinates":[[[0,0,0],[10,0,0],[10,10,0],[0,10,0],[0,0,0]]]},{"type":"Point","coordinates":[10,10,0]}]}',
-                                            'properties' => {'geographic_item' => {'id' => collection.id}}, 'id' => feature_index}]})
+                                            'geometry' => {
+                                             "type" => "GeometryCollection",
+                                             "geometries" => [
+                                               {"type" => "Polygon","coordinates" => [[[0,0,0],[10,0,0],[10,10,0],[0,10,0],[0,0,0]]]},
+                                               {"type" => "Point","coordinates" => [10,10,0]}
+                                             ]
+                                           },
+                                           'properties' => {'geographic_item' => {'id' => collection.id}}, 'id' => feature_index.to_i
+                                        }]})
       end
 
     end
