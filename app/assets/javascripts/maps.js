@@ -1,17 +1,10 @@
-/* Basic library to parse through TW returned geoJSON and draw a polygon on a Google Map.  
- * Lots of optimization etc. possible down the road.
+/* Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
  *
+ * Overly integrated with asserted distributions,
  */
 
 var map;	// google map object
 var data; // TaxonWorks jSON data object
-
-//var gPoints = [];		// arrays for pushing
-//var gLinePoints = []; // google maps graphic
-//var gPolyPoints = []; // objects by type
-//                      // rendered via add_shapes_to_map
-
-// var lPoints = [];
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
@@ -35,9 +28,6 @@ var gzoom = 1;      // default to fairly far out
 var initialize;
 
 initialize = function () {
-    // bounds = new google.maps.LatLngBounds();
-    //get_data();
-    //get_window_center();
 
     var myOptions = {
         zoom: gzoom,
@@ -49,32 +39,20 @@ initialize = function () {
     };
 
     initialize_map(myOptions);
-    //add_shapes_to_map();      // old home-brew interpreter and range/bounds/center function
-    //if (data["type"] != "Feature" && data["type"] != "FeatureCollection") {     // forgive older style JSON without Feature, etc.
-    //    datastring = JSON.stringify(data);
-    //    datastring = '{ "type": "Feature", "geometry": ' + datastring + '}';
-    //    datafeature = JSON.parse(datastring);
-    //    data = datafeature;
-    //}
+
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
-    //centerofmap = map.getCenter();      // not getting desired result, since .addGeoJson does not extend bounds above
-
-   //zoomAndCenter(map)
-
-    get_Data();
-    get_window_center();
-    //document.getElementById('map_coords').html = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6);
-// converted to jQuery syntax
+    get_Data();               // scan var data as feature collection with homebrew traverser, collecting bounds
+    get_window_center();      // compute center_lat_long from bounds and compute zoom level as gzoom
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6)) ;
     map.setCenter(center_lat_long);
     map.setZoom(gzoom);
 
     map.data.setStyle(function(feature) {
-        var color = '#440000';  // dimmer red
-        if (feature.getProperty('isColorful')) {
-            color = feature.getProperty('fillColor');
+        var color = '#440000';  // dimmer red as default feature color
+        if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
+            color = feature.getProperty('fillColor');   //
         }
         return /** @type {google.maps.Data.StyleOptions} */({
             fillColor: color,
@@ -89,18 +67,18 @@ function initialize_map(options) {
     map = new google.maps.Map(document.getElementById("map_canvas"), options);
 }
 
-function add_map_listeners() {
+function add_map_listeners() {      // 4 listeners, one for map as a whole 3 for map.data features
     // When the user clicks, set 'isColorful', changing the color of the feature.
     map.data.addListener('click', function(event) {
-        if(event.feature.getProperty('isColorful')) {           // newer code to reset selected color
-            event.feature.setProperty('isColorful', false);
-            event.feature.setProperty('fillColor', "#440000");  //dimmer red
+        if(event.feature.getProperty('isColorful')) {           // reset selected color if
+            event.feature.setProperty('isColorful', false);     // previously selected
+            event.feature.setProperty('fillColor', "#440000");  // to dimmer red
         }
-        else {
+        else {      // if not already "Colorful", make it so
             event.feature.setProperty('isColorful', true);
             event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         };
-        addClickListener(event);
+        addClickServicesListeners(event);
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -109,7 +87,7 @@ function add_map_listeners() {
     map.data.addListener('mouseover', function(event) {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
-        map.data.overrideStyle(event.feature, {strokeWeight: 4});       //embolden borders
+        map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
     });
 
     map.data.addListener('mouseout', function(event) {
@@ -117,12 +95,12 @@ function add_map_listeners() {
     });
 
     google.maps.event.addListener(map, 'click', function (event) {
-        addClickListener(event);
+        addClickServicesListeners(event);
     });
 }           // add_listeners end
 
 function check_preemption() {       // page-specific check for postback prerequisites
-    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since name no id
+    if($("[name=asserted_distribution\\[source_id\\]]")[0].value == "") {   // slightly convoluted since name not id
         $("#sourceError").text(" \xA0 Please set a source before selecting an area !");
         return true;
     }
@@ -131,11 +109,16 @@ function check_preemption() {       // page-specific check for postback prerequi
         return false;}
 }
 
-function addClickListener(event) {
+function addClickServicesListeners(event) {     // click event passed in
+        // captures and displays map coordinates from click event thru asserted_distribution/new.html.erb..span:map_coords
+        // checks for preemptive condition
+        // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
+        // clears previous map data features
+        // sets mouseover/mouseout behavior for buttons via forEach(function(feature))
+        //   in map.data corresponding to "button_nnnn" where nnnn is area id
+        // resizes, recenters map based on new features
     var mapLatLng = event.latLng;
-    //lat = mapLatLng.lat();
-    //lng = mapLatLng.lng();
-    //document.getElementById('map_coords').text = 'Coordinates: Latitude = ' + lat.toFixed(6) + ' , Longitude = ' + lng.toFixed(6);
+
     $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
     if(check_preemption()) {return;};
 
@@ -144,15 +127,13 @@ function addClickListener(event) {
     $("#longitude").val(mapLatLng.lng());
 
     $.get( 'generate_choices', $('form#cadu').serialize(), function(local_data) {
-            $("#qnadf").html(local_data['html']);
-
-            //coors_element = JSON.parse(document.getElementById('json_coors').value);
-            //map.setCenter(new google.maps.LatLng(coors_element["lat"],coors_element["lon"]));
-
+            $("#qnadf").html(local_data['html']);      //local_data contains html(selection forms)
+            // quick_new_asserted_distribution_form and feature collection geoJSON
             map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
-            map.data.addGeoJson(local_data['feature_collection']);
 
-            // select with jquery the buttons, and bind the listener event
+            map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
+
+            // select buttons of the form: "button_nnnn" with jquery, and bind the listener events
 
             $("[id^=button_]").mouseover(function() {       // set mouseover for each area
                 var this_id = this.id;
@@ -172,7 +153,7 @@ function addClickListener(event) {
                     }
                     if(this_property.id == area_id) {
                         map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
-                        map.data.overrideStyle(this_feature, {strokeWeight: 3});       //embolden borders
+                        map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
                         map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
                     }
                 });
@@ -237,14 +218,13 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
                 offset = Math.cos((angle /*- center_lat*/) / (180.0 / 3.1415926535));
                 offset = 0.1 * (ymax - ymin) / offset;
                 center_lat = center_lat + offset;
-            }
-        }
-    }
-    ;
+            };
+        };
+    };
 
-    if(wy > 0.5 * wx) {wx = wy * 2.0}
+    if(wy > 0.5 * wx) {wx = wy * 2.0}       // VERY crude proportionality adjustment
     if (wx <= 0.1) {gzoom =11};
-    if (wx > 0.1) {gzoom = 10};
+    if (wx > 0.1) {gzoom = 10};             // quick and dirty zoom range based on size
     if (wx > 0.2) {gzoom = 9};
     if (wx > 0.5) {gzoom = 8};
     if (wx > 1.0) {gzoom = 7};
@@ -254,33 +234,26 @@ function get_window_center() {      // for use with home-brew geoJSON scanner/en
     if (wx > 40.0) {gzoom = 3};
     if (wx > 80.0) {gzoom = 2};
     if (wx > 160.0 || (wx + wy) == 0) {gzoom = 1};
-    //alert('wx = ' + wx + '\ngzoom = ' + gzoom + '\nxminm = ' + xminm + '\nxmaxm = ' + xmaxm + '\nxminp = ' + xminp + '\nxmaxp = ' + xmaxp + '\nlong = ' + center_long + '\nlat = ' + center_lat);
+
     center_lat_long = new google.maps.LatLng(center_lat, center_long);
 };
 
 
 function reset_center_and_bounds() {        // used to
-    center_long = undefined;    // clear previous history
-    center_lat = undefined;     // so that center is recalculated
-    xminp = 180.0;       //return to 0-based coordinates
-    xmaxp = 0.0;
-    xminm = 0.0;         //return to 0-based coordinates
-    xmaxm = -180.0;
+    center_long = undefined;               // clear previous history
+    center_lat = undefined;               // so that center is recalculated
+    xminp = 180.0;       // use 0
+    xmaxp = 0.0;        // to
+    xminm = 0.0;       // +/-180-based
+    xmaxm = -180.0;   // coordinates for longitude
 
-    ymin = 90.0;
+    ymin = 90.0;    // +/-90 for latitude
     ymax = -90.0;
 }
 
 function get_Data() {       //this is the scanner version; no google objects are created
     reset_center_and_bounds();
-    /*		get data object encoded as geoJSON and disseminate to google (deprecated: and leaflet arrays)
-     Assumptions:
-     data is a hash
-     Multi- geometry types are composed of simple (homogeneous) types: Point, LineString, Polygon
-     these are collected as xPoints[], xLinePoints[], xPolyPoints[]; x = g | l for google and leafletjs respectively
-     this leaves ambiguous the association of attributes to the objects (e.g., color, etc.)
-     New realization: there may or may not be GeometryCollections, which may contain any type, including GeometryCollection !  $#!+
-     */
+    //		get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
     if (typeof (data) != 'undefined') {
         var dataArray = [];
         if (data instanceof Array) {
@@ -290,8 +263,7 @@ function get_Data() {       //this is the scanner version; no google objects are
             dataArray[0] = data;
             data = [];
             data[0] = dataArray[0];
-        }
-        ;
+        };
         for (var i = 0; i < data.length; i++) {
             if (typeof (data[i].type) != "undefined") {
                 if (data[i].type == "FeatureCollection") {
@@ -303,19 +275,15 @@ function get_Data() {       //this is the scanner version; no google objects are
             if (data[i].type == "GeometryCollection") {
                 for (var j = 0; j < data[i].geometries.length; j++) {
                     getTypeData(data[i].geometries[j]);
-                }
-                ;
+                };
             }
             else {
                 getTypeData(data[i]);
-            }    //data.type
-        }
-        ;     //data[i] != undefined
+            };  //data[i].type
+        };     //data[i] != undefined
      }        // for i
-    }
-    ;         //data != undefined
- }
- ;
+    };       //data != undefined
+ };         //get_Data
 
 function getFeature(thisFeature) {
     getTypeData(thisFeature.geometry);
@@ -327,61 +295,45 @@ function getTypeData(thisType) {        // this version does not create google o
         for (var i = 0; i < thisType.features.length; i++) {
             if (typeof (thisType.features[i].type) != "undefined") {
                 getFeature(thisType.features[i]);		//  recurse if FeatureCollection
-            }
-            ;     //thisType != undefined
-        }
-        ;       //for i
-    }
-    ;
+            };     //thisType != undefined
+        };        //for i
+    };
 
     if (thisType.type == "GeometryCollection") {
         for (var i = 0; i < thisType.geometries.length; i++) {
             if (typeof (thisType.geometries[i].type) != "undefined") {
                 getTypeData(thisType.geometries[i]);		//  recurse if GeometryCollection
-            }
-            ;     //thisType != undefined
-        }
-        ;       //for i
-    }
-    ;
+            };     //thisType != undefined
+        };       //for i
+    };
 
     if (thisType.type == "Point") {
         xgtlt(thisType.coordinates[0]);
         ygtlt(thisType.coordinates[1]); //box check
-    }
-    ;
+    };
 
     if (thisType.type == "MultiPoint") {
         for (var l = 0; l < thisType.coordinates.length; l++) {
             xgtlt(thisType.coordinates[l][0]);
             ygtlt(thisType.coordinates[l][1]); //box check
-        }
-        ;
-    }
-    ;
+        };
+    };
 
     if (thisType.type == "LineString") {
         for (var l = 0; l < thisType.coordinates.length; l++) {
             xgtlt(thisType.coordinates[l][0]);
             ygtlt(thisType.coordinates[l][1]); //box check
-        }
-        ;
-    }
-    ;
+        };
+    };
 
     if (thisType.type == "MultiLineString") {
         for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
-            //var m = gLinePoints.length;
-            //gLinePoints[m] = [];
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
                 xgtlt(thisType.coordinates[k][l][0]);
                 ygtlt(thisType.coordinates[k][l][1]); //box check
-            }
-            ;
-        }
-        ;
-    }
-    ;
+            };
+        };
+    };
 
     if (thisType.type == "Polygon") {
         for (var k = 0; k < thisType.coordinates.length; k++) {
@@ -389,12 +341,9 @@ function getTypeData(thisType) {        // this version does not create google o
             for (var l = 0; l < thisType.coordinates[k].length; l++) {
                 xgtlt(thisType.coordinates[k][l][0]);
                 ygtlt(thisType.coordinates[k][l][1]); //box check
-            }
-            ;
-        }
-        ;
-    }
-    ;
+            };
+        };
+    };
 
     if (thisType.type == "MultiPolygon") {
         for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
@@ -402,14 +351,10 @@ function getTypeData(thisType) {        // this version does not create google o
                 for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
                     xgtlt(thisType.coordinates[j][k][l][0]);
                     ygtlt(thisType.coordinates[j][k][l][1]); //box check
-                }
-                ;
-            }
-            ;
-        }
-        ;
-    }
-    ;
+                };
+            };
+        };
+    };
 };        //getFeatureData
 
 
@@ -422,7 +367,7 @@ function xgtlt(xtest) {         // point-wise x-bound extender
         if (xtest <= xminm) {   // xminm initially 0
            xminm = xtest;
         }
-    }
+    };
     if (xtest >= 0) {                  // eastern hemisphere
         if (xtest >= xmaxp) {   // xmaxp initially 0
             xmaxp = xtest;
@@ -430,18 +375,16 @@ function xgtlt(xtest) {         // point-wise x-bound extender
         if (xtest <= xminp) {   // xminp initially 180
             xminp = xtest;
         }
-    }
+    };
 };
 
 function ygtlt(ytest) {         // point-wise y-bound extender
     if (ytest > ymax) {
         ymax = ytest;
-    }
-    ;
+    };
     if (ytest < ymin) {
         ymin = ytest;
-    }
-    ;
+    };
 };
 
 
