@@ -2,7 +2,7 @@ namespace :tw do
   namespace :initialization do
 
     desc 'call like "rake tw:initialization:build_languages[/Users/matt/Downloads/ISO-639-2_utf-8.txt]"'
-    task :build_languages, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+    task :build_languages, [:data_directory] => [:environment, :user_id] do |t, args|
       args.with_defaults(:data_directory => './ISO-639-2_utf-8.txt')
      
       # TODO: check checksums of incoming files?
