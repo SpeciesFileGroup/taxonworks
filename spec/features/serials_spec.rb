@@ -27,5 +27,22 @@ describe 'Serials', :type => :feature do
     end
 
   end
+
+  context 'testing new serial' do
+    before {
+      sign_in_user
+      visit serials_path
+    }
+    specify 'new link is present on serial page' do
+      expect(page).to have_link('New') # it has a new link
+    end
+    specify 'can create a new serial' do
+      click_link('New') # when I click the new link
+
+      fill_in()# fill out the first name field with "Journal of Mythical Beasts"
+      # when I click the 'Create Serial' button
+      # then I get the message "Serial 'Journal of Mythical Beasts' was successfully created"
+    end
+  end
 end
 

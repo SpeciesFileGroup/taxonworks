@@ -19,7 +19,7 @@ namespace :tw do
       task :serials_4_build_SF_serials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
         args.with_defaults(:data_directory => './SFSerialExport.txt')
 
-        # can/should? be run after MXserial import
+        # must be run after MX/treehopper serial import
 
         # First file SF_serial_export.txt
         $stdout.sync = true

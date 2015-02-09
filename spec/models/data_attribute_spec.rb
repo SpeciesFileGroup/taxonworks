@@ -67,6 +67,7 @@ describe DataAttribute, :type => :model do
       o = FactoryGirl.build(:valid_serial)
       ip = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
       att = DataAttribute.new({import_predicate: ip.name, value: '6', type: 'ImportAttribute'})
+      att.project_id = nil # must explicitly set to nil due to the way it is created
       o.data_attributes <<  att
       expect(o.valid?).to be_truthy
       expect(o.data_attributes.to_a.count).to eq(1)
@@ -78,6 +79,7 @@ describe DataAttribute, :type => :model do
       o = FactoryGirl.build(:valid_serial)
       p = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
       att = DataAttribute.new({predicate: p, value: '6', type: 'InternalAttribute'})
+      att.project_id = nil # must explicitly set to nil due to the way it is created
       o.data_attributes <<  att
       expect(o.valid?).to be_truthy
       expect(o.data_attributes.to_a.count).to eq(1)
