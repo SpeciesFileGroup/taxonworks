@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 # TO resolve with Proceps
-#   - we have relationships for gender 'TaxonNameClassification::Latinized::Gender::Feminine', we need to resolve these vs. TaxonName masculine etc. forms
-#      - this is a string / string relatinoships, that doesn't imply Protonym status, perhaps we need a new class of String (basically a Nomenclator class?!)
 #  - we need to write tests for all instance methods, including:
 #   all_generic_placements  
 #   list_of_coordinated_names
@@ -33,6 +31,43 @@ describe Protonym, :type => :model do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     Source.delete_all
+  end
+
+  context 'methods' do
+    specify 'all_generic_placements' do
+      family = FactoryGirl.create(:relationship_family)
+      genus = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
+      genus1 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family)
+      genus2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: family)
+      genus3 = FactoryGirl.create(:relationship_genus, name: 'Dus', parent: family)
+      species = FactoryGirl.create(:iczn_species, parent: genus)
+      species.reload
+      expect(species.all_generic_placements).to eq(['Aus'])
+      species.original_genus = genus1
+      species.reload
+      expect(species.all_generic_placements.sort).to eq(['Aus', 'Bus'])
+      combination = Combination.new(genus: genus2, species: species)
+      expect(combination.save).to be_truthy
+      species.reload
+      expect(species.all_generic_placements.sort).to eq(['Aus', 'Bus', 'Cus'])
+      combination1 = Combination.new(genus: genus3, species: species)
+      expect(combination1.save).to be_truthy
+      species.reload
+      expect(species.all_generic_placements.sort).to eq(['Aus', 'Bus', 'Cus', 'Dus'])
+    end
+
+
+    #   all_generic_placements
+    #   list_of_coordinated_names
+    #   lowest_rank_coordinated_taxon
+    #   ancestors_and_descendants
+    #   get_primary_type
+    #   matching_primary_types
+    #   incorrect_originall_spelling
+    #   incertae_sedis
+    #   original_combination_class_relationships
+    #   original_combination_relationships_and_stubs
+
   end
 
   context 'validation' do
