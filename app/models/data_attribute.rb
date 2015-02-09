@@ -24,11 +24,27 @@ class DataAttribute < ActiveRecord::Base
   include Shared::Annotates
 
   belongs_to :attribute_subject, polymorphic: true
+
+  #following is the code before I tried to make annotates work - eef 2/9/15
   # Please DO NOT include the following:  (follows Identifier approach)
   #   validates_presence_of :attribute_subject_type, :attribute_subject_id
   #   validates :attribute_subject, presence: true
   validates_presence_of :type, :value
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type]
+
+=begin
+  # new code begin - eef 2/9/15
+  validates_presence_of :type, :value
+  validates :attribute_subject, presence: true
+
+  before_validation :ensure_value_is_unique_in_scope
+
+  def ensure_value_is_unique_in_scope
+    errors.add(:value, 'Value is not unique within scope') if
+      (false)    #TODO write this test
+  end
+  # new code end - eef 2/9/15
+=end
 
   def self.find_for_autocomplete(params)
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
