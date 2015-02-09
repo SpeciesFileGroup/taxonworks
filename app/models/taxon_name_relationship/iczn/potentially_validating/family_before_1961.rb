@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < TaxonNameRelationship::Iczn::PotentiallyValidating
 
-  NOMEN_URI=''
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000042'
 
   # left_side
   def self.valid_subject_ranks

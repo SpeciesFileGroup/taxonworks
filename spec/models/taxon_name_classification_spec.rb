@@ -17,6 +17,16 @@ describe TaxonNameClassification, :type => :model do
     end
   end
 
+  specify 'missing and duplicate NOMEN_URI' do
+    nomen_uris = []
+    TaxonNameClassification.descendants.each do |klass|
+      uri = klass.nomen_uri
+      expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
+      expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
+      nomen_uris.push uri
+    end
+  end
+
   context "validation" do
     context "requires" do
       before (:all) do

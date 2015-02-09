@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelationship::Iczn::Validating
 
-  NOMEN_URI=''
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000023'
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

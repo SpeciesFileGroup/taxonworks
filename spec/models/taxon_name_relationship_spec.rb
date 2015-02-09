@@ -35,6 +35,18 @@ describe TaxonNameRelationship, :type => :model do
     specify 'type' do
       expect(taxon_name_relationship).to respond_to (:type)
     end
+
+    specify 'missing and duplicate NOMEN_URI' do
+      nomen_uris = []
+      TaxonNameRelationship.descendants.each do |klass|
+        if klass.name =~ /::(Icn|Iczn)::/
+          uri = klass.nomen_uri
+          expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
+          expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
+          nomen_uris.push uri
+        end
+      end
+    end
   end
 
   context 'associations' do

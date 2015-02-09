@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < TaxonNameRelationship::Iczn::PotentiallyValidating
 
-  NOMEN_URI=''
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000269'
 
   def self.subject_relationship_name
     'reinstated name'

@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < TaxonNameRelationship::Iczn::PotentiallyValidating
 
-  NOMEN_URI=''
+  NOMEN_URI='270'
 
   def self.assignable
     true

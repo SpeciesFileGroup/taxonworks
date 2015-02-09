@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < TaxonNameRelationship::Iczn::PotentiallyValidating
 
-  NOMEN_URI=''
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000271'
 
   def self.assignable
     true
