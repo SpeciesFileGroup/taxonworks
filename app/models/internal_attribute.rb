@@ -8,9 +8,6 @@
 #   The the id of the ControlledVocabularyTerm::Predicate.  Term is referenced as .predicate.
 #
 class InternalAttribute < DataAttribute 
-  include Housekeeping
-
-
   belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', inverse_of: :internal_attributes, class_name: 'Predicate'
   validates :predicate, presence: true
 
