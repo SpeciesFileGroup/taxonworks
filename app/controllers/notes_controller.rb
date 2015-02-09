@@ -14,7 +14,7 @@ class NotesController < ApplicationController
   # GET /notes
   # GET /notes.json
   def index
-    @notes = Note.all
+    @recent_objects = Note.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /notes
@@ -58,6 +58,35 @@ class NotesController < ApplicationController
       format.html { redirect_to :back, notice: 'Note was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @notes = Note.where(project_id: $project_id).order(:note_object_type).page(params[:page])
+  end
+
+  # GET /notes/search
+  def search
+    if params[:id]
+      redirect_to note_path(params[:id])
+    else
+      redirect_to note_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @notes = Note.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = @notes.collect do |t|
+      str = render_to_string(partial: 'tag', locals: {note: t})
+      {id: t.id,
+       label: str,
+       response_values: {
+           params[:method] => t.id},
+       label_html: str
+      }
+    end
+
+    render :json => data
   end
 
   private

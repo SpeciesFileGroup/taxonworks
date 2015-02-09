@@ -32,8 +32,13 @@ class Note < ActiveRecord::Base
   def annotated_object
     note_object 
   end
-  
+
+  def self.find_for_autocomplete(params)
+    where('text LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+  end
+
   protected
+
   def no_pipes
     if !self.text.blank?
       errors.add(:text, 'TW notes may not contain a pipe (|)') if self.text.include?('|')

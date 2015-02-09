@@ -1,14 +1,14 @@
-<h1>Notes</h1>
+<h1>Listing notes</h1>
 
-<%= paginate @notes%> <%= page_entries_info @notes %>
+<%= paginate @notes %> <%= page_entries_info @notes %>
 
 <table>
   <thead>
   <tr>
-    <th>Text</th>
-    <th>Note object</th>
     <th>Note object type</th>
+    <th>Note object</th>
     <th>Note object attribute</th>
+    <th>Text</th>
     <th>Last modified</th>
     <th>Updated by</th>
     <th></th>
@@ -20,15 +20,15 @@
   <tbody>
   <% @notes.each do |note| %>
       <tr>
-        <td><%= note.text %></td>
-        <td><%= note.note_object_id %></td>
         <td><%= note.note_object_type %></td>
+        <td><%= note.note_object_id %></td>
         <td><%= note.note_object_attribute %></td>
+        <td><%= note.text %></td>
         <td><%= note.updated_at %></td>
         <td><%= object_tag(note.updater) %></td>
-        <td><%= link_to 'Show', note %></td>
+        <td><%= link_to 'Context', note.note_object.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_note_path(note) %></td>
-        <td><%= link_to 'Destroy', note, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', note.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
   </tbody>
