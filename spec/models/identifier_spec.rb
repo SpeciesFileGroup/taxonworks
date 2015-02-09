@@ -2,9 +2,10 @@ require 'rails_helper'
 
 describe Identifier, :type => :model do
   let(:identifier) { FactoryGirl.build(:identifier) }
-  let(:namespace) {FactoryGirl.create(:valid_namespace)}
-  let(:specimen1) {FactoryGirl.create(:valid_specimen)}
-  let(:specimen2) {FactoryGirl.create(:valid_specimen)}
+  let(:namespace) { FactoryGirl.create(:valid_namespace) }
+  let(:specimen1) { FactoryGirl.create(:valid_specimen) }
+  let(:specimen2) { FactoryGirl.create(:valid_specimen) }
+  let(:serial) { FactoryGirl.create(:valid_serial) }
 
   context 'validation' do
 
@@ -14,13 +15,13 @@ describe Identifier, :type => :model do
       end
 
       # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
-      specify 'identifier_object' do 
+      specify 'identifier_object' do
         # this eliminate all model based validation requirements
-        identifier.type = 'Identifier::Local::CatalogNumber'
+        identifier.type         = 'Identifier::Local::CatalogNumber'
         identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
-        identifier.identifier = '123'
+        identifier.identifier   = '123'
 
-        expect{identifier.save}.to raise_error ActiveRecord::StatementInvalid
+        expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
       end
 
       specify 'identifier' do
@@ -34,7 +35,7 @@ describe Identifier, :type => :model do
 
     # sanity check for Housekeeping, which is tested elsewhere 
     context 'sets housekeeping' do
-      before {identifier.valid?}
+      before { identifier.valid? }
       specify 'creator' do
         expect(identifier.errors.include?(:creator)).to be_falsey
       end
@@ -43,27 +44,45 @@ describe Identifier, :type => :model do
         expect(identifier.errors.include?(:updater)).to be_falsey
       end
 
-      specify 'with <<' do
+      specify 'with << non community object' do
         expect(specimen1.identifiers.count).to eq(0)
         specimen1.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
-        expect(specimen1.save).to be_truthy 
+        expect(specimen1.save).to be_truthy
         expect(specimen1.identifiers.first.creator.nil?).to be_falsey
         expect(specimen1.identifiers.first.updater.nil?).to be_falsey
         expect(specimen1.identifiers.first.project.nil?).to be_falsey
       end
 
-      specify 'with .build' do
+      specify 'with << community object' do
+        expect(serial.identifiers.count).to eq(0)
+        serial.identifiers << Identifier::Global::Issn.new(identifier: '0375-0825')
+        expect(serial.save).to be_truthy
+        expect(serial.identifiers.first.creator.nil?).to be_falsey
+        expect(serial.identifiers.first.updater.nil?).to be_falsey
+        expect(serial.identifiers.first.project.nil?).to be_truthy
+      end
+
+      specify 'with .build  non community object' do
         expect(specimen1.identifiers.count).to eq(0)
         specimen1.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
-        expect(specimen1.save).to be_truthy 
+        expect(specimen1.save).to be_truthy
         expect(specimen1.identifiers.first.creator.nil?).to be_falsey
         expect(specimen1.identifiers.first.updater.nil?).to be_falsey
         expect(specimen1.identifiers.first.project.nil?).to be_falsey
       end
 
-      specify 'with new objects and <<' do
+      specify 'with .build community object' do
+        expect(serial.identifiers.count).to eq(0)
+        serial.identifiers.build(type: 'Identifier::Global::Issn', identifier: '0375-0825')
+        expect(serial.save).to be_truthy
+        expect(serial.identifiers.first.creator.nil?).to be_falsey
+        expect(serial.identifiers.first.updater.nil?).to be_falsey
+        expect(serial.identifiers.first.project.nil?).to be_truthy
+      end
+
+      specify 'with new non community objects and <<' do
         s = FactoryGirl.build(:valid_specimen)
-        s.identifiers <<  Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
+        s.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
         expect(s.save).to be_truthy
         expect(s.identifiers.count).to eq(1)
         expect(s.identifiers.first.creator.nil?).to be_falsey
@@ -71,7 +90,17 @@ describe Identifier, :type => :model do
         expect(s.identifiers.first.project.nil?).to be_falsey
       end
 
-      specify 'with new objects and build' do
+      specify 'with new community objects and <<' do
+        s = FactoryGirl.build(:valid_serial)
+        s.identifiers << Identifier::Global::Issn.new(identifier: '0375-0825')
+        expect(s.save).to be_truthy
+        expect(s.identifiers.count).to eq(1)
+        expect(s.identifiers.first.creator.nil?).to be_falsey
+        expect(s.identifiers.first.updater.nil?).to be_falsey
+        expect(s.identifiers.first.project.nil?).to be_truthy
+      end
+
+      specify 'with new non community objects and build' do
         s = FactoryGirl.build(:valid_specimen)
         s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
         expect(s.save).to be_truthy
@@ -80,11 +109,22 @@ describe Identifier, :type => :model do
         expect(s.identifiers.first.updater.nil?).to be_falsey
         expect(s.identifiers.first.project.nil?).to be_falsey
       end
-    end 
+
+      specify 'with new community objects and build' do
+        s = FactoryGirl.build(:valid_serial)
+        s.identifiers.build(type:       'Identifier::Global::Issn',
+                            identifier: '0375-0825')
+        expect(s.save).to be_truthy
+        expect(s.identifiers.count).to eq(1)
+        expect(s.identifiers.first.creator.nil?).to be_falsey
+        expect(s.identifiers.first.updater.nil?).to be_falsey
+        expect(s.identifiers.first.project.nil?).to be_truthy
+      end
+    end
 
     specify 'has an identifier_object' do
       expect(identifier).to respond_to(:identifier_object)
-      expect(identifier.identifier_object).to be(nil)   
+      expect(identifier.identifier_object).to be(nil)
     end
 
     specify 'you can\'t add non-unique identifiers of the same type to a two objects' do
