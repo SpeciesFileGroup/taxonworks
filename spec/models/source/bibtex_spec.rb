@@ -4,29 +4,29 @@ describe Source::Bibtex, :type => :model do
 
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
-  let(:gem_bibtex_entry1) { 
+  let(:gem_bibtex_entry1) {
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  } 
+  }
 
   let(:gem_bibtex_entry2) {
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: '1921')
-  } 
+  }
 
   let(:valid_gem_bibtex_book) {
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Valid Bibtex of America', author: 'Smith, James')
-  } 
+  }
 
- #let(:invalid_gem_bibtex_book) {
- #  BibTeX::Entry.new(bibtex_type: 'book', title: 'InValid Bibtex of America',  author: 'Smith, James', year: 1921)
- #} 
+  #let(:invalid_gem_bibtex_book) {
+  #  BibTeX::Entry.new(bibtex_type: 'book', title: 'InValid Bibtex of America',  author: 'Smith, James', year: 1921)
+  #}
 
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
-  } 
+  }
 
   let(:simple1_gem_bibtex) {
     BibTeX::Entry.new()
-  } 
+  }
 
   let(:simple2_gem_bibtex) {
     BibTeX::Entry.new()
@@ -150,9 +150,11 @@ describe Source::Bibtex, :type => :model do
         expect(@s.notes.size).to eq(1)
         b = @s.to_bibtex
 
-        #TODO: test formatting in notes 
+        out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
         expect(b[:note].to_s =~ /#{n}/).to be_truthy
         expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
+        expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
+        #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
       end
 
       specify 'multiple object notes get converted properly' do
@@ -164,11 +166,14 @@ describe Source::Bibtex, :type => :model do
         expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
         expect(@s.save).to be_truthy
         expect(@s.notes.count).to eq(2)
-        b = @s.to_bibtex
+        b         = @s.to_bibtex
 
-        #TODO: test formatting in notes 
+        # not sure how ordering should be tested? For now note2 always comes out first.
+        out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
+        out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
         expect(b[:note].to_s =~ /#{n1}/).to be_truthy
         expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+        expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
       end
 
       specify 'a single attribute note gets converted properly' do
@@ -186,8 +191,47 @@ describe Source::Bibtex, :type => :model do
 
       end
 
-      skip 'multiple attribute notes get converted properly'
-      skip 'mixed attribute & object notes'
+      specify 'multiple attribute notes get converted properly' do
+        n1 = 'test note1'
+        n2 = 'test note2'
+        expect(@s.notes.count).to eq(0) # @s has no notes
+        expect(@s.save).to be_truthy # object has to be saved before adding a note
+        expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+        expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+        expect(@s.save).to be_truthy
+        expect(@s.notes.count).to eq(2)
+        b         = @s.to_bibtex
+
+        # not sure how ordering should be tested? For now note2 always comes out first.
+        out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
+        out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
+        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+        expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
+      end
+
+      specify 'mixed attribute & object notes' do
+        n1 = 'object note1'
+        n2 = 'author note2'
+        n3 = 'title note3'
+        expect(@s.notes.count).to eq(0) # @s has no notes
+        expect(@s.save).to be_truthy # object has to be saved before adding a note
+        expect(@s.notes << Note.new(text: n1)).to be_truthy
+        expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+        expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+        expect(@s.save).to be_truthy
+        expect(@s.notes.count).to eq(3)
+        b         = @s.to_bibtex
+
+        # not sure how ordering should be tested? For now note3 always comes out first.
+        out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
+        out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
+        out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
+        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+        expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
+      end
+
       skip 'serial gets converted properly to bibtex journal' do
 
       end
@@ -209,9 +253,9 @@ describe Source::Bibtex, :type => :model do
     end
 
     specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
-      note                        = "This is a note.\n With multiple lines."
+      note                       = "This is a note.\n With multiple lines."
       valid_gem_bibtex_book.note = note
-      s                           = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.notes.to_a.count).to eq(1)
       expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
       expect(s.save).to be_truthy
@@ -219,9 +263,9 @@ describe Source::Bibtex, :type => :model do
     end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier                  = '1-84356-028-3' # TODO: update when validation on isbn happens
+      identifier                 = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
-      s                           = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -232,9 +276,9 @@ describe Source::Bibtex, :type => :model do
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
       %w{2049-3630 2049-363x 2049-363X}.each do |n|
         specify "ISSN #{n}" do
-          identifier                  = "#{n}" # TODO: update when validation on issn happens
+          identifier                 = "#{n}"
           valid_gem_bibtex_book.issn = identifier
-          s                           = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
           expect(s.identifiers.to_a.count).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
@@ -250,9 +294,9 @@ describe Source::Bibtex, :type => :model do
       #  Registrant using SICI: doi:10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
       #  Registrant using internal scheme: doi:10.6789/JoesPaper56
 
-      identifier                 = '10.2345/S1384107697000225' # TODO: update when validation on doi happens
+      identifier                = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
-      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s                         = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -288,7 +332,7 @@ describe Source::Bibtex, :type => :model do
       let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg           = 'year must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg          = 'year must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -316,14 +360,14 @@ describe Source::Bibtex, :type => :model do
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg = 'year is required when month or stated_year is provided'
+        error_msg           = 'year is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
       end
 
-      specify 'if state_year is set, there must be a year' do
-        skip  #TODO
+      specify 'if stated_year is set, there must be a year' do
+        skip #TODO
       end
 
       context 'months' do
@@ -384,7 +428,7 @@ describe Source::Bibtex, :type => :model do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg          = 'month is required when day is provided'
+          error_msg         = 'month is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
@@ -400,9 +444,9 @@ describe Source::Bibtex, :type => :model do
         end
       end
     end
-    
+
     context 'on save set cached values - single author' do
-      let(:l_src) {FactoryGirl.create(:soft_valid_bibtex_source_article)}
+      let(:l_src) { FactoryGirl.create(:soft_valid_bibtex_source_article) }
 
       specify 'save src' do
         expect(l_src.save).to be_truthy
@@ -416,15 +460,15 @@ describe Source::Bibtex, :type => :model do
         specify 'src should have a cached value' do
           expect(l_src.cached.blank?).to be_falsey
         end
-        
+
         specify 'which equals...(currently failing due to problems with citeproc)' do
           expect(l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
         end
-       
+
         specify 'cached author should be set' do
           expect(l_src.cached_author_string.blank?).to be_falsey
         end
-      
+
         specify 'which equals...' do
           expect(l_src.cached_author_string).to eq('Person')
         end
@@ -501,14 +545,14 @@ describe Source::Bibtex, :type => :model do
   end
 
   # sanity check for Housekeeping, which is also tested elsewhere 
-  context 'roles and houskeeping' do 
-    let(:bibtex) { Source::Bibtex.create(title: 'Roles', year: 1923, bibtex_type: 'book' ) }
+  context 'roles and houskeeping' do
+    let(:bibtex) { Source::Bibtex.create(title: 'Roles', year: 1923, bibtex_type: 'book') }
 
     specify 'with << and an existing object' do
       expect(bibtex.roles.count).to eq(0)
       # this pattern appears to save off Person before it is added!
-      bibtex.authors << Person.new(last_name: "Smith") 
-      expect(bibtex.save).to be_truthy 
+      bibtex.authors << Person.new(last_name: "Smith")
+      expect(bibtex.save).to be_truthy
 
       expect(bibtex.authors.first.creator.nil?).to be_falsey
       expect(bibtex.authors.first.updater.nil?).to be_falsey
@@ -521,14 +565,14 @@ describe Source::Bibtex, :type => :model do
       expect(bibtex.roles.count).to eq(0)
       p = Person.create(last_name: 'Smith')
       bibtex.author_roles.build(person: p)
-      expect(bibtex.save).to be_truthy 
+      expect(bibtex.save).to be_truthy
       expect(bibtex.roles.first.creator.nil?).to be_falsey
       expect(bibtex.roles.first.updater.nil?).to be_falsey
       expect(bibtex.roles.first.project_id.nil?).to be_truthy # no project_id on author_roles
     end
 
     context 'with a new object' do
-      let(:s) {Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
+      let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
       specify 'with new object, <<, and existing Person' do
         expect(bibtex.roles.count).to eq(0)
         s.authors << Person.create(last_name: 'Jones')
@@ -576,7 +620,7 @@ describe Source::Bibtex, :type => :model do
         expect(Person.count).to eq(0)
       end
     end
-  end 
+  end
 
   context 'instance methods - ' do
     before(:each) {
@@ -606,7 +650,7 @@ describe Source::Bibtex, :type => :model do
 
         %w{author editor}.each do |a|
           context "creates people for #{a}s" do
-            let(:source_bibtex) {FactoryGirl.build(:valid_source_bibtex) }
+            let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
             specify "single #{a}" do
               method = "#{a}s"
               source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
@@ -631,7 +675,7 @@ describe Source::Bibtex, :type => :model do
               expect(Person.count).to eq(0)
               expect(source_bibtex.create_related_people_and_roles).to be_truthy
               expect(Person.count).to eq(3)
-              
+
               source_bibtex.reload
 
               expect(source_bibtex.send(method.to_sym).to_a.count).to eq(3)
@@ -712,7 +756,7 @@ describe Source::Bibtex, :type => :model do
             specify "can not be run when #{a} exists" do
               @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill and Jones, Jane')
               @source_bibtex.save
-              expect(@source_bibtex.create_related_people_and_roles).to be_truthy 
+              expect(@source_bibtex.create_related_people_and_roles).to be_truthy
               @source_bibtex.reload
               if a == 'author'
                 expect(@source_bibtex.valid? && @source_bibtex.authors.count == 2).to be_truthy
@@ -734,16 +778,16 @@ describe Source::Bibtex, :type => :model do
           let(:has_method) { "has_#{a}s?" }
 
           specify "returns false if neither exist" do
-            expect(@source_bibtex.send(has_method)).to be_falsey 
+            expect(@source_bibtex.send(has_method)).to be_falsey
           end
 
           specify 'returns true if author attribute populated' do
             @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
             expect(@source_bibtex.send(has_method)).to be_truthy
-          end 
+          end
 
-          context 'saved and with .authors.count > 0 and (initially) !.author.nil?' do 
-            before{ 
+          context 'saved and with .authors.count > 0 and (initially) !.author.nil?' do
+            before {
               @source_bibtex.save
               @source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
               @source_bibtex.create_related_people_and_roles
@@ -751,13 +795,13 @@ describe Source::Bibtex, :type => :model do
 
             specify 'returns true when if !author.nil? AND .authors.count > 0' do
               @source_bibtex.reload
-              expect(@source_bibtex.send(has_method)).to be_truthy 
+              expect(@source_bibtex.send(has_method)).to be_truthy
             end
 
             specify 'returns true if, subsequently, .author.nil?' do
               @source_bibtex.send("#{a}=".to_sym, nil)
               @source_bibtex.reload
-              expect(@source_bibtex.send(has_method)).to be_truthy 
+              expect(@source_bibtex.send(has_method)).to be_truthy
             end
           end
         end
@@ -942,7 +986,9 @@ describe Source::Bibtex, :type => :model do
     end
   end
 
+=begin
   context 'supporting libs' do
+    # TODO support for a zotero bibliography
     context 'if I have a zotero bibliography' do
       context 'and I import it to TW' do
         context 'when I update a record in zotero' do
@@ -954,14 +1000,16 @@ describe Source::Bibtex, :type => :model do
     end
 
     context 'Hackathon requirements' do
-      # TODO: code lib/bibtex
+      # TODO: code lib/bibtex   - round trip a file?
+      # note that we've determined that some fields won't round trip properly (notes)
       skip 'Should be able to round trip data a whole file '
       #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
     end
   end
+=end
 
   context 'soft validations' do
-    let(:source_bibtex) {FactoryGirl.build(:valid_source_bibtex) } 
+    let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
 
     specify 'missing authors' do
       source_bibtex.soft_validate(:recommended_fields)
