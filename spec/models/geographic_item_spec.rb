@@ -2,11 +2,11 @@ require 'rails_helper'
 require_relative '../support/geo/geo'
 
 # include the subclasses, perhaps move this out
-Dir[Rails.root.to_s +  '/app/models/geographic_item/**/*.rb'].each{|file| require_dependency file} 
+Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
 describe GeographicItem, :type => :model do
 
-  let(:geographic_item) {GeographicItem.new}
+  let(:geographic_item) { GeographicItem.new }
 
   before(:all) {
     clean_slate_geo
@@ -131,7 +131,7 @@ describe GeographicItem, :type => :model do
     context 'type is set before validation when column is provided (assumes type is null)' do
       GeographicItem::DATA_TYPES.each do |t|
         specify "for #{t}" do
-          geographic_item.send("#{t}=", SIMPLE_SHAPES[t]) 
+          geographic_item.send("#{t}=", SIMPLE_SHAPES[t])
           expect(geographic_item.valid?).to be_truthy
           expect(geographic_item.type).to eq("GeographicItem::#{t.to_s.camelize}")
         end
@@ -143,7 +143,7 @@ describe GeographicItem, :type => :model do
         specify "for #{d}" do
           expect(d::SHAPE_COLUMN).to be_truthy
         end
-      end 
+      end
     end
 
     specify '#geo_object_type' do
@@ -152,7 +152,7 @@ describe GeographicItem, :type => :model do
 
     specify '#geo_object_type when item not saved' do
       geographic_item.point = SIMPLE_SHAPES[:point]
-      expect(geographic_item.geo_object_type).to eq(:point) 
+      expect(geographic_item.geo_object_type).to eq(:point)
     end
   end
 
@@ -339,258 +339,6 @@ describe GeographicItem, :type => :model do
       expect(@e1.contains?(@p10.geo_object)).to be_falsey
     end
 
-
-    context 'that each type of item knows how to emits its own array' do
-      specify 'that represents a point' do
-        expect(@r2024.to_a).to eq [-88.241413, 40.091655]
-      end
-
-      specify 'that represents a line_string' do
-        expect(@a.to_a).to eq [[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]
-      end
-
-      specify 'that represents a polygon' do
-        expect(@k.to_a).to eq [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0],
-                               [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]
-      end
-
-      specify 'that represents a multi_point' do
-        expect(@rooms.to_a).to eq [[-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655]]
-      end
-
-      specify 'that represents a multi_line_string' do
-        expect(@c.to_a).to eq [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]],
-                               [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]],
-                               [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]]
-      end
-
-      specify 'that represents a multi_polygon' do
-        expect(@g.to_a).to eq [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]],
-                               [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]],
-                               [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]]
-      end
-    end
-
-    context 'that each type of item knows how to emits its own hash' do
-      specify 'for a point' do
-        expect(@r2024.rendering_hash).to eq(points: [[-88.241413, 40.091655]])
-      end
-
-      specify 'for a line_string' do
-        expect(@a.rendering_hash).to eq(lines: [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]]])
-      end
-
-      specify 'for a polygon' do
-        expect(@k.rendering_hash).to eq(polygons: [[[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0],
-                                                    [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]]])
-      end
-
-      specify 'for a multi_point' do
-        expect(@rooms.rendering_hash).to eq(points: [[-88.241421, 40.091565],
-                                                     [-88.241417, 40.09161],
-                                                     [-88.241413, 40.091655]])
-      end
-
-      specify 'for a multi_line_string' do
-        expect(@c.rendering_hash).to eq(lines: [[[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]],
-                                                [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]],
-                                                [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]]])
-      end
-
-      specify 'for a multi_polygon' do
-        expect(@g.rendering_hash).to eq(polygons: [[[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]],
-                                                   [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]],
-                                                   [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]]])
-      end
-
-      specify 'for a geometry_collection' do
-        expect(@all_items.rendering_hash[:points]).to eq [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0],
-                                                          [4.0, -17.9], [7.0, -17.9], [3.0, -14.0],
-                                                          [6.0, -12.9], [5.0, -16.0], [4.0, -17.9],
-                                                          [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161],
-                                                          [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0],
-                                                          [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0],
-                                                          [3.0, -14.0], [6.0, -12.9], [5.0, -16.0],
-                                                          [4.0, -17.9], [7.0, -17.9], [32.2, 22.0],
-                                                          [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0],
-                                                          [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0],
-                                                          [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9],
-                                                          [-8.0, -4.0], [-4.0, -8.0], [-10.0, -6.0]]
-
-        expect(@all_items.rendering_hash[:lines]).to eq [[
-                                                           [-32.0, 21.0],
-                                                           [-25.0, 21.0],
-                                                           [-25.0, 16.0],
-                                                           [-21.0, 20.0]
-                                                         ],
-                                                         [
-                                                           [23.0, 21.0],
-                                                           [16.0, 21.0],
-                                                           [16.0, 16.0],
-                                                           [11.0, 20.0]
-                                                         ],
-                                                         [
-                                                           [4.0, 12.6],
-                                                           [16.0, 12.6],
-                                                           [16.0, 7.6]
-                                                         ],
-                                                         [
-                                                           [21.0, 12.6],
-                                                           [26.0, 12.6],
-                                                           [22.0, 17.6]
-                                                         ],
-                                                         [
-                                                           [-33.0, 11.0],
-                                                           [-24.0, 4.0],
-                                                           [-26.0, 13.0],
-                                                           [-31.0, 4.0],
-                                                           [-33.0, 11.0]
-                                                         ],
-                                                         [
-                                                           [-20.0, -1.0],
-                                                           [-26.0, -6.0]
-                                                         ],
-                                                         [
-                                                           [-21.0, -4.0],
-                                                           [-31.0, -4.0]
-                                                         ],
-                                                         [
-                                                           [27.0, -14.0],
-                                                           [18.0, -21.0],
-                                                           [20.0, -12.0],
-                                                           [25.0, -23.0]
-                                                         ],
-                                                         [
-                                                           [27.0, -14.0],
-                                                           [18.0, -21.0],
-                                                           [20.0, -12.0],
-                                                           [25.0, -23.0]
-                                                         ],
-                                                         [
-                                                           [-16.0, -15.5],
-                                                           [-22.0, -20.5]]
-                                                        ]
-
-        expect(@all_items.rendering_hash[:polygons]).to eq [[
-                                                              [-14.0, 23.0],
-                                                              [-14.0, 11.0],
-                                                              [-2.0, 11.0],
-                                                              [-2.0, 23.0],
-                                                              [-8.0, 21.0],
-                                                              [-14.0, 23.0]
-                                                            ],
-                                                            [
-                                                              [-19.0, 9.0],
-                                                              [-9.0, 9.0],
-                                                              [-9.0, 2.0],
-                                                              [-19.0, 2.0],
-                                                              [-19.0, 9.0]
-                                                            ],
-                                                            [
-                                                              [5.0, -1.0],
-                                                              [-14.0, -1.0],
-                                                              [-14.0, 6.0],
-                                                              [5.0, 6.0],
-                                                              [5.0, -1.0]
-                                                            ],
-                                                            [
-                                                              [-11.0, -1.0],
-                                                              [-11.0, -5.0],
-                                                              [-7.0, -5.0],
-                                                              [-7.0, -1.0],
-                                                              [-11.0, -1.0]
-                                                            ],
-                                                            [
-                                                              [-3.0, -9.0],
-                                                              [-3.0, -1.0],
-                                                              [-7.0, -1.0],
-                                                              [-7.0, -9.0],
-                                                              [-3.0, -9.0]
-                                                            ],
-                                                            [
-                                                              [-7.0, -9.0],
-                                                              [-7.0, -5.0],
-                                                              [-11.0, -5.0],
-                                                              [-11.0, -9.0],
-                                                              [-7.0, -9.0]
-                                                            ],
-                                                            [
-                                                              [28.0, 2.3],
-                                                              [23.0, -1.7],
-                                                              [26.0, -4.8],
-                                                              [28.0, 2.3]
-                                                            ],
-                                                            [
-                                                              [22.0, -6.8],
-                                                              [22.0, -9.8],
-                                                              [16.0, -6.8],
-                                                              [22.0, -6.8]
-                                                            ],
-                                                            [
-                                                              [16.0, 2.3],
-                                                              [14.0, -2.8],
-                                                              [18.0, -2.8],
-                                                              [16.0, 2.3]
-                                                            ],
-                                                            [
-                                                              [28.0, 2.3],
-                                                              [23.0, -1.7],
-                                                              [26.0, -4.8],
-                                                              [28.0, 2.3]
-                                                            ],
-                                                            [
-                                                              [22.0, -6.8],
-                                                              [22.0, -9.8],
-                                                              [16.0, -6.8],
-                                                              [22.0, -6.8]],
-                                                            [
-                                                              [16.0, 2.3],
-                                                              [14.0, -2.8],
-                                                              [18.0, -2.8],
-                                                              [16.0, 2.3]
-                                                            ],
-                                                            [
-                                                              [-33.0, -11.0],
-                                                              [-33.0, -23.0],
-                                                              [-21.0, -23.0],
-                                                              [-21.0, -11.0],
-                                                              [-27.0, -13.0],
-                                                              [-33.0, -11.0]
-                                                            ],
-                                                            [
-                                                              [-1.0, 1.0],
-                                                              [1.0, 1.0],
-                                                              [1.0, -1.0],
-                                                              [-1.0, -1.0],
-                                                              [-1.0, 1.0]
-                                                            ],
-                                                            [
-                                                              [-2.0, 2.0],
-                                                              [2.0, 2.0],
-                                                              [2.0, -2.0],
-                                                              [-2.0, -2.0],
-                                                              [-2.0, 2.0]
-                                                            ],
-                                                            [
-                                                              [-3.0, 3.0],
-                                                              [3.0, 3.0],
-                                                              [3.0, -3.0],
-                                                              [-3.0, -3.0],
-                                                              [-3.0, 3.0]
-                                                            ],
-                                                            [
-                                                              [-4.0, 4.0],
-                                                              [4.0, 4.0],
-                                                              [4.0, -4.0],
-                                                              [-4.0, -4.0],
-                                                              [-4.0, 4.0]
-                                                            ]]
-
-
-        expect(@all_items.rendering_hash).to eq({:points => [[3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [-88.241421, 40.091565], [-88.241417, 40.09161], [-88.241413, 40.091655], [0.0, 0.0], [-29.0, -16.0], [-25.0, -18.0], [-28.0, -21.0], [-19.0, -18.0], [3.0, -14.0], [6.0, -12.9], [5.0, -16.0], [4.0, -17.9], [7.0, -17.9], [32.2, 22.0], [-17.0, 7.0], [-9.8, 5.0], [-10.7, 0.0], [-30.0, 21.0], [-25.0, 18.3], [-23.0, 18.0], [-19.6, -13.0], [-7.6, 14.2], [-4.6, 11.9], [-8.0, -4.0], [-4.0, -8.0], [-10.0, -6.0]], :lines => [[[-32.0, 21.0], [-25.0, 21.0], [-25.0, 16.0], [-21.0, 20.0]], [[23.0, 21.0], [16.0, 21.0], [16.0, 16.0], [11.0, 20.0]], [[4.0, 12.6], [16.0, 12.6], [16.0, 7.6]], [[21.0, 12.6], [26.0, 12.6], [22.0, 17.6]], [[-33.0, 11.0], [-24.0, 4.0], [-26.0, 13.0], [-31.0, 4.0], [-33.0, 11.0]], [[-20.0, -1.0], [-26.0, -6.0]], [[-21.0, -4.0], [-31.0, -4.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[27.0, -14.0], [18.0, -21.0], [20.0, -12.0], [25.0, -23.0]], [[-16.0, -15.5], [-22.0, -20.5]]], :polygons => [[[-14.0, 23.0], [-14.0, 11.0], [-2.0, 11.0], [-2.0, 23.0], [-8.0, 21.0], [-14.0, 23.0]], [[-19.0, 9.0], [-9.0, 9.0], [-9.0, 2.0], [-19.0, 2.0], [-19.0, 9.0]], [[5.0, -1.0], [-14.0, -1.0], [-14.0, 6.0], [5.0, 6.0], [5.0, -1.0]], [[-11.0, -1.0], [-11.0, -5.0], [-7.0, -5.0], [-7.0, -1.0], [-11.0, -1.0]], [[-3.0, -9.0], [-3.0, -1.0], [-7.0, -1.0], [-7.0, -9.0], [-3.0, -9.0]], [[-7.0, -9.0], [-7.0, -5.0], [-11.0, -5.0], [-11.0, -9.0], [-7.0, -9.0]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[28.0, 2.3], [23.0, -1.7], [26.0, -4.8], [28.0, 2.3]], [[22.0, -6.8], [22.0, -9.8], [16.0, -6.8], [22.0, -6.8]], [[16.0, 2.3], [14.0, -2.8], [18.0, -2.8], [16.0, 2.3]], [[-33.0, -11.0], [-33.0, -23.0], [-21.0, -23.0], [-21.0, -11.0], [-27.0, -13.0], [-33.0, -11.0]], [[-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0], [-1.0, 1.0]], [[-2.0, 2.0], [2.0, 2.0], [2.0, -2.0], [-2.0, -2.0], [-2.0, 2.0]], [[-3.0, 3.0], [3.0, 3.0], [3.0, -3.0], [-3.0, -3.0], [-3.0, 3.0]], [[-4.0, 4.0], [4.0, 4.0], [4.0, -4.0], [-4.0, -4.0], [-4.0, 4.0]]]})
-      end
-    end
-
     specify '#st_npoints returns the number of included points for a valid GeoItem' do
       expect(@p0.st_npoints).to eq(1)
       expect(@a.st_npoints).to eq(4)
@@ -620,96 +368,12 @@ describe GeographicItem, :type => :model do
     specify '#center_coords' do
       expect(@item_d.center_coords).to eq(["-0", "-0"])
     end
-
-    context '#start_point returns a lat/lng of the first point of the GeoObject' do
-      specify 'for a point' do
-        # center point
-        expect(@p0.start_point).to eq([0.0, 0.0])
-      end
-
-      specify 'for a multi_point' do
-        # multi_point
-        expect(@h.start_point).to eq([-14.0, 3.0])
-      end
-
-      specify 'for a line_string' do
-        # upper left quadrant - line_string
-        expect(@a.start_point).to eq([21.0, -32.0])
-      end
-
-      specify 'for a multi_line_string' do
-        # upper right quadrant - multi_line_string
-        expect(@c.start_point).to eq([21.0, 23.0])
-      end
-
-      specify 'for a polygon' do
-        # lower left quadrant - polygon
-        expect(@k.start_point).to eq([-11.0, -33.0])
-      end
-
-      specify 'for a polygon(?)' do
-        # lower right quadrant
-        expect(@i.start_point).to eq([-14.0, 27.0])
-      end
-      
-      specify 'for a multi_polygon' do
-        # multi_polygon
-        expect(@g.start_point).to eq([2.3, 28.0])
-      end
-
-      specify 'for a geometry collection' do
-        # geometry_collection
-        expect(@all_items.start_point).to eq(@a.start_point)
-      end
-    end
-
-    context '#st_start_point returns the first POINT of the GeoObject' do
-      specify 'for a point' do 
-        # center point
-        expect(@p0.st_start_point.to_s).to eq('POINT (0.0 0.0 0.0)')
-      end
-
-      specify 'for a multi_point' do 
-        # multi_point
-        expect(@h.st_start_point.to_s).to eq('POINT (3.0 -14.0 0.0)')
-      end
-
-      specify 'for a line_string' do
-        # upper left quadrant - line_string
-        expect(@a.st_start_point.to_s).to eq('POINT (-32.0 21.0 0.0)')
-      end
-
-      specify 'for a multi_line_string' do
-        # upper right quadrant - multi_line_string
-        expect(@c.st_start_point.to_s).to eq('POINT (23.0 21.0 0.0)')
-      end
- 
-      specify 'for a polygon' do
-        # lower left quadrant - polygon
-        expect(@k.st_start_point.to_s).to eq('POINT (-33.0 -11.0 0.0)')
-      end
-  
-      specify 'for a polygon(?)' do
-        # lower right quadrant
-        expect(@i.st_start_point.to_s).to eq("POINT (27.0 -14.0 0.0)")
-      end
-   
-      specify 'for a multi_polygon' do
-        # multi_polygon
-        expect(@g.st_start_point.to_s).to eq("POINT (28.0 2.3 0.0)")
-      end
-    
-      specify 'for a geometry_collection' do
-        # geometry_collection
-        expect(@all_items.st_start_point.to_s).to eq(@a.st_start_point.to_s)
-      end
-    end
   end
 
   context 'class methods' do
 
     specify '::geometry_sql' do
-      test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 2'  
+      test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 2'
       expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
     end
 
@@ -783,8 +447,8 @@ describe GeographicItem, :type => :model do
       end
 
       specify '::is_contained_in - returns objects which contained in another object.' do
-      #  expect(GeographicItem.is_contained_in('not_a_column_name', @p1).to_a).to eq([])
-      #  expect(GeographicItem.is_contained_in('point', 'Some devious SQL string').to_a).to eq([])
+        #  expect(GeographicItem.is_contained_in('not_a_column_name', @p1).to_a).to eq([])
+        #  expect(GeographicItem.is_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
         # one thing inside k
         expect(GeographicItem.is_contained_in('polygon', @p1).to_a).to eq([@k])
@@ -810,7 +474,7 @@ describe GeographicItem, :type => :model do
 #       expect(GeographicItem.is_contained_by('not_a_column_name', @p1).to_a).to eq([])
 #       expect(GeographicItem.is_contained_by('point', 'Some devious SQL string').to_a).to eq([])
 
-        # three things inside k
+# three things inside k
         expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to eq([@p1, @p2, @p3])
         # one thing outside k
         expect(GeographicItem.is_contained_by('any', @p4).excluding(@p4).to_a).to eq([])

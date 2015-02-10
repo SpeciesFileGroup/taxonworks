@@ -3,7 +3,6 @@ require 'rails_helper'
 describe DataAttribute, :type => :model do
   let(:attribute) {DataAttribute.new}
 
-
   context 'validation' do
     before(:each) {
       attribute.valid?
@@ -27,7 +26,7 @@ describe DataAttribute, :type => :model do
       end
     end
 
-#    specify
+    #    specify
 
     # Hmmm.. review this
     specify 'key/value is unique' do
@@ -38,62 +37,80 @@ describe DataAttribute, :type => :model do
     end
   end
 
-  context 'Creating DataAttributes on non community objects' do
-    specify 'add an import attribute on non community data' do
-      o = FactoryGirl.build(:valid_otu)
-      ip = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
-      att = DataAttribute.new({import_predicate: ip.name, value: '6', type: 'ImportAttribute'})
-      o.data_attributes <<  att
-      expect(o.valid?).to be_truthy
-      expect(att.valid?).to be_truthy
-      expect(o.data_attributes.to_a.count).to eq(1)
-      expect(att.valid?).to be_truthy
-      expect(o.save).to be_truthy
-      expect(o.data_attributes.first).to eq(att)
-      expect(o.data_attributes.first.project_id).to eq(1)
+  context 'houskeeping on data attributes' do
+    let(:p) { FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+
+    context 'attached to project data sets project_id' do
+      let(:o) { FactoryGirl.create(:valid_otu) }
+
+      specify 'for an import attribute' do
+        att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute')
+        o.data_attributes << att
+        expect(o.save!).to be_truthy
+        expect(att.project_id).to eq(1)
+      end
+
+      specify 'for an internal attribute' do
+        att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute')
+        o.data_attributes << att
+        expect(o.save!).to be_truthy
+        expect(att.project_id).to eq(1)
+      end
     end
-    specify 'add an internal attribute on non community data' do
-      o = FactoryGirl.build(:valid_otu)
-      p = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
-      att = DataAttribute.new({predicate: p, value: '6', type: 'InternalAttribute'})
-      o.data_attributes <<  att
-      expect(o.valid?).to be_truthy
-      expect(att.valid?).to be_truthy
-      expect(o.data_attributes.to_a.count).to eq(1)
-      expect(att.valid?).to be_truthy
-      expect(o.save).to be_truthy
-      expect(o.data_attributes.first).to eq(att)
-      expect(o.data_attributes.first.project_id).to eq(1)
-    end
-  end
-  context 'Creating DataAttributes on community objects' do
-    specify 'add an import attribute on community data' do
-      o = FactoryGirl.build(:valid_serial)
-      ip = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
-      att = DataAttribute.new({import_predicate: ip.name, value: '6', type: 'ImportAttribute'})
-      att.project_id = nil # must explicitly set to nil due to the way it is created
-      o.data_attributes <<  att
-      expect(o.valid?).to be_truthy
-      expect(att.valid?).to be_truthy
-      expect(o.data_attributes.to_a.count).to eq(1)
-      expect(att.valid?).to be_truthy
-      expect(o.save).to be_truthy
-      expect(o.data_attributes.first).to eq(att)
-      expect(o.data_attributes.first.project_id).to eq(nil)
-    end
-    specify 'add an internal attribute on community data' do
-      o = FactoryGirl.build(:valid_serial)
-      p = FactoryGirl.build(:valid_controlled_vocabulary_term_predicate)
-      att = DataAttribute.new({predicate: p, value: '6', type: 'InternalAttribute'})
-      att.project_id = nil # must explicitly set to nil due to the way it is created
-      o.data_attributes <<  att
-      expect(o.valid?).to be_truthy
-      expect(att.valid?).to be_truthy
-      expect(o.data_attributes.to_a.count).to eq(1)
-      expect(att.valid?).to be_truthy
-      expect(o.save).to be_truthy
-      expect(o.data_attributes.first).to eq(att)
-      expect(o.data_attributes.first.project_id).to eq(nil)
+
+    context 'attached to community data does not set project_id' do
+      let(:s) { FactoryGirl.create(:valid_serial) }
+
+      context 'for an import attribute' do
+        specify 'using <<' do
+          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute')
+          s.data_attributes << att
+          expect(s.save!).to be_truthy
+          expect(att.project_id).to eq(nil)
+        end
+
+        specify 'using build()' do
+          s.data_attributes.build(import_predicate: 'foo', value: '6', type: 'ImportAttribute') 
+          expect(s.save!).to be_truthy
+          expect(s.data_attributes.first.project_id).to eq(nil)
+        end
+
+        specify 'using new()' do
+          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute', attribute_subject: s)
+          expect(att.save!).to be_truthy
+          expect(att.project_id).to eq(nil)
+        end
+      end
+
+      context 'for an internal attribute' do
+        specify 'using <<' do
+          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute')
+          s.data_attributes << att
+          expect(s.save!).to be_truthy
+          expect(att.project_id).to eq(nil)
+        end
+
+        specify 'using build()' do
+          s.data_attributes.build(predicate: p, value: '6', type: 'InternalAttribute') 
+          expect(s.save!).to be_truthy
+          expect(s.data_attributes.first.project_id).to eq(nil)
+        end
+
+        specify 'using new()' do
+          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s)
+          expect(att.save!).to be_truthy
+          expect(att.project_id).to eq(nil)
+        end
+      end
+
+      context 'using nested attributes' do
+        specify 'for community data' do
+          s = Serial.new(name: 'Blorf', data_attributes_attributes: [{predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s}])  
+          expect(s.save!).to be_truthy
+          expect(s.data_attributes.size).to eq(1)
+          expect(s.data_attributes.first.project_id).to eq(nil)
+        end
+      end
     end
   end
 end
