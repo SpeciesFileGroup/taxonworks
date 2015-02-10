@@ -56,8 +56,41 @@ describe Protonym, :type => :model do
       expect(species.all_generic_placements.sort).to eq(['Aus', 'Bus', 'Cus', 'Dus'])
     end
 
+    specify 'list_of_coordinated_names' do
+      family = FactoryGirl.create(:iczn_family, name: 'Cicadellidae')
+      subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cicadellinae', parent: family)
+      tribe = FactoryGirl.create(:iczn_tribe, name: 'Cicadellini', parent: subfamily)
+      tribe1 = FactoryGirl.create(:iczn_tribe, name: 'Proconiini', parent: subfamily)
+      genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: tribe)
+      genus1 = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: tribe)
+      subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Aus', parent: genus)
+      species = FactoryGirl.create(:iczn_species, name: 'aus', parent: subgenus)
+      subspecies = FactoryGirl.create(:iczn_subspecies, name: 'aus', parent: species)
+      subspecies1 = FactoryGirl.create(:iczn_subspecies, name: 'bus', parent: species)
+      family.reload
+      subfamily.reload
+      tribe.reload
+      tribe1.reload
+      genus.reload
+      genus1.reload
+      subgenus.reload
+      species.reload
+      subspecies.reload
+      subspecies1.reload
 
-    #   all_generic_placements
+      expect(family.list_of_coordinated_names.sort_by{|i| i.id}).to eq([subfamily, tribe])
+      expect(subfamily.list_of_coordinated_names.sort_by{|i| i.id}).to eq([family, tribe])
+      expect(tribe.list_of_coordinated_names.sort_by{|i| i.id}).to eq([family, subfamily])
+      expect(tribe1.list_of_coordinated_names.sort_by{|i| i.id}.empty?).to be_truthy
+      expect(genus.list_of_coordinated_names.sort_by{|i| i.id}).to eq([subgenus])
+      expect(subgenus.list_of_coordinated_names.sort_by{|i| i.id}).to eq([genus])
+      expect(genus1.list_of_coordinated_names.sort_by{|i| i.id}.empty?).to be_truthy
+      expect(species.list_of_coordinated_names.sort_by{|i| i.id}).to eq([subspecies])
+      expect(subspecies.list_of_coordinated_names.sort_by{|i| i.id}).to eq([species])
+      expect(subspecies1.list_of_coordinated_names.sort_by{|i| i.id}.empty?).to be_truthy
+    end
+
+
     #   list_of_coordinated_names
     #   lowest_rank_coordinated_taxon
     #   ancestors_and_descendants
