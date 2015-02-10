@@ -6,12 +6,12 @@
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
 SIMPLE_SHAPES = {
-  point:  'POINT(10 10 0)',
-  line_string: 'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
-  polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',   
-  multi_point: 'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
-  multi_line_string: 'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))' ,
-  multi_polygon: 'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
+  point:               'POINT(10 10 0)',
+  line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
+  polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',
+  multi_point:         'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
+  multi_line_string:   'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))',
+  multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
   geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
 }
 
@@ -131,196 +131,196 @@ ROOMS20NN = RSPEC_GEO_FACTORY.multi_point([ROOM2020,
                                            ROOM2022,
                                            ROOM2024])
 
-GI_POINT_A       = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655)
-GI_POINT_C       = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402)
-GI_POINT_M       = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091)
-GI_POINT_U       = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037)
-GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                                  RSPEC_GEO_FACTORY.point(-25, 21),
-                                                  RSPEC_GEO_FACTORY.point(-25, 16),
-                                                  RSPEC_GEO_FACTORY.point(-21, 20)])
-GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                                  RSPEC_GEO_FACTORY.point(-25, 21),
-                                                  RSPEC_GEO_FACTORY.point(-25, 16),
-                                                  RSPEC_GEO_FACTORY.point(-21, 20)])
+GI_POINT_A       = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 0.0)
+GI_POINT_C       = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402, 0.0)
+GI_POINT_M       = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091, 0.0)
+GI_POINT_U       = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037, 0.0)
+GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-25, 16, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-21, 20, 0.0)])
+GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-25, 16, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(-21, 20, 0.0)])
 GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
 GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
   [RSPEC_GEO_FACTORY.polygon(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             RSPEC_GEO_FACTORY.line_string(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923)])),
+     RSPEC_GEO_FACTORY.line_string(
+       [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0),
+        RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944, 0.0),
+        RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877, 0.0),
+        RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891, 0.0),
+        RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868),
-        RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885),
-        RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927),
-        RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851),
-        RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988),
-        RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999),
-        RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909),
-        RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995),
-        RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892),
-        RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883),
-        RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873),
-        RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912),
-        RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907),
-        RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956),
-        RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944),
-        RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918),
-        RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929),
-        RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887),
-        RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936),
-        RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894),
-        RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872),
-        RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868)])),
+       [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872, 0.0),
+        RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913),
-        RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917),
-        RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914),
-        RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906),
-        RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853),
-        RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848),
-        RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937),
-        RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999),
-        RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944),
-        RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891),
-        RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988),
-        RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941),
-        RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894),
-        RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878),
-        RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886),
-        RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988),
-        RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932),
-        RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913),
-        RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893),
-        RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913)])),
+       [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991),
-        RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901),
-        RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886),
-        RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901),
-        RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901),
-        RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927),
-        RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892),
-        RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848),
-        RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991)])),
+       [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848, 0.0),
+        RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0)])),
 
    RSPEC_GEO_FACTORY.polygon(
      RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876),
-        RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859),
-        RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888),
-        RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987),
-        RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903),
-        RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876)]))])
+       [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0),
+        RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859, 0.0),
+        RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888, 0.0),
+        RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987, 0.0),
+        RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903, 0.0),
+        RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0)]))])
 
-POINT0  = RSPEC_GEO_FACTORY.point(0, 0)
-POINT1  = RSPEC_GEO_FACTORY.point(-29, -16)
-POINT2  = RSPEC_GEO_FACTORY.point(-25, -18)
-POINT3  = RSPEC_GEO_FACTORY.point(-28, -21)
-POINT4  = RSPEC_GEO_FACTORY.point(-19, -18)
-POINT5  = RSPEC_GEO_FACTORY.point(3, -14)
-POINT6  = RSPEC_GEO_FACTORY.point(6, -12.9)
-POINT7  = RSPEC_GEO_FACTORY.point(5, -16)
-POINT8  = RSPEC_GEO_FACTORY.point(4, -17.9)
-POINT9  = RSPEC_GEO_FACTORY.point(7, -17.9)
-POINT10 = RSPEC_GEO_FACTORY.point(32.2, 22)
-POINT11 = RSPEC_GEO_FACTORY.point(-17, 7)
-POINT12 = RSPEC_GEO_FACTORY.point(-9.8, 5)
-POINT13 = RSPEC_GEO_FACTORY.point(-10.7, 0)
-POINT14 = RSPEC_GEO_FACTORY.point(-30, 21)
-POINT15 = RSPEC_GEO_FACTORY.point(-25, 18.3)
-POINT16 = RSPEC_GEO_FACTORY.point(-23, 18)
-POINT17 = RSPEC_GEO_FACTORY.point(-19.6, -13)
-POINT18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2)
-POINT19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9)
-POINT20 = RSPEC_GEO_FACTORY.point(-8, -4)
-POINT21 = RSPEC_GEO_FACTORY.point(-4, -8)
-POINT22 = RSPEC_GEO_FACTORY.point(-10, -6)
+POINT0  = RSPEC_GEO_FACTORY.point(0, 0, 0.0)
+POINT1  = RSPEC_GEO_FACTORY.point(-29, -16, 0.0)
+POINT2  = RSPEC_GEO_FACTORY.point(-25, -18, 0.0)
+POINT3  = RSPEC_GEO_FACTORY.point(-28, -21, 0.0)
+POINT4  = RSPEC_GEO_FACTORY.point(-19, -18, 0.0)
+POINT5  = RSPEC_GEO_FACTORY.point(3, -14, 0.0)
+POINT6  = RSPEC_GEO_FACTORY.point(6, -12.9, 0.0)
+POINT7  = RSPEC_GEO_FACTORY.point(5, -16, 0.0)
+POINT8  = RSPEC_GEO_FACTORY.point(4, -17.9, 0.0)
+POINT9  = RSPEC_GEO_FACTORY.point(7, -17.9, 0.0)
+POINT10 = RSPEC_GEO_FACTORY.point(32.2, 22, 0.0)
+POINT11 = RSPEC_GEO_FACTORY.point(-17, 7, 0.0)
+POINT12 = RSPEC_GEO_FACTORY.point(-9.8, 5, 0.0)
+POINT13 = RSPEC_GEO_FACTORY.point(-10.7, 0, 0.0)
+POINT14 = RSPEC_GEO_FACTORY.point(-30, 21, 0.0)
+POINT15 = RSPEC_GEO_FACTORY.point(-25, 18.3, 0.0)
+POINT16 = RSPEC_GEO_FACTORY.point(-23, 18, 0.0)
+POINT17 = RSPEC_GEO_FACTORY.point(-19.6, -13, 0.0)
+POINT18 = RSPEC_GEO_FACTORY.point(-7.6, 14.2, 0.0)
+POINT19 = RSPEC_GEO_FACTORY.point(-4.6, 11.9, 0.0)
+POINT20 = RSPEC_GEO_FACTORY.point(-8, -4, 0.0)
+POINT21 = RSPEC_GEO_FACTORY.point(-4, -8, 0.0)
+POINT22 = RSPEC_GEO_FACTORY.point(-10, -6, 0.0)
 
-SHAPE_A = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21),
-                                         RSPEC_GEO_FACTORY.point(-25, 21),
-                                         RSPEC_GEO_FACTORY.point(-25, 16),
-                                         RSPEC_GEO_FACTORY.point(-21, 20)])
+SHAPE_A = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-25, 16, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-21, 20, 0.0)])
 
-LIST_B1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-14, 23),
-                                         RSPEC_GEO_FACTORY.point(-14, 11),
-                                         RSPEC_GEO_FACTORY.point(-2, 11),
-                                         RSPEC_GEO_FACTORY.point(-2, 23),
-                                         RSPEC_GEO_FACTORY.point(-8, 21)])
+LIST_B1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-14, 23, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-14, 11, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-2, 11, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-2, 23, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-8, 21, 0.0)])
 
-LIST_B2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18),
-                                         RSPEC_GEO_FACTORY.point(-8, 17),
-                                         RSPEC_GEO_FACTORY.point(-6, 20),
-                                         RSPEC_GEO_FACTORY.point(-4, 16),
-                                         RSPEC_GEO_FACTORY.point(-7, 13),
-                                         RSPEC_GEO_FACTORY.point(-11, 14)])
+LIST_B2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, 18, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-8, 17, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-6, 20, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-4, 16, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, 13, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-11, 14, 0.0)])
 
 SHAPE_B       = RSPEC_GEO_FACTORY.polygon(LIST_B1, [LIST_B2])
 SHAPE_B_OUTER = RSPEC_GEO_FACTORY.polygon(LIST_B1)
 SHAPE_B_INNER = RSPEC_GEO_FACTORY.polygon(LIST_B2)
 
-LIST_C1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21),
-                                         RSPEC_GEO_FACTORY.point(16, 21),
-                                         RSPEC_GEO_FACTORY.point(16, 16),
-                                         RSPEC_GEO_FACTORY.point(11, 20)])
+LIST_C1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(23, 21, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, 21, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, 16, 0.0),
+                                         RSPEC_GEO_FACTORY.point(11, 20, 0.0)])
 
-LIST_C2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(4, 12.6),
-                                         RSPEC_GEO_FACTORY.point(16, 12.6),
-                                         RSPEC_GEO_FACTORY.point(16, 7.6)])
+LIST_C2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(4, 12.6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, 12.6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, 7.6, 0.0)])
 
-LIST_C3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(21, 12.6),
-                                         RSPEC_GEO_FACTORY.point(26, 12.6),
-                                         RSPEC_GEO_FACTORY.point(22, 17.6)])
+LIST_C3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(21, 12.6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(26, 12.6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(22, 17.6, 0.0)])
 
 SHAPE_C  = RSPEC_GEO_FACTORY.multi_line_string([LIST_C1, LIST_C2, LIST_C3])
 SHAPE_C1 = SHAPE_C.geometry_n(0)
 SHAPE_C2 = SHAPE_C.geometry_n(1)
 SHAPE_C3 = SHAPE_C.geometry_n(2)
 
-SHAPE_D = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11),
-                                         RSPEC_GEO_FACTORY.point(-24, 4),
-                                         RSPEC_GEO_FACTORY.point(-26, 13),
-                                         RSPEC_GEO_FACTORY.point(-31, 4),
-                                         RSPEC_GEO_FACTORY.point(-33, 11)])
+SHAPE_D = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-24, 4, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-26, 13, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-31, 4, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-33, 11, 0.0)])
 
-LIST_E1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9),
-                                         RSPEC_GEO_FACTORY.point(-9, 9),
-                                         RSPEC_GEO_FACTORY.point(-9, 2),
-                                         RSPEC_GEO_FACTORY.point(-19, 2),
-                                         RSPEC_GEO_FACTORY.point(-19, 9)])
+LIST_E1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-9, 9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-9, 2, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-19, 2, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-19, 9, 0.0)])
 
-LIST_E2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(5, -1),
-                                         RSPEC_GEO_FACTORY.point(-14, -1),
-                                         RSPEC_GEO_FACTORY.point(-14, 6),
-                                         RSPEC_GEO_FACTORY.point(5, 6),
-                                         RSPEC_GEO_FACTORY.point(5, -1)])
+LIST_E2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(5, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-14, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-14, 6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(5, 6, 0.0),
+                                         RSPEC_GEO_FACTORY.point(5, -1, 0.0)])
 
-LIST_E3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, -1),
-                                         RSPEC_GEO_FACTORY.point(-11, -5),
-                                         RSPEC_GEO_FACTORY.point(-7, -5),
-                                         RSPEC_GEO_FACTORY.point(-7, -1),
-                                         RSPEC_GEO_FACTORY.point(-11, -1)])
+LIST_E3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-11, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-11, -5, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -5, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-11, -1, 0.0)])
 
-LIST_E4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, -9),
-                                         RSPEC_GEO_FACTORY.point(-3, -1),
-                                         RSPEC_GEO_FACTORY.point(-7, -1),
-                                         RSPEC_GEO_FACTORY.point(-7, -9),
-                                         RSPEC_GEO_FACTORY.point(-3, -9)])
+LIST_E4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, -9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-3, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-3, -9, 0.0)])
 
-LIST_E5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9),
-                                         RSPEC_GEO_FACTORY.point(-7, -5),
-                                         RSPEC_GEO_FACTORY.point(-11, -5),
-                                         RSPEC_GEO_FACTORY.point(-11, -9),
-                                         RSPEC_GEO_FACTORY.point(-7, -9)])
+LIST_E5 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-7, -9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -5, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-11, -5, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-11, -9, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-7, -9, 0.0)])
 
 SHAPE_E = RSPEC_GEO_FACTORY.collection([RSPEC_GEO_FACTORY.polygon(LIST_E1),
                                         RSPEC_GEO_FACTORY.polygon(LIST_E2),
@@ -340,28 +340,28 @@ POLY_E3 = RSPEC_GEO_FACTORY.polygon(LIST_E3)
 POLY_E4 = RSPEC_GEO_FACTORY.polygon(LIST_E4)
 POLY_E5 = RSPEC_GEO_FACTORY.polygon(LIST_E5)
 
-SHAPE_F1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1),
-                                  RSPEC_GEO_FACTORY.point(-26, -6))
+SHAPE_F1 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-20, -1, 0.0),
+                                  RSPEC_GEO_FACTORY.point(-26, -6, 0.0))
 
-SHAPE_F2 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-21, -4),
-                                  RSPEC_GEO_FACTORY.point(-31, -4))
+SHAPE_F2 = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-21, -4, 0.0),
+                                  RSPEC_GEO_FACTORY.point(-31, -4, 0.0))
 
 SHAPE_F = RSPEC_GEO_FACTORY.multi_line_string([SHAPE_F1, SHAPE_F2])
 
-LIST_G1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(28, 2.3),
-                                         RSPEC_GEO_FACTORY.point(23, -1.7),
-                                         RSPEC_GEO_FACTORY.point(26, -4.8),
-                                         RSPEC_GEO_FACTORY.point(28, 2.3)])
+LIST_G1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(28, 2.3, 0.0),
+                                         RSPEC_GEO_FACTORY.point(23, -1.7, 0.0),
+                                         RSPEC_GEO_FACTORY.point(26, -4.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(28, 2.3, 0.0)])
 
-LIST_G2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(22, -6.8),
-                                         RSPEC_GEO_FACTORY.point(22, -9.8),
-                                         RSPEC_GEO_FACTORY.point(16, -6.8),
-                                         RSPEC_GEO_FACTORY.point(22, -6.8)])
+LIST_G2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(22, -6.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(22, -9.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, -6.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(22, -6.8, 0.0)])
 
-LIST_G3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3),
-                                         RSPEC_GEO_FACTORY.point(14, -2.8),
-                                         RSPEC_GEO_FACTORY.point(18, -2.8),
-                                         RSPEC_GEO_FACTORY.point(16, 2.3)])
+LIST_G3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3, 0.0),
+                                         RSPEC_GEO_FACTORY.point(14, -2.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(18, -2.8, 0.0),
+                                         RSPEC_GEO_FACTORY.point(16, 2.3, 0.0)])
 
 SHAPE_G  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_G1), RSPEC_GEO_FACTORY.polygon(LIST_G2), RSPEC_GEO_FACTORY.polygon(LIST_G3)])
 SHAPE_G1 = SHAPE_G.geometry_n(0)
@@ -374,43 +374,43 @@ SHAPE_H = RSPEC_GEO_FACTORY.multi_point([POINT5,
                                          POINT8,
                                          POINT9])
 
-SHAPE_I = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(27, -14),
-                                         RSPEC_GEO_FACTORY.point(18, -21),
-                                         RSPEC_GEO_FACTORY.point(20, -12),
-                                         RSPEC_GEO_FACTORY.point(25, -23)])
+SHAPE_I = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(27, -14, 0.0),
+                                         RSPEC_GEO_FACTORY.point(18, -21, 0.0),
+                                         RSPEC_GEO_FACTORY.point(20, -12, 0.0),
+                                         RSPEC_GEO_FACTORY.point(25, -23, 0.0)])
 
 SHAPE_J = RSPEC_GEO_FACTORY.collection([SHAPE_G, SHAPE_H, SHAPE_I])
 
-LIST_K = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11),
-                                        RSPEC_GEO_FACTORY.point(-33, -23),
-                                        RSPEC_GEO_FACTORY.point(-21, -23),
-                                        RSPEC_GEO_FACTORY.point(-21, -11),
-                                        RSPEC_GEO_FACTORY.point(-27, -13)])
+LIST_K = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11, 0.0),
+                                        RSPEC_GEO_FACTORY.point(-33, -23, 0.0),
+                                        RSPEC_GEO_FACTORY.point(-21, -23, 0.0),
+                                        RSPEC_GEO_FACTORY.point(-21, -11, 0.0),
+                                        RSPEC_GEO_FACTORY.point(-27, -13, 0.0)])
 
 SHAPE_K = RSPEC_GEO_FACTORY.polygon(LIST_K)
 
-SHAPE_L = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5),
-                                 RSPEC_GEO_FACTORY.point(-22, -20.5))
+SHAPE_L = RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5, 0.0),
+                                 RSPEC_GEO_FACTORY.point(-22, -20.5, 0.0))
 
-LIST_T1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1),
-                                         RSPEC_GEO_FACTORY.point(1, 1),
-                                         RSPEC_GEO_FACTORY.point(1, -1),
-                                         RSPEC_GEO_FACTORY.point(-1, -1)])
+LIST_T1 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(1, 1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(1, -1, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-1, -1, 0.0)])
 
-LIST_T2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2),
-                                         RSPEC_GEO_FACTORY.point(2, 2),
-                                         RSPEC_GEO_FACTORY.point(2, -2),
-                                         RSPEC_GEO_FACTORY.point(-2, -2)])
+LIST_T2 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2, 0.0),
+                                         RSPEC_GEO_FACTORY.point(2, 2, 0.0),
+                                         RSPEC_GEO_FACTORY.point(2, -2, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-2, -2, 0.0)])
 
-LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3),
-                                         RSPEC_GEO_FACTORY.point(3, 3),
-                                         RSPEC_GEO_FACTORY.point(3, -3),
-                                         RSPEC_GEO_FACTORY.point(-3, -3)])
+LIST_T3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3, 0.0),
+                                         RSPEC_GEO_FACTORY.point(3, 3, 0.0),
+                                         RSPEC_GEO_FACTORY.point(3, -3, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-3, -3, 0.0)])
 
-LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, 4),
-                                         RSPEC_GEO_FACTORY.point(4, -4),
-                                         RSPEC_GEO_FACTORY.point(-4, -4)])
+LIST_T4 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4, 0.0),
+                                         RSPEC_GEO_FACTORY.point(4, 4, 0.0),
+                                         RSPEC_GEO_FACTORY.point(4, -4, 0.0),
+                                         RSPEC_GEO_FACTORY.point(-4, -4, 0.0)])
 
 BOX_1 = RSPEC_GEO_FACTORY.polygon(LIST_T1)
 BOX_2 = RSPEC_GEO_FACTORY.polygon(LIST_T2)
@@ -531,7 +531,7 @@ def prepare_test
   if u.nil?
     u = FactoryGirl.create(:valid_user, id: 1)
   end
-  $user_id    = u.id
+  $user_id = u.id
 
   p = Project.order(:id).first
   if p.nil?
@@ -1693,10 +1693,10 @@ end
 
 def make_box(base, offset_x, offset_y, size_x, size_y)
   box = RSPEC_GEO_FACTORY.polygon(
-    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y)])
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y, 0.0)])
   )
   RSPEC_GEO_FACTORY.multi_polygon([box])
 end

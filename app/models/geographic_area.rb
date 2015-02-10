@@ -123,6 +123,8 @@ class GeographicArea < ActiveRecord::Base
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
   # needed more than three nesting
+  # @param array [Array] of strings of names for areas
+  # @return [Scope] of GeographicAreas which match name and parent.name
   def self.find_by_self_and_parents(array)
     if array.length == 1
       where(name: array.first)
@@ -135,10 +137,13 @@ class GeographicArea < ActiveRecord::Base
     end
   end
 
+  # @return [Scope] of GeographicAreas which are countries
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
 
+  # @param params [Hash] of parameters for this search
+  # @return [Scope] of items found
   def self.find_for_autocomplete(params)
     term = params[:term]
     terms = term.split
@@ -156,8 +161,8 @@ class GeographicArea < ActiveRecord::Base
 
   # @param geographic_item [GeographicItem]
   # @return [Scope] of geographic_items
-  def self.find_others_contained_by(geographic_area)
-    pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
+  def self.find_others_contained_by(geographic_item)
+    pieces = GeographicItem.is_contained_by('any_poly', geographic_item.geo_object)
     pieces
 
     others = []
