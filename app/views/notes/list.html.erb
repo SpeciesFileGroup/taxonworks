@@ -21,7 +21,7 @@
   <% @notes.each do |note| %>
       <tr>
         <td><%= note.note_object_type %></td>
-        <td><%= note.note_object_id %></td>
+        <td><%= object_tag(note.note_object.metamorphosize) %></td>
         <td><%= note.note_object_attribute %></td>
         <td><%= note.text %></td>
         <td><%= note.updated_at %></td>
