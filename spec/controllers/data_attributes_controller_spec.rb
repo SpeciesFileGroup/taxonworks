@@ -42,10 +42,10 @@ describe DataAttributesController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all data_attributes as @data_attributes" do
+    it "assigns all data_attributes as @recent_objects" do
       data_attribute = DataAttribute.create!(valid_attributes)
       get :index, {}, valid_session
-      expect(assigns(:data_attributes)).to eq([data_attribute])
+      expect(assigns(:recent_objects)).to include(data_attribute)
     end
   end
 

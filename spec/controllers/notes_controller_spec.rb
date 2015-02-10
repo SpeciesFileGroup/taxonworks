@@ -37,10 +37,10 @@ describe NotesController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all notes as @notes" do
+    it "assigns recent notes as @recent_objects" do
       note = Note.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:notes)).to eq([note])
+      expect(assigns(:recent_objects)).to include(note)
     end
   end
 

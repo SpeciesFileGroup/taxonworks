@@ -42,10 +42,10 @@ describe IdentifiersController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all identifiers as @identifiers" do
+    it "assigns all identifiers as @recent_objects" do
       identifier = Identifier.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:identifiers)).to eq([identifier])
+      expect(assigns(:recent_objects)).to include(identifier)
     end
   end
 
