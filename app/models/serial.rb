@@ -12,10 +12,10 @@ class Serial < ActiveRecord::Base
   include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
   include Shared::Notable # project note
   include Shared::Identifiable
-  include Shared::SharedAcrossProjects
   include Shared::Taggable
   include Shared::IsData
   include SoftValidation
+  include Shared::SharedAcrossProjects
 
   has_paper_trail
 

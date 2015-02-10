@@ -10,7 +10,10 @@ module Shared::Annotates
   end
 
   def annotates_community?
-    self.annotated_object.class <= Shared::SharedAcrossProjects
+    self.annotated_object.class <= Shared::SharedAcrossProjects ? true : false
   end
+
+
+
 
 end

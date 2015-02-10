@@ -77,9 +77,9 @@ describe AlternateValue do
   end
 
   context 'scopes' do
-    specify 'with_alternate_value_on' do
-      o = FactoryGirl.build(:valid_serial)
-      o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_value_object: o, value: 'foo')
+    specify 'with_alternate_value_on using <<' do
+      o = FactoryGirl.create(:valid_serial)
+      o.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'foo')
       o.save!
 
       expect(Serial.with_alternate_value_on(:name, 'foo').count).to eq(1)
@@ -89,8 +89,8 @@ describe AlternateValue do
 
   context 'use' do
     specify 'adding an alternate value' do
-      s = FactoryGirl.build(:valid_serial)
-      s.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, alternate_value_object: s, value: 'JOR')
+      s = FactoryGirl.create(:valid_serial)
+      s.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'JOR')
       expect(s.save).to be_truthy
       expect(s.alternate_values.count).to eq(1)
     end
@@ -105,7 +105,7 @@ describe AlternateValue do
 
     specify 'project_id is not set for community data (Shared::SharedAcrossProjects)' do
       o                                                = FactoryGirl.build(:valid_serial, name: 'The Serial')
-      alternate_value.alternate_value_object           = o
+      alternate_value.alternate_value_object           = o  # setting object let's current schema work
       alternate_value.alternate_value_object_attribute = 'name'
       alternate_value.value                            = 'T.S.'
       alternate_value.type                             = 'AlternateValue::Abbreviation'
@@ -114,7 +114,7 @@ describe AlternateValue do
     end
 
     specify 'project_id is not set for community data when using <<' do
-      o    = FactoryGirl.build(:valid_serial, name: 'The Serial')
+      o    = FactoryGirl.create(:valid_serial, name: 'The Serial')
       altv = AlternateValue.new(type:                             'AlternateValue::AlternateSpelling',
                                 value:                            'Blorf',
                                 alternate_value_object_attribute: 'name',
@@ -123,7 +123,7 @@ describe AlternateValue do
       o.alternate_values << altv
       expect(o.valid?).to be_truthy
       expect(o.save).to be_truthy
-      expect(o.alternate_values.to_a.count).to eq(1)
+      expect(o.alternate_values.size).to eq(1)
       expect(altv.valid?).to be_truthy
       expect(o.alternate_values.first).to eq(altv)
       expect(o.alternate_values.first.project_id).to eq(nil)
