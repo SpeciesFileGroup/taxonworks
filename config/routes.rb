@@ -149,7 +149,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
-  resources :tags, only: [:new, :create, :update, :destroy, :index] do
+  resources :tags, except: [:show] do
     concerns [:data_routes]
   end
   resources :taxon_determinations do

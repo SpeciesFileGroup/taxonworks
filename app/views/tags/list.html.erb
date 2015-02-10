@@ -5,10 +5,10 @@
 <table>
   <thead>
   <tr>
-    <th>Keyword</th>
-    <th>Tag object</th>
     <th>Tag object type</th>
+    <th>Tag object</th>
     <th>Tag object attribute</th>
+    <th>Keyword</th>
     <th>Position</th>
     <th>Last modified</th>
     <th>Updated by</th>
@@ -19,14 +19,14 @@
   <tbody>
   <% @tags.each do |tag| %>
       <tr>
-        <td><%= tag.keyword.name %></td>
-        <td><%= object_link(tag.tag_object) %></td>
         <td><%= tag.tag_object_type %></td>
+        <td><%= object_link(tag.tag_object) %></td>
         <td><%= tag.tag_object_attribute %></td>
+        <td><%= tag.keyword.name %></td>
         <td><%= tag.position %></td>
         <td><%= tag.updated_at %></td>
         <td><%= object_tag(tag.updater) %></td>
-        <td><%= link_to 'Show', tag %></td>
+        <td><%= link_to 'Context', tag.tag_object.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
         <td><%= link_to 'Destroy', tag, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>

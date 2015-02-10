@@ -60,6 +60,11 @@ class TagsController < ApplicationController
     end
   end
 
+  def list
+    @tags = Tag.where(project_id: $project_id).order(:tag_object_type).page(params[:page])
+  end
+
+  # GET /tags/search
   def search
     if params[:id]
       redirect_to tag_path(params[:id])
