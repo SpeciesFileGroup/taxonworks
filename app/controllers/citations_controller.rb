@@ -8,6 +8,10 @@ class CitationsController < ApplicationController
     @citation = Citation.new(citation_params)
   end
 
+  def edit
+    @citation = Citation.find_by_id(params[:id]).metamorphosize
+  end
+
   # GET /citations
   # GET /citations.json
   def index
@@ -35,7 +39,7 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
+        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }

@@ -30,6 +30,7 @@
         <td><%= alternate_value.updated_at %></td>
         <td><%= object_tag(alternate_value.updater) %></td>
         <td><%= link_to 'Context', alternate_value.alternate_value_object.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_alternate_value_path(alternate_value) %></td>
         <td><%= link_to 'Destroy', alternate_value.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>

@@ -46,7 +46,7 @@ TaxonWorks::Application.routes.draw do
   # Unvetted/not fully tested Stubbed
   #
 
-  resources :alternate_values do
+  resources :alternate_values, except: [:show] do
     concerns [:data_routes]
   end
   resources :asserted_distributions do
@@ -54,7 +54,7 @@ TaxonWorks::Application.routes.draw do
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
-  resources :citations, except: [:edit, :show] do
+  resources :citations, except: [:show] do
     concerns [:data_routes]
   end
   resources :collecting_events do
@@ -81,7 +81,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :data_attributes, only: [:new, :create, :edit, :update, :destroy, :index] do
+  resources :data_attributes, except: [:show] do
     concerns [:data_routes]
   end
   resources :geographic_area_types
@@ -99,7 +99,7 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
-  resources :identifiers do
+  resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
   resources :images do
@@ -149,7 +149,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
-  resources :tags, except: [:show] do
+  resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
   end
   resources :taxon_determinations do
