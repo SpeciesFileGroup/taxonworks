@@ -37,7 +37,7 @@ describe RangedLotCategoriesController, :type => :controller do
     it "assigns all ranged_lot_categories as @ranged_lot_categories" do
       ranged_lot_category = RangedLotCategory.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:ranged_lot_categories)).to eq([ranged_lot_category])
+      expect(assigns(:recent_objects)).to include(ranged_lot_category)
     end
   end
 
