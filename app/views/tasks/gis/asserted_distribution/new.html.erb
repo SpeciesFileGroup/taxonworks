@@ -26,6 +26,12 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
     <%= render(partial: 'map_header', locals: {otu: @otu, feature_collection: @feature_collection}) -%>
     <div id="map_canvas" style="width:512px; height: 256px;"></div>
     <span id="map_coords"></span>
+    <script language="javascript">
+      function IMAML() {initializeMap("map_canvas"); add_map_listeners();};
+      $(document).ready((IMAML()));
+//        $(document).on('page:load', IMAML());
+//             add_map_listeners();
+    </script>
   </div>
 </div>
 

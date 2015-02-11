@@ -1,5 +1,5 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
-  before_action :disable_turbolinks, only: [:new]
+  before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new
     # @asserted_distribution = AssertedDistributions.new(asserted_distribution_params)
