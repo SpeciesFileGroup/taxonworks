@@ -90,7 +90,8 @@ class GeographicArea < ActiveRecord::Base
 
   scope :with_name_like, -> (string) { where(["name like ?", "#{string}%"]) }
 
-  # A scope.
+  # @param  [GeographicArea]
+  # @return [Scope]
   def self.ancestors_and_descendants_of(geographic_area)
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
@@ -100,6 +101,8 @@ class GeographicArea < ActiveRecord::Base
           geographic_area.id).order(:lft)
   end
 
+  # @param  [Array] of names of self and parent
+  # @return [Scope]
   # A scope. Matches GeographicAreas that have name and parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
@@ -267,12 +270,12 @@ class GeographicArea < ActiveRecord::Base
    #if type == :geometry_collection
    #  geometry = RGeo::GeoJSON.encode(object)
    #else
-      geo_id = self.geographic_items.order(:id).pluck(:id).first
-      geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
+      # geo_id = self.geographic_items.order(:id).pluck(:id).first
+      # geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
    # end
     retval = {
       'type'       => 'Feature',
-      'geometry'   => geometry,
+      'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
       'properties' => {
         'geographic_area' => {
           'id' => self.id}

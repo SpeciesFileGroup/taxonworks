@@ -203,7 +203,7 @@ class Protonym < TaxonName
     p = self.type_materials.primary
     if s.empty? && p.count == 1
       p
-    elsif p.empty? && s.empty?
+    elsif p.empty? && !s.empty?
       s
     else
       []
