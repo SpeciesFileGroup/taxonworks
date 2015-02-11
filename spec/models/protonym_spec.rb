@@ -103,11 +103,27 @@ describe Protonym, :type => :model do
       end
 
       specify 'ancestors_and_descendants' do
-        expect(@genus.ancestors_and_descendants.sort_by{|i| i.id}).to eq([@family.ancestor_at_rank('Kingdom'), @family.ancestor_at_rank('Phylum'), @family.ancestor_at_rank('Class'), @family.ancestor_at_rank('Order'), @family, @subfamily, @tribe, @subgenus, @species, @subspecies, @subspecies1, TaxonName.where(parent_id: nil, project_id: @species.project_id).first])
+        a = @genus.ancestors_and_descendants.sort_by{|i| i.id}
+        a.delete(TaxonName.where(parent_id: nil, project_id: @species.project_id).first)
+        expect(a).to eq([@family.ancestor_at_rank('Kingdom'), @family.ancestor_at_rank('Phylum'), @family.ancestor_at_rank('Class'), @family.ancestor_at_rank('Order'), @family, @subfamily, @tribe, @subgenus, @species, @subspecies, @subspecies1])
       end
     end
 
-    #   get_primary_type
+    context 'get_primary_type' do
+      specify 'primary' do
+        type = FactoryGirl.create(:valid_type_material)
+        expect(type.protonym.get_primary_type).to eq([type])
+      end
+
+      specify 'syntypes' do
+        type1 = FactoryGirl.create(:syntype_type_material)
+        p = type1.protonym
+        type2 = FactoryGirl.create(:syntype_type_material, protonym: p)
+        expect(p).to eq(type2.protonym)
+        p.reload
+        expect(p.get_primary_type.sort_by{|i| i.id}).to eq([type1, type2])
+      end
+    end
     #   matching_primary_types
     #   incorrect_originall_spelling
     #   incertae_sedis
