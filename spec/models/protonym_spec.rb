@@ -101,9 +101,12 @@ describe Protonym, :type => :model do
         expect(@species.lowest_rank_coordinated_taxon).to eq(@subspecies)
         expect(@subspecies.lowest_rank_coordinated_taxon).to eq(@subspecies)
       end
+
+      specify 'ancestors_and_descendants' do
+        expect(@genus.ancestors_and_descendants.sort_by{|i| i.id}).to eq([@family.ancestor_at_rank('Kingdom'), @family.ancestor_at_rank('Phylum'), @family.ancestor_at_rank('Class'), @family.ancestor_at_rank('Order'), @family, @subfamily, @tribe, @subgenus, @species, @subspecies, @subspecies1, TaxonName.where(parent_id: nil, project_id: @species.project_id).first])
+      end
     end
 
-    #   ancestors_and_descendants
     #   get_primary_type
     #   matching_primary_types
     #   incorrect_originall_spelling
