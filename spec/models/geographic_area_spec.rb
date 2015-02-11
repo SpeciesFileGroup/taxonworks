@@ -153,7 +153,7 @@ describe GeographicArea, :type => :model do
       end
 
       specify 'ancestors_and_descendants_of' do
-        expect(GeographicArea.ancestors_and_descendants_of(@champaign.parent)).to eq([@champaign.root, @champaign.parent.parent, @champaign])
+        expect(GeographicArea.ancestors_and_descendants_of(@illinois)).to eq([@champaign.root, @champaign.parent.parent, @champaign])
       end
 
       specify 'countries' do

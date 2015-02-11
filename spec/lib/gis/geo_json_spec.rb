@@ -65,9 +65,9 @@ describe Gis::GeoJSON do
       specify "that the geographic_item type 'line_string' produce GeoJSON" do
         object = @a
         json   = Gis::GeoJSON.feature_collection([object])
-        expect(json).to eq({'type' => 'FeatureCollection',
-                            'features' => [{'type' => 'Feature',
-                                            'geometry' => {'type' => 'LineString',
+        expect(json).to eq({'type'     => 'FeatureCollection',
+                            'features' => [{'type'       => 'Feature',
+                                            'geometry'   => {'type'        => 'LineString',
                                                              'coordinates' => [[-32, 21, 0], [-25, 21, 0], [-25, 16, 0], [-21, 20, 0]]},
                                             'properties' => {'geographic_item' => {'id' => object.id}},
                                             'id'         => feature_index.to_i}]})
@@ -172,6 +172,7 @@ describe Gis::GeoJSON do
     end
 
     context 'asserted_distribution' do
+      let(:feature_index) { '1' }
       specify 'that an asserted_distribution can produce a properly formed feature' do
         point            = @gr_n3_ob.geographic_item.geo_object
         geographic_areas = GeographicArea.find_by_lat_long(point.y, point.x)
@@ -184,12 +185,12 @@ describe Gis::GeoJSON do
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'MultiPolygon',
-                                                             'coordinates' => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
+                                                             'coordinates' => [[[[33.0, 28.0, 0.0], [37.0, 28.0, 0.0], [37.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
                                             'properties' => {'asserted_distribution' => {'id' => objects[0].id}},
                                             'id'         => (feature_index.to_i + 0)},
                                            {'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'MultiPolygon',
-                                                             'coordinates' => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
+                                                             'coordinates' => [[[[33.0, 28.0, 0.0], [35.0, 28.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
                                             'properties' => {'asserted_distribution' => {'id' => objects[1].id}},
                                             'id'         => (feature_index.to_i + 1)},
                                            {'type'       => 'Feature',
@@ -199,12 +200,12 @@ describe Gis::GeoJSON do
                                             'id'         => (feature_index.to_i + 2)},
                                            {'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'MultiPolygon',
-                                                             'coordinates' => [[[[33.0, 28.0, 0.0], [35.0, 28.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
+                                                             'coordinates' => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
                                             'properties' => {'asserted_distribution' => {'id' => objects[3].id}},
                                             'id'         => (feature_index.to_i + 3)},
                                            {'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'MultiPolygon',
-                                                             'coordinates' => [[[[33.0, 28.0, 0.0], [37.0, 28.0, 0.0], [37.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
+                                                             'coordinates' => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
                                             'properties' => {'asserted_distribution' => {'id' => objects[4].id}},
                                             'id'         => (feature_index.to_i + 4)}]})
       end
@@ -228,7 +229,7 @@ describe Gis::GeoJSON do
                                           'properties' => {'geographic_area' => {'id' => objects[1].id}},
                                           'id'         => (feature_index.to_i + 1)},
                                          {'type'       => 'Feature',
-                                          'geometry'   => {'type' => 'Point',
+                                          'geometry'   => {'type'        => 'Point',
                                                            'coordinates' => [33.5, 24.5, 0.0]},
                                           'properties' => {'georeference' => {'id' => objects[2].id}},
                                           'id'         => (feature_index.to_i + 2)},
