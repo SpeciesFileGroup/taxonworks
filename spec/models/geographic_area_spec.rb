@@ -367,14 +367,39 @@ describe GeographicArea, :type => :model do
       ActiveRecord::Base.connection.reset_pk_sequence!('projects')
     end
 
-    specify('find_others_contained_in')do
-      pending
-      expect(GeographicArea.find_others_contained_in(@area_land_mass)).to include(@item_n3)
+    specify('is_contained_by') do
+      expect(GeographicArea.is_contained_by(@area_old_boxia).map(&:name)).to include('Old Boxia',
+                                                                                              'West Boxia',
+                                                                                              'QTM1',
+                                                                                              'QTM2',
+                                                                                              'QTN1',
+                                                                                              'QTN2',
+                                                                                              'M1',
+                                                                                              'QT',
+                                                                                              'West Boxia',
+                                                                                              'R',
+                                                                                              'N1',
+                                                                                              'M2',
+                                                                                              'RM3',
+                                                                                              'RM4',
+                                                                                              'RN3',
+                                                                                              'RN4',
+                                                                                              'M3',
+                                                                                              'N3',
+                                                                                              'M4',
+                                                                                              'N4',
+                                                                                              'N2')
     end
 
-    specify('find_others_contained_by') do
-      pending
-      expect(GeographicArea.find_others_contained_by(@area_old_boxia)).to include(@area_r)
+    specify('are_contained_in') do
+      # pending
+      expect(GeographicArea.are_contained_in(@area_p2).map(&:name)).to include('East Boxia',
+                                                                                       'Big Boxia',
+                                                                                       'Q',
+                                                                                       'QUP2',
+                                                                                       'QU',
+                                                                                       'P2',
+                                                                                       'Great Northern Land Mass')
     end
 
     specify('find_by_lat_long') do

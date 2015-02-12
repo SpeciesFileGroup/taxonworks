@@ -446,27 +446,27 @@ describe GeographicItem, :type => :model do
         expect(pieces).to eq(@all_gi)
       end
 
-      specify '::is_contained_in - returns objects which contained in another object.' do
-        #  expect(GeographicItem.is_contained_in('not_a_column_name', @p1).to_a).to eq([])
-        #  expect(GeographicItem.is_contained_in('point', 'Some devious SQL string').to_a).to eq([])
+      specify '::are_contained_in - returns objects which contained in another object.' do
+        #  expect(GeographicItem.are_contained_in('not_a_column_name', @p1).to_a).to eq([])
+        #  expect(GeographicItem.are_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
         # one thing inside k
-        expect(GeographicItem.is_contained_in('polygon', @p1).to_a).to eq([@k])
+        expect(GeographicItem.are_contained_in('polygon', @p1).to_a).to eq([@k])
         # three things inside k
-        expect(GeographicItem.is_contained_in('polygon', [@p1, @p2, @p3]).to_a).to eq [@k]
+        expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3]).to_a).to eq [@k]
         # one thing outside k
-        expect(GeographicItem.is_contained_in('polygon', @p4).to_a).to eq([])
+        expect(GeographicItem.are_contained_in('polygon', @p4).to_a).to eq([])
         # one thing inside two things (overlapping)
-        expect(GeographicItem.is_contained_in('polygon', @p12).to_a.count).to eq(2)
-        expect(GeographicItem.is_contained_in('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
-        expect(GeographicItem.is_contained_in('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
+        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.count).to eq(2)
+        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
+        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
         # three things inside and one thing outside k
-        expect(GeographicItem.is_contained_in('polygon', [@p1, @p2, @p3, @p11]).to_a).to include(@e1, @k)
+        expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3, @p11]).to_a).to include(@e1, @k)
         # one thing inside one thing, and another thing inside another thing
-        expect(GeographicItem.is_contained_in('polygon', [@p1, @p11]).to_a).to include(@e1, @k)
+        expect(GeographicItem.are_contained_in('polygon', [@p1, @p11]).to_a).to include(@e1, @k)
         # two things inside one thing, and
-        expect(GeographicItem.is_contained_in('polygon', @p18).to_a).to eq([@b1, @b2])
-        expect(GeographicItem.is_contained_in('polygon', @p19).to_a).to include(@b1, @b)
+        expect(GeographicItem.are_contained_in('polygon', @p18).to_a).to eq([@b1, @b2])
+        expect(GeographicItem.are_contained_in('polygon', @p19).to_a).to include(@b1, @b)
       end
 
       specify '::is_contained_by - returns objects which are contained by other objects.' do

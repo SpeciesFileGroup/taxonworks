@@ -303,7 +303,7 @@ describe CollectingEvent, :type => :model do
         specify 'geolocate_ui_params_hash from lat/long' do
           # @ce_m1.georeference was built from verbatim data; no locality
           expect(@ce_m1.geolocate_ui_params_hash).to eq({:country       => 'Big Boxia',
-                                                         :state         => 'T',
+                                                         :state         => 'QT',
                                                          :county        => 'M1',
                                                          :locality      => 'Lesser Boxia Lake',
                                                          :Latitude      => 27.5,
@@ -333,7 +333,7 @@ describe CollectingEvent, :type => :model do
 
         specify 'geolocate_ui_params_string from lat/long' do
           #pending 'creation of a method for geolocate_ui_params_string'
-          expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big Boxia&state=T&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+          expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
         end
       end
     end
@@ -493,15 +493,15 @@ describe CollectingEvent, :type => :model do
             # @ce_o3 has no georeference, so the only way to 'O3' is through geographic_area
             expect(@ce_o3.states_hash).to include({'O3' => [@area_o3]}, {'SO3' => [@area_so3]})
             # @ce_p2 has no georeference, so the only way to 'U' is through geographic_area
-            expect(@ce_p2.states_hash).to include({'U' => [@area_u]}, {'East Boxia' => [@area_east_boxia_3]})
+            expect(@ce_p2.states_hash).to include({'QU' => [@area_u]}, {'East Boxia' => [@area_east_boxia_3]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_n4 has no geographic_area, so the only way to 'N4' is through georeference
             expect(@ce_n4.states_hash).to include({'N4' => [@area_n4]}, {'RN4' => [@area_rn4]})
             # @ce_n4 has no geographic_area, so the only way to 'T' is through georeference
             list = @ce_n2.states_hash
-            expect(list.keys).to include('T')
-            expect(list['T']).to include(@area_t_1, @area_t_2)
+            expect(list.keys).to include('QT')
+            expect(list['QT']).to include(@area_t_1, @area_t_2)
           end
         end
 
@@ -509,13 +509,13 @@ describe CollectingEvent, :type => :model do
           specify 'derived from geographic_area_chain' do
             # 'T' is a state in 'Q'
             list = @ce_m1.states_hash
-            expect(list.keys).to include('T')
-            expect(list['T']).to include(@area_t_1, @area_t_2)
+            expect(list.keys).to include('QT')
+            expect(list['QT']).to include(@area_t_1, @area_t_2)
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_p1 has both geographic_area and georeference; georeference has priority
             list = @ce_p1.states_hash
-            expect(list.keys).to include('U', 'East Boxia')
+            expect(list.keys).to include('QU', 'East Boxia')
           end
         end
       end
@@ -543,7 +543,7 @@ describe CollectingEvent, :type => :model do
           end
           specify 'it should return the #states_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'Q', 'Big Boxia', and 'Old Boxia'
-            expect(@ce_n2.state_name).to eq('T')
+            expect(@ce_n2.state_name).to eq('QT')
           end
           specify 'it should return the first #states_hash.key when an equal number of .values is present' do
             # @ce_n3 is state names 'N3', and leads back to two GAs; 'R', and 'Old Boxia'

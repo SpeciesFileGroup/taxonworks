@@ -958,49 +958,78 @@ def generate_political_areas_with_collecting_events
 =begin
 
 Q, R, and S are level 0 spaces, i.e., 'Country'.
-M3 through P4, T and U are level 1 spaces, i.e., 'State (Province)'.
+M3 through P4, T and U are level 1 spaces, i.e.,
+                                    'State (Province)'.
 M1 through P2 are level 2 spaces, i.e., 'County (Parish)'.
 
-M1-upper_left is at (33, 28).
-  
-|------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      |
-|  M1  |  N1  |  O1  |  P1  | | QTM1 | QTN1 | QUO1 | QUP1 |
-|      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      |
-|  M2  |  N2  |  O2  |  P2  | | QTM2 | QTN2 | QUO2 | QUP2 |
-|      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      |
-|  M3  |  N3  |  O3  |  P3  | | RM3  | RN3  | SO3  | SP3  |
-|      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------|
-|      |      |      |      | |      |      |      |      |
-|  M4  |  N4  |  O4  |  P4  | | RM4  | RN4  | SO4  | SP4  |
-|      |      |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------|
-
-Big Boxia overlays Q,
-Great Northern Land Mass overlays Q, R, and S.
+M1-upper_left is at (33, 28). Great Northern Land Mass
+                                      overlays Q, R, and S.
 
 |------|------|------|------| |------|------|------|------|
-|                           | |                           |
-|                           | |                           |
-|                           | |                           |
-|       Q, aka Big Boxia    | |                           |
-|                           | |                           |
-|                           | |                           |
-|                           | |                           |
+|      |      |      |      | |                           |
+|  M1  |  N1  |  O1  |  P1  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| |                           |
+|      |      |      |      | |                           |
+|  M2  |  N2  |  O2  |  P2  | |                           |
+|      |      |      |      | |                           |
 |------|------|------|------| | Great Northern Land Mass  |
-|             |             | |                           |
-|             |             | |                           |
-|             |             | |                           |
-|      R      |      S      | |                           |
-|             |             | |                           |
-|             |             | |                           |
-|             |             | |                           |
+|      |      |      |      | |                           |
+|  M3  |  N3  |  O3  |  P3  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| |                           |
+|      |      |      |      | |                           |
+|  M4  |  N4  |  O4  |  P4  | |                           |
+|      |      |      |      | |                           |
 |------|------|------|------| |------|------|------|------|
+
+Big Boxia overlays Q
+
+|------|------|------|------| |------|------|------|------|
+|                           | |             |             |
+|                           | |             |             |
+|                           | |             |             |
+|       Q, aka Big Boxia    | |     QT      |     QU      |
+|                           | |             |             |
+|                           | |             |             |
+|                           | |             |             |
+|------|------|------|------| |------|------|------|------|
+|             |             | |      |      |      |      |
+|             |             | | RM3  | RN3  | SO3  | SP3  |
+|             |             | |      |      |      |      |
+|      R      |      S      | |------|------|------|------|
+|             |             | |      |      |      |      |
+|             |             | | RM4  | RN4  | SO4  | SP4  |
+|             |             | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+
+
+
+
+
+
+
+
+
+
+
+|------|------|------|------|
+|      |      |      |      |
+| QTM1 | QTN1 | QUO1 | QUP1 |
+|      |      |      |      |
+|------|------|------|------|
+|      |      |      |      |
+| QTM2 | QTN2 | QUO2 | QUP2 |
+|      |      |      |      |
+|------|------|------|------|
+|      |      |      |      |
+| RM3  | RN3  | SO3  | SP3  |
+|      |      |      |      |
+|------|------|------|------|
+|      |      |      |      |
+| RM4  | RN4  | SO4  | SP4  |
+|      |      |      |      |
+|------|------|------|------|
 
 Old Boxia overlays R, and western Q.
  
@@ -1020,7 +1049,7 @@ Old Boxia overlays R, and western Q.
 |             |      |      | |      |      |      |      |
 |             |  O4  |  P4  | |      | RN4  | SO4  |      |
 |             |      |      | |      |      |      |      |
-|------|------|------|------| |------|------|------|------|     
+|------|------|------|------| |------|------|------|------|
 
 Two different shapes with the same name, 'East Boxia', and
 'East Boxia' (the square) is also listed as a state in
@@ -1232,21 +1261,21 @@ Two different shapes with the same name, 'East Boxia', and
 
   # next, level 1 areas
   @area_t_1 = FactoryGirl.build(:level1_geographic_area,
-                                :name                 => 'T',
+                                :name                 => 'QT',
                                 :tdwgID               => '10TTT',
                                 :geographic_area_type => gat_state,
                                 :parent               => @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save
   @area_t_2 = FactoryGirl.build(:level1_geographic_area,
-                                :name                 => 'T',
+                                :name                 => 'QT',
                                 :tdwgID               => '20TTT',
                                 :geographic_area_type => gat_state,
                                 :parent               => @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save
   @area_u = FactoryGirl.build(:level1_geographic_area,
-                              :name                 => 'U',
+                              :name                 => 'QU',
                               :tdwgID               => nil,
                               :geographic_area_type => gat_state,
                               :parent               => @area_q)
@@ -1284,7 +1313,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_qtn2_2 = FactoryGirl.build(:level2_geographic_area,
                                    :name                 => 'QTN2',
                                    :geographic_area_type => gat_county,
-                                   :parent               => @area_t_1)
+                                   :parent               => @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 

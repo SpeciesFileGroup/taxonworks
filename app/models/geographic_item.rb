@@ -307,14 +307,14 @@ SELECT round(CAST(
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
-  def self.is_contained_in(column_name, *geographic_items)
+  def self.are_contained_in(column_name, *geographic_items)
     column_name.downcase!
     case column_name
       when 'any'
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -323,7 +323,7 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.is_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
