@@ -3,7 +3,6 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
 <%= link_to('back', otu_path(@otu)) %>
 <div class="flexbox">
   <div class="item item1">
-    <p>
       <%= form_tag(generate_choices_url, id: 'cadu') do %>
           Source <span id="sourceError" style="color: #DD0000"></span>
               <%= render :partial => 'workbench/elements/forms/ajax_select',
@@ -18,20 +17,25 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
           <%= hidden_field_tag(:longitude ) -%> 
         <% end %>
          
-      </p>
+
     <span id="qnadf"></span>
   </div>
 
   <div class="item item2">
-    <%= render(partial: 'map_header', locals: {otu: @otu, feature_collection: @feature_collection}) -%>
+    <%= render(partial: 'map_header') -%>
+
+    <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
+
+    <div id="feature_collection"
+    data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'
+
+    data-otu="<%=@otu %>"
+    ></div>
+
     <div id="map_canvas" style="width:512px; height: 256px;"></div>
     <span id="map_coords"></span>
-    <script language="javascript">
-      function IMAML() {initializeMap("map_canvas"); add_map_listeners();};
-      $(document).ready((IMAML()));
-//        $(document).on('page:load', IMAML());
-//             add_map_listeners();
-    </script>
+    <script>initADmap();</script>
+    </div>
   </div>
 </div>
 

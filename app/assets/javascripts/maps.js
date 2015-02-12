@@ -43,7 +43,7 @@ initialize = function () {
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
-    get_Data();               // scan var data as feature collection with homebrew traverser, collecting bounds
+    get_Data(data);               // scan var data as feature collection with homebrew traverser, collecting bounds
     get_window_center();      // compute center_lat_long from bounds and compute zoom level as gzoom
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + center_lat.toFixed(6) + ' , Longitude = ' + center_long.toFixed(6)) ;
     map.setCenter(center_lat_long);
@@ -248,9 +248,10 @@ function reset_center_and_bounds() {        // used to
     ymax = -90.0;
 }
 
-function get_Data() {       //this is the scanner version; no google objects are created
+function get_Data(feature_collection_data) {       //this is the scanner version; no google objects are created
     reset_center_and_bounds();
     //		get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
+    var data = feature_collection_data;
     if (typeof (data) != 'undefined') {
         var dataArray = [];
         if (data instanceof Array) {
