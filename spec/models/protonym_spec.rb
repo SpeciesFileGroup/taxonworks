@@ -124,7 +124,24 @@ describe Protonym, :type => :model do
         expect(p.get_primary_type.sort_by{|i| i.id}).to eq([type1, type2])
       end
     end
-    #   matching_primary_types
+
+    specify 'has_same_primary_types' do
+      species1 = FactoryGirl.create(:relationship_species)
+      species2 = FactoryGirl.create(:relationship_species, parent: species1.ancestor_at_rank('genus'))
+      species1.reload
+      expect(species1.has_same_primary_type(species2)).to be_truthy
+      type1 = FactoryGirl.create(:valid_type_material, protonym: species1)
+      species1.reload
+      expect(species1.has_same_primary_type(species2)).to be_falsey
+      type2 = FactoryGirl.create(:valid_type_material, protonym: species2)
+      species1.reload
+      expect(species1.has_same_primary_type(species2)).to be_falsey
+      type2.biological_object_id = type1.biological_object_id
+      type2.save
+      species1.reload
+      expect(species1.has_same_primary_type(species2)).to be_truthy
+    end
+
     #   incorrect_originall_spelling
     #   incertae_sedis
     #   original_combination_class_relationships

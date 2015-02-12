@@ -210,15 +210,14 @@ class Protonym < TaxonName
     end
   end
 
-  def matching_primary_types(taxon1, taxon2)
+  def has_same_primary_type(taxon2) # two taxa has the same primary type speciemens
     return true unless self.rank_class.parent.to_s =~ /Species/
-    taxon1_types = taxon1.get_primary_type
-    taxon2_types = taxon2.get_primary_type
-    if taxon1_types.empty? && taxon2_types.empty? # both are empty
-      true
-    elsif taxon1_types.count != taxon2_types.count
-      false
-    elsif TypeMaterial.primary_with_protonym_array([taxon1.id, taxon2.id]).to_a.count == taxon1_types.count
+    taxon1_types = self.get_primary_type.sort_by{|i| i.id}
+    taxon2_types = taxon2.get_primary_type.sort_by{|i| i.id}
+    return true if taxon1_types.empty? && taxon2_types.empty? # both are empty
+    return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
+
+    if taxon1_types.collect{|i| i.biological_object_id} == taxon2_types.collect{|i| i.biological_object_id}
       true
     else
       false
@@ -396,7 +395,6 @@ class Protonym < TaxonName
 
   def sv_validate_coordinated_names
     list_of_coordinated_names.each do |t|
-      foo = matching_primary_types(t, self)
       soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
                            fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
       soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
@@ -418,7 +416,7 @@ class Protonym < TaxonName
       soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
                            fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
       soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless matching_primary_types(self, t)
+                           fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless self.has_same_primary_type(t)
       sttnr = self.type_taxon_name_relationship
       tttnr = t.type_taxon_name_relationship
       unless sttnr.nil? || tttnr.nil?
@@ -442,7 +440,7 @@ class Protonym < TaxonName
         self.verbatim_author = t.verbatim_author
         fixed = true
       end
-      if self.year_of_publication.nil? && self.year_of_publication != t.year_of_publication # TODO: this type of if statements should be broken out to named methods, way too much here
+      if self.year_of_publication.nil? && !t.year_of_publication.nil?
         self.year_of_publication = t.year_of_publication
         fixed = true
       end
@@ -456,27 +454,27 @@ class Protonym < TaxonName
         self.TaxonNameClassification.build(type: t_speech.to_s)
         fixed = true
       end
-      if self.gender_class.nil? && self.gender_class != t.gender_class
+      if self.gender_class.nil? && !t.gender_class.nil?
         self.taxon_name_classification.build(type: t.gender_name)
         fixed = true
       end
-      if self.original_genus.nil? && self.original_genus != t.original_genus
+      if self.original_genus.nil? && !t.original_genus.nil?
         self.original_combination_genus = t.original_combination_genus
         fixed = true
       end
-      if self.original_subgenus.nil? && self.original_subgenus != t.original_subgenus
+      if self.original_subgenus.nil? && !t.original_subgenus.nil?
         self.original_combination_subgenus = t.original_combination_subgenus
         fixed = true
       end
-      if self.original_species.nil? && self.original_species != t.original_species
+      if self.original_species.nil? && !t.original_species.nil?
         self.original_combination_species = t.original_combination_species
         fixed = true
       end
-      if self.type_species.nil? && self.type_species != t.type_species
+      if self.type_species.nil? && !t.type_species.nil?
         self.type_species = t.type_species
         fixed = true
       end
-      if self.type_genus.nil? && self.type_genus != t.type_genus
+      if self.type_genus.nil? && !t.type_genus.nil?
         self.type_genus = t.type_genus
         fixed = true
       end
