@@ -142,8 +142,25 @@ describe Protonym, :type => :model do
       expect(species1.has_same_primary_type(species2)).to be_truthy
     end
 
-    #   incorrect_originall_spelling
-    #   incertae_sedis
+    specify 'iczn_set_as_incorrect_original_spelling_of_relationship' do
+      species1 = FactoryGirl.create(:relationship_species, name: 'aus')
+      species2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: species1.ancestor_at_rank('genus'))
+      relationship = TaxonNameRelationship.create(subject_taxon_name: species2, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+      species1.reload
+      species2.reload
+      expect(species1.iczn_set_as_incorrect_original_spelling_of_relationship).to be_falsey
+      expect(species2.iczn_set_as_incorrect_original_spelling_of_relationship).to eq(relationship)
+    end
+
+    specify 'iczn_uncertain_placement_relationship' do
+      family = FactoryGirl.create(:relationship_family)
+      species = FactoryGirl.create(:relationship_species, parent: family)
+      expect(species.iczn_uncertain_placement_relationship).to be_falsey
+      relationship = TaxonNameRelationship.create(subject_taxon_name: species, object_taxon_name: family, type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+      species.reload
+      expect(species.iczn_uncertain_placement_relationship).to eq(relationship)
+    end
+
     #   original_combination_class_relationships
     #   original_combination_relationships_and_stubs
 

@@ -138,20 +138,19 @@ class Protonym < TaxonName
   end
 
   # TODO: make a constant somewhere, it's def not a instance method
-  def family_group_endings
-    %w{ini ina inae idae oidae odd ad oidea}
-  end
+
+  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 
   def list_of_coordinated_names
     list = []
     if self.rank_string
-      if self.incorrect_original_spelling.nil?
+      r = self.iczn_set_as_incorrect_original_spelling_of_relationship
+      if r.blank?
         search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
         if !!search_rank
           if search_rank =~ /Family/
             z = Protonym.family_group_base(self.name)
-            search_name = z.nil? ? nil : family_group_endings.collect{|i| z+i}
-            #search_name = z.nil? ? nil : "#{z}(ini|ina|inae|idae|oidae|odd|ad|oidea)"
+            search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
             search_name = self.name
           end
@@ -172,7 +171,7 @@ class Protonym < TaxonName
           list = []
         end
       else
-        list = [self.incorrect_original_spelling.object_taxon_name]
+        list = [r.object_taxon_name]
       end
     end
     return list
@@ -224,17 +223,7 @@ class Protonym < TaxonName
     end
   end
 
-  def incorrect_original_spelling
-    self.iczn_set_as_incorrect_original_spelling_of_relationship
-    #TaxonNameRelationship.with_type_contains('IncorrectOriginalSpelling').where_subject_is_taxon_name(self).first
-  end
-
-  def incertae_sedis
-    self.iczn_uncertain_placement_relationship
-    #TaxonNameRelationship.with_type_contains('UncertainPlacement').where_subject_is_taxon_name(self).first
-  end
-
-  # return [Array of TaxonNameRelationship] 
+  # return [Array of TaxonNameRelationship]
   #   classes that are applicable to this name, as deterimned by Rank
   def original_combination_class_relationships
     relations = []
@@ -268,8 +257,9 @@ class Protonym < TaxonName
   #region Validation
 
   def new_parent_taxon_name
-    if !!self.incertae_sedis
-      if self.parent != self.incertae_sedis.object_taxon_name
+    r = self.iczn_uncertain_placement_relationship
+    unless r.blank?
+      if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
       end
     end
@@ -287,7 +277,7 @@ class Protonym < TaxonName
 
   def sv_validate_parent_rank
     if self.rank_class
-      if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.incertae_sedis
+      if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
         true
       elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
         soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
@@ -297,7 +287,7 @@ class Protonym < TaxonName
 
   def sv_missing_relationships
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Original genus is missing') if self.original_genus # TODO: @proceps , is this right? it was changed from non existant call
+      soft_validations.add(:base, 'Original genus is missing') if self.original_genus.nil?
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
@@ -543,9 +533,9 @@ class Protonym < TaxonName
         sisters = self.parent.descendants.with_rank_class(rank)
         if rank =~ /Family/
           z = Protonym.family_group_base(self.name)
-          search_name = z.nil? ? nil : family_group_endings.collect{|i| z+i}
+          search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           a = sisters.collect{|i| Protonym.family_group_base(i.name) }
-          sister_names = a.collect{|z| family_group_endings.collect{|i| z+i} }.flatten
+          sister_names = a.collect{|z| Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i} }.flatten
         else
           search_name = [self.name]
           sister_names = sisters.collect{|i| i.name }
