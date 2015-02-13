@@ -27,7 +27,6 @@
         <td><%= tag.updated_at %></td>
         <td><%= object_tag(tag.updater) %></td>
         <td><%= link_to 'Context', tag.tag_object.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
         <td><%= link_to 'Destroy', tag, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
