@@ -274,7 +274,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     o = self.object_taxon_name
     case self.type_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
-        if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.matching_primary_types(s, o) )
+        if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
           soft_validations.add(:type, 'Subjective synonyms should not have the same type')
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
@@ -331,7 +331,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic)/
       s = self.subject_taxon_name
       o = self.object_taxon_name
-      if (s.type_taxon_name != o.type_taxon_name ) || !s.matching_primary_types(s, o)
+      if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
         soft_validations.add(:type, 'Objective synonyms should have the same type')
       end
     end
@@ -388,13 +388,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     subject_type = s.type_taxon_name
     object_type = o.type_taxon_name
     new_relationship_name = self.type_name
-    if (subject_type == object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && s.matching_primary_types(s, o) )
+    if (subject_type == object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
       if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
         new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
       else
         new_relationship_name = 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'
       end
-    elsif (subject_type != object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && !o.get_primary_type.empty? && !s.matching_primary_types(s, o))
+    elsif (subject_type != object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && !o.get_primary_type.empty? && !s.has_same_primary_type(o))
       if new_relationship_name == 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
         new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
       else

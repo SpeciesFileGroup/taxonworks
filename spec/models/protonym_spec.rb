@@ -1,23 +1,5 @@
 require 'rails_helper'
 
-# TO resolve with Proceps
-#  - we need to write tests for all instance methods, including:
-#   all_generic_placements  
-#   list_of_coordinated_names
-#   lowest_rank_coordinated_taxon
-#   ancestors_and_descendants
-#   get_primary_type
-#   matching_primary_types
-#   incorrect_originall_spelling
-#   incertae_sedis
-#   original_combination_class_relationships
-#   original_combination_relationships_and_stubs
-#
-#
-# and class methods
-#   family_group_base ( should move to FamilyGroup rank spec likely)
-#
-
 describe Protonym, :type => :model do
   let(:protonym) { Protonym.new }
 
@@ -161,9 +143,24 @@ describe Protonym, :type => :model do
       expect(species.iczn_uncertain_placement_relationship).to eq(relationship)
     end
 
-    #   original_combination_class_relationships
-    #   original_combination_relationships_and_stubs
+    specify 'original_combination_class_relationships' do
+      genus = FactoryGirl.create(:relationship_genus)
+      subgenus = FactoryGirl.create(:iczn_subgenus, parent: genus)
+      species = FactoryGirl.create(:relationship_species, parent: subgenus)
+      subspecies = FactoryGirl.create(:iczn_subspecies, parent: species)
 
+      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus'])
+
+      r1 = TaxonNameRelationship.create(subject_taxon_name: genus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      r2 = TaxonNameRelationship.create(subject_taxon_name: subgenus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+      subspecies.reload
+      expect(subspecies.original_combination_relationships_and_stubs.count).to eq(3)
+      expect(subspecies.original_combination_relationships_and_stubs[0]).to eq(r1)
+      expect(subspecies.original_combination_relationships_and_stubs[1]).to eq(r2)
+      expect(subspecies.original_combination_relationships_and_stubs[2].subject_taxon_name_id).to be_falsey
+      expect(subspecies.original_combination_relationships_and_stubs[2].object_taxon_name_id).to eq(subspecies.id)
+      expect(subspecies.original_combination_relationships_and_stubs[2].type).to eq('TaxonNameRelationship::OriginalCombination::OriginalSpecies')
+    end
   end
 
   context 'validation' do
