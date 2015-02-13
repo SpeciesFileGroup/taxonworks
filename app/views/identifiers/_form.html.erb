@@ -31,7 +31,6 @@
     <div class="field">
       <%= f.label :namespace_id %><br>
       <%#= f.number_field :namespace_id %>
-      <br>
       <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals => {:controller => 'namespaces',
                              :object => 'identifier',

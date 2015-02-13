@@ -2,30 +2,30 @@ module IdentifiersHelper
 
   def add_identifier_link(object: object, attribute: nil)
     link_to('Add identifier', new_identifier_path(
-        identifier: {
-            identifier_object_type: object.class.base_class.name,
-            identifier_object_id: object.id})) if object.has_identifiers?
+                                identifier: {
+                                    identifier_object_type: object.class.base_class.name,
+                                    identifier_object_id: object.id})) if object.has_identifiers?
   end
 
-      def identifier_type_select_options
-        Identifier::SHORT_NAMES.collect{|k,v| [k.to_s.humanize, v.name]}
-        # SHORT_NAMES = {
-        #     doi:   Identifier::Global::Doi,
-        #     isbn:  Identifier::Global::Isbn,
-        #     issn:  Identifier::Global::Issn,
-        #     lccn:  Identifier::Global::Lccn,
-        #     orcid: Identifier::Global::Orcid,
-        #     uri:   Identifier::Global::Uri,
-        #     uuid:  Identifier::Global::Uuid,
-        #     catalog_number: Identifier::Local::CatalogNumber,
-        #     trip_code: Identifier::Local::TripCode,
-        #     import: Identifier::Local::Import,
-        #     otu_utility: Identifier::Local::OtuUtility,
-        #     accession_code: Identifier::Local::AccessionCode,
-        #     unknown: Identifier::Unknown
-        # }
+  def identifier_type_select_options
+    Identifier::SHORT_NAMES.collect { |k, v| [k.to_s.humanize, v.name] }
+    # SHORT_NAMES = {
+    #     doi:   Identifier::Global::Doi,
+    #     isbn:  Identifier::Global::Isbn,
+    #     issn:  Identifier::Global::Issn,
+    #     lccn:  Identifier::Global::Lccn,
+    #     orcid: Identifier::Global::Orcid,
+    #     uri:   Identifier::Global::Uri,
+    #     uuid:  Identifier::Global::Uuid,
+    #     catalog_number: Identifier::Local::CatalogNumber,
+    #     trip_code: Identifier::Local::TripCode,
+    #     import: Identifier::Local::Import,
+    #     otu_utility: Identifier::Local::OtuUtility,
+    #     accession_code: Identifier::Local::AccessionCode,
+    #     unknown: Identifier::Unknown
+    # }
 
-      end
+  end
 
   def identifier_tag(identifier)
     return nil if identifier.nil?

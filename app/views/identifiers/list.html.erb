@@ -28,6 +28,7 @@
         <td><%= identifier.updated_at %></td>
         <td><%= object_tag(identifier.updater) %></td>
         <td><%= link_to 'Context', identifier.identifier_object.metamorphosize %></td>
+        <td><%= link_to 'Edit', edit_identifier_path(identifier) %></td>
         <td><%= link_to 'Destroy', identifier.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>

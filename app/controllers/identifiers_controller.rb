@@ -9,6 +9,7 @@ class IdentifiersController < ApplicationController
 
   # GET /identifers/1/edit
   def edit
+    @identifier = Identifier.find_by_id(params[:id]).metamorphosize
   end
 
   # GET /identifiers
