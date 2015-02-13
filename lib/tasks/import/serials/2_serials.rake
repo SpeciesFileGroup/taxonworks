@@ -145,13 +145,13 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                                                                                import_predicate: 'MX_T_SerialImportID'})
                   case nsa.count # how many serials were found for this value?
                     when 0
-                      puts ['skipping - unable to find MX serial ', fname, 'importID', importID, 'MX_T_ImportID',
+                      puts ["\nskipping - unable to find MX serial ", fname, 'importID', importID, 'MX_T_ImportID',
                             mx_import_id].join(" : ")
                       next
                     when 1 # found 1 and only 1 serial - we're good!
                       ns = nsa.first
                     else
-                      puts ['skipping - match > 1 MX serials ', fname, 'importID', importID, 'MX_T_ImportID',
+                      puts ["\nskipping - match > 1 MX serials ", fname, 'importID', importID, 'MX_T_ImportID',
                             mx_import_id].join(" : ")
                       next
                   end
@@ -159,46 +159,44 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
               end
 
               # if ns contains an existing serial update it, else create a new serial
-              if ns.nil?
-                data_attr = []
-
-                # add note
-                unless (note.blank?) # test for empty note!
-                  # TODO test for note already present
-                  data_attr.push({predicate: @serial_note, value: note, type: 'InternalAttribute'})
-                end
-
-                # Import ID - never empty
-                data_attr.push({type:             'ImportAttribute',
-                                import_predicate: @import_serial_ID.name,
-                                value:            importID
-                               })
-
-                identifiers =[]
-
-                unless issn.blank? # tested for existing ISSN at top
-                  identifiers.push(
-                    {type:       'Identifier::Global::Issn',
-                     identifier: issn}
-                  )
-                end
-
+              if ns.nil?  # make a new serial
                 ns = Serial.new(
                   name:                       fname,
                   publisher:                  pub,
                   place_published:            place,
                   first_year_of_issue:        syear,
                   last_year_of_issue:         eyear,
-                  identifiers_attributes:     identifiers,
-                  data_attributes_attributes: data_attr
                 )
+
+                # add note
+                unless (note.blank?) # test for empty note!
+                  ns.data_attributes << DataAttribute.new({predicate: @serial_note,
+                                                           value: note,
+                                                           type: 'InternalAttribute'})
+                end
+
+                # Import ID - never empty
+                ns.data_attributes << DataAttribute.new({type:             'ImportAttribute',
+                                import_predicate: @import_serial_ID.name,
+                                value:            importID
+                               })
+
+                 unless issn.blank? # tested for existing ISSN at top
+                   ns.identifiers << Identifier.new(
+                    {type:       'Identifier::Global::Issn',
+                     identifier: issn}
+                  )
+                end
 
               else # ns already contains the relevant serial
                 ns.data_attributes << DataAttribute.new({import_predicate: @import_serial_ID.name,
                                                          value:            importID, type: 'ImportAttribute'})
                 unless (note.blank?) # test for empty note!
-                  ns.data_attributes << DataAttribute.new({predicate: @serial_note,
-                                                           value:     note, type: 'InternalAttribute'})
+                  if ns.data_attributes.where(:value == note)[0].nil? # doesn't exist
+                    ns.data_attributes << DataAttribute.new({predicate: @serial_note,
+                                                             value:     note,
+                                                             type: 'InternalAttribute'})
+                  end
                 end
                 # is the name already attached to the serial
                 unless ns.all_values_for(:name).include?(fname)
@@ -223,7 +221,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.publisher.blank?
                     ns.publisher = pub
                   else
-                    if pub != ns.publisher
+                    unless ns.all_values_for(:publisher).include?(pub)
                       ns.alternate_values << AlternateValue.new(
                         value:                            pub,
                         alternate_value_object_attribute: 'publisher',
@@ -236,7 +234,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.place_published.blank?
                     ns.place_published = pub
                   else
-                    if place != ns.place_published
+                    unless ns.all_values_for(:place_published).include?(place)
                       ns.alternate_values << AlternateValue.new(
                         value:                            pub,
                         alternate_value_object_attribute: 'place_published',
@@ -249,7 +247,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.first_year_of_issue.blank?
                     ns.first_year_of_issue = syear
                   else
-                    if syear != ns.first_year_of_issue
+                    unless ns.all_values_for(:first_year_of_issue).include?(syear)
                       ns.alternate_values << AlternateValue.new(
                         value:                            syear,
                         alternate_value_object_attribute: 'first_year_of_issue',
@@ -262,7 +260,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.last_year_of_issue.blank?
                     ns.last_year_of_issue = eyear
                   else
-                    if eyear != ns.last_year_of_issue
+                    unless ns.all_values_for(:last_year_of_issue).include?(eyear)
                       ns.alternate_values << AlternateValue.new(
                         value:                            eyear,
                         alternate_value_object_attribute: 'last_year_of_issue',
@@ -291,7 +289,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
               if ns.valid?
                 if !ns.place_published.blank?
                   if ns.place_published.length >= 256
-                    puts "error on primary save tmpID #{importID} place_published too long -- skipping"
+                    puts "\nerror on primary save tmpID #{importID} place_published too long -- skipping"
                     #error_msg <<  "place_published too long tmpID #{importID}"
                   else
                     ns.save!
@@ -299,10 +297,11 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   end
                 end
               else
-                puts "error on primary save tmpID #{importID} -- #{ns.errors.messages} skipping"
+                puts "\nerror on primary save tmpID #{importID} -- #{ns.errors.messages} skipping"
                 ns.data_attributes.to_a.each do |dattr|
                   puts "#{dattr.value}, #{dattr.type}, #{dattr.import_predicate}, #{dattr.controlled_vocabulary_term_id}"
                 end
+                puts
                  error_msg  << ns.errors.messages
               end
 
