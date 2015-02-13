@@ -14,9 +14,10 @@ class DataAttributesController < ApplicationController
     @recent_objects = DataAttribute.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
-  # # GET /data_attributes/1/edit
-  # def edit
-  # end
+  # GET /data_attributes/1/edit
+  def edit
+    @data_attribute = DataAttribute.find_by_id(params[:id])
+  end
 
   # POST /data_attributes
   # POST /data_attributes.json

@@ -1,4 +1,4 @@
-<%= form_for(@data_attribute) do |f| %>
+<%= form_for(@data_attribute.metamorphosize) do |f| %>
     <% if @data_attribute.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@data_attribute.errors.count, "error") %> prohibited this data_attribute from being
@@ -19,14 +19,15 @@
     <%= f.hidden_field :attribute_subject_type %>
     <%= f.hidden_field :attribute_subject_id %>
     <div class="field">
-      <%= f.label 'Import predicate' %>
+      <%= f.label 'Predicate' %>
       <br>
       <%= render :partial => 'workbench/elements/forms/ajax_select',
                  :locals => {:controller => 'controlled_vocabulary_terms',
                              :object => 'data_attribute',
                              :method => 'controlled_vocabulary_term_id',
                              :tag_id => 'controlled_vocabulary_term_id_for_data_attribute',
-                             :display => object_tag(@data_attribute.controlled_vocabulary_term_id)} %>
+                             :display => object_tag(@data_attribute.predicate),
+                            :size => 40} %>
     </div>
     <div class="field">
       <%= f.label :value %>
