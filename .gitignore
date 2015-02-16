@@ -21,7 +21,7 @@ local_settings.yml
 .yardoc/
 
 # Temporarily
-/Gemfile.lock
+# Gemfile.lock
 
 # Ignore rvm gemset configuration
 /.ruby-gemset
