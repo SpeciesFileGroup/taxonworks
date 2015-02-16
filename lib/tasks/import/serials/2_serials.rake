@@ -2,23 +2,8 @@ namespace :tw do
   namespace :import do
     namespace :serial do
 
-      def get_SF_namespaces
-        @import_serial_ID = Predicate.find_or_create_by(name: 'SF_SerialImportID',
-                                                        definition:
-                                                              'ID indicating which row from the SF serial import table (SF_serial_export.txt) generated this object')
-
-        @sf_pub_id     = Predicate.find_or_create_by(name: 'SF_ID', definition: 'ID for this object used in SF')
-        @sf_pub_reg_id = Predicate.find_or_create_by(name:       'SF_pub_reg_ID',
-                                                     definition: 'ID for this object used in the SF publication registry.')
-
-        # create needed controlled vocabulary keywords for Serials (needed for data attribute)
-        @serial_note   = Predicate.find_or_create_by(name: 'Serial Note', definition: 'Comments about this serial')
-        # @serial_lang_note = Predicate.find_or_create_by(name: 'Serial Language Note',
-        #                                    definition: 'Comments specifically about the language of this serial.')
-      end
-
-      desc 'call like "rake tw:import:serial:serials_4_build_SF_serials[/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt] user_id=1 project_id=1" '
-      task :serials_4_build_SF_serials, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_4_build_SF_serials[/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt] user_id=1" '
+      task :serials_4_build_SF_serials, [:data_directory] => [:environment, :user_id] do |t, args|
         args.with_defaults(:data_directory => './SFSerialExport.txt')
 
         # must be run after MX/treehopper serial import
@@ -30,7 +15,7 @@ namespace :tw do
 
         begin
           ActiveRecord::Base.transaction do
-            get_SF_namespaces
+            set_serial_import_predicates
 
             CSV.foreach(args[:data_directory],
                         headers:        true,
@@ -40,6 +25,7 @@ namespace :tw do
                         quote_char:     '|'
             ) do |row|
 
+              ns = nil # initialize to no found serials
               # TODO convert row to a hash & reference by column name not order to make it more generic
 =begin
 Column : SQL column name :  data desc
@@ -79,17 +65,15 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                 end
               end
 
-              if make_new
-                ns = nil
-              else
+              unless make_new
                 if mx_import_id.blank?
                   ns = Serial.with_identifier(issn).first
                   if ns.nil? # ISSN is not in use, check for duplicate name
                     sa = Serial.where(name: fname).to_a # does it match a primary name?
                     case sa.count
-                      when 0 # not a match to primary name - is it a match to an alt name
-                        ava = AlternateValue.where(value: fname,
-                                                   alternate_value_object_type: 'Serial',
+                      when 0 # not a match to primary name - is it a match to an alt name?
+                        ava = AlternateValue.where(value:                            fname,
+                                                   alternate_value_object_type:      'Serial',
                                                    alternate_value_object_attribute: 'name')
                         case ava.count
                           when 0
@@ -101,22 +85,22 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                             msg = ['matched more than one serial\'s alternate value - ImportID', importID,
                                    " fname:[ #{fname} ]", 'number matched', ava.count,
                                    "adding a new serial \n"].join(' : ')
-                            if ava[0].alternate_value_object.data_attributes.where(import_predicate:
-                                                                                     'MX_T_SerialImportID').first.nil?
+                            unless ava[0].alternate_value_object.data_attributes.where(import_predicate:
+                                                                                         @mx_t_serial_importID_name).any?
                               tmp1 =
                                 "attributes: #{ava[0].alternate_value_object.data_attributes.to_s}"
                             else
                               tmp1 =
                                 "MX_T_importID #{ava[0].alternate_value_object.data_attributes.where(
-                                  import_predicate: 'MX_T_SerialImportID').first.value}"
+                                  import_predicate: @mx_t_serial_importID_name).first.value}"
                             end
                             if ava[1].alternate_value_object.data_attributes.where(import_predicate:
-                                                                                     'MX_T_SerialImportID').first.nil?
+                                                                                     @mx_t_serial_importID_name).first.nil?
                               tmp2 = "attributes: #{ava[1].alternate_value_object.data_attributes.to_s}"
                             else
                               tmp2 =
                                 "\n MX_T_importID #{ava[1].alternate_value_object.data_attributes.where(
-                                  import_predicate: 'MX_T_SerialImportID').first.value}"
+                                  import_predicate: @mx_t_serial_importID_name).first.value}"
                             end
 
                             msg = [msg, tmp1, tmp2].join(' : ')
@@ -142,7 +126,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   end
                 else # have the MX_T_serial import ID
                   nsa = Serial.joins(:data_attributes).where(data_attributes: {value:            mx_import_id,
-                                                                               import_predicate: 'MX_T_SerialImportID'})
+                                                                               import_predicate: @mx_t_serial_importID_name})
                   case nsa.count # how many serials were found for this value?
                     when 0
                       puts ["\nskipping - unable to find MX serial ", fname, 'importID', importID, 'MX_T_ImportID',
@@ -159,43 +143,40 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
               end
 
               # if ns contains an existing serial update it, else create a new serial
-              if ns.nil?  # make a new serial
+              if ns.nil? # make a new serial
                 ns = Serial.new(
-                  name:                       fname,
-                  publisher:                  pub,
-                  place_published:            place,
-                  first_year_of_issue:        syear,
-                  last_year_of_issue:         eyear,
+                  name:                fname,
+                  publisher:           pub,
+                  place_published:     place,
+                  first_year_of_issue: syear,
+                  last_year_of_issue:  eyear,
                 )
+                if ns.valid?
+                  ns.save!
+                  # add note
+                  unless (note.blank?) # test for empty note!
+                    ns.data_attributes << ImportAttribute.new(import_predicate: @note_name,
+                                                              value:            note)
+                  end
 
-                # add note
-                unless (note.blank?) # test for empty note!
-                  ns.data_attributes << DataAttribute.new({predicate: @serial_note,
-                                                           value: note,
-                                                           type: 'InternalAttribute'})
-                end
+                  # Import ID - never empty
+                  ns.data_attributes << ImportAttribute.new(import_predicate: @sf_serial_importID_name,
+                                                            value:            importID)
 
-                # Import ID - never empty
-                ns.data_attributes << DataAttribute.new({type:             'ImportAttribute',
-                                import_predicate: @import_serial_ID.name,
-                                value:            importID
-                               })
-
-                 unless issn.blank? # tested for existing ISSN at top
-                   ns.identifiers << Identifier.new(
-                    {type:       'Identifier::Global::Issn',
-                     identifier: issn}
-                  )
+                  unless issn.blank? # tested for existing ISSN at top
+                    ns.identifiers << Identifier.new(type: 'Identifier::Global::Issn', identifier: issn)
+                  end
+                else
+                  puts "\nerror on primary save tmpID #{importID} -- #{ns.errors.messages} skipping"
                 end
 
               else # ns already contains the relevant serial
-                ns.data_attributes << DataAttribute.new({import_predicate: @import_serial_ID.name,
-                                                         value:            importID, type: 'ImportAttribute'})
+                ns.data_attributes << ImportAttribute.new(import_predicate: @sf_serial_importID_name,
+                                                          value:            importID)
                 unless (note.blank?) # test for empty note!
-                  if ns.data_attributes.where(:value == note)[0].nil? # doesn't exist
-                    ns.data_attributes << DataAttribute.new({predicate: @serial_note,
-                                                             value:     note,
-                                                             type: 'InternalAttribute'})
+                  unless ns.data_attributes.where(value: note, import_predicate: @note_name).any?
+                    ns.data_attributes << ImportAttribute.new(import_predicate: @note_name,
+                                                              value:            note)
                   end
                 end
                 # is the name already attached to the serial
@@ -232,11 +213,11 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                 end
                 unless place.blank? #add placePublished
                   if ns.place_published.blank?
-                    ns.place_published = pub
+                    ns.place_published = place
                   else
                     unless ns.all_values_for(:place_published).include?(place)
                       ns.alternate_values << AlternateValue.new(
-                        value:                            pub,
+                        value:                            place,
                         alternate_value_object_attribute: 'place_published',
                         type:                             'AlternateValue::AlternateSpelling'
                       )
@@ -247,12 +228,10 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.first_year_of_issue.blank?
                     ns.first_year_of_issue = syear
                   else
-                    unless ns.all_values_for(:first_year_of_issue).include?(syear)
-                      ns.alternate_values << AlternateValue.new(
-                        value:                            syear,
-                        alternate_value_object_attribute: 'first_year_of_issue',
-                        type:                             'AlternateValue::AlternateSpelling'
-                      )
+                    if ns.first_year_of_issue != syear # add a note
+                      ns.data_attributes <<
+                        ImportAttribute.new(import_predicate: @note_name,
+                                            value:            "conflicting start year on import #{syear}")
                     end
                   end
                 end
@@ -260,12 +239,10 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   if ns.last_year_of_issue.blank?
                     ns.last_year_of_issue = eyear
                   else
-                    unless ns.all_values_for(:last_year_of_issue).include?(eyear)
-                      ns.alternate_values << AlternateValue.new(
-                        value:                            eyear,
-                        alternate_value_object_attribute: 'last_year_of_issue',
-                        type:                             'AlternateValue::AlternateSpelling'
-                      )
+                    if ns.last_year_of_issue != eyear # add a note
+                      ns.data_attributes <<
+                        ImportAttribute.new(import_predicate: @note_name,
+                                            value:            "conflicting end year on import #{eyear}")
                     end
                   end
                 end
@@ -302,13 +279,13 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   puts "#{dattr.value}, #{dattr.type}, #{dattr.import_predicate}, #{dattr.controlled_vocabulary_term_id}"
                 end
                 puts
-                 error_msg  << ns.errors.messages
+                error_msg << ns.errors.messages
               end
 
             end # transaction end
             puts "\n#{ap(error_msg.flatten.uniq)}\n"
             puts 'Successful load of primary serial file'
-            raise 'preventing load of transaction' # causes it to always fail and rollback the transaction
+            #raise 'preventing load of transaction' # causes it to always fail and rollback the transaction
           end
         rescue
           raise
@@ -317,8 +294,8 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
       end # task
 
 
-      desc 'call like "rake tw:import:serial:serials_5_add_SF_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1 project_id=1" '
-      task :serials_5_add_SF_IDs, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_5_add_SF_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1" '
+      task :serials_5_add_SF_IDs, [:data_directory] => [:environment, :user_id] do |t, args|
         args.with_defaults(:data_directory => './SFImportIDmap.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -331,7 +308,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
 
         begin
           ActiveRecord::Base.transaction do
-            get_SF_namespaces
+            set_serial_import_predicates
 
             CSV.foreach(args[:data_directory],
                         headers:        true,
@@ -356,31 +333,31 @@ SFImportIDMap.txt
               # find the correct serial
               s       = nil
               sr      = Serial.joins(:data_attributes).where(data_attributes: {value:            importID,
-                                                                               import_predicate: @import_serial_ID.name})
+                                                                               import_predicate: @sf_serial_importID_name})
               # no longer a namespace identifier, now a data attribute
               case sr.count # how many serials were found for this value?
                 when 0
-                  msg = "skipping - unable to find base serial #{@import_serial_ID.name} importID #{importID}"
+                  msg = "skipping - unable to find base serial #{@sf_serial_importID_name} importID #{importID}"
                   error_msg << msg
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
                 # print ("\r SerialID #{s.id} : tmpID #{importID} : SFID #{sfID} : SFregID #{sfregID} ")
                 else
-                  msg = "skipping - unable to find base serial #{@import_serial_ID.name} importID #{importID}"
+                  msg = "skipping - found multiple base serial #{@sf_serial_importID_name} importID #{importID}"
                   error_msg << msg
                   next
               end
 
               unless sfID.blank?
                 begin
-                  i = s.data_attributes.where(import_predicate: @sf_pub_id.name, value: sfID)
+                  i = s.data_attributes.where(import_predicate: @sf_pubID_name, value: sfID)
                   # i = DataAttribute.where(import_predicate:     @sf_pub_id.name, attribute_subject_type: 'Serial',
                   #                         attribute_subject_id: s.id, value: sfID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_id.name,
-                                                              value:            sfID, type: 'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
+                                                              value:            sfID)
                     when 1 # found it  -> skip it
                       msg = "found an existing identifier #{(i.first).to_s}"
                       warn_msg << msg
@@ -393,11 +370,11 @@ SFImportIDMap.txt
 
               unless sfregID.blank?
                 begin
-                  i = s.data_attributes.where(import_predicate: @sf_pub_reg_id.name, value: sfregID)
+                  i = s.data_attributes.where(import_predicate: @sf_pub_regID_name, value: sfregID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_reg_id.name,
-                                                              value:            sfregID, type: 'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
+                                                              value:            sfregID)
                     when 1 # found it  -> skip it
                       msg = "found an existing identifier #{(i.first).to_s}"
                       warn_msg << msg
@@ -426,8 +403,8 @@ SFImportIDMap.txt
         end
       end #end task
 
-      desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 project_id=1" '
-      task :serials_6_add_SF_altnames, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
+      desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 " '
+      task :serials_6_add_SF_altnames, [:data_directory] => [:environment, :user_id] do |t, args|
         args.with_defaults(:data_directory => './SFaltnames.txt')
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -440,7 +417,7 @@ SFImportIDMap.txt
 
         begin
           ActiveRecord::Base.transaction do
-            get_SF_namespaces
+            set_serial_import_predicates
 
             CSV.foreach(args[:data_directory],
                         headers:        true,
@@ -466,17 +443,17 @@ Column : SQL column name :  data desc
 
               s  = nil
               sr = Serial.joins(:data_attributes).where(data_attributes: {value:            importID,
-                                                                          import_predicate: @import_serial_ID.name})
+                                                                          import_predicate: @sf_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  msg = "skipping - unable to find base serial #{@import_serial_ID.name} importID #{importID}"
+                  msg = "skipping - unable to find base serial #{@sf_serial_importID_name} importID #{importID}"
                   error_msg << msg
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
                 # print ("\r SerialID #{s.id} : tmpID #{importID} : shortname #{altname} : SFID #{sfID} : sfregID #{sfregID}")
                 else
-                  msg = "skipping - unable to find base serial #{@import_serial_ID.name} importID #{importID}"
+                  msg = "skipping - found multiple base serials #{@sf_serial_importID_name} importID #{importID}"
                   error_msg << msg
                   next
               end
@@ -485,7 +462,7 @@ Column : SQL column name :  data desc
               unless s.all_values_for(:name).include?(altname)
                 begin
                   s.alternate_values << AlternateValue.new(
-                    value:                            row[5].to_s.strip,
+                    value:                            altname,
                     alternate_value_object_attribute: 'name',
                     type:                             'AlternateValue::AlternateSpelling'
                   )
@@ -495,13 +472,13 @@ Column : SQL column name :  data desc
               # check for SFID and sfReg id
               unless sfID.blank?
                 begin
-                  i = s.data_attributes.where(import_predicate: @sf_pub_id.name, value: sfID)
+                  i = s.data_attributes.where(import_predicate: @sf_pubID_name, value: sfID)
                   # i = DataAttribute.where(import_predicate:     @sf_pub_id.name, attribute_subject_type: 'Serial',
                   #                         attribute_subject_id: s.id, value: sfID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_id.name,
-                                                              value:            sfID, type: 'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
+                                                                value:            sfID)
                     when 1 # found it  -> skip it
                       msg = "found an existing identifier #{(i.first).to_s}"
                       warn_msg << msg
@@ -514,13 +491,13 @@ Column : SQL column name :  data desc
 
               unless sfregID.blank?
                 begin
-                  i = DataAttribute.where(import_predicate:       @sf_pub_reg_id.name,
+                  i = ImportAttribute.where(import_predicate:       @sf_pub_regID_name,
                                           attribute_subject_type: 'Serial',
                                           attribute_subject_id:   s.id, value: sfregID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @sf_pub_reg_id.name,
-                                                              value:            sfregID, type: 'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
+                                                              value:            sfregID)
                     when 1 # found it  -> skip it
                       msg = "found an existing identifier #{(i.first).to_s}"
                       warn_msg << msg

@@ -2,15 +2,15 @@ namespace :tw do
   namespace :import do
     namespace :serial do
 
-      def get_namespaces
-        @import_serial_ID     = Predicate.find_or_create_by(name:       'MX_T_SerialImportID',
-                                                            definition: 'ID indicating which row from the MX/Treehopper serial import table (treeMXmerge-final.txt) generated this object')
-        @mx_serial_id         = Predicate.find_or_create_by(name: 'MX_ID', definition: 'ID for this object used in MX')
-        @treehopper_serial_id = Predicate.find_or_create_by(name: 'Tree_ID', definition: 'ID for this object used in the Treehopper data')
-
-        # create needed controlled vocabulary keywords for Serials (needed for data attribute)
-        @serial_note          = Predicate.find_or_create_by(name: 'Serial Note', definition: 'Comments about this serial')
-        @serial_lang_note     = Predicate.find_or_create_by(name: 'Serial Language Note', definition: 'Comments specifically about the language of this serial.')
+      def set_serial_import_predicates
+        @mx_t_serial_importID_name  = 'ID from MX & treehopper Serial  import'
+        @mx_id_name     = 'MX ID'
+        @tree_id_name   = 'Treehopper ID'
+        @note_name      = 'Comments about this serial'
+        @lang_note_name = 'Comments about the language of this serial'
+        @sf_serial_importID_name = 'ID from SF Serial import'
+        @sf_pubID_name = 'SF ID'
+        @sf_pub_regID_name = 'SF publication registry ID'
       end
 
       desc 'call like "rake tw:import:serial:serials_1_build_MX[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1" '
@@ -26,8 +26,8 @@ namespace :tw do
         print ('Starting transaction ...')
 
         begin
+          set_serial_import_predicates
           ActiveRecord::Base.transaction do # rm transaction
-            get_namespaces
 
             CSV.foreach(args[:data_directory1],
                         headers:        true,
@@ -92,32 +92,23 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               if r.valid?
                 r.save!
 
-                if !(note.blank?) # test for empty note!
-                  r.data_attributes << DataAttribute.new({predicate: @serial_note,
-                                                          value:     note, type: 'InternalAttribute'})
+                unless note.blank?
+                  r.data_attributes << ImportAttribute.new({import_predicate: @note_name, value: note})
                 end
                 if !(langNote.blank?)
-                  # language notes  - data attributes are associated with the whole object
-                  # and can't be assigned to an object attribute like notes.
-                  r.data_attributes << DataAttribute.new({predicate: @serial_lang_note,
-                                                          value:     langNote, type: 'InternalAttribute'})
+                  r.data_attributes << ImportAttribute.new({import_predicate: @lang_note_name, value: langNote})
                 end
 
 # reference identifiers are now Import attributes
 # Import ID - never empty
-                r.data_attributes << DataAttribute.new({type:             'ImportAttribute',
-                                                        import_predicate: @import_serial_ID.name,
-                                                        value:            tmpID
-                                                       })
+                r.data_attributes << ImportAttribute.new({import_predicate: @mx_t_serial_importID_name, value: tmpID})
 # MX ID
                 if !(mxID.blank?)
-                  r.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name,
-                                                          value:            mxID, type: 'ImportAttribute'})
+                  r.data_attributes << ImportAttribute.new({import_predicate: @mx_id_name, value: mxID})
                 end
 # Treehopper ID
                 if !(treeID.blank?)
-                  r.data_attributes << DataAttribute.new({import_predicate: @treehopper_serial_id.name,
-                                                          value:            treeID, type: 'ImportAttribute'})
+                  r.data_attributes << ImportAttribute.new({import_predicate: @tree_id_name, value: treeID})
                 end
 
 # ISSN  - Use treehopper first, then MX print ISSN, if there are both
@@ -181,15 +172,12 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                     r.save!
 
                     # Import ID - never empty
-                    r.data_attributes << DataAttribute.new({type:             'ImportAttribute',
-                                                            import_predicate: @import_serial_ID.name,
-                                                            value:            tmpID + ' 2nd ISSN'
-                                                           })
+                    r.data_attributes << ImportAttribute.new({import_predicate: @mx_t_serial_importID_name,
+                                                            value:tmpID + ' 2nd ISSN'})
                     # MX ID
                     if !(mxID.blank?)
-                      r.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name,
-                                                              value:            mxID + ' 2nd ISSN',
-                                                              type:             'ImportAttribute'})
+                      r.data_attributes << ImportAttribute.new({import_predicate: @mx_id_name,
+                                                              value: mxID + ' 2nd ISSN'})
                     end
 
                     r.identifiers << Identifier.new({type:       'Identifier::Global::Issn',
@@ -214,7 +202,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
             end # read loop end
             puts
             puts 'Successful load of primary serial file'
-            # raise # causes it to always fail and rollback the transaction
+            #raise # causes it to always fail and rollback the transaction
           end # transaction end
         rescue
           raise
@@ -234,7 +222,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
         begin
           ActiveRecord::Base.transaction do
-            get_namespaces
+            set_serial_import_predicates
 
             CSV.foreach(args[:data_directory],
                         headers:        true,
@@ -262,17 +250,17 @@ Column : SQL column name : data desc
 
               s  = nil
               sr = Serial.joins(:data_attributes).where(data_attributes:
-                                                          {value: keep, import_predicate: @import_serial_ID.name})
+                                                          {value: keep, import_predicate: @mx_t_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ["\n unable to find base serial ", @import_serial_ID.name, keep].join(' : ')
+                  puts ["\n unable to find base serial ", @mx_t_serial_importID_name, keep].join(' : ')
                   puts "skipping\n"
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
                   print ("\r SerialID #{s.id} : tmpID #{keep} : MXID #{mxID} : TreeID #{treeID} ")
                 else
-                  puts ["\n matched > 1 base serial ", @import_serial_ID.name, keep].join(' : ')
+                  puts ["\n matched > 1 base serial ", @mx_t_serial_importID_name, keep].join(' : ')
                   puts "skipping\n"
                   next
               end
@@ -288,15 +276,10 @@ Column : SQL column name : data desc
 =end
               unless mxID.blank? # MX_ID
                 begin
-                  i = DataAttribute.where(import_predicate:       @mx_serial_id.name,
-                                          attribute_subject_type: 'Serial',
-                                          attribute_subject_id:   s.id,
-                                          value:                  mxID)
+                  i = s.data_attributes.where(import_predicate: @mx_id_name, value: mxID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name,
-                                                              value:            mxID.to_s.strip,
-                                                              type:             'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new({import_predicate: @mx_id_name, value: mxID})
                     when 1 # found it  -> skip it
                       # puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
@@ -307,15 +290,13 @@ Column : SQL column name : data desc
 
               unless treeID.blank? # Treehopper_ID
                 begin
-                  i = DataAttribute.where(import_predicate:       @treehopper_serial_id.name,
+                  i = DataAttribute.where(import_predicate:       @tree_id_name,
                                           attribute_subject_type: 'Serial',
                                           attribute_subject_id:   s.id,
                                           value:                  treeID)
                   case i.count
                     when 0 # not found -> add it
-                      s.data_attributes << DataAttribute.new({import_predicate: @mx_serial_id.name,
-                                                              value:            treeID.to_s.strip,
-                                                              type:             'ImportAttribute'})
+                      s.data_attributes << ImportAttribute.new({import_predicate: @tree_id_name, value: treeID.to_s.strip})
                     when 1 # found it  -> skip it
                       # puts "found an existing identifier #{ap(i.first)}"
                     else # found more than 1 -> error
@@ -393,7 +374,7 @@ Column : SQL column name : data desc
 
         begin
           ActiveRecord::Base.transaction do
-            get_namespaces
+            set_serial_import_predicates
 
             CSV.foreach(args[:data_directory],
                         headers:        true,
@@ -411,16 +392,17 @@ Column : SQL column name : data desc
 =end
 
               prefID = row[0].to_s.strip
-              secID = row[1].to_s.strip
+              secID  = row[1].to_s.strip
 
               print ("\r  previous ID #{prefID} : succeeding ID #{secID} ")
 
               s1 = nil
               # find 1st serial
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: prefID, import_predicate: @import_serial_ID.name})
+              sr = Serial.joins(:data_attributes).where(data_attributes:
+                                                          {value: prefID, import_predicate: @mx_t_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['[', 'skipping - unable to find 1st base serial ', @import_serial_ID.name, prefID, ']'].join(" : ")
+                  puts ['[', 'skipping - unable to find 1st base serial ', @mx_t_serial_importID_name, prefID, ']'].join(" : ")
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s1 = sr.first
@@ -428,16 +410,17 @@ Column : SQL column name : data desc
                 #   puts "#{s1.name} (Serial ID #{s1.id}) != #{treeID} (tmpid #{prefID})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial (1st) ', @import_serial_ID.name, prefID].join(" : ")
+                  puts ['skipping - match > 1 base serial (1st) ', @mx_t_serial_importID_name, prefID].join(" : ")
                   next
               end
 
               s2 = nil
               # find 2nd serial
-              sr = Serial.joins(:data_attributes).where(data_attributes: {value: secID, import_predicate: @import_serial_ID.name})
+              sr = Serial.joins(:data_attributes).where(data_attributes:
+                                                          {value: secID, import_predicate: @mx_t_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['skipping - unable to find 2nd base serial ', @import_serial_ID.name, secID].join(" : ")
+                  puts ['skipping - unable to find 2nd base serial ', @mx_t_serial_importID_name, secID].join(" : ")
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s2 = sr.first
@@ -445,7 +428,7 @@ Column : SQL column name : data desc
                 #   puts "#{s2.name} (Serial ID #{s2.id}) != #{row[3]} (tmpid #{secfID})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial (2nd) ', @import_serial_ID.name, secID].join(" : ")
+                  puts ['skipping - match > 1 base serial (2nd) ', @mx_t_serial_importID_name, secID].join(" : ")
                   next
               end
               SerialChronology.create!(preceding_serial: s1, succeeding_serial: s2)
