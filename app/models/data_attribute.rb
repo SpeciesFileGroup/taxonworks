@@ -41,4 +41,8 @@ class DataAttribute < ActiveRecord::Base
     attribute_subject
   end
 
+  def editable?
+    self.type == 'InternalAttribute'
+  end
+
 end

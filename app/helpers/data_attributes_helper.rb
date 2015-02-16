@@ -22,7 +22,7 @@ module DataAttributesHelper
   end
 
   def data_attribute_edit_link(data_attribute)
-    if data_attribute.type == 'InternalAttribute'
+    if data_attribute.metamorphosize.editable?
       link_to 'Edit', edit_data_attribute_path(data_attribute)
     else
       content_tag(:em, 'Edit')
