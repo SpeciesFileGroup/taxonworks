@@ -1,8 +1,29 @@
 <%= content_for :see do -%>
     <ul class="no_bullets">
-      
+
       <%= content_tag(:li, link_to('Similar serials', similar_serials_task_path(@serial))) %>
     </ul>
+<% end %>
+
+<%= content_for :show_navigation do %>
+    <% unless @serial.all_previous.empty? %>
+        <h3>Preceeding</h3>
+        <ul class="no_bullets">
+          <% @serial.all_previous.each do |ps| %>
+              <li><%= object_link(ps) %></li>
+          <% end %>
+        </ul>
+    <% end %>
+
+    <% unless @serial.all_succeeding.empty? %>
+        <h3>Succeeding</h3>
+        <ul class="no_bullets">
+          <% @serial.all_succeeding.each do |ps| %>
+              <li><%= object_link(ps) %></li>
+          <% end %>
+        </ul>
+    <% end %>
+
 <% end %>
 
 <%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @serial}) -%>

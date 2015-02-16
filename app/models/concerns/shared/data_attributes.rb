@@ -18,4 +18,28 @@ module Shared::DataAttributes
     end 
   end
 
+=begin
+
+  # all data attributes with type, predicate or predicate.name, value
+  # if type == InternalAttribute, then pred ==  ControlledVocabularyID
+  # if type == ImportAttribute, then pred == import_predicate (char(255))
+  # value is always a string
+  def all_data_attr(type, pred, value)
+
+  end
+
+
+
+foo.data_attributes.includes(:predicate).where(type: a, value: b,
+    controlled_vocabulary_terms: {name: c})
+
+def foo(a, b)
+    .includes(:predicate).where('controlled_vocabulary_terms.name =
+? or import_predicate = ?', a, b)
+ end
+
+
+=end
+
+
 end
