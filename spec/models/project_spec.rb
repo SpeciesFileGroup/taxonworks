@@ -51,7 +51,7 @@ describe Project, :type => :model do
       expect(project.clear_workbench_settings).to be_truthy
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
-
+    
     specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
       expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
@@ -65,6 +65,27 @@ describe Project, :type => :model do
       project.reload
       expect(project.workbench_starting_path).to eq('/dashboard')
     end
+  end
+
+  context 'root taxon name' do
+    before(:each) {
+      project.name = 'My Project'
+    }
+
+    def on_save_by_default_a_root_taxon_name_is_created    
+      project.save!
+      expect(project.taxon_names.size).to eq(1)
+      expect(project.taxon_names.first.name).to eq('Root')
+    end
+
+    def on_save_by_default_a_root_taxon_name_is_not_created_when_without_root_taxon_name_is_true
+      # must be passed inline
+      project.without_root_taxon_name =  true
+      project.save!
+      expect(project.taxon_names.count).to eq(0)
+    end
+
+
 
   end
 

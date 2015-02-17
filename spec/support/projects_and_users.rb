@@ -14,7 +14,7 @@ module ProjectsAndUsers
     # Order matters 
     FactoryGirl.create(:valid_user, id: 1, self_created: true)
     $user_id = 1
-    FactoryGirl.create(:valid_project, id: 1)
+    FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true)
     $project_id = 1
     FactoryGirl.create(:project_member, user_id: 1, project_id: 1)
 

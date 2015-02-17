@@ -3,6 +3,8 @@ class Project < ActiveRecord::Base
 
   store_accessor :workbench_settings, :worker_tasks, :workbench_starting_path
 
+  attr_accessor :without_root_taxon_name
+
   DEFAULT_WORKBENCH_STARTING_PATH = '/hub'
   DEFAULT_WORKBENCH_SETTINGS      = {
     'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
@@ -14,6 +16,7 @@ class Project < ActiveRecord::Base
   has_many :project_sources, dependent: :restrict_with_error
 
   after_initialize :set_default_workbench_settings
+  after_create :create_root_taxon_name, unless: "!self.without_root_taxon_name"
 
   validates_presence_of :name
 
@@ -41,6 +44,12 @@ class Project < ActiveRecord::Base
 
   def set_default_workbench_settings
     self.workbench_settings = DEFAULT_WORKBENCH_SETTINGS.merge(self.workbench_settings ||= {})
+  end
+
+  def create_root_taxon_name
+    if !self.without_root_taxon_name 
+      Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self) 
+    end
   end
 
   def self.find_for_autocomplete(params)
