@@ -82,4 +82,5 @@ TaxonWorks::Application.configure do
   Settings.load_from_file(config, 'config/local_settings.yml', :production) if File.exist?('config/local_settings.yml')
   
   require 'taxonworks'
+  require 'taxonworks_autoload'
 end

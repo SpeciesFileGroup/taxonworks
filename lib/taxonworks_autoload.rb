@@ -3,7 +3,7 @@
 
 
 module TaxonWorksAutoload
-  if Rails.env == 'test' || Rails.env == 'development' 
+  #if Rails.env == 'test' || Rails.env == 'development' 
     # Order matters throughout this block (sigh)
     %w{
       /app/models/taxon_name
@@ -23,5 +23,5 @@ module TaxonWorksAutoload
     end
 
      Dir[Rails.root.to_s + '/app/models/controlled_vocabulary_term/**/*.rb'].sort.each {|file| require_dependency file }
-  end
+ # end
 end
