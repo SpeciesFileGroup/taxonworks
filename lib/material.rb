@@ -80,8 +80,8 @@ module Material
     def build_models
       @quick_verbatim_object = QuickVerbatimObject.new(@form_params['collection_object'])
       @quick_verbatim_locks = QuickVerbatimLocks.new(@form_params['locks'])
-      @note       = Note.new(form_params['note']) 
-      @repository = Repository.find(form_params['repository']['id']) if form_params['repository'] && !form_params['repository']['id'].blank?
+      @note       = Note.new(form_params['note'])
+      @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
       @namespace =  @identifier.namespace 
     end
@@ -111,7 +111,7 @@ module Material
     end
 
     def namespace=(value)
-      @repository = value
+      @namespace = value
     end
 
     def namespace 

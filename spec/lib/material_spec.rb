@@ -204,7 +204,6 @@ describe Material::QuickVerbatimResponse do
 
       @response.form_params = form_params
       @response.build_models
-
       @new = @response.duplicate_with_locks
     }
 

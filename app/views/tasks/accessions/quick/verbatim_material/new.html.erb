@@ -1,10 +1,10 @@
-<%= form_tag quick_verbatim_material_task_path do %>
+<%= form_tag create_verbatim_material_task_path do %>
    
     <h2>Identifier</h2>
     <div>
     <div class="field">
       <%= label_tag 'Namespace/Institution/Coden' %>
-      <%= select :identifier, :namespace_id, options_from_collection_for_select(@namespaces, :id, :name) %>
+      <%= select :identifier, :namespace_id, options_from_collection_for_select(@namespaces, :id, :name, @namespace.id) %>
       <%= check_box :locks, :namespace %>
       <%= label_tag 'lock' %>
     </div>
@@ -19,7 +19,7 @@
 
     <h2>Repository</h2>
     <div class="field">
-      <%= select :repository, :id, options_from_collection_for_select(@repositories, :id, :name) %>
+      <%= select :repository, :id, options_from_collection_for_select(@repositories, :id, :name, @repository.id) %>
       <%= check_box :locks, :repository %>
       <%= label_tag 'lock' %>
     </div>
@@ -53,6 +53,6 @@
     <%= render 'attribute_form' %>
 
     <div class="actions">
-      <%= submit_tag %>
+      <%= submit_tag 'Create' %>
     </div>
 <% end %>

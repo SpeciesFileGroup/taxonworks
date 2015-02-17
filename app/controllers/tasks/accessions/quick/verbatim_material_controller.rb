@@ -4,7 +4,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
 
   # GET quick_verbatim_material_task
   def new
-    @material = Material::QuickVerbatimResponse.new
+    @material = Material::QuickVerbatimResponse.new(params)
     @related_routes = UserTasks.related_routes('quick_verbatim_material_task')
     set_variable_variables(@material)
   end
@@ -38,6 +38,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
     @locks = material.locks_object
     @collection_object = material.collection_object
     @identifier = material.identifier
+    @namespace = material.namespace
     @repository = material.repository
     @note = material.note
   end
