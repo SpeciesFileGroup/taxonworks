@@ -77,6 +77,8 @@ gem 'exception_notification'
 
 gem 'modularity', '~> 2.0.1'
 
+
+
 group :test, :development do
   gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
   gem 'rspec-rails', '~> 3.0' #  
@@ -113,5 +115,9 @@ group :test do
   gem 'database_cleaner', '~> 1.3.0'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
+end
+
+group :production do
+  gem 'execjs'
 end
 
