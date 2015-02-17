@@ -22,13 +22,11 @@ OTU: <%= OtusHelper.otu_tag(@otu) %>
   </div>
 
   <div class="item item2">
-    <%= render(partial: 'map_header') -%>
+    <%= render(partial: 'layouts/map_header') -%>
 
     <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
 
     <div id="feature_collection"
-    data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'
-
     data-otu="<%=@otu %>"
     ></div>
 

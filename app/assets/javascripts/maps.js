@@ -27,7 +27,8 @@ var gzoom = 1;      // default to fairly far out
 
 var initialize;
 
-initialize = function () {
+initialize = function (canvas, feature_collection) {
+//initialize = function (canvas, feature_collection) {
 
     var myOptions = {
         zoom: gzoom,
@@ -38,7 +39,7 @@ initialize = function () {
         mapTypeId: google.maps.MapTypeId.TERRAIN
     };
 
-    initialize_map(myOptions);
+    initialize_map(canvas, myOptions);
 
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
@@ -63,8 +64,8 @@ initialize = function () {
     add_map_listeners();
 };
 
-function initialize_map(options) {
-    map = new google.maps.Map(document.getElementById("map_canvas"), options);
+function initialize_map(canvas, options) {
+    map = new google.maps.Map(document.getElementById(canvas), options);
 }
 
 function add_map_listeners() {      // 4 listeners, one for map as a whole 3 for map.data features
