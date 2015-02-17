@@ -26,29 +26,29 @@ class Georeference::GeoLocate < Georeference
     self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(coordinates[0], coordinates[1]))
   end
 
-# def make_error_geographic_item(result)
-#   # evaluate for error_radius only if called for (default)
-#   er = result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
-#   self.error_radius = (er ? er : 3.0)
+  # def make_error_geographic_item(result)
+  #   # evaluate for error_radius only if called for (default)
+  #   er = result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
+  #   self.error_radius = (er ? er : 3.0)
 
-#   #evaluate for error polygon only if called for (non-default)
-#   if  result['resultSet']['features'][0]['properties']['uncertaintyPolygon'] #     @request[:doPoly]
-#     # Build the error geographic shape
-#     # isolate the array of points from the response, and build the polygon from a line_string
-#     # made out of the points
-#     p         = result['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
-#     # build an array of Georeference::FACTORY.points from p
+  #   #evaluate for error polygon only if called for (non-default)
+  #   if  result['resultSet']['features'][0]['properties']['uncertaintyPolygon'] #     @request[:doPoly]
+  #     # Build the error geographic shape
+  #     # isolate the array of points from the response, and build the polygon from a line_string
+  #     # made out of the points
+  #     p         = result['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
+  #     # build an array of Georeference::FACTORY.points from p
 
-#     # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
-#     # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+  #     # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
+  #     # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
 
-#     err_array = []
-#     # TODO: get geoJson results and handle all this automatically? 
-#     p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
-#     self.error_geographic_item         = GeographicItem.new
-#     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
-#   end
-# end
+  #     err_array = []
+  #     # TODO: get geoJson results and handle all this automatically?
+  #     p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+  #     self.error_geographic_item         = GeographicItem.new
+  #     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
+  #   end
+  # end
 
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius = 3)
     self.error_radius = uncertainty_radius.to_i
@@ -128,13 +128,14 @@ class Georeference::GeoLocate < Georeference
     def initialize(request_params)
       @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
-      @succeeded           = nil
+      @succeeded = nil
     end
 
     # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+    # @return [String] a string to invoke as an api call to hunt for a particular place.
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
-      ga                    = @request_params_hash
+      ga                     = @request_params_hash
       @request_params_string = 'http://' + URI_HOST +
         URI_EMBED_PATH +
         "country=#{ga[:country]}&state=#{ga[:state]}&county=#{ga[:county]}&locality=#{ga[:locality]}&points=" +
@@ -178,23 +179,28 @@ class Georeference::GeoLocate < Georeference
       @succeeded      = nil
     end
 
+    # @return sets the response attribute.
     def locate
       @response = Georeference::GeoLocate::Response.new(self)
     end
 
+    # @return sets the @request_param_string attribute.
     def build_param_string
       @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
     end
 
+    # @return [String] api request string.
     def request_string
       build_param_string
       URI_PATH + @request_param_string
     end
 
+    # @return [Bool] true if request was successful
     def succeeded?
       @succeeded
     end
 
+    # @return [Georeference::GeoLocate::Response]
     def response
       @response ||= locate
     end
@@ -209,15 +215,18 @@ class Georeference::GeoLocate < Georeference
       request.succeeded = true if @result['numResults'].to_i == 1
     end
 
+    # @return [String] coordinates from the response set.
     def coordinates
       @result['resultSet']['features'][0]['geometry']['coordinates']
     end
 
+    # @return [String] uncertainty_radius from the response set.
     def uncertainty_radius
       retval = @result['resultSet']['features'][0]['properties']['uncertaintyRadiusMeters']
       (retval == 'Unavailable') ? 3 : retval
     end
 
+    # @return [String] uncertainty_polygon from the response set.
     def uncertainty_polygon
       retval = @result['resultSet']['features'][0]['properties']['uncertaintyPolygon']
       (retval == 'Unavailable') ? nil : retval['coordinates'][0]
@@ -225,6 +234,7 @@ class Georeference::GeoLocate < Georeference
 
     protected
 
+    # @param [String, String] host domain name, request string.
     def call_api(host, request)
       Net::HTTP.get(host, request.request_string)
     end
