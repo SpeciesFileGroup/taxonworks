@@ -119,5 +119,6 @@ end
 
 group :production do
   gem 'execjs'
+  gem 'passenger'
 end
 
