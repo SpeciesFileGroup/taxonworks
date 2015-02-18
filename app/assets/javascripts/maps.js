@@ -3,7 +3,6 @@
  * Overly integrated with asserted distributions,
  */
 
-var map;	// google map object
 //var data; // TaxonWorks jSON data object
 
 // bounds for calculating center point
@@ -29,6 +28,7 @@ var initialize;
 
 initialize = function (canvas, feature_collection) {
 //initialize = function (canvas, feature_collection) {
+    var map;	// google map object
     var data = feature_collection;
     var myOptions = {
         zoom: gzoom,
@@ -39,7 +39,7 @@ initialize = function (canvas, feature_collection) {
         mapTypeId: google.maps.MapTypeId.TERRAIN
     };
 
-    initialize_map(canvas, myOptions);
+    map = initialize_map(canvas, myOptions);
 
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
@@ -66,6 +66,7 @@ initialize = function (canvas, feature_collection) {
 
 function initialize_map(canvas, options) {
     map = new google.maps.Map(document.getElementById(canvas), options);
+    return map;
 }
 
 function add_map_listeners() {      // 4 listeners, one for map as a whole 3 for map.data features
@@ -164,8 +165,8 @@ function addClickServicesListeners(event) {     // click event passed in
                 });
             })
 
-            data = local_data['feature_collection'];
-            get_Data();
+            var data = local_data['feature_collection'];
+            get_Data(data);
             get_window_center();
             map.setCenter(center_lat_long);
             map.setZoom(gzoom);
