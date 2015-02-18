@@ -54,24 +54,20 @@
   </p>
 
   <% if @geographic_area.geographic_items.count > 0 -%>
-      <p>
-        <strong>"Default" shape:</strong>
-        <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
+  <p>
+    <strong>"Default" shape:</strong>
+    <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
 
-      <div id="feature_collection"
-      data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_area]).to_json.html_safe %>'
-      >
-      </div>
-      <div id="map_canvas" style="width:512px; height: 256px;"></div>
-      <span id="map_coords"></span>
-      <script language="javascript">
-//          var data = <%#= Gis::GeoJSON.feature_collection([@geographic_area]).to_json.html_safe %>;
-//          $(document).ready(initialize("map_canvas", data));
-//          $(document).on('page:load', initialize("map_canvas", data));
-          // google.maps.event.addDomListener(window, 'load', initialize);
-              initGAmap();
-      </script>
-      </p>
+  <div id="feature_collection"
+       data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_area]).to_json.html_safe %>'
+  >
+  </div>
+  <div id="map_canvas" style="width:512px; height: 256px;"></div>
+  <span id="map_coords"></span>
+  <script language="javascript">
+      initGAmap();
+  </script>
+  </p>
 
       <!--<p>-->
       <!--<strong> Geographic items within: </strong>-->
