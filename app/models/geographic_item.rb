@@ -63,6 +63,7 @@ class GeographicItem < ActiveRecord::Base
   #   joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
   #   where("(g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)").uniq
 
+  # @return [Scope] GeographicItem
   # This uses an Arel table approach, this is ultimately more decomposable if we need. Of use:
   #  http://danshultz.github.io/talks/mastering_activerecord_arel  <- best
   #  https://github.com/rails/arel
@@ -111,6 +112,7 @@ class GeographicItem < ActiveRecord::Base
     self.geographic_areas.collect { |a| a.parent }
   end
 
+  # @return [Array of GeographicArea]
   def parents_through_geographic_areas
     result = {}
     parent_geographic_areas.collect { |a|
@@ -119,6 +121,7 @@ class GeographicItem < ActiveRecord::Base
     result
   end
 
+  # @return [Array of GeographicArea]
   def children_through_geographic_areas
     result = {}
     geographic_areas.collect { |a|
@@ -175,7 +178,6 @@ SELECT round(CAST(
        70454.92 |           70424.47 |          70438.00
 
 =end
-
 
   # return [String(?)]
   #   distance in meters from this object to supplied 'geo_object'
@@ -239,6 +241,8 @@ SELECT round(CAST(
 
   # TODO(?): as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
   class << self
+    # @param [String, GeographicItems]
+    # @return [Scope]
     def intersecting(column_name, *geographic_items)
       if column_name.downcase == 'any'
         pieces = []
@@ -258,6 +262,7 @@ SELECT round(CAST(
       end
     end
 
+    # @param [String, Geometry]
     # @return [Scope]
     # TODO: not used?
     def st_intersects(column_name = :multi_polygon, geometry)
@@ -266,6 +271,7 @@ SELECT round(CAST(
     end
   end # class << self
 
+  # @param [String, GeographicItem, Double]
   # @return [Scope]
   #   distance is measured in meters
   def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
@@ -286,12 +292,14 @@ SELECT round(CAST(
     end
   end
 
+  # @param [Integer, String]
   # @return [String]
   #   a SQL select statement that returns the geography for the geographic_item with the specified id
   def self.select_geography_sql(geographic_item_id, geo_object_type)
     "SELECT #{geo_object_type} from geographic_items where id = #{geographic_item_id}"
   end
 
+  # @param [String, GeographicItem]
   # @return [String]
   #   a SQL fragment for ST_DISJOINT, specifies all geographic_items that have data in column_name 
   #   that are disjoint from the passed geographic_items
@@ -302,6 +310,7 @@ SELECT round(CAST(
     where (q)
   end
 
+  # @param [String, GeographicItem]
   # @return [Scope]
   #   
   # If this scope is given an Array of GeographicItems as a second parameter,
@@ -373,6 +382,8 @@ SELECT round(CAST(
     end
   end
 
+  # @param [String, GeographicItem]
+  # @return [Scope]
   def self.ordered_by_shortest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
       q = select_distance_with_geo_object(column_name, geographic_item).where_distance_greater_than_zero(column_name, geographic_item).order('distance')
@@ -382,6 +393,8 @@ SELECT round(CAST(
     end
   end
 
+  # @param [String, GeographicItem]
+  # @return [Scope]
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
       q = select_distance_with_geo_object(column_name, geographic_item).
@@ -393,6 +406,7 @@ SELECT round(CAST(
     end
   end
 
+  # @param [String, Integer, String]
   # @return [String]
   #   a SQL fragment for ST_Contains() function, returns 
   #   all geographic items which are contained in the item supplied
@@ -401,6 +415,7 @@ SELECT round(CAST(
     "ST_Contains(#{target_column_name}::geometry, (#{geometry_sql(geographic_item_id, source_column_name)}))"
   end
 
+  # @param [String, Integer, String]
   # @return [String]
   #   a SQL fragment for ST_Contains(), returns
   #   all geographic_items which contain the supplied geographic_item
@@ -409,6 +424,7 @@ SELECT round(CAST(
     "ST_Contains((#{geometry_sql(geographic_item_id, source_column_name)}), #{target_column_name}::geometry)"
   end
 
+  # @param [Integer, String]
   # @return [String]
   #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the source_column_name, i.e. geo_object_type)
   def self.geometry_sql(geographic_item_id = nil, source_column_name = nil)
@@ -421,18 +437,25 @@ SELECT round(CAST(
   #  select(" ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
   #end
 
+  # @param [String, GeographicItem]
+  # @return [String]
   def self.select_distance_with_geo_object(column_name, geographic_item)
     select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
   end
 
+  # @param [String, GeographicItem]
+  # @return [Scope]
   def self.where_distance_greater_than_zero(column_name, geographic_item)
     where("#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
   end
 
+  # @param [GeographicItem]
+  # @return [Scope]
   def self.excluding(geographic_items)
     where.not(id: geographic_items)
   end
 
+  # @return [Scope]
   def excluding_self
     where.not(id: self.id)
   end
@@ -459,23 +482,33 @@ SELECT round(CAST(
 
   # Methods mapping RGeo methods
 
+  # @param [geo_object]
+  # @return [Boolean]
   def contains?(geo_object)
     self.geo_object.contains?(geo_object)
   end
 
+  # @param [geo_object]
+  # @return [Boolean]
   def within?(geo_object)
     self.geo_object.within?(geo_object)
   end
 
   # TODO: doesn't work?
+  # @param [geo_object]
+  # @return [Boolean]
   def distance?(geo_object)
     self.geo_object.distance?(geo_object)
   end
 
+  # @param [geo_object, Double]
+  # @return [Boolean]
   def near(geo_object, distance)
     self.geo_object.buffer(distance).contains?(geo_object)
   end
 
+  # @param [geo_object, Double]
+  # @return [Boolean]
   def far(geo_object, distance)
     !self.near(geo_object, distance)
   end
@@ -530,16 +563,19 @@ SELECT round(CAST(
     end
   end
 
+  # @return [Array] of a point
   def point_to_a(point)
     data = []
     data.push(point.x, point.y)
     data
   end
 
+  # @return [Hash] of a point
   def point_to_hash(point)
     {points: [point_to_a(point)]}
   end
 
+  # @return [Array] of points in the line
   def line_string_to_a(line_string)
     data = []
     line_string.points.each { |point|
@@ -547,10 +583,12 @@ SELECT round(CAST(
     data
   end
 
+  # @return [Hash] of points in the line
   def line_string_to_hash(line_string)
     {lines: [line_string_to_a(line_string)]}
   end
 
+  # @return [Array] of points in the polygon (exterior_ring ONLY)
   def polygon_to_a(polygon)
     # todo: handle other parts of the polygon; i.e., the interior_rings (if they exist)
     data = []
@@ -559,10 +597,12 @@ SELECT round(CAST(
     data
   end
 
+  # @return [Hash] of points in the polygon (exterior_ring ONLY)
   def polygon_to_hash(polygon)
     {polygons: [polygon_to_a(polygon)]}
   end
 
+  # @return [Array] of points
   def multi_point_to_a(multi_point)
     data = []
     multi_point.each { |point|
@@ -570,12 +610,14 @@ SELECT round(CAST(
     data
   end
 
+  # @return [Hash] of points
   def multi_point_to_hash(multi_point)
     # when we encounter a multi_point type, we only stick the points into the array, NOT the
     # it's identity as a group
     {points: self.to_a}
   end
 
+  # @return [Array] of line_strings as arrays points
   def multi_line_string_to_a(multi_line_string)
     data = []
     multi_line_string.each { |line_string|
@@ -587,10 +629,12 @@ SELECT round(CAST(
     data
   end
 
+  # @return [Hash] of line_strings as hashes points
   def multi_line_string_to_hash(multi_line_string)
     {lines: self.to_a}
   end
 
+  # @return [Array] of arrays points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_a(multi_polygon)
     data = []
     multi_polygon.each { |polygon|
@@ -602,12 +646,14 @@ SELECT round(CAST(
     data
   end
 
+  # @return [Hash] of hashes points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_hash(multi_polygon)
     {polygons: self.to_a}
   end
 
   # TODO: refactor to subclasses or remove completely, likely not useful given geojson capabilities
   # TODO: deprecate fully in favour of providing ids
+  # @return [Boolean]
   def self.check_geo_params(column_name, geographic_item)
     return true
     # (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
@@ -615,6 +661,7 @@ SELECT round(CAST(
 
   # validation
 
+  # @return [Boolean] iff there is one and only one shape column set
   def some_data_is_provided
     data = []
     DATA_TYPES.each do |item|
