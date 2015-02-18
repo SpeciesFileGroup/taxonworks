@@ -6,6 +6,11 @@ class UserPreferencesController < ApplicationController
     redirect_to :back, notice: 'Added page to favorites.'
   end
 
+  def remove_favorite_page
+    @sessions_current_user.remove_page_from_favorites(params[:favorited_route])
+    redirect_to :back, notice: 'Removed page from favorites.'
+  end
+
   protected
 
   def valid_params

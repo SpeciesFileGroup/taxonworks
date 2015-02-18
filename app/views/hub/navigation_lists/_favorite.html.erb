@@ -1,7 +1,7 @@
 <h3> Favorite pages </h3>
 <ul>
   <% @sessions_current_user.favorite_routes.each do |route| -%>
-    <%= content_tag(:li, link_to(route.parameterize(' - '), route)) -%>
+    <li> <%= link_to(route.parameterize(' - '), route) -%> <%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> </li>
   <% end %>
 </ul>
 

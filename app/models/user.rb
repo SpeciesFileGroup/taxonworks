@@ -11,7 +11,7 @@
 # 2) Project Administrators (ProjectMember#is_project_administrator). 
 # A project administrator can set Project settings and preferences, including the views that a Worker can see.
 #
-# 3) Superuser. A super_user (code only) is a User that is a project administrator OR administrator.
+# 3) Superuser. A super_user (code only) is a User that is a profromct administrator OR administrator.
 #
 # 4) Worker. A worker is a User that can only see parts of the workbench allowed by a ProjectAdministrator.
 #
@@ -104,6 +104,15 @@ class User < ActiveRecord::Base
     update_attributes(favorite_routes: ([favorite_route] + favorite_routes).uniq[0..19])
     true
   end
+
+  def remove_page_from_favorites(favorite_route)
+    new_routes = favorite_routes.clone
+    new_routes.delete(favorite_route)
+    update_attribute(:favorite_routes, new_routes )
+    true
+  end
+
+
 
   def add_page_to_recent(recent_route)
     case recent_route

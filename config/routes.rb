@@ -36,7 +36,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+ 
   match '/administration', to: 'administration#index', via: 'get'
 
   resources :project_members
@@ -178,9 +178,12 @@ TaxonWorks::Application.routes.draw do
   resources :type_materials do
     concerns [:data_routes]
   end
-  
-  scope :tasks  do
 
+  match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
+  match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
+
+
+  scope :tasks  do
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
