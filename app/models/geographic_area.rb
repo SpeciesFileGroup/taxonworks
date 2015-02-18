@@ -111,8 +111,8 @@ class GeographicArea < ActiveRecord::Base
       where(['ga.name = ?', names[1]])
   }
 
-  # @param  [Array] of names of self and parents
-  # @return [Scope]
+  # @param  [Array] names of self and parents
+  # @return [Scope] GeographicAreas which have the names of self and parents
   # TODO: Test, or extend a general method
   # Matches GeographicAreas that match name, parent name, parent.parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
@@ -125,11 +125,11 @@ class GeographicArea < ActiveRecord::Base
   }
 
   # @param array [Array] of strings of names for areas
-  # @return [Scope] of GeographicAreas which match name and parent.name
+  # @return [Scope] of GeographicAreas which match name and parent.name.
   # Route out to a scope given the length of the
   # search array.  Could be abstracted to 
   # build nesting on the fly if we actually
-  # needed more than three nesting
+  # needed more than three nesting levels.
   def self.find_by_self_and_parents(array)
     if array.length == 1
       where(name: array.first)
@@ -142,13 +142,13 @@ class GeographicArea < ActiveRecord::Base
     end
   end
 
-  # @return [Scope] of GeographicAreas which are countries
+  # @return [Scope] GeographicAreas which are countries.
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
   end
 
   # @param params [Hash] of parameters for this search
-  # @return [Scope] of items found
+  # @return [Scope] of geographic_areas found by (partial) name
   def self.find_for_autocomplete(params)
     term  = params[:term]
     terms = term.split
@@ -180,7 +180,7 @@ class GeographicArea < ActiveRecord::Base
   end
 
   # @param [GeographicArea]
-  # @return [Scope] of geographic_areas
+  # @return [Scope] geographic_areas which are 'children' of the supplied geographic_area.
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
@@ -196,7 +196,7 @@ class GeographicArea < ActiveRecord::Base
 
   # @param latitude [Double] Decimal degrees
   # @param longitude [Double] Decimal degrees
-  # @return [Scope] of all area which contain the point specified
+  # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point        = "POINT(#{longitude} #{latitude})"
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" +
@@ -205,28 +205,28 @@ class GeographicArea < ActiveRecord::Base
     retval
   end
 
-  # @return [Scope]
+  # @return [Scope] all known level 1 children, generally state or province level.
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
   end
 
-  # @return [Scope]
+  # @return [Scope] all known level 2 children, generally county or prefecture level.
   def children_at_level2
     GeographicArea.descendants_of(self).where('level2_id IS NOT NULL')
   end
 
-  # @param [String] of geographic_area_type
-  # @return [Scope] descendants of this instance which have specific types, such as counties of a state
+  # @param [String] name of geographic_area_type (e.g., 'Country', 'State', 'City')
+  # @return [Scope] descendants of this instance which have specific types, such as counties of a state.
   def descendants_of_geographic_area_type(geographic_area_type)
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).
       where(geographic_area_types: {name: geographic_area_type})
   end
 
-  # @param [Array]
-  # @return [Scope] descendants of this instance which have specific types, such as cities and counties of a province
-  def descendants_of_geographic_area_types(geographic_area_types)
+  # @param [Array] geographic_area_type names
+  # @return [Scope] descendants of this instance which have specific types, such as cities and counties of a province.
+  def descendants_of_geographic_area_types(geographic_area_type_names)
     GeographicArea.descendants_of(self).includes([:geographic_area_type]).
-      where(geographic_area_types: {name: geographic_area_types})
+      where(geographic_area_types: {name: geographic_area_type_names})
   end
 
   # @return [Hash] keys point to each of the four level components of the ID.  Matches values in original data.
@@ -238,7 +238,7 @@ class GeographicArea < ActiveRecord::Base
     }
   end
 
-  # @return [String, nil] of 1, 2, 3, 4 iff is TDWG data source
+  # @return [String, nil] 1, 2, 3, 4 iff is TDWG data source
   def tdwg_level
     return nil if !self.data_origin =~ /TDWG/
     self.data_origin[-1]
@@ -297,7 +297,7 @@ class GeographicArea < ActiveRecord::Base
 
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
   # provide a point on which to focus the map.  Return 'nil' if there are no GIs in the chain.
-  # @return [GeographicItem] a point
+  # @return [GeographicItem] a point.
   def geographic_area_map_focus
     item = nil
     if geographic_items.count == 0
@@ -311,7 +311,7 @@ class GeographicArea < ActiveRecord::Base
     item
   end
 
-  # @return [Hash] of the attributes of this instance, as far as possible
+  # @return [Hash] the attributes of this instance, as far as possible
   def geolocate_ui_params_hash
     # parameters = {county: level2.name, state: level1.name, country: level0.name}
     parameters           = {}
@@ -334,6 +334,7 @@ class GeographicArea < ActiveRecord::Base
     if @geolocate_hash.nil?
       geolocate_ui_params_hash
     end
+    # will have come into existence during the invocation of geolocate_ui_params_hash
     @geolocate_string
   end
 

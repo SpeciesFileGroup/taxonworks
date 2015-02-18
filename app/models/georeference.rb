@@ -86,6 +86,8 @@ class Georeference < ActiveRecord::Base
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
+  # @param [GeographicItem, Double]
+  # @return [Scope] Georeferences
   def self.within_radius_of(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
     # geographic_item may be a polygon, or a point
@@ -106,6 +108,8 @@ class Georeference < ActiveRecord::Base
     Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
   end
 
+  # @param [String] locality string
+  # @return [Scope] Georeferences
   # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
   # includes String somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
@@ -114,6 +118,8 @@ class Georeference < ActiveRecord::Base
     with_locality_as(string, true)
   end
 
+  # @param [String] locality string
+  # @return [Scope] Georeferences
   # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
   # equals String somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
@@ -122,6 +128,8 @@ class Georeference < ActiveRecord::Base
     with_locality_as(string, false)
   end
 
+  # @param [GeographicArea]
+  # @return [Scope] Georeferences
   # returns all georeferences which have collecting_events which have geographic_areas which match
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
@@ -134,8 +142,8 @@ class Georeference < ActiveRecord::Base
   ONE_WEST  = 111319.490779206
   ONE_NORTH = 110574.38855796
 
-  # returns a square which represents either the bounding box of the
-  # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater
+  # @return [GeographicItem] a square which represents either the bounding box of the
+  # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater.
   def error_box
 
     # POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
@@ -154,7 +162,6 @@ class Georeference < ActiveRecord::Base
         retval = nil
       else
         retval = error_geographic_item.dup
-        #retval = error_geographic_item
       end
     else
       if geographic_item.nil?
@@ -196,6 +203,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Hash] formed as a GeoJSON 'Feature'.  Called by Gis::GeoJSON.feature_collection
   def to_geo_json_feature
     geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
     retval   = {
@@ -208,7 +216,9 @@ class Georeference < ActiveRecord::Base
 
   protected
 
-  # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # @param [String, Boolean] String to find in collecting_event.verbatim_locality, Bool = false for 'Starts with',
+  # Bool = true if 'contains'
+  # @return [Scope] Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
   # includes, or is equal to 'string' somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
   # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
@@ -223,6 +233,7 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
+  # @return [Boolean] true if geographic_item is completely contained in error_geographic_item
   def chk_obj_inside_err_geo_item
     # case 1
     retval = true
@@ -232,6 +243,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if geographic_item is completely contained in error_box
   def chk_obj_inside_err_radius
     # case 2
     retval = true
@@ -241,6 +253,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if error_geographic_item is completely contained in error_box
   def chk_err_geo_item_inside_err_radius
     # case 3
     retval = true
@@ -250,6 +263,8 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if error_box is completely contained in
+  # collecting_event.geographic_area.default_geographic_item
   def chk_error_radius_inside_area
     # case 4
     retval = true
@@ -261,6 +276,8 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if error_geographic_item.geo_object is completely contained in
+  # collecting_event.geographic_area.default_geographic_item
   def chk_error_geo_item_inside_area
     # case 5
     retval = true
@@ -272,6 +289,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
   def chk_obj_inside_area
     # case 6
     retval = true
@@ -283,21 +301,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-=begin
-   def proper_data_is_provided
-    retval = true
-    retval &&= add_error_radius
-    retval &&= add_error_depth
-    retval &&= add_obj_inside_err_geo_item
-    retval &&= add_obj_inside_err_radius
-    retval &&= add_err_geo_item_inside_err_radius
-    retval &&= add_error_radius_inside_area
-    retval &&= add_error_geo_item_inside_area
-    retval &&= add_obj_inside_area
-
-  end
-=end
-
+  # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
     if chk_obj_inside_area
       true
@@ -309,6 +313,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff collecting_event area contains georeference error_geographic_item.
   def add_error_geo_item_inside_area
     if chk_error_geo_item_inside_area
       true
@@ -320,6 +325,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff collecting_event area contains georeference error_radius bounding box.
   def add_error_radius_inside_area
     if chk_error_radius_inside_area
       true
@@ -331,6 +337,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff error_radius contains error_geographic_item.
   def add_err_geo_item_inside_err_radius
     if chk_err_geo_item_inside_err_radius
       true
@@ -342,6 +349,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff error_radius contains geographic_item.
   def add_obj_inside_err_radius
     if chk_obj_inside_err_radius
       true
@@ -351,6 +359,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff error_geographic_item contains geographic_item.
   def add_obj_inside_err_geo_item
     if chk_obj_inside_err_geo_item
       true
@@ -360,6 +369,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff error_depth is less than 8.8 kilometers (5.5 miles).
   def add_error_depth
     if error_depth.nil?
       true
@@ -371,6 +381,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean] true iff error_radius is less than 20,000 kilometers (12,400 miles).
   def add_error_radius
     if error_radius.nil?
       true
@@ -382,8 +393,9 @@ class Georeference < ActiveRecord::Base
     end
   end
 
-  # Given two latitude/longitude pairs in degrees, find the heading between them.
-  # Heading is returned as an angle in degrees clockwise from north.
+  # @param [Double, Double, Double, Double] two latitude/longitude pairs in decimal degrees
+  #   find the heading between them.
+  # @return [Double] Heading is returned as an angle in degrees clockwise from North.
   def heading(from_lat_, from_lon_, to_lat_, to_lon_)
     from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_
     to_lat_rad_    = RADIANS_PER_DEGREE * to_lat_
