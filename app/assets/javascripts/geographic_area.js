@@ -7,7 +7,7 @@ function initGAmap()        // initialization function for geographic area map
         var newfcdata = $("#feature_collection");
         var fcdata = newfcdata.data('feature-collection');
 
-        initialize("map_canvas", data);
+        initialize("map_canvas", fcdata);
         //add_map_listeners();
     }
 }

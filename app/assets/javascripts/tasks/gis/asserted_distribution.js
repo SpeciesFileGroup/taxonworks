@@ -7,7 +7,7 @@ function initADmap()
         var newadwidget = $("#feature_collection");
         var fcdata = newadwidget.data('feature-collection');
 
-        initializeMap("map_canvas", fcdata);
+        initialize("map_canvas", fcdata);
         add_map_listeners();
    }
 }
