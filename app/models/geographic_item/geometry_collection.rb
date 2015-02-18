@@ -2,16 +2,20 @@ class GeographicItem::GeometryCollection < GeographicItem
   SHAPE_COLUMN = :geometry_collection
   validates_presence_of :geometry_collection
 
+  # @return [RGeo::Point] first point in the collection
   def st_start_point
     rgeo_to_geo_json =~ /(-?\d+\.?\d*),(-?\d+\.?\d*)/
     Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
   end
 
+  # @return [Hash]
   def rendering_hash
     to_hash(self.geometry_collection)
   end
 
   # TODO: Seems to be deprecated for rgeo_to_geo_json?!
+  # @param [GeometryCollection]
+  # @return [Hash] a simple representation of the collection in points, lines, and polygons.
   def to_hash(geometry_collection)
     data = {
       points:   [],
@@ -66,7 +70,7 @@ class GeographicItem::GeometryCollection < GeographicItem
     data
   end
 
-   # @return [GeoJSON Feature]
+  # @return [GeoJSON Feature]
   #   the shape as a Feature/Feature Collection
   def to_geo_json_feature
     self.geometry = rgeo_to_geo_json
