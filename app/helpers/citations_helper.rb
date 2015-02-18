@@ -20,14 +20,10 @@ module CitationsHelper
     link_to('Add citation', new_citation_path(citation: {
         citation_object_type: object.class.base_class.name,
         citation_object_id: object.id})) if object.has_citations?
+  end
 
-
-    # if object.citable?
-    # link_to("Cite this #{object.class.name}", new_citation_path(alternate_value: {citation_object_type:      object.class.base_class.name,
-    #                                                                               citation_object_id:        object.id }))
-    # else
-    #   nil
-    # end
+  def edit_citation_link(citation)
+    edit_object_link(citation)
   end
 
 end
