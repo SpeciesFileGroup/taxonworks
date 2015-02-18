@@ -129,34 +129,41 @@ class CollectingEvent < ActiveRecord::Base
 
   NEARBY_DISTANCE = 5000
 
+  # @param [String]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
+  # @return [Boolean]
   def has_start_date?
     !start_date_day.blank? && !start_date_month.blank? && !start_date_year.blank?
   end
 
+  # @return [Boolean]
   def has_end_date?
     !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
   end
 
+  # @return [Utilities::Dates]
   def end_date
     Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
   end
 
+  # @return [Utilities::Dates]
   def start_date
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
 
   def generate_verbatim_georeference
-    # TODO @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
+    # TODOone @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
     # will occur here
     if verbatim_latitude && verbatim_longitude && !new_record?
-      point = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
-      g     = GeographicItem.new(point: point)
-      r     = get_error_radius
+      verbatim_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
+      verbatim_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
+      point              = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
+      g                  = GeographicItem.new(point: point)
+      r                  = get_error_radius
       if g.valid?
         g.save
         update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r))
@@ -179,6 +186,8 @@ class CollectingEvent < ActiveRecord::Base
       where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
   end
 
+  # @param [GeographicItem]
+  # @return [String]
   # see how far away we are from another gi
   def distance_to(geographic_item)
     # retval = GeographicItem.ordered_by_shortest_distance_from('any', geographic_items.first).limit(1).first
@@ -186,6 +195,8 @@ class CollectingEvent < ActiveRecord::Base
     return(retval)
   end
 
+  # @param [Double] distance
+  # @return [Scope]
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
@@ -202,6 +213,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+  # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def find_others_intersecting_with
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
@@ -217,6 +229,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+  # @return [Scope]
   # Find other CEs that have GRs whose GIs or EGIs are contained in the EGI
   def find_others_contained_in_error
     # find all the GIs and EGIs associated with CEs
@@ -240,6 +253,8 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+  # @param [String, String, Integer]
+  # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
@@ -256,6 +271,8 @@ class CollectingEvent < ActiveRecord::Base
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
+  # @param [String]
+  # @return [Hash]
   def name_hash(types)
     retval  = {} # changed from []
     gi_list = []
@@ -290,6 +307,7 @@ class CollectingEvent < ActiveRecord::Base
     retval
   end
 
+  # @return [Hash]
   def countries_hash
     name_hash(GeographicAreaType::COUNTRY_LEVEL_TYPES)
   end
@@ -298,6 +316,7 @@ class CollectingEvent < ActiveRecord::Base
   #   one hash, consisting of a state name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are state_level, and have GIs containing the (GI and/or EGI) of this CE
+  # @return [Hash]
   def states_hash
     name_hash(GeographicAreaType::STATE_LEVEL_TYPES)
   end
@@ -306,10 +325,13 @@ class CollectingEvent < ActiveRecord::Base
   #   one hash, consisting of a county name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are county_level, and have GIs containing the (GI and/or EGI) of this CE
+  # @return [Hash]
   def counties_hash
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
 
+  # @param [Hash]
+  # @return [String]
   def name_from_geopolitical_hash(name_hash)
     return name_hash.keys.first if name_hash.keys.count == 1
     most_key   = nil
@@ -323,28 +345,33 @@ class CollectingEvent < ActiveRecord::Base
     most_key
   end
 
+  # @return [String]
   def country_name
     name_from_geopolitical_hash(countries_hash)
   end
 
+  # @return [String]
   def state_or_province_name
     name_from_geopolitical_hash(states_hash)
   end
 
+  # @return [String]
   def state_name
     state_or_province_name
   end
 
+  # @return [String]
   def county_or_equivalent_name
     name_from_geopolitical_hash(counties_hash)
   end
 
+  # @return [String]
   def county_name
     county_or_equivalent_name
   end
 
 =begin
-TODO: @mjy: please fill in any other paths you cqan think of for the acquisition of information for the seven below listed items
+TODO: @mjy: please fill in any other paths you can think of for the acquisition of information for the seven below listed items
   ce.georeference.geographic_item.centroid
   ce.georeference.error_geographic_item.centroid
   ce.verbatim_georeference
@@ -375,6 +402,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     ? Copy of 'locality'
 =end
 
+  # @return [Hash]
   def geolocate_ui_params_hash
     parameters = {}
 
@@ -409,6 +437,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     @geolocate_hash    = @geolocate_request.request_params_hash
   end
 
+  # @return [String]
   def geolocate_ui_params_string
     if @geolocate_hash.nil?
       geolocate_ui_params_hash
@@ -416,6 +445,7 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     @geolocate_string
   end
 
+  # @return [GeoJSON::Feature]
   def to_geo_json_feature
     # geometry = RGeo::GeoJSON.encode(self.georeferences.first.geographic_item.geo_object)
     geo_item = self.georeferences.first.geographic_item
@@ -468,11 +498,15 @@ TODO: @mjy: please fill in any other paths you cqan think of for the acquisition
     'var data = ' + result.to_json + ';'
   end
 
+  # @param params [Hash] of parameters for this search
+  # @return [Scope] of collecting_events found by (partial) verbatim_locality
   def self.find_for_autocomplete(params)
     where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     # changed from 'cached' to 'verbatim_locality':
   end
 
+  # @param [Scope]
+  # @return [CSV]
   def self.generate_download(scope, project_id)
     CSV.generate do |csv|
       csv << column_names
