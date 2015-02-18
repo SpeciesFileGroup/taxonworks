@@ -44,7 +44,8 @@ class CollectionObjectsController < ApplicationController
   def update
     respond_to do |format|
       if @collection_object.update(collection_object_params)
-        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully updated.' }
+        @collection_object = @collection_object.metamorphosize
+        format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

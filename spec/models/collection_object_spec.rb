@@ -3,6 +3,7 @@ require 'rails_helper'
 describe CollectionObject, :type => :model do
 
   let(:collection_object) {FactoryGirl.build(:collection_object) }
+  let(:ranged_lot_category) {FactoryGirl.create(:valid_ranged_lot_category) }
 
   context 'validation' do
     specify 'type is not set when total/ranged_lot are not provided' do
@@ -62,6 +63,62 @@ describe CollectionObject, :type => :model do
       expect(collection_object.errors.include?(:base)).to be_truthy
     end 
 
+    context 'switching roles' do
+      let(:s) { Specimen.create }
+      let(:l) { Lot.create(total: 4) }
+
+      specify 'a specimen when total changed to > 1 changes to a Lot' do
+        s.total = 5
+        s.save!
+        expect(s.type).to eq('Lot')
+      end
+      
+      specify 'a Lot when total changes to 1 changes to Specimen' do
+        l.total = 1
+        l.save!
+        expect(l.type).to eq('Specimen')
+      end
+
+      specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
+        l.total = nil
+        l.ranged_lot_category = ranged_lot_category
+        l.save!
+        expect(l.type).to eq('RangedLot')
+      end
+
+      specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
+        s.total = nil
+        s.ranged_lot_category = ranged_lot_category
+        s.save!
+        expect(s.type).to eq('RangedLot')
+      end
+
+      context 'using .update' do
+        specify 'a specimen when total changed to > 1 changes to a Lot' do
+          s.update(total: 5)
+          expect(s.type).to eq('Lot')
+        end
+
+        specify 'a Lot when total changes to 1 changes to Specimen' do
+          l.update(total: 1) 
+          expect(l.type).to eq('Specimen')
+        end
+
+        specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
+          l.update(total: nil, ranged_lot_category: ranged_lot_category  )
+          expect(l.type).to eq('RangedLot')
+        end
+
+        specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
+          s.update(total: nil, ranged_lot_category: ranged_lot_category)
+          expect(s.type).to eq('RangedLot')
+        end
+
+
+      end
+
+
+    end
   end
 
   context 'associations' do
@@ -100,11 +157,11 @@ describe CollectionObject, :type => :model do
   end
 
   context 'attributes' do
-    specify "current_location (the present location [time axis])" 
-    specify "disposition ()"  # was boolean lost or not
-    specify "destroyed? (gone, for real, never ever EVER coming back)"
-    specify "condition (damaged/level)"
-    specify "depository (where the)"  
+    xspecify "disposition / current_location (concept of time)"   
+   
+    # sample ontology? 
+    xspecify "destroyed? (gone, for real, never ever EVER coming back)"
+    xspecify "condition (damaged/level)"
 
     specify '#accession_provider' do
       expect(collection_object.accession_provider = FactoryGirl.build(:valid_person)).to be_truthy
@@ -166,8 +223,5 @@ describe CollectionObject, :type => :model do
     it_behaves_like "notable"
     it_behaves_like "data_attributes"
     it_behaves_like "taggable"
-
-    specify "locatable (location)"
-    specify "figurable (images)"
   end
 end

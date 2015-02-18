@@ -2,7 +2,11 @@
 #
 class RangedLot < CollectionObject::BiologicalCollectionObject 
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
-  validates_presence_of :ranged_lot_category_id
+
+  with_options if: 'self.type == "RangedLot"' do |r|
+    r.validates_presence_of :ranged_lot_category_id 
+  end
+
 end
 
 

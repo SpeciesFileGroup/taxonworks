@@ -7,10 +7,11 @@
 #
 class Specimen < CollectionObject::BiologicalCollectionObject
 
-  before_validation :check_and_set_total 
-  
-  validates_presence_of :total 
-  validates :total, :inclusion => { :in => 1..1 }, if: 'self.type == "Specimen"'
+  with_options if: 'self.type == "Specimen"' do |s|
+    s.before_validation :check_and_set_total
+    s.validates :total, :inclusion => { :in => 1..1 }, presence: true
+  end
+
   protected
 
   def check_and_set_total

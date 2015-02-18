@@ -1,8 +1,9 @@
 # A class representing physical, biological, collection enumerated (precisely, see also RangedLot) to > 1, i.e. a group of individuals.
 class Lot < CollectionObject::BiologicalCollectionObject
-  include Housekeeping
 
-  validate :size_of_total
+  with_options if: 'self.type == "Lot"' do |l|
+    l.validate :size_of_total
+  end
 
   protected
 

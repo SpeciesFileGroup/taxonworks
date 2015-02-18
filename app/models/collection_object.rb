@@ -75,9 +75,10 @@ class CollectionObject < ActiveRecord::Base
   belongs_to :repository, inverse_of: :collection_objects
 
   validates_presence_of :type
-  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
+
+  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
