@@ -28,7 +28,7 @@ var initialize;
 
 initialize = function (canvas, feature_collection) {
 //initialize = function (canvas, feature_collection) {
-    var map;	// google map object
+    var map;	// google map object no longer global
     var data = feature_collection;
     var myOptions = {
         zoom: gzoom,
@@ -61,7 +61,7 @@ initialize = function (canvas, feature_collection) {
             strokeWeight: 1
         });
     });
-    add_map_listeners();
+    //add_map_listeners();
 };
 
 function initialize_map(canvas, options) {
