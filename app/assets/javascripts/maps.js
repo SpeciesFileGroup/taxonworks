@@ -28,7 +28,7 @@ var initialize;
 
 initialize = function (canvas, feature_collection) {
 //initialize = function (canvas, feature_collection) {
-    var map;	// google map object no longer global
+    map = undefined;	// google map object no longer global
     var data = feature_collection;
     var myOptions = {
         zoom: 1,
@@ -40,15 +40,15 @@ initialize = function (canvas, feature_collection) {
     };
 
     var bounds = {
-        xminp: 180.0,
-        xmaxp: 0.0,
-        xminm: 0.0,
-        xmaxm: -180.0,
-        ymin:  90.0,
-        ymax: -90.0,
-        center_long: 'undefined',
-        center_lat:  'undefined',
-        gzoom:  1
+        //xminp: 180.0,
+        //xmaxp: 0.0,
+        //xminm: 0.0,
+        //xmaxm: -180.0,
+        //ymin:  90.0,
+        //ymax: -90.0,
+        //center_long: undefined,
+        //center_lat:  undefined,
+        //gzoom:  1
     };
 
     map = initialize_map(canvas, myOptions);
@@ -73,12 +73,11 @@ initialize = function (canvas, feature_collection) {
             strokeWeight: 1
         });
     });
-    //add_map_listeners();
-    return map;             // now no global map object
+    return map;             // now no global map object, use this object to add listeners
 };
 
 function initialize_map(canvas, options) {
-    map = new google.maps.Map(document.getElementById(canvas), options);
+    var map = new google.maps.Map(document.getElementById(canvas), options);
     return map;
 }
 
@@ -185,8 +184,6 @@ function addClickServicesListeners(map, event) {     // click event passed in
             var center_lat_long = get_window_center(bounds);
             map.setCenter(center_lat_long);
             map.setZoom(bounds.gzoom);
-            //add_map_listeners();
-            //map.setMap();
         },
         'json' // I expect a JSON response
     );
@@ -205,7 +202,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     var center_lat = bounds.center_lat;
     var gzoom = bounds.gzoom;
 
-    if (center_long == 'undefined') {
+    if (center_long == undefined) {
         //determine case of area extent
         center_long = 0.0;
         var wm = 0.0;        // western hemisphere default area width
@@ -230,7 +227,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
         }
     }
     ;
-    if (center_lat == 'undefined') {
+    if (center_lat == undefined) {
         if((ymax == -90) && (ymin == 90)) {ymax = 90.0; ymin = -90.0;}      // no data, so set whole earth limits
         var wy = ymax - ymin;
         center_lat = 0.5 * (ymax + ymin);
@@ -267,9 +264,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
 };
 
 
-function reset_center_and_bounds(bounds) {        // used to
-    bounds.center_long = 'undefined';               // clear previous history
-    bounds.center_lat = 'undefined';               // so that center is recalculated
+function reset_center_and_bounds(bounds) {         // used to
+    bounds.center_long = undefined;               // clear previous history
+    bounds.center_lat = undefined;               // so that center is recalculated
+
     bounds.xminp = 180.0;       // use 0
     bounds.xmaxp = 0.0;        // to
     bounds.xminm = 0.0;       // +/-180-based
@@ -277,13 +275,15 @@ function reset_center_and_bounds(bounds) {        // used to
 
     bounds.ymin = 90.0;    // +/-90 for latitude
     bounds.ymax = -90.0;
+
+    bounds.gzoom = 1;   // default zoom to whole earth
 }
 
 function get_Data(feature_collection_data, bounds) {       //this is the scanner version; no google objects are created
     reset_center_and_bounds(bounds);
     //		get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
     var data = feature_collection_data;
-    if (typeof (data) != 'undefined') {
+    if (typeof (data) != "undefined") {
         var dataArray = [];
         if (data instanceof Array) {
         }      // if already an array, then do nothing
@@ -310,9 +310,9 @@ function get_Data(feature_collection_data, bounds) {       //this is the scanner
                     getTypeData(data[i], bounds);
                 };  //data[i].type
             };     //data[i] != undefined
-        }        // for i
-    };       //data != undefined
-};         //get_Data
+        };        // for i
+    };           //data != undefined
+};              //get_Data
 
 function getFeature(thisFeature, bounds) {
     getTypeData(thisFeature.geometry, bounds);
