@@ -214,11 +214,12 @@ describe Protonym, :type => :model do
       specify 'gender' do
         gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
         expect(gender.valid?).to be_truthy
+        expect(gender.errors.include?(:taxon_name_id)).to be_falsey
         @genus.reload
         expect(@genus.gender_name).to eq('masculine')
-        gender2 = FactoryGirl.build(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-
-        expect(gender2.valid?).to be_falsy
+        gender2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        gender2.valid?
+        expect(gender2.errors.include?(:taxon_name_id)).to be_truthy
       end
 
     end

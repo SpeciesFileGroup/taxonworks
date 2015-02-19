@@ -9,6 +9,7 @@ class TaxonNameClassification < ActiveRecord::Base
   belongs_to :taxon_name
 
   before_validation :validate_taxon_name_classification
+  before_validation :validate_uniqueness_of_latinized
   validates_presence_of :taxon_name, presence: true
   validates_presence_of :type, presence: true
   validates_uniqueness_of :taxon_name_id, scope: :type
@@ -106,7 +107,23 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
 
+  #region Validation
   #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
+
+  def validate_uniqueness_of_latinized
+    if /Latinized/.match(self.type_name)
+      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self.id||0)
+      unless lat.empty?
+        if /Gender/.match(lat.first.type_name)
+          errors.add(:taxon_name_id, 'The Gender is already selected')
+        elsif /PartOfSpeech/.match(lat.first.type_name)
+          errors.add(:taxon_name_id, 'The Part of speech is already selected')
+        end
+      end
+    end
+  end
+
+  #endregion
 
   #region Soft validation
 
