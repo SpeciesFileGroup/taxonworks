@@ -210,6 +210,17 @@ describe Protonym, :type => :model do
       specify 'originally classified' do
         expect(protonym.source_classified_as = Protonym.new).to be_truthy
       end
+
+      specify 'gender' do
+        gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        expect(gender.valid?).to be_truthy
+        @genus.reload
+        expect(@genus.gender_name).to eq('masculine')
+        gender2 = FactoryGirl.build(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+
+        expect(gender2.valid?).to be_falsy
+      end
+
     end
 
     context 'added via TaxonNameRelationships' do

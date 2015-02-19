@@ -228,15 +228,6 @@ describe TaxonName, :type => :model do
         end
       end
 
-      context 'gender' do
-        before(:all) do
-          gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-          taxon_name.valid?
-          expect(@genus.gender_name).to eq('masculine')
-          gender.destroy
-        end
-      end
-
       context 'proper taxon rank' do
         specify 'parent rank is higher' do
           taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')

@@ -21,10 +21,10 @@ describe TaxonNameClassification, :type => :model do
     nomen_uris = []
     TaxonNameClassification.descendants.each do |klass|
       uri = klass.nomen_uri
-      expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
-      expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
-      expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
-      nomen_uris.push uri
+      expect(uri).to be_truthy, "NOMEN_URI for #{klass.name} is empty!"
+      expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
+      nomen_.push name
+
     end
   end
 

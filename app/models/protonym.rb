@@ -16,15 +16,17 @@ class Protonym < TaxonName
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
   has_one :type_taxon_name, through: :type_taxon_name_relationship, source: :subject_taxon_name
 
-  has_one :type_taxon_name_classification, -> {
+  has_one :latinized_taxon_name_classification, -> {
     where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::%'")
   }, class_name: 'TaxonNameClassification', foreign_key: :taxon_name_id
 
   has_many :type_of_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
   has_many :original_combination_relationships, -> {
