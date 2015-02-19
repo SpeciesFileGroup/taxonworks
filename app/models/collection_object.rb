@@ -111,9 +111,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    # add identifiers
-    # add determinations
-    where(id: params[:term]) 
+    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all 
   end
 
   def self.breakdown_status(collection_objects)
