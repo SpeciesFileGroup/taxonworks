@@ -525,8 +525,7 @@ SELECT round(CAST(
     JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{self.geo_object_type.to_s}::geometry) a from geographic_items where id=#{self.id};").first['a'])
   end
 
-  # @return [GeoJSON Feature]
-  #   the shape as a Feature/Feature Collection
+  # @return [GeoJSON Feature] the shape as a GeoJSON Feature
   def to_geo_json_feature
     @geometry ||= to_geo_json
     retval    = {
