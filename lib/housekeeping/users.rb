@@ -52,7 +52,7 @@ module Housekeeping::Users
 
   # TODO: test this!!!!!!
   def set_updated_by_id 
-    if !self.updated_by_id_changed?
+    if (self.changed? || self.new_record?) && !self.updated_by_id_changed?
       self.updated_by_id = $user_id
     end
   end

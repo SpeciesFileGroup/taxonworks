@@ -20,6 +20,7 @@ class Source < ActiveRecord::Base
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
   :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url]
 
+  has_many :asserted_distributions, inverse_of: :source
   has_many :citations, inverse_of: :source, dependent: :destroy
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy

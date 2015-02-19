@@ -4,13 +4,18 @@ class AssertedDistribution < ActiveRecord::Base
   include SoftValidation
   include Shared::IsData
 
-  belongs_to :otu, validate: { presence: true }
-  belongs_to :geographic_area, validate: { presence: true }
-  belongs_to :source, validate:  { presence: true }
+  belongs_to :otu
+  belongs_to :geographic_area
+  belongs_to :source, inverse_of: :asserted_distributions
 
   validates_presence_of :otu_id, message: 'Taxon is not specified'
   validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
   validates_presence_of :source_id, message: 'Source is not selected'
+  validates :geographic_area, presence: true
+  validates :otu, presence: true
+  validates :source, presence: true
+
+
   validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'Duplicate record'
 
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
