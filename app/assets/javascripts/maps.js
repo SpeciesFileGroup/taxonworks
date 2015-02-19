@@ -1,34 +1,12 @@
 /* Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
  *
- * Overly integrated with asserted distributions,
+ * now largely isolated from specific pages
  */
-
-//var data; // TaxonWorks jSON data object
-
-// bounds for calculating center point
-// divide longitude checks by hemisphere
-// variables below used by stripped-down get_Data to compute bounds
-//var xminp = 180.0;       //return to 0-based coordinates
-//var xmaxp = 0.0;
-//var xminm = 0.0;         //return to 0-based coordinates
-//var xmaxm = -180.0;
-//
-//var ymin = 90.0;
-//var ymax = -90.0;
-//
-//// used to center the map in the window
-//var center_long;
-//var center_lat;
-//var center_lat_long;
-
-// zoom level
-//var gzoom = 1;      // default to fairly far out
 
 var initialize;
 
 initialize = function (canvas, feature_collection) {
-//initialize = function (canvas, feature_collection) {
-    map = undefined;	// google map object no longer global
+//    map = undefined;	// google map object no longer global
     var data = feature_collection;
     var myOptions = {
         zoom: 1,
@@ -39,23 +17,14 @@ initialize = function (canvas, feature_collection) {
         mapTypeId: google.maps.MapTypeId.TERRAIN
     };
 
-    var bounds = {
-        //xminp: 180.0,
-        //xmaxp: 0.0,
-        //xminm: 0.0,
-        //xmaxm: -180.0,
-        //ymin:  90.0,
-        //ymax: -90.0,
-        //center_long: undefined,
-        //center_lat:  undefined,
-        //gzoom:  1
-    };
 
-    map = initialize_map(canvas, myOptions);
+    var map = initialize_map(canvas, myOptions);
 
     map.data.setStyle({fillColor: '#440000', strokeOpacity: 0.5, strokeColor: "black", strokeWeight: 1, fillOpacity: 0.3});
     map.data.addGeoJson(data);
 
+// bounds for calculating center point
+    var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
     get_Data(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6)) ;
@@ -73,7 +42,7 @@ initialize = function (canvas, feature_collection) {
             strokeWeight: 1
         });
     });
-    return map;             // now no global map object, use this object to add listeners
+    return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
 function initialize_map(canvas, options) {
@@ -225,8 +194,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
         if(wm < wp){
             center_long = xmp
         }
-    }
-    ;
+    };
     if (center_lat == undefined) {
         if((ymax == -90) && (ymin == 90)) {ymax = 90.0; ymin = -90.0;}      // no data, so set whole earth limits
         var wy = ymax - ymin;
@@ -246,13 +214,13 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     };
 
     if(wy > 0.5 * wx) {wx = wy * 2.0}       // VERY crude proportionality adjustment
-    if (wx <= 0.1) {gzoom =11};
-    if (wx > 0.1) {gzoom = 10};             // quick and dirty zoom range based on size
-    if (wx > 0.2) {gzoom = 9};
-    if (wx > 0.5) {gzoom = 8};
-    if (wx > 1.0) {gzoom = 7};
-    if (wx > 2.5) {gzoom = 6};
-    if (wx > 5.0) {gzoom = 5};
+    if (wx <= 0.1) {gzoom = 11};
+    if (wx > 0.1)  {gzoom = 10};             // quick and dirty zoom range based on size
+    if (wx > 0.2)  {gzoom = 9};
+    if (wx > 0.5)  {gzoom = 8};
+    if (wx > 1.0)  {gzoom = 7};
+    if (wx > 2.5)  {gzoom = 6};
+    if (wx > 5.0)  {gzoom = 5};
     if (wx > 10.0) {gzoom = 4};
     if (wx > 40.0) {gzoom = 3};
     if (wx > 80.0) {gzoom = 2};
@@ -263,7 +231,9 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     return /*center_lat_long =*/ new google.maps.LatLng(center_lat, center_long);
 };
 
-
+// bounds for calculating center point
+// divide longitude checks by hemisphere
+// variables below used by stripped-down get_Data to compute bounds
 function reset_center_and_bounds(bounds) {         // used to
     bounds.center_long = undefined;               // clear previous history
     bounds.center_lat = undefined;               // so that center is recalculated
