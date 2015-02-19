@@ -158,12 +158,14 @@ class CollectingEvent < ActiveRecord::Base
   def generate_verbatim_georeference
     # TODOone @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
     # will occur here
-    if verbatim_latitude && verbatim_longitude && !new_record?
-      verbatim_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
-      verbatim_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      point              = Georeference::FACTORY.point(verbatim_latitude, verbatim_longitude)
-      g                  = GeographicItem.new(point: point)
-      r                  = get_error_radius
+    if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
+      local_latitude  = self.verbatim_latitude
+      local_longitude = self.verbatim_longitude
+      local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_latitude)
+      local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_longitude)
+      point           = Georeference::FACTORY.point(local_latitude, local_longitude)
+      g               = GeographicItem.new(point: point)
+      r               = get_error_radius
       if g.valid?
         g.save
         update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r))

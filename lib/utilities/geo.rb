@@ -47,10 +47,15 @@ module Utilities::Geo
 
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
-    dms     = dms_in.dup.upcase
-    degrees = 0.0; minutes = 0.0; seconds = 0.0
+    @match_string = nil
+    no_point      = false
+    degrees       = 0.0; minutes = 0.0; seconds = 0.0
+
+    # make SURE it is a string! Watch out for dms_in == -10
+    dms_in        = dms_in.to_s
+    dms           = dms_in.dup.upcase
     dms =~ /[NSEW]/i
-    cardinal = $~.to_s.upcase
+    cardinal = $~.to_s
     # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
     # return nil if cardinal.length > 1
     dms      = dms.gsub!(cardinal, '').strip.downcase
@@ -60,10 +65,12 @@ module Utilities::Geo
         /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
         @match_string = $&
       else
-        # this will get over-ridden if the next regex matchs
+        # this will get over-ridden if the next regex matches
         /(?<degrees>-*\d+\.\d+)/ =~ dms
         @match_string = $&
       end
+    else
+      no_point = true
     end
 
     # >40°26′46″< >40°26′46″<
@@ -75,9 +82,13 @@ module Utilities::Geo
         break
       end
     }
+    if @match_string.nil? and no_point
+      # seems like it is an orphaned number with no decimal point, i.e., -10
+      degrees = dms.to_f
+    end
 
     # @match_string = $&
-    degrees       = degrees.to_f
+    degrees = degrees.to_f
     case cardinal
       when 'W', 'S'
         sign = -1.0
@@ -108,7 +119,7 @@ module Utilities::Geo
   end
 
   def self.nearby_from_params(params)
-  nearby_distance  = params['nearby_distance'].to_i
+    nearby_distance = params['nearby_distance'].to_i
     if nearby_distance == 0
       nearby_distance = CollectingEvent::NEARBY_DISTANCE
     end
@@ -141,13 +152,13 @@ module Utilities::Geo
       when 3..5
         digit = 5
       when 6..10
-        digit = 1
+        digit  = 1
         decade *= 10
     end
 
     params['digit1'] = digit.to_s
     params['digit2'] = decade.to_s
-    nearby_distance = digit * decade
+    nearby_distance  = digit * decade
   end
 
 end

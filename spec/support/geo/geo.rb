@@ -46,6 +46,11 @@ LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #cur
                      "  42º5'18.1'S"                 => '-42.088361',
                      "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088361',
                      'w88∫11′43.3″'                  => '-88.195361',
+                     # weird things that might break the converter...
+                     -10                             => '-10.0',
+                     '-11'                           => '-11.0',
+                     'bad_data-10'                   => nil,
+                     'bad_data-10.1'                 => nil,
                      'nan'                           => nil,
                      'NAN'                           => nil
 

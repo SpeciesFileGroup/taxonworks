@@ -191,6 +191,7 @@ describe CollectingEvent, :type => :model do
         expect(collecting_event.generate_verbatim_georeference).to be_truthy
         expect(collecting_event.verbatim_georeference.blank?).to be_falsey
         expect(collecting_event.verbatim_georeference.id.blank?).to be_falsey
+        expect(collecting_event.georeferences.first.geographic_item.geo_object.to_s).to eq('POINT (-10.0 -10.0 0.0)')
       end
     end
 
