@@ -7,6 +7,45 @@ describe CollectingEvent, :type => :model do
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
+
+    context 'rails form style parameters' do
+      let(:set1) { {
+        'time_start(4i)' => "00",   
+        'time_start(5i)' => "00",   
+        'time_start(6i)' => "00"}
+      }
+      specify 'sets ' do
+        c = CollectingEvent.new(set1)
+        c.save!
+        expect(c.start_time).to eq('00:00:00')
+      end
+
+    end
+
+    specify 'when empty string passed to time_start time_start is nil' do
+      collecting_event.time_start = ""
+      collecting_event.save!
+      expect(collecting_event.time_start).to eq(nil)
+    end
+
+    specify 'when default form empty string passed to time_start time_start is nil' do
+      collecting_event.time_start = "0001-01-01 00:00:00.000000"
+      collecting_event.save!
+      expect(collecting_event.time_start).to eq(nil)
+    end
+
+    specify 'when default form empty string passed to time_end time_start is nil' do
+      collecting_event.time_end = "0001-01-01 00:00:00.000000"
+      collecting_event.save!
+      expect(collecting_event.time_end).to eq(nil)
+    end
+
+    specify 'when empty string passed to time_end time_end is nil' do
+      collecting_event.time_end = ""
+      collecting_event.save!
+      expect(collecting_event.time_end).to eq(nil)
+    end
+
     specify 'if verbatim_geolocation_uncertainty is provided, then so too are verbatim_longitude and verbatim_latitude' do
       collecting_event.verbatim_geolocation_uncertainty = 'based on my astrolab'
       expect(collecting_event.valid?).to be_falsey
@@ -445,11 +484,6 @@ describe CollectingEvent, :type => :model do
           end
         end
       end
-
-# GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-#                   where(
-#                     geographic_area_types: {name: %w{state province}},
-#                     geographic_areas_geographic_items: {geographic_item_id: %w{1 2 3}})
 
       context '#country_name' do
         context 'derivation priority' do

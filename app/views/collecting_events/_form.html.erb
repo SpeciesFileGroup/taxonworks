@@ -16,24 +16,7 @@
       <div class="flexbox">
         <div class="item item1">
 
-          <div class="field">
-            <%= f.label :geographic_area %>
-            <br>
-            <br>
-            <%= render :partial => 'workbench/elements/forms/ajax_select',
-                       :locals  => {:controller => 'geographic_areas',
-                                    :object     => 'collecting_event',
-                                    :method     => 'geographic_area_id',
-                                    :tag_id     => 'geographic_area_id_for_collecting_event',
-                                    :display    => geographic_area_tag(@collecting_event.geographic_area),
-                                    :size       => 20} %>
-          </div>
-          <div class="field">
-            <%= f.label :field_notes %>
-            <br>
-            <%= f.text_area :field_notes %>
-          </div>
-
+          <h3> Verbatim values </h3>
           <div class="field">
             <%= f.label :verbatim_locality %>
             <br>
@@ -78,76 +61,127 @@
             <br>
             <%= f.text_field :verbatim_method %>
           </div>
-          <!--<div class="field">-->
-            <!--<%#= f.label :verbatim_elevation %>-->
-            <!--<br>-->
-            <!--<%#= f.text_field :verbatim_elevation %>-->
-          <!--</div>-->
+
           <div class="field">
             <%= f.label :verbatim_habitat %>
             <br>
             <%= f.text_field :verbatim_habitat %>
           </div>
-          <div class="field">
-            <%= f.label :minimum_elevation %>
-            <br>
-            <%= f.text_field :minimum_elevation %>
-          </div>
-          <div class="field">
-            <%= f.label :maximum_elevation %>
-            <br>
-            <%= f.text_field :maximum_elevation %>
-          </div>
-          <div class="field">
-            <%= f.label :elevation_precision %>
-            <br>
-            <%= f.text_field :elevation_precision %>
-          </div>
 
           <div class="field">
-            <%= f.label :time_start %>
+            <%= f.label :verbatim_elevation %>
             <br>
-            <%= f.time_select :time_start %>
+            <%= f.text_field :verbatim_elevation, size: 6 %>
           </div>
-          <div class="field">
-            <%= f.label :time_end %>
-            <br>
-            <%= f.time_select :time_end %>
-          </div>
-          <div class="field">
-            <%= f.label :start_date_day %>
-            <br>
-            <%= f.text_field :start_date_day %>
-          </div>
-          <div class="field">
-            <%= f.label :start_date_month %>
-            <br>
-            <%= f.text_field :start_date_month %>
-          </div>
-          <div class="field">
-            <%= f.label :start_date_year %>
-            <br>
-            <%= f.text_field :start_date_year %>
-          </div>
-          <div class="field">
-            <%= f.label :end_date_day %>
-            <br>
-            <%= f.text_field :end_date_day %>
-          </div>
-          <div class="field">
-            <%= f.label :end_date_month %>
-            <br>
-            <%= f.text_field :end_date_month %>
-          </div>
-          <div class="field">
-            <%= f.label :end_date_year %>
-            <br>
-            <%= f.text_field :end_date_year %>
-          </div>
+
         </div>
 
-        <div class="item item2">
+        <div class="item item2 inline_fields">
+          <h3> Parsed data  </h3>
 
+          <div class="field">
+            <%= f.label :geographic_area %>
+            <br>
+            <%= render :partial => 'workbench/elements/forms/ajax_select',
+                       :locals  => {:controller => 'geographic_areas',
+                                    :object     => 'collecting_event',
+                                    :method     => 'geographic_area_id',
+                                    :tag_id     => 'geographic_area_id_for_collecting_event',
+                                    :display    => geographic_area_tag(@collecting_event.geographic_area),
+                                    :size       => 40} %>
+          </div>
+
+
+          <h4> Start date </h4>
+          <table> 
+            <tr>
+              <td class="field"> 
+                <%= f.label :start_date_day, :Day %> 
+              </td>
+              <td class="field">
+                <%= f.label :start_date_month, :Month %>
+              </td>
+              <td class="field">
+                <%= f.label :start_date_year, :Year %>  
+              </td>
+            </tr>
+            <tr> 
+              <td> 
+                <%= f.text_field :start_date_day, size: 2 %>             
+              </td> 
+              <td> 
+                <%= f.text_field :start_date_month, size: 10 %>
+              </td> 
+              <td> 
+                <%= f.text_field :start_date_year, size: 4 %>        
+              </td> 
+            </tr>
+          </table>
+
+          <h4> End date </h4>
+          <table> 
+            <tr>
+              <td class="field"> 
+                <%= f.label :end_date_day, :Day %>  
+              </td>
+              <td class="field">
+                <%= f.label :end_date_month, :Month %>
+              </td>
+              <td class="field">
+                <%= f.label :end_date_year, :Year %>  
+              </td>
+            </tr>
+            <tr> 
+              <td> 
+                <%= f.text_field :end_date_day, size: 2 %>             
+              </td> 
+              <td> 
+                <%= f.text_field :end_date_month, size: 10 %>
+              </td> 
+              <td> 
+                <%= f.text_field :end_date_year, size: 4 %>        
+              </td> 
+            </tr>
+          </table>
+
+          <h4> Time </h4> 
+          <div class="field">
+            <%= f.label :time_start, :Start %>
+            <br>
+            <%= f.time_select :time_start, prompt: true, include_seconds: true %>
+          </div>
+          <div class="field">
+            <%= f.label :time_end, :End %>
+            <br>
+            <%= f.time_select :time_end, prompt: true, include_seconds: true %>
+          </div>
+
+          <br>
+
+          <h4> Elevation </h4>
+          <p> <em> All values in meters</em> </p>
+         <div class="field">
+            <%= f.label :minimum_elevation, :Minimum %>
+            <br>
+            <%= f.text_field :minimum_elevation, size: 6 %>
+          </div>
+          <div class="field">
+            <%= f.label :maximum_elevation, :Maximum %>
+            <br>
+            <%= f.text_field :maximum_elevation, size: 6 %>
+          </div>
+          <div class="field">
+            <%= f.label :elevation_precision, :Precision %>
+            <br>
+            <%= f.text_field :elevation_precision, size: 6 %>
+          </div>
+
+          <br>
+
+        
+        </div>
+
+        <div class="item item3">
           <div class="field">
             <%= f.label :verbatim_label %>
             <br>
@@ -163,7 +197,16 @@
             <br>
             <%= f.text_area :document_label %>
           </div>
+
+          <br>
+          <div class="field">
+            <%= f.label :field_notes %>
+            <br>
+            <%= f.text_area :field_notes %>
+          </div>
+
         </div>
+
       </div>
     </div>
 

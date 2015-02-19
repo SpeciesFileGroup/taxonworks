@@ -76,4 +76,9 @@ module Utilities::Dates
     date_string 
   end
 
+  def self.hours_minutes_seconds(time) 
+    return nil if time.blank?
+    time.strftime("%H:%M:%S")
+  end
+
 end

@@ -40,7 +40,6 @@
 #   @return [String]
 #   A float, in meters.
 #
-#
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -71,6 +70,14 @@ class CollectingEvent < ActiveRecord::Base
                     :check_date_range,
                     :check_elevation_range,
                     :build_cached
+
+  before_save :set_times_to_nil_if_form_provided_blank
+
+  def set_times_to_nil_if_form_provided_blank
+    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    self.time_start = nil if matches.include?(self.time_start.to_s)
+    self.time_end = nil if matches.include?(self.time_end.to_s)
+  end
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
