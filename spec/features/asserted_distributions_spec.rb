@@ -20,24 +20,24 @@ describe "AssertedDistributions", :type => :feature do
     end
 
     context 'signed in as user, with some people created' do
-      let(:g) { factory_girl_create_for_user(:valid_geographic_area, @user)  }
+      let(:g) { factory_girl_create_for_user(:valid_geographic_area, @user) }
       let(:s) { factory_girl_create_for_user(:valid_source_bibtex, @user) }
-      before { 
-        5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project)  }
-        5.times.each_with_index { |i| 
+      before {
+        5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+        5.times.each_with_index { |i|
           FactoryGirl.create(:valid_asserted_distribution,
-                             otu: Otu.all[i],
+                             otu:             Otu.all[i],
                              geographic_area: g,
-                             source: s,
-                             creator: @user,
-                             updater: @user,
-                             project: @project    )
+                             source:          s,
+                             creator:         @user,
+                             updater:         @user,
+                             project:         @project)
         }
       }
 
       describe 'GET /asserted_distributions/list' do
-        before  {
-          visit list_asserted_distributions_path 
+        before {
+          visit list_asserted_distributions_path
         }
 
         specify 'that it renders without error' do
