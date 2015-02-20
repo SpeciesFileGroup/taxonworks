@@ -73,6 +73,31 @@ class SerialsController < ApplicationController
     end
   end
                                                                       ``
+  def search
+    if  params[:id]
+      redirect_to serial_path(params[:id])
+    else
+      redirect_to serials_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    end
+  end
+
+  def autocomplete
+    @serials = Serial.find_for_autocomplete(params)
+
+    data = @serials.collect do |t|
+      str = SerialsHelper.serial_autocomplete_tag(t, params[:term])
+      {id:              t.id,
+       label:           SerialsHelper.serial_tag(t),
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      str
+      }
+    end
+
+    render :json => data
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_serial

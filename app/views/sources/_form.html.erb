@@ -11,11 +11,20 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :serial_id %><br>
-    <%= f.number_field :serial_id %>
-  </div>
-  <div class="field">
+    <div class="field">
+      <%= f.label :serial %>
+      <br>
+      <%= render :partial => 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: 'serials',
+                           object:     'serial',
+                           method:     'serial_id',
+                           tag_id:     'serial_id_for_name',
+                           size:       '50%',
+                           display:    serial_for_select(@source.serial)} %>
+    </div>
+
+
+    <div class="field">
     <%= f.label :address %><br>
     <%= f.text_field :address %>
   </div>

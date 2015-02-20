@@ -78,6 +78,19 @@ class Serial < ActiveRecord::Base
   # "Soft" Validations
   soft_validate(:sv_duplicate?)
 
+  # Class methods
+  def self.find_for_autocomplete(params)
+    t = params[:term]
+    limit = 10
+    case t.length
+      when 0..3
+      else
+        limit = 20
+    end
+
+    where("name LIKE '#{t}%'").order(:name).limit(limit)
+  end
+
   # Instance methods
 
   # Serial notes: are stored as DataAttribute of type InternalAttribute with Predicate 'Serial Note'
