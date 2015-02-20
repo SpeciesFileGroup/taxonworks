@@ -40,7 +40,7 @@ class SerialsController < ApplicationController
 
     respond_to do |format|
       if @serial.save
-        format.html { redirect_to @serial, notice: 'Serial was successfully created.' }
+        format.html { redirect_to @serial, notice: "Serial '#{@serial.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @serial }
       else
         format.html { render action: 'new' }
