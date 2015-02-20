@@ -47,7 +47,7 @@ module Utilities::Geo
 
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
-    @match_string = nil
+    match_string = nil
     no_point      = false
     degrees       = 0.0; minutes = 0.0; seconds = 0.0
 
@@ -63,11 +63,11 @@ module Utilities::Geo
     if dms.include? '.'
       if dms.include? ':' # might be '42:5.1'
         /(?<degrees>-*\d+):(?<minutes>\d+\.*\d*)(:(?<seconds>\d+\.*\d*))*/ =~ dms
-        @match_string = $&
+        match_string = $&
       else
         # this will get over-ridden if the next regex matches
         /(?<degrees>-*\d+\.\d+)/ =~ dms
-        @match_string = $&
+        match_string = $&
       end
     else
       no_point = true
@@ -77,12 +77,12 @@ module Utilities::Geo
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
         /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033"]+)*/ =~ dms
-        @match_string = $&
+        match_string = $&
         # /#{DMS_REGEX}/ =~ dms
         break
       end
     }
-    if @match_string.nil? and no_point
+    if match_string.nil? and no_point
       # seems like it is an orphaned number with no decimal point, i.e., -10
       degrees = dms.to_f
     end
