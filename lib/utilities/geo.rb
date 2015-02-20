@@ -48,12 +48,12 @@ module Utilities::Geo
   # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
     match_string = nil
-    no_point      = false
-    degrees       = 0.0; minutes = 0.0; seconds = 0.0
+    no_point     = false
+    degrees      = 0.0; minutes = 0.0; seconds = 0.0
 
     # make SURE it is a string! Watch out for dms_in == -10
-    dms_in        = dms_in.to_s
-    dms           = dms_in.dup.upcase
+    dms_in       = dms_in.to_s
+    dms          = dms_in.dup.upcase
     dms =~ /[NSEW]/i
     cardinal = $~.to_s
     # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
