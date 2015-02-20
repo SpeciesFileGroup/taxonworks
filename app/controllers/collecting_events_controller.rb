@@ -27,7 +27,7 @@ class CollectingEventsController < ApplicationController
   # POST /collecting_events.json
   def create
     @collecting_event = CollectingEvent.new(collecting_event_params)
-    byebug 
+    # byebug
     respond_to do |format|
       if @collecting_event.save
         format.html { redirect_to @collecting_event, notice: 'Collecting event was successfully created.' }
