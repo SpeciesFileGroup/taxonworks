@@ -61,7 +61,7 @@ function add_map_listeners(map) {      // 4 listeners, one for map as a whole 3 
             event.feature.setProperty('isColorful', true);
             event.feature.setProperty('fillColor', "#CC0000");  //brighter red
         };
-        addClickServicesListeners(event);
+        addClickServicesListeners(map, event);
     });
 
     // When the user hovers, tempt them to click by outlining the letters.
@@ -127,8 +127,8 @@ function addClickServicesListeners(map, event) {     // click event passed in
                     this_property = this_feature.getProperty('geographic_area');
                     if(this_property.id != area_id) {
                         //map.data.getFeatureById(01).getProperty('geographic_area')
-                        map.data.overrideStyle(this_feature, {fillColor: '#000000'});  //  black
-                        map.data.overrideStyle(this_feature, {strokeWeight: 1});       // erase borders
+                        //map.data.overrideStyle(this_feature, {fillColor: '#000000'});     //  black
+                        map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
                         map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
                     }
                     if(this_property.id == area_id) {
@@ -147,12 +147,12 @@ function addClickServicesListeners(map, event) {     // click event passed in
             })
 
             var data = local_data['feature_collection'];
-            var bounds = { xminp: 180.0, xmaxp: 0.0, xminm: 0.0, xmaxm: -180.0, ymin:  90.0, ymax: -90.0,
-                center_long: 'undefined', center_lat:  'undefined', gzoom:  1 };
+            var bounds = {};
             get_Data(data, bounds);
             var center_lat_long = get_window_center(bounds);
             map.setCenter(center_lat_long);
             map.setZoom(bounds.gzoom);
+            //map.fitBounds(bounds.box);
         },
         'json' // I expect a JSON response
     );
@@ -212,7 +212,9 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
             };
         };
     };
-
+    var sw = new google.maps.LatLng(ymin, xmm);
+    var ne = new google.maps.LatLng(ymax, xmp);
+    var box = new google.maps.LatLngBounds(sw, ne);
     if(wy > 0.5 * wx) {wx = wy * 2.0}       // VERY crude proportionality adjustment
     if (wx <= 0.1) {gzoom = 11};
     if (wx > 0.1)  {gzoom = 10};             // quick and dirty zoom range based on size
@@ -228,6 +230,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     bounds.center_lat = center_lat;
     bounds.center_long = center_long;
     bounds.gzoom = gzoom;
+    bounds.box = box;
     return /*center_lat_long =*/ new google.maps.LatLng(center_lat, center_long);
 };
 
@@ -247,6 +250,7 @@ function reset_center_and_bounds(bounds) {         // used to
     bounds.ymax = -90.0;
 
     bounds.gzoom = 1;   // default zoom to whole earth
+    bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm),new google.maps.LatLng(bounds.ymin, bounds.xminp));
 }
 
 function get_Data(feature_collection_data, bounds) {       //this is the scanner version; no google objects are created
