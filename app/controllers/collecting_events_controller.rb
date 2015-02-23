@@ -99,7 +99,7 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(params.require(:where).permit(:id)), $project_id), type: 'text'
+    send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text'
   end
 
   private
