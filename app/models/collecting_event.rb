@@ -101,6 +101,7 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
 
+  # erroneous migration
   validates :time_start_hour,
             allow_nil:    true,
             numericality: {
