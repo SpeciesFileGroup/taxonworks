@@ -262,6 +262,7 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  # @return [Integer]
   def get_error_radius
     return nil if verbatim_geolocation_uncertainty.blank?
     return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
@@ -270,6 +271,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
+  # @return [Scope] geographic_items associated with this collecting_event
   def all_geographic_items
     event   = nil
     results = GeographicItem.
