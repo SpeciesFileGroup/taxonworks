@@ -14,10 +14,11 @@ describe CollectingEvent, :type => :model do
         'time_start(5i)' => "00",   
         'time_start(6i)' => "00"}
       }
+
       specify 'sets ' do
         c = CollectingEvent.new(set1)
         c.save!
-        expect(c.time_start).to eq('1970-01-01 00:00:00 UTC')
+        expect(c.time_start).to eq('00:00:00')
       end
 
     end

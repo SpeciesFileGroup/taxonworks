@@ -162,6 +162,14 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
 
+  def time_start
+    Utilities::Dates.hours_minutes_seconds(read_attribute(:time_start))
+  end
+
+  def time_end
+    Utilities::Dates.hours_minutes_seconds(read_attribute(:time_end)) 
+  end
+
   def generate_verbatim_georeference
     # TODOone @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
     # will occur here
