@@ -101,7 +101,8 @@ class User < ActiveRecord::Base
   end
 
   def add_page_to_favorites(favorite_route)
-    update_attributes(favorite_routes: ([favorite_route] + favorite_routes).uniq[0..19])
+    new_routes = ([favorite_route] + favorite_routes.clone).uniq[0..19].sort
+    update_attribute(:favorite_routes, new_routes )
     true
   end
 
@@ -111,8 +112,6 @@ class User < ActiveRecord::Base
     update_attribute(:favorite_routes, new_routes )
     true
   end
-
-
 
   def add_page_to_recent(recent_route)
     case recent_route
