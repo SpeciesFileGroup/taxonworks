@@ -178,21 +178,17 @@
     <%= @source.day %>
     </p>
 
-
-
   </div>
 
   <p>
   <strong>Serial:</strong>
-  <%= serial_tag(@source.serial) %>
+    <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
   </p>
 
   <p>
   <strong>Language:</strong>
   <%= object_tag(@source.language) %>
   </p>
-
-
 
   <div class='attribute_set' data-title="Other attributes" >
 
