@@ -238,14 +238,19 @@ describe CollectingEvent, :type => :model do
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do
-          pending 'fixing the bug in all_geographic_items' # todo: @mjy
+          # pending 'fixing the bug in all_geographic_items' # todo: @mjy
           # @ce_p5 has two GRs, each of which has a GI.
-          expect(@ce_p5.all_geographic_items.count).to eq(2)
+          results = @ce_p5.all_geographic_items
+          expect(results.count).to eq(2)
+          expect(results).to include(@p15, @p5)
           # @ce_p8 has two GRs, one of which has only a GI, and the other of which
           # has a GI, and an EGI.
-          expect(@ce_p8.all_geographic_items.count).to eq(3)
+          results = @ce_p8.all_geographic_items
+          expect(results.count).to eq(3)
+          expect(results.to_a).to include(@p18, @p8, @b2)
           # #ce_area_v has no GR.
-          expect(@ce_area_v.all_geographic_items.count).to eq(0)
+          results = @ce_area_v.all_geographic_items
+          expect(results.count).to eq(0)
         end
       end
 

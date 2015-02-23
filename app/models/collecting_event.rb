@@ -272,12 +272,12 @@ class CollectingEvent < ActiveRecord::Base
   # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
     event = nil
-    GeographicItem.
+    results = GeographicItem.
       joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
       joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
       where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
     if event.nil?
-      return
+      return results
     end
   end
 
