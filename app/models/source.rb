@@ -18,7 +18,7 @@ class Source < ActiveRecord::Base
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-  :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url]
+                          :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url]
 
   has_many :asserted_distributions, inverse_of: :source
   has_many :citations, inverse_of: :source, dependent: :destroy
@@ -26,6 +26,8 @@ class Source < ActiveRecord::Base
   has_many :project_sources, dependent: :destroy
 
   after_validation :set_cached_values
+
+  validates_presence_of :type
 
   def cited_objects
     self.citations.collect{|t| t.citation_object}
@@ -93,14 +95,14 @@ class Source < ActiveRecord::Base
     end
     sources
   end
-  
+
   def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
     return Source.none if compared_string.nil?
     order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
     Source.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
-end
+  end
 
   protected
 

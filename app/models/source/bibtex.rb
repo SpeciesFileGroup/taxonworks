@@ -259,7 +259,6 @@ require 'csl/styles'
 # @!attribute copyright
 # @!attribute language
 # @!attribute contents
-
 #
 #
 #
@@ -269,8 +268,6 @@ require 'csl/styles'
 # UNKNOWN:
 #
 # @!attribute bibtex_type
-
-
 #
 #
 class Source::Bibtex < Source
@@ -298,9 +295,11 @@ class Source::Bibtex < Source
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
 
-  #region validations
   before_validation :create_authors, if: '!authors_to_create.nil?'
+  before_validation :check_has_field
+  before_save :set_cached_nomenclature_date
 
+  #region validations
   validates_inclusion_of :bibtex_type,
     in:      ::VALID_BIBTEX_TYPES,
     message: '%{value} is not a valid source type'
@@ -313,17 +312,20 @@ class Source::Bibtex < Source
   validates_numericality_of :year,
     only_integer:          true, greater_than: 999,
     less_than_or_equal_to: Time.now.year + 2,
-    allow_nil:             true,
+    allow_blank:            true,
     message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+
   validates_presence_of :month,
     if:      '!day.nil?',
     message: 'month is required when day is provided'
+
   validates_inclusion_of :month,
     in:        ::VALID_BIBTEX_MONTHS,
-    allow_nil: true,
+    allow_blank: true,
     message:   ' month'
+
   validates_numericality_of :day,
-    allow_nil:             true,
+    allow_blank:             true,
     only_integer:          true,
     greater_than:          0,
     less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
@@ -331,12 +333,9 @@ class Source::Bibtex < Source
     message:               '%{value} is not a valid day for the month provided'
 
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
-                              message: "[%{value}] is not a valid URL"}, allow_nil: true
+                              message: "[%{value}] is not a valid URL"}, allow_blank: true
 
-  before_validation :check_has_field
   #endregion validations
-
-  before_save :set_cached_nomenclature_date
 
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
@@ -353,7 +352,9 @@ class Source::Bibtex < Source
 
   #region ruby-bibtex related
 
-  def to_bibtex # outputs BibTeX::Entry equivalent to me.
+  # @return [BibTeX::Entry]
+  #   entry equvalent to self
+  def to_bibtex 
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
       if (!self[f].blank?) && !(f == :bibtex_type)
@@ -377,10 +378,11 @@ class Source::Bibtex < Source
   # serial with alternate_value on name .count = 1 assign .first
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
 
+  # @return [Boolean]
+  #   whether the BibTeX::Entry representation of this source is valid
   def valid_bibtex?
     self.to_bibtex.valid?
   end
-
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
   # Note: note conversion is handled in note setter. 
@@ -532,7 +534,7 @@ class Source::Bibtex < Source
     write_attribute(:isbn, value)
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
 
-    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) if ! value.nil?
+    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) if ! value.blank?
   end
 
   def isbn
@@ -542,7 +544,7 @@ class Source::Bibtex < Source
   def doi=(value)
     write_attribute(:doi, value)
     #TODO if there is already an 'Identifier::Global::Doi' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value) if ! value.nil?
+    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value) if ! value.blank?
   end
 
   def doi
@@ -553,7 +555,7 @@ class Source::Bibtex < Source
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if ! value.nil?
+    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if ! value.blank?
   end
 
   def issn
@@ -628,9 +630,11 @@ class Source::Bibtex < Source
 
   def cached_string
     bx_entry = self.to_bibtex
+    
     if bx_entry.key.blank?
       bx_entry.key = 'tmpID'
     end
+
     key = bx_entry.key
     bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)

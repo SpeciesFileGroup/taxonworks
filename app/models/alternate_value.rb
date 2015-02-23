@@ -27,7 +27,7 @@ class AlternateValue < ActiveRecord::Base
   belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
 
-  validates :language, presence: true, allow_nil: true
+  validates :language, presence: true, allow_blank: true
   validates_presence_of :type, :value, :alternate_value_object_attribute
   validates :alternate_value_object, presence: true
 
