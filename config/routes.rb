@@ -204,6 +204,13 @@ TaxonWorks::Application.routes.draw do
       get 'generate_choices'
     end
 
+    scope :gis, controller: 'tasks/gis/draw_map_item' do
+      get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
+      post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
+      # post 'generate_choices', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
+      get 'collect_item'
+    end
+
     scope :serials, controller: 'tasks/serials/similar' do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
       post 'update/:id', action: 'update', as: 'update_serial_find_task'

@@ -1,0 +1,35 @@
+<h1>Task: New Map Item by Drawing</h1>
+<div class="flexbox">
+  <div class="item item1">
+    <%= form_tag(generate_choices_url, id: 'cadu') do %>
+        Source <span id="sourceError" style="color: #DD0000"></span>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals  => {:controller => '/sources',
+                                :object     => 'asserted_distribution',
+                                :method     => 'source_id',
+                                :tag_id     => 'source_id_for_asserted_distribution',
+                                :display    => ''} %>
+        <%= check_box_tag('lock_source', @lock_source) %>Lock
+        <!--<%#= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%>-->
+        <%= hidden_field_tag(:latitude) -%>
+        <%= hidden_field_tag(:longitude) -%>
+    <% end %>
+
+
+    <span id="qnadf"></span>
+  </div>
+
+  <div class="item item2">
+    <%= render(partial: 'layouts/map_header') -%>
+
+    <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
+
+    <div id="feature_collection" data-otu="<%= @otu %>"></div>
+
+    <div id="map_canvas" style="width:512px; height: 256px;"></div>
+    <span id="map_coords"></span>
+    <script>initADmap("map_canvas", "map_canvas_2");</script>
+  </div>
+</div>
+</div>
+
