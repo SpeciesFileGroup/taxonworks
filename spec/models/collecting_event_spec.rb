@@ -7,44 +7,30 @@ describe CollectingEvent, :type => :model do
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
-
-    context 'rails form style parameters' do
-      let(:set1) { {
-        'time_start(4i)' => "00",   
-        'time_start(5i)' => "00",   
-        'time_start(6i)' => "00"}
-      }
-
-      specify 'sets ' do
-        c = CollectingEvent.new(set1)
-        c.save!
-        expect(c.time_start).to eq('00:00:00')
+    context 'time start/end' do
+      specify 'if time_start_minute provided time_start_hour_required' do
+        collecting_event.time_start_minute = '44'
+        collecting_event.valid?
+        expect(collecting_event.errors.include?(:time_start_hour)).to be_truthy 
       end
 
-    end
+      specify 'if time_start_second provided time_start_minute_required' do
+        collecting_event.time_start_second = '44'
+        collecting_event.valid?
+        expect(collecting_event.errors.include?(:time_start_minute)).to be_truthy 
+      end
 
-    specify 'when empty string passed to time_start time_start is nil' do
-      collecting_event.time_start = ""
-      collecting_event.save!
-      expect(collecting_event.time_start).to eq(nil)
-    end
+      specify 'if time_end_minute provided time_end_hour_required' do
+        collecting_event.time_end_minute = '44'
+        collecting_event.valid?
+        expect(collecting_event.errors.include?(:time_end_hour)).to be_truthy 
+      end
 
-    specify 'when default form empty string passed to time_start time_start is nil' do
-      collecting_event.time_start = "0001-01-01 00:00:00.000000"
-      collecting_event.save!
-      expect(collecting_event.time_start).to eq(nil)
-    end
-
-    specify 'when default form empty string passed to time_end time_start is nil' do
-      collecting_event.time_end = "0001-01-01 00:00:00.000000"
-      collecting_event.save!
-      expect(collecting_event.time_end).to eq(nil)
-    end
-
-    specify 'when empty string passed to time_end time_end is nil' do
-      collecting_event.time_end = ""
-      collecting_event.save!
-      expect(collecting_event.time_end).to eq(nil)
+      specify 'if time_end_second provided time_end_minute_required' do
+        collecting_event.time_end_second = '44'
+        collecting_event.valid?
+        expect(collecting_event.errors.include?(:time_end_minute)).to be_truthy 
+      end
     end
 
     specify 'if verbatim_geolocation_uncertainty is provided, then so too are verbatim_longitude and verbatim_latitude' do
@@ -655,6 +641,23 @@ describe CollectingEvent, :type => :model do
       end
     end
   end
+
+
+  specify '#time_start pads' do 
+    collecting_event.time_start_hour = 4
+    collecting_event.time_start_minute = 2
+    collecting_event.time_start_second = 1
+    expect(collecting_event.time_start).to eq('04:02:01')
+  end
+
+  specify '#time_end pads' do 
+    collecting_event.time_end_hour = 4
+    collecting_event.time_end_minute = 2
+    collecting_event.time_end_second = 1
+    expect(collecting_event.time_end).to eq('04:02:01')
+  end
+
+
 
   context 'concerns' do
     it_behaves_like 'citable'

@@ -39,7 +39,24 @@
 # @!attribute elevation_precision
 #   @return [String]
 #   A float, in meters.
-#
+# @!attribute time_start_hour 
+#   @return [integer]
+#     0-23
+# @!attribute time_start_minute
+#   @return [integer]
+#     0-59
+# @!attribute time_start_seconds
+#   @return [integer]
+#     0-59 
+# @!attribute time_end_hour 
+#   @return [integer]
+#     0-23
+# @!attribute time_end_minute
+#   @return [integer]
+#     0-59
+# @!attribute time_end_seconds
+#   @return [integer]
+#     0-59 
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -74,15 +91,68 @@ class CollectingEvent < ActiveRecord::Base
   before_save :set_times_to_nil_if_form_provided_blank
 
   def set_times_to_nil_if_form_provided_blank
-    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
     self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end = nil if matches.include?(self.time_end.to_s)
+    self.time_end   = nil if matches.include?(self.time_end.to_s)
   end
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
   validates :geographic_area, presence: true, allow_nil: true
+
+  validates :time_start_hour,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..23),
+                message:      'start time hour must be 0-23'
+            }
+
+  validates :time_start_minute,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..59),
+                message:      'start time minute must be 0-59'
+            }
+
+  validates :time_start_second,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..59),
+                message:      'start time second must be 0-59'
+            }
+
+  validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
+  validates_presence_of :time_start_hour, if: '!self.time_start_minute.blank?'
+
+
+  validates :time_end_hour,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..23),
+                message:      'end time hour must be 0-23'}
+
+  validates :time_end_minute,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..59),
+                message:      'end time minute must be 0-59'}
+
+  validates :time_end_second,
+            allow_nil:    true,
+            numericality: {
+                only_integer: true,
+                in:           (0..59),
+                message:      'end time second must be 0-59'}
+
+  validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
+  validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
+
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :start_date_year,
@@ -162,12 +232,16 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
 
+  # @return [String]
+  #   like 00, 00:00, or 00:00:00
   def time_start
-    Utilities::Dates.hours_minutes_seconds(read_attribute(:time_start))
+    Utilities::Dates.format_to_hours_minutes_seconds(time_start_hour, time_start_minute, time_start_second)
   end
 
+  # @return [String]
+  #   like 00, 00:00, or 00:00:00
   def time_end
-    Utilities::Dates.hours_minutes_seconds(read_attribute(:time_end)) 
+    Utilities::Dates.format_to_hours_minutes_seconds(time_end_hour, time_end_minute, time_end_second)
   end
 
   def generate_verbatim_georeference
@@ -198,9 +272,9 @@ class CollectingEvent < ActiveRecord::Base
   # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
     GeographicItem.select('g1.* FROM geographic_items gi').
-      join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
-      join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
-      where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
+        join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
+        join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
+        where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
   end
 
   # @param [GeographicItem]
@@ -276,8 +350,8 @@ class CollectingEvent < ActiveRecord::Base
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', self.to_param).
-      order(order_str).
-      limit(limit)
+        order(order_str).
+        limit(limit)
   end
 
 
@@ -310,8 +384,8 @@ class CollectingEvent < ActiveRecord::Base
       # map the resulting GIs to their corresponding GAs
       pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
       ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-        where(geographic_area_types:             {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
+          where(geographic_area_types:             {name: types},
+                geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 
@@ -468,12 +542,12 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     geo_item = self.georeferences.first.geographic_item
     geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_item.geo_object_type.to_s}::geometry) geo_json from geographic_items where id=#{geo_item.id};")[0]['geo_json'])
     retval   = {
-      'type'       => 'Feature',
-      'geometry'   => geometry,
-      'properties' => {
-        'collecting_event' => {
-          'id' => self.id}
-      }
+        'type'       => 'Feature',
+        'geometry'   => geometry,
+        'properties' => {
+            'collecting_event' => {
+                'id' => self.id}
+        }
     }
     retval
   end

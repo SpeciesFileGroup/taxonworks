@@ -103,12 +103,12 @@
   <div class="attribute_set" data-title="Time">
     <p>
       <strong>Time start:</strong>
-      <%= Utilities::Dates.hours_minutes_seconds(@collecting_event.time_start) -%> 
+      <%= @collecting_event.time_start -%> 
     </p>
 
     <p>
       <strong>Time end:</strong>
-      <%= Utilities::Dates.hours_minutes_seconds(@collecting_event.time_end) %>
+      <%=  @collecting_event.time_end %>
     </p>
 
     <p>

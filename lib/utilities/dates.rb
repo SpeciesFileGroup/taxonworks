@@ -76,9 +76,13 @@ module Utilities::Dates
     date_string 
   end
 
-  def self.hours_minutes_seconds(time) 
-    return nil if time.blank?
-    time.strftime('%H:%M:%S')
+  # Pass integers
+  def self.format_to_hours_minutes_seconds(hour, minute, second) 
+    h, m, s = nil, nil, nil
+    h = ("%02d" % hour) if hour
+    m = ("%02d" % minute) if minute
+    s = ("%02d" % second) if second
+    [h, m, s].compact.join(":")
   end
 
 end
