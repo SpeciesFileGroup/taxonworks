@@ -91,9 +91,9 @@ class CollectingEvent < ActiveRecord::Base
   before_save :set_times_to_nil_if_form_provided_blank
 
   def set_times_to_nil_if_form_provided_blank
-    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
     self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end   = nil if matches.include?(self.time_end.to_s)
+    self.time_end = nil if matches.include?(self.time_end.to_s)
   end
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
@@ -271,10 +271,14 @@ class CollectingEvent < ActiveRecord::Base
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
-    GeographicItem.select('g1.* FROM geographic_items gi').
-        join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
-        join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
-        where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
+    event = nil
+    GeographicItem.
+      joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+      joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+      where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
+    if event.nil?
+      return
+    end
   end
 
   # @param [GeographicItem]
@@ -350,8 +354,8 @@ class CollectingEvent < ActiveRecord::Base
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', self.to_param).
-        order(order_str).
-        limit(limit)
+      order(order_str).
+      limit(limit)
   end
 
 
@@ -384,8 +388,8 @@ class CollectingEvent < ActiveRecord::Base
       # map the resulting GIs to their corresponding GAs
       pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
       ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-          where(geographic_area_types:             {name: types},
-                geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
+        where(geographic_area_types:             {name: types},
+              geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 
@@ -542,12 +546,12 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     geo_item = self.georeferences.first.geographic_item
     geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_item.geo_object_type.to_s}::geometry) geo_json from geographic_items where id=#{geo_item.id};")[0]['geo_json'])
     retval   = {
-        'type'       => 'Feature',
-        'geometry'   => geometry,
-        'properties' => {
-            'collecting_event' => {
-                'id' => self.id}
-        }
+      'type'       => 'Feature',
+      'geometry'   => geometry,
+      'properties' => {
+        'collecting_event' => {
+          'id' => self.id}
+      }
     }
     retval
   end
