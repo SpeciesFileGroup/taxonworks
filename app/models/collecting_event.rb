@@ -91,9 +91,9 @@ class CollectingEvent < ActiveRecord::Base
   before_save :set_times_to_nil_if_form_provided_blank
 
   def set_times_to_nil_if_form_provided_blank
-    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
     self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end = nil if matches.include?(self.time_end.to_s)
+    self.time_end   = nil if matches.include?(self.time_end.to_s)
   end
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
@@ -104,25 +104,25 @@ class CollectingEvent < ActiveRecord::Base
   validates :time_start_hour,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..23),
-                message:      'start time hour must be 0-23'
+              only_integer: true,
+              in:           (0..23),
+              message:      'start time hour must be 0-23'
             }
 
   validates :time_start_minute,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..59),
-                message:      'start time minute must be 0-59'
+              only_integer: true,
+              in:           (0..59),
+              message:      'start time minute must be 0-59'
             }
 
   validates :time_start_second,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..59),
-                message:      'start time second must be 0-59'
+              only_integer: true,
+              in:           (0..59),
+              message:      'start time second must be 0-59'
             }
 
   validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
@@ -132,23 +132,23 @@ class CollectingEvent < ActiveRecord::Base
   validates :time_end_hour,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..23),
-                message:      'end time hour must be 0-23'}
+              only_integer: true,
+              in:           (0..23),
+              message:      'end time hour must be 0-23'}
 
   validates :time_end_minute,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..59),
-                message:      'end time minute must be 0-59'}
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time minute must be 0-59'}
 
   validates :time_end_second,
             allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in:           (0..59),
-                message:      'end time second must be 0-59'}
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time second must be 0-59'}
 
   validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
   validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
@@ -271,7 +271,7 @@ class CollectingEvent < ActiveRecord::Base
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
-    event = nil
+    event   = nil
     results = GeographicItem.
       joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
       joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
