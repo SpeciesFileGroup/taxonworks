@@ -197,10 +197,14 @@ class CollectingEvent < ActiveRecord::Base
 
   # TODO: 'figure out what it actually means' (@mjy) 20140718
   def all_geographic_items
-    GeographicItem.select('g1.* FROM geographic_items gi').
-      join('LEFT JOIN georeferences g1 ON gi.id = g1.geographic_item_id').
-      join('LEFT JOIN georeferences g2 ON g2.id = g2.error_geographic_item_id').
-      where(['(g1.collecting_event_id = id OR g2.collecting_event_id = id) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', id, id])
+    event = nil
+    GeographicItem.
+      joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+      joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+      where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
+    if event.nil?
+      return
+    end
   end
 
   # @param [GeographicItem]
