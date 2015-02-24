@@ -30,7 +30,10 @@ class TypeMaterialsController < ApplicationController
 
     respond_to do |format|
       if @type_material.save
-        format.html { redirect_to @type_material, notice: 'Type material was successfully created.' }
+        msg =     "Type material (#{@type_material.type_type}) " +
+                  "for #{@type_material.protonym.cached} was successfully created."
+        format.html { redirect_to @type_material,
+                                  notice: msg }
         format.json { render :show, status: :created, location: @type_material }
       else
         format.html { render :new }

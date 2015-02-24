@@ -2,7 +2,7 @@ require 'rails_helper'
 include FormHelper
 
 RSpec.describe "TypeMaterials", :type => :feature do
-  Capybara.default_wait_time = 10
+  #Capybara.default_wait_time = 10
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { type_materials_path }
@@ -68,42 +68,44 @@ RSpec.describe "TypeMaterials", :type => :feature do
       end
       context 'testing the new type_materials form' do
         let!(:r) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
-        let!(:f) { factory_girl_create_for_user_and_project(:valid_protonym, @user, @project) }
-
         #  - a namespace short name 'INHSIC' is created
         let(:namesp) { FactoryGirl.create(:namespace, {creator:             @user, updater: @user,
                                                        name:                'INHSIC', short_name: 'INHSIC',
                                                        verbatim_short_name: 'INHSIC'}) }
+
         #  - a specimen is created
         let(:specimen) { FactoryGirl.create(:valid_specimen, user_project_attributes(@user, @project)) }
 
         specify 'filling out the form', js: true do
-          g = FactoryGirl.create(:taxon_name,
-                                 user_project_attributes(@user, @project).merge(parent:     f,
-                                                                                name:       'Bus',
-                                                                                rank_class: Ranks.lookup(:iczn, 'Genus')
-                                 )
-          )
-          g.save!
+          f = Protonym.new(name:    'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
+                           parent:  r,
+                           creator: @user, updater: @user, project: @project)
+          expect(f.save).to be_truthy
+          g = Protonym.new(name:    'Bus', rank_class: Ranks.lookup(:iczn, 'Genus'),
+                           parent:  f,
+                           creator: @user, updater: @user, project: @project)
+          expect(g.save).to be_truthy
           #  - a species 'bus' with parent 'Bus' is created
-          sp = FactoryGirl.create(:relationship_species, parent: g, creator: @user, updater: @user, project: @project)
-          sp.save
+          sp = Protonym.new(name:    'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
+                            parent:  g,
+                            creator: @user, updater: @user, project: @project)
+          expect(sp.save).to be_truthy
 
           # ident = Identifier::Local::CatalogNumber.new(namespace:  namesp, identifier_object: specimen,
           #                                              identifier: '1234')
-          ident = FactoryGirl.create(:identifier,
-                                     user_project_attributes(@user, @project).merge(identifier_object: specimen,
-                                                                                    identifier:        '1234',
-                                                                                    namespace_id:      namesp.id,
-                                                                                    type:              'Identifier::Local::CatalogNumber'))
+          ident = Identifier::Local::CatalogNumber.new(identifier_object: specimen,
+                                                       identifier:        '1234',
+                                                       namespace_id:      namesp.id,
+                                                       creator:           @user, updater: @user, project: @project)
           #  - an identifier with Namespace 'INHSIC' and identifier '1234' attached to specimen is created
           expect(ident.save).to be_truthy
+          expect(ident.cached).to eq('INHSIC 1234')
 
           visit type_materials_path
 
           click_link('New') # when I click the new link
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Bus vitis') # I fill out the name field with "bus"
+          fill_autocomplete('protonym_id_for_type_material', with: 'Bus bus') # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
           fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234')
@@ -113,7 +115,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
           select('paratype', from: 'type_material_type_type') # select 'paratype' from the dropdown
           click_button 'Create Type material' # click the 'Create type material' button
           # then I get the message "Type material (paratype) for Aus bus was successfully created"
-          expect(page).to have_content('Type material (paratype) for Aus bus was successfully created')
+          expect(page).to have_content('Type material (paratype) for Bus bus was successfully created.')
         end
       end
     end
