@@ -157,9 +157,6 @@ describe CollectionObject, :type => :model do
   end
 
   context 'attributes' do
-    xspecify "disposition / current_location (concept of time)"   
-   
-    # sample ontology? 
     xspecify "destroyed? (gone, for real, never ever EVER coming back)"
     xspecify "condition (damaged/level)"
 

@@ -1,4 +1,4 @@
-# A container localizes the proximity of a number of physical things, at this point in TW this is restricted to a number of collection objects.
+# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
 class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
@@ -10,41 +10,29 @@ class Container < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  has_many :container_items, inverse_of: :container # , validate: false 
+  has_many :container_items, inverse_of: :container 
   has_many :collection_objects, through: :container_items, source: :contained_object,  source_type: 'CollectionObject', validate: false 
   has_many :collection_profiles
 
-  soft_validate(:sv_parent_type, set: :parent_type)
+  validates :type, presence: true
+  validate :enclosing_container_is_valid
 
-  before_validation :check_type
-
-  # Return a String with the "common" name for this class.
+  # @return [String]
+  #   the "common name" of this class
   def self.class_name
     self.name.demodulize.underscore.humanize.downcase
   end
 
-  def type_name
-    r = self.type.to_s
-    CONTAINER_TYPE_NAMES.include?(r) ? r : nil
-  end
-
-  def type_class=(value)
-    write_attribute(:type, value.to_s)
-  end
-
-  def type_class
-    r = read_attribute(:type).to_s
-    r = CONTAINER_TYPE_NAMES.include?(r) ? r.safe_constantize : nil
-    r
-  end
-
+  # @return [Array of Strings]
+  #   valid containers class names that this container can fit in, by default none
   def self.valid_parents
-    CONTAINER_TYPE_NAMES
+    [ ]
   end
 
-  # TODO: 
-  def self.containerize(objects)
-    c = Container.new
+  # @return [Container]
+  #   places all objects in a new, unsaved container and returns that container, unsaved!
+  def self.containerize(objects, klass = Container::Virtual )
+    c = klass.new 
     objects.each do |o|
       c.container_items.build(contained_object: o)
     end
@@ -53,27 +41,14 @@ class Container < ActiveRecord::Base
 
   protected
 
-  #region Validation
-
-  def check_type
-    unless CONTAINER_TYPE_NAMES.include?(self.type.to_s)
-      errors.add(:type, 'Not a legal type of container')
-    end
-  end
-
-  #endregion
-
-  #region SoftValidation
-
-  def sv_parent_type
-    unless self.parent_id.nil?
-      unless self.type_class.valid_parents.include?(self.parent.type.to_s)
-        soft_validations.add(:type, "This container has inappropriate parent container: '#{self.parent.type_class.class_name}'")
+  def enclosing_container_is_valid
+    if self.parent 
+      if !self.class.valid_parents.include?(self.parent.type)
+        errors.add(:type, "#{self.class.name} can not be nested in the parent container type #{self.parent.class.name}" )
       end
     end
   end
 
-  #endregion
 
 end
 

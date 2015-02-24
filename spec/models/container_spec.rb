@@ -1,8 +1,23 @@
 require 'rails_helper'
 
 describe Container, :type => :model do
+  let(:container) { Container.new }
 
-  let(:container) { FactoryGirl.build(:container) }
+  context 'validation' do
+    specify 'type is required' do
+      expect(container.valid?).to be_falsey
+    end
+
+    specify 'type can not be an invalid type' do
+      container.type = 'aaa'
+      expect {container.save}.to raise_error
+    end
+
+    specify 'type can be a valid type' do
+      container.type = 'Container::Drawer'
+      expect(container.valid?).to be_truthy
+    end
+  end
 
   context 'associations' do
     context 'has_many' do
@@ -11,57 +26,57 @@ describe Container, :type => :model do
       end
 
       specify 'collection_objects' do
-        expect(container).to respond_to(:collection_objects)
+        expect(container.collection_objects << CollectionObject.new).to be_truthy
       end
 
       specify 'collection_profiles' do
-        expect(container).to respond_to(:collection_profiles)
-      end
-
-      specify 'type' do
-        expect(container).to respond_to(:type)
+        expect(container.collection_profiles << CollectionProfile.new).to be_truthy
       end
     end
   end
 
+  context '.containerize()' do
+    let(:objects) {  [Specimen.create, Specimen.create] }
+    let(:c) {  Container.containerize(objects) } 
+
+    specify 'defaults to Container::Virtual'  do
+      expect(c.class).to eq(Container::Virtual) 
+    end
+
+    specify 'builds container items' do
+      # size - in memory
+      expect(c.container_items.size).to eq(2) 
+    end
+
+    specify 'is not saved by default' do
+      expect(c.new_record?).to be_truthy
+    end
+
+    specify 'can be saved' do
+      expect(c.save).to be_truthy
+    end
+
+    specify 'when saved saves container objects' do
+      c.save
+      expect(c.container_items.count).to eq(2)
+    end 
+  end
+
   context 'containable items' do
-   before(:each) {
-     container.type_class = Container::Virtual
-   }
+    before(:each) {
+      container.type = 'Container::Virtual'
+    }
 
-   specify 'add items to an unsaved container' do
-     container.collection_objects << (FactoryGirl.create(:valid_specimen))
-     expect(container.save).to be_truthy
-     expect(container.container_items.count).to eq(1)
-   end
-
+    specify 'add items to an unsaved container' do
+      container.collection_objects << (FactoryGirl.create(:valid_specimen))
+      expect(container.save).to be_truthy
+      expect(container.container_items.count).to eq(1)
+    end
   end
 
   context 'from awesome_nested_set' do
     specify 'root' do
       expect(container).to respond_to(:root)
-    end
-  end
-
-  context 'validation' do
-    specify 'type' do
-      container.type = 'aaa'
-      expect(container.valid?).to be_falsey
-      container.type = 'Container::Drawer'
-      expect(container.valid?).to be_truthy
-    end
-  end
-
-  context 'soft validation' do
-    specify 'inapropriate parent container' do
-      container.type = 'Container::Drawer'
-      expect(container.save).to be_truthy
-      container1 = FactoryGirl.build_stubbed(:container, type: 'Container::Cabinet', parent: container)
-      container2 = FactoryGirl.build_stubbed(:container, type: 'Container::Pin', parent: container)
-      container1.soft_validate(:parent_type)
-      container2.soft_validate(:parent_type)
-      expect(container1.soft_validations.messages_on(:type).count).to eq(1)
-      expect(container2.soft_validations.messages_on(:type).empty?).to be_truthy
     end
   end
 
