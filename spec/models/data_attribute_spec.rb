@@ -24,9 +24,6 @@ describe DataAttribute, :type => :model do
       specify 'type' do
         expect(attribute.errors.include?(:type)).to be_truthy
       end
-
-      pending 'InternalAttributes must have a controlled vocabulary ID'
-      pending 'ImportAttributes must have an import predicate'
     end
 
     #    specify
