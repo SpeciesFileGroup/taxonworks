@@ -20,23 +20,29 @@
 # In addition, identifiers of a certain type (subclass) must be unique across namespaces within a project.
 #
 #
-class Identifier::Local < Identifier 
+class Identifier::Local < Identifier
   belongs_to :namespace
 
-  validates  :namespace, presence: true
+  validates :namespace, presence: true
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type]
-  validates_uniqueness_of :namespace, scope: [:identifier_object_type, :identifier_object_id, :type] 
+  validates_uniqueness_of :namespace, scope: [:identifier_object_type, :identifier_object_id, :type]
 
   # Exact match on identifier + namespace
+  # @param [String, String]
+  # @return [Scope]
   def with_namespaced_identifier(namespace_name, identifier)
-    includes(:identifiers).where(identifiers: {namespace: {name: namespace_name}}, identifier: identifier).references(:identifiers)
+    ret_val = includes(:identifiers).where(identifiers: {namespace: {name: namespace_name}}, identifier: identifier).references(:identifiers)
+    if ret_val.count == 0
+      ret_val = includes(:identifiers).where(identifiers: {namespace: {short_name: namespace_name}}, identifier: identifier).references(:identifiers)
+    end
+    ret_val
   end
 
   protected
 
   def set_cached_value
     if errors.empty?
-      self.cached = namespace.name + " " + identifier.to_s
+      self.cached = namespace.short_name + " " + identifier.to_s
     end
   end
 

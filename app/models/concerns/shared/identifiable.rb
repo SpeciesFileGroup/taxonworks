@@ -13,13 +13,15 @@ module Shared::Identifiable
     end
 
     # Exact match on identifier + namespace, return an Array, not Arel
+    # @param [String, String]  namespace_name is either the long or short namespace name.
+    # @return [Scope]
     def with_namespaced_identifier(namespace_name, identifier)
       i = Identifier.arel_table
       n = Namespace.arel_table
       s = self.arel_table
 
       # conditions
-      c1 = n[:name].eq(namespace_name)
+      c1 = n[:name].eq(namespace_name).or(n[:short_name].eq(namespace_name))
       c2 = i[:identifier].eq(identifier)
 
       # join identifiers to namespaces

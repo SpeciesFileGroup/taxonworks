@@ -26,9 +26,9 @@ describe 'Identifiable', :type => :model do
       let(:namespace_name2) {'NCSU'}
       let(:namespace_name3) {'CNC'}
 
-      let!(:n1) {FactoryGirl.create(:valid_namespace, name: namespace_name1) }
+      let!(:n1) {FactoryGirl.create(:valid_namespace, short_name: namespace_name1) }
       let!(:n2) {FactoryGirl.create(:valid_namespace, name: namespace_name2) }
-      let!(:n3) {FactoryGirl.create(:valid_namespace, name: namespace_name3) }
+      let!(:n3) {FactoryGirl.create(:valid_namespace, short_name: namespace_name3) }
 
       let!(:identifier1) { FactoryGirl.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
       let!(:identifier2) { FactoryGirl.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
