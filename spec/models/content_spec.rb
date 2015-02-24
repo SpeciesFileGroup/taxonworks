@@ -1,13 +1,12 @@
 require 'rails_helper'
 
 describe Content, :type => :model do
-
-  let(:content) {FactoryGirl.build(:content) }
+  let(:content) { Content.new() }
+  let(:topic) { FactoryGirl.create(:valid_topic)  }
+  let(:not_topic) { FactoryGirl.create(:valid_keyword) } 
 
   context 'validation' do
-    before(:each) {
-      content.valid?
-    }
+    before { content.valid?}
 
     context 'requires' do
      specify 'topic' do
@@ -18,8 +17,10 @@ describe Content, :type => :model do
       end
     end
 
-    context 'topic_id is of class Topic only' do
-      skip 
+    context 'topic' do
+      specify 'must only be a topic' do
+        expect {content.topic = not_topic}.to raise_error
+      end 
     end
   end
 

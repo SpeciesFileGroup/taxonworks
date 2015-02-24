@@ -26,6 +26,8 @@ class Content < ActiveRecord::Base
   validates_presence_of :text
   validates :topic, presence: true
 
+  # @return [Boolean]
+  #    true if this content has been published
   def published?
     self.public_content
   end
@@ -47,7 +49,7 @@ class Content < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('text LIKE ?', "#{params[:term]}%")
+    where('text ILIKE ? OR text ILIKE ?', "#{params[:term]}%", "%#{params[:term]}%")
   end
 
 end
