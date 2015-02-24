@@ -48,14 +48,14 @@ describe Georeference::GeoLocate, :type => :model do
 
     specify 'with invalid parameters returns a Georeference::GeoLocate instance with errors on :base' do
       VCR.use_cassette('geo-locate-with-build-using-empty-country-param') do
-        @a =  Georeference::GeoLocate.build(country: '')
+        @a = Georeference::GeoLocate.build(country: '')
         expect(@a.errors.include?(:api_request)).to be_truthy
       end
     end
 
     specify '#with doPoly false instance should have no error polygon' do
       VCR.use_cassette('geo-locate-with-build-using-false-doPoly-param') do
-        @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
+        @a = Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
         expect(@a.error_geographic_item.nil?).to be_truthy
       end
     end
@@ -63,7 +63,8 @@ describe Georeference::GeoLocate, :type => :model do
     # Note: three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
       VCR.use_cassette('geo-locate-with-build-using-false-doUncert-param') do
-        @a =  Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'true', locality: 'Urbana', doUncert: 'false'})
+        @a = Georeference::GeoLocate.build({country:  'usa', state: 'IL', doPoly: 'true',
+                                            locality: 'Urbana', doUncert: 'false'})
         expect(@a.error_radius).to eq(3)
       end
     end
@@ -84,7 +85,17 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify '.request_hash' do
-      expect(georeference_from_build.request_hash.to_s).to eq('{"country"=>"USA", "state"=>"IL", "county"=>"", "locality"=>"Urbana", "enableH2O"=>"false", "hwyX"=>"false", "doUncert"=>"true", "doPoly"=>"true", "displacePoly"=>"false", "languageKey"=>"0", "fmt"=>"json"}')
+      expect(georeference_from_build.request_hash).to eq({"country"      => "USA",
+                                                          "state"        => "IL",
+                                                          "county"       => "",
+                                                          "locality"     => "Urbana",
+                                                          "enableH2O"    => "false",
+                                                          "hwyX"         => "false",
+                                                          "doUncert"     => "true",
+                                                          "doPoly"       => "true",
+                                                          "displacePoly" => "false",
+                                                          "languageKey"  => "0",
+                                                          "fmt"          => "json"})
     end
   end
 
@@ -108,7 +119,7 @@ describe Georeference::GeoLocate, :type => :model do
     end
 
     specify '.locate' do
-       VCR.use_cassette('geo-locate-with-locate') { expect(request.locate).to be_truthy }
+      VCR.use_cassette('geo-locate-with-locate') { expect(request.locate).to be_truthy }
     end
 
     specify '.locate populates @response' do
