@@ -182,7 +182,6 @@ TaxonWorks::Application.routes.draw do
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
   match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 
-
   scope :tasks  do
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do

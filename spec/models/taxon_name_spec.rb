@@ -326,7 +326,6 @@ describe TaxonName, :type => :model do
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
           end
 
-
           specify 'original genus subgenus' do
             expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
             @subspecies.original_genus = @genus

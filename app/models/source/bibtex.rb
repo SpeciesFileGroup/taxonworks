@@ -617,7 +617,7 @@ class Source::Bibtex < Source
   # The effective year of publication as per nomenclatural rules.
   # @return [Integer]
   def nomenclature_year
-    date.year
+    date.year if date
   end
 
   def set_cached_nomenclature_date

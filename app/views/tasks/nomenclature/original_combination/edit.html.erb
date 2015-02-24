@@ -2,19 +2,19 @@
 
 <p> Return to <%= taxon_name_link(@taxon_name.metamorphosize) -%> (does not save!). </p>
 
-<%= form_tag(update_protonym_original_combination_task_url(@taxon_name.metamorphosize), method: :put)  do -%>
+<%= form_tag(update_protonym_original_combination_task_url(@taxon_name.metamorphosize), method: :patch)  do -%>
   <% @original_combination_relations.each_with_index do |r, i| -%>
       <div class="field">
         <%= label_tag r.type_class.inverse_assignment_method.to_s.humanize -%> 
         <br>
         <%= render :partial => 'workbench/elements/forms/ajax_select',
-          :locals => {
-            :controller => '/taxon_names',
-            :object => "taxon_name[related_taxon_name_relationships_attributes[#{i}]]",
-            :method => 'subject_taxon_name_id',
-            :tag_id => "subject_taxon_name_id_for_tn_rel_#{i}",
-            :display => (r.subject_taxon_name.cached if r.subject_taxon_name),
-            :size => 60
+          locals:  {
+            controller: '/taxon_names',
+            object: "taxon_name[related_taxon_name_relationships_attributes[#{i}]]",
+            method: 'subject_taxon_name_id',
+            tag_id:  "subject_taxon_name_id_for_tn_rel_#{i}",
+            display:  (r.subject_taxon_name.cached if r.subject_taxon_name),
+            size: 60
           } %>
       </div>
 
@@ -24,7 +24,11 @@
         <%= check_box_tag "taxon_name[related_taxon_name_relationships_attributes[#{i}][_destroy]]" %>
       </div>
 
-      <%= hidden_field_tag("taxon_name[related_taxon_name_relationships_attributes[#{i}][type]]", r.type_name ) -%>
-  <% end %>
+      <%= hidden_field_tag("taxon_name[related_taxon_name_relationships_attributes[#{i}][type]]", r.type_name) -%>
+  
+      <%= hidden_field_tag("taxon_name[related_taxon_name_relationships_attributes[#{i}][subject_taxon_name_id]]", r.subject_taxon_name.to_param) -%>
+      <%= hidden_field_tag("taxon_name[related_taxon_name_relationships_attributes[#{i}][id]]", r.to_param) -%>
+
+    <% end %>
   <%= submit_tag -%>
 <% end %>
