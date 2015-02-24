@@ -1,4 +1,6 @@
 # A CollectionObject is on or more physical things that have been collected.  Ennumerating how many things (@!total) is a task of the curator.
+#
+# A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
 # 
 ## @!attribute total 
 #   @return [Integer]
@@ -45,6 +47,8 @@
 # @!attribute deaccession_reason
 #   @return [String]
 #   A free text explanation of why the object was removed from tracking. 
+#
+#
 #
 class CollectionObject < ActiveRecord::Base
   # TODO: DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
