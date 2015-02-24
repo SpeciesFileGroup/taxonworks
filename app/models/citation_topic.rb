@@ -9,6 +9,7 @@ class CitationTopic < ActiveRecord::Base
   validates_presence_of :topic_id, :citation_id
   validates_uniqueness_of :topic_id, :citation_id
 
+  # deprecated, all values are nilified
   nil_trim_attributes(:pages)
 
   protected

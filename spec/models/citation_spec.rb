@@ -18,7 +18,6 @@ describe Citation, :type => :model do
   context 'validation' do
     skip ' for all required fields (:citation_object_id, :citation_object_type, :source_id).'
     skip 'uniqueness'
-    skip 'topic_id is of class Topic only' 
   end
 
 end
