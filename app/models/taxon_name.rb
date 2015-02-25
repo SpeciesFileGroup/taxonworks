@@ -96,6 +96,7 @@ class TaxonName < ActiveRecord::Base
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
+  after_save :set_cached_names_for_dependants
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -120,7 +121,7 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
-  
+
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   has_paper_trail
 
@@ -457,6 +458,10 @@ class TaxonName < ActiveRecord::Base
       # @proceps - move this to Combination
       set_cached_original_combination
     end
+  end
+
+  def set_cached_names_for_dependants
+
   end
 
   # override in subclasses
