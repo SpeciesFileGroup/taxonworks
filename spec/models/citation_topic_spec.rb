@@ -3,9 +3,7 @@ require 'rails_helper'
 describe CitationTopic, :type => :model do
   let(:citation_topic) { CitationTopic.new }
 
-  skip "add some examples to (or delete) #{__FILE__}"
-
-  context 'Beth' do
+  context 'citation_topic' do
     context 'validation' do
       before do
         citation_topic.valid?

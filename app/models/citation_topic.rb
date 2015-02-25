@@ -1,7 +1,7 @@
 class CitationTopic < ActiveRecord::Base
 
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
   belongs_to :topic, inverse_of: :citation_topics
   belongs_to :citation, inverse_of: :citation_topics
@@ -14,4 +14,4 @@ class CitationTopic < ActiveRecord::Base
 
   protected
 
- end
+end
