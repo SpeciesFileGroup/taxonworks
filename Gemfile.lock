@@ -395,7 +395,7 @@ DEPENDENCIES
   rspec-rails (~> 3.0)
   sass-rails (~> 4.0)
   sdoc
-  selenium-webdriver (~> 2.45.0.dev2)
+  selenium-webdriver (~> 2.45.0.dev3)
   spring (~> 1.2.0)
   spring-commands-rspec (~> 1.0.2)
   timecop (~> 0.7.1)

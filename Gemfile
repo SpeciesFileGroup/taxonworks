@@ -88,7 +88,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.9.4'
-  gem 'selenium-webdriver', '~> 2.45.0.dev2'
+  gem 'selenium-webdriver', '~> 2.45.0.dev3'
 end
 
 
