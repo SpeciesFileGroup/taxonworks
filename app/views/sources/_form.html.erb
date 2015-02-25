@@ -23,7 +23,7 @@
         <div class="item item1">
           <div class="field">
             <%= f.label :bibtex_type %><br>
-            <%= f.select :bibtex_type, options_for_select(Source::Bibtex::VALID_BIBTEX_TYPES), include_blank: true %>
+            <%= f.select :bibtex_type, options_for_select(VALID_BIBTEX_TYPES), include_blank: true %>
           </div>
 
           <div class="field">
