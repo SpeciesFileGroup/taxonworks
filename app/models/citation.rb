@@ -2,7 +2,7 @@
 # (Assertion that the subject was referenced in a source)
 class Citation < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::Annotates
 
   belongs_to :citation_object, polymorphic: :true
@@ -15,16 +15,16 @@ class Citation < ActiveRecord::Base
 
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)
-    term = params['term']
-    ending = term + '%'
-    wrapped = '%' + term + '%'  
+    term    = params['term']
+    ending  = term + '%'
+    wrapped = '%' + term + '%'
     joins(:source).where('sources.cached ILIKE ? OR sources.cached ILIKE ? OR citation_object_type LIKE ?', ending, wrapped, ending)
   end
 
   # @return [NoteObject]
   #   alias to simplify reference across classes 
   def annotated_object
-    citation_object 
+    citation_object
   end
 
 end

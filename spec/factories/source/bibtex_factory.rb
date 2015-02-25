@@ -1,4 +1,5 @@
 FactoryGirl.define do
+
   factory :source_bibtex, class: Source::Bibtex, traits: [:creator_and_updater] do
     factory :valid_source_bibtex do
       bibtex_type 'article'
@@ -49,5 +50,5 @@ FactoryGirl.define do
       year 1940
     end
 
-   end
+  end
 end

@@ -5,6 +5,7 @@ describe Citation, :type => :model do
 
   context 'associations' do
     context 'belongs_to' do
+
       specify 'citation_object' do
         expect(citation).to respond_to(:citation_object)
       end
@@ -35,7 +36,22 @@ describe Citation, :type => :model do
       expect(messages[:citation_object_type][0]).to eq('can\'t be blank')
       expect(messages[:source_id][0]).to eq('can\'t be blank')
     end
-
   end
 
+  context 'with a Topic created' do
+    let(:t) { FactoryGirl.create(:valid_citation_topic) }
+    let(:o) { FactoryGirl.create(:valid_otu) }
+    let(:s) { FactoryGirl.create(:valid_source_bibtex) }
+    let(:c1) { FactoryGirl.create(:valid_citation, {citation_object: o,
+                                                    source:          s,
+                                                    citation_topics: [t]}) }
+
+    context 'nested attribute passed during create' do
+      specify 'on save' do
+        expect(c1.save).to be_truthy
+        expect(c1.citation_topics.size).to eq(1)
+      end
+    end
+
+  end
 end
