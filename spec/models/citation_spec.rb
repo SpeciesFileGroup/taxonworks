@@ -18,14 +18,13 @@ describe Citation, :type => :model do
   context 'validation' do
     let(:o) { FactoryGirl.create(:valid_otu) }
     let(:s) { FactoryGirl.create(:valid_source) }
-    # let(:c1) { FactoryGirl.create(:valid_citation, {otu: o, source: s}) }
-    # let(:c2) { FactoryGirl.build(:valid_citation, otu: o, source: s) }
+    let(:c1) { FactoryGirl.create(:valid_citation, {citation_object: o, source: s}) }
+    let(:c2) { FactoryGirl.build(:valid_citation, citation_object: o, source: s) }
 
-    pending 'further development'
     specify 'uniqueness' do
-      # expect(c1.valid?).to be_truthy
-      # expect(c2.valid?).to be_falsey
-      # expect(c2.errors).to include('duplicate')
+      expect(c1.valid?).to be_truthy
+      expect(c2.valid?).to be_falsey
+      expect(c2.errors.messages[:source_id][0]).to eq('has already been taken')
     end
     pending ' for all required fields (:citation_object_id, :citation_object_type, :source_id).'
   end

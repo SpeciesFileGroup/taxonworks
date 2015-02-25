@@ -13,6 +13,7 @@ class Citation < ActiveRecord::Base
   validates_presence_of :citation_object_id, :citation_object_type, :source_id
   validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id]
 
+  # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)
     term = params['term']
     ending = term + '%'
