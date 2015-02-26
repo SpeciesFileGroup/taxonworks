@@ -16,6 +16,7 @@ describe Identifier::Global::Doi, :type => :model do
         id.identifier = Faker::Lorem.word
         expect(id.valid?).to be_falsey
       end
+
       specify '10.12345/TaxonWorks-' do
         id.identifier = '10.12345/TaxonWorks-' + Faker::Number.number(45)
         expect(id.valid?).to be_truthy

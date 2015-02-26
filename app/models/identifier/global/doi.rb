@@ -1,4 +1,5 @@
 class Identifier::Global::Doi < Identifier::Global
+  # Digital Object Identifier
 =begin
   per  http://www.doi.org/doi_handbook/2_Numbering.html
 Section 2.2  on 1/31/2014
