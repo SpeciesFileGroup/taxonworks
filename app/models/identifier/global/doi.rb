@@ -1,6 +1,7 @@
 class Identifier::Global::Doi < Identifier::Global
 =begin
-  per  http://www.doi.org/doi_handbook/2_Numbering.html section 2.2  on 1/31/2014
+  per  http://www.doi.org/doi_handbook/2_Numbering.html
+Section 2.2  on 1/31/2014
   The DOI syntax shall be made up of a DOI prefix and a DOI suffix separated by a forward slash.
   There is no defined limit on the length of the DOI name, or of the DOI prefix or DOI suffix.
   The DOI name is case-insensitive and can incorporate any printable characters from the legal graphic characters
@@ -14,6 +15,20 @@ class Identifier::Global::Doi < Identifier::Global
     code allocated to a specific registrant does not provide evidence of the ownership of rights or current management
     responsibility of any intellectual property in the referent. Such information may be asserted in the associated
     metadata.
+Section 2.2.2
+  General
+    The DOI prefix shall be composed of a directory indicator followed by a registrant code. These two components
+      shall be separated by a full stop (period).
+
+  Directory indicator
+
+    The directory indicator shall be "10". The directory indicator distinguishes the entire set of character strings
+      (prefix and suffix) as digital object identifiers within the resolution system.
+
+  Registrant code
+
+    The second element of the DOI prefix shall be the registrant code. The registrant code is a unique string assigned
+       to a registrant.
 =end
-  validates :identifier, :format => {:with => /\A.*\/.*\z/, :message => 'Invalid DOI.'}
+  validates :identifier, :format => {:with => /(^10)\.([\d\.]*)\/.*\z/, :message => 'Invalid DOI.'}
 end
