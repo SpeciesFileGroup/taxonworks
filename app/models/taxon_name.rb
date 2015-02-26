@@ -1027,45 +1027,45 @@ class TaxonName < ActiveRecord::Base
   # @mjy: cached values should be updated when related taxa change (new genus, or a new original genus). That what is done in this test
 
   def sv_cached_names
-       # if updated, update also set_cached_names
-       is_cached = true
-       is_cached = false if self.cached_author_year != get_author_and_year
+    # if updated, update also set_cached_names
+    is_cached = true
+    is_cached = false if self.cached_author_year != get_author_and_year
 
-       if self.class == Protonym && cached # don't run the tests if it's already false
-         if self.cached_html != get_full_name ||
-           self.cached_misspelling != get_cached_misspelling ||
-           self.cached_original_combination != get_original_combination ||
-           self.cached_higher_classification != get_higher_classification ||
-           self.cached_primary_homonym != get_genus_species(:original, :self) ||
-           self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-           self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
-           is_cached = false
-         end
-       end
+    if self.class == Protonym && cached # don't run the tests if it's already false
+      if self.cached_html != get_full_name ||
+          self.cached_misspelling != get_cached_misspelling ||
+          self.cached_original_combination != get_original_combination ||
+          self.cached_higher_classification != get_higher_classification ||
+          self.cached_primary_homonym != get_genus_species(:original, :self) ||
+          self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+          self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+        is_cached = false
+      end
+    end
 
-     # Combination caching is handled in Combination
-     # if self.class == Combination && cached
-     #   if self.cached_html != get_combination || self.cached_original_combination != get_combination
-     #     is_cached = false
-     #   end
-     # end
+    # Combination caching is handled in Combination
+    # if self.class == Combination && cached
+    #   if self.cached_html != get_combination || self.cached_original_combination != get_combination
+    #     is_cached = false
+    #   end
+    # end
 
-       soft_validations.add(
-         :base, 'Cached values should be updated',
-         fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
-       ) if !is_cached
-     end
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+    ) if !is_cached
+  end
 
-   def sv_fix_cached_names
-     begin
-       TaxonName.transaction do
-         self.save
-         return true
-       end
-     rescue
-     end
-     false
-   end
+  def sv_fix_cached_names
+    begin
+      TaxonName.transaction do
+        self.save
+        return true
+      end
+    rescue
+    end
+    false
+  end
 
   def sv_validate_parent_rank
     true # see validation in Protonym.rb

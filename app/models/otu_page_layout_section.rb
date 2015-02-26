@@ -1,4 +1,6 @@
 class OtuPageLayoutSection < ActiveRecord::Base
+  acts_as_list scope: :otu_page_layout
+
   include Housekeeping 
   include Shared::IsData 
 

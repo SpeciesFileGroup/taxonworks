@@ -33,8 +33,8 @@ describe Tag, :type => :model do
     end
 
     specify 'a tagged object is only tagged once per keyword' do
-      b = FactoryGirl.build(:valid_source_bibtex)
-      k = FactoryGirl.build(:valid_keyword)
+      b = FactoryGirl.build(:valid_otu)
+      k = FactoryGirl.create(:valid_keyword)
       tag.tag_object = b
       tag.keyword = k
       tag.valid?

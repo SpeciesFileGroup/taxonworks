@@ -592,7 +592,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
                              fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      end
+    end
   end
 
   def sv_fix_coordinated_taxa

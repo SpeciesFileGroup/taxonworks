@@ -3,6 +3,7 @@ FactoryGirl.define do
     factory :valid_serial_chronology do
       association :preceding_serial, factory: :valid_serial, name: "First"
       association :succeeding_serial, factory: :valid_serial, name: "Second"
+      type 'SerialChronology::SerialSequence'
     end
   end
 end

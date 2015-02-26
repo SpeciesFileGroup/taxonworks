@@ -20,11 +20,13 @@ class Content < ActiveRecord::Base
 
   has_paper_trail 
 
+  belongs_to :otu, inverse_of: :otu_contents
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
 
   validates_presence_of :text
   validates :topic, presence: true
+  validates :otu, presence: true
 
   # @return [Boolean]
   #    true if this content has been published
@@ -37,6 +39,7 @@ class Content < ActiveRecord::Base
     to_publish = {
       topic: self.topic,
       text:  self.text,
+      otu: self.otu
     }
 
     self.public_content.delete if self.public_content

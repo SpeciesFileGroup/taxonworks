@@ -30,6 +30,7 @@ class Otu < ActiveRecord::Base
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :collection_profiles # @proceps dependent: what?
   has_many :topics, through: :otu_contents, source: :topic
+  
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }

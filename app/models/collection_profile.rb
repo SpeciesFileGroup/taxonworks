@@ -1,7 +1,8 @@
+# 
+#
 # @!attribute collection_type 
 #   @return String
 #  "wet", "dry", or "slide"
-
 class CollectionProfile < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

@@ -85,8 +85,8 @@ class CollectingEvent < ActiveRecord::Base
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
-                    :check_elevation_range,
-                    :build_cached
+                    :check_elevation_range
+  before_save :set_cached
 
   before_save :set_times_to_nil_if_form_provided_blank
 
@@ -617,14 +617,13 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
 
   protected
 
-  # TODO: Draper Candidate
-  # A *stub*
-  def build_cached
+  def set_cached
     if verbatim_label.blank?
       cached = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, verbatim_collectors, "\n"].compact.join
     else
       cached = verbatim_label
     end
+    cached ||= "[#{self.id.to_param}]"
   end
 
   def check_verbatim_geolocation_uncertainty

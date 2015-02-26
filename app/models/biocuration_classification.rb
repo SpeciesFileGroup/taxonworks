@@ -1,4 +1,6 @@
 class BiocurationClassification < ActiveRecord::Base
+  acts_as_list scope: [:biological_collection_object]
+
   include Housekeeping
   include Shared::IsData 
   
