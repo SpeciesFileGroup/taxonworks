@@ -34,7 +34,7 @@ VCR.configure do |c|
   c.allow_http_connections_when_no_cassette = true
 end
 
-if File.exists?('/usr/bin/chromedriver')
+if File.exist?('/usr/bin/chromedriver')
   Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(app, browser: :chrome)
   end
