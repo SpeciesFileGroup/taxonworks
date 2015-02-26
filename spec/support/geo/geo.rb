@@ -1174,7 +1174,7 @@ Two different shapes with the same name, 'East Boxia', and
   @earth          = GeographicArea.where(:name => 'Earth').first
 
   # mimic TDWG North America
-  @area_land_mass = FactoryGirl.build(:level0_geographic_area,
+  @area_land_mass = FactoryGirl.create(:level0_geographic_area,
                                       :name                 => 'Great Northern Land Mass',
                                       :geographic_area_type => gat_land_mass,
                                       :iso_3166_a3          => nil,
@@ -1183,7 +1183,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
-  @area_old_boxia = FactoryGirl.build(:level0_geographic_area,
+  @area_old_boxia = FactoryGirl.create(:level0_geographic_area,
                                       :name                 => 'Old Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
@@ -1191,7 +1191,7 @@ Two different shapes with the same name, 'East Boxia', and
                                       :parent               => @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
-  @area_big_boxia = FactoryGirl.build(:level0_geographic_area,
+  @area_big_boxia = FactoryGirl.create(:level0_geographic_area,
                                       :name                 => 'Big Boxia',
                                       :geographic_area_type => gat_country,
                                       :iso_3166_a3          => nil,
@@ -1199,7 +1199,7 @@ Two different shapes with the same name, 'East Boxia', and
                                       :parent               => @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
-  @area_q = FactoryGirl.build(:level0_geographic_area,
+  @area_q = FactoryGirl.create(:level0_geographic_area,
                               :name                 => 'Q',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'QQQ',
@@ -1207,7 +1207,7 @@ Two different shapes with the same name, 'East Boxia', and
                               :parent               => @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
-  @area_east_boxia_1 = FactoryGirl.build(:level0_geographic_area,
+  @area_east_boxia_1 = FactoryGirl.create(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB1',
@@ -1215,7 +1215,7 @@ Two different shapes with the same name, 'East Boxia', and
                                          :parent               => @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
-  @area_east_boxia_2 = FactoryGirl.build(:level0_geographic_area,
+  @area_east_boxia_2 = FactoryGirl.create(:level0_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'EB2',
@@ -1223,7 +1223,7 @@ Two different shapes with the same name, 'East Boxia', and
                                          :parent               => @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
-  @area_east_boxia_3 = FactoryGirl.build(:level1_geographic_area,
+  @area_east_boxia_3 = FactoryGirl.create(:level1_geographic_area,
                                          :name                 => 'East Boxia',
                                          :geographic_area_type => gat_state,
                                          :iso_3166_a3          => 'EB3',
@@ -1231,7 +1231,7 @@ Two different shapes with the same name, 'East Boxia', and
                                          :parent               => @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
   @area_east_boxia_3.save
-  @area_west_boxia_1 = FactoryGirl.build(:level0_geographic_area,
+  @area_west_boxia_1 = FactoryGirl.create(:level0_geographic_area,
                                          :name                 => 'West Boxia',
                                          :geographic_area_type => gat_country,
                                          :iso_3166_a3          => 'WB1',
@@ -1239,7 +1239,7 @@ Two different shapes with the same name, 'East Boxia', and
                                          :parent               => @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
-  @area_west_boxia_3 = FactoryGirl.build(:level1_geographic_area,
+  @area_west_boxia_3 = FactoryGirl.create(:level1_geographic_area,
                                          :name                 => 'West Boxia',
                                          :geographic_area_type => gat_state,
                                          :iso_3166_a3          => 'WB3',
@@ -1247,7 +1247,7 @@ Two different shapes with the same name, 'East Boxia', and
                                          :parent               => @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
   @area_west_boxia_3.save
-  @area_r = FactoryGirl.build(:level0_geographic_area,
+  @area_r = FactoryGirl.create(:level0_geographic_area,
                               :name                 => 'R',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'RRR',
@@ -1255,7 +1255,7 @@ Two different shapes with the same name, 'East Boxia', and
                               :parent               => @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
-  @area_s = FactoryGirl.build(:level0_geographic_area,
+  @area_s = FactoryGirl.create(:level0_geographic_area,
                               :name                 => 'S',
                               :geographic_area_type => gat_country,
                               :iso_3166_a3          => 'SSS',
@@ -1265,21 +1265,21 @@ Two different shapes with the same name, 'East Boxia', and
   @area_s.save
 
   # next, level 1 areas
-  @area_t_1 = FactoryGirl.build(:level1_geographic_area,
+  @area_t_1 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'QT',
                                 :tdwgID               => '10TTT',
                                 :geographic_area_type => gat_state,
                                 :parent               => @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save
-  @area_t_2 = FactoryGirl.build(:level1_geographic_area,
+  @area_t_2 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'QT',
                                 :tdwgID               => '20TTT',
                                 :geographic_area_type => gat_state,
                                 :parent               => @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save
-  @area_u = FactoryGirl.build(:level1_geographic_area,
+  @area_u = FactoryGirl.create(:level1_geographic_area,
                               :name                 => 'QU',
                               :tdwgID               => nil,
                               :geographic_area_type => gat_state,
@@ -1287,56 +1287,56 @@ Two different shapes with the same name, 'East Boxia', and
   @area_u.geographic_items << @item_u
   @area_u.save
 
-  @area_qtm1 = FactoryGirl.build(:level2_geographic_area,
+  @area_qtm1 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QTM1',
                                  :geographic_area_type => gat_county,
                                  :parent               => @area_t_1)
   @area_qtm1.geographic_items << @item_m1
   @area_qtm1.save
 
-  @area_qtm2 = FactoryGirl.build(:level2_geographic_area,
+  @area_qtm2 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QTM2',
                                  :geographic_area_type => gat_county,
                                  :parent               => @area_t_1)
   @area_qtm2.geographic_items << @item_m1
   @area_qtm2.save
 
-  @area_qtn1 = FactoryGirl.build(:level2_geographic_area,
+  @area_qtn1 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QTN1',
                                  :geographic_area_type => gat_county,
                                  :parent               => @area_t_1)
   @area_qtn1.geographic_items << @item_n1
   @area_qtn1.save
 
-  @area_qtn2_1 = FactoryGirl.build(:level2_geographic_area,
+  @area_qtn2_1 = FactoryGirl.create(:level2_geographic_area,
                                    :name                 => 'QTN2',
                                    :geographic_area_type => gat_county,
                                    :parent               => @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save
 
-  @area_qtn2_2 = FactoryGirl.build(:level2_geographic_area,
+  @area_qtn2_2 = FactoryGirl.create(:level2_geographic_area,
                                    :name                 => 'QTN2',
                                    :geographic_area_type => gat_county,
                                    :parent               => @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 
-  @area_quo1 = FactoryGirl.build(:level2_geographic_area,
+  @area_quo1 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QUO1',
                                  :geographic_area_type => gat_parish,
                                  :parent               => @area_u)
   # @area_quo1.geographic_items << @item_o1
   # @area_quo1.save
 
-  @area_quo2 = FactoryGirl.build(:level2_geographic_area,
+  @area_quo2 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QUO2',
                                  :geographic_area_type => gat_parish,
                                  :parent               => @area_u)
   @area_quo2.geographic_items << @item_o2
   @area_quo2.save
 
-  @area_qup1 = FactoryGirl.build(:level2_geographic_area,
+  @area_qup1 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QUP1',
                                  :tdwgID               => nil,
                                  :geographic_area_type => gat_parish,
@@ -1344,7 +1344,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_qup1.geographic_items << @item_p1
   @area_qup1.save
 
-  @area_qup2 = FactoryGirl.build(:level2_geographic_area,
+  @area_qup2 = FactoryGirl.create(:level2_geographic_area,
                                  :name                 => 'QUP2',
                                  :tdwgID               => nil,
                                  :geographic_area_type => gat_parish,
@@ -1352,7 +1352,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_qup2.geographic_items << @item_p2
   @area_qup2.save
 
-  @area_rm3 = FactoryGirl.build(:level1_geographic_area,
+  @area_rm3 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'RM3',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_province,
@@ -1360,7 +1360,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_rm3.geographic_items << @item_m3
   @area_rm3.save
 
-  @area_rm4 = FactoryGirl.build(:level1_geographic_area,
+  @area_rm4 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'RM4',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_province,
@@ -1368,7 +1368,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_rm4.geographic_items << @item_m4
   @area_rm4.save
 
-  @area_rn3 = FactoryGirl.build(:level1_geographic_area,
+  @area_rn3 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'RN3',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_province,
@@ -1376,7 +1376,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_rn3.geographic_items << @item_n3
   @area_rn3.save
 
-  @area_rn4 = FactoryGirl.build(:level1_geographic_area,
+  @area_rn4 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'RN4',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_province,
@@ -1384,7 +1384,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_rn4.geographic_items << @item_n4
   @area_rn4.save
 
-  @area_so3 = FactoryGirl.build(:level1_geographic_area,
+  @area_so3 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'SO3',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_state,
@@ -1392,7 +1392,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_so3.geographic_items << @item_o3
   @area_so3.save
 
-  @area_so4 = FactoryGirl.build(:level1_geographic_area,
+  @area_so4 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'SO4',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_state,
@@ -1400,7 +1400,7 @@ Two different shapes with the same name, 'East Boxia', and
   # @area_so4.geographic_items << @item_o4
   # @area_so4.save
 
-  @area_sp3 = FactoryGirl.build(:level1_geographic_area,
+  @area_sp3 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'SP3',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_state,
@@ -1408,7 +1408,7 @@ Two different shapes with the same name, 'East Boxia', and
   @area_sp3.geographic_items << @item_p3
   @area_sp3.save
 
-  @area_sp4 = FactoryGirl.build(:level1_geographic_area,
+  @area_sp4 = FactoryGirl.create(:level1_geographic_area,
                                 :name                 => 'SP4',
                                 :tdwgID               => nil,
                                 :geographic_area_type => gat_state,
@@ -1416,28 +1416,28 @@ Two different shapes with the same name, 'East Boxia', and
   @area_sp4.geographic_items << @item_p4
   @area_sp4.save
 
-  @area_m3 = FactoryGirl.build(:level1_geographic_area,
+  @area_m3 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'M3',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_province,
                                :parent               => @area_r)
   @area_m3.geographic_items << @item_m3
   @area_m3.save
-  @area_n3 = FactoryGirl.build(:level1_geographic_area,
+  @area_n3 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'N3',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_province,
                                :parent               => @area_r)
   @area_n3.geographic_items << @item_n3
   @area_n3.save
-  @area_m4 = FactoryGirl.build(:level1_geographic_area,
+  @area_m4 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'M4',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_province,
                                :parent               => @area_r)
   @area_m4.geographic_items << @item_m4
   @area_m4.save
-  @area_n4 = FactoryGirl.build(:level1_geographic_area,
+  @area_n4 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'N4',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_province,
@@ -1445,28 +1445,28 @@ Two different shapes with the same name, 'East Boxia', and
   @area_n4.geographic_items << @item_n4
   @area_n4.save
 
-  @area_o3 = FactoryGirl.build(:level1_geographic_area,
+  @area_o3 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'O3',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_state,
                                :parent               => @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save
-  @area_p3 = FactoryGirl.build(:level1_geographic_area,
+  @area_p3 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'P3',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_state,
                                :parent               => @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save
-  @area_o4 = FactoryGirl.build(:level1_geographic_area,
+  @area_o4 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'O4',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_state,
                                :parent               => @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save
-  @area_p4 = FactoryGirl.build(:level1_geographic_area,
+  @area_p4 = FactoryGirl.create(:level1_geographic_area,
                                :name                 => 'P4',
                                :tdwgID               => nil,
                                :geographic_area_type => gat_state,
@@ -1475,28 +1475,28 @@ Two different shapes with the same name, 'East Boxia', and
   @area_p4.save
 
   # last, for level2
-  @area_m1        = FactoryGirl.build(:level2_geographic_area,
+  @area_m1        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'M1',
                                       :geographic_area_type => gat_county,
                                       :parent               => @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save
-  @area_n1        = FactoryGirl.build(:level2_geographic_area,
+  @area_n1        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'N1',
                                       :geographic_area_type => gat_county,
                                       :parent               => @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save
-  @area_m2        = FactoryGirl.build(:level2_geographic_area,
+  @area_m2        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'M2',
                                       :geographic_area_type => gat_county,
                                       :parent               => @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save
-  @area_n2        = FactoryGirl.build(:level2_geographic_area,
+  @area_n2        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'N2',
                                       :geographic_area_type => gat_county,
                                       :parent               => @area_t_1)
@@ -1504,28 +1504,28 @@ Two different shapes with the same name, 'East Boxia', and
   @area_n2.geographic_items << @item_n2
   @area_n2.save
 
-  @area_o1        = FactoryGirl.build(:level2_geographic_area,
+  @area_o1        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'O1',
                                       :geographic_area_type => gat_parish,
                                       :parent               => @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
   @area_o1.save
-  @area_p1        = FactoryGirl.build(:level2_geographic_area,
+  @area_p1        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'P1',
                                       :geographic_area_type => gat_parish,
                                       :parent               => @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
   @area_p1.save
-  @area_o2        = FactoryGirl.build(:level2_geographic_area,
+  @area_o2        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'O2',
                                       :geographic_area_type => gat_parish,
                                       :parent               => @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
   @area_o2.save
-  @area_p2        = FactoryGirl.build(:level2_geographic_area,
+  @area_p2        = FactoryGirl.create(:level2_geographic_area,
                                       :name                 => 'P2',
                                       :geographic_area_type => gat_parish,
                                       :parent               => @area_u)
