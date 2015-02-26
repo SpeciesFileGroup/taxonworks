@@ -36,7 +36,6 @@ end
 
 if File.exists?('/usr/bin/chromedriver')
   Capybara.register_driver :selenium do |app|
-    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+    Capybara::Selenium::Driver.new(app, browser: :chrome)
   end
 end
-# Capybara.javascript_driver = :webkit
