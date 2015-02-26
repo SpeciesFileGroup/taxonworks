@@ -141,96 +141,96 @@ describe Source::Bibtex, :type => :model do
         expect(@s.to_bibtex.fields).to eq(gem_bibtex_entry1.fields)
       end
 
-      specify 'a single object note gets converted properly to a bibtex note' do
-        n = 'I am a test note'
-        expect(@s.notes.size).to eq(0) # @s has no notes
-        expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
-        expect(@s.save).to be_truthy
-        expect(@s.notes.size).to eq(1)
-        b = @s.to_bibtex
+  #   specify 'a single object note gets converted properly to a bibtex note' do
+  #     n = 'I am a test note'
+  #     expect(@s.notes.size).to eq(0) # @s has no notes
+  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+  #     expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
+  #     expect(@s.save).to be_truthy
+  #     expect(@s.notes.size).to eq(1)
+  #     b = @s.to_bibtex
 
-        out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
-        expect(b[:note].to_s =~ /#{n}/).to be_truthy
-        expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
-        expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-        #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
-      end
+  #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
+  #     expect(b[:note].to_s =~ /#{n}/).to be_truthy
+  #     expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
+  #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
+  #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
+  #   end
 
-      specify 'multiple object notes get converted properly' do
-        n1 = 'test note1'
-        n2 = 'test note2'
-        expect(@s.notes.count).to eq(0) # @s has no notes
-        expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
-        expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
-        expect(@s.save).to be_truthy
-        expect(@s.notes.count).to eq(2)
-        b         = @s.to_bibtex
+  #   specify 'multiple object notes get converted properly' do
+  #     n1 = 'test note1'
+  #     n2 = 'test note2'
+  #     expect(@s.notes.count).to eq(0) # @s has no notes
+  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+  #     expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
+  #     expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
+  #     expect(@s.save).to be_truthy
+  #     expect(@s.notes.count).to eq(2)
+  #     b         = @s.to_bibtex
 
-        # not sure how ordering should be tested? For now note2 always comes out first.
-        out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
-        out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
-        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-        expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-      end
+  #     # not sure how ordering should be tested? For now note2 always comes out first.
+  #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
+  #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
+  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+  #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
+  #   end
 
-      specify 'a single attribute note gets converted properly' do
-        n = 'I am a test attribute note'
-        expect(@s.notes.count).to eq(0) # @s has no notes
-        expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
-        expect(@s.save).to be_truthy
-        expect(@s.notes.count).to eq(1)
-        date     = @s.notes.to_a[0].updated_at
-        b        = @s.to_bibtex
-        out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
-        expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-        #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
+  #   specify 'a single attribute note gets converted properly' do
+  #     n = 'I am a test attribute note'
+  #     expect(@s.notes.count).to eq(0) # @s has no notes
+  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+  #     expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
+  #     expect(@s.save).to be_truthy
+  #     expect(@s.notes.count).to eq(1)
+  #     date     = @s.notes.to_a[0].updated_at
+  #     b        = @s.to_bibtex
+  #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
+  #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
+  #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
 
-      end
+  #   end
 
-      specify 'multiple attribute notes get converted properly' do
-        n1 = 'test note1'
-        n2 = 'test note2'
-        expect(@s.notes.count).to eq(0) # @s has no notes
-        expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-        expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-        expect(@s.save).to be_truthy
-        expect(@s.notes.count).to eq(2)
-        b         = @s.to_bibtex
+  #   specify 'multiple attribute notes get converted properly' do
+  #     n1 = 'test note1'
+  #     n2 = 'test note2'
+  #     expect(@s.notes.count).to eq(0) # @s has no notes
+  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+  #     expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+  #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+  #     expect(@s.save).to be_truthy
+  #     expect(@s.notes.count).to eq(2)
+  #     b         = @s.to_bibtex
 
-        # not sure how ordering should be tested? For now note2 always comes out first.
-        out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
-        out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
-        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-        expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-      end
+  #     # not sure how ordering should be tested? For now note2 always comes out first.
+  #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
+  #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
+  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+  #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
+  #   end
 
-      specify 'mixed attribute & object notes' do
-        n1 = 'object note1'
-        n2 = 'author note2'
-        n3 = 'title note3'
-        expect(@s.notes.count).to eq(0) # @s has no notes
-        expect(@s.save).to be_truthy # object has to be saved before adding a note
-        expect(@s.notes << Note.new(text: n1)).to be_truthy
-        expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-        expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-        expect(@s.save).to be_truthy
-        expect(@s.notes.count).to eq(3)
-        b         = @s.to_bibtex
+  #   specify 'mixed attribute & object notes' do
+  #     n1 = 'object note1'
+  #     n2 = 'author note2'
+  #     n3 = 'title note3'
+  #     expect(@s.notes.count).to eq(0) # @s has no notes
+  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+  #     expect(@s.notes << Note.new(text: n1)).to be_truthy
+  #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+  #     expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+  #     expect(@s.save).to be_truthy
+  #     expect(@s.notes.count).to eq(3)
+  #     b         = @s.to_bibtex
 
-        # not sure how ordering should be tested? For now note3 always comes out first.
-        out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
-        out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
-        out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
-        expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-        expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-        expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
-      end
+  #     # not sure how ordering should be tested? For now note3 always comes out first.
+  #     out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
+  #     out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
+  #     out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
+  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+  #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
+  #   end
 
       skip 'serial gets converted properly to bibtex journal' do
 
@@ -252,15 +252,15 @@ describe Source::Bibtex, :type => :model do
       end
     end
 
-    specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
-      note                       = "This is a note.\n With multiple lines."
-      valid_gem_bibtex_book.note = note
-      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-      expect(s.notes.to_a.count).to eq(1)
-      expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
-      expect(s.save).to be_truthy
-      expect(s.notes.first.id.nil?).to be_falsey
-    end
+ #  specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
+ #    note                       = "This is a note.\n With multiple lines."
+ #    valid_gem_bibtex_book.note = note
+ #    s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+ #    expect(s.notes.to_a.count).to eq(1)
+ #    expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
+ #    expect(s.save).to be_truthy
+ #    expect(s.notes.first.id.nil?).to be_falsey
+ #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
       identifier                 = '1-84356-028-3'
