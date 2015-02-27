@@ -25,8 +25,10 @@ describe TaxonDeterminationsController, :type => :controller do
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
+  let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:specimen) { FactoryGirl.create(:valid_specimen) }
   let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_determination).attributes )
+    strip_housekeeping_attributes( {otu_id: otu.to_param, biological_collection_object_id: specimen.to_param} )
   }  
  
   # This should return the minimal set of values that should be in the session
@@ -69,7 +71,7 @@ describe TaxonDeterminationsController, :type => :controller do
     describe "with valid params" do
       it "creates a new TaxonDetermination" do
         expect {
-          post :create, {:taxon_determination => valid_attributes}, valid_session
+          post :create, {taxon_determination: valid_attributes}, valid_session
         }.to change(TaxonDetermination, :count).by(1)
       end
 

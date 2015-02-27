@@ -25,8 +25,10 @@ describe SerialChronologiesController, :type => :controller do
 
   # This should return the minimal set of attributes required to create a valid
   # SerialChronology. As you add validations to SerialChronology, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) {  FactoryGirl.build(:valid_serial_chronology).attributes }
+  # adjust the attributes here as well
+  let(:serial1) { FactoryGirl.create(:valid_serial, name: 'A') }
+  let(:serial2) { FactoryGirl.create(:valid_serial, name: 'B') }
+  let(:valid_attributes) { { type: 'SerialChronology::SerialSequence', preceding_serial_id: serial1.to_param, succeeding_serial_id: serial2.to_param } }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -34,7 +36,7 @@ describe SerialChronologiesController, :type => :controller do
   let(:valid_session) { {} }
 
   before {
-    request.env['HTTP_REFERER'] = list_otus_path # logical example
+    request.env['HTTP_REFERER'] = serial_path(serial1) 
   }
 
   describe "POST create" do
@@ -42,19 +44,19 @@ describe SerialChronologiesController, :type => :controller do
       it "creates a new SerialChronology" do
         s = FactoryGirl.create(:valid_source_bibtex)
         expect {
-          post :create, {:serial_chronology => valid_attributes.merge(source: s)}, valid_session
+          post :create, {serial_chronology: valid_attributes}, valid_session
         }.to change(SerialChronology, :count).by(1)
       end
 
       it "assigns a newly created serial_chronology as @serial_chronology" do
-        post :create, {:serial_chronology => valid_attributes}, valid_session
+        post :create, {serial_chronology: valid_attributes}, valid_session
         expect(assigns(:serial_chronology)).to be_a(SerialChronology)
         expect(assigns(:serial_chronology)).to be_persisted
       end
 
       it "redirects to :back" do
-        post :create, {:serial_chronology => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        post :create, {serial_chronology: valid_attributes}, valid_session
+        expect(response).to redirect_to(serial_path(serial1))
       end
     end
 
@@ -71,7 +73,7 @@ describe SerialChronologiesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         post :create, {:serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(serial_path(serial1))
       end
     end
   end
@@ -97,7 +99,7 @@ describe SerialChronologiesController, :type => :controller do
       it "redirects to :back" do
         serial_chronology = SerialChronology.create! valid_attributes
         put :update, {:id => serial_chronology.to_param, :serial_chronology => valid_attributes}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(serial_path(serial1))
       end
     end
 
@@ -115,7 +117,7 @@ describe SerialChronologiesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
         put :update, {:id => serial_chronology.to_param, :serial_chronology => { "preceding_serial_id" => "invalid value" }}, valid_session
-        expect(response).to redirect_to(list_otus_path)
+        expect(response).to redirect_to(serial_path(serial1)  )
       end
     end
   end
@@ -131,7 +133,7 @@ describe SerialChronologiesController, :type => :controller do
     it "redirects to :back" do
       serial_chronology = SerialChronology.create! valid_attributes
       delete :destroy, {:id => serial_chronology.to_param}, valid_session
-      expect(response).to redirect_to(list_otus_path)
+      expect(response).to redirect_to(serial_path(serial1))
     end
   end
 

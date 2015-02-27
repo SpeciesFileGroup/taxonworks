@@ -37,7 +37,9 @@ module Material
       object.total = objects[o]['total']
 
       if objects[o]['biocuration_classes'] 
-        object.biocuration_classes << BiocurationClass.find(objects[o]['biocuration_classes'].keys) 
+        objects[o]['biocuration_classes'].keys.each do |k|
+          object.biocuration_classifications.build(biocuration_class: BiocurationClass.find(k)) 
+        end
       end
 
       object.notes << note.dup if note
@@ -83,7 +85,7 @@ module Material
       @note       = Note.new(form_params['note'])
       @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
-      @namespace =  @identifier.namespace 
+      @namespace  = @identifier.namespace 
     end
 
     def quick_verbatim_locks=(value)

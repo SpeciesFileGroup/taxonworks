@@ -85,6 +85,7 @@ describe Identifier, :type => :model do
         s.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
         expect(s.save).to be_truthy
         expect(s.identifiers.count).to eq(1)
+        expect(s.identifiers.first.id).to_not be(nil)
         expect(s.identifiers.first.creator.nil?).to be_falsey
         expect(s.identifiers.first.updater.nil?).to be_falsey
         expect(s.identifiers.first.project.nil?).to be_falsey

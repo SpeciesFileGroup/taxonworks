@@ -131,7 +131,7 @@ describe CollectionObjectsController, :type => :controller do
       it "assigns the requested collection_object as @collection_object" do
         collection_object = CollectionObject.create! valid_attributes
         put :update, {:id => collection_object.to_param, :collection_object => valid_attributes}, valid_session
-        expect(assigns(:collection_object)).to eq(collection_object)
+        expect(assigns(:collection_object)).to eq(collection_object.metamorphosize)
       end
 
       it "redirects to the collection_object" do

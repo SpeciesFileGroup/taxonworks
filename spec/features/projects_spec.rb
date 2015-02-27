@@ -29,11 +29,13 @@ describe 'Project Handling', :type => :feature do
 
     context 'when user clicks logout' do
       before(:each) {
+        @previous_user = @user
+        @previous_password = @password
         click_link 'Sign out'
       }
 
       it 'should unselect the project when logged back in' do
-        sign_in_user
+        sign_in_with(@previous_user.email, @previous_password)
         visit root_path
         expect(subject).to have_no_css("mark a", text: 'My Project' )
         expect(subject).to have_css("a", text: 'My Project' )

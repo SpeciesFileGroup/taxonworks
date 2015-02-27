@@ -8,7 +8,6 @@
       <th>Otu</th>
       <th>Topic</th>
       <th>Text</th>
-      <th>Type</th>
       <th>Last modified</th>
       <th>Updated by</th>
       <th></th>
@@ -23,7 +22,6 @@
         <td><%= otu_link(content.otu) if content.respond_to?(:otu) %></td>
         <td><%= object_link(content.topic) %></td>
         <td><%= content.text %></td>
-        <td><%= content.type %></td>
         <td><%= content.updated_at %></td>
         <td><%= object_tag(content.updater) %></td>
         <td><%= link_to 'Show', content.metamorphosize %></td>

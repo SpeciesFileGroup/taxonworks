@@ -1,4 +1,6 @@
 class LoanItem < ActiveRecord::Base
+  acts_as_list scope: :loan
+
   include Housekeeping
   include Shared::IsData 
 

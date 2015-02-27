@@ -103,19 +103,19 @@ describe 'Material' do
       expect(r.collection_objects.first.repository).to eq(repository)
     end
 
-    specify 'attributes are assigned' do
+    specify 'biocuration_classifications are built' do
       @two_objects_stub['collection_objects']['object1']['total'] = 1
       @two_objects_stub['collection_objects']['object1']['biocuration_classes'] = { @attribute1.to_param => '1',
-                                                                                   @attribute2.to_param => '1',
-                                                                                   @attribute3.to_param => '1',
-                                                                                   @attribute4.to_param => '1'}
+                                                                                    @attribute2.to_param => '1',
+                                                                                    @attribute3.to_param => '1',
+                                                                                    @attribute4.to_param => '1'}
       @two_objects_stub['collection_objects']['object2']['total'] = 5
       @two_objects_stub['collection_objects']['object2']['biocuration_classes'] = {@attribute1.to_param => '1',
-                                                                                  @attribute4.to_param => '1' }
+                                                                                   @attribute4.to_param => '1' }
       r = Material.create_quick_verbatim(@two_objects_stub)
 
-      expect(r.collection_objects.first.biocuration_classes.to_a.count).to eq(4)
-      expect(r.collection_objects.last.biocuration_classes.to_a.count).to eq(2)
+      expect(r.collection_objects.first.biocuration_classifications.to_a.count).to eq(4)
+      expect(r.collection_objects.last.biocuration_classifications.to_a.count).to eq(2)
     end
 
     specify 'identifier is assigned to a single object if a single object is created' do
@@ -287,11 +287,12 @@ describe Material::QuickVerbatimResponse do
     a = FactoryGirl.build(:valid_specimen)
     i = FactoryGirl.build(:valid_identifier_local_catalog_number, identifier_object: nil)
     n = Note.new(text: "fasdfasdf")
-    b = FactoryGirl.build(:valid_biocuration_class) 
+    b = FactoryGirl.create(:valid_biocuration_class) 
 
     a.identifiers << i 
     a.notes << n
-    a.biocuration_classes << b
+    a.biocuration_classifications.build(biocuration_class: b)
+    #  a.biocuration_classes << b
 
     @response.collection_objects.push(a)
 

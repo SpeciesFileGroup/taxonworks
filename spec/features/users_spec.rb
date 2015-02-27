@@ -283,6 +283,7 @@ describe 'Users' do
           mail = ActionMailer::Base.deliveries.last
           path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
           visit path
+          # current error is 'Token not present or expired.' 
           fill_in 'Password', with: password
           fill_in 'Password confirmation', with: password
           click_button 'Change password'
