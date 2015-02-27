@@ -51,16 +51,19 @@ describe 'Sources', :type => :feature do
       expect(page).to have_content("Source by 'Wombat, H.P.' was successfully created.")
     end
     specify 'can create a new Verbatim source' do
-=begin
-        when I click the new link
-        I select the Verbatim radio button.
-                                      choose('person_type_personvetted')
-        The 'Verbatim' textbox is the only field available.
-                                                   I  enter 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' in the textbox.
-                                                                                                                                                    when I click the 'Create Source' button
-        then I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
-=end
-
+      click_link('New') #   when I click the new link
+      choose('source_type_sourceverbatim') # select the Verbatim radio button
+      # The 'Verbatim' textbox is the only field available.
+      # expect(page.has_no_text?('BibTeX type')).to be_truthy
+      # find(:css, "#source_verbatim_contents").should_not be_visible
+      # expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
+      # expect(page.has_no_field?('source_verbatim_contents', :type => 'textarea')).to be_truthy
+      # expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      # # enter 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' in the textbox.
+      fill_in('source_verbatim', with:'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)')
+      click_button('Create Source') # when I click the 'Create Source' button
+      # I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
+      expect(page).to have_content("Source 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created.")
     end
 
   end

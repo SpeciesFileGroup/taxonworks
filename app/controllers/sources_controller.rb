@@ -35,7 +35,15 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       if @source.save
-        format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+        case @source.class.to_s
+          when 'Source::Bibtex'
+            format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+          when 'Source::Verbatim'
+            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
+          else # type human
+            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
+        end
+
         format.json { render action: 'show', status: :created, location: @source }
       else
         format.html { render action: 'new' }
