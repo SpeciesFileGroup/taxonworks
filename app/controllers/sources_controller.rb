@@ -35,7 +35,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       if @source.save
-        format.html { redirect_to @source.metamorphosize, notice: 'Source was successfully created.' }
+        format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @source }
       else
         format.html { render action: 'new' }
