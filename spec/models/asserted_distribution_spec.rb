@@ -84,4 +84,10 @@ describe AssertedDistribution, :type => :model do
       expect(stubs.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
     end
   end
+
+  context 'concerns' do
+    it_behaves_like 'notable'
+  end
+
+
 end

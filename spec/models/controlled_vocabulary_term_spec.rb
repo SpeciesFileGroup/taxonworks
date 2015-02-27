@@ -83,4 +83,5 @@ describe ControlledVocabularyTerm, :type => :model do
   context 'concerns' do
     it_behaves_like 'alternate_values'
   end
+
 end

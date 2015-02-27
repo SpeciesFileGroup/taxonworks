@@ -662,12 +662,12 @@ describe CollectingEvent, :type => :model do
     expect(collecting_event.time_end).to eq('04:02:01')
   end
 
-
-
   context 'concerns' do
     it_behaves_like 'citable'
-    it_behaves_like 'notable'
+    it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
+    it_behaves_like 'taggable'
   end
 
 end

@@ -80,4 +80,10 @@ describe Container, :type => :model do
     end
   end
 
+  context 'concerns' do
+    it_behaves_like 'containable'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'taggable'
+  end
+
 end
