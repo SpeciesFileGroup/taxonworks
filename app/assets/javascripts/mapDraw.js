@@ -16,12 +16,12 @@ function initializeDrawItem(map_canvas, fgdata) {
                 google.maps.drawing.OverlayType.MARKER,
                 google.maps.drawing.OverlayType.CIRCLE,
                 google.maps.drawing.OverlayType.POLYGON,
-                google.maps.drawing.OverlayType.POLYLINE,
-                google.maps.drawing.OverlayType.RECTANGLE
+                google.maps.drawing.OverlayType.POLYLINE//,
+             //   google.maps.drawing.OverlayType.RECTANGLE
             ]
         },
         markerOptions: {
-            icon: 'images/beachflag.png'
+            icon: '/app/assets/javascripts/mapicons/mm_20_red.png'
         },
         circleOptions: {
             fillColor: '#66cc00',
@@ -37,24 +37,35 @@ function initializeDrawItem(map_canvas, fgdata) {
             editable: true,
             strokeWeight: 1,
             strokeColor: 'black'
+        },
+        polylineOptions: {
+            fillColor: '#880000',
+            fillOpacity: 0.3,
+            editable: true,
+            strokeWeight: 1,
+            strokeColor: 'black'
         }
     });
     drawingManager.setMap(map);
+    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
+            var coordinates = [];
+            coordinates = overlay.overlay.getPath().getArray();
+            var Json = coordinates.toGeoJson(function(){});
+        }
+    );
+    google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+            var coordinates = [];
+            coordinates = (polygon.overlay.getPath().getArray());
+        }
+    );
+    //google.maps.event.addListener(map.DrawingManager, 'circlecomplete', function(circle) {
+    //        var coordinates = [];
+    //        coordinates = (circle.overlay.getPath().getArray());
+    //    }
+    //);
 
 }
 
 function addDrawingListeners(map, event) {
-    map.event.addListener(map.DrawingManager, 'polygoncomplete', function(polygon) {
-
-            var coordinates = [];
-            coordinates = (polygon.getPath().getArray());
-        }
-    );
-    map.event.addListener(map.DrawingManager, 'circlecomplete', function(circle) {
-
-            var coordinates = [];
-            coordinates = (circle.getPath().getArray());
-        }
-    );
-
+return true;
 }

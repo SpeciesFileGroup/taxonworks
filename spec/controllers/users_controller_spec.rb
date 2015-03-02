@@ -253,7 +253,7 @@ describe UsersController, :type => :controller do
     end
     
     context "when token expired" do
-      let(:token) do
+      let!(:token) do
         $user_id = 1
         user = User.find_by_id($user_id)
         token = user.generate_password_reset_token
@@ -262,7 +262,7 @@ describe UsersController, :type => :controller do
       end
       
       it "renders invalid token template" do
-        Timecop.travel(Date.today + 1) do
+        Timecop.travel(1.day.from_now) do
           get :password_reset, { token: token }
           expect(response).to render_template('users/invalid_token.html.erb')
         end
