@@ -11,6 +11,8 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   soft_validate(:sv_missing_preparation_type, set: :missing_preparation_type)
   soft_validate(:sv_missing_repository, set: :missing_repository)
 
+  # @return [TaxonDetermination, nil]
+  #    the last added taxon determination
   def current_determination
     taxon_determinations.sort_by{|i| i.position}.last
   end
