@@ -85,8 +85,6 @@ describe Project, :type => :model do
       expect(project.taxon_names.count).to eq(0)
     end
 
-
-
   end
 
   context 'validation' do
@@ -140,6 +138,7 @@ describe Project, :type => :model do
       @factories_under_test  = {}
       @failed_factories      = {}
       @project_build_err_msg = ''
+
       FactoryGirl.factories.each { |factory|
         f_name = factory.name
         if f_name =~ /^valid_/
@@ -165,6 +164,7 @@ describe Project, :type => :model do
           end
         end
       }
+      
       length = @failed_factories.length
       if length > 0
         @project_build_err_msg += "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
@@ -172,19 +172,21 @@ describe Project, :type => :model do
     }
 
     after(:each) {
-      FactoryGirl.factories.each { |factory|
-        f_name = factory.name
-        if f_name =~ /^valid_/
-          this_class = factory.build_class.to_s
-          model      = this_class.constantize
-          case this_class
-            when 'User', 'Project'
-              model.where('id > 1').delete_all
-            else
-              model.delete_all
-          end
-        end
-      }
+      DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
+      ProjectsAndUsers.spin_up_projects_users_and_housekeeping
+    #   FactoryGirl.factories.each { |factory|
+    #     f_name = factory.name
+    #     if f_name =~ /^valid_/
+    #       this_class = factory.build_class.to_s
+    #       model      = this_class.constantize
+    #       case this_class
+    #         when 'User', 'Project'
+    #           model.where('id > 1').delete_all
+    #         else
+    #           model.delete_all
+    #       end
+    #     end
+    #   }
     }
 
     after(:all) {
@@ -248,7 +250,6 @@ describe Project, :type => :model do
         }
       end
     end
-
   end
 
 end
