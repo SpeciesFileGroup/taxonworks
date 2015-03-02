@@ -89,7 +89,7 @@ class UsersController < ApplicationController
   # GET /password_reset
   def password_reset
     @user = User.find_by_password_reset_token(RandomToken.digest(params[:token]))
-    render 'invalid_token.html.erb' unless @user && @user.password_reset_token_date < 1.day.ago
+    render 'invalid_token.html.erb' unless @user && @user.password_reset_token_date > 1.day.ago
   end
   
   # PATCH /set_password
