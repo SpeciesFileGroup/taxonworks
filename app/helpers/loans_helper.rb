@@ -2,7 +2,8 @@ module LoansHelper
 
   def self.loan_tag(loan)
     return nil if loan.nil?
-    loan.recipient_email
+    v = loan.recipient_email
+    v.blank? ? "[#{loan.to_param}]" : v
   end
 
   def loan_tag(loan)
