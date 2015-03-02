@@ -3,7 +3,7 @@ require 'rails_helper'
 describe LoansHelper, :type => :helper do
   context 'a loan needs some helpers' do
     let(:loan) { FactoryGirl.create(:valid_loan)  }
-    let(:tag_string) { loan.recipient_email }
+    let(:tag_string) { "[#{loan.to_param}]" }
 
     specify '#loan_tag' do
       expect(LoansHelper.loan_tag(loan)).to eq(tag_string)
