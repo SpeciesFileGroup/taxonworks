@@ -5,16 +5,18 @@
 module TaxonWorksAutoload
   #if Rails.env == 'test' || Rails.env == 'development' 
     # Order matters throughout this block (sigh)
-    %w{
-      /app/models/taxon_name
-      /app/models/protonym
+
+     %w{
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
       /app/models/taxon_name_classification/**/*.rb
       /app/models/container/**/*.rb
       /app/models/alternate_value/**/*.rb
     }.each do |path|
-      Dir[Rails.root.to_s + path].sort.each {|file| require_dependency file } # was .sort
+      # puts "-- #{path}"
+      a = Dir[Rails.root.to_s + path].sort
+      # puts a  
+      a.each {|file| require_dependency file } # was .sort
     end
 
     %w{Predicate Topic Keyword BiocurationClass BiologicalProperty BiocurationGroup}.each do |cv_class|
