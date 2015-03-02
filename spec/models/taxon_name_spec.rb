@@ -16,8 +16,10 @@ describe TaxonName, :type => :model do
     end
 
     after(:all) do
-      TaxonName.delete_all
       TaxonNameRelationship.delete_all
+      TaxonName.delete_all 
+      # TODO: find out why this exists and resolve - presently leaving sources in the models
+      Source.delete_all 
     end
 
     context 'double checking FactoryGirl' do
