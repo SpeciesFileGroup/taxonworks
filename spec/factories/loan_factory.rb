@@ -7,19 +7,15 @@ FactoryGirl.define do
     date_sent '2014-02-26'
     date_received '2014-02-26'
     date_return_expected '2014-02-26'
-    recipient_person_id 1
+    association :recipient_person, factory: :valid_person 
     recipient_address 'MyString'
     recipient_email { Faker::Internet.email }
     recipient_phone { Faker::PhoneNumber.phone_number }
     recipient_country 1
-    supervisor_person_id 1
+    association :supervisor_person, factory: :valid_person 
     supervisor_email { Faker::Internet.email }
     supervisor_phone { Faker::PhoneNumber.phone_number }
     date_closed '2014-02-26'
-    created_by_id 1
-    updated_by_id 1
-    project_id 1
-
     factory :second_loan do
 
     end
