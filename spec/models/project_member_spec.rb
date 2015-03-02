@@ -29,7 +29,10 @@ describe ProjectMember, :type => :model do
     specify 'project' do
       expect(project_member.errors.include?(:user)).to be_truthy
     end
+  end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
 
 end

@@ -26,8 +26,11 @@ describe ProjectSource do
       expect(a.save).to be_truthy
       expect(b.valid?).to be(false)
       expect(b.errors.include?(:source_id)).to be(true)
-
     end
+  end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
 
 end

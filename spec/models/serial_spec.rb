@@ -188,7 +188,8 @@ describe Serial, :type => :model do
     it_behaves_like 'notable'
     it_behaves_like 'identifiable'
     it_behaves_like 'taggable'
-    # TODO should it include IsData? SharedAcrossProjects?
+    it_behaves_like 'is_data'
+    # TODO should it include SharedAcrossProjects?
   end
 
 end

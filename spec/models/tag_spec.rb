@@ -96,5 +96,9 @@ describe Tag, :type => :model do
     #  specify 'a attribute is actually a attribute of the tag object'
   end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end
 

@@ -121,8 +121,13 @@ describe TaxonNameClassification, :type => :model do
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)
       expect(c2.soft_validations.messages_on(:type).size).to eq(1)
     end
-
   end
+
+  context 'concerns' do
+    it_behaves_like 'citable'
+    it_behaves_like 'is_data'
+  end
+
 end
  
 

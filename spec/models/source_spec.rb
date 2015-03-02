@@ -92,12 +92,13 @@ describe Source, :type => :model do
   end
 
   context 'concerns' do
-    it_behaves_like 'identifiable'
-    it_behaves_like 'notable'
-    it_behaves_like 'has_roles'
     it_behaves_like 'alternate_values'
     it_behaves_like 'data_attributes'
+    it_behaves_like 'has_roles'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
     it_behaves_like 'taggable'
+    it_behaves_like 'is_data'
   end
 
 end

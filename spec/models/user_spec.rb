@@ -126,7 +126,7 @@ describe User, :type => :model do
   end
 
   context 'new users' do
-    before { 
+    before {
       user.self_created = true
       user.save
     }
@@ -156,25 +156,25 @@ describe User, :type => :model do
       let(:token_name) { :password_reset }
     end
   end
-  
+
   describe 'API access token' do
-    
+
     it 'is nil on a newly created user' do
       expect(user.api_access_token).to be_nil
     end
-    
+
     describe '#generate_api_access_token' do
       it 'returns a secure random string generated from RandomToken.generate' do
         value = RandomToken.generate
         allow(RandomToken).to receive(:generate).and_return(value)
         expect(user.generate_api_access_token).to eq(value)
       end
-      
+
       it 'stores the token in api_access_token field' do
         token = user.generate_api_access_token
         expect(user.api_access_token).to eq(token)
-      end      
-    end    
+      end
+    end
   end
 
   context 'user activity summaries' do
@@ -184,19 +184,23 @@ describe User, :type => :model do
       @last_otu = FactoryGirl.create(:valid_otu, creator: user, updater: user)
     }
 
-  # specify '.last Otu created by me' do
-  #   expect(user.last_otu_created).to eq @last_otu
-  # end
+    # specify '.last Otu created by me' do
+    #   expect(user.last_otu_created).to eq @last_otu
+    # end
 
     specify '.total_objects(Otu)' do
       expect(user.total_objects(Otu)).to eq 5
     end
 
-    specify ".total_objects2('otus')" do  # klass_string expects plural
+    specify ".total_objects2('otus')" do # klass_string expects plural
       expect(user.total_objects2('otus')).to eq 5
     end
   end
 
+  context 'concerns' do
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'notable'
+    # it_behaves_like 'random_token_fields'
+  end
 
 end
-
