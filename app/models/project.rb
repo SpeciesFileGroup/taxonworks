@@ -24,16 +24,72 @@ class Project < ActiveRecord::Base
     self.update('workbench_settings' => DEFAULT_WORKBENCH_SETTINGS)
   end
 
-  # TODO: wrap this in an authentication layer, and protect it?
+  
 
+  # !! This is not production ready.
+  # @return [Boolean]
+  #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
   def nuke
-    begin
-      ActiveRecord::Base.descendants.each do |d|
-        # !! This needs more caution- it likely nukes users
-        if d.ancestors.map(&:to_s).include?('Housekeeping') && d.column_names.include?('project_id')
-          d.where(project_id: id).delete_all
-        end
+    known = ActiveRecord::Base.subclasses.select{|a| a.column_names.include?('project_id') }.map(&:name)
+    
+    order = %w{
+     AlternateValue
+     DataAttribute 
+     Note
+     PinboardItem
+     Tag
+     Role
+     TaggedSectionKeyword   
+     AssertedDistribution
+     BiocurationClassification
+     BiologicalRelationshipType   
+     BiologicalAssociationsBiologicalAssociationsGraph
+     BiologicalAssociation
+     BiologicalRelationship
+     BiologicalAssociationsGraph   
+     CitationTopic
+     Citation
+     ContainerLabel
+     ContainerItem  
+     Container
+     CollectionProfile   
+     PublicContent
+     Content
+     Georeference
+     Identifier
+     LoanItem  
+     Loan
+     OtuPageLayoutSection   
+     OtuPageLayout
+     ProjectSource
+     TaxonDetermination
+     CollectingEvent
+     TypeMaterial     
+     CollectionObject
+     RangedLotCategory
+     Image  
+     Otu 
+     TaxonNameClassification
+     TaxonNameRelationship
+     TaxonName 
+     ControlledVocabularyTerm
+     ProjectMember  
+    }
+
+    known.each do |k|
+      if !order.include?(k) && !k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
+        raise "#{k} has not been added to #nuke order." 
       end
+    end
+
+    begin
+      order.each do |o|
+        klass = o.constantize
+        klass.where(project_id: id).delete_all
+      end
+      
+      self.destroy
+
       true
     rescue => e
       raise e 
