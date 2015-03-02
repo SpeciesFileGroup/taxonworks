@@ -644,7 +644,7 @@ describe TaxonName, :type => :model do
         end
 
         context 'housekeeping with ancestors and descendants' do
-          specify 'updated_on is not touched for ancestors when a child moves' do
+          xspecify 'updated_on is not touched for ancestors when a child moves' do
             g1_updated = genus1.updated_at
             g1_created = genus1.created_at
             g2_updated = genus2.updated_at
