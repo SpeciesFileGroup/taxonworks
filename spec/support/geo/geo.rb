@@ -548,6 +548,7 @@ end
 
 def generate_geo_test_objects
 
+  # WHY HERE!?!
   prepare_test
 
   @p0  = FactoryGirl.build(:geographic_item_point, :point => POINT0.as_binary) # 0
@@ -1735,21 +1736,25 @@ def make_box(base, offset_x, offset_y, size_x, size_y)
   RSPEC_GEO_FACTORY.multi_polygon([box])
 end
 
+# Order matters!
 def clean_slate_geo
-  GeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
-  GeographicAreaType.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
-  GeographicArea.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
-  GeographicAreasGeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
   Georeference.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+
   CollectingEvent.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
-  # $user_id    = 1
-  # $project_id = 1
+
+  GeographicAreasGeographicItem.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+
+  GeographicItem.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+
+  GeographicArea.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
+
+  GeographicAreaType.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
 end
 
 # A temporary place to put debugging aids.  This code is permanently deprecated.

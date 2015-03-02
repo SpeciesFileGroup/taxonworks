@@ -10,8 +10,8 @@ describe Protonym, :type => :model do
   end
 
   after(:all) do
-    TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    TaxonName.delete_all
     Source.delete_all
   end
 
@@ -886,13 +886,15 @@ describe Protonym, :type => :model do
 
   context 'scopes' do
     before(:all) {
+      TaxonNameRelationship.delete_all
       TaxonName.delete_all 
       @species = FactoryGirl.create(:iczn_species)
       @s =  Protonym.where(name: 'vitis').first
       @g =  Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
-    
+
     after(:all) {
+      TaxonNameRelationship.delete_all
       TaxonName.delete_all
     }
 
@@ -942,9 +944,9 @@ describe Protonym, :type => :model do
         @s.reload
       end
 
-      after(:all) do
-        TaxonNameRelationship.delete_all
-      end
+#     after(:all) do
+#       TaxonNameRelationship.delete_all
+#     end
 
       # Has *a* relationship
       specify 'with_taxon_name_relationships_as_subject' do
