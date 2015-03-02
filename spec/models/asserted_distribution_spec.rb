@@ -68,10 +68,10 @@ describe AssertedDistribution, :type => :model do
 
     after(:all) do
       clean_slate_geo
-      User.delete_all
-      Project.delete_all
-      ActiveRecord::Base.connection.reset_pk_sequence!('users')
-      ActiveRecord::Base.connection.reset_pk_sequence!('projects')
+    # User.delete_all
+    # Project.delete_all
+    # ActiveRecord::Base.connection.reset_pk_sequence!('users')
+    # ActiveRecord::Base.connection.reset_pk_sequence!('projects')
     end
 
     specify 'creates some number of ADs' do
