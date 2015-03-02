@@ -2,9 +2,9 @@ require_relative 'config/initialization_constants'
 
 module ProjectsAndUsers
   def self.clean_slate 
+    ProjectMember.delete_all
     Project.delete_all 
     User.delete_all
-    ProjectMember.delete_all
     $user_id = nil
     $project_id = nil
   end
