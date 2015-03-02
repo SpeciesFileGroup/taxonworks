@@ -238,6 +238,7 @@ describe GeographicArea, :type => :model do
     after(:all) {
       clean_slate_geo
     }
+    
     context 'geolocate_ui_params_hash' do
 
       specify 'retrieving geolocate UI paramerters as a hash' do
@@ -356,15 +357,14 @@ describe GeographicArea, :type => :model do
     before(:all) do
       clean_slate_geo
       generate_political_areas_with_collecting_events
-      # generate_geo_test_objects
     end
 
     after(:all) do
       clean_slate_geo
-      User.delete_all
-      Project.delete_all
-      ActiveRecord::Base.connection.reset_pk_sequence!('users')
-      ActiveRecord::Base.connection.reset_pk_sequence!('projects')
+    # User.delete_all
+    # Project.delete_all
+    # ActiveRecord::Base.connection.reset_pk_sequence!('users')
+    # ActiveRecord::Base.connection.reset_pk_sequence!('projects')
     end
 
     specify('is_contained_by') do
@@ -392,7 +392,6 @@ describe GeographicArea, :type => :model do
     end
 
     specify('are_contained_in') do
-      # pending
       expect(GeographicArea.are_contained_in(@area_p2).map(&:name)).to include('East Boxia',
                                                                                        'Big Boxia',
                                                                                        'Q',
@@ -403,7 +402,6 @@ describe GeographicArea, :type => :model do
     end
 
     specify('find_by_lat_long') do
-      # pending
       point = @gr_n3_ob.geographic_item.geo_object
       expect(GeographicArea.find_by_lat_long(point.y, point.x)).to include(@area_r, @area_rn3, @area_old_boxia, @area_n3, @area_land_mass)
     end
