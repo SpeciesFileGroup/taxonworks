@@ -31,4 +31,9 @@ describe BiologicalRelationship, :type => :model do
       end
     end
   end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

@@ -19,10 +19,10 @@ describe ContainerLabel, :type => :model do
     specify 'container is required' do
       expect(container_label.errors.include?(:container)).to be_truthy 
     end
-
-
-
   end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
 
 end

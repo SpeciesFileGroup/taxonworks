@@ -52,6 +52,10 @@ describe Citation, :type => :model do
         expect(c1.citation_topics.size).to eq(1)
       end
     end
+   end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
+
 end

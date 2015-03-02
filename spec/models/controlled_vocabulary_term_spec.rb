@@ -82,6 +82,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
   context 'concerns' do
     it_behaves_like 'alternate_values'
+    it_behaves_like 'is_data'
   end
 
 end

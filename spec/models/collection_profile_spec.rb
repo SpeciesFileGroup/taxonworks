@@ -120,4 +120,9 @@ describe CollectionProfile, :type => :model do
       expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][5]).to eq(nil)
     end
   end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

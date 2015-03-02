@@ -24,5 +24,4 @@ describe BiocurationClass, :type => :model do
     it_behaves_like 'taggable'
   end
 
-
 end

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe BiologicalAssociationsGraph, :type => :model do
 
-  let(:biological_associations_graph) { FactoryGirl.build(:biological_associations_graph) } 
+  let(:biological_associations_graph) { FactoryGirl.build(:biological_associations_graph) }
 
   # There are no hard validations.  Name is optional (re virtual graphs that have to be cited).
 
@@ -26,6 +26,7 @@ describe BiologicalAssociationsGraph, :type => :model do
 
   context 'concerns' do
     it_behaves_like 'citable'
+    it_behaves_like 'is_data'
   end
 
 end

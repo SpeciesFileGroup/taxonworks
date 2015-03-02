@@ -668,6 +668,7 @@ describe CollectingEvent, :type => :model do
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'
     it_behaves_like 'taggable'
+    it_behaves_like 'is_data'
   end
 
 end
