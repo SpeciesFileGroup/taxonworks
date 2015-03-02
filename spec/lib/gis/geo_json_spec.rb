@@ -13,8 +13,12 @@ describe Gis::GeoJSON do
 
   after(:all) do
     clean_slate_geo
-    User.delete_all
+
+    # !! TODO: below must all go
+    ProjectMember.delete_all 
     Project.delete_all
+    User.delete_all
+
     ActiveRecord::Base.connection.reset_pk_sequence!('users')
     ActiveRecord::Base.connection.reset_pk_sequence!('projects')
   end
