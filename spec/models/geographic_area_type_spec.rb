@@ -27,4 +27,9 @@ describe GeographicAreaType, :type => :model do
       expect(geographic_area_type.save).to be_truthy
     end 
   end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

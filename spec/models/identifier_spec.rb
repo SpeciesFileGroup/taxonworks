@@ -147,4 +147,8 @@ describe Identifier, :type => :model do
     end
   end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

@@ -111,13 +111,11 @@ describe Image, :type => :model do
 
   skip 'return gps data as decimal degrees'
 
-  # TODO: Leave testing out here- needs to be abstracted, and will only add length here.
   context 'concerns' do
-    # it_behaves_like 'identifiable'
-    # it_behaves_like 'notable'
-    #  #it_behaves_like 'alternate_values'
-    #  #it_behaves_like 'data_attributes'
-    # it_behaves_like 'taggable'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
+    it_behaves_like 'taggable'
+    it_behaves_like 'is_data'
   end
 
 end

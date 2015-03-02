@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe PreparationType, :type => :model do
 
-  let(:preparation_type) {PreparationType.new}
+  let(:preparation_type) { PreparationType.new }
 
   context 'associations' do
     context 'has_many' do
@@ -12,7 +12,6 @@ describe PreparationType, :type => :model do
     end
   end
 
-
   context "validation" do
     before do
       preparation_type.valid?
@@ -20,6 +19,10 @@ describe PreparationType, :type => :model do
         expect(preparation_type.errors.include?(:name)).to be_truthy
       end
     end
-
   end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

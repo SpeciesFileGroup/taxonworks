@@ -53,7 +53,10 @@ describe Language, :type => :model do
     specify '#with_english_name_or_abbreviation finds exact in many fields for Array search value' do
       expect(Language.with_english_name_or_abbreviation(['eng', 'Russian']).count).to eq(2)
     end
+   end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
 
 end

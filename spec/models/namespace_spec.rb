@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Namespace, :type => :model do
-  let(:namespace) { FactoryGirl.build(:namespace)  }
+  let(:namespace) { FactoryGirl.build(:namespace) }
 
   context 'validation' do
     context 'requires' do
@@ -10,11 +10,11 @@ describe Namespace, :type => :model do
       }
       specify 'name' do
         expect(namespace.errors.include?(:name)).to be_truthy
-      end 
+      end
 
       specify 'short_name' do
         expect(namespace.errors.include?(:short_name)).to be_truthy
-      end 
+      end
     end
 
     context 'uniqueness' do
@@ -31,7 +31,10 @@ describe Namespace, :type => :model do
         expect(@n2.errors.include?(:short_name)).to be_truthy
       end
     end
+  end
 
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
 
 end

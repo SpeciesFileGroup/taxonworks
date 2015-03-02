@@ -24,6 +24,10 @@ describe OtuPageLayout, :type => :model do
     specify 'topics' do
       expect(otu_page_layout).to respond_to(:topics) 
     end
-
   end
+
+  context 'concerns' do
+    it_behaves_like 'is_data'
+  end
+
 end

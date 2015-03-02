@@ -81,32 +81,32 @@ describe Otu, :type => :model do
         csv << [nil]
         csv << ["Cus"]
       end
-     f.write str
-     f.rewind
-     f
-    }  
+      f.write str
+      f.rewind
+      f
+    }
 
     context '.batch_preview' do
       specify '.batch_preview takes a file argument' do
         expect(Otu.batch_preview(file: file)).to be_truthy
-      end 
+      end
 
       specify '.batch_preview takes hash of arguments' do
         hsh = {file: file, stuff: :things}
         expect(Otu.batch_preview(hsh)).to be_truthy
-      end 
+      end
 
       specify '.batch_preview returns an Array' do
         expect(Otu.batch_preview(file: file).class).to eq(Array)
-      end 
+      end
 
       specify '.batch_preview ignores blank lines' do
         expect(Otu.batch_preview(file: file).count).to eq(3)
-      end 
+      end
 
       specify '.batch_preview takes the first row as headers' do
         expect(Otu.batch_preview(file: file).count).to eq(3)
-      end 
+      end
 
       specify 'returns Otus' do
         expect(Otu.batch_preview(file: file).first.class).to eq(Otu)
@@ -119,9 +119,9 @@ describe Otu, :type => :model do
 
     context '.batch_create' do
       let(:params) {
-        { otus: 
-          {'1' => {'name' => 'Aus'},
-           '2' => {'name' => 'Bus'}} 
+        {otus:
+             {'1' => {'name' => 'Aus'},
+              '2' => {'name' => 'Bus'}}
         }
       }
 
@@ -140,16 +140,17 @@ describe Otu, :type => :model do
       specify 'returns multiple Otus' do
         expect(Otu.batch_create(params).count).to eq(2)
       end
- 
+
     end
 
   end
 
   context 'concerns' do
-    # it_behaves_like 'citable' # => maybe  
-    it_behaves_like 'identifiable'
+    it_behaves_like 'citable'
     it_behaves_like 'data_attributes'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
     it_behaves_like 'taggable'
-    #it_behaves_like 'alternate_values'
+    it_behaves_like 'is_data'
   end
 end

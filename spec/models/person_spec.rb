@@ -195,11 +195,12 @@ describe Person, :type => :model do
   end
 
   context 'concerns' do
+    it_behaves_like 'alternate_values'
     it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'
-    it_behaves_like 'alternate_values'
-    # TODO should it include IsData? SharedAcrossProjects?
+    it_behaves_like 'is_data'
+    # TODO should it include SharedAcrossProjects?
   end
 
 end

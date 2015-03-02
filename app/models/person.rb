@@ -2,10 +2,10 @@
 
 class Person < ActiveRecord::Base
   include Housekeeping::Users
+  include Shared::AlternateValues
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::AlternateValues
   include Shared::SharedAcrossProjects
   include Shared::IsData
 
