@@ -7,8 +7,9 @@
   -webkit-flex-flow: row wrap;
 
   display: flex;
-  flex-direction: column; 
-  flex-flow: row wrap; 
+  flex-direction: row; 
+  flex-wrap: nowrap;
+ // flex-flow: row wrap; 
   justify-content: center;
 }
 

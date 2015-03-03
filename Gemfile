@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.1.8'
+gem 'rails', '~> 4.1.9'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
-gem 'pg', '~> 0.17.1'
+gem 'pg', '~> 0.18.1'
 
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 2.2.0'
@@ -16,7 +16,7 @@ gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0'
+gem 'sass-rails', '~> 5.0'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 2.4'
@@ -25,7 +25,7 @@ gem 'uglifier', '~> 2.4'
 gem 'coffee-rails', '~> 4.0'
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails', '~> 3.1.1'
+gem 'jquery-rails', '~> 3.1.2'
 gem 'jquery-ui-rails'
 
 # Turbolinks makes following links in your web application faster.
