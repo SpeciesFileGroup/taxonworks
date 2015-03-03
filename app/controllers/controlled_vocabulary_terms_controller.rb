@@ -100,6 +100,11 @@ class ControlledVocabularyTermsController < ApplicationController
     render :json => data
   end
 
+  # GET /controlled_vocabulary_terms/download
+  def download
+    send_data ControlledVocabularyTerm.generate_download( ControlledVocabularyTerm.where(project_id: $project_id) ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_controlled_vocabulary_term

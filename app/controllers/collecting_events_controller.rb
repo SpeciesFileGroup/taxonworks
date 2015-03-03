@@ -99,7 +99,9 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text'
+    # send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text', filename: "collecting_events_#{Date.current.to_s(:file_timestamp)}.csv"
+    send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    # send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text', filename: "collecting_events_#{:file_timestamp}.csv"
   end
 
   private

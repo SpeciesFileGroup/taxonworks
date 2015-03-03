@@ -27,7 +27,18 @@ class ControlledVocabularyTerm < ActiveRecord::Base
     where('name LIKE ? OR definition LIKE ?', term, "#{term}%" )
   end
 
-  protected 
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
+
+  protected
 
   def uri_relation_is_a_skos_relation
     errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
