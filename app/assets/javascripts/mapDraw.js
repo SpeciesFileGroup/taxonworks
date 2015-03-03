@@ -47,17 +47,54 @@ function initializeDrawItem(map_canvas, fgdata) {
         }
     });
     drawingManager.setMap(map);
-    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
-            var coordinates = [];
-            coordinates = overlay.overlay.getPath().getArray();
-            var Json = coordinates.toGeoJson(function(){});
-        }
-    );
     google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+            var feature = [];
             var coordinates = [];
-            coordinates = (polygon.overlay.getPath().getArray());
+            var geometry = [];
+            coordinates = (polygon.getPath().getArray());
+            var v = 0;
+            for (var i = 0; i < coordinates.length; i++) {
+                geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
+            }
+            feature.push({
+                "type": "Feature",
+                "geometry": {
+                    "type": "polygon",
+                    "coordinates": geometry.toString()
+                }
+            });
+            $("#map_coords").html(JSON.stringify(feature[0]));
+            //$.get('collect_item', JSON.stringify(feature[0].geometry.coordinates), function(){}, 'json');
+            $.get('collect_item', $("#map_coords").serialize(), function(){}, 'json');
         }
     );
+    //google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
+    //        var feature = [];
+    //        var coordinates = [];
+    //        var geometry = [];
+    //        coordinates = overlay.overlay.getPath().getArray();
+    //        for (var i = 0; i < coordinates.length; i++) {
+    //            geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
+    //        }
+    //        feature.push({
+    //            "type": "Feature",
+    //            "geometry": {
+    //                "type": overlay.type,
+    //                "coordinates": geometry
+    //            }
+    //        });
+    //        var alt = [];
+    //        alt.push({
+    //            "type": "Feature",
+    //            "geometry": {
+    //                "type": overlay.type,
+    //                "coordinates": google.maps.geometry.encoding.encodePath(coordinates)
+    //            }
+    //        });
+    //        var u = 0;
+    //
+    //    }
+    //);
     //google.maps.event.addListener(map.DrawingManager, 'circlecomplete', function(circle) {
     //        var coordinates = [];
     //        coordinates = (circle.overlay.getPath().getArray());
