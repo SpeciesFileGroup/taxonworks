@@ -272,7 +272,7 @@ describe 'Users' do
       
       context 'valid email' do
         before do
-          fill_in 'Email', with: 'user@test.com'
+          fill_in 'Email', with: 'user@example.com'
           click_button 'Send e-mail'
         end
         
@@ -287,7 +287,7 @@ describe 'Users' do
           fill_in 'Password confirmation', with: password
           click_button 'Change password'
           expect(page).to have_content('Password successfuly changed')
-          fill_in 'Email', with: 'user@test.com'
+          fill_in 'Email', with: 'user@example.com'
           fill_in 'Password', with: password
           click_button 'Sign in'
           expect(page).to have_content('Dashboard')

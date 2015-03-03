@@ -61,9 +61,9 @@ module Features
     def spin_up_project_and_users
       @password = 'abcD123!'
 
-      @user = User.create!(name: 'Pat User', email: 'user@test.com', password: @password, password_confirmation: @password, self_created: true)
-      @project_administrator = User.create!(name: 'Pat Project Administrator', email: 'project_administrator@test.com', password: @password, password_confirmation: @password, self_created: true)
-      @administrator = User.create!(name: 'Pat the Administrator', email: 'administrator@test.com', password: @password, password_confirmation: @password, is_administrator: true, self_created: true)
+      @user = User.create!(name: 'Pat User', email: 'user@example.com', password: @password, password_confirmation: @password, self_created: true)
+      @project_administrator = User.create!(name: 'Pat Project Administrator', email: 'project_administrator@example.com', password: @password, password_confirmation: @password, self_created: true)
+      @administrator = User.create!(name: 'Pat the Administrator', email: 'administrator@example.com', password: @password, password_confirmation: @password, is_administrator: true, self_created: true)
 
       @project = Project.create!(name: 'My Project', creator: @administrator, updater: @administrator)
 
