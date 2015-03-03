@@ -251,8 +251,7 @@ describe 'Users' do
   end
 
   context 'when user is not signed in' do
-    before(:all) { ProjectsAndUsers.spin_up_projects_users_and_housekeeping }
-    after(:all) { ProjectsAndUsers.clean_slate }
+    before(:all) { spin_up_project_and_users }
     before { visit root_path }
     
     feature 'password reset' do
@@ -273,7 +272,7 @@ describe 'Users' do
       
       context 'valid email' do
         before do
-          fill_in 'Email', with: 'person1@example.com'
+          fill_in 'Email', with: 'user@test.com'
           click_button 'Send e-mail'
         end
         
@@ -288,7 +287,7 @@ describe 'Users' do
           fill_in 'Password confirmation', with: password
           click_button 'Change password'
           expect(page).to have_content('Password successfuly changed')
-          fill_in 'Email', with: 'person1@example.com'
+          fill_in 'Email', with: 'user@test.com'
           fill_in 'Password', with: password
           click_button 'Sign in'
           expect(page).to have_content('Dashboard')
