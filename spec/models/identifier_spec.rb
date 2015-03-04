@@ -55,7 +55,7 @@ describe Identifier, :type => :model do
 
       specify 'with << community object' do
         expect(serial.identifiers.count).to eq(0)
-        serial.identifiers << Identifier::Global::Issn.new(identifier: '0375-0825')
+        serial.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825')
         expect(serial.save).to be_truthy
         expect(serial.identifiers.first.creator.nil?).to be_falsey
         expect(serial.identifiers.first.updater.nil?).to be_falsey
@@ -73,7 +73,7 @@ describe Identifier, :type => :model do
 
       specify 'with .build community object' do
         expect(serial.identifiers.count).to eq(0)
-        serial.identifiers.build(type: 'Identifier::Global::Issn', identifier: '0375-0825')
+        serial.identifiers.build(type: 'Identifier::Global::Issn', identifier: 'ISSN 0375-0825')
         expect(serial.save).to be_truthy
         expect(serial.identifiers.first.creator.nil?).to be_falsey
         expect(serial.identifiers.first.updater.nil?).to be_falsey
@@ -93,7 +93,7 @@ describe Identifier, :type => :model do
 
       specify 'with new community objects and <<' do
         s = FactoryGirl.build(:valid_serial)
-        s.identifiers << Identifier::Global::Issn.new(identifier: '0375-0825')
+        s.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825')
         expect(s.save).to be_truthy
         expect(s.identifiers.count).to eq(1)
         expect(s.identifiers.first.creator.nil?).to be_falsey
@@ -114,7 +114,7 @@ describe Identifier, :type => :model do
       specify 'with new community objects and build' do
         s = FactoryGirl.build(:valid_serial)
         s.identifiers.build(type:       'Identifier::Global::Issn',
-                            identifier: '0375-0825')
+                            identifier: 'ISSN 0375-0825')
         expect(s.save).to be_truthy
         expect(s.identifiers.count).to eq(1)
         expect(s.identifiers.first.creator.nil?).to be_falsey
