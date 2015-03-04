@@ -461,9 +461,9 @@ SELECT round(CAST(
   end
 
   # @return [Symbol]
-  #   the geo type (i.e. column like :point, :multipolygon).  References  the first-found object, according to the list of DATA_TYPES, or nil
+  #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object, according to the list of DATA_TYPES, or nil
   def geo_object_type
-    if self.class.name == 'GeographicItem'
+    if self.class.name == 'GeographicItem' # a proxy check for new records
       geo_type
     else
       self.class::SHAPE_COLUMN
