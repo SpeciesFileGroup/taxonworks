@@ -1,38 +1,44 @@
+<%= render(partial: 'layouts/map_header') -%>
+
 <h1>Task: New Asserted Distribution by Map</h1>
-OTU: <%= OtusHelper.otu_tag(@otu) %>
-<%= link_to('back', otu_path(@otu)) %>
+<div>
+  OTU: <%= OtusHelper.otu_tag(@otu) %>
+  <%= link_to('back', otu_path(@otu)) %>
+</div>
+
 <div class="flexbox">
   <div class="item item1">
-    <%= form_tag(generate_choices_url, id: 'cadu') do %>
-        Source <span id="sourceError" style="color: #DD0000"></span>
-        <%= render :partial => 'workbench/elements/forms/ajax_select',
-                   :locals  => {:controller => '/sources',
-                                :object     => 'asserted_distribution',
-                                :method     => 'source_id',
-                                :tag_id     => 'source_id_for_asserted_distribution',
-                                :display    => ''} %>
-        <%= check_box_tag('lock_source', @lock_source) %>Lock
+    <%= form_tag(generate_choices_url, id: 'new_asserted_distribution_from_map_form') do %>
+        <span id="sourceError" class="warning"></span>
+        Source:
+        <% if @source -%>
+            <%= source_tag(@source) -%>
+            <%= hidden_field_tag('asserted_distribution[source_id]', @source.id) -%>
+            <%= link_to('reset', new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu})) -%>
+        <% else %>
+            <%= render(partial: 'workbench/elements/forms/ajax_select',
+                       locals:  {controller: '/sources',
+                                 object:     'asserted_distribution',
+                                 method:     'source_id',
+                                 tag_id:     'source_id_for_asserted_distribution',
+                                 size:       40}) %>
+            <%= check_box_tag('lock_source') %>Lock
+        <% end %>
         <%= hidden_field_tag('asserted_distribution[otu_id]', @otu.id) -%>
         <%= hidden_field_tag(:latitude) -%>
         <%= hidden_field_tag(:longitude) -%>
     <% end %>
 
+    <br class="clear_both">
 
-    <span id="qnadf"></span>
+    <div id="choices"><em> Click a point on the map to generate choices. </em></div>
   </div>
 
   <div class="item item2">
-    <%= render(partial: 'layouts/map_header') -%>
-
-    <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
-
     <div id="feature_collection" data-otu="<%= @otu %>"></div>
-
-    <div id="map_canvas" style="width:512px; height: 256px;"></div>
+    <div id="new_asserted_distribution_map_canvas" style="width: 400px; height: 400px"></div>
     <span id="map_coords"></span>
-    <script>initADmap("map_canvas");</script>
   </div>
-</div>
 </div>
 
 <div class="item item1">

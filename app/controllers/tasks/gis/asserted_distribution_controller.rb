@@ -1,10 +1,8 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
-  before_action :disable_turbolinks, only: [:new, :generate_choices]
-
+  # before_action :disable_turbolinks, only: [:new, :generate_choices]
+  
   def new
-    # @asserted_distribution = AssertedDistributions.new(asserted_distribution_params)
-    @otu                = Otu.find(params[:asserted_distribution][:otu_id])
-    # todo: this needs to be tested and accounted for in maps.js
+    @otu                  = Otu.find(params[:asserted_distribution][:otu_id])
     @feature_collection = ::Gis::GeoJSON.feature_collection([])
     source_id           = params[:asserted_distribution][:source_id]
     @source             = Source.find(source_id) unless source_id.blank?
@@ -14,7 +12,6 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   end
 
   def generate_choices
-
     geographic_areas = GeographicArea.find_by_lat_long(
       params['latitude'].to_f,
       params['longitude'].to_f
@@ -37,4 +34,5 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   def collection_params(params)
     params.require(:asserted_distribution).permit(:source_id, :otu_id)
   end
+
 end

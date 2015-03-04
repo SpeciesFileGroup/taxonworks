@@ -1,5 +1,6 @@
-<table border="1">
-  <thead>Existing Distributions</thead>
+<h3> Existing Distributions </h3>
+
+<table class="underlined_rows">
   <tr>
     <th>Geographic Area</th>
     <th>Source</th>
@@ -8,7 +9,7 @@
     <th></th>
   </tr>
   <tbody>
-  <% AssertedDistribution.where(otu_id: otu.id).each { |distribution| %>
+  <% AssertedDistribution.includes(:geographic_area).where(otu_id: otu.id).order('geographic_areas.name ASC').each { |distribution| %>
       <tr>
         <td>
           <%= distribution.geographic_area.name %>

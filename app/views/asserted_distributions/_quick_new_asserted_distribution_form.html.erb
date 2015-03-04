@@ -1,27 +1,26 @@
 <%= form_for(asserted_distribution) do |f| %>
   <%= hidden_field_tag :authenticity_token, token -%>
-  
-    <table border="1" style="width: 100%">
-      <tr>
-      <td class='one_third_width'>
+  <%= f.hidden_field(:otu_id) %>
+  <%= f.hidden_field(:source_id) %>
+  <%= f.hidden_field(:geographic_area_id) %>
+  <%= hidden_field_tag(:return_to, new_asserted_distribution_task_path) %>
+  <%= hidden_field_tag(:lock_source, lock_source) %>
+
+  <table class="fixed_width_half_viewport">
+    <tr>
+      <td class="break_words block_display fixed_width_tenth_viewport">
         <%= object_tag(asserted_distribution.geographic_area) %>
-          <%= f.hidden_field(:otu_id) %>
-          <%= f.hidden_field(:source_id) %>
-        <%= f.hidden_field(:geographic_area_id) %>
-        <%= hidden_field_tag(:return_to, new_asserted_distribution_task_path) %>
-        <%= hidden_field_tag(:lock_source, lock_source) %>
-        </td>
-      <td class='one_third_width' > 
-        <%= asserted_distribution.geographic_area.data_origin -%>
       </td>
-      <td class='one_third_width'>
-          <%= f.check_box :is_absent %>
-          <%= f.label('Absent') %></td>
-     </td>
-        <td>
-          <%= f.submit("Create", id: "button_#{asserted_distribution.geographic_area.to_param}") %>
-        </td>
-      </tr>
-    </table>
+      <td class="fixed_width_tenth_viewport" > 
+        <span class="block_display break_words"> <%= truncate(asserted_distribution.geographic_area.data_origin, length: 12) -%> </span>
+      </td>
+      <td>
+        <%= f.check_box :is_absent %> <%= f.label('Absent?') %>
+      </td>
+      <td>
+        <%= f.submit("Create", id: "button_#{asserted_distribution.geographic_area.to_param}") %>
+      </td>
+    </tr>
+  </table>
 <% end %>
 
