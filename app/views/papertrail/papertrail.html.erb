@@ -1,6 +1,6 @@
 <h2> Papertrail for <%= object_tag(@object) -%> </h2>
 
-Back to show: <%= object_link(@object) -%>
+Return <%= object_link(@object) -%>
 
 <%= render(partial: 'papertrail', collection: @object.versions) -%>
 
