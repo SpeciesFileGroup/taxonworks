@@ -19,15 +19,7 @@
       <%= render object_attributes_partial_path(object.metamorphosize) %>
       <%= render partial: '/shared/data/project/show/housekeeping', locals: {object: object} -%>
       <%= render(partial: '/shared/data/project/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-
-      <% object.annotations_hash.each do |title, values| -%>
-      <%= content_tag(:h3, title.humanize)  -%>
-          <ul>
-            <% values.each do |v| -%>
-                <%= content_tag :li, object_tag(v) -%>
-            <% end %>
-          </ul>
-      <% end %>
+      <%= render(partial: '/shared/data/project/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
     </div>
   </div>
 

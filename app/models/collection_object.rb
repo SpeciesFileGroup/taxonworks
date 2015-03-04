@@ -163,6 +163,17 @@ class CollectionObject < ActiveRecord::Base
     breakdown
   end
 
+  # return [Boolean]
+  #    true if instance is a subclass of BiologicalCollectionObject
+  def biological?
+    self.class <= BiologicalCollectionObject ? true : false
+  end
+
+  def annotations
+    h = annotations_hash 
+    h.merge!('biocuration classifications' => self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
+    h 
+  end
 
   protected
 
@@ -184,6 +195,8 @@ class CollectionObject < ActiveRecord::Base
       end
     true
   end
+
+
 
   # # TODO: Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
   # def transmogrify_to(new_type)

@@ -3,6 +3,7 @@ module Shared::IsData
   extend ActiveSupport::Concern
 
   included do
+
     include Pinnable
   end
 
@@ -45,6 +46,18 @@ module Shared::IsData
     false
   end
 
+  # @return [#annotations_hash]
+  #    an accessor for the annotations_hash, overwritten by some inheriting classes
+  def annotations
+    annotations_hash
+  end
+
+  module ClassMethods
+  end
+
+  protected
+
+
   # Contains all "annotations" for this instance
   # @return [Hash]
   def annotations_hash
@@ -56,9 +69,6 @@ module Shared::IsData
     result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
     result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
     result
-  end
-
-  module ClassMethods
   end
 
 end
