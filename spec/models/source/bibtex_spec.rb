@@ -848,7 +848,7 @@ describe Source::Bibtex, :type => :model do
         FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
         FactoryGirl.create(:valid_thesis) # 'Bugs by Beth': june 1982
         FactoryGirl.create(:valid_misc) # 'misc source': july 4 2010
-        @sources = Source::Bibtex.all
+        @sources = Source::Bibtex.order(id: :asc)
         expect(@sources.count).to eq(4)
 
         expect(@sources[0].title).to eq('article 1 just title')
@@ -856,7 +856,7 @@ describe Source::Bibtex, :type => :model do
         expect(@sources[2].title).to eq('Bugs by Beth')
         expect(@sources[3].title).to eq('misc source')
 
-        @source2 = @sources.order_by_nomenclature_date
+        @source2 = Source::Bibtex.order_by_nomenclature_date
         expect(@source2.count).to eq(4)
         expect(@source2.map(&:title)).to eq(['Bugs by Beth', 'article 1 just title', 'misc source', 'valid book with just a title'])
       end

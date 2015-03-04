@@ -51,8 +51,13 @@ describe 'Sources', :type => :feature do
       expect(page).to have_content("Source by 'Wombat, H.P.' was successfully created.")
     end
     specify 'can create a new Verbatim source' do
+      #Capybara.ignore_hidden_elements = true
       click_link('New') #   when I click the new link
       choose('source_type_sourceverbatim') # select the Verbatim radio button
+      expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
+      expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      # TODO when Capybara works better so field('field').visible? is accurate add visibility tests.
+#      expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
       # The 'Verbatim' textbox is the only field available.
       # expect(page.has_no_text?('BibTeX type')).to be_truthy
       # find(:css, "#source_verbatim_contents").should_not be_visible

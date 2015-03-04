@@ -551,7 +551,8 @@ class Source::Bibtex < Source
     identifier_string_of_type(:doi)
   end
 
-  # TODO: Are ISSN only Serials now?
+  # TODO: Are ISSN only Serials now? Maybe the raw bibtex source may come in with an ISSN in which case
+  # we need to set the serial based on ISSN.
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
