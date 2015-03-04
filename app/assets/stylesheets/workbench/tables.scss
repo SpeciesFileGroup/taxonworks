@@ -1,0 +1,12 @@
+@import 'palette';
+
+.underlined_rows {
+     border-spacing: 0; 
+  th {
+    border-bottom: 1px solid $color-secondary-1-4;
+
+  }
+  td {
+    border-bottom: 1px solid $color-secondary-1-3;
+  }
+}
