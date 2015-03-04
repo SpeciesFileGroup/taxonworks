@@ -54,7 +54,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             coordinates = (polygon.getPath().getArray());
             var v = 0;
             for (var i = 0; i < coordinates.length; i++) {
-                geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
+                geometry.push([[coordinates[i].lat(), coordinates[i].lng()]]);
             }
             feature.push({
                 "type": "Feature",
@@ -64,8 +64,9 @@ function initializeDrawItem(map_canvas, fgdata) {
                 }
             });
             $("#map_coords").html(JSON.stringify(feature[0]));
+            var hashy = {"coordinates": "abcd", "type": "polygon"};
             //$.get('collect_item', JSON.stringify(feature[0].geometry.coordinates), function(){}, 'json');
-            $.get('collect_item', $("#map_coords").serialize(), function(){}, 'json');
+            $.get('collect_item', feature[0], function(){}, 'json');
         }
     );
     //google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
