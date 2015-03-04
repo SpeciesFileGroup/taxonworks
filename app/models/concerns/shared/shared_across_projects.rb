@@ -13,4 +13,8 @@ module Shared::SharedAcrossProjects
     !self.is_in_use? && ( user.is_administrator? || self.creator == user )
   end
 
+  def can_edit?(user)
+    # stub
+  end
+
 end

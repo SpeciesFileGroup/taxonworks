@@ -46,6 +46,10 @@ module Shared::IsData
     false
   end
 
+  def is_community?
+    self.class < Shared::SharedAcrossProjects ? true : false
+  end
+
   # @return [#annotations_hash]
   #    an accessor for the annotations_hash, overwritten by some inheriting classes
   def annotations
