@@ -78,6 +78,7 @@ describe Source::Bibtex, :type => :model do
         expect(gem_bibtex_bibliography[1].volume).to eq('53')
       end
 
+      # TODO: the validator for ISSN identifiers has been perverted so as to *NOT* require the preamble 'ISSN ', even tough the ISSN spec is quite specific about its being there, because the Bibtex gem does not return it with the ISSN vslue as it should.
       specify "second record issn is '1480-3283'" do
         expect(gem_bibtex_bibliography[1].issn).to eq('1480-3283')
       end
@@ -274,9 +275,9 @@ describe Source::Bibtex, :type => :model do
     end
 
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
-      %w{2049-3630 2049-363x 2049-363X}.each do |n|
+      %w{2049-3630 1050-124x 1050-124X}.each do |n|
         specify "ISSN #{n}" do
-          identifier                 = "#{n}"
+          identifier                 = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
           s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
           expect(s.identifiers.to_a.count).to eq(1)

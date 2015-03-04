@@ -17,33 +17,36 @@ class Identifier::Global::Issn < Identifier::Global
 
   # Examples from issn.org: ISSN 0317-8471, ISSN 1050-124X
 
+  # TODO: the validator for this identifier has been perverted so as to *NOT* require the preamble 'ISSN ', even though the ISSN spec is quite specific about its being there, because the Bibtex gem does not return it with the ISSN vslue as it should.
   def using_issn_class
-    retval = true
+    validate_preamble = false
+    retval            = true
     unless identifier.nil?
       issn = identifier.upcase
 
       # 'ISSN 1234-567X'
-      /^ISSN (?<part_1>\d{4})-(?<part_2>\d{3})(?<last>.)$/ =~ issn
+      /^(?<preamble>ISSN ){0,1}(?<part_1>\d{4})-(?<part_2>\d{3})(?<last>.)$/ =~ issn
 
-      if part_1.nil? or part_2.nil? or last.nil?
+      if part_1.nil? or part_2.nil? or last.nil? or (preamble.nil? and validate_preamble)
         errors.add(:identifier, "'#{identifier}' is an improperly formed ISSN.")
         return false
       end
 
       data = part_1 + part_2
-      sum = 0
-
-      data.each { |c|
-        sum += c.to_i
-      }
-       sum = (sum % 11)
-
-      if sum == 10
-        sum = 'X'
+      if last == 'X'
+        sum = 10
+      else
+        sum = last.to_i
       end
+      index = 8
 
-      # sum and/or last might be an 'X'
-      if sum.to_s == last
+      data.each_char { |c|
+        sum   += c.to_i * index
+        index -= 1
+      }
+      sum = (sum % 11)
+
+      if sum != 0
         errors.add(:identifier, "'#{identifier}' has bad check digit.")
         return false
       end
