@@ -1,0 +1,67 @@
+
+$viewport_height: 768px;
+$viewport_width: 1024px;
+
+.fixed_width_quarter_viewport {
+  width: ($viewport_width / 4);
+}
+
+.fixed_width_half_viewport {
+  width: ($viewport_width / 2);
+}
+
+.fixed_width_third_viewport {
+  width: ($viewport_width / 3);
+}
+
+.fixed_width_tenth_viewport {
+  width: ($viewport_width / 10);
+}
+
+.full_width {
+  width: 100%;
+}
+
+.one_tenth_width {
+  width: 10%;
+}
+
+.one_quarter_width {
+  width: 25%;
+}
+
+.one_fifth_width {
+  width: 20%;
+}
+
+.one_third_width {
+  width: 30%;
+}
+
+.half_width { 
+  width: 50%;
+}
+
+.four_character_width {
+  width: 4em;
+}
+
+
+
+
+
+// this might belong elsewhere
+.attributes  {
+  p {
+    width:100%;
+    word-wrap:break-word;
+  }
+}
+
+.break_words {
+  word-wrap: break-word;
+}
+
+.block_display {
+  display: block;
+}
