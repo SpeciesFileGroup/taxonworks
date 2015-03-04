@@ -30,12 +30,12 @@ class AssertedDistributionsController < ApplicationController
     respond_to do |format|
       if @asserted_distribution.save
         if params[:return_to]
-          @lock_source = params['lock_source']
-          source_id    = (@lock_source ? params[:source_id] : nil)
-          format.html { redirect_to new_asserted_distribution_task_path(asserted_distribution: {
-                                                                          otu_id:    @asserted_distribution.otu.to_param,
-                                                                          source_id: source_id}),
-                                    notice: 'Asserted distribution was successfully created.' }
+          source_id    = ( params.permit('lock_source') ? params[:asserted_distribution][:source_id] : nil)
+          format.html { redirect_to new_asserted_distribution_task_path(
+            asserted_distribution: {
+              otu_id:    @asserted_distribution.otu.to_param,
+              source_id: source_id}),
+              notice: 'Asserted distribution was successfully created.' }
         else
           format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
         end
