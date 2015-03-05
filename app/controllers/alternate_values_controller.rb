@@ -85,6 +85,11 @@ class AlternateValuesController < ApplicationController
     render :json => data
   end
 
+  # GET /alternate_values/download
+  def download
+    send_data AlternateValue.generate_download( AlternateValue.where(project_id: $project_id) ), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_alternate_value

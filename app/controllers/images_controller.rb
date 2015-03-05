@@ -90,6 +90,12 @@ class ImagesController < ApplicationController
     render :json => data
   end
 
+  # GET /images/download
+  def download
+    send_data Image.generate_download( Image.where(project_id: $project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_image

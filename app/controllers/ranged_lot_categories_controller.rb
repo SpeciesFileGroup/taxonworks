@@ -68,6 +68,12 @@ class RangedLotCategoriesController < ApplicationController
     @ranged_lot_categories = RangedLotCategory.with_project_id($project_id).order(:id).page(params[:page])
   end
 
+  # GET /ranged_lot_categories/download
+  def download
+    send_data RangedLotCategory.generate_download( RangedLotCategory.where(project_id: $project_id) ), type: 'text', filename: "ranged_lot_categories_#{DateTime.now.to_s}.csv"
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_ranged_lot_category

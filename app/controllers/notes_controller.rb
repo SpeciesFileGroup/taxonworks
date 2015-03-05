@@ -89,7 +89,13 @@ class NotesController < ApplicationController
     render :json => data
   end
 
+  # GET /notes/download
+  def download
+    send_data Note.generate_download(Note.where(project_id: $project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+  end
+
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_note
     @note = Note.find(params[:id])

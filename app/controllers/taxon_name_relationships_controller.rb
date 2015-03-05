@@ -64,7 +64,7 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def list
-    @taxon_name_relationships = TaxonNameRelationship.with_project_id($project_id).order(:id).page(params[:page]) 
+    @taxon_name_relationships = TaxonNameRelationship.with_project_id($project_id).order(:id).page(params[:page])
   end
 
   # GET /taxon_name_relationships/search
@@ -91,14 +91,19 @@ class TaxonNameRelationshipsController < ApplicationController
     render :json => data
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_taxon_name_relationship
-      @taxon_name_relationship = TaxonNameRelationship.find(params[:id])
-    end
+  # GET /taxon_name_relationships/download
+  def download
+    send_data TaxonNameRelationship.generate_download(TaxonNameRelationship.where(project_id: $project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def taxon_name_relationship_params
-      params.require(:taxon_name_relationship).permit(:subject_taxon_name_id, :object_taxon_name_id, :type, :created_by_id, :updated_by_id, :project_id, :source_id)
-    end
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_taxon_name_relationship
+    @taxon_name_relationship = TaxonNameRelationship.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def taxon_name_relationship_params
+    params.require(:taxon_name_relationship).permit(:subject_taxon_name_id, :object_taxon_name_id, :type, :created_by_id, :updated_by_id, :project_id, :source_id)
+  end
 end

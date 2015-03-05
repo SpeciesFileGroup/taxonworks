@@ -36,7 +36,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
- 
+
   match '/administration', to: 'administration#index', via: 'get'
 
   resources :project_members
@@ -95,9 +95,7 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas_geographic_items
   resources :geographic_items
   resources :georeferences do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
@@ -130,16 +128,14 @@ TaxonWorks::Application.routes.draw do
 
   # resources :ranged_lot_categories
   resources :ranged_lot_categories do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
 
   resources :repositories do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-  
+
   # TODO: add exceptions 
   resources :serials do
     concerns [:data_routes]
@@ -153,9 +149,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :taxon_determinations do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
 
   resources :taxon_names do
@@ -164,15 +158,11 @@ TaxonWorks::Application.routes.draw do
 
   # resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
   resources :taxon_name_classifications do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
 
   resources :taxon_name_relationships do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
 
   resources :type_materials do
@@ -182,7 +172,7 @@ TaxonWorks::Application.routes.draw do
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
   match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 
-  scope :tasks  do
+  scope :tasks do
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
@@ -214,13 +204,13 @@ TaxonWorks::Application.routes.draw do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
       post 'update/:id', action: 'update', as: 'update_serial_find_task'
       get 'find', as: 'find_similar_serials_task'
-      post 'find', as: 'return_similar_serials_task' 
+      post 'find', as: 'return_similar_serials_task'
     end
 
     scope :usage, controller: 'tasks/usage/user_activity' do
-      get ':id', action: 'report', as: 'user_activity_report_task' 
-    end 
-    
+      get ':id', action: 'report', as: 'user_activity_report_task'
+    end
+
     scope :accessions do
       scope :verify do
         scope :material, controller: 'tasks/accessions/verify/material' do
@@ -228,7 +218,7 @@ TaxonWorks::Application.routes.draw do
         end
       end
 
-      scope :quick,  controller: 'tasks/accessions/quick/verbatim_material' do
+      scope :quick, controller: 'tasks/accessions/quick/verbatim_material' do
         get 'new', as: 'quick_verbatim_material_task'
         post 'create', as: 'create_verbatim_material_task'
       end
@@ -236,15 +226,15 @@ TaxonWorks::Application.routes.draw do
 
     scope :bibliography do
       scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-        get 'new',  as: 'new_verbatim_reference_task'
+        get 'new', as: 'new_verbatim_reference_task'
         post 'create', as: 'create_verbatim_reference_task'
       end
     end
 
     scope :controlled_vocabularies do
       scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
-        get 'build_collection', as: 'build_biocuration_groups_task' 
-        post 'build_biocuration_group', as: 'build_biocuration_group_task' 
+        get 'build_collection', as: 'build_biocuration_groups_task'
+        post 'build_biocuration_group', as: 'build_biocuration_group_task'
       end
     end
   end
@@ -260,7 +250,7 @@ TaxonWorks::Application.routes.draw do
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
-  
+
   get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
   # Example of regular route:

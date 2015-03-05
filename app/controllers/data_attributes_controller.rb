@@ -88,6 +88,11 @@ class DataAttributesController < ApplicationController
     render :json => data
   end
 
+  # GET /data_attributes/download
+  def download
+    send_data DataAttribute.generate_download( DataAttribute.where(project_id: $project_id) ), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_data_attribute

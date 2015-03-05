@@ -87,6 +87,11 @@ class CitationsController < ApplicationController
     render :json => data
   end
 
+  # GET /citations/download
+  def download
+    send_data Citation.generate_download( Citation.where(project_id: $project_id) ), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_citation

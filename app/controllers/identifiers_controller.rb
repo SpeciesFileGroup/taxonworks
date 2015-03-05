@@ -90,6 +90,11 @@ class IdentifiersController < ApplicationController
     render :json => data
   end
 
+  # GET /identifiers/download
+  def download
+    send_data Identifier.generate_download( Identifier.where(project_id: $project_id) ), type: 'text', filename: "identifiers_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_identifier

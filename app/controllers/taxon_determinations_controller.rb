@@ -91,6 +91,12 @@ class TaxonDeterminationsController < ApplicationController
     render :json => data
   end
 
+  # GET /taxon_determinations/download
+  def download
+    send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: $project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now.to_s}.csv"
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_taxon_determination

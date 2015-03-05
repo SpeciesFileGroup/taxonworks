@@ -37,6 +37,17 @@ class Note < ActiveRecord::Base
     where('text LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
   end
 
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
+
   protected
 
   def no_pipes

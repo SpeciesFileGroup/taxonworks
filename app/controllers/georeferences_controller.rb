@@ -69,6 +69,11 @@ class GeoreferencesController < ApplicationController
     end
   end
 
+  # GET /georeferences/download
+  def download
+    send_data Georeference.generate_download( Georeference.where(project_id: $project_id) ), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_georeference

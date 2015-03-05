@@ -86,6 +86,12 @@ class TypeMaterialsController < ApplicationController
     render :json => data
   end
 
+  # GET /type_materials/download
+  def download
+    send_data TypeMaterial.generate_download( TypeMaterial.where(project_id: $project_id) ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_type_material
