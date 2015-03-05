@@ -15,7 +15,7 @@ describe Gis::GeoJSON do
     clean_slate_geo
 
     # !! TODO: below must all go
-    ProjectMember.delete_all 
+    ProjectMember.delete_all
     Project.delete_all
     User.delete_all
 
@@ -179,7 +179,8 @@ describe Gis::GeoJSON do
       let(:feature_index) { '1' }
       specify 'that an asserted_distribution can produce a properly formed feature' do
         point            = @gr_n3_ob.geographic_item.geo_object
-        geographic_areas = GeographicArea.find_by_lat_long(point.y, point.x)
+        geographic_areas = GeographicArea.find_by_lat_long(point.y, point.x).order('geographic_areas.name ASC')
+        # puts geographic_areas.map(&:name)
 # To fix: provide a geographic area array for below
         objects          = AssertedDistribution.stub_new({'otu_id'           => otu.id,
                                                           'source_id'        => source.id,
@@ -194,17 +195,17 @@ describe Gis::GeoJSON do
                                             "id"         => (feature_index.to_i + 0)},
                                            {"type"       => "Feature",
                                             "geometry"   => {"type"        => "MultiPolygon",
-                                                             "coordinates" => [[[[33.0, 28.0, 0.0], [35.0, 28.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
+                                                             "coordinates" => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
                                             "properties" => {"asserted_distribution" => {"id" => objects[1].id}},
                                             "id"         => (feature_index.to_i + 1)},
                                            {"type"       => "Feature",
                                             "geometry"   => {"type"        => "MultiPolygon",
-                                                             "coordinates" => [[[[33.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 26.0, 0.0]]]]},
+                                                             "coordinates" => [[[[33.0, 28.0, 0.0], [35.0, 28.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
                                             "properties" => {"asserted_distribution" => {"id" => objects[2].id}},
                                             "id"         => (feature_index.to_i + 2)},
                                            {"type"       => "Feature",
                                             "geometry"   => {"type"        => "MultiPolygon",
-                                                             "coordinates" => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
+                                                             "coordinates" => [[[[33.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 26.0, 0.0]]]]},
                                             "properties" => {"asserted_distribution" => {"id" => objects[3].id}},
                                             "id"         => (feature_index.to_i + 3)},
                                            {"type"       => "Feature",
@@ -213,6 +214,32 @@ describe Gis::GeoJSON do
                                             "properties" => {"asserted_distribution" => {"id" => objects[4].id}},
                                             "id"         => (feature_index.to_i + 4)}]})
         # todo: consider this to be another strange case of object order displacement
+        # expect(json).to eq({"type"     => "FeatureCollection",
+        #                     "features" => [{"type"       => "Feature",
+        #                                     "geometry"   => {"type"        => "MultiPolygon",
+        #                                                      "coordinates" => [[[[33.0, 28.0, 0.0], [37.0, 28.0, 0.0], [37.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
+        #                                     "properties" => {"asserted_distribution" => {"id" => objects[0].id}},
+        #                                     "id"         => (feature_index.to_i + 0)},
+        #                                    {"type"       => "Feature",
+        #                                     "geometry"   => {"type"        => "MultiPolygon",
+        #                                                      "coordinates" => [[[[33.0, 28.0, 0.0], [35.0, 28.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 28.0, 0.0]]]]},
+        #                                     "properties" => {"asserted_distribution" => {"id" => objects[1].id}},
+        #                                     "id"         => (feature_index.to_i + 1)},
+        #                                    {"type"       => "Feature",
+        #                                     "geometry"   => {"type"        => "MultiPolygon",
+        #                                                      "coordinates" => [[[[33.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 24.0, 0.0], [33.0, 24.0, 0.0], [33.0, 26.0, 0.0]]]]},
+        #                                     "properties" => {"asserted_distribution" => {"id" => objects[2].id}},
+        #                                     "id"         => (feature_index.to_i + 2)},
+        #                                    {"type"       => "Feature",
+        #                                     "geometry"   => {"type"        => "MultiPolygon",
+        #                                                      "coordinates" => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
+        #                                     "properties" => {"asserted_distribution" => {"id" => objects[3].id}},
+        #                                     "id"         => (feature_index.to_i + 3)},
+        #                                    {"type"       => "Feature",
+        #                                     "geometry"   => {"type"        => "MultiPolygon",
+        #                                                      "coordinates" => [[[[34.0, 26.0, 0.0], [35.0, 26.0, 0.0], [35.0, 25.0, 0.0], [34.0, 25.0, 0.0], [34.0, 26.0, 0.0]]]]},
+        #                                     "properties" => {"asserted_distribution" => {"id" => objects[4].id}},
+        #                                     "id"         => (feature_index.to_i + 4)}]})
         # expect(json).to eq({"type"     => "FeatureCollection",
         #                     "features" => [{"type"       => "Feature",
         #                                     "geometry"   => {"type"        => "MultiPolygon",

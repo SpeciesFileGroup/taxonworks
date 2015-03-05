@@ -37,7 +37,7 @@ describe ProjectsController, :type => :controller do
     it "assigns all projects as @projects" do
       project = Project.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:projects)).to eq([Project.find(1), project])
+      expect(assigns(:projects)).to include(Project.find(1), project)
     end
   end
 
