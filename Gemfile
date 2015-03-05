@@ -95,7 +95,6 @@ end
 group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
-  gem 'spring', '~> 1.2.0'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.3.1', require: false
 end
