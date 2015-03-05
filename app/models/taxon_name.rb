@@ -463,7 +463,7 @@ class TaxonName < ActiveRecord::Base
 
   end
 
-  # override in subclasses
+  # Abstract method 
   def set_cached
     true
   end
@@ -555,7 +555,7 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below. 
   # TODO: rename to get_full_name (when name is available)
   def get_full_name_no_html
-    return name unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) || self.type == 'Combination'
+    return name unless self.type == 'Combination' ||  GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d        = full_name_hash
     elements = []
     elements.push(d['genus'])
@@ -570,7 +570,7 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name
-    return nil unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) || self.type == 'Combination'
+    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) 
     d        = full_name_hash
     elements = []
     eo       = '<em>'
