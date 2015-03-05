@@ -85,7 +85,6 @@
 class TaxonName < ActiveRecord::Base
 
   include Housekeeping
-  include Shared::Citable
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable

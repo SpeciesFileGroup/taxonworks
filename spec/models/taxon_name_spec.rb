@@ -661,7 +661,6 @@ describe TaxonName, :type => :model do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
     it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'

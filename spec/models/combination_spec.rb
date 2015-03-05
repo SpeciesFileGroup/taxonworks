@@ -233,4 +233,8 @@ describe Combination, :type => :model do
       end
     end
   end
+
+  context 'concerns' do
+    it_behaves_like 'citable'
+  end
 end

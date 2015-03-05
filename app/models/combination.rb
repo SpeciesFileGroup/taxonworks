@@ -50,6 +50,8 @@
 #   
 class Combination < TaxonName
 
+  include Shared::Citable
+
   # The ranks that can be used to build combinations.
   APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
 
