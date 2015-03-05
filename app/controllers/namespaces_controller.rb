@@ -93,6 +93,11 @@ class NamespacesController < ApplicationController
     render :json => data
   end
 
+  # GET /namespaces/download
+  def download
+    send_data Namespace.generate_download( Namespace.all ), type: 'text', filename: "namespaces_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_namespace

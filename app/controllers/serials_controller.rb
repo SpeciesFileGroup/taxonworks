@@ -98,6 +98,11 @@ class SerialsController < ApplicationController
     render :json => data
   end
 
+  # GET /serials/download
+  def download
+    send_data Serial.generate_download( Serial.all ), type: 'text', filename: "serials_#{DateTime.now.to_s}.csv"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_serial

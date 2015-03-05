@@ -118,8 +118,12 @@ class SourcesController < ApplicationController
     redirect_to sources_path
   end
 
-  private
+  # GET /sources/download
+  def download
+    send_data Source.generate_download( Source.all ), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
+  end
 
+  private
 
   # Use callbacks to share common setup or constraints between actions.
   def set_source

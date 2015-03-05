@@ -1,5 +1,3 @@
-
-
 class Person < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::AlternateValues
@@ -88,6 +86,17 @@ class Person < ActiveRecord::Base
   # TODO: TEST!
   def self.parse_to_people(name_string)
     self.parser(name_string).collect { |n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
+  end
+
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
   end
 
   protected

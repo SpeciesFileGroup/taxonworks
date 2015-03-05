@@ -90,7 +90,11 @@ class RepositoriesController < ApplicationController
     end
 
     render :json => data
+  end
 
+  # GET /repositories/download
+  def download
+    send_data Repository.generate_download( Repository.all ), type: 'text', filename: "repositories_#{DateTime.now.to_s}.csv"
   end
 
   private

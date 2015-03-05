@@ -105,10 +105,12 @@ class OtusController < ApplicationController
     redirect_to otus_path
   end
 
-
   # GET /otus/download
+  # def download
+  #   send_data Otu.generate_download(project_id: $project_id), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+  # end
   def download
-    send_data Otu.generate_download(project_id: $project_id), type: 'text'
+    send_data Otu.generate_download( Otu.where(project_id: $project_id) ), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
   end
 
   private

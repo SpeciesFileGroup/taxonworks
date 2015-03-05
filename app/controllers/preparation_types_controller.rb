@@ -77,6 +77,11 @@ class PreparationTypesController < ApplicationController
     end
   end
 
+  # GET /preparation_types/download
+  def download
+    send_data PreparationType.generate_download( PreparationType.all ), type: 'text', filename: "preparation_types_#{DateTime.now.to_s}.csv"
+  end
+
   # def autocomplete
   #   @preparation_types = PreparationType.find_for_autocomplete(params)
   #

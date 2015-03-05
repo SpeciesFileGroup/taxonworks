@@ -76,7 +76,6 @@ class PeopleController < ApplicationController
     end
   end
 
-
   def autocomplete
     @people = Person.find_for_autocomplete(params)
     data = @people.collect do |t|
@@ -91,6 +90,12 @@ class PeopleController < ApplicationController
 
     render :json => data
   end
+
+  # GET /people/download
+  def download
+    send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now.to_s}.csv"
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

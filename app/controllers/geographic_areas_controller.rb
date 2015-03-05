@@ -49,6 +49,11 @@ class GeographicAreasController < ApplicationController
     render :json => data
   end
 
+  # GET /geographic_areas/download
+  def download
+    send_data GeographicArea.generate_download( GeographicArea.all ), type: 'text', filename: "geographic_areas_#{DateTime.now.to_s}.csv"
+  end
+
   private
 
   # TODO: move to a concern?
