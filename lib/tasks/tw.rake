@@ -27,7 +27,7 @@ namespace :tw do
     raise "User is not a member of project." if !ProjectMember.where(project_id: $project_id, user_id: $user_id)
   end
 
-  desc 'a default method to add a data_directory_argument'
+  desc 'a default method to add a data_directory_argument, include trailing slash'
   task  :data_directory => [:environment] do 
     default = Settings.default_data_directory
     @args ||= {} 
@@ -35,7 +35,7 @@ namespace :tw do
       if default
         puts "no data_directory passed, using default (#{default})"
       else
-        raise "no data_directory passed and default_data_directory setting is not present"
+        raise "no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not present (see application_settings.yml in /config)"
       end
     end
     @args.merge!(data_directory: (ENV['data_directory'] || default ))

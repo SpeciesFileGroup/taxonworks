@@ -97,6 +97,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.3.1', require: false
+
 end
 
 group :doc do
@@ -113,6 +114,7 @@ group :test do
   gem 'database_cleaner', '~> 1.3.0'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
+  gem 'colored'
 end
 
 group :production do
