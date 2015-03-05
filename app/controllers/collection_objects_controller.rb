@@ -78,7 +78,6 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-
   def autocomplete
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
     data = @collection_objects.collect do |t|
@@ -93,7 +92,13 @@ class CollectionObjectsController < ApplicationController
     render :json => data
   end
 
+  # GET /collection_objects/download
+  def download
+    send_data CollectionObject.generate_download( CollectionObject.where(project_id: $project_id) ), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+  end
+
   private
+
   def set_collection_object
     @collection_object = CollectionObject.find(params[:id])
   end

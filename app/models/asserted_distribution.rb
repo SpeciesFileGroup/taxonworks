@@ -66,6 +66,18 @@ class AssertedDistribution < ActiveRecord::Base
     result
   end
 
+# Is generate_download a class or instance?
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
+
   #end region
 
   #region Instance methods

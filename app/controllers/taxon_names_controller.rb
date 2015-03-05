@@ -96,6 +96,11 @@ class TaxonNamesController < ApplicationController
     @taxon_names = TaxonName.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  # GET /taxon_names/download
+  def download
+    send_data ControlledVocabularyTerm.generate_download( TaxonName.where(project_id: $project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name

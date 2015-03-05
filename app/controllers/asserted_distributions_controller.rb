@@ -89,13 +89,17 @@ class AssertedDistributionsController < ApplicationController
     render :json => data
   end
 
-
   def search
     if params[:id]
       redirect_to asserted_distribution_path(params[:id])
     else
       redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
+  end
+
+  # GET /asserted_distributions/download
+  def download
+    send_data AssertedDistribution.generate_download( AssertedDistribution.where(project_id: $project_id) ), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
   end
 
   private
