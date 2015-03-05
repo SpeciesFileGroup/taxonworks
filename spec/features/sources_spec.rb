@@ -2,6 +2,7 @@ require 'rails_helper'
 include FormHelper
 
 describe 'Sources', :type => :feature do
+  Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
 
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { sources_path }
@@ -70,6 +71,63 @@ describe 'Sources', :type => :feature do
       # I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
       expect(page).to have_content("Source 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created.")
     end
+
+  end
+
+  context 'editing an existing source' do
+    before {
+      sign_in_user #   logged in
+      visit sources_path  #   when I visit the sources_path
+    }
+
+    specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
+      @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
+
+      fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title)
+      click_button('Show')
+      expect(page).to have_content('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
+      expect(page).to have_link('Edit')
+      click_link('Edit')
+      expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
+#      expect(find_field('source_bibtex_type').value).to be('article')
+      select('article', from: 'source_bibtex_type')
+
+      expect(find_field('Title').value).to eq('I am a soft valid article')
+      expect(find_field('Author').value).to eq('Person, Test')
+      expect(find_field('Journal').value).to eq('Journal of Test Articles')
+      expect(find_field('Year').value).to eq('1000')
+      fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
+      fill_in('Year', with: '1920')  # change Year to '1920'
+      click_button('Update Source')
+      expect(page).to have_content("Source was successfully updated.")
+      expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
+    end
+    specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
+      @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
+      fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached)
+      click_button('Show')
+      expect(page).to have_content(@src_verbatim.cached)
+      expect(page).to have_link('Edit')
+      click_link('Edit')
+      expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
+#       expect(find_field('Title').value).to eq('I am a soft valid article')
+#       expect(find_field('Author').value).to eq('Person, Test')
+#       expect(find_field('Journal').value).to eq('Journal of Test Articles')
+#       expect(find_field('Year').value).to eq('1000')
+#       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
+#       fill_in('Year', with: '1920')  # change Year to '1920'
+#       click_button('Update Source')
+#       expect(page).to have_content("Source was successfully updated.")
+#       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
+    end
+
+=begin
+    With a source created by the current user
+    when I show that source
+    there is a 'edit' link
+    when I click 'edit'
+    then I see the edit form
+=end
 
   end
 end

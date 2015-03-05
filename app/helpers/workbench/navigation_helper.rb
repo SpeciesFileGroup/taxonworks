@@ -11,7 +11,7 @@ module Workbench::NavigationHelper
   end
 
   def forward_back_links(instance)
-    content_tag(:span,  (previous_link(instance) + ' | ' + next_link(instance)).html_safe )
+    content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
   end
 
   # A previous record link. 
@@ -46,16 +46,16 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    link_to('New', new_path_for_model(model)) 
-  end 
+    link_to('New', new_path_for_model(model))
+  end
 
   def list_for_model_link(model)
-    link_to('List', list_path_for_model(model)) 
-  end 
+    link_to('List', list_path_for_model(model))
+  end
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model)) 
+      link_to('Download', download_path_for_model(model))
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -79,18 +79,21 @@ module Workbench::NavigationHelper
   end
 
   def edit_object_link(object)
-    if @is_shared_data_model || !self.respond_to?(edit_object_path_string(object))
-      content_tag(:span, 'Edit', class: :disabled) 
+    # TODO  We need to think more about what the rules will be to allow editing on shared objects.
+    # currently this is only allows the creator to edit a shared object.
+    if (@is_shared_data_model && object.created_by_id != $user_id)||
+      !self.respond_to?(edit_object_path_string(object))
+      content_tag(:span, 'Edit', class: :disabled)
     else
-      link_to('Edit', edit_object_path(object.metamorphosize))  
+      link_to('Edit', edit_object_path(object.metamorphosize))
     end
   end
 
   def destroy_object_link(object)
-    if @is_shared_data_model 
-      content_tag(:span, 'Destroy', class: :disabled) 
+    if @is_shared_data_model
+      content_tag(:span, 'Destroy', class: :disabled)
     else
-      link_to('Destroy', object.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' })
+      link_to('Destroy', object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'})
     end
   end
 

@@ -108,7 +108,7 @@ class SourcesController < ApplicationController
     sha256 = Digest::SHA256.file(params[:file].tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
       if @sources = Source.batch_create(params.symbolize_keys.to_h)
-        flash[:notice] = "Successfully batch created #{@sources.count} OTUs." #TODO I think this should say Sources?
+        flash[:notice] = "Successfully batch created #{@sources.count} Sources."
       else
         flash[:notice] = 'Failed to create the sources.'
       end
