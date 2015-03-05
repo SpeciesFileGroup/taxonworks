@@ -3,7 +3,6 @@ require 'rails_helper'
 describe TypeMaterial, :type => :model do
 
   after(:all) {
-    # TestDbCleanup.cleanup_taxon_name_and_related
     TypeMaterial.delete_all
     CollectionObject.delete_all
   }
