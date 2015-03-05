@@ -198,12 +198,10 @@ class Combination < TaxonName
     end
   end
 
-  # TODO: This is not correct
   def set_cached
     write_attribute(:cached, get_full_name_no_html)
   end
 
-  # TODO: This is not correct
   def set_cached_html
     write_attribute(:cached_html, get_full_name)
   end
