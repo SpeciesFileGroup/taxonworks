@@ -285,14 +285,12 @@ describe TaxonName, :type => :model do
       context 'name' do
         context 'validate cached values' do
           specify 'ICZN ' do
-            @subspecies.valid?
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
           end
 
           specify 'ICZN subspecies' do
-            @subspecies.valid?
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
@@ -305,16 +303,22 @@ describe TaxonName, :type => :model do
             expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
           end
 
-          specify 'ICZN family' do
-            expect(@family.valid?).to be_truthy
-            expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
-            expect(@family.cached_author_year).to eq('Say, 1800')
-            expect(@family.cached_html.nil?).to be_truthy
+          context 'ICZN family (behaviour for names above genus group)' do
+            specify 'cached_higher_classification' do
+              expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
+            end
+
+            specify 'cached_author_year' do
+              expect(@family.cached_author_year).to eq('Say, 1800')
+            end
+
+            specify 'cached_html' do
+              expect(@family.cached_html).to eq(@family.name)
+            end
           end
 
-          specify 'nil author and year - cashed value should be empty' do
+          specify 'nil author and year - cached value should be empty' do
             t = @subspecies.ancestor_at_rank('kingdom')
-            t.valid?
             expect(t.cached_author_year).to eq('')
           end
 

@@ -149,7 +149,6 @@ describe Combination, :type => :model do
       expect(basic_combination.save).to be_truthy
       expect(basic_combination.cached).to eq('Erythroneura comes')
     end
-
   end
 
   context 'soft validation' do
