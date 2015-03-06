@@ -1,10 +1,10 @@
-class Georeference::GoogleMapsController < ApplicationController
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
+class Georeferences::GoogleMapsController < ApplicationController
+  # include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_georeference, only: [:show, :edit, :update, :destroy]
-  before_action :disable_turbolinks, only: [:show, :list, :index]
+  # before_action :set_georeference, only: [:show, :edit, :update, :destroy]
+  # before_action :disable_turbolinks, only: [:show, :list, :index]
 
-  # GET /georeferences/new
+  # GET /georeferences/google_maps/new
   def new
     @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
     @georeference = Georeference::GoogleMap.new(collecting_event: @collecting_event)
@@ -12,23 +12,23 @@ class Georeference::GoogleMapsController < ApplicationController
 
   # POST /georeferences
   # POST /georeferences.json
-  def create
-    @georeference = Georeference::GoogleMap.new(georeference_params)
-    respond_to do |format|
-      if @georeference.save
-        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @georeference }
-      else
-        format.html { render action: 'new' }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+  # def create
+  #   @georeference = Georeference::GoogleMap.new(georeference_params)
+  #   respond_to do |format|
+  #     if @georeference.save
+  #       format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
+  #       format.json { render action: 'show', status: :created, location: @georeference }
+  #     else
+  #       format.html { render action: 'new' }
+  #       format.json { render json: @georeference.errors, status: :unprocessable_entity }
+  #     end
+  #   end
+  # end
 
   # GET /georeferences/download
-  def download
-    send_data Georeference.generate_download( Georeference.where(project_id: $project_id) ), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
-  end
+  # def download
+  #   send_data Georeference.generate_download( Georeference.where(project_id: $project_id) ), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+  # end
 
   def new_map_item
     # @asserted_distribution = AssertedDistributions.new(asserted_distribution_params)

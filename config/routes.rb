@@ -98,7 +98,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   scope 'georeferences' do
-    scope 'google_maps', controller: 'georeference/google_maps' do
+    scope 'google_maps', controller: 'georeferences/google_maps' do
       get 'new', action: 'new', as: 'new_google_map'
       get 'collect_item'
     end

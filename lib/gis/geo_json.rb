@@ -44,8 +44,10 @@ module Gis::GeoJSON
       'features' => []
     }
     objects.each_with_index do |o, i|
-      json = o.to_geo_json_feature.merge('id' => i + 1)   # offset by one, since google getFeatureById(0) fails
-      result['features'].push(json)
+      unless o.nil?
+        json = o.to_geo_json_feature.merge('id' => i + 1) # offset by one, since google getFeatureById(0) fails
+        result['features'].push(json)
+      end
     end
     result
   end
