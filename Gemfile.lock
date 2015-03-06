@@ -370,7 +370,7 @@ DEPENDENCIES
   exception_notification
   execjs
   factory_girl_rails (~> 4.0)
-  faker (~> 1.4.2)
+  faker (~> 1.4.3)
   ffi-geos
   guard-rspec (~> 4.3.1)
   inch

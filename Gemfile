@@ -80,8 +80,8 @@ gem 'modularity', '~> 2.0.1'
 
 
 group :test, :development do
-  gem 'faker', '~> 1.4.2' # tutorial used 1.1.2
-  gem 'rspec-rails', '~> 3.0' #  
+  gem 'faker', '~> 1.4.3'
+  gem 'rspec-rails', '~> 3.0'
   gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'inch'
   gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
