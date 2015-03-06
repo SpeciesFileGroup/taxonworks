@@ -1,4 +1,4 @@
-class Georeferences::GoogleMapsController < ApplicationController
+class Georeference::GoogleMapsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_georeference, only: [:show, :edit, :update, :destroy]
@@ -28,6 +28,24 @@ class Georeferences::GoogleMapsController < ApplicationController
   # GET /georeferences/download
   def download
     send_data Georeference.generate_download( Georeference.where(project_id: $project_id) ), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+  end
+
+  def new_map_item
+    # @asserted_distribution = AssertedDistributions.new(asserted_distribution_params)
+    # @otu                = Otu.find(params[:asserted_distribution][:otu_id])
+    # todo: this needs to be tested and accounted for in maps.js
+    @feature_collection = ::Gis::GeoJSON.feature_collection([])
+    # source_id           = params[:asserted_distribution][:source_id]
+    # @source             = Source.find(source_id) unless source_id.blank?
+  end
+
+  def create_map_item
+  end
+
+  def collect_item
+    @type = params['type']
+    @coordinates = params['coordinates']
+    u = 0
   end
 
   private

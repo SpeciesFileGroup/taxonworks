@@ -98,8 +98,9 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   scope 'georeferences' do
-    scope 'google_maps', controller: 'georeferences/google_maps' do
+    scope 'google_maps', controller: 'georeference/google_maps' do
       get 'new', action: 'new', as: 'new_google_map'
+      get 'collect_item'
     end
   end
   resources :identifiers, except: [:show] do
@@ -202,7 +203,7 @@ TaxonWorks::Application.routes.draw do
       get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
       post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
       # post 'generate_choices', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
-      get 'collect_item'
+      get 'collect_item', as: 'collect_draw_item_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
