@@ -8,12 +8,20 @@
 FactoryGirl.define do
 
   # See taxon_name_traits.rb for trait sets 
-
+  
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
     factory :valid_protonym, traits: [:parent_is_root] do
       name 'Aaidae'
       rank_class Ranks.lookup(:iczn, 'family')
+    end
+
+    # root
+
+    factory :root_taxon_name do
+      name 'Root'
+      rank_class NomenclaturalRank
+      parent_id nil
     end
 
     # Relationship provided factories with short hierarchy
@@ -39,14 +47,6 @@ FactoryGirl.define do
       year_of_publication 1900
       verbatim_author 'McAtee'
       rank_class Ranks.lookup(:iczn, 'SPECIES')
-    end
-
-    # root
-
-    factory :root_taxon_name do
-      name 'Root'
-      rank_class NomenclaturalRank
-      parent_id nil
     end
 
     # ICZN names
