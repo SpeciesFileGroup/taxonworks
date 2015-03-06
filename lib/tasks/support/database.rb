@@ -12,7 +12,7 @@ module Support
     #   pg_restore -Fc -d taxonworks_development -t geographic_area_types ~/src/gaz/data/internal/dump/geographic_area_types.dump
     def self.pg_restore(database_name, table_name, data_directory, dump_filename = nil)
       dump_filename ||= "/#{table_name}.dump"
-      `pg_restore -Fc -d #{database_name} -t #{table_name} #{File.join(data_directory, dump_filename)}`
+      `pg_restore --disable-triggers -Fc -d #{database_name} -t #{table_name} #{File.join(data_directory, dump_filename)}`
       $?.to_i
     end
 
