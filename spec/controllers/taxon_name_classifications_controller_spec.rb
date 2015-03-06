@@ -25,9 +25,11 @@ describe TaxonNameClassificationsController, :type => :controller do
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
-  # adjust the attributes here as well.
+  # adjust the attributes here as well
+  let(:root) { FactoryGirl.create(:root_taxon_name) }
+  let(:taxon_name) { Protonym.create!(parent: root, name: 'Biidae', rank_class: Ranks.lookup(:iczn, 'family') ) } 
   let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_name_classification).attributes )
+    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_name_classification, taxon_name_id: taxon_name.to_param).attributes )
   }  
 
   # This should return the minimal set of values that should be in the session
