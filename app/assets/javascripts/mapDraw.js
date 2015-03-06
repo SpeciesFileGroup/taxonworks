@@ -54,7 +54,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             coordinates = (polygon.getPath().getArray());
             var v = 0;
             for (var i = 0; i < coordinates.length; i++) {
-                geometry.push([[coordinates[i].lat(), coordinates[i].lng()]]);
+                geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
             }
             feature.push({
                 "type": "Feature",
