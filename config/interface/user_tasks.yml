@@ -57,7 +57,7 @@ create_verbatim_reference_task:
 build_biocuration_groups_task:
   hub: true
   name: 'Manage biocuration types and groups.'
-  description: 'Create bio-curration curategories that are used to organize physical collections (e.g. specimens and lots).'
+  description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
   related: 
     - build_biocuration_group_task 
 build_biocuration_group_task:
