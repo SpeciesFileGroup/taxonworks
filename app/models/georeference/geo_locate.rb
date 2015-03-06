@@ -1,4 +1,4 @@
-# A Georeference derived from a call to the Tulay GeoLocate API.
+# A Georeference derived from a call to the Tulane GeoLocate API.
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 

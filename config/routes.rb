@@ -97,6 +97,11 @@ TaxonWorks::Application.routes.draw do
   resources :georeferences do
     concerns [:data_routes]
   end
+  scope 'georeferences' do
+    scope 'google_maps', controller: 'georeferences/google_maps' do
+      get 'new', action: 'new', as: 'new_google_map'
+    end
+  end
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
