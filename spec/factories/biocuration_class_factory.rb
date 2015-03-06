@@ -9,10 +9,8 @@ FactoryGirl.define do
 
   factory :biocuration_class, traits: [:housekeeping] do
     factory :valid_biocuration_class do
-      # name "pinned"
-      # definition "Associated with a sharp metal spike."
-      name { Faker::Lorem.word }
-      definition { Faker::Lorem.sentence }
+      name { Faker::Lorem.characters(12) }
+      definition { Faker::Lorem.sentence(6, false, 3) }
     end
   end
 end

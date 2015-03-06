@@ -1,6 +1,7 @@
 FactoryGirl.define do
 
   trait :random_name do
+    # Could be Faker.characters(10)
     name { Utilities::Strings.random_string(10) }
   end
 
