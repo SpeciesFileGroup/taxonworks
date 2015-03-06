@@ -3,7 +3,7 @@ class TaggedSectionKeyword < ActiveRecord::Base
   include Shared::IsData 
 
 
-  acts_as_list
+  acts_as_list scope: [:otu_page_layout_section]
 
   belongs_to :otu_page_layout_section
   belongs_to :keyword

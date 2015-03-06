@@ -44,6 +44,6 @@ class GeographicItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def geographic_item_params
-      params.require(:geographic_item).permit(:point, :line_string, :polygon, :multi_point, :multi_line_string, :multi_polygon, :geometry_collection, :created_by_id, :updated_by_id)
+      params.require(:geographic_item).permit(:point, :line_string, :polygon, :multi_point, :multi_line_string, :multi_polygon, :geometry_collection)
     end
 end

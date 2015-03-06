@@ -51,6 +51,6 @@ class BiocurationClassificationsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def biocuration_classification_params
-      params.require(:biocuration_classification).permit(:biocuration_class_id, :biological_collection_object_id, :position, :created_by_id, :updated_by_id, :project_id)
+      params.require(:biocuration_classification).permit(:biocuration_class_id, :biological_collection_object_id)
     end
 end

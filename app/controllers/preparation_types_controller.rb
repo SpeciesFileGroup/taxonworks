@@ -106,6 +106,6 @@ class PreparationTypesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def preparation_type_params
-    params.require(:preparation_type).permit(:name, :definition, :created_by_id, :updated_by_id)
+    params.require(:preparation_type).permit(:name, :definition)
   end
 end

@@ -51,7 +51,7 @@ class OtuPageLayoutSectionsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def otu_page_layout_section_params
-    params.require(:otu_page_layout_section).permit(:otu_page_layout_id, :type, :position, :topic_id,
+    params.require(:otu_page_layout_section).permit(:otu_page_layout_id, :type, :topic_id,
                                                     :dynamic_content_class)
   end
 end

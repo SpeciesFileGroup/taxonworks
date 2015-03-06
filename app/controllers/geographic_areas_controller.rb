@@ -67,6 +67,6 @@ class GeographicAreasController < ApplicationController
   def geographic_area_params
     params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id,
                                             :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID,
-                                            :data_origin, :created_by_id, :updated_by_id)
+                                            :data_origin)
   end
 end

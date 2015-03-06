@@ -51,6 +51,6 @@ class ContainerItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def container_item_params
-      params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :localization, :created_by_id, :updated_by_id, :project_id)
+      params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :localization)
     end
 end

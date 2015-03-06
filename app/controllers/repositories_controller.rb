@@ -106,6 +106,6 @@ class RepositoriesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def repository_params
-    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record, :created_by_id, :updated_by_id)
+    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
   end
 end
