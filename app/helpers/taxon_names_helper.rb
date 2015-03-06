@@ -7,7 +7,7 @@ module TaxonNamesHelper
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(taxon_name_tag(taxon_name).html_safe, taxon_name)
+    link_to(taxon_name_tag(taxon_name).html_safe, taxon_name.metamorphosize)
   end
 
   def taxon_names_search_form
