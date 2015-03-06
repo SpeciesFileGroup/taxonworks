@@ -19,7 +19,7 @@ describe Otu, :type => :model do
       end
 
       specify 'contents' do
-        expect(otu.otu_contents << OtuContent.new).to be_truthy
+        expect(otu.contents << Content.new).to be_truthy
       end
 
       specify 'topics' do

@@ -7,7 +7,6 @@ class PublicContent < ActiveRecord::Base
   belongs_to :topic
   belongs_to :content
 
-  # Validation follows Content (not OtuContent) for now.
   validates_presence_of :text
   validates :topic, presence: true
 

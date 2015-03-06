@@ -25,7 +25,7 @@ describe 'Contents', :type => :feature do
       let!(:t) { factory_girl_create_for_user_and_project(:valid_topic, @user, @project) } 
       before do
         10.times {
-          FactoryGirl.create(:valid_otu_content,
+          FactoryGirl.create(:valid_content,
                              otu: o, 
                              topic: t,
                              project: @project,

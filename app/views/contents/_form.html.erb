@@ -36,10 +36,7 @@
       <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id($project_id).all, :id, :name, empty: true) -%>
     </div>
 
-    <div class="field">
-      <%= f.hidden_field :type, value: 'OtuContent::Text' %>
-    </div>
-   <div class="actions">
+    <div class="actions">
       <%= f.submit %>
     </div>
 <% end %>

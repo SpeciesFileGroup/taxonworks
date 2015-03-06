@@ -1,7 +1,7 @@
 
-# Content is text related blocks.  At present there is
-# only one subclass, OtuContent, that requires both a Topic and an Otu.
-# Future extensions may be added to use the model for Projects etc.
+# Content is text related blocks, at present it only pertains to Otus.
+# # It requires both a Topic and an Otu.
+# Future extensions may be added to use the model for Projects etc. via STI.
 #
 # @!attribute text
 #   @return [Text] The written content. 
@@ -18,7 +18,7 @@ class Content < ActiveRecord::Base
 
   has_paper_trail 
 
-  belongs_to :otu, inverse_of: :otu_contents
+  belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
 
