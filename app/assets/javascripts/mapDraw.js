@@ -48,27 +48,47 @@ function initializeDrawItem(map_canvas, fgdata) {
     });
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
-            var feature = [];
-            var coordinates = [];
-            var geometry = [];
-            coordinates = (polygon.getPath().getArray());
-            var v = 0;
-            for (var i = 0; i < coordinates.length; i++) {
-                geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
-            }
-            feature.push({
-                "type": "Feature",
-                "geometry": {
-                    "type": "polygon",
-                    "coordinates": geometry.toString()
-                }
-            });
-            $("#map_coords").html(JSON.stringify(feature[0]));
-            var hashy = {"coordinates": "abcd", "type": "polygon"};
-            //$.get('collect_item', JSON.stringify(feature[0].geometry.coordinates), function(){}, 'json');
-            $.get('collect_item', feature[0], function(){}, 'json');
+        var feature = [];
+        var coordinates = [];
+        var geometry = [];
+        coordinates = (polygon.getPath().getArray());
+        var v = 0;
+        for (var i = 0; i < coordinates.length; i++) {
+            geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
         }
-    );
+        feature.push({
+            "type": "Feature",
+            "geometry": {
+                "type": "polygon",
+                "coordinates": geometry.toString()
+            }
+        });
+        $("#map_coords").html(JSON.stringify(feature[0]));
+            $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
+        $("#geoType").text(feature[0]["geometry"]["type"]);
+            //$("#hiddenGeo").text($("#geoType").text());
+            $("#iframe_response").text($("#geoShape").text());
+            //    var hashy = {"coordinates": "abcd", "type": "polygon"};
+    //    //$.get('collect_item', JSON.stringify(feature[0].geometry.coordinates), function(){}, 'json');
+    //    $.get('collect_item', feature[0], function (local_data) {
+    //            map.data.forEach(function (feature) {
+    //                map.data.remove(feature);
+    //            });    // clear the map.data
+    //
+    //            map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
+    //
+    //            var data = local_data['feature_collection'];
+    //            var bounds = {};
+    //            get_Data(data, bounds);
+    //            var center_lat_long = get_window_center(bounds);
+    //            map.setCenter(center_lat_long);
+    //            map.setZoom(bounds.gzoom);
+    //            //map.fitBounds(bounds.box);
+    //        },
+    //        'json' // I expect a JSON response
+    //    );
+    }
+);
     //google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
     //        var feature = [];
     //        var coordinates = [];

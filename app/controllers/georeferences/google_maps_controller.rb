@@ -8,12 +8,14 @@ class Georeferences::GoogleMapsController < ApplicationController
   def new
     @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
     @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event)
+    @geotype          = "undefined"
+    @shape =  "some text"
   end
 
   # POST /georeferences
   # POST /georeferences.json
   # def create
-  #   @georeference = Georeference::GoogleMap.new(georeference_params)
+  #   @georeference = Georeference::GoogleMap.new(georeference_google_map_params)
   #   respond_to do |format|
   #     if @georeference.save
   #       format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
@@ -57,6 +59,20 @@ class Georeferences::GoogleMapsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   # @return [Object]
   def georeference_google_map_params
-    params.require(:georeference_google_map).permit(:collecting_event_id, :map_coords)
+    params.require(:georeference_google_map).permit(:collecting_event_id, :shape,
+                                                    :iframe_response,
+                                                    :geographic_item_id,
+                                                    :collecting_event_id,
+                                                    :error_radius,
+                                                    :error_depth,
+                                                    :error_geographic_item_id,
+                                                    :type,
+                                                    :source_id,
+                                                    :position,
+                                                    :is_public,
+                                                    :api_request,
+                                                    :is_undefined_z,
+                                                    :is_median_z
+    )
   end
 end
