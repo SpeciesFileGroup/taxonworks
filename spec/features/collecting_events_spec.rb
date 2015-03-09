@@ -46,6 +46,10 @@ describe 'CollectingEvents', :type => :feature do
       expect(page).to have_link('Next')
     end
 
+    specify 'there is a \'Add Google map georeference\' link' do
+      expect(page).to have_link('Add Google map georeference')
+    end
+
   end
 
   end
