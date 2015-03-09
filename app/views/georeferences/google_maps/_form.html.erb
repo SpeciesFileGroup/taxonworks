@@ -15,12 +15,14 @@
             </div>
         <% end %>
 
-        <div class="required">
-          <div class="field">
-            <%=	 f.hidden_field(:iframe_response) %>
-            <%#=	 f.hidden_field(:shape) %>
-          </div>
-        </div>
+        <!-- columns that have to be used to build a geographic_item in the controller --> 
+        <%= hidden_field_tag(:shape) %>
+        <%= hidden_field_tag(:geo_type) %>
+
+        <!-- columns in @georeference, these fields must be populated after the shape has been set --> 
+        <%= f.hidden_field :collecting_event_id -%>
+        <%= f.hidden_field :type -%>
+
         <div>
           Geotype: <span id='geoType' />
           <br>
@@ -28,10 +30,12 @@
           <br>
           Dummy: <span id="dummy"></span>
         </div>
+ 
         <div class="actions">
           <%= f.submit %>
         </div>
-    <% end %>
+  
+      <% end %>
 
   </div>
 
