@@ -10,10 +10,12 @@ class Tasks::Nomenclature::OriginalCombinationController < ApplicationController
     @taxon_name = TaxonName.find(params[:taxon_name_id])
     if @taxon_name.update(combination_params)
       flash[:notice] = "Successfully updated the original combination." 
+      redirect_to @taxon_name.metamorphosize 
     else
       flash[:notice] = "The original combination information was NOT updated."
+      redirect_to edit_protonym_original_combination_task_path(@taxon_name)
     end
-    redirect_to edit_protonym_original_combination_task_path(@taxon_name)
+
   end
 
   protected
