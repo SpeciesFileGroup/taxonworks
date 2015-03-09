@@ -44,6 +44,8 @@
       <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, @controlled_vocabulary_term.uri_relation), include_blank: true -%> 
     </div>
 
+    <%= hidden_field_tag :return_path, @return_path %>
+
     <div class="actions">
       <%= f.submit %>
     </div>

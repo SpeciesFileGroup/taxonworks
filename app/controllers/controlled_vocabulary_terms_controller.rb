@@ -17,6 +17,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms/new
   def new
     @controlled_vocabulary_term = ControlledVocabularyTerm.new
+    @return_path = params.permit(:return_path)[:return_path]
   end
 
   # GET /controlled_vocabulary_terms/1/edit
@@ -30,9 +31,21 @@ class ControlledVocabularyTermsController < ApplicationController
     respond_to do |format|
       if @controlled_vocabulary_term.save
         msg = "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."
-        redirect_url = (request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new') ? controlled_vocabulary_term_path(@controlled_vocabulary_term) : :back)
+
+        if !params.permit(:return_path)[:return_path].blank?
+          # case - coming from otu -> new tag -> new cvt -> back to tag/new
+          redirect_url =   params.permit(:return_path)[:return_path] + "&tag[keyword_id]=#{@controlled_vocabulary_term.to_param}"
+        elsif request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new')
+          # case - coming from cvt index -> cvt/new
+          redirect_url = controlled_vocabulary_term_path(@controlled_vocabulary_term)
+        else
+          # case - coming from task -> return to task
+          redirect_url = :back
+        end
+
         format.html { redirect_to redirect_url, notice: msg } # !! new behaviour to test
         format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize}
+
       else
         format.html { 
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.' 

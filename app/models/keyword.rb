@@ -2,6 +2,8 @@ class Keyword < ControlledVocabularyTerm
 
   has_many :tags, foreign_key: :keyword_id, dependent: :destroy
 
+  scope :for_tags, -> { where(type: 'Keyword') }
+
   def tagged_objects
     self.tags.collect{|t| t.tag_object}
   end

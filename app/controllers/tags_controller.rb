@@ -4,6 +4,16 @@ class TagsController < ApplicationController
   before_action :set_tag, only: [:update, :destroy]
 
   def new
+    if !Keyword.for_tags.with_project_id($project_id).any? # if there are none
+      # specify return path
+      # params[:tag][:tag_object_type]
+
+     # @return_path = "/#{params[:tag][:tag_object_type].downcase.pluralize}/#{params[:tag][:tag_object_id]}"  -- this would take us back to current object
+
+      @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
+
+      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
+    end
     @tag = Tag.new(tag_params)
   end
 
@@ -16,7 +26,7 @@ class TagsController < ApplicationController
   # POST /tags
   # POST /tags.json
   def create
-    @tag         = Tag.new(tag_params)
+    @tag = Tag.new(tag_params)
     # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
@@ -25,7 +35,7 @@ class TagsController < ApplicationController
       else
         format.html {
           # if redirect_url == :back
-            redirect_to :back, notice: 'Tag was NOT successfully created.'
+          redirect_to :back, notice: 'Tag was NOT successfully created.'
           # else
           #   render :new
           # end
@@ -77,12 +87,12 @@ class TagsController < ApplicationController
     @tags = Tag.find_for_autocomplete(params)
 
     data = @tags.collect do |t|
-      {id:              t.id,
-       label:           TagsHelper.tag_tag(t),
+      {id: t.id,
+       label: TagsHelper.tag_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      TagsHelper.tag_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: TagsHelper.tag_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 
@@ -91,7 +101,7 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Tag.generate_download( Tag.where(project_id: $project_id) ), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
+    send_data Tag.generate_download(Tag.where(project_id: $project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
   end
 
   private
