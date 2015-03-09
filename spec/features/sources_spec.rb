@@ -2,7 +2,7 @@ require 'rails_helper'
 include FormHelper
 
 describe 'Sources', :type => :feature do
-  Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
+  #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
 
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { sources_path }
@@ -110,6 +110,7 @@ describe 'Sources', :type => :feature do
       expect(page).to have_link('Edit')
       click_link('Edit')
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
+      # TODO shelved until Matt fixes the coffee script
 #       expect(find_field('Title').value).to eq('I am a soft valid article')
 #       expect(find_field('Author').value).to eq('Person, Test')
 #       expect(find_field('Journal').value).to eq('Journal of Test Articles')
