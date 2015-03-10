@@ -97,14 +97,17 @@ function initializeDrawItem(map_canvas, fgdata) {
             }
             for (var i = 0; i < coordinates.length; i++) {
     //            geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
-                geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
+                geometry.push('[' + coordinates[i].lon().toString() + ', ' + coordinates[i].lat().toString() + ']');
             }
-
+            if (overlayType == 'Polygon') {
+                geometry.push('[' + coordinates[0].lon().toString() + ', ' + coordinates[0].lat().toString() + ']');
+            }
             feature.push({
                 "type": "Feature",
+                "properties": {},
                 "geometry": {
                     "type": overlayType,
-                    "coordinates": geometry.toString()
+                    "coordinates": '[  [ ' + geometry.toString() + ' ]  ]'
                 }
             });
             if (radius != undefined) {feature[0]['properties'] = {"radius": radius};}
