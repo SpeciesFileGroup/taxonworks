@@ -96,8 +96,6 @@ class GeoreferencesController < ApplicationController
                                          :is_public,
                                          :api_request,
                                          :is_undefined_z,
-                                         :is_median_z,
-                                         :geo_type,
-                                         :shape)
+                                         :is_median_z)
   end
 end

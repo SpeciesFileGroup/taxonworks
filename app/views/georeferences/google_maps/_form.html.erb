@@ -23,15 +23,15 @@
           <%= f.check_box :is_public %>
         </div>
         <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
-            <%= gi.text_field(:shape) %>
             <%= gi.text_field(:type) %>
+            <%= gi.text_field(:shape) %>
         <% end %>
 
         <%= f.hidden_field(:collecting_event_id) -%>
         <%= f.hidden_field(:type) -%>
 
         <div>
-          Geotype: <span id='geoType'/>
+          Geotype: <span id='geoType'></span>
           <br>
           Shape: <span id='geoShape'></span>
           <br>
