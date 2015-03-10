@@ -22,7 +22,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences/new
   def new
     @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
-    @georeference = Georeference.new(collecting_event: @collecting_event)
+    @georeference     = Georeference.new(collecting_event: @collecting_event)
   end
 
   # GET /georeferences/1/edit
@@ -33,6 +33,7 @@ class GeoreferencesController < ApplicationController
   # POST /georeferences.json
   def create
     @georeference = Georeference.new(georeference_params)
+    # if shape and geo_type are set here, create the geo_object, and set geographic_item
     respond_to do |format|
       if @georeference.save
         format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
@@ -49,7 +50,7 @@ class GeoreferencesController < ApplicationController
   def update
     respond_to do |format|
       if @georeference.update(georeference_params)
-      
+
         format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
         format.json { head :no_content }
       else
@@ -71,31 +72,32 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data Georeference.generate_download( Georeference.where(project_id: $project_id) ), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+    send_data Georeference.generate_download(Georeference.where(project_id: $project_id)), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_georeference
-      @georeference = Georeference.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_georeference
+    @georeference = Georeference.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def georeference_params
-      params.require(:georeference).permit(
-        :iframe_response,
-        :geographic_item_id,
-        :collecting_event_id,
-        :error_radius,
-        :error_depth,
-        :error_geographic_item_id,
-        :type,
-        :source_id,
-        :position,
-        :is_public,
-        :api_request,
-        :is_undefined_z,
-        :is_median_z, 
-       )
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def georeference_params
+    params.require(:georeference).permit(:iframe_response,
+                                         :geographic_item_id,
+                                         # :geographic_item: [:type],
+                                         :collecting_event_id,
+                                         :error_radius,
+                                         :error_depth,
+                                         :error_geographic_item_id,
+                                         :type,
+                                         :source_id,
+                                         :position,
+                                         :is_public,
+                                         :api_request,
+                                         :is_undefined_z,
+                                         :is_median_z,
+                                         :geo_type,
+                                         :shape)
+  end
 end

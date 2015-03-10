@@ -15,6 +15,12 @@ class GeographicItem < ActiveRecord::Base
 
   # an internal variable for use in super calls, holds a geo_json hash (temporarily)
   attr_accessor :geometry
+  attr_accessor :shape
+
+  def shape=(value)
+    raise() if self.type.blank?
+    write_attribute(self.geo_object_type, value)
+  end
 
   LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<lon>-?\d+\.?\d*)/)
 

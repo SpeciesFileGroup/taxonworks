@@ -1,11 +1,13 @@
-<h1>Task: New Map Item by Drawing</h1>
+<h1>New Map Item by Drawing</h1>
 <div class="flexbox">
   <div class="item item1">
-    <%= "collecting event ID = #{@collecting_event.to_param}"  %>
+    For collecting event:<br>
+    <%= collecting_event_tag(@collecting_event) %><br>
     <%= form_for(@georeference.becomes(Georeference)) do |f| %>
         <% if @georeference.errors.any? %>
             <div id="error_explanation">
-              <h2><%= pluralize(@georeference.errors.count, 'error') %> prohibited this georeference from being saved:</h2>
+              <h2><%= pluralize(@georeference.errors.count, 'error') %> prohibited this georeference from being
+                saved:</h2>
 
               <ul>
                 <% @georeference.errors.full_messages.each do |msg| %>
@@ -15,27 +17,32 @@
             </div>
         <% end %>
 
-        <!-- columns that have to be used to build a geographic_item in the controller --> 
-        <%= hidden_field_tag(:shape) %>
-        <%= hidden_field_tag(:geo_type) %>
+        <div class="field">
+          <%= f.label :is_public %>
+          <br>
+          <%= f.check_box :is_public %>
+        </div>
+        <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
+            <%= gi.text_field(:shape) %>
+            <%= gi.text_field(:type) %>
+        <% end %>
 
-        <!-- columns in @georeference, these fields must be populated after the shape has been set --> 
-        <%= f.hidden_field :collecting_event_id -%>
-        <%= f.hidden_field :type -%>
+        <%= f.hidden_field(:collecting_event_id) -%>
+        <%= f.hidden_field(:type) -%>
 
         <div>
-          Geotype: <span id='geoType' />
+          Geotype: <span id='geoType'/>
           <br>
           Shape: <span id='geoShape'></span>
           <br>
           Dummy: <span id="dummy"></span>
         </div>
- 
+
         <div class="actions">
           <%= f.submit %>
         </div>
-  
-      <% end %>
+
+    <% end %>
 
   </div>
 

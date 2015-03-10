@@ -7,9 +7,7 @@ class Georeferences::GoogleMapsController < ApplicationController
   # GET /georeferences/google_maps/new
   def new
     @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
-    @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event)
-    @geotype          = "undefined"
-    @shape =  "some text"
+    @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event, geographic_item: GeographicItem.new)
   end
 
   # POST /georeferences
@@ -59,20 +57,10 @@ class Georeferences::GoogleMapsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   # @return [Object]
   def georeference_google_map_params
-    params.require(:georeference_google_map).permit(:collecting_event_id, :shape,
-                                                    :iframe_response,
-                                                    :geographic_item_id,
-                                                    :collecting_event_id,
-                                                    :error_radius,
-                                                    :error_depth,
-                                                    :error_geographic_item_id,
+    params.require(:georeference_google_map).permit(:collecting_event_id,
                                                     :type,
-                                                    :source_id,
-                                                    :position,
-                                                    :is_public,
-                                                    :api_request,
-                                                    :is_undefined_z,
-                                                    :is_median_z
+                                                    :shape,
+                                                    :geo_type
     )
   end
 end
