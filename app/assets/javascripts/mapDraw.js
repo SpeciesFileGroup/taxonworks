@@ -64,11 +64,11 @@ function initializeDrawItem(map_canvas, fgdata) {
                 }
             });
             $("#map_coords").html(JSON.stringify(feature[0]));
-            $("#shape").text(feature[0]["geometry"]["coordinates"]);
-            $("#geo_type").text(feature[0]["geometry"]["type"]);
-
             $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
             $("#geoType").text(feature[0]["geometry"]["type"]);
+            $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
+            $("#georeference_geographic_item_attributes_type").val(feature[0]["geometry"]["type"]);
+
 
             //$("#hiddenGeo").text($("#geoType").text());
             //$("#iframe_response").text($("#geoShape").text());
