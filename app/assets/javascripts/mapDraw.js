@@ -21,7 +21,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             ]
         },
         markerOptions: {
-            icon: '/app/assets/javascripts/mapicons/mm_20_red.png'
+
         },
         circleOptions: {
             fillColor: '#66cc00',
@@ -47,80 +47,83 @@ function initializeDrawItem(map_canvas, fgdata) {
         }
     });
     drawingManager.setMap(map);
-    google.maps.event.addListener(drawingManager, 'polygoncomplete', function (polygon) {
-            var feature = [];
-            var coordinates = [];
-            var geometry = [];
-            coordinates = (polygon.getPath().getArray());
-            var v = 0;
-            for (var i = 0; i < coordinates.length; i++) {
-                geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
-            }
-            feature.push({
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": geometry.toString()
-                }
-            });
-            $("#map_coords").html(JSON.stringify(feature[0]));
-            $("#geoType").text(feature[0]["geometry"]["type"]);
-            $("#georeference_geographic_item_attributes_type").val(feature[0]["geometry"]["type"]);
-            $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
-            $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
-
-
-            //$("#hiddenGeo").text($("#geoType").text());
-            //$("#iframe_response").text($("#geoShape").text());
-
-            //    var hashy = {"coordinates": "abcd", "type": "polygon"};
-            //    //$.get('collect_item', JSON.stringify(feature[0].geometry.coordinates), function(){}, 'json');
-            //    $.get('collect_item', feature[0], function (local_data) {
-            //            map.data.forEach(function (feature) {
-            //                map.data.remove(feature);
-            //            });    // clear the map.data
-            //
-            //            map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
-            //
-            //            var data = local_data['feature_collection'];
-            //            var bounds = {};
-            //            get_Data(data, bounds);
-            //            var center_lat_long = get_window_center(bounds);
-            //            map.setCenter(center_lat_long);
-            //            map.setZoom(bounds.gzoom);
-            //            //map.fitBounds(bounds.box);
-            //        },
-            //        'json' // I expect a JSON response
-            //    );
-        }
-    );
-    //google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
+    //google.maps.event.addListener(drawingManager, 'polygoncomplete', function (polygon) {
     //        var feature = [];
     //        var coordinates = [];
     //        var geometry = [];
-    //        coordinates = overlay.overlay.getPath().getArray();
+    //        coordinates = (polygon.getPath().getArray());
+    //        var v = 0;
     //        for (var i = 0; i < coordinates.length; i++) {
-    //            geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
+    //            geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
     //        }
+    //    // capture the drawn graphic item
     //        feature.push({
     //            "type": "Feature",
     //            "geometry": {
-    //                "type": overlay.type,
-    //                "coordinates": geometry
+    //                "type": "Polygon",
+    //                "coordinates": geometry.toString()
     //            }
     //        });
-    //        var alt = [];
-    //        alt.push({
-    //            "type": "Feature",
-    //            "geometry": {
-    //                "type": overlay.type,
-    //                "coordinates": google.maps.geometry.encoding.encodePath(coordinates)
-    //            }
-    //        });
-    //        var u = 0;
     //
+    //        $("#geoType").text(feature[0]["geometry"]["type"]);
+    //        $("#georeference_geographic_item_attributes_type").val(feature[0]["geometry"]["type"]);
+    //        $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
+    //        $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
     //    }
     //);
+    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
+            var featureCollection = [];
+            var feature = [];
+            var coordinates = [];
+            var geometry = [];
+            var overlayType = overlay.type[0].toUpperCase() + overlay.type.slice(1);
+            var radius = undefined;
+            switch(overlayType) {
+                case 'Polyline':
+                    overlayType = 'LineString';
+                    break;
+                case 'Marker':
+                    overlayType = 'Point';
+                    coordinates.push(overlay.overlay.position);
+                    break;
+                case 'Circle':
+                    overlayType = 'Point';
+                    coordinates.push(overlay.overlay.center);
+                    radius = overlay.overlay.radius;
+                    break;
+            }
+            if (coordinates.length == 0) {
+                coordinates = overlay.overlay.getPath().getArray();
+            }
+            for (var i = 0; i < coordinates.length; i++) {
+    //            geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
+                geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
+            }
+
+            feature.push({
+                "type": "Feature",
+                "geometry": {
+                    "type": overlayType,
+                    "coordinates": geometry.toString()
+                }
+            });
+            if (radius != undefined) {feature[0]['properties'] = {"radius": radius};}
+            featureCollection.push({ "type": "FeatureCollection", "features": feature})
+            //var alt = [];
+            //alt.push({
+            //    "type": "Feature",
+            //    "geometry": {
+            //        "type": overlay.type,
+            //        "coordinates": google.maps.geometry.encoding.encodePath(coordinates)
+            //    }
+            //});
+            var u = 0;
+            $("#geoType").text(feature[0]["geometry"]["type"])
+            $("#geoShape").text(JSON.stringify(feature));
+            $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature));
+            $("#map_coords").html(JSON.stringify(featureCollection));
+        }
+    );
     //google.maps.event.addListener(map.DrawingManager, 'circlecomplete', function(circle) {
     //        var coordinates = [];
     //        coordinates = (circle.overlay.getPath().getArray());
