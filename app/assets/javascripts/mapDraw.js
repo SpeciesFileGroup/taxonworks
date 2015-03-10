@@ -59,15 +59,15 @@ function initializeDrawItem(map_canvas, fgdata) {
             feature.push({
                 "type": "Feature",
                 "geometry": {
-                    "type": "polygon",
+                    "type": "Polygon",
                     "coordinates": geometry.toString()
                 }
             });
             $("#map_coords").html(JSON.stringify(feature[0]));
-            $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
             $("#geoType").text(feature[0]["geometry"]["type"]);
-            $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
             $("#georeference_geographic_item_attributes_type").val(feature[0]["geometry"]["type"]);
+            $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
+            $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
 
 
             //$("#hiddenGeo").text($("#geoType").text());
