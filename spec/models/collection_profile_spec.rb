@@ -1,58 +1,67 @@
 require 'rails_helper'
 
 describe CollectionProfile, :type => :model do
-  before(:all) do
-    @collection_profile = FactoryGirl.build_stubbed(:collection_profile)
-  end
+  let(:collection_profile) { FactoryGirl.build(:collection_profile) }
 
   context 'associations' do
     context 'belongs_to' do
       specify 'otu' do
-        expect(@collection_profile).to respond_to(:otu)
+        expect(collection_profile).to respond_to(:otu)
       end
       specify 'container' do
-        expect(@collection_profile).to respond_to(:container)
+        expect(collection_profile).to respond_to(:container)
       end
     end
   end
 
   context 'attributes' do 
     specify 'conservation_status' do
-      expect(@collection_profile).to respond_to(:conservation_status)
+      expect(collection_profile).to respond_to(:conservation_status)
     end
     specify 'processing_state' do
-      expect(@collection_profile).to respond_to(:processing_state)
+      expect(collection_profile).to respond_to(:processing_state)
     end
     specify 'container_condition' do
-      expect(@collection_profile).to respond_to(:container_condition)
+      expect(collection_profile).to respond_to(:container_condition)
     end
     specify 'condition_of_labels' do
-      expect(@collection_profile).to respond_to(:condition_of_labels)
+      expect(collection_profile).to respond_to(:condition_of_labels)
     end
     specify 'identification_level' do
-      expect(@collection_profile).to respond_to(:identification_level)
+      expect(collection_profile).to respond_to(:identification_level)
     end
     specify 'arrangement_level' do
-      expect(@collection_profile).to respond_to(:arrangement_level)
+      expect(collection_profile).to respond_to(:arrangement_level)
     end
     specify 'data_quality' do
-      expect(@collection_profile).to respond_to(:data_quality)
+      expect(collection_profile).to respond_to(:data_quality)
     end
     specify 'computerization_level' do
-      expect(@collection_profile).to respond_to(:computerization_level)
+      expect(collection_profile).to respond_to(:computerization_level)
     end
   end
 
   context 'methods' do
-    specify 'profile_indices' do
-      expect(@collection_profile.collection_profile_indices.size).to eq(8)
+    let(:indices) { 
+      {  conservation_status: 2, processing_state: 2,
+         container_condition: 2, condition_of_labels: 2, identification_level: 3,
+         arrangement_level: 3, data_quality: 3, computerization_level: 3,
+         number_of_collection_objects: nil }
+    } 
+
+    specify '#profile_indices when not all set' do
+      expect(collection_profile.collection_profile_indices.size).to eq(0)
     end
-    specify 'average' do
-      p = FactoryGirl.build_stubbed(:collection_profile, conservation_status: 2, processing_state: 2,
-                                    container_condition: 2, condition_of_labels: 2, identification_level: 3,
-                                    arrangement_level: 3, data_quality: 3, computerization_level: 3,
-                                    number_of_collection_objects: nil)
-      expect(p.average_profile_index).to eq(2.5)
+
+    context 'with indices set' do
+      before { collection_profile.update_attributes(indices) } 
+      specify '#profile_indices when all set' do
+        expect(collection_profile.collection_profile_indices.size).to eq(8)
+      end
+
+      specify '#average_profile_of_index' do
+        expect(collection_profile.average_profile_index).to eq(2.5)
+      end
     end
   end
 
