@@ -37,7 +37,6 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 
-  # TODO: Consider enabling this. 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
@@ -77,6 +76,20 @@ RSpec.configure do |config|
   end
 
 
+  # TaxonWorks tests suites
+  #
+  # Tests that check/test the testing framework itself
+  # are to be disabled by default.  
+
+  test_excludes = {}
+
+  # Tests that check validitify of factories 
+  unless ENV['TAXONWORKS_TEST_LINTING']
+    test_excludes.merge!(lint: true)  
+  end
+
+  config.filter_run_excluding test_excludes 
+
   # Print the 10 slowest examples and example groups at the
   # end of the spec run, to help surface which specs are running
   # particularly slow.
@@ -87,9 +100,8 @@ RSpec.configure do |config|
   #
   #
   #
-  #
-  #
   config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
   end
 
