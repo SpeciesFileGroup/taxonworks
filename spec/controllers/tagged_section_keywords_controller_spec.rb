@@ -26,6 +26,8 @@ describe TaggedSectionKeywordsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # TaggedSectionKeyword. As you add validations to TaggedSectionKeyword, be sure to
   # adjust the attributes here as well.
+  #
+  let(:other_keyword) { FactoryGirl.create(:valid_keyword, name: 'Other keyword', definition: 'Not that one.') }
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_tagged_section_keyword).attributes) }
 
   # This should return the minimal set of values that should be in the session
@@ -82,8 +84,8 @@ describe TaggedSectionKeywordsController, :type => :controller do
         # specifies that the TaggedSectionKeyword created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(TaggedSectionKeyword).to receive(:update).with({'position' => '6'})
-        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {position: 6}}, valid_session
+        expect_any_instance_of(TaggedSectionKeyword).to receive(:update).with({ keyword_id: other_keyword.to_param  })
+        put :update, {:id => tagged_section_keyword.to_param, :tagged_section_keyword => {keyword_id: other_keyword.to_param}}, valid_session
       end
 
       it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
