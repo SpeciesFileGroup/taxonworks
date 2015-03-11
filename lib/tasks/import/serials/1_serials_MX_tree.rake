@@ -13,13 +13,47 @@ namespace :tw do
         @sf_pub_regID_name = 'SF publication registry ID'
       end
 
-      desc 'call like "rake tw:import:serial:serials_1_build_MX[/Users/eef/src/data/serialdata/working_data/treeMXmerge-final.txt] user_id=1" '
-      task :serials_1_build_MX, [:data_directory1] => [:environment, :user_id] do |t, args|
-        args.with_defaults(:data_directory1 => './treeMXmerge-final.txt')
 
-        # TODO: check checksums of incoming files?
+      desc 'run all serial processing tasks'
+      task :all =>
+      [
+        :environment, 
+        :data_directory,
+        :user_id,
+        :serials_1_build_MX,
+        :serials_2_add_MX_duplicates,
+        :serials_3_add_MX_chronologies,
+        :serials_4_build_SF_serials,
+        :serials_5_add_SF_IDs,
+        :serials_6_add_SF_altnames
+      ] do 
+        puts "Success!".bold.yellow 
+      end
 
+      task :dump_all => [:environment, :data_directory] do
+        database = ActiveRecord::Base.connection.current_database
+        path = File.join(@args[:data_directory], 'serial_tables' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+
+        puts "Dumping data to #{path}" 
+
+        # non-circular data FK data
+        path = File.join(@args[:data_directory], 'serial_metadata_tables' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+        tables =  %w{serial_chronologies identifiers data_attributes alternate_values}.collect{|t| "-t #{t}"}.join(' ')
+        puts(Benchmark.measure { `pg_dump --data-only -Fc #{database} -f #{path} #{tables}` }) 
+
+        # circular fk data 
+        path = File.join(@args[:data_directory], 'serial_table' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+        puts(Benchmark.measure { `pg_dump --data-only -Fc #{database} -f #{path} -t serials` }) 
+      
+      end
+
+      desc 'call like "rake tw:import:serial:serials_1_build_MX data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1" '
+      task :serials_1_build_MX => [:environment, :data_directory, :user_id] do |t|
         raise 'There are existing serials, doing nothing.' if Serial.all.count > 0
+
+        raise 'Langauges have not yet been loaded.' if !Language.any?
+
+        file = @args[:data_directory] + 'treeMXmerge-final.txt'
 
         # first file ./TreeMXmerge-final.txt
         $stdout.sync = true
@@ -29,7 +63,7 @@ namespace :tw do
           set_serial_import_predicates
           ActiveRecord::Base.transaction do # rm transaction
 
-            CSV.foreach(args[:data_directory1],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',
@@ -62,7 +96,7 @@ Column : SQL column name :  data desc
 Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISSN it is considered a different Serial
 =end
               tmpID = row[0].to_s.strip
-              print ("\r  tmpID #{tmpID} ")
+              print ("      \r  tmpID #{tmpID} ")
               mxID        = row[1].to_s.strip
               treeID      = row[2].to_s.strip
 #              treeMxID    = row[3].to_s.strip
@@ -80,6 +114,8 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
               note        = row[15].to_s.strip
               url         = row[16].to_s.strip
 
+              # !! languages not mached up at present
+              langID = nil if langID.to_s == '0'
 
               r = Serial.new(
                 name:                name,
@@ -161,6 +197,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
                   #puts "serial content #{ap(r)} - skipping "
                 end
 
+
                 if need2serials # had 2 different ISSNs for digital and print versions
                   r = Serial.new(
                     name:                name,
@@ -210,9 +247,9 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
       end # task
 
 
-      desc 'call like "rake tw:import:serial:serials_2_add_MX_duplicates[/Users/eef/src/data/serialdata/working_data/treeMXduplicates.txt] user_id=1" '
-      task :serials_2_add_MX_duplicates, [:data_directory] => [:environment, :user_id] do |t, args|
-        args.with_defaults(:data_directory => './treeMXduplicates.txt')
+      desc 'call like "rake tw:import:serial:serials_2_add_MX_duplicates data_directory=/Users/eef/src/etc user_id=1" '
+      task :serials_2_add_MX_duplicates => [:environment, :data_directory, :user_id] do |t|
+        file = @args[:data_directory] + 'treeMXduplicates.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 
@@ -224,7 +261,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
           ActiveRecord::Base.transaction do
             set_serial_import_predicates
 
-            CSV.foreach(args[:data_directory],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',
@@ -258,7 +295,7 @@ Column : SQL column name : data desc
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s = sr.first
-                  print ("\r SerialID #{s.id} : tmpID #{keep} : MXID #{mxID} : TreeID #{treeID} ")
+                  print ("\r      SerialID #{s.id} : tmpID #{keep} : MXID #{mxID} : TreeID #{treeID} ")
                 else
                   puts ["\n matched > 1 base serial ", @mx_t_serial_importID_name, keep].join(' : ')
                   puts "skipping\n"
@@ -362,11 +399,12 @@ Column : SQL column name : data desc
       end #end task
 
 
-      desc 'call like "rake tw:import:serial:serials_3_add_MX_chronologies[/Users/eef/src/data/serialdata/working_data/treeMX_SerialSeq.txt] user_id=1, project_id=1" '
-      task :serials_3_add_MX_chronologies, [:data_directory] => [:environment, :user_id, :project_id] do |t, args|
-        args.with_defaults(:data_directory => './treeMX_SerialSeq.txt')
+      desc 'call like "rake tw:import:serial:serials_3_add_MX_chronologies data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1" '
+      task :serials_3_add_MX_chronologies => [:environment, :data_directory, :user_id] do |t| # , :project_id
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
+
+        file = @args[:data_directory] + 'treeMX_SerSeq.txt'
 
         # Now add additional identifiers - filename is treeMXduplicates
         $stdout.sync = true
@@ -376,7 +414,7 @@ Column : SQL column name : data desc
           ActiveRecord::Base.transaction do
             set_serial_import_predicates
 
-            CSV.foreach(args[:data_directory],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',
@@ -431,7 +469,8 @@ Column : SQL column name : data desc
                   puts ['skipping - match > 1 base serial (2nd) ', @mx_t_serial_importID_name, secID].join(" : ")
                   next
               end
-              SerialChronology.create!(preceding_serial: s1, succeeding_serial: s2)
+
+              SerialChronology::SerialSequence.create!(preceding_serial: s1, succeeding_serial: s2)
             end
             puts "\nSuccessful load of MX & treehopper serial chronologies"
             # raise 'causes it to always fail and rollback the transaction'

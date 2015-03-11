@@ -2,7 +2,7 @@ namespace :tw do
   namespace :initialize do
 
     desc 'call like "rake tw:intialize:load_repositories", required data_directory'
-    task :load_repositories => [:data_directory, :environment, :user_id] do |t, args|
+    task :load_repositories => [:data_directory, :environment, :user_id] do |t|
 
       print "Loading repositories..."
       if Repository.all.count > 0 

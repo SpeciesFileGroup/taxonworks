@@ -10,9 +10,12 @@
 case Rails.env
 
   when 'development'
-
+    u = User.where(id: 1).first
+    if !u
     # Creates 1,1 project/users
-    u = FactoryGirl.create(:valid_user)
+      u = FactoryGirl.create(:valid_user)
+    end
+   
     p = FactoryGirl.create(:valid_project, creator: u, updater: u)
     FactoryGirl.create(:project_member, project: p, user: u, creator: u, updater: u)
 

@@ -2,10 +2,9 @@ namespace :tw do
   namespace :import do
     namespace :serial do
 
-      desc 'call like "rake tw:import:serial:serials_4_build_SF_serials[/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt] user_id=1" '
-      task :serials_4_build_SF_serials, [:data_directory] => [:environment, :user_id] do |t, args|
-        args.with_defaults(:data_directory => './SFSerialExport.txt')
-
+      desc 'call like "rake tw:import:serial:serials_4_build_SF_serials data_directory=/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt user_id=1" '
+      task :serials_4_build_SF_serials => [:environment, :data_directory, :user_id] do |t|
+        file = @args[:data_directory] +  'SF_serial_Final.txt' # was SerialExport.txt' 
         # must be run after MX/treehopper serial import
 
         # First file SF_serial_export.txt
@@ -17,7 +16,7 @@ namespace :tw do
           ActiveRecord::Base.transaction do
             set_serial_import_predicates
 
-            CSV.foreach(args[:data_directory],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',
@@ -294,9 +293,10 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
       end # task
 
 
-      desc 'call like "rake tw:import:serial:serials_5_add_SF_IDs[/Users/eef/src/data/serialdata/working_data/SFImportIDmap.txt] user_id=1" '
-      task :serials_5_add_SF_IDs, [:data_directory] => [:environment, :user_id] do |t, args|
-        args.with_defaults(:data_directory => './SFImportIDmap.txt')
+      desc 'call like "rake tw:import:serial:serials_5_add_SF_IDs data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1" '
+      task :serials_5_add_SF_IDs, [:data_directory] => [:environment, :user_id] do |t|
+
+        file = @args[:data_directory] + 'SF_IDmap.txt'  # was 'SFImportIDmap.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 
@@ -310,7 +310,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
           ActiveRecord::Base.transaction do
             set_serial_import_predicates
 
-            CSV.foreach(args[:data_directory],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',
@@ -403,9 +403,9 @@ SFImportIDMap.txt
         end
       end #end task
 
-      desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames[/Users/eef/src/data/serialdata/working_data/SFaltnames6.txt] user_id=1 " '
-      task :serials_6_add_SF_altnames, [:data_directory] => [:environment, :user_id] do |t, args|
-        args.with_defaults(:data_directory => './SFaltnames.txt')
+      desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1 " '
+      task :serials_6_add_SF_altnames => [:environment, :user_id, :data_directory ] do |t|
+        file = @args[:data_directory] + 'SF_Altnames.txt' # was 'SFaltnames.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 
@@ -419,7 +419,7 @@ SFImportIDMap.txt
           ActiveRecord::Base.transaction do
             set_serial_import_predicates
 
-            CSV.foreach(args[:data_directory],
+            CSV.foreach(file,
                         headers:        true,
                         return_headers: false,
                         encoding:       'UTF-16LE:UTF-8',

@@ -56,6 +56,8 @@ namespace :tw do
        geographic_areas.dump
        geographic_areas_geographic_items.dump
        geographic_items.dump
+       serial_table.dump
+       serial_metadata_tables.dump
       } 
 
       puts "\nChecking for initialization data."
@@ -77,7 +79,26 @@ namespace :tw do
         puts "Found all required files.".bold
       end
     end
-    
+   
+    task :validate_initialization => [:environment] do
+      errors = false 
+      # TODO: have @tuckerjd sanity check this list, is something missing from Geo?
+      [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue, 
+       GeographicItem, GeographicAreaType, GeographicArea, GeographicAreasGeographicItem, 
+       Language, Repository].each do |klass|
+        if klass.count > 0
+          puts "Found #{klass.name.pluralize}.".bold
+        else
+          errors = true
+          puts "Could not find #{klass.name.pluralize}.".bold.red
+        end
+      end
+      if errors
+        puts "!! There were errors on initialization !!".bold.red.on_white
+        raise 
+      end
+    end
+
     task :all => [
       :environment,
       :check_for_clean_database,
@@ -85,10 +106,14 @@ namespace :tw do
       :create_administrator,
       :load_repositories,
       :load_languages,
-      :load_geo
+      :load_geo,
+      :load_serials, 
+      :validate_initialization
     ] do 
       puts "Success! Welcome to TaxonWorks.".bold.yellow
     end
+
+
 
   end
 end
