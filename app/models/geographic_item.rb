@@ -17,11 +17,6 @@ class GeographicItem < ActiveRecord::Base
   attr_accessor :geometry
   attr_accessor :shape
 
-  def shape=(value)
-    raise() if self.type.blank?
-    write_attribute(self.geo_object_type, value)
-  end
-
   LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<lon>-?\d+\.?\d*)/)
 
   DATA_TYPES = [:point,
@@ -62,7 +57,7 @@ class GeographicItem < ActiveRecord::Base
   # return [Scope]
   #   A scope that limits the result to those GeographicItems that have a collecting event
   #   through either the geographic_item or the error_geographic_item
-  # 
+  #
   # A raw SQL join approach for comparison
   #
   # GeographicItem.joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
@@ -75,7 +70,7 @@ class GeographicItem < ActiveRecord::Base
   #  https://github.com/rails/arel
   #  http://stackoverflow.com/questions/4500629/use-arel-for-a-nested-set-join-query-and-convert-to-activerecordrelation
   #  http://rdoc.info/github/rails/arel/Arel/SelectManager
-  #  http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition 
+  #  http://stackoverflow.com/questions/7976358/activerecord-arel-or-condition
   #
   def self.with_collecting_event_through_georeferences
     geographic_items = GeographicItem.arel_table
@@ -185,7 +180,7 @@ SELECT round(CAST(
 
 =end
 
-  # return [String(?)]
+  # @return [String(?)]
   #   distance in meters from this object to supplied 'geo_object'
   # TODO: use a geographic_item_id rather than a geo_object
   def st_distance(geo_object)
@@ -234,7 +229,7 @@ SELECT round(CAST(
 
 
   # @return [Scope]
-  # 
+  #
   # See comments https://groups.google.com/forum/#!topic/postgis-users/0nzm2SRUZVU on why this might not work
   # For the record: the problem was caused by incorrect escaping of strings.
   # I solved it by setting standard_conforming_strings = off in postgresql.conf
@@ -307,7 +302,7 @@ SELECT round(CAST(
 
   # @param [String, GeographicItem]
   # @return [String]
-  #   a SQL fragment for ST_DISJOINT, specifies all geographic_items that have data in column_name 
+  #   a SQL fragment for ST_DISJOINT, specifies all geographic_items that have data in column_name
   #   that are disjoint from the passed geographic_items
   def self.disjoint_from(column_name, *geographic_items)
     q = geographic_items.flatten.collect { |geographic_item|
@@ -318,7 +313,7 @@ SELECT round(CAST(
 
   # @param [String, GeographicItem]
   # @return [Scope]
-  #   
+  #
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
@@ -351,7 +346,7 @@ SELECT round(CAST(
     end
   end
 
-  # @return [Scope] 
+  # @return [Scope]
   #    containing the items the shape of which is contained in the geographic_item[s] supplied.
   # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
   # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
@@ -414,7 +409,7 @@ SELECT round(CAST(
 
   # @param [String, Integer, String]
   # @return [String]
-  #   a SQL fragment for ST_Contains() function, returns 
+  #   a SQL fragment for ST_Contains() function, returns
   #   all geographic items which are contained in the item supplied
   def self.containing_sql(target_column_name = nil, geographic_item_id = nil, source_column_name = nil)
     return 'false' if geographic_item_id.nil? || source_column_name.nil? || target_column_name.nil?
@@ -460,6 +455,31 @@ SELECT round(CAST(
   def self.excluding(geographic_items)
     where.not(id: geographic_items)
   end
+
+  # @param [String] type_name ('polygon', 'point', 'line' [, 'circle'])
+  # @return [String] if type
+  def self.eval_for_type(type_name)
+    retval = "GeographicItem"
+    case type_name.upcase
+      when 'POLYGON'
+        retval += '::Polygon'
+      when 'LINESTRING'
+        retval += '::LineString'
+      when 'POINT'
+        retval += '::Point'
+      when 'MULTIPOLYGON'
+        retval += '::MultiPolygon'
+      when 'MULTILINESTRING'
+        retval += '::MultiLineString'
+      when 'MULTIPOINT'
+        retval += '::MultiPoint'
+      else
+        retval = nil
+    end
+    retval
+  end
+
+  # instance methods
 
   # @return [Scope]
   def excluding_self
@@ -548,6 +568,14 @@ SELECT round(CAST(
   # def to_a
   #   see subclasses, perhaps not tested
   # end
+
+  # @param [String] value
+  def shape=(value)
+    geom      = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    self.type = eval_for_type(geom.geometry.to_s.split.first(1)) unless geom.nil?
+    raise('GeographicItem.type not set.') if self.type.blank?
+    write_attribute(self.geo_object_type, geom.geometry)
+  end
 
   protected
 

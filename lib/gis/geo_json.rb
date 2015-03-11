@@ -52,6 +52,15 @@ module Gis::GeoJSON
     result
   end
 
+  def self.feature(object)
+    result = {
+      'type'     => 'FeatureCollection',
+      'features' => []
+    }
+    result['features'].push(object.to_geo_json_feature)
+    result
+  end
+
 # # @return [a Feature]
 # def to_geo_json_using_entity_factory
 #   f                   = RGeo::GeoJSON::EntityFactory.new

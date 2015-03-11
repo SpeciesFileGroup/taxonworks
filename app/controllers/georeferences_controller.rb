@@ -32,6 +32,8 @@ class GeoreferencesController < ApplicationController
   # POST /georeferences
   # POST /georeferences.json
   def create
+    # need to modify type and shape for the geographic_item
+    # params['georeference']['geographic_item_attributes']['type'] = GeographicItem.eval_for_type(params['georeference']['geographic_item_attributes']['type'])
     @georeference = Georeference.new(georeference_params)
     # if shape and geo_type are set here, create the geo_object, and set geographic_item
     respond_to do |format|
@@ -85,7 +87,6 @@ class GeoreferencesController < ApplicationController
   def georeference_params
     params.require(:georeference).permit(:iframe_response,
                                          :geographic_item_id,
-                                         # :geographic_item: [:type],
                                          :collecting_event_id,
                                          :error_radius,
                                          :error_depth,
@@ -96,6 +97,7 @@ class GeoreferencesController < ApplicationController
                                          :is_public,
                                          :api_request,
                                          :is_undefined_z,
-                                         :is_median_z)
+                                         :is_median_z,
+                                         :geographic_item_attributes => [:shape])
   end
 end

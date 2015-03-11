@@ -368,6 +368,17 @@ describe GeographicItem, :type => :model do
     specify '#center_coords' do
       expect(@item_d.center_coords).to eq(["-0", "-0"])
     end
+
+    context '#shape on new' do
+      let(:object) { GeographicItem.new }
+      # '[40.190063612251016, -111.58300638198853]'
+      specify 'for point' do
+        pending 'fixing \'shape\''
+        object.type  = GeographicItem.eval_for_type('point')
+        object.shape = '[1.0, 2.0]'
+        expect(object.valid?).to be_truthy
+      end
+    end
   end
 
   context 'class methods' do
@@ -404,6 +415,13 @@ describe GeographicItem, :type => :model do
     specify '::containing_sql' do
       test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 2))'
       expect(GeographicItem.containing_sql('polygon', @p1.to_param, @p1.geo_object_type)).to eq(test1)
+    end
+
+    specify '::eval_for_type' do
+      expect(GeographicItem.eval_for_type('polygon')).to eq('GeographicItem::Polygon')
+      expect(GeographicItem.eval_for_type('linestring')).to eq('GeographicItem::LineString')
+      expect(GeographicItem.eval_for_type('point')).to eq('GeographicItem::Point')
+      expect(GeographicItem.eval_for_type('other_thing')).to eq(nil)
     end
 
     context 'scopes (GeographicItems can be found by searching with) ' do

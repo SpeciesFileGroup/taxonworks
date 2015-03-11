@@ -104,11 +104,11 @@ function initializeDrawItem(map_canvas, fgdata) {
             }
             feature.push({
                 "type": "Feature",
-                "properties": {},
                 "geometry": {
                     "type": overlayType,
-                    "coordinates": '[  [ ' + geometry.toString() + ' ]  ]'
-                }
+                    "coordinates": '[' + geometry.toString() + ']'
+                },
+                "properties": {}
             });
             if (radius != undefined) {feature[0]['properties'] = {"radius": radius};}
             featureCollection.push({ "type": "FeatureCollection", "features": feature})
@@ -122,8 +122,8 @@ function initializeDrawItem(map_canvas, fgdata) {
             //});
             var u = 0;
             $("#geoType").text(feature[0]["geometry"]["type"])
-            $("#geoShape").text(JSON.stringify(feature));
-            $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature));
+            $("#geoShape").text(JSON.stringify(feature[0]));
+            $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
             $("#map_coords").html(JSON.stringify(featureCollection));
         }
     );

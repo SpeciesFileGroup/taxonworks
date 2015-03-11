@@ -1,8 +1,8 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
-  
+
   def new
-    @otu                  = Otu.find(params[:asserted_distribution][:otu_id])
+    @otu                = Otu.find(params[:asserted_distribution][:otu_id])
     @feature_collection = ::Gis::GeoJSON.feature_collection([])
     source_id           = params[:asserted_distribution][:source_id]
     @source             = Source.find(source_id) unless source_id.blank?
