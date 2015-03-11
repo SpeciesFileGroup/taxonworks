@@ -183,12 +183,6 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_ranks
     tname = self.type_name
-    if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
-      unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-        errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
-        errors.add(:type, 'Not compatible with the rank of this taxon')
-      end
-    end
 
     if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
@@ -197,21 +191,32 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
     end
 
-    if object_taxon_name
-      if object_taxon_name.type == 'Protonym'
-        unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
-          errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-          errors.add(:type, 'Not compatible with the rank of related taxon')
+    if !self.type_class.blank? # only validate if it is set
+      if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
+        unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
+          errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
+          errors.add(:type, 'Not compatible with the rank of this taxon')
         end
       end
 
-      if object_taxon_name.type == 'Combination'
-        unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
-          soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-          soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+      if object_taxon_name
+        if object_taxon_name.type == 'Protonym'
+          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+            errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+            errors.add(:type, 'Not compatible with the rank of related taxon')
+          end
+        end
+
+        if object_taxon_name.type == 'Combination'
+          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
+            soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
+            soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+          end
         end
       end
     end
+
+
   end
 
   def validate_uniqueness_of_synonym_subject
