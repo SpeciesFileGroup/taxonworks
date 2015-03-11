@@ -574,7 +574,7 @@ SELECT round(CAST(
   # @param [String] value
   def shape=(value)
     geom      = RGeo::GeoJSON.decode(value, :json_parser => :json)
-    self.type = eval_for_type(geom.geometry.to_s.split.first(1)) unless geom.nil?
+    self.type = GeographicItem.eval_for_type(geom.geometry.to_s.split.first) unless geom.nil?
     raise('GeographicItem.type not set.') if self.type.blank?
     write_attribute(self.geo_object_type, geom.geometry)
   end

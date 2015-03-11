@@ -92,21 +92,22 @@ function initializeDrawItem(map_canvas, fgdata) {
                     radius = overlay.overlay.radius;
                     break;
             }
-            if (coordinates.length == 0) {
+            if (coordinates.length == 0) {      // 0 if not a point or circle
                 coordinates = overlay.overlay.getPath().getArray();
             }
-            for (var i = 0; i < coordinates.length; i++) {
-    //            geometry.push([coordinates[i].lat(), coordinates[i].lng()]);
-                geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
+            for (var i = 0; i < coordinates.length; i++) {      // for Point, Circle, LineString, Polygon
+                geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
+                //geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
             }
             if (overlayType == 'Polygon') {
-                geometry.push('[[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']]');
+                geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
+                //geometry.push('[[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']]');
             }
             feature.push({
                 "type": "Feature",
                 "geometry": {
                     "type": overlayType,
-                    "coordinates": '[' + geometry.toString() + ']'
+                    "coordinates": [ geometry ]
                 },
                 "properties": {}
             });
