@@ -94,6 +94,10 @@ class AlternateValuesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
+
+    if !@alternate_value.project_id.blank? && ($project_id != @alternate_value.project_id)
+      render status: 404 and return
+    end
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

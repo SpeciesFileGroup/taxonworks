@@ -98,7 +98,7 @@ class NotesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_note
-    @note = Note.find(params[:id])
+    @note = Note.with_project_id($project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -46,7 +46,7 @@ class LoanItemsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_loan_item
-      @loan_item = LoanItem.find(params[:id])
+      @loan_item = LoanItem.with_project_id($project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

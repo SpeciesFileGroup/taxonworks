@@ -66,7 +66,7 @@ class ProjectMembersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_project_member
-      @project_member = ProjectMember.find(params[:id])
+      @project_member = ProjectMember.where(project_id: $project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

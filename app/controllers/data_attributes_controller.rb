@@ -97,6 +97,10 @@ class DataAttributesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
+
+    if !@data_attribute.project_id.blank? && ($project_id != @data_attribute.project_id)
+      render status: 404 and return
+    end
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

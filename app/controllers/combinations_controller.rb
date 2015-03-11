@@ -60,7 +60,7 @@ class CombinationsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_content
-    @combination = Combination.find(params[:id])
+    @combination = Combination.with_project_id($project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

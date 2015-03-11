@@ -100,7 +100,7 @@ class CollectionObjectsController < ApplicationController
   private
 
   def set_collection_object
-    @collection_object = CollectionObject.find(params[:id])
+    @collection_object = CollectionObject.with_project_id($project_id).find(params[:id])
   end
 
   def collection_object_params
