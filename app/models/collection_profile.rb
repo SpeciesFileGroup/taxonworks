@@ -34,11 +34,12 @@ class CollectionProfile < ActiveRecord::Base
     :validate_indices,
     :validate_date
 
-
   # COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1] - see config/initializers/collection_profile.rb for indices
 
-  #region Profile indices
+  # region Profile indices
 
+  # @return [Array]
+  #   set of all provided indecies, if any is not provided return an empty array
   def collection_profile_indices
     i = [self.conservation_status,
          self.processing_state,
@@ -51,6 +52,8 @@ class CollectionProfile < ActiveRecord::Base
     i.size == 8 ? i : []
   end
 
+  # @return [Float, nil]
+  #    the average of all 8 indecies
   def average_profile_index
     i = self.collection_profile_indices
     i.empty? ? nil : i.sum / i.size.to_f
