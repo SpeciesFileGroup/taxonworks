@@ -11,6 +11,7 @@ FactoryGirl.define do
   
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
+    # Note this should *not* the parent_is_root trait
     factory :valid_protonym, traits: [:parent_is_root] do
       name 'Aaidae'
       rank_class Ranks.lookup(:iczn, 'family')

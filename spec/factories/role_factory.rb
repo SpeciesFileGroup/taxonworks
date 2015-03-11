@@ -5,5 +5,12 @@ FactoryGirl.define do
       association :person, factory: :valid_person
       association :role_object, factory: :valid_source_bibtex
     end
+
+    # This is a stub for Project warning/specs
+    factory :valid_project_role do
+      type 'Collector' 
+      association :person, factory: :valid_person
+      association :role_object, factory: :valid_collecting_event
+    end
   end
 end

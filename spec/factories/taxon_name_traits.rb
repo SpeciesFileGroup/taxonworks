@@ -9,16 +9,24 @@ FactoryGirl.define do
   end
 
   trait :parent_is_root do
-    parent {
-      p =  Protonym.where(parent_id: nil) 
-      if p.blank?
-        # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
-        name = FactoryGirl.build(:root_taxon_name, id: Faker::Number.number(5))  
-      else
-        name = p.first
-      end
-      name 
-    }
+   callback(:after_build, :before_create, :after_stub) do |protonym| 
+     t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1)
+        if t.any?
+          protonym.parent = t.first
+        else
+          protonym.parent = FactoryGirl.create(:root_taxon_name)
+        end
+      end 
+   #  parent {
+   #    p =  Protonym.where(parent_id: nil, project_id: $project_id) 
+   #    if p.blank?
+   #      # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
+   #      name = FactoryGirl.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(5)  
+   #    else
+   #      name = p.first
+   #    end
+   #    name 
+   #  }
     # ignore do
     #   associated_attributes nil
     # end
