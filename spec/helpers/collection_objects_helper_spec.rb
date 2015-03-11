@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectionObjectsHelper, :type => :helper do
   context 'a collection_object needs some helpers' do
-    let(:collection_object) { FactoryGirl.create(:valid_collection_object) }
+    let(:collection_object) { FactoryGirl.create(:valid_specimen) }
 
     specify '::collection_object_tag' do
       expect(CollectionObjectsHelper.collection_object_tag(collection_object)).to eq(collection_object.type)
