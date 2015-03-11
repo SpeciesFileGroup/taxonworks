@@ -569,6 +569,8 @@ SELECT round(CAST(
   #   see subclasses, perhaps not tested
   # end
 
+  # '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
+  # '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],[-67.11035013198853, 45.09937589848195],[-80.64550638198853, 25.01924647619111],[-117.55956888198853, 32.5591595028449],[-125.29394388198853, 48.584480409793]]]"},"properties":{}}'
   # @param [String] value
   def shape=(value)
     geom      = RGeo::GeoJSON.decode(value, :json_parser => :json)

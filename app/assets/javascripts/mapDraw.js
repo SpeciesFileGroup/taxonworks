@@ -100,7 +100,7 @@ function initializeDrawItem(map_canvas, fgdata) {
                 geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
             }
             if (overlayType == 'Polygon') {
-                geometry.push('[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']');
+                geometry.push('[[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']]');
             }
             feature.push({
                 "type": "Feature",
