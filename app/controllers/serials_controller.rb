@@ -72,7 +72,7 @@ class SerialsController < ApplicationController
       format.json { head :no_content }
     end
   end
-                                                                      ``
+
   def search
     if  params[:id]
       redirect_to serial_path(params[:id])
