@@ -13,7 +13,7 @@ module CollectionObjectsHelper
 
   def collection_object_link(collection_object)
     return nil if collection_object.nil?
-    link_to(collection_object_tag(collection_object).html_safe, collection_object)
+    link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
   end
 
   def collection_objects_search_form
