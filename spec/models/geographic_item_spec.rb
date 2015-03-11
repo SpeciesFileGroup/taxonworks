@@ -373,9 +373,9 @@ describe GeographicItem, :type => :model do
       let(:object) { GeographicItem.new }
       # '[40.190063612251016, -111.58300638198853]'
       specify 'for point' do
-        pending 'fixing \'shape\''
-        object.type  = GeographicItem.eval_for_type('point')
-        object.shape = '[1.0, 2.0]'
+        # pending 'fixing \'shape\''
+        object.shape = '{"type":"Feature","geometry":{"type":"Point",' +
+          '"coordinates":[-88.0975631475394,40.45993808344767]},' + '"properties":{"name":"Paxton City Hall"}}'
         expect(object.valid?).to be_truthy
       end
     end
