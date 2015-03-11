@@ -5,11 +5,11 @@ describe TaxonNameRelationship, :type => :model do
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
   before(:all) do
-    TaxonName.delete_all
-    TaxonNameRelationship.delete_all
+    #TaxonName.delete_all
+    #TaxonNameRelationship.delete_all
 
-    @taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
-    @taxon_name_relationship.valid?
+    #@taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
+    #@taxon_name_relationship.valid?
 
     @species = FactoryGirl.create(:relationship_species)
     @genus = @species.ancestor_at_rank('genus')
@@ -121,8 +121,8 @@ describe TaxonNameRelationship, :type => :model do
     end
 
     specify 'object_taxon_name_id != subject_taxon_name_id' do
-      taxon_name_relationship.object_taxon_name_id = 5
-      taxon_name_relationship.subject_taxon_name_id = 5 
+      taxon_name_relationship.object_taxon_name = @species
+      taxon_name_relationship.subject_taxon_name = @species 
       taxon_name_relationship.valid?
       expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
     end
