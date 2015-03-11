@@ -47,30 +47,7 @@ function initializeDrawItem(map_canvas, fgdata) {
         }
     });
     drawingManager.setMap(map);
-    //google.maps.event.addListener(drawingManager, 'polygoncomplete', function (polygon) {
-    //        var feature = [];
-    //        var coordinates = [];
-    //        var geometry = [];
-    //        coordinates = (polygon.getPath().getArray());
-    //        var v = 0;
-    //        for (var i = 0; i < coordinates.length; i++) {
-    //            geometry.push('[' + coordinates[i].lat().toString() + ', ' + coordinates[i].lng().toString() + ']');
-    //        }
-    //    // capture the drawn graphic item
-    //        feature.push({
-    //            "type": "Feature",
-    //            "geometry": {
-    //                "type": "Polygon",
-    //                "coordinates": geometry.toString()
-    //            }
-    //        });
-    //
-    //        $("#geoType").text(feature[0]["geometry"]["type"]);
-    //        $("#georeference_geographic_item_attributes_type").val(feature[0]["geometry"]["type"]);
-    //        $("#geoShape").text(feature[0]["geometry"]["coordinates"]);
-    //        $("#georeference_geographic_item_attributes_shape").val(feature[0]["geometry"]["coordinates"]);
-    //    }
-    //);
+
     google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
             var featureCollection = [];
             var feature = [];
@@ -96,7 +73,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
                 coordinates = overlay.overlay.getPath().getArray();     // so get the array from the path
 
-                for (var i = 0; i < coordinates.length; i++) {      // for Point, Circle, LineString, Polygon
+                for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
                     geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
                     //geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
                 }
@@ -109,7 +86,7 @@ function initializeDrawItem(map_canvas, fgdata) {
                     coordList = geometry;
                 }
             }
-            else {
+            else {          // it is a circle or point
                 geometry = [coordinates[0].lng(), coordinates[0].lat()];
                 coordList = geometry;
             }
@@ -122,29 +99,21 @@ function initializeDrawItem(map_canvas, fgdata) {
                 },
                 "properties": {}
             });
+
+            // if it is a circle, the radius will be defined, so set the property
             if (radius != undefined) {feature[0]['properties'] = {"radius": radius};}
+
+            // make a full-fledged FeatureCollection for grins
             featureCollection.push({ "type": "FeatureCollection", "features": feature})
-            //var alt = [];
-            //alt.push({
-            //    "type": "Feature",
-            //    "geometry": {
-            //        "type": overlay.type,
-            //        "coordinates": google.maps.geometry.encoding.encodePath(coordinates)
-            //    }
-            //});
-            var u = 0;
+
             $("#geoType").text(feature[0]["geometry"]["type"])
             $("#geoShape").text(JSON.stringify(feature[0]));
             $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-            $("#map_coords").html(JSON.stringify(featureCollection));
+            $("#map_coords").html(JSON.stringify(featureCollection[0]));
+
+            document.getElementsByName('commit')[0].disabled = false;
         }
     );
-    //google.maps.event.addListener(map.DrawingManager, 'circlecomplete', function(circle) {
-    //        var coordinates = [];
-    //        coordinates = (circle.overlay.getPath().getArray());
-    //    }
-    //);
-
 }
 
 function addDrawingListeners(map, event) {
