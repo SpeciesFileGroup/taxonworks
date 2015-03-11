@@ -9,7 +9,7 @@
     <% unless @serial.all_previous.empty? %>
         <h3>Preceeding</h3>
         <ul class="no_bullets">
-          <% @serial.all_previous.each do |ps| %>
+          <% @serial.all_previous.flatten.each do |ps| %>
               <li><%= object_link(ps) %></li>
           <% end %>
         </ul>
@@ -18,7 +18,7 @@
     <% unless @serial.all_succeeding.empty? %>
         <h3>Succeeding</h3>
         <ul class="no_bullets">
-          <% @serial.all_succeeding.each do |ps| %>
+          <% @serial.all_succeeding.flatten.each do |ps| %>
               <li><%= object_link(ps) %></li>
           <% end %>
         </ul>
