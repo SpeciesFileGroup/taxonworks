@@ -893,11 +893,15 @@ class TaxonName < ActiveRecord::Base
 
   def check_new_parent_class
     if self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
-      old_parent = TaxonName.find_by_id(self.parent_id_was)
-      if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
-        errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
+      old_parent = TaxonName.where(id: self.parent_id_was)
+      if old_parent.any?
+        old_parent = old_parent.first
+        if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
+          errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
+        end
       end
     end
+
   end
 
   def validate_source_type
