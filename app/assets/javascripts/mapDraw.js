@@ -21,7 +21,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             ]
         },
         markerOptions: {
-
+            editable: true
         },
         circleOptions: {
             fillColor: '#66cc00',
@@ -75,6 +75,7 @@ function initializeDrawItem(map_canvas, fgdata) {
             var featureCollection = [];
             var feature = [];
             var coordinates = [];
+            var coordList = [];
             var geometry = [];
             var overlayType = overlay.type[0].toUpperCase() + overlay.type.slice(1);
             var radius = undefined;
@@ -92,22 +93,32 @@ function initializeDrawItem(map_canvas, fgdata) {
                     radius = overlay.overlay.radius;
                     break;
             }
-            if (coordinates.length == 0) {      // 0 if not a point or circle
-                coordinates = overlay.overlay.getPath().getArray();
+            if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
+                coordinates = overlay.overlay.getPath().getArray();     // so get the array from the path
+
+                for (var i = 0; i < coordinates.length; i++) {      // for Point, Circle, LineString, Polygon
+                    geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
+                    //geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
+                }
+                if (overlayType == 'Polygon') {
+                    geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
+                    //geometry.push('[[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']]');
+                    coordList.push(geometry);
+                }
+                else {
+                    coordList = geometry;
+                }
             }
-            for (var i = 0; i < coordinates.length; i++) {      // for Point, Circle, LineString, Polygon
-                geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
-                //geometry.push('[' + coordinates[i].lng().toString() + ', ' + coordinates[i].lat().toString() + ']');
+            else {
+                geometry = [coordinates[0].lng(), coordinates[0].lat()];
+                coordList = geometry;
             }
-            if (overlayType == 'Polygon') {
-                geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
-                //geometry.push('[[' + coordinates[0].lng().toString() + ', ' + coordinates[0].lat().toString() + ']]');
-            }
+
             feature.push({
                 "type": "Feature",
                 "geometry": {
                     "type": overlayType,
-                    "coordinates": [ geometry ]
+                    "coordinates": coordList
                 },
                 "properties": {}
             });
