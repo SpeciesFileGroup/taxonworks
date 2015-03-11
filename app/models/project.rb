@@ -75,7 +75,8 @@ class Project < ActiveRecord::Base
     }
 
     known.each do |k|
-      if !order.include?(k) && !k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
+      next if k.constantize.table_name == 'test_classes'  # TODO: a kludge to ignore stubbed classes in testing
+      if !order.include?(k) 
         raise "#{k} has not been added to #nuke order." 
       end
     end
