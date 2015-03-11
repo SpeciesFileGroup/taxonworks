@@ -65,7 +65,7 @@ module Features
       @project_administrator = User.create!(name: 'Pat Project Administrator', email: 'project_administrator@example.com', password: @password, password_confirmation: @password, self_created: true)
       @administrator = User.create!(name: 'Pat the Administrator', email: 'administrator@example.com', password: @password, password_confirmation: @password, is_administrator: true, self_created: true)
 
-      @project = Project.create!(name: 'My Project', creator: @administrator, updater: @administrator)
+      @project = Project.create!(name: 'My Project', creator: @administrator, updater: @administrator, without_root_taxon_name: true)
 
       @project.project_members.create!(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
       @project.project_members.create!(creator: @administrator, updater: @administrator, user: @user) 
