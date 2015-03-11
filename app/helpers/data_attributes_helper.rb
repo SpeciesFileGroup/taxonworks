@@ -7,9 +7,16 @@ module DataAttributesHelper
                                         attribute_subject_id: object.id})) if object.has_data_attributes?
   end
 
+  # TODO: add a cached?
   def data_attribute_tag(data_attribute)
     return nil if data_attribute.nil?
-    "#{data_attribute.controlled_vocabulary_term_id} (#{data_attribute.type.demodulize.titleize.humanize})"
+    if data_attribute.type == 'ImportAttribute'
+      data_attribute.import_predicate + ": " + data_attribute.value 
+    elsif data_attribute.type == 'InternalAttribute'
+      data_attribute.predicate.name + ": " + data_attribute.value 
+    else
+      '!! WARNING: bad data attribute, contact your administrator !!' 
+    end
   end
 
   def data_attribute_link(data_attribute)

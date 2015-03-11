@@ -163,7 +163,7 @@ class Serial < ActiveRecord::Base
 
       out_array.push(succeeding) unless succeeding.empty?
     end
-    return out_array
+    return out_array.flatten
   end
 
   def self.generate_download(scope)
