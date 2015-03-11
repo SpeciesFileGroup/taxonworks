@@ -27,7 +27,7 @@ describe TaxonNamesController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:root_name) { FactoryGirl.create(:root_taxon_name) }
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_protonym).attributes).merge(parent_id: root_name.id) }
+  let(:valid_attributes) { {name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent_id: root_name.id, type: 'Protonym' }}
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

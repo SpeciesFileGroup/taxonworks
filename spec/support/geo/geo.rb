@@ -540,7 +540,8 @@ def prepare_test
 
   p = Project.order(:id).first
   if p.nil?
-    p = FactoryGirl.create(:valid_project, id: 1)
+    p = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true)
+  
   end
   $project_id = p.id
 

@@ -582,7 +582,7 @@ describe TaxonName, :type => :model do
   # DO NOT USE before(:all) OR any factory that creates the full hierarchy here
   context 'clean slates' do
     context 'methods from awesome_nested_set' do
-      let(:p) { Project.create(name: 'Taxon-name root test.') }
+      let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
       let(:root1) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
       let(:root2) { FactoryGirl.build(:root_taxon_name) }
 
