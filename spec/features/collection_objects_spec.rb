@@ -20,7 +20,7 @@ describe 'CollectionObjects', :type => :feature do
   context 'with some records created' do
     before {
       sign_in_user_and_select_project
-      10.times { factory_girl_create_for_user_and_project(:valid_collection_object, @user, @project) }
+      10.times { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
     }
 
     describe 'GET /collection_objects/list' do
