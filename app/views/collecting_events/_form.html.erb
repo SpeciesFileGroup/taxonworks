@@ -20,19 +20,25 @@
         <div class="field">
           <%= f.label :verbatim_locality %>
           <br>
-          <%= f.text_area :verbatim_locality %>
+          <%= f.text_area :verbatim_locality, cols: 30 %>
         </div>
 
         <div class="field">
           <%= f.label :verbatim_collectors %>
           <br>
-          <%= f.text_field :verbatim_collectors %>
+          <%= f.text_field :verbatim_collectors, size: 35 %>
         </div>
 
         <div class="field">
           <%= f.label :verbatim_method %>
           <br>
-          <%= f.text_field :verbatim_method %>
+          <%= f.text_field :verbatim_method, size: 35 %>
+        </div>
+
+        <div class="field">
+          <%= f.label :verbatim_habitat %>
+          <br>
+          <%= f.text_field :verbatim_habitat, size: 35 %>
         </div>
 
         <div class="field">
@@ -61,15 +67,9 @@
         <div class="field">
           <%= f.label :verbatim_trip_identifier %>
           <br>
-          <%= f.text_field :verbatim_trip_identifier %>
+          <%= f.text_field :verbatim_trip_identifier,  size: 35 %>
         </div>
      
-        <div class="field">
-          <%= f.label :verbatim_habitat %>
-          <br>
-          <%= f.text_field :verbatim_habitat %>
-        </div>
-
         <div class="field">
           <%= f.label :verbatim_elevation %>
           <br>
@@ -204,34 +204,38 @@
             <td class="field"> <%= f.text_field :elevation_precision, size: 6 %></td>
           </tr>
         </table>
+
+        <br />
+        <div class="field label_above">
+          <%= f.label :field_notes %>
+          <br>
+          <%= f.text_area :field_notes, cols: 50, rows:5 %>
+        </div>
       </div>
 
 
       <div class="item item3">
-        <div class="field">
+        <h3> Labels </h3>
+
+        <div class="field label_above">
           <%= f.label :verbatim_label %>
           <br>
-          <%= f.text_area :verbatim_label %>
+          <%= f.text_area :verbatim_label, cols: 30, rows: 8 %>
         </div>
-        <div class="field">
+
+        <div class="field label_above" >
           <%= f.label :print_label %>
           <br>
-          <%= f.text_area :print_label %>
+          <%= f.text_area :print_label, cols: 30, rows: 8 %>
         </div>
-        <div class="field">
+
+        <div class="field label_above">
           <%= f.label :document_label %>
           <br>
-          <%= f.text_area :document_label %>
+          <%= f.text_area :document_label, cols: 30, rows: 8 %>
         </div>
-
         <br>
-
-        <div class="field">
-          <%= f.label :field_notes %>
-          <br>
-          <%= f.text_area :field_notes %>
-        </div>
-      </div>
+     </div>
     </div>
 
     <div class="actions">
