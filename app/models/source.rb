@@ -25,7 +25,7 @@ class Source < ActiveRecord::Base
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 
-  after_validation :set_cached_values
+  after_validation :set_cached
 
   validates_presence_of :type
 
@@ -117,7 +117,7 @@ class Source < ActiveRecord::Base
 
   protected
 
-  def set_cached_values
+  def set_cached
     # in subclasses
   end
 
