@@ -32,16 +32,15 @@ class GeoreferencesController < ApplicationController
   # POST /georeferences
   # POST /georeferences.json
   def create
-    # need to modify type and shape for the geographic_item
-    # params['georeference']['geographic_item_attributes']['type'] = GeographicItem.eval_for_type(params['georeference']['geographic_item_attributes']['type'])
+    # geographic_item is embedded in the params
     @georeference = Georeference.new(georeference_params)
-    # if shape and geo_type are set here, create the geo_object, and set geographic_item
     respond_to do |format|
       if @georeference.save
         format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
         format.json { render action: 'show', status: :created, location: @georeference }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
+        # format.html { redirect_to "/georeferences/google_maps/new?collecting_event_id=#{@collecting_event.id}", notice: 'Georeference was NOT successfully created.' }
         format.json { render json: @georeference.errors, status: :unprocessable_entity }
       end
     end

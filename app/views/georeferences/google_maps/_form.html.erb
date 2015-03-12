@@ -1,4 +1,18 @@
-<h1>New Map Item by Drawing</h1>
+
+<h2>New Map Item by Drawing</h2>
+<% if @georeference.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being
+        saved:</h2>
+
+      <ul>
+        <% @georeference.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+<% end %>
+
 <div class="flexbox">
   <div class="item item1">
     For collecting event:<br>
