@@ -1,9 +1,6 @@
 require 'rails_helper'
 
 describe CollectingEvent, :type => :model do
-  before(:all) {
-    # generate_geo_test_objects
-  }
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
@@ -39,13 +36,13 @@ describe CollectingEvent, :type => :model do
       expect(collecting_event.errors.include?(:verbatim_geolocation_uncertainty)).to be_truthy
     end
 
-    specify 'corresponding verbatim_latitude value is provide' do
+    specify 'corresponding verbatim_latitude value is provided' do
       collecting_event.verbatim_latitude = '12.345'
       expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors.include?(:verbatim_longitude)).to be_truthy
     end
 
-    specify 'corresponding verbatim_longitude value is provide' do
+    specify 'corresponding verbatim_longitude value is provided' do
       collecting_event.verbatim_longitude = '12.345'
       expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors.include?(:verbatim_latitude)).to be_truthy
@@ -196,8 +193,14 @@ describe CollectingEvent, :type => :model do
     end
   end
 
-  context 'actions' do
+  context '#cached' do
+    specify 'after save there is always some value' do
+      collecting_event.save!
+      expect(collecting_event.cached.blank?).to be_falsey, collecting_event.cached
+    end
+  end
 
+  context 'actions' do
     specify 'if a verbatim_label is present then a md5_of_verbatim_label is generated' do
       collecting_event.verbatim_label = "Label\nAnother line\nYet another line."
       expect(collecting_event.md5_of_verbatim_label.blank?).to be_falsey
@@ -644,7 +647,6 @@ describe CollectingEvent, :type => :model do
       end
     end
   end
-
 
   specify '#time_start pads' do 
     collecting_event.time_start_hour = 4

@@ -87,14 +87,7 @@ class CollectingEvent < ActiveRecord::Base
                     :check_date_range,
                     :check_elevation_range
   before_save :set_cached
-
   before_save :set_times_to_nil_if_form_provided_blank
-
-  def set_times_to_nil_if_form_provided_blank
-    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
-    self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end   = nil if matches.include?(self.time_end.to_s)
-  end
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
@@ -618,12 +611,22 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   protected
 
   def set_cached
+    string = nil 
+
     if verbatim_label.blank?
-      cached = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, verbatim_collectors, "\n"].compact.join
+      string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join
     else
-      cached = verbatim_label
+      string = [verbatim_label, print_label, document_label].compact.first 
     end
-    cached ||= "[#{self.id.to_param}]"
+
+    string = "[#{self.id.to_param}]" if string.strip.length == 0
+    self.cached = string 
+  end
+
+  def set_times_to_nil_if_form_provided_blank
+    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    self.time_start = nil if matches.include?(self.time_start.to_s)
+    self.time_end   = nil if matches.include?(self.time_end.to_s)
   end
 
   def check_verbatim_geolocation_uncertainty
