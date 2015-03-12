@@ -7,16 +7,35 @@
 #   This is the only valid attribute of Source::Verbatim. It is the verbatim representation of the source.
 #
 class Source::Verbatim < Source
-  
+ 
+  validates_presence_of :verbatim
+  validate :only_verbatim_is_populated
+
   def authority_name
     nil
   end
 
+  def generate_bibtex
+    return false if self.verbatim.blank?
+    result = Source.new_from_citation(citation: self.verbatim)
+    if result.type == 'Source::Bibtex'
+      result
+    else
+      false
+    end
+  end
+
   protected
 
-  def set_cached_values
-    self.cached_author_string = authority_name
+  def set_cached
     self.cached = self.verbatim
+  end
+
+  def only_verbatim_is_populated
+    self.attributes.each do |k, v|
+      next if %w{type cached verbatim created_by_id updated_by_id}.include?(k)
+      errors.add(k, 'can not be provided to a verbatim reference') if !v.blank?
+    end
   end
 
 end
