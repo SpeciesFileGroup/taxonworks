@@ -373,9 +373,23 @@ describe GeographicItem, :type => :model do
       let(:object) { GeographicItem.new }
       # '[40.190063612251016, -111.58300638198853]'
       specify 'for point' do
-        # pending 'fixing \'shape\''
         object.shape = '{"type":"Feature","geometry":{"type":"Point",' +
           '"coordinates":[-88.0975631475394,40.45993808344767]},' + '"properties":{"name":"Paxton City Hall"}}'
+        expect(object.valid?).to be_truthy
+      end
+      specify 'for polygon' do
+        object.shape = '{"type":"Feature","geometry":{"type":"Polygon",' +
+          '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{}}'
+        expect(object.valid?).to be_truthy
+      end
+      specify 'for linestring' do
+        object.shape = '{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],[-87.62384042143822,41.89478088863241]]},"properties":{}}'
+        expect(object.valid?).to be_truthy
+      end
+      specify 'for circle' do
+        object.shape = '{"type":"Feature","geometry":{"type":"Point",' +
+          '"coordinates":[-88.09681320155505,40.461195702960666]},' +
+          '"properties":{"radius":1468.749413840412, "name":"Paxton City Hall"}}'
         expect(object.valid?).to be_truthy
       end
     end
