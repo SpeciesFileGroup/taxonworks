@@ -42,7 +42,7 @@ class Identifier < ActiveRecord::Base
   include Shared::IsData 
   include Shared::Annotates
 
-  before_save :set_cached_value
+  before_save :set_cached
 
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identifier_object, polymorphic: :true
@@ -105,7 +105,7 @@ class Identifier < ActiveRecord::Base
 
   protected
 
-  def set_cached_value
+  def set_cached
   end
   
 end

@@ -22,7 +22,7 @@ class Identifier::Global < Identifier
 
   protected
 
-  def set_cached_value
+  def set_cached
     self.cached = identifier
   end
 

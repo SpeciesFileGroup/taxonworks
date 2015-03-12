@@ -40,10 +40,8 @@ class Identifier::Local < Identifier
 
   protected
 
-  def set_cached_value
-    if errors.empty?
-      self.cached = namespace.short_name + " " + identifier.to_s
-    end
+  def set_cached
+    self.cached = namespace.short_name + " " + identifier.to_s
   end
 
 end
