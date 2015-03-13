@@ -49,11 +49,12 @@ function initializeDrawItem(map_canvas, fcdata) {
 
     var mapData = fcdata;
     map.data.setStyle({
-        fillColor: '#440000',
+        fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
         strokeWeight: 1,
-        fillOpacity: 0.3
+        fillOpacity: 0.2,
+        markerColor: '#333333'
     });
     map.data.addGeoJson(mapData);
     // bounds for calculating center point
