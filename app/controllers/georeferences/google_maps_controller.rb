@@ -10,6 +10,10 @@ class Georeferences::GoogleMapsController < ApplicationController
     @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event, geographic_item: GeographicItem.new)
   end
 
+  def re_new
+    errors = @georeference.errors
+  end
+
   # POST /georeferences
   # POST /georeferences.json
   # def create

@@ -39,8 +39,10 @@ class GeoreferencesController < ApplicationController
         format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
         format.json { render action: 'show', status: :created, location: @georeference }
       else
-        format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
-        # format.html { redirect_to "/georeferences/google_maps/new?collecting_event_id=#{@collecting_event.id}", notice: 'Georeference was NOT successfully created.' }
+        format.html { render 'google_maps/new', action: 'new', notice: 'Georeference was NOT successfully created.' }
+        # format.html { render action: 'new', notice: 'Georeference was NOT successfully created.' }
+        # format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
+        # format.html { redirect_to "/georeferences/google_maps/new?collecting_event_id=#{@georeference.collecting_event_id}", notice: 'Georeference was NOT successfully created.' }
         format.json { render json: @georeference.errors, status: :unprocessable_entity }
       end
     end
