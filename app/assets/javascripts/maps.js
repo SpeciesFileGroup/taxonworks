@@ -1,9 +1,9 @@
 /* Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
  */
 
-var initialize;
+var initializeMap;
 
-initialize = function(canvas, feature_collection) {
+initializeMap = function(canvas, feature_collection) {
   var myOptions = {
     zoom: 1,
     center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0

@@ -1,4 +1,4 @@
-function initializeDrawItem(map_canvas, fgdata) {
+function initializeDrawItem(map_canvas, fcdata) {
     var mapOptions = {
         center: new google.maps.LatLng(40, -88),
         zoom: 3
@@ -46,6 +46,24 @@ function initializeDrawItem(map_canvas, fgdata) {
             strokeColor: 'black'
         }
     });
+
+    var mapData = fcdata;
+    map.data.setStyle({
+        fillColor: '#440000',
+        strokeOpacity: 0.5,
+        strokeColor: "black",
+        strokeWeight: 1,
+        fillOpacity: 0.3
+    });
+    map.data.addGeoJson(mapData);
+    // bounds for calculating center point
+    var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
+    get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+    var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+    $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
+    map.setCenter(center_lat_long);
+    map.setZoom(bounds.gzoom);
+
     drawingManager.setMap(map);
 
     google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
@@ -114,6 +132,8 @@ function initializeDrawItem(map_canvas, fgdata) {
             document.getElementsByName('commit')[0].disabled = false;
         }
     );
+    return map;
+
 }
 
 function addDrawingListeners(map, event) {
