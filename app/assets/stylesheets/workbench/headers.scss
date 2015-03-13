@@ -1,0 +1,34 @@
+@import 'palette';
+
+#header_bar {
+  align-items: flex-end;
+  border-bottom: 1px solid $color-secondary-1-4;
+
+  #taxonworks {
+    font-weight: bold;
+    a {
+      font-size: 26px;
+      text-decoration: none;
+    }
+  }
+
+  #session_nav {
+    flex-grow: 0;
+  }
+}
+
+
+
+#main {
+  h1 {
+  }
+
+  h2 {
+
+  }
+
+  h3 {
+
+  }
+}
+
