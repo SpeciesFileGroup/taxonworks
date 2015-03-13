@@ -8,6 +8,8 @@ class Georeferences::GoogleMapsController < ApplicationController
   def new
     @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
     @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event, geographic_item: GeographicItem.new)
+
+    @feature_collection = Gis::GeoJSON.feature_collection(@collecting_event.georeferences)
   end
 
   def re_new

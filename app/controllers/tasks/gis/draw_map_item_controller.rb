@@ -19,8 +19,8 @@ class Tasks::Gis::DrawMapItemController < ApplicationController
         params['latitude'].to_f,
         params['longitude'].to_f
     )
-
     @feature_collection     = ::Gis::GeoJSON.feature_collection(geographic_areas)
+
     # @asserted_distributions = AssertedDistribution.stub_new(collection_params(params).merge('geographic_areas' => geographic_areas))
 
     # render json: {
