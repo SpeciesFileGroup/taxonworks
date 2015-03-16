@@ -133,8 +133,5 @@ module Workbench::SessionsHelper
     sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil
   end
 
-  def taxonworks_link
-    content_tag(:h1,  link_to('TaxonWorks', root_path, id: :taxonworks_link) )
-  end
 
 end
