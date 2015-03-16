@@ -17,7 +17,10 @@
 #   To be used, for example, when reporting Holotype labels.
 # @!attribute verbatim_locality
 #   @return [String]
-#   A string, typically sliced from verbatim_label, that represents the locality, including any modifiers (2 mi NE).
+#     a string, typically sliced from verbatim_label, that represents the locality, including any modifiers (2 mi NE).
+# @!attribute verbatim_date
+#   @return [String]
+#     a string typically sliced from verbatim_label, that represents the collective date. Is not calculated on. Same as http://rs.tdwg.org/dwc/terms/verbatimEventDate.
 # @!attribute verbatim_longitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the longitude. Is used to derive mappable values, but does not get mapped itself

@@ -24,6 +24,12 @@
         </div>
 
         <div class="field">
+          <%= f.label :verbatim_date %>
+          <br>
+          <%= f.text_field :verbatim_date, size: 35 %>
+        </div>
+
+        <div class="field">
           <%= f.label :verbatim_collectors %>
           <br>
           <%= f.text_field :verbatim_collectors, size: 35 %>
@@ -112,7 +118,7 @@
                   <%= f.text_field :start_date_day, size: 2 %>
                 </td>
                 <td>
-                  <%= f.text_field :start_date_month, size: 9 %>
+                  <%= select_month(nil, field_name: :start_date_month, prefix: 'collecting_event', include_blank: true) %>
                 </td>
                 <td>
                   <%= f.text_field :start_date_year, size: 4 %>
@@ -140,7 +146,7 @@
                   <%= f.text_field :end_date_day, size: 2 %>
                 </td>
                 <td>
-                  <%= f.text_field :end_date_month, size: 9 %>
+                  <%= select_month(nil, field_name: :end_date_month, prefix: 'collecting_event', include_blank: true) %>
                 </td>
                 <td>
                   <%= f.text_field :end_date_year, size: 4 %>
