@@ -594,8 +594,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   # @param params [Hash] of parameters for this search
   # @return [Scope] of collecting_events found by (partial) verbatim_locality
   def self.find_for_autocomplete(params)
-    where('verbatim_locality LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
-    # changed from 'cached' to 'verbatim_locality':
+    Queries::CollectingEventAutocompleteQuery.new(params[:term]).all
   end
 
   # @param [Scope]
