@@ -660,7 +660,7 @@ class Source::Bibtex < Source
     end
   end
 
-  def set_cached_values
+  def set_cached
     if self.errors.empty?
       self.cached               = cached_string
       self.cached_author_string = authority_name
