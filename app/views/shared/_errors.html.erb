@@ -1,5 +1,15 @@
-<% if thing.errors.any? %>
-  <p class="alert alert--error">
-    <%= thing.errors.full_messages.join('. ') %>
-  </p>
+<% if object.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(object.errors.count, 'error') %> prohibited this user from being saved:</h2>
+
+    <ul>
+      <% object.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
 <% end %>
+
+
+
+
