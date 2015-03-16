@@ -46,16 +46,16 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    link_to('New', new_path_for_model(model))
+    link_to('new', new_path_for_model(model))
   end
 
   def list_for_model_link(model)
-    link_to('List', list_path_for_model(model))
+    link_to('list', list_path_for_model(model))
   end
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model))
+      link_to('download', download_path_for_model(model))
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -99,6 +99,15 @@ module Workbench::NavigationHelper
 
   def batch_preview_model_path
     send("batch_preview_#{controller_name.to_s.pluralize}_path")
+  end
+
+  # DEPRECATED?!
+  def batch_load_model_path
+    send("batch_load_#{controller_name.to_s.pluralize}_path")
+  end
+
+  def batch_load_model_link(model)
+    send("#{model.name.pluralize.downcase}_batch_load_link") 
   end
 
   def annotate_links(object: object)

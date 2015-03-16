@@ -11,7 +11,7 @@ module Workbench::DisplayHelper
   end
 
   def model_name_title
-    controller_name.humanize.titleize
+    controller_name.humanize
   end
 
   def object_attributes_partial_path(object)
