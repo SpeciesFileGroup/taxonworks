@@ -97,17 +97,12 @@ module Workbench::NavigationHelper
     end
   end
 
-  def batch_preview_model_path
-    send("batch_preview_#{controller_name.to_s.pluralize}_path")
-  end
-
-  # DEPRECATED?!
-  def batch_load_model_path
-    send("batch_load_#{controller_name.to_s.pluralize}_path")
-  end
-
-  def batch_load_model_link(model)
-    send("#{model.name.pluralize.downcase}_batch_load_link") 
+  def batch_load_link
+    if self.controller.respond_to?(:batch_load) 
+      link_to('batch load', action: :batch_load, controller: self.controller_name) 
+    else 
+      content_tag(:span, 'batch load', class: 'disabled') 
+    end
   end
 
   def annotate_links(object: object)
