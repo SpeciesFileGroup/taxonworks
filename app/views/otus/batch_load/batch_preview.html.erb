@@ -1,5 +1,11 @@
 <h2> Batch preview </h2>
-<%= form_tag batch_create_otus_path do -%>
+
+<h3> Read file </h3>
+
+<pre><%= @file -%></pre>
+
+<h3> Result </h3>
+<%= form_tag create_simple_batch_load_otus_path do -%>
   <% @otus.each_with_index do |o, i| %>
     <div id="otus"> <%= text_field_tag("otus[#{i}][name]", o.name) -%> <%= link_to('Remove', "#", class: 'remove_link') %> <%= similarly_named_records_list(o) -%> </div>
   <% end %>

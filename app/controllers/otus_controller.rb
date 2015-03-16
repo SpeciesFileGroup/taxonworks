@@ -69,7 +69,7 @@ class OtusController < ApplicationController
   end
 
   def search
-    if params[:id] 
+    if !params[:id].blank?
       redirect_to otu_path(params[:id])
     else
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -91,11 +91,16 @@ class OtusController < ApplicationController
     render :json => data
   end
 
-  def batch_preview
-    @otus = Otu.batch_preview(file: params[:file].tempfile)
+  def batch_load
   end
 
-  def batch_create
+  def preview_simple_batch_load
+    @otus = Otu.batch_preview(file: params[:file].tempfile)
+    @file = params[:file].read
+    render 'otus/batch_load/batch_preview'
+  end
+
+  def create_simple_batch_load
     if @otus = Otu.batch_create(params.symbolize_keys.to_h)
       flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
     else

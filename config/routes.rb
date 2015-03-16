@@ -8,6 +8,7 @@ TaxonWorks::Application.routes.draw do
       get 'list'
       post 'batch_create'
       post 'batch_preview'
+      get 'batch_load'
       get 'autocomplete'
       get 'search'
     end
@@ -123,6 +124,10 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layouts
   resources :otus do
     concerns [:data_routes]
+    collection do
+      post :preview_simple_batch_load # should be get
+      post :create_simple_batch_load
+    end
   end
   resources :people do
     concerns [:data_routes]

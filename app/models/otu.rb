@@ -57,8 +57,8 @@ class Otu < ActiveRecord::Base
 
   def check_required_fields
     if self.taxon_name_id.nil? && self.name.blank?
-      errors.add(:taxon_name_id, 'Name and/or Taxon should be selected')
-      errors.add(:name, 'Name and/or Taxon should be selected')
+      errors.add(:taxon_name_id, 'and/or name should be selected')
+      errors.add(:name, 'and/or taxon name should be selected')
     end
   end
 
@@ -123,12 +123,14 @@ class Otu < ActiveRecord::Base
     end
   end
 
-
+  # TODO: This need to be renamed to reflect "simple" association
   def self.batch_preview(file: nil, ** args)
-    f     = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
+    # f     = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
     @otus = []
-    f.each do |row|
-      @otus.push(Otu.new(name: row[:name]))
+    File.open(file).each do |row|
+      name = row.strip
+      next if name.blank?
+      @otus.push(Otu.new(name: row.strip))
     end
     @otus
   end
