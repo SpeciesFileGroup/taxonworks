@@ -8,7 +8,8 @@ module Utilities::Dates
   # a preset LEGAL_MONTHS, as it depends on extending
   # SHORT_MONTH_FILTER correctly.
   #    SHORT_MONTHS.include?(SHORT_MONTH_FILTER[value].to_s)
-  LEGAL_MONTHS = (1..12).to_a + 
+  LEGAL_MONTHS = (1..12).to_a +
+    (1..12).to_a.collect{|d| d.to_s} +
     ROMAN_MONTHS.map(&:to_s) +
     ROMAN_MONTHS.map(&:to_s).map(&:upcase) +
     SHORT_MONTHS +
