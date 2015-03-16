@@ -7,7 +7,7 @@ describe Person, :type => :model do
     FactoryGirl.create(:valid_source_bibtex)
   }
   let(:human_source) {
-    FactoryGirl.create(:source_human)
+    FactoryGirl.create(:valid_source_human)
   }
   #let(:coll_event) { CollectingEvent.new }
 
