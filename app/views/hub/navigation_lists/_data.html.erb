@@ -1,7 +1,7 @@
 <div class="flexbox">
 
   <div class="item item1 one_fifth_width">
-    <h3> Core</h3>
+    <h2> Core</h2>
     <%= content_tag :li, link_to('OTUs', otus_path) %>
     <%= content_tag :li, link_to('Taxon names', taxon_names_path) %>
     <%= content_tag :li, link_to('Collecting events', collecting_events_path) %>
@@ -11,7 +11,7 @@
 
 
   <div class="item item2 one_fifth_width">
-    <h3>Supporting</h3>
+    <h2>Supporting</h2>
     <%= content_tag :li, link_to('Asserted distributions', asserted_distributions_path) %>
     <%= content_tag(:li, 'Collection profile', class: :disabled) %>
     <%= content_tag(:li, 'Contents', class: :disabled) %>
@@ -27,7 +27,7 @@
   </div>
 
   <div class="item item3 one_fifth_width">
-    <h3>Annotations</h3>
+    <h2>Annotations</h2>
     <%= content_tag :li, link_to('Alternate values', alternate_values_path) %>
     <%= content_tag :li, link_to('Citations', citations_path) %>
     <%= content_tag :li, link_to('Data attributes', data_attributes_path) %>

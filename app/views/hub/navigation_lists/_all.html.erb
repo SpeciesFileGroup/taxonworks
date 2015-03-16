@@ -1,6 +1,6 @@
 <% @sessions_current_user.hub_tab_order.select{|a| a != 'all'}.each do |l| %>
-  <%= content_tag(:h2, l) -%>
+  <div class="all_hub_category"><%=  l.capitalize -%> </div>
   <%= render(partial: "hub/navigation_lists/#{l}") -%>
-  <br />
+  <br class="clear:both">
 <% end -%>
 

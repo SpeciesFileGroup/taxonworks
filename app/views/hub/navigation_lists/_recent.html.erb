@@ -1,12 +1,11 @@
-<h3> Recently visited </h3>
-<ul>
-  <% @sessions_current_user.recent_routes.each do |route| -%>
-    <%= content_tag(:li, link_to(route.parameterize(' - '), route)) -%>
+<div>
+  <ul>
+    <% @sessions_current_user.recent_routes.each do |route| -%>
+      <%= content_tag(:li, link_to(route.parameterize(' - '), route)) -%>
+    <% end %>
+  </ul>
+
+  <% if @sessions_current_user.recent_routes.length == 0 %>
+    <div> Welcome <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench. TaxonWorks will keep track of where you were recently, and populate a list here. To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
   <% end %>
-</ul>
-
-<% if @sessions_current_user.recent_routes.length == 0 %>
-  <div> Welcome <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench. TaxonWorks will keep track of where you were recently, and populate a list here. To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
-<% end %>
-
-
+</div>

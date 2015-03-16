@@ -1,4 +1,4 @@
-<h3> Favorite pages </h3>
+<div>
 <ul>
   <% @sessions_current_user.favorite_routes.each do |route| -%>
     <li> <%= link_to(route.parameterize(' - '), route) -%> <%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> </li>
@@ -9,4 +9,4 @@
   <div> Welcome, <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
 <% end %>
 
-
+</div>
