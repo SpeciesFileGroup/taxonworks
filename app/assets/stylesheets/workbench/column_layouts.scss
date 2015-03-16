@@ -18,7 +18,6 @@
 }
 
 .flexbox > * {
-//  padding: 10px;
   flex: 1 100%;
 }
 
@@ -33,5 +32,40 @@
   .item2 { order: 2; }
   .item3 { order: 3; }
   .item4 { order: 4; }
+  .item5 { order: 5; }
+  .item6 { order: 6; }
 }
 
+#model_index {
+ margin: 2em;
+ align-items:center; 
+
+ &.flexbox {
+//   justify-content: space-around;
+  // flex-flow: columns;
+   justify-content: space-around;
+   align-content: space-around;
+   //font-size: 150%;
+ }
+ // min-height:200px;
+ .item1 {
+  //  text-align: center;
+  line-height: 10;
+}
+
+ .item2 {
+ }
+
+ .item3 {
+
+ }
+
+ .item4 {
+ }
+
+ .item5 {
+   flex: .1;
+ }
+
+
+}

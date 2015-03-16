@@ -17,7 +17,18 @@
   }
 }
 
+.current_hub_category {
+  background: $color-secondary-2-2;
+ }
 
+.all_hub_category {
+  margin-top: 5px;
+  padding: .1em;
+  font-size: 120%;
+  font-weight: bold;
+  background: $color-secondary-2-2;
+  border-bottom: 1px solid $color-secondary-1-4;
+}
 
 #main {
   h1 {
