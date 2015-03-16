@@ -1,15 +1,5 @@
 <%= form_for(@otu) do |f| %>
-    <% if @otu.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@otu.errors.count, 'error') %> prohibited this otu from being saved:</h2>
-
-          <ul>
-            <% @otu.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @otu %>
 
     <div class="required">
       <div class="field">
