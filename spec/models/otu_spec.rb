@@ -75,7 +75,6 @@ describe Otu, :type => :model do
     let(:file) {
       f = File.new('/tmp/temp', 'w+')
       str = CSV.generate do |csv|
-        csv << ["name"]
         csv << ["Aus"]
         csv << ["Bus"]
         csv << [nil]
