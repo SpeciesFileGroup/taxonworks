@@ -11,7 +11,7 @@
 
     <%= yield :head %>
 
-    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= csrf_meta_tags %>
 
@@ -23,13 +23,13 @@
       <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
     </header>
 
-    <navigation>
+    <nav>
       <!-- TODO: refine calling of header navigation -->
       <%= quick_bar -%> 
       <%= task_bar -%> 
-    </navigation>
+    </nav>
 
-    <section id="main">
+    <div id="main">
 
       <aside>
         <% flash.each do |key, value| %>
@@ -38,7 +38,7 @@
       </aside>
 
       <%= yield %>
-    </section>
+    </div>
 
   </body>
 </html>
