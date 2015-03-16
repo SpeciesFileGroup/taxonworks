@@ -1,16 +1,7 @@
-
 <h2>New Map Item by Drawing</h2>
-<% if @georeference.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@georeference.errors.count, "error") %> prohibited this georeference from being
-        saved:</h2>
 
-      <ul>
-        <% @georeference.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
+<% if @georeference.errors.any? and @collecting_event.nil? %>
+    <% @collecting_event = @georeference.collecting_event %>
 <% end %>
 
 <div class="flexbox">
@@ -63,7 +54,7 @@
     <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
 
     <div id="feature_collection" data-georeference="<%= @georeference %>"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@collecting_event.georeferences).to_json.html_safe %>'    >
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@collecting_event.georeferences).to_json.html_safe %>'>
 
     </div>
 
