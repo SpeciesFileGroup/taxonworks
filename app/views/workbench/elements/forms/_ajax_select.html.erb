@@ -2,6 +2,8 @@
 <% css_class ||= 'ajaxPicker' -%>
 <% action ||= 'autocomplete'.html_safe -%>
 
+<% object_name ||= controller.humanize.downcase.singularize.html_safe -%>
+
 <% url = url_for({proj_id:    (@proj ? @proj.id : nil),
                   controller: controller,
                   action:     action,
@@ -10,8 +12,8 @@
                   escape:     false}) -%>
 
 <input autocomplete="off"
-       title="find and select <%= controller.pluralize.html_safe -%>"
-       placeholder='Enter a search for <%= controller.pluralize.capitalize.html_safe -%>'
+       title="Find and select a <%= object_name -%>. You must click or tab off a row to choose the item."
+       placeholder='Select a <%= object_name -%>'
        class="mx-autocomplete <%= css_class -%>"
        id="<%= tag_id %>"
        data-mx-autocomplete-url='<%= url %>'
