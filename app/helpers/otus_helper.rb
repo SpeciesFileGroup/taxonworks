@@ -31,12 +31,4 @@ module OtusHelper
     otus.collect { |o| link_to(o.name, o) }.join(",")
   end
 
-  def otus_batch_load_link
-    if self.controller.respond_to?(:batch_load) 
-      link_to('batch load', batch_load_otus_path) 
-    else 
-      content_tag(:span, 'batch load', class: 'disabled') 
-    end
-  end
-
 end
