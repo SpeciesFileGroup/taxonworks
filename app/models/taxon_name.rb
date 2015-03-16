@@ -19,7 +19,7 @@
 # @!attribute parent_id
 #   @return [Integer]
 #     The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
-#     of a taxon name must be explicitly defined via taxon name relatinoships or classifications. The parent of a taxon name 
+#     of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name 
 #     can be thought of the "place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name." 
 #     In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
 #     There are 3 simple rules for determening the parent of a Protonym or Combination:
@@ -177,9 +177,9 @@ class TaxonName < ActiveRecord::Base
 
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
 
-  validates_presence_of :type, message: 'Type is not specified'
-  validates_presence_of :rank_class, message: 'Rank is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
-  validates_presence_of :name, message: 'Name is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
+  validates_presence_of :type, message: 'is not specified'
+  validates_presence_of :rank_class, message: 'is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
+  validates_presence_of :name, message: 'is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
 
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
@@ -847,7 +847,7 @@ class TaxonName < ActiveRecord::Base
 
   def validate_parent_is_set
     if !(self.rank_class == NomenclaturalRank) && !(self.type == 'Combination')
-      errors.add(:parent_id, 'A parent is not selected') if self.parent_id.blank?
+      errors.add(:parent_id, 'is not selected') if self.parent_id.blank?
     end
   end
 
@@ -905,12 +905,12 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_source_type
-    errors.add(:source_id, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
+    errors.add(:source_id, 'must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
 
   def validate_one_root_per_project
     if new_record? || project_id_changed?
-      errors.add(:parent_id, 'Only one root allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+      errors.add(:parent_id, 'is empty, only one root is allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
     end 
   end
 
@@ -949,7 +949,7 @@ class TaxonName < ActiveRecord::Base
 
     # TODO: break this one out   
     if SPECIES_RANK_NAMES.include?(self.rank_string)
-      soft_validations.add(:name, 'name must be lower case') unless self.name == self.name.downcase
+      soft_validations.add(:name, 'must be lower case') unless self.name == self.name.downcase
     end
 
   end
