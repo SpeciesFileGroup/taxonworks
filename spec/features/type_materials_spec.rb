@@ -3,10 +3,9 @@ include FormHelper
 
 RSpec.describe "TypeMaterials", :type => :feature do
   #Capybara.default_wait_time = 10
-
+  let(:page_index_name) { 'Type materials' }
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { type_materials_path }
-    let(:page_index_name) { 'Type Materials' }
   end
 
   context 'when signed in and a project is selected' do
@@ -33,7 +32,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
           before {
             visit type_materials_path }
           specify 'a index name is present' do
-            expect(page).to have_content('Type Materials')
+            expect(page).to have_content(page_index_name)
           end
         end
 
@@ -64,7 +63,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
     context 'creating a new type_materials' do
       specify 'the type_materials_path has a new link' do
         visit type_materials_path # when I visit the type_material_path
-        expect(page).to have_link('New') # it has a new link
+        expect(page).to have_link('new') # it has a new link
       end
       context 'testing the new type_materials form' do
         let!(:r) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
@@ -103,7 +102,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
 
           visit type_materials_path
 
-          click_link('New') # when I click the new link
+          click_link('new') # when I click the new link
 
           fill_autocomplete('protonym_id_for_type_material', with: 'Bus bus') # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list

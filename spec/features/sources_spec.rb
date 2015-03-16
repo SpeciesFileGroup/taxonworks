@@ -3,10 +3,10 @@ include FormHelper
 
 describe 'Sources', :type => :feature do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
+  let(:page_index_name) { 'Sources' }
 
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { sources_path }
-    let(:page_index_name) { 'Sources' }
   end
 
   describe 'GET /sources' do
@@ -14,7 +14,7 @@ describe 'Sources', :type => :feature do
       sign_in_user_and_select_project
       visit sources_path }
     specify 'an index name is present' do
-      expect(page).to have_content('Sources')
+      expect(page).to have_content(page_index_name)
     end
   end
 
@@ -24,13 +24,13 @@ describe 'Sources', :type => :feature do
       visit sources_path } #   when I visit the sources_path
 
     specify 'new link is present on sources page' do
-      expect(page).to have_link('New') # it has a new link
+      expect(page).to have_link('new') # it has a new link
     end
     specify 'can create a new BibTeX source', js: true do
       s = Serial.new(name: 'My Serial', creator: @user, updater: @user)
       expect(s.save).to be_truthy
 
-      click_link('New') #   when I click the new link
+      click_link('new') #   when I click the new link
       # The BibTeX radio button is selected (default).
       expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
 
@@ -53,7 +53,7 @@ describe 'Sources', :type => :feature do
     end
     specify 'can create a new Verbatim source' do
       #Capybara.ignore_hidden_elements = true
-      click_link('New') #   when I click the new link
+      click_link('new') #   when I click the new link
       choose('source_type_sourceverbatim') # select the Verbatim radio button
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy

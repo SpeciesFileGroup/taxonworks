@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 describe 'CollectingEvents', :type => :feature do
+  let(:page_index_name) { 'Collecting events' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { collecting_events_path }
-    let(:page_index_name) { 'Collecting Events' }
   end
 
   describe 'GET /collecting_events' do
@@ -13,7 +13,7 @@ describe 'CollectingEvents', :type => :feature do
       visit collecting_events_path }
 
     specify 'a index name is present' do
-      expect(page).to have_content('Collecting Events')
+      expect(page).to have_content(page_index_name)
     end
   end
 
@@ -61,13 +61,13 @@ describe 'CollectingEvents', :type => :feature do
     }
 
     specify 'it has a new link' do
-      expect(page).to have_link('New')
+      expect(page).to have_link('new')
     end
 
     specify 'following the new link & create a new collecting event' do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
       # I fill out the verbatim_label field with "This is a label.\nAnd a second line."
-       fill_in 'Verbatim label', with: 'This is a label.\nAnd a second line.'
+      fill_in 'Verbatim label', with: 'This is a label.\nAnd a second line.'
 
       click_button 'Create Collecting event' # when I click the 'Create Collecting event' button
       # then I get the message "Collecting event was successfully created"

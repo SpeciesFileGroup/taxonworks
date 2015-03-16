@@ -7,8 +7,6 @@ describe 'Dashboard' do
     let(:page_index_name) { 'Dashboard' }
   end
 
-  # subject { page }
-
   context 'when user is not signed in' do
     before { visit root_path }
 
@@ -52,6 +50,7 @@ describe 'Dashboard' do
       end
     end
 
+    # Redundate with sessions features ultimately 
     context 'when click Account' do
       before {
         visit dashboard_path
@@ -59,12 +58,11 @@ describe 'Dashboard' do
       }
 
       it 'should have user name' do
-        # expect(page).to have_content("User #{@user.id}")
         expect(page).to have_content("#{@user.name}")
       end
 
       it 'should have Edit account link' do
-        expect(page).to have_link("Edit account")
+        expect(page).to have_link("Edit")
       end
     end
   end

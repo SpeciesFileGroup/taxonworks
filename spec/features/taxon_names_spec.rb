@@ -2,11 +2,11 @@ require 'rails_helper'
 include FormHelper
 
 describe 'TaxonNames', :type => :feature do
-  Capybara.default_wait_time = 15 # slows down Capybara enough to see what's happening on the form
+  Capybara.default_wait_time = 1 # change to 15 to see what's happening on form
+  let(:page_index_name) { 'Taxon names' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { taxon_names_path }
-    let(:page_index_name) { 'Taxon Names' }
   end
 
   describe 'GET /taxon_names' do
@@ -15,7 +15,7 @@ describe 'TaxonNames', :type => :feature do
       visit taxon_names_path }
 
     specify 'an index name is present' do
-      expect(page).to have_content('Taxon Names')
+      expect(page).to have_content(page_index_name)
     end
   end
 
@@ -34,7 +34,7 @@ describe 'TaxonNames', :type => :feature do
       end
 
       specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Taxon Names'
+        expect(page).to have_content "Listing taxon names"
       end
     end
 
@@ -58,7 +58,7 @@ describe 'TaxonNames', :type => :feature do
 
     specify 'new link is present' do
       visit taxon_names_path # when I visit the taxon_names_path
-      expect(page).to have_link('New') # it has a new link
+      expect(page).to have_link('new') # it has a new link
     end
   end
 
@@ -69,7 +69,7 @@ describe 'TaxonNames', :type => :feature do
       FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil))
     }
     specify 'testing new TaxonName', js: true do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
 
       fill_in('Name', with: 'Fooidae') # and I fill out the name field with "Fooidae"
       # and I select 'family (ICZN)' from the Rank select *
@@ -111,7 +111,7 @@ describe 'TaxonNames', :type => :feature do
     }
     specify 'change the original combination of a species to a different genus', js: true do
       # create the original combination Note: couldn't figure out how to do it directly so just used the web interface
-      click_link('New')
+      click_link('new')
       fill_in('Name', with: 'species1')
       select('species (ICZN)', from: 'taxon_name_rank_class')
       fill_autocomplete('parent_id_for_name', with: 'Aus')

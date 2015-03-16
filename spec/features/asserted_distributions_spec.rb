@@ -1,9 +1,8 @@
 require 'rails_helper'
 describe "AssertedDistributions", :type => :feature do
-
+  let(:page_index_name) { 'Asserted distributions' }
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { asserted_distributions_path }
-    let(:page_index_name) { 'Asserted Distributions' }
   end
 
   context 'signed in as user, with some records created' do
@@ -13,9 +12,11 @@ describe "AssertedDistributions", :type => :feature do
 
     describe 'GET /asserted_distributions' do
       before {
-        visit asserted_distributions_path }
+        visit asserted_distributions_path 
+      }
+
       specify 'a index name is present' do
-        expect(page).to have_content('Asserted Distributions')
+        expect(page).to have_content(page_index_name)
       end
     end
 

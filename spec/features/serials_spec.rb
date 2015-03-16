@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 describe 'Serials', :type => :feature do
+  let(:page_index_name) { 'Serials' }
 
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { serials_path }
-    let(:page_index_name) { 'Serials' }
   end
 
   describe 'GET /serials' do # list all serials <serials#index>
@@ -12,7 +12,7 @@ describe 'Serials', :type => :feature do
       sign_in_user_and_select_project
       visit serials_path }
     specify 'an index name is present' do
-      expect(page).to have_content('Serials')
+      expect(page).to have_content(page_index_name)
     end
   end
 
@@ -34,10 +34,10 @@ describe 'Serials', :type => :feature do
       visit serials_path
     }
     specify 'new link is present on serial page' do
-      expect(page).to have_link('New') # it has a new link
+      expect(page).to have_link('new') # it has a new link
     end
     specify 'can create a new serial' do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
 
       fill_in('Name', with: 'Journal of Mythical Beasts')
       # fill the first name field with "Journal of Mythical Beasts"

@@ -1,20 +1,10 @@
 require 'rails_helper'
 
 describe 'CollectionObjects', :type => :feature do
+  let(:page_index_name) { 'Collection objects' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { collection_objects_path }
-    let(:page_index_name) { 'Collection Objects' }
-  end
-
-  describe 'GET /collection_objects' do
-    before {
-      sign_in_user_and_select_project
-      visit collection_objects_path }
-
-    specify 'an index name is present' do
-      expect(page).to have_content('Collection Objects')
-    end
   end
 
   context 'with some records created' do
@@ -22,6 +12,15 @@ describe 'CollectionObjects', :type => :feature do
       sign_in_user_and_select_project
       10.times { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
     }
+
+    describe 'GET /collection_objects' do
+      before {
+        visit collection_objects_path }
+
+      specify 'an index name is present' do
+        expect(page).to have_content(page_index_name)
+      end
+    end
 
     describe 'GET /collection_objects/list' do
       before { visit list_collection_objects_path }
@@ -53,11 +52,11 @@ describe 'CollectionObjects', :type => :feature do
     }
 
     specify 'it has a new link' do
-      expect(page).to have_link('New')
+      expect(page).to have_link('new')
     end
 
     specify 'follow the new link & create a new collection object' do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
       fill_in 'Total', with: '1' # fill out the total field with 1
       fill_in 'Buffered collecting event', with: 'This is a label.\nAnd another line.' # fill in Buffered collecting event
       click_button 'Create Collection object' # when I click the 'Create Collection object' button

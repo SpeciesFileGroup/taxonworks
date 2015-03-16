@@ -1,26 +1,25 @@
 require 'rails_helper'
 
 describe 'People', :type => :feature do
-
+  let(:page_index_name) { 'People' }
+  
   it_behaves_like 'a_login_required_controller' do 
     let(:index_path) { people_path }
-    let(:page_index_name) { 'People' }
-  end
-
-  describe 'GET /people' do
-    before { 
-      sign_in_user_and_select_project 
-      visit people_path }
-    specify 'an index name is present' do
-      expect(page).to have_content('People')
-    end
   end
 
   context 'signed in as user, with some people created' do
-
     before do
       sign_in_user_and_select_project
       5.times { factory_girl_create_for_user(:valid_person, @user) }
+    end
+
+    describe 'GET /people' do
+      before { 
+        visit people_path 
+      }
+      specify 'an index name is present' do
+        expect(page).to have_content(page_index_name)
+      end
     end
 
     describe 'GET /people/list' do
@@ -54,11 +53,11 @@ describe 'People', :type => :feature do
       visit people_path       # when I visit the people_path
     }
     specify 'people_path should have a new link' do
-      expect(page).to have_link('New') # it has a new link
+      expect(page).to have_link('new') # it has a new link
 
     end
     specify 'adding the new person' do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
 
       choose('person_type_personvetted')# and I select the radio button 'vetted'
       fill_in('Last name', with: 'Wombat')# and I fill out the last name field with "Wombat"

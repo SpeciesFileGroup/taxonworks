@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 describe 'Identifiers', :type => :feature do
+  let(:page_index_name) { 'Identifiers' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { identifiers_path }
-    let(:page_index_name) { 'Identifiers' }
   end 
 
   describe 'GET /identifiers' do
@@ -13,7 +13,7 @@ describe 'Identifiers', :type => :feature do
       visit identifiers_path 
     }
     specify 'an index name is present' do
-      expect(page).to have_content('Identifiers')
+      expect(page).to have_content(page_index_name)
     end
   end
 end

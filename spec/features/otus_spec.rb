@@ -1,10 +1,9 @@
 require 'rails_helper'
 
-# :base_class is defined by us, it is accessible as example.metadata[:base_class].  It's used 
 describe 'Otus', :type => :feature do
+  let(:index_path) { otus_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { otus_path }
     let(:page_index_name) { 'Otus' }
   end
 
@@ -24,16 +23,16 @@ describe 'Otus', :type => :feature do
 
         specify 'the features of an index page' do
           expect(page).to have_content('Otus')
-          expect(page).to have_link('New')
-          expect(page).to have_link('List')
-          expect(page).to have_link('Download')
+          expect(page).to have_link('new')
+          expect(page).to have_link('list')
+          expect(page).to have_link('download')
         end
 
         specify 'that it has an AJAX autocomplete box', js: true do 
+          select_text = 'Select a otu'
           expect(page).to have_button('Show')
-          expect(page).to have_field('Enter a search for Otus')
-
-          fill_in('Enter a search for Otus', :with => 'a')
+          expect(page).to have_field(select_text) # TODO: inflect
+          fill_in(select_text, :with => 'a')
         end
       end
 
@@ -72,10 +71,10 @@ describe 'Otus', :type => :feature do
     end
 
     context 'creating a new OTU' do
-      specify 'I can exercise the New link feature' do
+      specify 'I can exercise the new link feature' do
         visit otus_path                   # when I visit the otus_path
-        expect(page).to have_link('New')  # it has a new link
-        click_link('New')                 # when I click the new link
+        expect(page).to have_link('new')  # it has a new link
+        click_link('new')                 # when I click the new link
         fill_in 'Name', with: 'test'      # and I fill out the name field with "test"
         click_button 'Create Otu'         # and I click 'create otu'
         # then I get the message 'Otu 'test' was successfully created

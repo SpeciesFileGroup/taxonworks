@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 describe 'ControlledVocabularyTerms', :type => :feature do
+  let(:page_index_name) { 'Controlled vocabulary terms' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
     let(:index_path) { controlled_vocabulary_terms_path }
-    let(:page_index_name) { 'Controlled Vocabulary Terms' }
   end
 
   context 'signed in with a project selected' do
@@ -16,7 +16,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       }
 
       specify 'an index name is present' do
-        expect(page).to have_content('Controlled Vocabulary Terms')
+        expect(page).to have_content('Controlled vocabulary terms')
       end
     end
 
@@ -55,12 +55,12 @@ describe 'ControlledVocabularyTerms', :type => :feature do
 
     specify 'controlled_vocabulary_terms_path should have a new link' do
       visit controlled_vocabulary_terms_path
-      expect(page).to have_link('New') # it has a new link
-
+      expect(page).to have_link('new') # it has a new link
     end
+
     specify 'adding a new controlled vocabulary term' do
       visit controlled_vocabulary_terms_path
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
 
       select('Topic', from: 'controlled_vocabulary_term_type') # I select 'Topic' from the Type dropdown
       fill_in('Name', with: 'tests')   # I fill in the name field with "tests"

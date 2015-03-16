@@ -1,28 +1,29 @@
 require 'rails_helper'
 
 describe 'Namespaces', :type => :feature do
-
-  it_behaves_like 'an_administrator_login_required_controller' do
+  let(:page_index_name) { 'Namespaces' }
+  
+  it_behaves_like 'a_login_required_controller' do
     let(:index_path) { namespaces_path }
-    let(:page_index_name) { 'Namespaces' }
   end
 
-  describe 'GET /Namespaces' do
+
+  context 'as administrator, with some namespaces built' do
     before do
-      sign_in_administrator
-      visit namespaces_path
+      sign_in_user
+      5.times { factory_girl_create_for_user(:valid_namespace, @administrator) }
     end
-    
+
+    describe 'GET /Namespaces' do
+      before do
+        visit namespaces_path
+      end
+
     specify 'an index name is present' do
       expect(page).to have_content('Namespaces')
     end
   end
  
-  context 'as administrator, with some namespaces built' do
-    before do
-      sign_in_administrator
-      5.times { factory_girl_create_for_user(:valid_namespace, @administrator) }
-    end
 
     describe 'GET /namespaces/list' do
       before do
@@ -55,11 +56,11 @@ describe 'Namespaces', :type => :feature do
       visit namespaces_path #  visit the namespaces_path
     }
     specify 'namespaces_path should have a new link' do
-      expect(page).to have_link('New') # it has a new link
+      expect(page).to have_link('new') # it has a new link
     end
 
     specify 'adding the new namespace' do
-      click_link('New') # when I click the new link
+      click_link('new') # when I click the new link
       fill_in('Full name', with: 'Things Pat Collected') # and I fill out the Full name field with "Things Pat Collected"
       fill_in('Short name', with: 'tpd') # and I fill out the Short name field with "tpd"
       click_button('Create Namespace') # when I click the 'Create Namespace' button
