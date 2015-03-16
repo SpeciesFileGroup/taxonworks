@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 describe 'Users' do
-  #  subject { page }
 
   # All users must sign in -- a user isn't a user until s/he signs in
   # When a worker signs in, what does he see, what can he do?  dashboard, what links?
@@ -9,10 +8,9 @@ describe 'Users' do
   # When an administrator signs in, what does he see, what can he do?
   # # When an admin creates new user, how does he initialize user password?
 
-  # new start
 
   context 'when user is signed in' do # before user signs in, s/he is on /signin page
-    context 'when user is worker' do # worker tests valid for project admin and admin
+    context 'with unprivileged user' do  
       before {
         sign_in_user
         visit root_path
@@ -27,20 +25,17 @@ describe 'Users' do
 
       context 'in order to edit self' do
         before {
-          # visit user_path(@user)
           click_link 'Account'
         }
 
         it 'should have information and links' do
-          expect(page).to have_css('h1', @user.id)
-          expect(page).to have_link('Edit account')
+          expect(page).to have_css('h1', @user.name)
+          expect(page).to have_link('Edit')
         end
 
-        # todo @mjy It seems like overkill for user to click Account, then click link Edit account.  If there is only one option available to the user (e.g., Edit account), why not go there directly upon clicking Account?
         context 'editing self' do
           before {
-            # visit edit_user_path(@user)
-            click_link 'Edit account'
+            click_link 'Edit'
           }
 
           it 'should have information and links' do
@@ -89,17 +84,6 @@ describe 'Users' do
       end
     end
 
-    context 'when user is project administrator' do
-      before {
-        sign_in_project_administrator
-        visit root_path
-      }
-
-      it 'should have information and actions' do
-
-      end
-    end
-
     context 'when user is administrator' do
       before {
         sign_in_administrator # not a member of a project
@@ -125,7 +109,6 @@ describe 'Users' do
         expect(page).to have_css('a', 'New')    # todo @mjy Is there a way to say the page has two links called "New?"
         expect(page).to have_css('a', "Update a user's authorization")
       end
-
 
       before {
         visit users_path # users index
@@ -200,7 +183,7 @@ describe 'Users' do
           end
       
           it 'provides a link to edit the account' do
-            expect(page).to have_link('Edit account', href: edit_user_path(@user))
+            expect(page).to have_link('Edit', href: edit_user_path(@user))
           end
           it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
             expect(page).to have_link('View my statistics', href: user_statistics_path)
@@ -216,9 +199,8 @@ describe 'Users' do
         }
    
         it 'should let user edit their account information' do
-          txt = "Edit user #{@user.id}"
+          txt = "Editing user"
           expect(page).to have_selector('h1', txt)
-          expect(page).to have_title("#{txt} | TaxonWorks")
           fill_in 'Email', with: 'edit_user_modified@example.com'
           fill_in 'Password', with: '1234ZZZ!'
           fill_in 'Password confirmation', with: '1234ZZZ!'

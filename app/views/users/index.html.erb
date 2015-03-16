@@ -1,18 +1,16 @@
-<section>
-  <header>
-    <h1><%= @page_title %></h1>
-  </header>
-
-  <% if @users.empty? %>
-      <p>No users found.</p>
-  <% else %>
-      <ul>
-        <% @users.each do |user| %>
-            <li><%= link_to user.email.to_s, user_path(user) %></li>
-        <% end %>
-      </ul>
-  <% end %>
-
-  <br>
-</section>
+<h1> Users </h1>
+<% if @users.empty? %>
+  <p>No users found.</p>
+<% else %>
+  <table> 
+    <tr><th>Name</th><th>email</th><th>administrator</th><th></th></tr>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= link_to user.name, user_path(user) %></td>
+        <td><%=  user.email %></td>
+        <td><%=  user.is_administrator? %></td>
+        <td><span class="disabled"> Destroy </span>
+      <% end %>
+  </table>
+<% end %>
 
