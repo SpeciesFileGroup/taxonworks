@@ -1,7 +1,6 @@
 class PreparationTypesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_administrator_sign_in, only: [:edit, :update, :destroy, :index]
   before_action :set_preparation_type, only: [:show, :edit, :update, :destroy]
 
   # GET /preparation_types
