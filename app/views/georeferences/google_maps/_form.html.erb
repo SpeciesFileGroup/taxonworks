@@ -42,7 +42,8 @@
 
         <div class="actions">
           <%= f.submit name: 'commit', value: 'Create', disabled: true %><br/>
-          <%= f.submit name: 'commit_next', value: 'Create and next without georeference', disabled: true %>
+          <%= f.submit name: 'commit_next', value: 'Create and next CE without georeference', disabled: true %><br/>
+          <%= f.submit name: 'skip_next', value: 'Skip and next CE without georeference', action: 'skip' %>
         </div>
 
     <% end %>

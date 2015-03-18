@@ -29,26 +29,40 @@ class GeoreferencesController < ApplicationController
   def edit
   end
 
+  # GET /georeferences/skip
+  def skip
+    target = @georeference.collecting_event.next_without_georeference
+    target = @georeference.collecting_event if target.nil?
+
+    respond_to do |format|
+      format.html { redirect_to target, notice: 'All collecting events have georeferences.' }
+      format.json { render action: 'show', status: :created, location: target }
+    end
+  end
+
   # POST /georeferences
   # POST /georeferences.json
   def create
-    # geographic_item is embedded in the params
     @georeference = Georeference.new(georeference_params)
-    respond_to do |format|
-      if @georeference.save
-        target = @georeference.collecting_event
-        if params['commit_next'] == 'Create and next without georeference'
-          new_target = @georeference.collecting_event.next_without_georeference
-          target     = new_target unless new_target.nil?
+    if params['skip_next'].nil?
+      respond_to do |format|
+        if @georeference.save
+          target = @georeference.collecting_event
+          unless params['commit_next'].nil?
+            new_target = @georeference.collecting_event.next_without_georeference
+            target     = new_target unless new_target.nil?
+          end
+          format.html { redirect_to target, notice: 'Georeference was successfully created.' }
+          format.json { render action: 'show', status: :created, location: target }
+        else
+          # format.html { render action: 'new', notice: 'Georeference was NOT successfully created.' }
+          format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
+          # format.html { render partial: '/georeferences/google_maps/form', notice: 'Georeference was NOT successfully created.' }
+          format.json { render json: @georeference.errors, status: :unprocessable_entity }
         end
-        format.html { redirect_to target, notice: 'Georeference was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @georeference }
-      else
-        # format.html { render action: 'new', notice: 'Georeference was NOT successfully created.' }
-        format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
-        # format.html { render partial: '/georeferences/google_maps/form', notice: 'Georeference was NOT successfully created.' }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
       end
+    else
+      skip
     end
   end
 

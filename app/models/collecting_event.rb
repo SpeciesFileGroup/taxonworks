@@ -555,10 +555,20 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   end
 
   # @return [CollectingEvent]
+  # sort order
+  #   1.  verbatim_locality
+  #   2.  geography_id
+  #   3.  start_date_year
+  #   4.  updated_on
+  #   5.  id
   def next_without_georeference
-    #       instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
-    part_1 = CollectingEvent.where('collecting_events.id > ?', self.id).joins(:georeferences).uniq
-    CollectingEvent.order(id: :asc).where(['id > ?', self.id]).limit(1).first
+    part_1 = CollectingEvent.order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
+      where('collecting_events.id <> ? and (id not in (select georeferences.collecting_event_id from georeferences))', self.id).
+      # where('collecting_events.id <> ? and (id not in (select georeferences.collecting_event_id from georeferences))', self.id).
+      # joins(:georeferences).
+      # pluck(:id).
+      uniq.
+      first
   end
 
   # class methods
@@ -620,16 +630,16 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   protected
 
   def set_cached
-    string = nil 
+    string = nil
 
     if verbatim_label.blank?
       string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join
     else
-      string = [verbatim_label, print_label, document_label].compact.first 
+      string = [verbatim_label, print_label, document_label].compact.first
     end
 
-    string = "[#{self.id.to_param}]" if string.strip.length == 0
-    self.cached = string 
+    string      = "[#{self.id.to_param}]" if string.strip.length == 0
+    self.cached = string
   end
 
   def set_times_to_nil_if_form_provided_blank
