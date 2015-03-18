@@ -571,6 +571,12 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       first
   end
 
+  def map_center
+    unless verbatim_latitude.blank? or verbatim_longitude.blank?
+
+    end
+  end
+
   # class methods
 
   # @param geographic_item [GeographicItem]
