@@ -10,6 +10,8 @@ class Georeferences::GoogleMapsController < ApplicationController
     @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event, geographic_item: GeographicItem.new)
 
     @feature_collection = Gis::GeoJSON.feature_collection(@collecting_event.georeferences)
+    @map_center = Georeference::VerbatimData.new(collecting_event: @georeference.collecting_event).geographic_item.geo_object.to_s
+
   end
 
   def re_new
