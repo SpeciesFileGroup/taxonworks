@@ -59,6 +59,9 @@ function initializeDrawItem(map_canvas, fcdata) {
     map.data.addGeoJson(mapData);
     // bounds for calculating center point
     var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
+    var mcparts = $("#feature_collection").data('map-center').split("(");
+    var lat = mcparts[1].split(' ')[1];
+    var lng = mcparts[1].split(' ')[0];
     get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
