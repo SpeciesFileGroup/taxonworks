@@ -1,15 +1,5 @@
 <%= form_for(@repository) do |f| %>
-    <% if @repository.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@repository.errors.count, "error") %> prohibited this repository from being saved:</h2>
-
-          <ul>
-            <% @repository.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @repository %>
 
     <div class="field">
       <%= f.label :name %>

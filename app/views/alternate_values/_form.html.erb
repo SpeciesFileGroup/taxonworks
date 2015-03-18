@@ -1,16 +1,5 @@
 <%= form_for(@alternate_value) do |f| %>
-    <% if @alternate_value.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@alternate_value.errors.count, "error") %> prohibited this alternate_value from being
-            saved:</h2>
-
-          <ul>
-            <% @alternate_value.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @alternate_value %>
 
     <p> <strong><%= @alternate_value.alternate_value_object.class.name %>:</strong> <%= object_tag(@alternate_value.alternate_value_object) -%>  </p>
 

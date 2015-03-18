@@ -1,15 +1,5 @@
 <%= form_for(@namespace) do |f| %>
-    <% if @namespace.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@namespace.errors.count, "error") %> prohibited this namespace from being saved:</h2>
-
-          <ul>
-            <% @namespace.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @namespace %>
 
     <div class="field">
       <%= f.label :institution, 'Institution (or person responsible for minting this namespace)' %>

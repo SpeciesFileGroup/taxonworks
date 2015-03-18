@@ -1,15 +1,5 @@
 <%= form_for(@source.metamorphosize) do |f| %>
-    <% if @source.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@source.errors.count, "error") %> prohibited this source from being saved:</h2>
-
-          <ul>
-            <% @source.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @source %>
 
     <div class="field">
       <%= f.label :type %><br>

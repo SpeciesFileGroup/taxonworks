@@ -1,16 +1,5 @@
 <%= form_for(@otu_page_layout_section) do |f| %>
-    <% if @otu_page_layout_section.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@otu_page_layout_section.errors.count, "error") %> prohibited this otu_page_layout_section
-            from being saved:</h2>
-
-          <ul>
-            <% @otu_page_layout_section.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @otu_page_layout_section %>
 
     <div class="field">
       <%= f.label :otu_page_layout_id %>

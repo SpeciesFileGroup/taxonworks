@@ -1,16 +1,5 @@
 <%= form_for(@asserted_distribution) do |f| %>
-    <% if @asserted_distribution.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@asserted_distribution.errors.count, "error") %> prohibited this asserted_distribution from
-            being saved:</h2>
-
-          <ul>
-            <% @asserted_distribution.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @asserted_distribution %>
 
     <div class="required">
       <div class="field">

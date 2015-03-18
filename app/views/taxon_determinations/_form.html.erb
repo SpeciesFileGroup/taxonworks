@@ -1,15 +1,5 @@
 <%= form_for(@taxon_determination) do |f| %>
-  <% if @taxon_determination.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@taxon_determination.errors.count, "error") %> prohibited this taxon_determination from being saved:</h2>
-
-      <ul>
-      <% @taxon_determination.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <%= render 'shared/errors', object: @taxon_determination %>
 
   <div class="field">
     <%= f.label :biological_collection_object_id %><br>

@@ -1,15 +1,5 @@
 <%= form_for(@citation) do |f| %>
-    <% if @citation.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@citation.errors.count, "error") %> prohibited this citation from being saved:</h2>
-
-          <ul>
-            <% @citation.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @citation %>
 
     <p><strong><%= @citation.citation_object.class.name %>:</strong> <%= object_tag(@citation.citation_object) -%>  </p>
 

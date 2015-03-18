@@ -1,15 +1,5 @@
 <%= form_for(@serial) do |f| %>
-    <% if @serial.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@serial.errors.count, "error") %> prohibited this serial from being saved:</h2>
-
-          <ul>
-            <% @serial.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @serial %>
 
     <div class="field">
       <%= f.label :name %>

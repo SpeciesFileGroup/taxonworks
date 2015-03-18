@@ -1,15 +1,5 @@
 <%= form_for(@project_member) do |f| %>
-  <% if @project_member.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@project_member.errors.count, "error") %> prohibited this project_member from being saved:</h2>
-
-      <ul>
-      <% @project_member.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <%= render 'shared/errors', object: @project_member %>
 
   <div class="field">
     <%= f.label :project_id %><br>

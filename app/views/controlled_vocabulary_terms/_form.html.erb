@@ -1,16 +1,5 @@
 <%= form_for(@controlled_vocabulary_term.metamorphosize) do |f| %>
-    <% if @controlled_vocabulary_term.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@controlled_vocabulary_term.errors.count, "error") %> prohibited this
-            controlled_vocabulary_term from being saved:</h2>
-
-          <ul>
-            <% @controlled_vocabulary_term.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @controlled_vocabulary_term %>
 
     <div class="required">
       <div class="field">

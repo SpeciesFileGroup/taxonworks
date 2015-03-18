@@ -1,15 +1,5 @@
 <%= form_for(@serial_chronology) do |f| %>
-  <% if @serial_chronology.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@serial_chronology.errors.count, "error") %> prohibited this serial_chronology from being saved:</h2>
-
-      <ul>
-      <% @serial_chronology.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <%= render 'shared/errors', object: @serial_chronology %>
 
   <div class="field">
     <%= f.label :preceding_serial_id %><br>

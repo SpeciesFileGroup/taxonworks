@@ -1,15 +1,5 @@
 <%= form_for(@geographic_area_type) do |f| %>
-  <% if @geographic_area_type.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@geographic_area_type.errors.count, "error") %> prohibited this geographic_area_type from being saved:</h2>
-
-      <ul>
-      <% @geographic_area_type.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <%= render 'shared/errors', object: @geographic_area_type %>
 
   <div class="field">
     <%= f.label :name %><br>

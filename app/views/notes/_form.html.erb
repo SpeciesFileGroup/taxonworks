@@ -1,15 +1,5 @@
 <%= form_for(@note) do |f| %>
-    <% if @note.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@note.errors.count, "error") %> prohibited this note from being saved:</h2>
-
-          <ul>
-            <% @note.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @note %>
 
     <p><strong><%= @note.note_object.class.name %>:</strong> <%= object_tag(@note.note_object) -%>  </p>
 

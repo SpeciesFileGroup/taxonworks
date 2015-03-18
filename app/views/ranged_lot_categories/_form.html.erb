@@ -1,16 +1,5 @@
 <%= form_for(@ranged_lot_category) do |f| %>
-    <% if @ranged_lot_category.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@ranged_lot_category.errors.count, "error") %> prohibited this ranged_lot_category from
-            being saved:</h2>
-
-          <ul>
-            <% @ranged_lot_category.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @ranged_lot_categories %>
 
     <div class="required">
       <div class="field">

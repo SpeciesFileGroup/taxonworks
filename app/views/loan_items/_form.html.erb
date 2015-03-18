@@ -1,15 +1,5 @@
 <%= form_for(@loan_item) do |f| %>
-    <% if @loan_item.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@loan_item.errors.count, "error") %> prohibited this loan_item from being saved:</h2>
-
-          <ul>
-            <% @loan_item.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @loan_item %>
 
     <div class="field">
       <%= f.label :loan_id %>

@@ -1,14 +1,5 @@
 <%= form_for(@type_material) do |f| %>
-  <% if @type_material.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@type_material.errors.count, "error") %> prohibited this type_material from being saved:</h2>
-      <ul>
-      <% @type_material.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <%= render 'shared/errors', object: @type_material %>
 
   <div class="field">
     <%= f.label :protonym_id %><br>

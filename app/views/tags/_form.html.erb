@@ -1,15 +1,5 @@
 <%= form_for(@tag) do |f| %>
-    <% if @tag.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@tag.errors.count, "error") %> prohibited this tag from being saved:</h2>
-
-          <ul>
-            <% @tag.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-    <% end %>
+    <%= render 'shared/errors', object: @tag %>
 
     <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>  </p>
 
