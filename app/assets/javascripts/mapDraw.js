@@ -131,6 +131,7 @@ function initializeDrawItem(map_canvas, fcdata) {
             $("#map_coords").html(JSON.stringify(featureCollection[0]));
 
             document.getElementsByName('commit')[0].disabled = false;
+            document.getElementsByName('commit_next')[0].disabled = false;
         }
     );
     return map;

@@ -554,6 +554,13 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     retval
   end
 
+  # @return [CollectingEvent]
+  def next_without_georeference
+    #       instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
+    part_1 = CollectingEvent.where('collecting_events.id > ?', self.id).joins(:georeferences).uniq
+    CollectingEvent.order(id: :asc).where(['id > ?', self.id]).limit(1).first
+  end
+
   # class methods
 
   # @param geographic_item [GeographicItem]

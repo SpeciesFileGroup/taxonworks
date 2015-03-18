@@ -36,7 +36,12 @@ class GeoreferencesController < ApplicationController
     @georeference = Georeference.new(georeference_params)
     respond_to do |format|
       if @georeference.save
-        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully created.' }
+        target = @georeference.collecting_event
+        if params['commit_next'] == 'Create and next without georeference'
+          new_target = @georeference.collecting_event.next_without_georeference
+          target     = new_target unless new_target.nil?
+        end
+        format.html { redirect_to target, notice: 'Georeference was successfully created.' }
         format.json { render action: 'show', status: :created, location: @georeference }
       else
         # format.html { render action: 'new', notice: 'Georeference was NOT successfully created.' }
@@ -86,6 +91,7 @@ class GeoreferencesController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def georeference_params
     params.require(:georeference).permit(:iframe_response,
+                                         :submit,
                                          :geographic_item_id,
                                          :collecting_event_id,
                                          :error_radius,
