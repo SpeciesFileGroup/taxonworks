@@ -7,47 +7,53 @@
 <div class="flexbox">
   <div class="item item1">
     For collecting event:<br>
-    <%= collecting_event_tag(@collecting_event) %><br>
-    <%= form_for(@georeference.becomes(Georeference)) do |f| %>
-        <% if @georeference.errors.any? %>
-            <div id="error_explanation">
-              <h2><%= pluralize(@georeference.errors.count, 'error') %> prohibited this georeference from being
-                saved:</h2>
+    <%= collecting_event_tag(@collecting_event) %>
+    <td><%= link_to 'Show', @collecting_event %></td>
+    <td><%= link_to 'Edit', edit_collecting_event_path(@collecting_event) %></td>
+    <td><%= link_to 'Destroy', @collecting_event, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+    <br>
 
-              <ul>
-                <% @georeference.errors.full_messages.each do |msg| %>
-                    <li><%= msg %></li>
-                <% end %>
-              </ul>
-            </div>
-        <% end %>
+    <div>
+      <%= form_for(@georeference.becomes(Georeference)) do |f| %>
+          <% if @georeference.errors.any? %>
+              <div id="error_explanation">
+                <h2><%= pluralize(@georeference.errors.count, 'error') %> prohibited this georeference from being
+                  saved:</h2>
 
-        <div class="field">
-          <%= f.label :is_public %>
-          <br>
-          <%= f.check_box :is_public %>
-        </div>
-        <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
-            <%= gi.hidden_field(:shape) %>
-        <% end %>
+                <ul>
+                  <% @georeference.errors.full_messages.each do |msg| %>
+                      <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+          <% end %>
 
-        <%= f.hidden_field(:collecting_event_id) -%>
-        <%= f.hidden_field(:type) -%>
+          <div class="field">
+            <%= f.label :is_public %>
+            <br>
+            <%= f.check_box :is_public %>
+          </div>
+          <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
+              <%= gi.hidden_field(:shape) %>
+          <% end %>
 
-        <div>
-          Geotype: <span id='geoType'></span>
-          <br>
-          Shape: <span id='geoShape'><%= @map_center %></span>
-        </div>
+          <%= f.hidden_field(:collecting_event_id) -%>
+          <%= f.hidden_field(:type) -%>
 
-        <div class="actions">
-          <%= f.submit name: 'commit', value: 'Create', disabled: true %><br/>
-          <%= f.submit name: 'commit_next', value: 'Create and next CE without georeference', disabled: true %><br/>
-          <%= f.submit name: 'skip_next', value: 'Skip and next CE without georeference', action: 'skip' %>
-        </div>
+          <div>
+            Geotype: <span id='geoType'></span>
+            <br>
+            Shape: <span id='geoShape'></span>
+          </div>
 
-    <% end %>
+          <div class="actions">
+            <%= f.submit name: 'commit', value: 'Create', disabled: true %><br/>
+            <%= f.submit name: 'commit_next', value: 'Create and next CE without georeference', disabled: true %><br/>
+            <%= f.submit name: 'skip_next', value: 'Skip and next CE without georeference', action: 'skip' %>
+          </div>
 
+      <% end %>
+    </div>
   </div>
 
   <div class="item item2">
