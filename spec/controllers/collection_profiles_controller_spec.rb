@@ -34,10 +34,10 @@ describe CollectionProfilesController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all collection_profiles as @collection_profiles" do
+    it "assigns all collection_profiles as @recent_objects" do
       collection_profile = CollectionProfile.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:collection_profiles)).to eq([collection_profile])
+      expect(assigns(:recent_objects)).to eq([collection_profile])
     end
   end
 
