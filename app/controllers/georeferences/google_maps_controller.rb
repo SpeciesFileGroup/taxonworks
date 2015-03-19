@@ -14,10 +14,6 @@ class Georeferences::GoogleMapsController < ApplicationController
 
   end
 
-  def re_new
-    errors = @georeference.errors
-  end
-
   # POST /georeferences
   # POST /georeferences.json
   # def create

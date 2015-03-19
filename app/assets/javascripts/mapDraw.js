@@ -64,6 +64,11 @@ function initializeDrawItem(map_canvas, fcdata) {
     var lng = mcparts[1].split(' ')[0];
     get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+    if (bounds.center_lat == 0.0 && bounds.center_long == 0.0) {    // this case says there are probably not any features
+        bounds.center_lat = parseFloat(lat);
+        bounds.center_long = parseFloat(lng);
+        center_lat_long = get_window_center(bounds);    // re-run the center check
+    }
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
     map.setCenter(center_lat_long);
     map.setZoom(bounds.gzoom);
