@@ -57,6 +57,11 @@ module Shared::IsData
   end
 
   module ClassMethods
+    # @return [Boolean]
+    #   true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI 
+    def annotates?
+      self.respond_to?(:is_annotator?)
+    end
   end
 
   protected

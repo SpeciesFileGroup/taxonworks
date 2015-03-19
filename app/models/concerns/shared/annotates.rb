@@ -7,13 +7,17 @@ module Shared::Annotates
   end
 
   module ClassMethods
+
+  # return [Boolean] 
+  # see .annotates? in the is_data concern 
+  def is_annotator? 
+    true
+  end 
+  
   end
 
   def annotates_community?
     self.annotated_object.class <= Shared::SharedAcrossProjects ? true : false
   end
-
-
-
 
 end
