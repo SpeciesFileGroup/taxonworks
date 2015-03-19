@@ -81,9 +81,9 @@ describe GeoreferencesController, :type => :controller do
         expect(assigns(:georeference)).to be_persisted
       end
 
-      it "redirects to the created georeference" do
+      it "redirects to the referenced collecting event" do
         post :create, {:georeference => valid_attributes}, valid_session
-        expect(response).to redirect_to(Georeference.last.metamorphosize)
+        expect(response).to redirect_to(CollectingEvent.find(valid_attributes['collecting_event_id']))
       end
     end
 
