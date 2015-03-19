@@ -2,7 +2,7 @@ class Georeferences::GoogleMapsController < ApplicationController
   # include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   # before_action :set_georeference, only: [:show, :edit, :update, :destroy]
-  before_action :disable_turbolinks, only: [:new]
+ # before_action :disable_turbolinks, only: [:new]
 
   # GET /georeferences/google_maps/new
   def new
