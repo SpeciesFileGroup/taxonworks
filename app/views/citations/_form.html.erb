@@ -16,6 +16,14 @@
                               :tag_id     => 'source_id_for_citation',
                               :display    => source_tag(@citation.source)} %>
     </div>
+
+    <div class="field">
+      <%= f.label :pages %>
+      <br>
+      <%= f.text_field :pages %>
+    </div>
+ 
+
     <div class="actions">
       <%= f.submit %>
     </div>

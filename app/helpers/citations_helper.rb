@@ -4,6 +4,7 @@ module CitationsHelper
     return nil if citation.nil?
     citation_string = (citation.source.author_year.nil? ? content_tag(:span, 'author, year not yet provided for source', class: :subtle) : citation.source.author_year)
     str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_string].join
+    str = str + " (pages #{citation.pages})" if !citation.pages.blank?
     str.html_safe
   end
 
