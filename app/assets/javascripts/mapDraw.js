@@ -1,11 +1,4 @@
 function initializeDrawItem(map_canvas, fcdata) {
-    var mapOptions = {
-        center: new google.maps.LatLng(40, -88),
-        zoom: 3
-    };
-
-    var map = new google.maps.Map(document.getElementById(map_canvas),
-        mapOptions);
 
     var drawingManager = new google.maps.drawing.DrawingManager({
         drawingMode: google.maps.drawing.OverlayType.MARKER,
@@ -48,30 +41,34 @@ function initializeDrawItem(map_canvas, fcdata) {
     });
 
     var mapData = fcdata;
+    var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
+
+    var mcparts = $("#feature_collection").data('map-center').split("(");   // this assumes always present
+    var lat = mcparts[1].split(' ')[1];
+    var lng = mcparts[1].split(' ')[0];
+    get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+    var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+    // override computed center with verbatim center
+    if (lat != 0 || lng != 0) {center_lat_long = new google.maps.LatLng(lat, lng)}
+    var mapOptions = {
+        center: center_lat_long,
+        zoom: bounds.gzoom
+    };
+    var map = new google.maps.Map(document.getElementById(map_canvas),
+        mapOptions);
     map.data.setStyle({
         fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
         strokeWeight: 1,
-        fillOpacity: 0.2,
-        markerColor: '#333333'
-    });
+        fillOpacity: 0.2
+    });                         // boundary/center work done, now actually add the data to the map
+
     map.data.addGeoJson(mapData);
-    // bounds for calculating center point
-    var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-    var mcparts = $("#feature_collection").data('map-center').split("(");
-    var lat = mcparts[1].split(' ')[1];
-    var lng = mcparts[1].split(' ')[0];
-    get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
-    var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
-    if (bounds.center_lat == 0.0 && bounds.center_long == 0.0) {    // this case says there are probably not any features
-        bounds.center_lat = parseFloat(lat);
-        bounds.center_long = parseFloat(lng);
-        center_lat_long = get_window_center(bounds);    // re-run the center check
-    }
+
     $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
-    map.setCenter(center_lat_long);
-    map.setZoom(bounds.gzoom);
+    //map.setCenter(center_lat_long);
+    //map.setZoom(bounds.gzoom);
 
     drawingManager.setMap(map);
 
