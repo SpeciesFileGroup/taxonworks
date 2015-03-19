@@ -1,6 +1,6 @@
 <%= content_for :do do -%>
     <ul class="no_bullets">
-      <%= content_tag(:li, link_to('Add Google map georeference', new_google_map_path({collecting_event_id: @collecting_event.to_param}),  disable_turbolinks: true)) %>
+      <%= content_tag(:li, link_to('Add Google map georeference', new_google_map_path({collecting_event_id: @collecting_event.to_param}),  'data-no-turbolink' => true )) %>
     </ul>
 <% end %>
 
