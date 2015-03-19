@@ -7,6 +7,7 @@ class GeographicAreaTypesController < ApplicationController
   # GET /geographic_area_types.json
   def index
     @geographic_area_types = GeographicAreaType.all
+    render '/shared/data/all/index'
   end
 
   # GET /geographic_area_types/1

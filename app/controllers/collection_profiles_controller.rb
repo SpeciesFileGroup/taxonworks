@@ -6,7 +6,8 @@ class CollectionProfilesController < ApplicationController
   # GET /collection_profiles
   # GET /collection_profiles.json
   def index
-    @collection_profiles = CollectionProfile.all
+    @recent_objects = CollectionProfile.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /collection_profiles/1

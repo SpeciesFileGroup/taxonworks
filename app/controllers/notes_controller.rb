@@ -15,6 +15,7 @@ class NotesController < ApplicationController
   # GET /notes.json
   def index
     @recent_objects = Note.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # POST /notes

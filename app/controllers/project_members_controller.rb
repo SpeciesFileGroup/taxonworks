@@ -1,18 +1,7 @@
 class ProjectMembersController < ApplicationController
   before_action :require_superuser_sign_in 
 
-  before_action :set_project_member, only: [:show, :edit, :update, :destroy]
-
-  # GET /project_members
-  # GET /project_members.json
-  def index
-    @project_members = ProjectMember.all
-  end
-
-  # GET /project_members/1
-  # GET /project_members/1.json
-  def show
-  end
+  before_action :set_project_member, only: [:edit, :update, :destroy]
 
   # GET /project_members/new
   def new

@@ -2,16 +2,13 @@ class SerialsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :require_sign_in
-
   before_action :set_serial, only: [:show, :edit, :update, :destroy]
-
-  # GET /serials
-  # GET /serials.json
 
   # GET /otus
   # GET /otus.json
   def index
     @recent_objects = Serial.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   def list

@@ -14,4 +14,13 @@ module Workbench::ListHelper
         end
     end
   end
+
+  def recent_objects_list(model, recent_objects)
+    if model.annotates?
+      render partial: "/#{params[:controller]}/recent_objects_list", locals: {recent_objects: recent_objects}
+    else
+      render partial: '/shared/data/project/recent_objects_list', locals: { recent_objects: recent_objects}
+    end
+  end
+
 end

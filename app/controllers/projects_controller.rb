@@ -9,6 +9,7 @@ class ProjectsController < ApplicationController
   def index
     @projects = Project.all
     @recent_objects = Project.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /projects/1

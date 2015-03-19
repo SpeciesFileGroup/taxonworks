@@ -8,8 +8,7 @@ class TaxonNamesController < ApplicationController
   def index
     @taxon_names    = TaxonName.all
     @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-    # todo: temporary, to at least show something
-    @recent_objects = TaxonName.with_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /taxon_names/1

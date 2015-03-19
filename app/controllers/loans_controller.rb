@@ -7,8 +7,8 @@ class LoansController < ApplicationController
   # GET /loans
   # GET /loans.json
   def index
-    @loans          = Loan.all
     @recent_objects = Loan.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /loans/1

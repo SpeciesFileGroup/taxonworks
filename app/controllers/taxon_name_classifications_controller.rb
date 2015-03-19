@@ -7,6 +7,7 @@ class TaxonNameClassificationsController < ApplicationController
   # GET /taxon_name_relationships.json
   def index
     @recent_objects = TaxonNameClassification.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # POST /taxon_name_classifications

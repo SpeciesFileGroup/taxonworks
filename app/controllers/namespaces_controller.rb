@@ -5,8 +5,8 @@ class NamespacesController < ApplicationController
   # GET /namespaces
   # GET /namespaces.json
   def index
-    @namespaces     = Namespace.all
     @recent_objects = Namespace.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /namespaces/1

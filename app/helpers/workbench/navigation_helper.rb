@@ -46,7 +46,11 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    link_to('new', new_path_for_model(model))
+    if model.annotates?
+      nil
+    else
+      link_to('new', new_path_for_model(model))
+    end
   end
 
   def list_for_model_link(model)

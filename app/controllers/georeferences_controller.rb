@@ -8,6 +8,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences.json
   def index
     @recent_objects = Georeference.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   def list

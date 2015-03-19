@@ -47,10 +47,10 @@ describe LoansController, :type => :controller do
   end
 
   describe "GET index" do
-    it "assigns all loans as @loans" do
+    it "assigns all loans as @recent_objects" do
       loan = Loan.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:loans).to_a).to include(loan)
+      expect(assigns(:recent_objects).to_a).to include(loan)
     end
   end
 

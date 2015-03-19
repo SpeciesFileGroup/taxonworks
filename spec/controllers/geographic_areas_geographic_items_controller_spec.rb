@@ -43,22 +43,6 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
   # GeographicAreasGeographicItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns all geographic_areas_geographic_items as @geographic_areas_geographic_items" do
-      geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:geographic_areas_geographic_items)).to eq([geographic_areas_geographic_item])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested geographic_areas_geographic_item as @geographic_areas_geographic_item" do
-      geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
-      get :show, {:id => geographic_areas_geographic_item.to_param}, valid_session
-      expect(assigns(:geographic_areas_geographic_item)).to eq(geographic_areas_geographic_item)
-    end
-  end
-
   describe "GET new" do
     it "assigns a new geographic_areas_geographic_item as @geographic_areas_geographic_item" do
       get :new, {}, valid_session

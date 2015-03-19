@@ -1,18 +1,7 @@
 class GeographicAreasGeographicItemsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_geographic_areas_geographic_item, only: [:show, :edit, :update, :destroy]
-
-  # GET /geographic_areas_geographic_items
-  # GET /geographic_areas_geographic_items.json
-  def index
-    @geographic_areas_geographic_items = GeographicAreasGeographicItem.limit(30)
-  end
-
-  # GET /geographic_areas_geographic_items/1
-  # GET /geographic_areas_geographic_items/1.json
-  def show
-  end
+  before_action :set_geographic_areas_geographic_item, only: [:edit, :update, :destroy]
 
   # GET /geographic_areas_geographic_items/new
   def new
@@ -63,9 +52,10 @@ class GeographicAreasGeographicItemsController < ApplicationController
     end
   end
 
-  def list
-    @geographic_areas_geographic_item = GeographicAreasGeographicItem.order(:id).page(params[:page])
-  end
+# Not used 
+# def list
+#   @geographic_areas_geographic_item = GeographicAreasGeographicItem.order(:id).page(params[:page])
+# end
 
   private
     # Use callbacks to share common setup or constraints between actions.

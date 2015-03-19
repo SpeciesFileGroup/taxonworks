@@ -7,6 +7,7 @@ class TaxonDeterminationsController < ApplicationController
   # GET /taxon_determinations.json
   def index
     @recent_objects = TaxonDetermination.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   def list

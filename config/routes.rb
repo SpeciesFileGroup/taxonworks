@@ -37,15 +37,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-
   match '/administration', to: 'administration#index', via: 'get'
 
-  resources :project_members
+  resources :project_members, except: [:index, :show] 
   resources :pinboard_items, only: [:create, :destroy]
-
-  #
-  # Unvetted/not fully tested Stubbed
-  #
 
   resources :alternate_values, except: [:show] do
     concerns [:data_routes]
@@ -93,7 +88,7 @@ TaxonWorks::Application.routes.draw do
       get 'display_coordinates', as: "getdisplaycoordinates"
     end
   end
-  resources :geographic_areas_geographic_items
+  resources :geographic_areas_geographic_items, except: [:index, :show]
   resources :geographic_items
   resources :georeferences do
     concerns [:data_routes]
@@ -121,7 +116,14 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
-  resources :otu_page_layouts
+
+  resources :otu_page_layouts do
+     collection do
+      get :list
+     end 
+
+  end
+  
   resources :otus do
     concerns [:data_routes]
     collection do

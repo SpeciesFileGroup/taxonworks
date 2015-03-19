@@ -5,13 +5,7 @@ class TagsController < ApplicationController
 
   def new
     if !Keyword.for_tags.with_project_id($project_id).any? # if there are none
-      # specify return path
-      # params[:tag][:tag_object_type]
-
-     # @return_path = "/#{params[:tag][:tag_object_type].downcase.pluralize}/#{params[:tag][:tag_object_id]}"  -- this would take us back to current object
-
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
-
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
     end
     @tag = Tag.new(tag_params)
@@ -21,6 +15,7 @@ class TagsController < ApplicationController
   # GET /tags.json
   def index
     @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # POST /tags

@@ -8,6 +8,7 @@ class ContentsController < ApplicationController
   # GET /contents.json
   def index
     @recent_objects = Content.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /contents/1

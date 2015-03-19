@@ -8,6 +8,7 @@ class PeopleController < ApplicationController
   def index
     @people = Person.all.includes(:creator, :updater)
     @recent_objects = Person.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /people/1

@@ -6,8 +6,8 @@ class RangedLotCategoriesController < ApplicationController
   # GET /ranged_lot_categories
   # GET /ranged_lot_categories.json
   def index
-    # @ranged_lot_categories = RangedLotCategory.all
     @recent_objects = RangedLotCategory.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /ranged_lot_categories/1

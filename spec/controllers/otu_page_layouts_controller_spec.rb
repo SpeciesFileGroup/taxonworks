@@ -34,10 +34,10 @@ describe OtuPageLayoutsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all otu_page_layouts as @otu_page_layouts" do
+    it "assigns all otu_page_layouts as @recent_objects" do
       otu_page_layout = OtuPageLayout.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:otu_page_layouts)).to eq([otu_page_layout])
+      expect(assigns(:recent_objects)).to eq([otu_page_layout])
     end
   end
 

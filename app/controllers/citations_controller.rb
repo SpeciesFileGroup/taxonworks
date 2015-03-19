@@ -16,6 +16,7 @@ class CitationsController < ApplicationController
   # GET /citations.json
   def index
     @recent_objects = Citation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # POST /citations

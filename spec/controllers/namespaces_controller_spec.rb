@@ -36,10 +36,10 @@ describe NamespacesController, :type => :controller do
   let(:valid_session) { {} }
 
   describe "GET index" do
-    it "assigns all namespaces as @namespaces" do
+    it "assigns all namespaces as @recent_objects" do
       namespace = Namespace.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:namespaces)).to include(namespace)
+      expect(assigns(:recent_objects)).to include(namespace)
     end
   end
 

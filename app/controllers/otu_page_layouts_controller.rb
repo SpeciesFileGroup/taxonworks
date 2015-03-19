@@ -6,7 +6,8 @@ class OtuPageLayoutsController < ApplicationController
   # GET /otu_page_layouts
   # GET /otu_page_layouts.json
   def index
-    @otu_page_layouts = OtuPageLayout.all
+    @recent_objects = OtuPageLayout.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /otu_page_layouts/1

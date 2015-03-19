@@ -34,23 +34,6 @@ RSpec.describe ProjectMembersController, :type => :controller do
   # ProjectMembersController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    
-    it "assigns all project_members as @project_members" do
-      project_member = ProjectMember.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:project_members)).to eq([ProjectMember.first, project_member])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested project_member as @project_member" do
-      project_member = ProjectMember.create! valid_attributes
-      get :show, {:id => project_member.to_param}, valid_session
-      expect(assigns(:project_member)).to eq(project_member)
-    end
-  end
-
   describe "GET new" do
     it "assigns a new project_member as @project_member" do
       get :new, {}, valid_session
@@ -102,14 +85,14 @@ RSpec.describe ProjectMembersController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { is_project_administrator:  true}
       }
 
       it "updates the requested project_member" do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {:id => project_member.to_param, :project_member => new_attributes}, valid_session
+        put :update, {id: project_member.to_param, project_member: new_attributes }, valid_session
         project_member.reload
-        skip("Add assertions for updated state")
+        expect(assigns(:project_member)).to eq(project_member)
       end
 
       it "assigns the requested project_member as @project_member" do

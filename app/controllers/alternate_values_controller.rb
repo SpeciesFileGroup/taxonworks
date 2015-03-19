@@ -3,18 +3,19 @@ class AlternateValuesController < ApplicationController
 
   before_action :set_alternate_value, only: [:update, :destroy] # :edit removed from this list
 
+  # GET /alternate_values
+  # GET /alternate_values.json
+  def index
+    @recent_objects = AlternateValue.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
+
   def new
     @alternate_value = AlternateValue.new(alternate_value_params)
   end
 
   def edit
     @alternate_value = AlternateValue.find_by_id(params[:id]).metamorphosize
-  end
-
-  # GET /alternate_values
-  # GET /alternate_values.json
-  def index
-    @recent_objects = AlternateValue.where(project_id: $project_id).order(updated_at: :desc).limit(10)
   end
 
   # POST /alternate_values

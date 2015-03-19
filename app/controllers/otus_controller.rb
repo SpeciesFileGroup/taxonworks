@@ -7,6 +7,7 @@ class OtusController < ApplicationController
   # GET /otus.json
   def index
     @recent_objects = Otu.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index' 
   end
 
   # GET /otus/1

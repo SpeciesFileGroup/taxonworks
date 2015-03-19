@@ -8,6 +8,7 @@ class SourcesController < ApplicationController
   # GET /sources.json
   def index
     @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   def list

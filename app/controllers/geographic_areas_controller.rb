@@ -7,7 +7,8 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
-    @recent_objects   = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
+    @recent_objects = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /geographic_areas/1

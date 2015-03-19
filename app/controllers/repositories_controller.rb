@@ -8,6 +8,7 @@ class RepositoriesController < ApplicationController
   def index
     @repositories   = Repository.limit(20)
     @recent_objects = Repository.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /repositories/1

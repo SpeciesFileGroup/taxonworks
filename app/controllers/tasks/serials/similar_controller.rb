@@ -4,8 +4,8 @@ class Tasks::Serials::SimilarController < ApplicationController
   #    match 'find_similar_serials_task', to: 'tasks/serial/find_similar', via: 'get'
   #POST & GET find_similar_serials_task_path
   def find
-
   end
+
   #GET  similar_serials? or Get serial/similar:id
   def like
     @serial = Serial.find(params[:id])

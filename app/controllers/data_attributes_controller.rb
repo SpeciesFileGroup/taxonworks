@@ -3,15 +3,16 @@ class DataAttributesController < ApplicationController
 
   before_action :set_data_attribute, only: [:update, :destroy]
 
-  # GET /data_attributes/new
-  def new
-    @data_attribute = DataAttribute.new(data_attribute_params)
-  end
-
   # GET /data_attributes
   # GET /data_attributes.json
   def index
     @recent_objects = DataAttribute.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
+
+  # GET /data_attributes/new
+  def new
+    @data_attribute = DataAttribute.new(data_attribute_params)
   end
 
   # GET /data_attributes/1/edit

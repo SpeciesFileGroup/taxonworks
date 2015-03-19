@@ -8,6 +8,7 @@ class PreparationTypesController < ApplicationController
   def index
     @preparation_types = PreparationType.all
     @recent_objects = PreparationType.order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /preparation_types/1
