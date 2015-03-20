@@ -14,6 +14,7 @@ function initializeDrawItem(map_canvas, fcdata) {
             ]
         },
         markerOptions: {
+            icon: '/assets/mapicons/mm_20_red.png',
             editable: true
         },
         circleOptions: {
@@ -49,7 +50,9 @@ function initializeDrawItem(map_canvas, fcdata) {
     get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
     // override computed center with verbatim center
-    if (lat != 0 || lng != 0) {center_lat_long = new google.maps.LatLng(lat, lng)}
+    if (bounds.center_lat == 0 && bounds.center_long == 0) {
+        center_lat_long = new google.maps.LatLng(lat, lng)
+    }
     var mapOptions = {
         center: center_lat_long,
         zoom: bounds.gzoom
@@ -57,6 +60,7 @@ function initializeDrawItem(map_canvas, fcdata) {
     var map = new google.maps.Map(document.getElementById(map_canvas),
         mapOptions);
     map.data.setStyle({
+        icon: '/assets/mapicons/mm_20_gray.png',
         fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
@@ -66,7 +70,15 @@ function initializeDrawItem(map_canvas, fcdata) {
 
     map.data.addGeoJson(mapData);
 
-    $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
+    var mapCoords;
+    if (lat != 0 || lng != 0) {
+        mapCoords = 'Verbatim coordinate:\xA0 Latitude= ' + lat + ' , Longitude= ' + lng;
+    }
+    else {
+    mapCoords = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6);
+    }
+    mapCoords = mapCoords + ' \xA0 \xA0 <input type="button" action="clearItem()" value="Clear" />'
+    $("#map_coords").html(mapCoords);
     //map.setCenter(center_lat_long);
     //map.setZoom(bounds.gzoom);
 
@@ -140,6 +152,10 @@ function initializeDrawItem(map_canvas, fcdata) {
         }
     );
     return map;
+
+}
+
+function clearItem(drawingManager) {
 
 }
 
