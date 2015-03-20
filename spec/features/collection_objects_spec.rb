@@ -1,11 +1,10 @@
 require 'rails_helper'
 
 describe 'CollectionObjects', :type => :feature do
-  let(:page_index_name) { 'Collection objects' }
+  let(:index_path) { collection_objects_path }
+  let(:page_index_name) { 'collection objects' }
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { collection_objects_path }
-  end
+  it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'with some records created' do
     before {
@@ -17,17 +16,21 @@ describe 'CollectionObjects', :type => :feature do
       before {
         visit collection_objects_path }
 
-      specify 'an index name is present' do
-        expect(page).to have_content(page_index_name)
-      end
+      it_behaves_like 'a_data_model_with_standard_index'
+
+      # specify 'an index name is present' do
+      #   expect(page).to have_content(page_index_name)
+      # end
     end
 
     describe 'GET /collection_objects/list' do
       before { visit list_collection_objects_path }
 
-      specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Collection Objects'
-      end
+      it_behaves_like 'a_data_model_with_standard_list'
+
+      # specify 'that it renders without error' do
+      #   expect(page).to have_content 'Listing Collection Objects'
+      # end
     end
 
     describe 'GET /collection_objects/n' do
@@ -35,13 +38,7 @@ describe 'CollectionObjects', :type => :feature do
         visit collection_object_path(CollectionObject.second) 
       }
 
-      specify 'there is a \'previous\' link' do
-        expect(page).to have_link('Previous')
-      end
-
-      specify 'there is a \'next\' link' do
-        expect(page).to have_link('Next')
-      end
+      it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 
