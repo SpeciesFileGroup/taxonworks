@@ -248,8 +248,12 @@ class Georeference < ActiveRecord::Base
   def chk_obj_inside_err_geo_item
     # case 1
     retval = true
-    if error_geographic_item.nil? == false && geographic_item.nil? == false
-      retval = self.error_geographic_item.contains?(self.geographic_item.geo_object)
+    unless geographic_item.nil?
+      unless error_geographic_item.nil?
+        if error_geographic_item.geo_object # is NOT false
+          retval = self.error_geographic_item.contains?(self.geographic_item.geo_object)
+        end
+      end
     end
     retval
   end
@@ -268,8 +272,12 @@ class Georeference < ActiveRecord::Base
   def chk_err_geo_item_inside_err_radius
     # case 3
     retval = true
-    if error_radius.nil? == false && error_geographic_item.nil? == false
-      retval = self.error_box.contains?(error_geographic_item.geo_object)
+    unless error_radius.nil?
+      unless error_geographic_item.nil?
+        if error_geographic_item.geo_object # is NOT false
+          retval = self.error_box.contains?(error_geographic_item.geo_object)
+        end
+      end
     end
     retval
   end
@@ -293,8 +301,12 @@ class Georeference < ActiveRecord::Base
     # case 5
     retval = true
     unless collecting_event.nil?
-      if error_geographic_item.nil? == false && collecting_event.geographic_area.nil? == false
-        retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item.geo_object)
+      unless error_geographic_item.nil?
+        if error_geographic_item.geo_object # is NOT false
+          unless collecting_event.geographic_area.nil?
+            retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item.geo_object)
+          end
+        end
       end
     end
     retval

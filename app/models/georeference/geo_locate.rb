@@ -68,7 +68,11 @@ class Georeference::GeoLocate < Georeference
   def self.parse_embedded_result(response_string)
     lat, long, error_radius, uncertainty_polygon = response_string.split("|")
     unless uncertainty_polygon.nil?
-      uncertainty_points = uncertainty_polygon.split(',').reverse.in_groups_of(2)
+      if uncertainty_polygon =~ /unavailable/i  # todo: there are many more possible error conditions
+        uncertainty_points = nil
+        else
+        uncertainty_points = uncertainty_polygon.split(',').reverse.in_groups_of(2)
+      end
     end
     [lat, long, error_radius, uncertainty_points]
   end
