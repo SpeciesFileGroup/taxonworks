@@ -3,9 +3,11 @@
 <div class="attributes"> 
   <p>
     <strong>Geographic item:</strong>
-    <%= @georeference.geographic_item_id %>
+    <%= geographic_item_link(@georeference.geographic_item) -%>
+    <%#= @georeference.geographic_item_id %>
     <strong>Error-Geographic item:</strong>
-    <%= @georeference.error_geographic_item_id %>
+    <%= geographic_item_link(@georeference.error_geographic_item) -%>
+    <%#= @georeference.error_geographic_item_id %>
   </p>
 
   <div id="feature_collection"
