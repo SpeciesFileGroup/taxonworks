@@ -30,11 +30,11 @@ class Source < ActiveRecord::Base
   validates_presence_of :type
 
   def cited_objects
-    self.citations.collect{|t| t.citation_object}
+    self.citations.collect { |t| t.citation_object }
   end
 
   def self.find_for_autocomplete(params)
-    where('cached LIKE ?', "%#{params[:term]}%") 
+    where('cached LIKE ?', "%#{params[:term]}%")
   end
 
   # Create a new Source instance from a full text citatation.  By default 
@@ -51,18 +51,30 @@ class Source < ActiveRecord::Base
   def self.new_from_citation(citation: nil, resolve: true)
     return false if citation.length < 6
     bibtex_string = Ref2bibtex.get(citation) if resolve
-    if bibtex_string 
-      b = BibTeX.parse(bibtex_string).first
+    # check string encoding, if not UTF-8, check if compatible with UTF-8,
+    # if so convert to UTF-8 and parse with latex, else use type verbatim
+    if bibtex_string
+      unless bibtex_string.encoding == Encoding::UTF_8
+        x = 'test'.encode(Encoding::UTF_8)
+        if Encoding.compatible?(x, bibtex_string)
+          bibtex_string.force_encoding(Encoding::UTF_8)
+        else
+          return Source::Verbatim.new(verbatim: citation)
+        end
+      end
+
+      bibliography = BibTeX.parse(bibtex_string).convert(:latex)
+      b            = bibliography.first
       return Source::Bibtex.new_from_bibtex(b)
     else
-      return Source::Verbatim.new(verbatim: citation )
+      return Source::Verbatim.new(verbatim: citation)
     end
   end
 
   def self.new_from_doi(doi: nil)
-    return false if !doi 
-    bibtex_string = Ref2bibtex.get_bibtex(doi) 
-    if bibtex_string 
+    return false if !doi
+    bibtex_string = Ref2bibtex.get_bibtex(doi)
+    if bibtex_string
       b = BibTeX.parse(bibtex_string).first
       return Source::Bibtex.new_from_bibtex(b)
     end
@@ -71,7 +83,7 @@ class Source < ActiveRecord::Base
 
   def self.batch_preview(file: nil, ** args)
     bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
-    @sources = []
+    @sources     = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
       @sources.push(a)
@@ -82,14 +94,14 @@ class Source < ActiveRecord::Base
   def self.batch_create(file: nil, ** args)
     sources = []
     begin
-      Source.transaction do 
+      Source.transaction do
         bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
           a.save!
           sources.push(a)
         end
-      end 
+      end
     rescue
       raise
     end

@@ -354,12 +354,12 @@ DEPENDENCIES
   awesome_print
   bcrypt (~> 3.1.7)
   better_errors (~> 2.0)
-  bibtex-ruby (~> 4.0.3)
+  bibtex-ruby (~> 4.0.11)
   binding_of_caller
   byebug
   capybara (~> 2.1)
   chronic (~> 0.10)
-  citeproc-ruby
+  citeproc-ruby (~> 1.0.5)
   coffee-rails (~> 4.0)
   colored
   coveralls (~> 0.7)
@@ -379,6 +379,7 @@ DEPENDENCIES
   jquery-turbolinks
   jquery-ui-rails
   kaminari
+  latex-decode (~> 0.2.0)
   modularity (~> 2.0.1)
   paper_trail (~> 3.0.5)
   paperclip (~> 4.2)

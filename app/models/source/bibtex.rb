@@ -641,6 +641,7 @@ class Source::Bibtex < Source
     bx_bibliography.add(bx_entry)
 
     cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+    #cp.engine.format = 'html'
     cp.import(bx_bibliography.to_citeproc)
     cp.render(:bibliography, id: key).first.strip
   end

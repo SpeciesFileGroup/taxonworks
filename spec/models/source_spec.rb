@@ -24,7 +24,7 @@ describe Source, :type => :model do
       expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
     end
 
-    specify 'when citation is resolveable a Source::Verbatim instance is returned' do
+    specify 'when citation is resolveable a Source::Bibtex instance is returned' do
       expect(Source.new_from_citation(citation: citation).class).to eq(Source::Bibtex)
     end
   end

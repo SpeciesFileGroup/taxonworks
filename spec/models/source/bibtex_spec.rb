@@ -128,6 +128,60 @@ describe Source::Bibtex, :type => :model do
       end
     end
 
+    context "Should handle BibTeX formatting" do
+      # BibTeX.parse doesn't handle math version so no sub or sup (e.g. 20<sup>th</sup>)
+      let(:citation_string) { %q(@Article{py03,
+                                    title = "The \t{oo} annual meeting of {BibTeX}--users",
+                                    author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
+                                    editor = "Simon {"}the {saint"} Templar",
+                                    publisher = "@ sign publishing",
+                                    journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
+                                    year = {2003}})
+      }
+      # let(:bibtex_entry) { BibTeX.parse(citation_string).first }
+      specify 'Strings are output properly' do
+        expect(true).to be_truthy
+        a  = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src = Source::Bibtex.new_from_bibtex(entry)
+        expect(src.valid?).to be_truthy
+        expect(src.save).to be_truthy
+        expect(src.cached_string).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+
+        # c = LaTeX.decode entry.title
+        # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
+        # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+        #cp.engine.format = 'html'
+        # cp.import(a.first)
+        # b = cp.render(:bibliography, id: key).first.strip
+
+        # array = [] 
+        # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users") 
+        # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "}) 
+        # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
+        #  array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "}) 
+        # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"}) 
+        # array
+
+        #  have ref-in-ref problems not correctly creating the either book or article
+        # input =  "Klapálek & Grunberg. 1909. Hft. 8. Ephemerida, Plecoptera, Lepidoptera. In Brauer, A. Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna. 1-163"
+        input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+        src = Source.new_from_citation({citation: input, resolve: true})
+        expect(src.cached_string).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+        # expect(BibTeX.valid?(filename)).to be_truthy
+        # expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
+        # expect(a.save).to be_truthy
+        # a.reload
+
+=begin
+        cp.import a.to_citeproc
+
+      end
+=end
+
+      end
+    end
+
     skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
   end
 
@@ -142,96 +196,96 @@ describe Source::Bibtex, :type => :model do
         expect(@s.to_bibtex.fields).to eq(gem_bibtex_entry1.fields)
       end
 
-  #   specify 'a single object note gets converted properly to a bibtex note' do
-  #     n = 'I am a test note'
-  #     expect(@s.notes.size).to eq(0) # @s has no notes
-  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-  #     expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
-  #     expect(@s.save).to be_truthy
-  #     expect(@s.notes.size).to eq(1)
-  #     b = @s.to_bibtex
+      #   specify 'a single object note gets converted properly to a bibtex note' do
+      #     n = 'I am a test note'
+      #     expect(@s.notes.size).to eq(0) # @s has no notes
+      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+      #     expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
+      #     expect(@s.save).to be_truthy
+      #     expect(@s.notes.size).to eq(1)
+      #     b = @s.to_bibtex
 
-  #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
-  #     expect(b[:note].to_s =~ /#{n}/).to be_truthy
-  #     expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
-  #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-  #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
-  #   end
+      #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
+      #     expect(b[:note].to_s =~ /#{n}/).to be_truthy
+      #     expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
+      #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
+      #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
+      #   end
 
-  #   specify 'multiple object notes get converted properly' do
-  #     n1 = 'test note1'
-  #     n2 = 'test note2'
-  #     expect(@s.notes.count).to eq(0) # @s has no notes
-  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-  #     expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
-  #     expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
-  #     expect(@s.save).to be_truthy
-  #     expect(@s.notes.count).to eq(2)
-  #     b         = @s.to_bibtex
+      #   specify 'multiple object notes get converted properly' do
+      #     n1 = 'test note1'
+      #     n2 = 'test note2'
+      #     expect(@s.notes.count).to eq(0) # @s has no notes
+      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+      #     expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
+      #     expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
+      #     expect(@s.save).to be_truthy
+      #     expect(@s.notes.count).to eq(2)
+      #     b         = @s.to_bibtex
 
-  #     # not sure how ordering should be tested? For now note2 always comes out first.
-  #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
-  #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
-  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-  #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-  #   end
+      #     # not sure how ordering should be tested? For now note2 always comes out first.
+      #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
+      #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
+      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+      #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
+      #   end
 
-  #   specify 'a single attribute note gets converted properly' do
-  #     n = 'I am a test attribute note'
-  #     expect(@s.notes.count).to eq(0) # @s has no notes
-  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-  #     expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
-  #     expect(@s.save).to be_truthy
-  #     expect(@s.notes.count).to eq(1)
-  #     date     = @s.notes.to_a[0].updated_at
-  #     b        = @s.to_bibtex
-  #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
-  #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-  #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
+      #   specify 'a single attribute note gets converted properly' do
+      #     n = 'I am a test attribute note'
+      #     expect(@s.notes.count).to eq(0) # @s has no notes
+      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+      #     expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
+      #     expect(@s.save).to be_truthy
+      #     expect(@s.notes.count).to eq(1)
+      #     date     = @s.notes.to_a[0].updated_at
+      #     b        = @s.to_bibtex
+      #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
+      #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
+      #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
 
-  #   end
+      #   end
 
-  #   specify 'multiple attribute notes get converted properly' do
-  #     n1 = 'test note1'
-  #     n2 = 'test note2'
-  #     expect(@s.notes.count).to eq(0) # @s has no notes
-  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-  #     expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-  #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-  #     expect(@s.save).to be_truthy
-  #     expect(@s.notes.count).to eq(2)
-  #     b         = @s.to_bibtex
+      #   specify 'multiple attribute notes get converted properly' do
+      #     n1 = 'test note1'
+      #     n2 = 'test note2'
+      #     expect(@s.notes.count).to eq(0) # @s has no notes
+      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+      #     expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+      #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+      #     expect(@s.save).to be_truthy
+      #     expect(@s.notes.count).to eq(2)
+      #     b         = @s.to_bibtex
 
-  #     # not sure how ordering should be tested? For now note2 always comes out first.
-  #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
-  #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
-  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-  #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-  #   end
+      #     # not sure how ordering should be tested? For now note2 always comes out first.
+      #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
+      #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
+      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+      #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
+      #   end
 
-  #   specify 'mixed attribute & object notes' do
-  #     n1 = 'object note1'
-  #     n2 = 'author note2'
-  #     n3 = 'title note3'
-  #     expect(@s.notes.count).to eq(0) # @s has no notes
-  #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-  #     expect(@s.notes << Note.new(text: n1)).to be_truthy
-  #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-  #     expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-  #     expect(@s.save).to be_truthy
-  #     expect(@s.notes.count).to eq(3)
-  #     b         = @s.to_bibtex
+      #   specify 'mixed attribute & object notes' do
+      #     n1 = 'object note1'
+      #     n2 = 'author note2'
+      #     n3 = 'title note3'
+      #     expect(@s.notes.count).to eq(0) # @s has no notes
+      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
+      #     expect(@s.notes << Note.new(text: n1)).to be_truthy
+      #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
+      #     expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
+      #     expect(@s.save).to be_truthy
+      #     expect(@s.notes.count).to eq(3)
+      #     b         = @s.to_bibtex
 
-  #     # not sure how ordering should be tested? For now note3 always comes out first.
-  #     out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
-  #     out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
-  #     out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
-  #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-  #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-  #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
-  #   end
+      #     # not sure how ordering should be tested? For now note3 always comes out first.
+      #     out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
+      #     out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
+      #     out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
+      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
+      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
+      #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
+      #   end
 
       skip 'serial gets converted properly to bibtex journal' do
 
@@ -253,15 +307,15 @@ describe Source::Bibtex, :type => :model do
       end
     end
 
- #  specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
- #    note                       = "This is a note.\n With multiple lines."
- #    valid_gem_bibtex_book.note = note
- #    s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
- #    expect(s.notes.to_a.count).to eq(1)
- #    expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
- #    expect(s.save).to be_truthy
- #    expect(s.notes.first.id.nil?).to be_falsey
- #  end
+    #  specify 'with a note in a BibTeX::Entry, convert it to a Source::Bibtex with an attached Note' do
+    #    note                       = "This is a note.\n With multiple lines."
+    #    valid_gem_bibtex_book.note = note
+    #    s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+    #    expect(s.notes.to_a.count).to eq(1)
+    #    expect(s.notes.first.text).to eq(note + ' [Created on import from BibTeX.]')
+    #    expect(s.save).to be_truthy
+    #    expect(s.notes.first.id.nil?).to be_falsey
+    #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
       identifier                 = '1-84356-028-3'
@@ -546,7 +600,7 @@ describe Source::Bibtex, :type => :model do
   end
 
   # sanity check for Housekeeping, which is also tested elsewhere 
-  context 'roles and houskeeping' do
+  context 'roles and housekeeping' do
     let(:bibtex) { Source::Bibtex.create(title: 'Roles', year: 1923, bibtex_type: 'book') }
 
     specify 'with << and an existing object' do
@@ -950,7 +1004,7 @@ describe Source::Bibtex, :type => :model do
     #    }.merge!(opts)
 
     context '#new_from_bibtex' do
-      let(:citation_string) { %Q(@book{international_commission_on_zoological_nomenclature_international_1999,
+      let(:citation_string) { %q(@book{international_commission_on_zoological_nomenclature_international_1999,
                                     address = {London},
                                     edition = {Fourth},
                                     title = {International Code of Zoological Nomenclature},
