@@ -1,62 +1,49 @@
 require 'rails_helper'
 
 describe 'CollectingEvents', :type => :feature do
-  let(:page_index_name) { 'Collecting events' }
+  let(:page_index_name) { 'collecting events' }
+  let(:index_path) { collecting_events_path }
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do 
-    let(:index_path) { collecting_events_path }
-  end
-
-  describe 'GET /collecting_events' do
-    before { 
-      sign_in_user_and_select_project
-      visit collecting_events_path }
-
-    specify 'a index name is present' do
-      expect(page).to have_content(page_index_name)
-    end
+  it_behaves_like 'a_login_required_and_project_selected_controller' do
   end
 
   context 'signed in as a user, with some records created' do
     before {
-    sign_in_user_and_select_project
-     10.times { factory_girl_create_for_user_and_project(:valid_collecting_event, @user, @project) }
-    }
- 
-  describe 'GET /collecting_events/list' do
-    before do
-      visit list_collecting_events_path
-    end
-
-    specify 'that it renders without error' do
-      expect(page).to have_content 'Listing collecting events'
-    end
-  end
-
-  describe 'GET /collecting_events/n' do
-    before {
-      visit collecting_event_path(CollectingEvent.second)
+      sign_in_user_and_select_project
+      10.times { factory_girl_create_for_user_and_project(:valid_collecting_event, @user, @project) }
     }
 
-    specify 'there is a \'previous\' link' do
-      expect(page).to have_link('Previous')
+    describe 'GET /collecting_events' do
+      before {
+        visit collecting_events_path }
+
+      it_behaves_like 'a_data_model_with_standard_index'
     end
 
-    specify 'there is a \'next\' link' do
-      expect(page).to have_link('Next')
+    describe 'GET /collecting_events/list' do
+      before do
+        visit list_collecting_events_path
+      end
+
+      it_behaves_like 'a_data_model_with_standard_list'
     end
 
-    specify 'there is a \'Add Google map georeference\' link' do
-      expect(page).to have_link('Add Google map georeference')
+    describe 'GET /collecting_events/n' do
+      before {
+        visit collecting_event_path(CollectingEvent.second)
+      }
+
+      it_behaves_like 'a_data_model_with_standard_show'
+
+      specify 'there is a \'Add Google map georeference\' link' do
+        expect(page).to have_link('Add Google map georeference')
+      end
     end
-
-  end
-
   end
 
   context 'creating a new collecting event' do
     before {
-      sign_in_user_and_select_project  # logged in and project selected
+      sign_in_user_and_select_project # logged in and project selected
       visit collecting_events_path # when I visit the collecting_events_path
     }
 

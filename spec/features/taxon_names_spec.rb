@@ -3,21 +3,10 @@ include FormHelper
 
 describe 'TaxonNames', :type => :feature do
   Capybara.default_wait_time = 1 # change to 15 to see what's happening on form
-  let(:page_index_name) { 'Taxon names' }
+  let(:page_index_name) { 'taxon names' }
+  let(:index_path) { taxon_names_path }
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { taxon_names_path }
-  end
-
-  describe 'GET /taxon_names' do
-    before {
-      sign_in_user_and_select_project
-      visit taxon_names_path }
-
-    specify 'an index name is present' do
-      expect(page).to have_content(page_index_name)
-    end
-  end
+  it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user, with some records created' do
     let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
@@ -28,14 +17,19 @@ describe 'TaxonNames', :type => :feature do
       }
     }
 
+    describe 'GET /taxon_names' do
+    before {
+      visit taxon_names_path }
+
+    it_behaves_like 'a_data_model_with_standard_index'
+  end
+
     describe 'GET /taxon_names/list' do
       before do
         visit list_taxon_names_path
       end
 
-      specify 'that it renders without error' do
-        expect(page).to have_content "Listing taxon names"
-      end
+      it_behaves_like 'a_data_model_with_standard_list'
     end
 
     describe 'GET /taxon_names/n' do
@@ -43,13 +37,7 @@ describe 'TaxonNames', :type => :feature do
         visit taxon_name_path(TaxonName.second)
       }
 
-      specify 'there is a \'previous\' link' do
-        expect(page).to have_link('Previous')
-      end
-
-      specify 'there is a \'next\' link' do
-        expect(page).to have_link('Next')
-      end
+       it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 
