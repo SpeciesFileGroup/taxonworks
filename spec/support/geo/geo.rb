@@ -5,7 +5,7 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
-SIMPLE_SHAPES = {
+SIMPLE_SHAPES     = {
   point:               'POINT(10 10 0)',
   line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
   polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',
@@ -15,7 +15,9 @@ SIMPLE_SHAPES = {
   geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
 }
 
-LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #current test case
+# todo: fix the interpretation of '-88.241121º'
+LATLONG_USE_CASES = {'-88.241121'                    => '-88.241121', #current test case ['-88.241121°']
+                     'w88∫11′43.4″'                  => '-88.195389',
                      '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                      '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
                      '40:26:46.302N'                 => '40.446195',
@@ -541,7 +543,7 @@ def prepare_test
   p = Project.order(:id).first
   if p.nil?
     p = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true)
-  
+
   end
   $project_id = p.id
 
@@ -1177,360 +1179,360 @@ Two different shapes with the same name, 'East Boxia', and
 
   # mimic TDWG North America
   @area_land_mass = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Great Northern Land Mass',
-                                      :geographic_area_type => gat_land_mass,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @earth)
+                                       :name                 => 'Great Northern Land Mass',
+                                       :geographic_area_type => gat_land_mass,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @earth)
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
   @area_old_boxia = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Old Boxia',
-                                      :geographic_area_type => gat_country,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @area_land_mass)
+                                       :name                 => 'Old Boxia',
+                                       :geographic_area_type => gat_country,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
   @area_big_boxia = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Big Boxia',
-                                      :geographic_area_type => gat_country,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @area_land_mass)
+                                       :name                 => 'Big Boxia',
+                                       :geographic_area_type => gat_country,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'Q',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'QQQ',
-                              :iso_3166_a2          => 'QQ',
-                              :parent               => @area_land_mass)
+                               :name                 => 'Q',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'QQQ',
+                               :iso_3166_a2          => 'QQ',
+                               :parent               => @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
   @area_east_boxia_1 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'EB1',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'EB1',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
   @area_east_boxia_2 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'EB2',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'EB2',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
   @area_east_boxia_3 = FactoryGirl.create(:level1_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_state,
-                                         :iso_3166_a3          => 'EB3',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_old_boxia)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_state,
+                                          :iso_3166_a3          => 'EB3',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
   @area_east_boxia_3.save
   @area_west_boxia_1 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'West Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'WB1',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'West Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'WB1',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
   @area_west_boxia_3 = FactoryGirl.create(:level1_geographic_area,
-                                         :name                 => 'West Boxia',
-                                         :geographic_area_type => gat_state,
-                                         :iso_3166_a3          => 'WB3',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_old_boxia)
+                                          :name                 => 'West Boxia',
+                                          :geographic_area_type => gat_state,
+                                          :iso_3166_a3          => 'WB3',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
   @area_west_boxia_3.save
   @area_r = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'R',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'RRR',
-                              :iso_3166_a2          => 'RR',
-                              :parent               => @area_land_mass)
+                               :name                 => 'R',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'RRR',
+                               :iso_3166_a2          => 'RR',
+                               :parent               => @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
   @area_s = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'S',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'SSS',
-                              :iso_3166_a2          => 'SS',
-                              :parent               => @area_land_mass)
+                               :name                 => 'S',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'SSS',
+                               :iso_3166_a2          => 'SS',
+                               :parent               => @area_land_mass)
   @area_s.geographic_items << @item_s
   @area_s.save
 
   # next, level 1 areas
   @area_t_1 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'QT',
-                                :tdwgID               => '10TTT',
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_q)
+                                 :name                 => 'QT',
+                                 :tdwgID               => '10TTT',
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save
   @area_t_2 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'QT',
-                                :tdwgID               => '20TTT',
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_q)
+                                 :name                 => 'QT',
+                                 :tdwgID               => '20TTT',
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save
   @area_u = FactoryGirl.create(:level1_geographic_area,
-                              :name                 => 'QU',
-                              :tdwgID               => nil,
-                              :geographic_area_type => gat_state,
-                              :parent               => @area_q)
+                               :name                 => 'QU',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_q)
   @area_u.geographic_items << @item_u
   @area_u.save
 
   @area_qtm1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTM1',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTM1',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtm1.geographic_items << @item_m1
   @area_qtm1.save
 
   @area_qtm2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTM2',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTM2',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtm2.geographic_items << @item_m1
   @area_qtm2.save
 
   @area_qtn1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTN1',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTN1',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtn1.geographic_items << @item_n1
   @area_qtn1.save
 
   @area_qtn2_1 = FactoryGirl.create(:level2_geographic_area,
-                                   :name                 => 'QTN2',
-                                   :geographic_area_type => gat_county,
-                                   :parent               => @area_t_1)
+                                    :name                 => 'QTN2',
+                                    :geographic_area_type => gat_county,
+                                    :parent               => @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save
 
   @area_qtn2_2 = FactoryGirl.create(:level2_geographic_area,
-                                   :name                 => 'QTN2',
-                                   :geographic_area_type => gat_county,
-                                   :parent               => @area_t_2)
+                                    :name                 => 'QTN2',
+                                    :geographic_area_type => gat_county,
+                                    :parent               => @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 
   @area_quo1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUO1',
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUO1',
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   # @area_quo1.geographic_items << @item_o1
   # @area_quo1.save
 
   @area_quo2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUO2',
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUO2',
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_quo2.geographic_items << @item_o2
   @area_quo2.save
 
   @area_qup1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUP1',
-                                 :tdwgID               => nil,
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUP1',
+                                  :tdwgID               => nil,
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_qup1.geographic_items << @item_p1
   @area_qup1.save
 
   @area_qup2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUP2',
-                                 :tdwgID               => nil,
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUP2',
+                                  :tdwgID               => nil,
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_qup2.geographic_items << @item_p2
   @area_qup2.save
 
   @area_rm3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RM3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RM3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rm3.geographic_items << @item_m3
   @area_rm3.save
 
   @area_rm4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RM4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RM4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rm4.geographic_items << @item_m4
   @area_rm4.save
 
   @area_rn3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RN3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RN3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rn3.geographic_items << @item_n3
   @area_rn3.save
 
   @area_rn4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RN4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RN4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rn4.geographic_items << @item_n4
   @area_rn4.save
 
   @area_so3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SO3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SO3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_so3.geographic_items << @item_o3
   @area_so3.save
 
   @area_so4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SO4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SO4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   # @area_so4.geographic_items << @item_o4
   # @area_so4.save
 
   @area_sp3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SP3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SP3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_sp3.geographic_items << @item_p3
   @area_sp3.save
 
   @area_sp4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SP4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SP4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_sp4.geographic_items << @item_p4
   @area_sp4.save
 
   @area_m3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'M3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'M3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_m3.geographic_items << @item_m3
   @area_m3.save
   @area_n3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'N3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'N3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_n3.geographic_items << @item_n3
   @area_n3.save
   @area_m4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'M4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'M4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_m4.geographic_items << @item_m4
   @area_m4.save
   @area_n4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'N4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'N4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_n4.geographic_items << @item_n4
   @area_n4.save
 
   @area_o3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'O3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'O3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save
   @area_p3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'P3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'P3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save
   @area_o4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'O4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'O4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save
   @area_p4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'P4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'P4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_p4.geographic_items << @item_p4
   @area_p4.save
 
   # last, for level2
   @area_m1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'M1',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'M1',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save
   @area_n1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'N1',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'N1',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save
   @area_m2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'M2',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'M2',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save
   @area_n2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'N2',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'N2',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_n2.level0 = @area_t_1
   @area_n2.geographic_items << @item_n2
   @area_n2.save
 
   @area_o1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'O1',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'O1',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
   @area_o1.save
   @area_p1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'P1',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'P1',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
   @area_p1.save
   @area_o2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'O2',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'O2',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
   @area_o2.save
   @area_p2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'P2',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'P2',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_p2.level0 = @area_u
   @area_p2.geographic_items << @item_p2
   @area_p2.save

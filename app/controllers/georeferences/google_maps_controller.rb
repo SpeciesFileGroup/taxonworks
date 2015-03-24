@@ -2,7 +2,7 @@ class Georeferences::GoogleMapsController < ApplicationController
   # include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   # before_action :set_georeference, only: [:show, :edit, :update, :destroy]
- # before_action :disable_turbolinks, only: [:new]
+  # before_action :disable_turbolinks, only: [:new]
 
   # GET /georeferences/google_maps/new
   def new
@@ -10,7 +10,11 @@ class Georeferences::GoogleMapsController < ApplicationController
     @georeference     = Georeference::GoogleMap.new(collecting_event: @collecting_event, geographic_item: GeographicItem.new)
 
     @feature_collection = Gis::GeoJSON.feature_collection(@collecting_event.georeferences)
-    @map_center = Georeference::VerbatimData.new(collecting_event: @georeference.collecting_event).geographic_item.geo_object.to_s
+    if @collecting_event.verbatim_latitude.blank? or @collecting_event.verbatim_longitude.blank?
+      @verbatim_coordinate = 'POINT (0.0 0.0 0.0)'
+    else
+      @verbatim_coordinate = @georeference.collecting_event.map_center.to_s
+    end
 
   end
 

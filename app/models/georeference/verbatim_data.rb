@@ -10,8 +10,8 @@ class Georeference::VerbatimData < Georeference
     unless collecting_event.nil?
 
       # get the data from the parent.collecting_event, and make a point of it
-      lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_latitude.to_s).to_f
-      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_longitude.to_s).to_f
+      # lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_latitude.to_s).to_f
+      # long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_longitude.to_s).to_f
 
       # value from collecting_event is normalised to meters
       z1   = collecting_event.minimum_elevation
@@ -22,7 +22,7 @@ class Georeference::VerbatimData < Georeference
         delta_z             = 0.0
       else
         # we have at least half of the range data
-        delta_z = z1
+        # delta_z = z1
         if z2.blank?
           # we have *only* half of the range data
           delta_z = z1
@@ -35,9 +35,9 @@ class Georeference::VerbatimData < Georeference
         end
       end
       #if geographic_item.nil?
-      self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(long, lat, delta_z))
+      self.geographic_item = GeographicItem.new(point: collecting_event.map_center(delta_z))
       #end
-      geographic_item
+      self.geographic_item
     end
   end
 
