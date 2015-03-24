@@ -33,7 +33,7 @@ class RangedLotCategory < ActiveRecord::Base
     errors.add(:maximum_value, 'minimum value must be less than maximum value') if self.minimum_value && self.maximum_value && (self.minimum_value >= self.maximum_value)
   end
 
-  def range_does_not_overlap
+  def sv_range_does_not_overlap
     soft_validations.add(:minimum_value, "The range of values overlaps with another defined range of values.") if RangedLotCategory.where("minimum_value >= ? and maximum_value <= ? and project_id = ?", minimum_value, maximum_value, project_id)
   end
 
