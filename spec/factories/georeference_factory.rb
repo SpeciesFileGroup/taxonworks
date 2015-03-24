@@ -15,5 +15,9 @@ FactoryGirl.define do
       type  'Georeference::GeoLocate'
     end
 
+    factory :georeference_from_google_map do
+      type  'Georeference::GoogleMap'
+    end
+
   end
 end
