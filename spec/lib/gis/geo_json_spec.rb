@@ -1,27 +1,20 @@
 require 'rails_helper'
 
-describe Gis::GeoJSON do
+# Uses type: model to set $user_id and $project_id, this should be
+# deprecated eventually.
+describe Gis::GeoJSON, group: :geo, type: :model do
 
   let(:otu) { FactoryGirl.create(:valid_otu) }
   let(:source) { FactoryGirl.create(:valid_source) }
 
-  before(:all) do
-    clean_slate_geo
+  before(:all) { 
     generate_political_areas_with_collecting_events
     generate_geo_test_objects
-  end
+  }
 
-  after(:all) do
-    clean_slate_geo
-
-    # !! TODO: below must all go
-    ProjectMember.delete_all
-    Project.delete_all
-    User.delete_all
-
-    ActiveRecord::Base.connection.reset_pk_sequence!('users')
-    ActiveRecord::Base.connection.reset_pk_sequence!('projects')
-  end
+  after(:all) {
+   clean_slate_geo
+  }
 
   context "outputting GeoJSON 'Feature's" do
     let(:feature_index) { '1' }

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AssertedDistribution, :type => :model do
+describe AssertedDistribution, type: :model, group: :geo do
 
   let(:asserted_distribution) { FactoryGirl.build(:asserted_distribution) }
 
@@ -62,17 +62,12 @@ describe AssertedDistribution, :type => :model do
     let(:source) { FactoryGirl.create(:valid_source) }
 
     before(:all) do
-      clean_slate_geo
       generate_political_areas_with_collecting_events
     end
 
-    after(:all) do
+    after(:all) {
       clean_slate_geo
-    # User.delete_all
-    # Project.delete_all
-    # ActiveRecord::Base.connection.reset_pk_sequence!('users')
-    # ActiveRecord::Base.connection.reset_pk_sequence!('projects')
-    end
+    }
 
     specify 'creates some number of ADs' do
       # pending

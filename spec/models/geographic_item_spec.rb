@@ -4,16 +4,17 @@ require_relative '../support/geo/geo'
 # include the subclasses, perhaps move this out
 Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
-describe GeographicItem, :type => :model do
+describe GeographicItem, type: :model, group: :geo do
 
   let(:geographic_item) { GeographicItem.new }
 
   before(:all) {
-    clean_slate_geo
-    generate_ce_test_objects # includes generate_geo_test_objects
+    generate_ce_test_objects 
   }
 
-  after(:all) { clean_slate_geo }
+  after(:all) { 
+    clean_slate_geo 
+  }
 
   let(:geographic_item) { FactoryGirl.build(:geographic_item) }
   let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }

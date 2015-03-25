@@ -2,7 +2,7 @@ require 'rails_helper'
 
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
 
-describe GeographicArea, :type => :model do
+describe GeographicArea, type: :model, group: :geo do
   let(:geographic_area) { FactoryGirl.build(:geographic_area_stack) }
 
   context 'validation' do
@@ -355,16 +355,11 @@ describe GeographicArea, :type => :model do
   context 'find_others... responses from geographic_areas' do
 
     before(:all) do
-      clean_slate_geo
       generate_political_areas_with_collecting_events
     end
 
     after(:all) do
       clean_slate_geo
-    # User.delete_all
-    # Project.delete_all
-    # ActiveRecord::Base.connection.reset_pk_sequence!('users')
-    # ActiveRecord::Base.connection.reset_pk_sequence!('projects')
     end
 
     specify('is_contained_by') do
