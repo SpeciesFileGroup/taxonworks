@@ -5,6 +5,43 @@
 
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
+
+
+# @return [True]
+#   nukes geo related tables, only to be used in after(:all) 
+def clean_slate_geo
+  # Order matters!
+  Georeference.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+
+  CollectingEvent.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
+
+  GeographicAreasGeographicItem.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+
+  GeographicItem.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+
+  GeographicArea.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
+
+  GeographicAreaType.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+  true
+end
+
+# @return [Multipolygon]
+def make_box(base, offset_x, offset_y, size_x, size_y)
+  box = RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y, 0.0),
+                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y, 0.0)])
+  )
+  RSPEC_GEO_FACTORY.multi_polygon([box])
+end
+
 SIMPLE_SHAPES = {
   point:               'POINT(10 10 0)',
   line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
@@ -15,118 +52,15 @@ SIMPLE_SHAPES = {
   geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
 }
 
-LATLONG_USE_CASES = {'w88∫11′43.4″'                  => '-88.195389', #current test case
-                     '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
-                     '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
-                     '40:26:46.302N'                 => '40.446195',
-                     '079:58:55.903W'                => '-79.982195',
-                     '40°26′46″N'                    => '40.446111',
-                     '079°58′56″W'                   => '-79.982222',
-                     '40d 26′ 46″ N'                 => '40.446111',
-                     '079d 58′ 56″ W'                => '-79.982222',
-                     '40.446195N'                    => '40.446195',
-                     '79.982195W'                    => '-79.982195',
-                     '40.446195'                     => '40.446195',
-                     '-79.982195'                    => '-79.982195',
-                     '40° 26.7717'                   => '40.446195',
-                     '-79° 58.93172'                 => '-79.982195',
-                     'N40:26:46.302'                 => '40.446195',
-                     'W079:58:55.903'                => '-79.982195',
-                     'N40°26′46″'                    => '40.446111',
-                     'W079°58′56″'                   => '-79.982222',
-                     'N40d 26′ 46″'                  => '40.446111',
-                     'W079d 58′ 56″'                 => '-79.982222',
-                     'N40.446195'                    => '40.446195',
-                     'W79.982195'                    => '-79.982195',
-                     # some special characters for Dmitry
-                     "  40\u02da26¥46¥S"             => '-40.446111',
-                     '42∞5\'18.1"S'                  => '-42.088361',
-                     'w88∞11\'43.3"'                 => '-88.195361',
-                     "  42\u02da5¥18.1¥S"            => '-42.088361',
-                     "  42º5'18.1'S"                 => '-42.088361',
-                     "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088361',
-                     'w88∫11′43.3″'                  => '-88.195361',
-                     # weird things that might break the converter...
-                     -10                             => '-10.0',
-                     '-11'                           => '-11.0',
-                     'bad_data-10'                   => nil,
-                     'bad_data-10.1'                 => nil,
-                     'nan'                           => nil,
-                     'NAN'                           => nil
 
-}
-
-# Dmitry's special cases of º, ', "
-
-# case 1:  ]  42∞5'18.1"S[
-# "\D(\d+) ?[\*∞∫o\u02DA ] ?(\d+) ?[ '¥\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'¥\u02B9\u02BC\u02CA]['¥\u02B9\u02BC\u02CA]? ?([nN]|[sS])"
-
-#  1. Non-digit => dropped
-#  2. 1 or more digits
-#     => group 0
-#  3. 0 or 1 spaces => dropped
-#  4. *, ∞, ∫, o, \u02DA, space
-#     => match for º
-#  5. 0 or 1 spaces => dropped
-#  6. 1 or more digits
-#     => group 1
-#  7. 0 or 1 spaces => dropped
-#  8. space, ', ¥, \u02B9, \u02BC, \u02CA
-#     => match for '
-#  9. 0 or 1 spaces => dropped
-# 10.
-#     a.
-#       1. 1 or more digits
-#       2. period, |, comma, => match for period
-#       3. 1 or more digits
-#     or
-#     b. 1 or more digits
-#      => group 2
-# 11. 0 or 1 spaces => dropped
-# 12. space, ", \u02BA, \u02EE, ', ¥, \u02B9, \u02BC, \u02CA, followed by 0 or 1 of ', ¥, \u02B9, \u02BC, \u02CA
-#     => match for "
-# 13. 0 or 1 spaces => dropped
-# 14. N, S, E, W, case-insensitive cardinal letter
-#     => group 3
-
-# case 2: ] S42∞5'18.1"[
-# "\W([nN]|[sS])\.? ?(\d+) ?[\*∞∫o\u02DA ] ?(\d+) ?[ '¥\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'¥\u02B9\u02BC\u02CA]['¥\u02B9\u02BC\u02CA]?[\.,;]?"
-
-# case 3: ] S42∞5.18'[
-# "\W([nN]|[sS])\.? ?(\d+) ?[\*∞∫o\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '¥\u02B9\u02BC\u02CA][\.,;]?"
-
-# case 4: ]42∞5.18'S[
-# "\D(\d+) ?[\*∞∫o\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '¥\u02B9\u02BC\u02CA]? ?([nN]|[sS])"
-# case 5: ]S42.18∞[
-# "\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*∞∫∫o\u02DA ][\.,;]?"
-
-# case 6: ]42.18∞S[
-# "\D(\d+[\.|,]\d+|\d+) ?[\*∞∫o\u02DA ] ?([nN]|[sS])"
-
-# case 7: ]-12.263[
-# "\D\[(-?\d+[\.|,]\d+|\-?d+)"
-
-#FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
-
+# TODO: this comment block meaningless now?
 # this is the factory for use *only* by rspec
 # for normal build- and run-time, use Georeference::FACTORY
+# FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
 RSPEC_GEO_FACTORY = Georeference::FACTORY
 
 ROOM2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
-
-# select count(id) from geographic_items where ST_Distance(multi_polygon, ST_GeographyFromText('srid=4326;POINT(-88.241413 40.091655)')) < 10000 ;
-# select count(id) from geographic_items where ST_contains(multi_polygon::geometry, ST_GeomFromText('srid=4326;POINT(-88.241413 40.091655)')) ;
-
-=begin
--- same as geometry example but note units in meters - use sphere for slightly faster less accurate
-SELECT ST_Distance(gg1, gg2) As spheroid_dist, ST_Distance(gg1, gg2, false) As sphere_dist
-FROM (SELECT
-  ST_GeographyFromText('SRID=4326;POINT(-88.241413 40.091655)') As gg1,
-  ST_GeographyFromText('SRID=4326;POINT(-88.203595 40.089355)') As gg2
-  ) As trial  ;exit
-=end
-
 ROOM2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
 ROOM2022 = RSPEC_GEO_FACTORY.point((ROOM2020.x + ((ROOM2024.x - ROOM2020.x) / 2)),
                                    (ROOM2020.y + ((ROOM2024.y - ROOM2020.y) / 2)),
@@ -151,81 +85,81 @@ GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 2
 GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
 GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
   [RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0),
-        RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944, 0.0),
-        RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877, 0.0),
-        RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891, 0.0),
-        RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0)])),
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0),
+       RSPEC_GEO_FACTORY.point(-168.16156979099992, -14.532891533999944, 0.0),
+       RSPEC_GEO_FACTORY.point(-168.17308508999994, -14.523695570999877, 0.0),
+       RSPEC_GEO_FACTORY.point(-168.16352291599995, -14.519789320999891, 0.0),
+       RSPEC_GEO_FACTORY.point(-168.16047115799995, -14.520928643999923, 0.0)])),
 
-   RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872, 0.0),
-        RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0)])),
+  RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872, 0.0),
+       RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0)])),
 
-   RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0)])),
+  RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0)])),
 
-   RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848, 0.0),
-        RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0)])),
+  RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848, 0.0),
+       RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0)])),
 
-   RSPEC_GEO_FACTORY.polygon(
-     RSPEC_GEO_FACTORY.line_string(
-       [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0),
-        RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859, 0.0),
-        RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888, 0.0),
-        RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987, 0.0),
-        RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903, 0.0),
-        RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0)]))])
+  RSPEC_GEO_FACTORY.polygon(
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0),
+       RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859, 0.0),
+       RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888, 0.0),
+       RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987, 0.0),
+       RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903, 0.0),
+       RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0)]))])
 
 POINT0  = RSPEC_GEO_FACTORY.point(0, 0, 0.0)
 POINT1  = RSPEC_GEO_FACTORY.point(-29, -16, 0.0)
@@ -528,10 +462,8 @@ E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt("POINT (-23.0 18.0 0.0)")
 
-
-# IF you call this you have to use and after all to "unprepare"
+# THIS CAN NOT BE CALLED IN ANY SPEC environment, only when debugging outside spec
 def prepare_test
-
   u = User.order(:id).first
   if u.nil?
     u = FactoryGirl.create(:valid_user, id: 1)
@@ -541,16 +473,15 @@ def prepare_test
   p = Project.order(:id).first
   if p.nil?
     p = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true)
-  
+
   end
   $project_id = p.id
-
 end
 
-def generate_geo_test_objects
+# Generates a set of unsaved GeographicItems
+def generate_geo_test_objects(run_in_console = false, user = nil)
 
-  # WHY HERE!?!
-  prepare_test
+  prepare_test if run_in_console
 
   @p0  = FactoryGirl.build(:geographic_item_point, :point => POINT0.as_binary) # 0
   @p1  = FactoryGirl.build(:geographic_item_point, :point => POINT1.as_binary) # 1
@@ -638,7 +569,15 @@ def generate_geo_test_objects
              @all_items, @outer_limits,
              @item_a, @item_b, @item_c, @item_d]
 
-  @all_gi.map(&:save!)
+  if user
+    @all_gi.each do |i|
+      i.creator = user 
+      i.updater = user
+      i.save!
+    end
+  else # an increasingly bad option
+    @all_gi.map(&:save!)
+  end
 
   @debug_names = {
     p0:           @p0.id,
@@ -719,11 +658,12 @@ def generate_geo_test_objects
   @debug_names
 end
 
-def generate_ce_test_objects
+def generate_ce_test_objects(run_in_console = false, user = nil)
 
-  @debug_names = generate_geo_test_objects if @p0.nil?
+  @debug_names = generate_geo_test_objects(run_in_console, user) if @p0.nil?
 
   @ce_p0 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p0')
+
   @gr00  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr00',
                               :collecting_event      => @ce_p0,
@@ -751,11 +691,13 @@ def generate_ce_test_objects
   @ga_k.geographic_items << @k
 
   @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1 collect_event test')
-  @gr01  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr01',
-                              :collecting_event      => @ce_p1,
-                              :error_geographic_item => @k,
-                              :geographic_item       => @p1) #  3
+
+  @gr01 = FactoryGirl.create(:georeference_verbatim_data,
+                             :api_request => 'gr01',
+                             :collecting_event => @ce_p1,
+                             :error_geographic_item => @k,
+                             :geographic_item => @p1) # 3 
+
   @gr11  = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr11',
                               :error_geographic_item => @e1,
@@ -867,110 +809,18 @@ def generate_ce_test_objects
 
 end
 
-def gen_wkt_files_1()
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
-  f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
-  f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
-  f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
+def generate_political_areas_with_collecting_events(run_in_console = false, user = nil)
 
-  col_header = "id:wkt:name\n"
-
-  f_point.write(col_header)
-  f_line.write(col_header)
-  f_poly.write(col_header)
-
-  ALL_WKT_NAMES.each_with_index do |it, index|
-    wkt  = it[0].as_text
-    name = it[1]
-    case it[0].geometry_type.type_name
-      when 'Point'
-        f_type = f_point
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-        f_type = $stdout
-      when /^Line[S]*/ #when 'Line' or 'LineString'
-        f_type = f_line
-      when 'MultiLineString'
-        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-        f_type = $stdout
-      when 'Polygon'
-        f_type = f_poly
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        f_type = $stdout
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-        f_type = $stdout
-      else
-        f_type = $stdout
-      # ignore it for now
-    end
-    f_type.write("#{index}:#{wkt}: #{name}\n")
-  end
-
-  f_point.close
-  f_line.close
-  f_poly.close
-end
-
-def gen_wkt_files()
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
-  f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
-  f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
-  f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
-
-  col_header = "id:wkt:name\n"
-
-  f_point.write(col_header)
-  f_line.write(col_header)
-  f_poly.write(col_header)
-
-  ALL_WKT_NAMES.each_with_index do |it, index|
-    wkt  = it[0].as_text
-    name = it[1]
-    case it[0].geometry_type.type_name
-      when 'Point'
-        f_type = f_point
-      when 'MultiPoint'
-        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-        f_type = $stdout
-      when /^Line[S]*/ #when 'Line' or 'LineString'
-        f_type = f_line
-      when 'MultiLineString'
-        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-        f_type = $stdout
-      when 'Polygon'
-        f_type = f_poly
-      when 'MultiPolygon'
-        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-        f_type = $stdout
-      when 'GeometryCollection'
-        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-        f_type = $stdout
-      else
-        f_type = $stdout
-      # ignore it for now
-    end
-    f_type.write("#{index}:#{wkt}: #{name}\n")
-  end
-
-  f_point.close
-  f_line.close
-  f_poly.close
-end
-
-def generate_political_areas_with_collecting_events
-  #
-  # 4 by 4 matrix of squares:
 =begin
 
-Q, R, and S are level 0 spaces, i.e., 'Country'.
-M3 through P4, T and U are level 1 spaces, i.e.,
-                                    'State (Province)'.
-M1 through P2 are level 2 spaces, i.e., 'County (Parish)'.
+4 by 4 matrix of squares:
 
-M1-upper_left is at (33, 28). Great Northern Land Mass
-                                      overlays Q, R, and S.
+* Q, R, and S are level 0 spaces, i.e., 'Country'.
+* M3 through P4, T and U are level 1 spaces, i.e., 'State (Province)'.
+* M1 through P2 are level 2 spaces, i.e., 'County (Parish)'.
+* M1-upper_left is at (33, 28). 
+
+* Great Northern Land Mass overlays Q, R, and S.
 
 |------|------|------|------| |------|------|------|------|
 |      |      |      |      | |                           |
@@ -1011,24 +861,15 @@ Big Boxia overlays Q
 |------|------|------|------| |------|------|------|------|
 
 
-
-
-
-
-
-
-
-
-
-|------|------|------|------|
-|      |      |      |      |
-| QTM1 | QTN1 | QUO1 | QUP1 |
-|      |      |      |      |
-|------|------|------|------|
-|      |      |      |      |
-| QTM2 | QTN2 | QUO2 | QUP2 |
-|      |      |      |      |
-|------|------|------|------|
+|------|------|------|------| -
+|      |      |      |      | |
+| QTM1 | QTN1 | QUO1 | QUP1 | |
+|      |      |      |      | |
+|------|------|------|------| | <== Big Boxia overlays Q
+|      |      |      |      | |
+| QTM2 | QTN2 | QUO2 | QUP2 | |
+|      |      |      |      | |
+|------|------|------|------| -
 |      |      |      |      |
 | RM3  | RN3  | SO3  | SP3  |
 |      |      |      |      |
@@ -1038,8 +879,11 @@ Big Boxia overlays Q
 |      |      |      |      |
 |------|------|------|------|
 
+     /\
+     ||
+
 Old Boxia overlays R, and western Q.
- 
+
 |------|------|------|------| |------|------|------|------|
 |             |      |      | |      |      |      |      |
 |             |  O1  |  P1  | |      | QTN1 | QUO1 |      |
@@ -1059,9 +903,9 @@ Old Boxia overlays R, and western Q.
 |------|------|------|------| |------|------|------|------|
 
 Two different shapes with the same name, 'East Boxia', and
-'East Boxia' (the square) is also listed as a state in
+'East Boxia' (the square) are also listed as a state in
 'Old Boxia'.
-                                                           
+
 |------|------|------|------| |------|------|------|------|
 |      |      |      |      | |      |      |             |
 |  M1  |  N1  |  O1  |      | | QTM1 | QTN1 |             |
@@ -1082,7 +926,7 @@ Two different shapes with the same name, 'East Boxia', and
 
 =end
 
-  prepare_test
+  prepare_test if run_in_console == false
 
   gat_country   = GeographicAreaType.find_or_create_by(name: 'Country')
   gat_state     = GeographicAreaType.find_or_create_by(name: 'State')
@@ -1177,379 +1021,390 @@ Two different shapes with the same name, 'East Boxia', and
 
   # mimic TDWG North America
   @area_land_mass = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Great Northern Land Mass',
-                                      :geographic_area_type => gat_land_mass,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @earth)
+                                       :name                 => 'Great Northern Land Mass',
+                                       :geographic_area_type => gat_land_mass,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @earth)
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
   @area_old_boxia = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Old Boxia',
-                                      :geographic_area_type => gat_country,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @area_land_mass)
+                                       :name                 => 'Old Boxia',
+                                       :geographic_area_type => gat_country,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
   @area_big_boxia = FactoryGirl.create(:level0_geographic_area,
-                                      :name                 => 'Big Boxia',
-                                      :geographic_area_type => gat_country,
-                                      :iso_3166_a3          => nil,
-                                      :iso_3166_a2          => nil,
-                                      :parent               => @area_land_mass)
+                                       :name                 => 'Big Boxia',
+                                       :geographic_area_type => gat_country,
+                                       :iso_3166_a3          => nil,
+                                       :iso_3166_a2          => nil,
+                                       :parent               => @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
   @area_q = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'Q',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'QQQ',
-                              :iso_3166_a2          => 'QQ',
-                              :parent               => @area_land_mass)
+                               :name                 => 'Q',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'QQQ',
+                               :iso_3166_a2          => 'QQ',
+                               :parent               => @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
   @area_east_boxia_1 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'EB1',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'EB1',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
   @area_east_boxia_2 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'EB2',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'EB2',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
   @area_east_boxia_3 = FactoryGirl.create(:level1_geographic_area,
-                                         :name                 => 'East Boxia',
-                                         :geographic_area_type => gat_state,
-                                         :iso_3166_a3          => 'EB3',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_old_boxia)
+                                          :name                 => 'East Boxia',
+                                          :geographic_area_type => gat_state,
+                                          :iso_3166_a3          => 'EB3',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
   @area_east_boxia_3.save
   @area_west_boxia_1 = FactoryGirl.create(:level0_geographic_area,
-                                         :name                 => 'West Boxia',
-                                         :geographic_area_type => gat_country,
-                                         :iso_3166_a3          => 'WB1',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_land_mass)
+                                          :name                 => 'West Boxia',
+                                          :geographic_area_type => gat_country,
+                                          :iso_3166_a3          => 'WB1',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
   @area_west_boxia_3 = FactoryGirl.create(:level1_geographic_area,
-                                         :name                 => 'West Boxia',
-                                         :geographic_area_type => gat_state,
-                                         :iso_3166_a3          => 'WB3',
-                                         :iso_3166_a2          => nil,
-                                         :parent               => @area_old_boxia)
+                                          :name                 => 'West Boxia',
+                                          :geographic_area_type => gat_state,
+                                          :iso_3166_a3          => 'WB3',
+                                          :iso_3166_a2          => nil,
+                                          :parent               => @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
   @area_west_boxia_3.save
   @area_r = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'R',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'RRR',
-                              :iso_3166_a2          => 'RR',
-                              :parent               => @area_land_mass)
+                               :name                 => 'R',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'RRR',
+                               :iso_3166_a2          => 'RR',
+                               :parent               => @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
   @area_s = FactoryGirl.create(:level0_geographic_area,
-                              :name                 => 'S',
-                              :geographic_area_type => gat_country,
-                              :iso_3166_a3          => 'SSS',
-                              :iso_3166_a2          => 'SS',
-                              :parent               => @area_land_mass)
+                               :name                 => 'S',
+                               :geographic_area_type => gat_country,
+                               :iso_3166_a3          => 'SSS',
+                               :iso_3166_a2          => 'SS',
+                               :parent               => @area_land_mass)
   @area_s.geographic_items << @item_s
   @area_s.save
 
   # next, level 1 areas
   @area_t_1 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'QT',
-                                :tdwgID               => '10TTT',
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_q)
+                                 :name                 => 'QT',
+                                 :tdwgID               => '10TTT',
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save
   @area_t_2 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'QT',
-                                :tdwgID               => '20TTT',
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_q)
+                                 :name                 => 'QT',
+                                 :tdwgID               => '20TTT',
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save
   @area_u = FactoryGirl.create(:level1_geographic_area,
-                              :name                 => 'QU',
-                              :tdwgID               => nil,
-                              :geographic_area_type => gat_state,
-                              :parent               => @area_q)
+                               :name                 => 'QU',
+                               :tdwgID               => nil,
+                               :geographic_area_type => gat_state,
+                               :parent               => @area_q)
   @area_u.geographic_items << @item_u
   @area_u.save
 
   @area_qtm1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTM1',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTM1',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtm1.geographic_items << @item_m1
   @area_qtm1.save
 
   @area_qtm2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTM2',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTM2',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtm2.geographic_items << @item_m1
   @area_qtm2.save
 
   @area_qtn1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QTN1',
-                                 :geographic_area_type => gat_county,
-                                 :parent               => @area_t_1)
+                                  :name                 => 'QTN1',
+                                  :geographic_area_type => gat_county,
+                                  :parent               => @area_t_1)
   @area_qtn1.geographic_items << @item_n1
   @area_qtn1.save
 
   @area_qtn2_1 = FactoryGirl.create(:level2_geographic_area,
-                                   :name                 => 'QTN2',
-                                   :geographic_area_type => gat_county,
-                                   :parent               => @area_t_1)
+                                    :name                 => 'QTN2',
+                                    :geographic_area_type => gat_county,
+                                    :parent               => @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save
 
   @area_qtn2_2 = FactoryGirl.create(:level2_geographic_area,
-                                   :name                 => 'QTN2',
-                                   :geographic_area_type => gat_county,
-                                   :parent               => @area_t_2)
+                                    :name                 => 'QTN2',
+                                    :geographic_area_type => gat_county,
+                                    :parent               => @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 
   @area_quo1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUO1',
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUO1',
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   # @area_quo1.geographic_items << @item_o1
   # @area_quo1.save
 
   @area_quo2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUO2',
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUO2',
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_quo2.geographic_items << @item_o2
   @area_quo2.save
 
   @area_qup1 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUP1',
-                                 :tdwgID               => nil,
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUP1',
+                                  :tdwgID               => nil,
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_qup1.geographic_items << @item_p1
   @area_qup1.save
 
   @area_qup2 = FactoryGirl.create(:level2_geographic_area,
-                                 :name                 => 'QUP2',
-                                 :tdwgID               => nil,
-                                 :geographic_area_type => gat_parish,
-                                 :parent               => @area_u)
+                                  :name                 => 'QUP2',
+                                  :tdwgID               => nil,
+                                  :geographic_area_type => gat_parish,
+                                  :parent               => @area_u)
   @area_qup2.geographic_items << @item_p2
   @area_qup2.save
 
   @area_rm3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RM3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RM3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rm3.geographic_items << @item_m3
   @area_rm3.save
 
   @area_rm4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RM4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RM4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rm4.geographic_items << @item_m4
   @area_rm4.save
 
   @area_rn3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RN3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RN3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rn3.geographic_items << @item_n3
   @area_rn3.save
 
   @area_rn4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'RN4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_province,
-                                :parent               => @area_r)
+                                 :name                 => 'RN4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_province,
+                                 :parent               => @area_r)
   @area_rn4.geographic_items << @item_n4
   @area_rn4.save
 
   @area_so3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SO3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SO3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_so3.geographic_items << @item_o3
   @area_so3.save
 
   @area_so4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SO4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SO4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   # @area_so4.geographic_items << @item_o4
   # @area_so4.save
 
   @area_sp3 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SP3',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SP3',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_sp3.geographic_items << @item_p3
   @area_sp3.save
 
   @area_sp4 = FactoryGirl.create(:level1_geographic_area,
-                                :name                 => 'SP4',
-                                :tdwgID               => nil,
-                                :geographic_area_type => gat_state,
-                                :parent               => @area_s)
+                                 :name                 => 'SP4',
+                                 :tdwgID               => nil,
+                                 :geographic_area_type => gat_state,
+                                 :parent               => @area_s)
   @area_sp4.geographic_items << @item_p4
   @area_sp4.save
 
   @area_m3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'M3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'M3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_m3.geographic_items << @item_m3
   @area_m3.save
   @area_n3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'N3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'N3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_n3.geographic_items << @item_n3
   @area_n3.save
   @area_m4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'M4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'M4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_m4.geographic_items << @item_m4
   @area_m4.save
   @area_n4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'N4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_province,
-                               :parent               => @area_r)
+                                :name                 => 'N4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_province,
+                                :parent               => @area_r)
   @area_n4.geographic_items << @item_n4
   @area_n4.save
 
   @area_o3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'O3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'O3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save
   @area_p3 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'P3',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'P3',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save
   @area_o4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'O4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'O4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save
   @area_p4 = FactoryGirl.create(:level1_geographic_area,
-                               :name                 => 'P4',
-                               :tdwgID               => nil,
-                               :geographic_area_type => gat_state,
-                               :parent               => @area_s)
+                                :name                 => 'P4',
+                                :tdwgID               => nil,
+                                :geographic_area_type => gat_state,
+                                :parent               => @area_s)
   @area_p4.geographic_items << @item_p4
   @area_p4.save
 
   # last, for level2
   @area_m1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'M1',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'M1',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save
   @area_n1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'N1',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'N1',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save
   @area_m2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'M2',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'M2',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save
   @area_n2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'N2',
-                                      :geographic_area_type => gat_county,
-                                      :parent               => @area_t_1)
+                                       :name                 => 'N2',
+                                       :geographic_area_type => gat_county,
+                                       :parent               => @area_t_1)
   @area_n2.level0 = @area_t_1
   @area_n2.geographic_items << @item_n2
   @area_n2.save
 
   @area_o1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'O1',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'O1',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
   @area_o1.save
   @area_p1        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'P1',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'P1',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
   @area_p1.save
   @area_o2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'O2',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'O2',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
   @area_o2.save
   @area_p2        = FactoryGirl.create(:level2_geographic_area,
-                                      :name                 => 'P2',
-                                      :geographic_area_type => gat_parish,
-                                      :parent               => @area_u)
+                                       :name                 => 'P2',
+                                       :geographic_area_type => gat_parish,
+                                       :parent               => @area_u)
   @area_p2.level0 = @area_u
   @area_p2.geographic_items << @item_p2
   @area_p2.save
 
+  generate_collecting_events
+  true
+end
+
+def generate_collecting_events(user = nil)
   # now to build the CollectingEvents
   # 16 collecting events, one for each of the smallest boxes
+
+  user ||= User.find($user_id)
+  raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   @ce_m1 = FactoryGirl.create(:collecting_event,
                               :verbatim_locality => 'Lesser Boxia Lake',
                               :verbatim_label    => '@ce_m1',
                               :geographic_area   => @area_m1)
+
   @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
                               :api_request           => 'gr_m1',
                               :collecting_event      => @ce_m1,
                               :error_geographic_item => @item_m1,
                               :geographic_item       => GeographicItem.new(:point => @item_m1.st_centroid))
+
   @ce_n1 = FactoryGirl.create(:collecting_event,
                               :verbatim_label  => '@ce_n1',
                               :geographic_area => @area_n1)
+
   # @gr_n1 = FactoryGirl.create(:georeference_verbatim_data,
   #                             :api_request           => 'gr_n1',
   #                             :collecting_event      => @ce_n1,
@@ -1727,73 +1582,96 @@ Two different shapes with the same name, 'East Boxia', and
 
 end
 
-def make_box(base, offset_x, offset_y, size_x, size_y)
-  box = RSPEC_GEO_FACTORY.polygon(
-    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y, 0.0),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y, 0.0),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y, 0.0),
-                                   RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y, 0.0)])
-  )
-  RSPEC_GEO_FACTORY.multi_polygon([box])
+
+def gen_wkt_files_1()
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
+  f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
+  f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
+
+  col_header = "id:wkt:name\n"
+
+  f_point.write(col_header)
+  f_line.write(col_header)
+  f_poly.write(col_header)
+
+  ALL_WKT_NAMES.each_with_index do |it, index|
+    wkt  = it[0].as_text
+    name = it[1]
+    case it[0].geometry_type.type_name
+    when 'Point'
+      f_type = f_point
+    when 'MultiPoint'
+      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+      f_type = $stdout
+    when /^Line[S]*/ #when 'Line' or 'LineString'
+      f_type = f_line
+    when 'MultiLineString'
+      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+      f_type = $stdout
+    when 'Polygon'
+      f_type = f_poly
+    when 'MultiPolygon'
+      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+      f_type = $stdout
+    when 'GeometryCollection'
+      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+      f_type = $stdout
+    else
+      f_type = $stdout
+      # ignore it for now
+    end
+    f_type.write("#{index}:#{wkt}: #{name}\n")
+  end
+
+  f_point.close
+  f_line.close
+  f_poly.close
 end
 
-# Order matters!
-def clean_slate_geo
-  Georeference.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+def gen_wkt_files()
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
+  f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
+  f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
 
-  CollectingEvent.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
+  col_header = "id:wkt:name\n"
 
-  GeographicAreasGeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+  f_point.write(col_header)
+  f_line.write(col_header)
+  f_poly.write(col_header)
 
-  GeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+  ALL_WKT_NAMES.each_with_index do |it, index|
+    wkt  = it[0].as_text
+    name = it[1]
+    case it[0].geometry_type.type_name
+    when 'Point'
+      f_type = f_point
+    when 'MultiPoint'
+      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+      f_type = $stdout
+    when /^Line[S]*/ #when 'Line' or 'LineString'
+      f_type = f_line
+    when 'MultiLineString'
+      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+      f_type = $stdout
+    when 'Polygon'
+      f_type = f_poly
+    when 'MultiPolygon'
+      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+      f_type = $stdout
+    when 'GeometryCollection'
+      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+      f_type = $stdout
+    else
+      f_type = $stdout
+      # ignore it for now
+    end
+    f_type.write("#{index}:#{wkt}: #{name}\n")
+  end
 
-  GeographicArea.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
-
-  GeographicAreaType.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+  f_point.close
+  f_line.close
+  f_poly.close
 end
 
-# A temporary place to put debugging aids.  This code is permanently deprecated.
-module GeoDev
-  def point_methods()
-    [:x, :y, :z, :m, :geometry_type, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def line_string_methods()
-    [:length, :start_point, :end_point, :is_closed?, :is_ring?, :num_points, :point_n, :points, :factory, :z_geometry, :m_geometry, :dimension, :geometry_type, :srid, :envelope, :as_text, :as_binary, :is_empty?, :is_simple?, :boundary, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :union, :difference, :sym_difference, :rep_equals?, :-, :+, :*, :_copy_state_from, :marshal_dump, :marshal_load, :encode_with, :init_with]
-  end
-
-  def line_methods()
-    [:geometry_type, :length, :num_points, :point_n, :start_point, :end_point, :points, :is_closed?, :is_ring?, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def linear_ring_methods()
-    [:to_i, :to_f, :to_a, :to_h, :&, :|, :^, :to_r, :rationalize, :to_c, :encode_json]
-  end
-
-  def polygon_methods()
-    [:geometry_type, :area, :centroid, :point_on_surface, :exterior_ring, :num_interior_rings, :interior_ring_n, :interior_rings, :rep_equals?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def multi_point_methods()
-    [:geometry_type, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def multi_line_string_methods()
-    [:geometry_type, :length, :is_closed?, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def multi_polygon_methods
-    [:geometry_type, :area, :centroid, :point_on_surface, :rep_equals?, :num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :marshal_dump, :marshal_load, :encode_with, :init_with, :factory, :fg_geom, :_klasses, :srid, :dimension, :prepared?, :prepare!, :envelope, :boundary, :as_text, :as_binary, :is_empty?, :is_simple?, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :*, :union, :+, :difference, :-, :sym_difference, :_detach_fg_geom, :_request_prepared]
-  end
-
-  def collection_methods()
-    [:num_geometries, :size, :geometry_n, :[], :each, :to_a, :entries, :sort, :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject, :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry, :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop, :drop_while, :cycle, :chunk, :slice_before, :lazy, :to_set, :sum, :index_by, :many?, :exclude?, :factory, :z_geometry, :m_geometry, :dimension, :geometry_type, :srid, :envelope, :as_text, :as_binary, :is_empty?, :is_simple?, :boundary, :equals?, :disjoint?, :intersects?, :touches?, :crosses?, :within?, :contains?, :overlaps?, :relate?, :relate, :distance, :buffer, :convex_hull, :intersection, :union, :difference, :sym_difference, :rep_equals?, :-, :+, :*, :_copy_state_from, :marshal_dump, :marshal_load, :encode_with, :init_with]
-  end
-
-end
