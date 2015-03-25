@@ -72,6 +72,14 @@ class CollectingEvent < ActiveRecord::Base
 
   has_paper_trail
 
+  attr_accessor :with_verbatim_data_georeference
+
+  after_create {
+    if with_verbatim_data_georeference
+      generate_verbatim_data_georeference(true) 
+    end
+  } 
+
   belongs_to :geographic_area, inverse_of: :collecting_events
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
@@ -83,8 +91,9 @@ class CollectingEvent < ActiveRecord::Base
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
-  # Todo: this needs work
-  has_one :verbatim_georeference, class_name: 'Georeference::VerbatimData'
+  has_one :verbatim_data_georeference, class_name: 'Georeference::VerbatimData'
+
+  accepts_nested_attributes_for :verbatim_data_georeference
 
   before_validation :check_verbatim_geolocation_uncertainty,
                     :check_date_range,
@@ -240,21 +249,36 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.format_to_hours_minutes_seconds(time_end_hour, time_end_minute, time_end_second)
   end
 
-  def generate_verbatim_georeference
-    # TODOone @mjy Write some version of a translator from other forms of Lat/Long to decimal degrees, otherwise failure
-    # will occur here
+  # @return [self, false]
+  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
+  def generate_verbatim_data_georeference(reference_self = false)
+    return false if self.new_record?
+    begin
+      CollectingEvent.transaction do 
+        vg_attributes = {collecting_event_id: self.to_param }
+        vg_attributes.merge!(by: self.creator, project_id: self.project.to_param) if reference_self
+        a = Georeference::VerbatimData.new(vg_attributes)
+        if a.valid?
+          a.save
+        end
+      end
+    rescue
+      raise 
+    end
+  end
+
+  # @return [GeographicItem, nil]
+  #    a GeographicItem instance representing a translation of the verbaitm values, not saved
+  def build_verbatim_geographic_item
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = self.verbatim_latitude
       local_longitude = self.verbatim_longitude
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_longitude)
       point           = Georeference::FACTORY.point(local_latitude, local_longitude)
-      g               = GeographicItem.new(point: point)
-      r               = get_error_radius
-      if g.valid?
-        g.save
-        update(verbatim_georeference: Georeference::VerbatimData.create(geographic_item: g, error_radius: r))
-      end
+      GeographicItem.new(point: point)
+    else
+      nil 
     end
   end
 
