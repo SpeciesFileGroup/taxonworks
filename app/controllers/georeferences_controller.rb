@@ -56,9 +56,7 @@ class GeoreferencesController < ApplicationController
           format.html { redirect_to target, notice: 'Georeference was successfully created.' }
           format.json { render action: 'show', status: :created, location: target }
         else
-          # format.html { render action: 'new', notice: 'Georeference was NOT successfully created.' }
-          format.html { redirect_to :back, notice: 'Georeference was NOT successfully created.' }
-          # format.html { render partial: '/georeferences/google_maps/form', notice: 'Georeference was NOT successfully created.' }
+          format.html { redirect_to :back, notice: 'Georeference was NOT successfully created. ' + @georeference.errors.full_messages.join(" ") }
           format.json { render json: @georeference.errors, status: :unprocessable_entity }
         end
       end
