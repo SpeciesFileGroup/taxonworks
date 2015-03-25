@@ -3,18 +3,38 @@ include FormHelper
 
 describe 'Sources', :type => :feature do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
-  let(:page_index_name) { 'Sources' }
+  let(:page_index_name) { 'sources' }
+  let(:index_path) { sources_path }
 
-  it_behaves_like 'a_login_required_controller' do
-    let(:index_path) { sources_path }
-  end
+  it_behaves_like 'a_login_required_controller'
 
-  describe 'GET /sources' do
-    before {
+  context 'signed in as user, with some records created' do
+    before do
       sign_in_user_and_select_project
-      visit sources_path }
-    specify 'an index name is present' do
-      expect(page).to have_content(page_index_name)
+      5.times { factory_girl_create_for_user(:valid_source, @user) }
+    end
+
+    describe 'GET /sources' do
+      before {
+        visit sources_path }
+
+      it_behaves_like 'a_data_model_with_standard_index'
+    end
+
+    describe 'GET /sources/list' do
+      before do
+        visit list_sources_path
+      end
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
+
+    describe 'GET /sources/n' do
+      before {
+        visit source_path Source.second
+      }
+
+      it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 
@@ -23,9 +43,10 @@ describe 'Sources', :type => :feature do
       sign_in_user_and_select_project #   logged in and project selected
       visit sources_path } #   when I visit the sources_path
 
-    specify 'new link is present on sources page' do
-      expect(page).to have_link('new') # it has a new link
-    end
+    # Already tested above
+    # specify 'new link is present on sources page' do
+    #   expect(page).to have_link('new') # it has a new link
+    # end
     specify 'can create a new BibTeX source', js: true do
       s = Serial.new(name: 'My Serial', creator: @user, updater: @user)
       expect(s.save).to be_truthy
@@ -44,7 +65,7 @@ describe 'Sources', :type => :feature do
 
       fill_in('Title', with: 'Unicorns and Honey Badgers') # fill out Title with 'Unicorns and Honey Badgers'
       fill_in('Author', with: 'Wombat, H.P.') # fill out Author with 'Wombat, H.P.'
-      fill_in('Year', with: '1920')  # fill out Year with '1920'
+      fill_in('Year', with: '1920') # fill out Year with '1920'
       fill_autocomplete('serial_id_for_source', with: 'My Serial') # fill out Serial autocomplete with 'My Serial'
       # select the row with 'My Serial'
       click_button('Create Source') # when I click the 'Create Source' button
@@ -58,7 +79,7 @@ describe 'Sources', :type => :feature do
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
       # TODO when Capybara works better so field('field').visible? is accurate add visibility tests.
-#      expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
+      #      expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
       # The 'Verbatim' textbox is the only field available.
       # expect(page.has_no_text?('BibTeX type')).to be_truthy
       # find(:css, "#source_verbatim_contents").should_not be_visible
@@ -66,7 +87,7 @@ describe 'Sources', :type => :feature do
       # expect(page.has_no_field?('source_verbatim_contents', :type => 'textarea')).to be_truthy
       # expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
       # # enter 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' in the textbox.
-      fill_in('source_verbatim', with:'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)')
+      fill_in('source_verbatim', with: 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)')
       click_button('Create Source') # when I click the 'Create Source' button
       # I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
       expect(page).to have_content("Source 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created.")
@@ -77,7 +98,7 @@ describe 'Sources', :type => :feature do
   context 'editing an existing source' do
     before {
       sign_in_user #   logged in
-      visit sources_path  #   when I visit the sources_path
+      visit sources_path #   when I visit the sources_path
     }
 
     specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
@@ -97,7 +118,7 @@ describe 'Sources', :type => :feature do
       expect(find_field('Journal').value).to eq('Journal of Test Articles')
       expect(find_field('Year').value).to eq('1000')
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
-      fill_in('Year', with: '1920')  # change Year to '1920'
+      fill_in('Year', with: '1920') # change Year to '1920'
       click_button('Update Source')
       expect(page).to have_content("Source was successfully updated.")
       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
@@ -111,15 +132,15 @@ describe 'Sources', :type => :feature do
       click_link('Edit')
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       # TODO shelved until Matt fixes the coffee script
-#       expect(find_field('Title').value).to eq('I am a soft valid article')
-#       expect(find_field('Author').value).to eq('Person, Test')
-#       expect(find_field('Journal').value).to eq('Journal of Test Articles')
-#       expect(find_field('Year').value).to eq('1000')
-#       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
-#       fill_in('Year', with: '1920')  # change Year to '1920'
-#       click_button('Update Source')
-#       expect(page).to have_content("Source was successfully updated.")
-#       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
+      #       expect(find_field('Title').value).to eq('I am a soft valid article')
+      #       expect(find_field('Author').value).to eq('Person, Test')
+      #       expect(find_field('Journal').value).to eq('Journal of Test Articles')
+      #       expect(find_field('Year').value).to eq('1000')
+      #       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
+      #       fill_in('Year', with: '1920')  # change Year to '1920'
+      #       click_button('Update Source')
+      #       expect(page).to have_content("Source was successfully updated.")
+      #       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
     end
 
 =begin

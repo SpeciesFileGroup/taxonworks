@@ -1,12 +1,10 @@
 require 'rails_helper'
 
 describe 'Repositories', :type => :feature do
+  let(:index_path) { repositories_path }
+  let(:page_index_name) { 'repositories' }
 
-  it_behaves_like 'a_login_required_controller' do
-    let(:index_path) { repositories_path }
-    let(:page_index_name) { 'Repositories' }
-  end
-
+  it_behaves_like 'a_login_required_controller'
 
   context 'signed in as user, with some records created' do
     before {
@@ -16,9 +14,8 @@ describe 'Repositories', :type => :feature do
 
     describe 'GET /repositories' do
       before { visit repositories_path }
-      specify 'an index name is present' do
-        expect(page).to have_content('Repositories')
-      end
+
+      it_behaves_like 'a_data_model_with_standard_index'
     end
 
     describe 'GET /repositories/list' do
@@ -26,24 +23,15 @@ describe 'Repositories', :type => :feature do
         visit list_repositories_path
       }
 
-      specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Repositories'
-      end
+      it_behaves_like 'a_data_model_with_standard_list'
     end
 
     describe 'GET /repositories/n' do
       before {
-        visit repository_path(Repository.second) 
+        visit repository_path(Repository.second)
       }
 
-      specify "there is a 'previous' link" do
-        expect(page).to have_link('Previous')
-      end
-
-      specify "there is a 'next' link" do
-        expect(page).to have_link('Next')
-      end
-
+      it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 end
