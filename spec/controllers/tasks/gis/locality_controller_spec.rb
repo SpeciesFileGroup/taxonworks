@@ -1,11 +1,15 @@
 require 'rails_helper'
 
-describe Tasks::Gis::LocalityController, :type => :controller do
+describe Tasks::Gis::LocalityController, type: :controller do
+  before(:all) {
+    generate_ce_test_objects
+  } 
+
   before(:each) {
     sign_in
-    generate_ce_test_objects
   }
-  after(:each) {
+
+  after(:all) {
     clean_slate_geo
   }
   describe "GET nearby" do

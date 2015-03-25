@@ -23,10 +23,6 @@ describe GeographicAreaTypesController, :type => :controller do
     sign_in
   }
 
-  before(:all) {
-    clean_slate_geo
-  }
-
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
