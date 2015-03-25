@@ -1,31 +1,40 @@
 require 'rails_helper'
 
 describe 'Serials', :type => :feature do
-  let(:page_index_name) { 'Serials' }
+  let(:page_index_name) { 'serials' }
+  let(:index_path) { serials_path }
 
-  it_behaves_like 'a_login_required_controller' do
-    let(:index_path) { serials_path }
-  end
+  it_behaves_like 'a_login_required_controller'
 
-  describe 'GET /serials' do # list all serials <serials#index>
-    before {
-      sign_in_user_and_select_project
-      visit serials_path }
-    specify 'an index name is present' do
-      expect(page).to have_content(page_index_name)
-    end
-  end
-
-  describe 'GET /serials/:id' do # display a particular serial <serials#show>
-    before {
+  context 'signed in as user, with some records created' do
+    before do
       sign_in_user
-      @serial  = factory_girl_create_for_user(:valid_serial, @user)
-      visit serial_path(@serial)
-    }
-    specify 'should see serial attributes' do
-      expect(page).to have_content(@serial.name)
+      5.times { factory_girl_create_for_user(:valid_serial, @user) }
     end
 
+    describe 'GET /serials' do
+      before {
+        visit serials_path
+      }
+
+      it_behaves_like 'a_data_model_with_standard_index'
+    end
+
+    describe 'GET /serials/list' do
+      before do
+        visit list_serials_path
+      end
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
+
+    describe 'GET /serials/n' do
+      before do
+        visit serial_path(Serial.second)
+      end
+
+      it_behaves_like 'a_data_model_with_standard_show'
+    end
   end
 
   context 'testing new serial' do
@@ -33,9 +42,7 @@ describe 'Serials', :type => :feature do
       sign_in_user
       visit serials_path
     }
-    specify 'new link is present on serial page' do
-      expect(page).to have_link('new') # it has a new link
-    end
+
     specify 'can create a new serial' do
       click_link('new') # when I click the new link
 

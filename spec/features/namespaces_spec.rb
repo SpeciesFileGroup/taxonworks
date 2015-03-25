@@ -1,14 +1,13 @@
 require 'rails_helper'
 
 describe 'Namespaces', :type => :feature do
-  let(:page_index_name) { 'Namespaces' }
-  
-  it_behaves_like 'a_login_required_controller' do
-    let(:index_path) { namespaces_path }
-  end
+  let(:page_index_name) { 'namespaces' }
+  let(:index_path) { namespaces_path }
 
+  it_behaves_like 'a_login_required_controller'
 
-  context 'as administrator, with some namespaces built' do
+  context 'as administrator, with some records created' do
+    # todo @mjy, why is it important that this be an administrator?
     before do
       sign_in_user
       5.times { factory_girl_create_for_user(:valid_namespace, @administrator) }
@@ -19,34 +18,23 @@ describe 'Namespaces', :type => :feature do
         visit namespaces_path
       end
 
-    specify 'an index name is present' do
-      expect(page).to have_content('Namespaces')
+      it_behaves_like 'a_data_model_with_standard_index'
     end
-  end
- 
 
     describe 'GET /namespaces/list' do
       before do
         visit list_namespaces_path
       end
 
-      specify 'that it renders without error' do
-        expect(page).to have_content 'Listing namespaces'
-      end
+      it_behaves_like 'a_data_model_with_standard_list'
     end
 
     describe 'GET /namespaces/n' do
       before do
-        visit  namespace_path(Namespace.second) # Note second!
+        visit namespace_path(Namespace.second)
       end
 
-      specify 'there is a \'previous\' link' do
-        expect(page).to have_link('Previous')
-      end
-
-      specify 'there is a \'next\' link' do
-        expect(page).to have_link('Next')
-      end
+      it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 
@@ -55,9 +43,11 @@ describe 'Namespaces', :type => :feature do
       sign_in_administrator
       visit namespaces_path #  visit the namespaces_path
     }
-    specify 'namespaces_path should have a new link' do
-      expect(page).to have_link('new') # it has a new link
-    end
+
+    # This was already tested above.
+    # specify 'namespaces_path should have a new link' do
+    #   expect(page).to have_link('new') # it has a new link
+    # end
 
     specify 'adding the new namespace' do
       click_link('new') # when I click the new link
@@ -67,6 +57,6 @@ describe 'Namespaces', :type => :feature do
       # then I get the message "Namespace 'Things Pat Collected' was successfully created"
       expect(page).to have_content("Namespace 'Things Pat Collected' was successfully created")
     end
-   end
+  end
 end
 

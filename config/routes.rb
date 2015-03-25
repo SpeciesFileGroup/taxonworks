@@ -137,6 +137,10 @@ TaxonWorks::Application.routes.draw do
   resources :preparation_types do
     concerns [:data_routes]
   end
+
+
+
+
   resources :public_contents, only: [:create, :update, :destroy]
 
   # resources :ranged_lot_categories
