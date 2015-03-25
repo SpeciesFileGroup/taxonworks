@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'GeographicAreas', :type => :feature do
+describe 'GeographicAreas', type: :feature do
   let(:page_index_name) { 'Geographic areas' }
 
   it_behaves_like 'a_login_required_controller' do

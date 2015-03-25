@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItem::Polygon, :type => :model do
+describe GeographicItem::Polygon, type: :model, group: :geo do
   context 'that this item' do
     let(:k) { FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_K.as_binary) }
     specify 'represents a polygon' do

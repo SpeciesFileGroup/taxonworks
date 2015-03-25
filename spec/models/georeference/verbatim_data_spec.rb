@@ -1,10 +1,8 @@
 require 'rails_helper'
 
-describe Georeference::VerbatimData, :type => :model do
+describe Georeference::VerbatimData, type: :model, group: :geo do
   context 'VerbatimData uses self.collecting_event to internalize data' do
-# incorporated
     specify 'without elevation' do
-      #skip "without elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         verbatim_latitude:  "n40º5'31.4412\"",
                                                                                         verbatim_longitude: 'w88∫11′43.3″'))
@@ -15,7 +13,6 @@ describe Georeference::VerbatimData, :type => :model do
     end
 
     specify 'with *only* minimum elevation' do
-      #skip "with only minimum elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
                                                                                         verbatim_latitude:  '40.092067',
@@ -27,7 +24,6 @@ describe Georeference::VerbatimData, :type => :model do
     end
 
     specify 'with minimum and maximim elevation' do
-      #skip "with minimum elevation and maximum elevation"
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
                                                                                         maximum_elevation:  859,
@@ -38,7 +34,6 @@ describe Georeference::VerbatimData, :type => :model do
       expect(georeference.save).to be_truthy
       expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 809.0)')
     end
-
   end
 
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe GeographicItem::GeometryCollection, :type => :model do
+RSpec.describe GeographicItem::GeometryCollection, type: :model, group: :geo do
   context 'that this item' do
     let(:all_items) { FactoryGirl.build(:geographic_item_geometry_collection, :geometry_collection => ALL_SHAPES.as_binary) }
     specify 'represents a geometry_collection' do

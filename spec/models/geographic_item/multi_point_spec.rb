@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItem::MultiPoint, :type => :model do
+describe GeographicItem::MultiPoint, type: :model, group: :geo do
   context 'that this item' do
     let(:rooms) { FactoryGirl.build(:geographic_item_multi_point, :multi_point => ROOMS20NN.as_binary) }
     specify 'represents a multi_point' do

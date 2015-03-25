@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItem::Point, :type => :model do
+describe GeographicItem::Point, type: :model, group: :geo do
   context 'that this item' do
     let(:r2024) { FactoryGirl.build(:geographic_item_point, :point => ROOM2024.as_binary) }
 
@@ -21,6 +21,5 @@ describe GeographicItem::Point, :type => :model do
     specify '#st_start_point returns the first POINT of the GeoObject' do
       expect(r2024.st_start_point.to_s).to eq('POINT (-88.241413 40.091655 0.0)')
     end
-
   end
 end

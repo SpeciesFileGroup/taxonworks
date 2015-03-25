@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItem::MultiLineString, :type => :model do
+describe GeographicItem::MultiLineString, type: :model, group: :geo do
   context 'that this item' do
     let(:c) { FactoryGirl.build(:geographic_item_multi_line_string, :multi_line_string => SHAPE_C.as_binary) }
     specify 'represents a multi_line_string' do

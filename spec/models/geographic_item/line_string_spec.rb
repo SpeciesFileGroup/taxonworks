@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItem::LineString, :type => :model do
+describe GeographicItem::LineString, type:  :model, group: :geo do
   context 'that this item' do
     let(:a) { FactoryGirl.create(:geographic_item_line_string, :line_string => SHAPE_A.as_binary) }
     specify 'represents a line_string' do

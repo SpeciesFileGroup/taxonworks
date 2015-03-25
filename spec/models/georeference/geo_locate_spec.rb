@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Georeference::GeoLocate, :type => :model do
+describe Georeference::GeoLocate, type: :model, group: :geo do
 
   let(:geo_locate) { FactoryGirl.build(:georeference_geo_locate) }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
