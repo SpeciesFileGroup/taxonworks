@@ -1,61 +1,54 @@
 require 'rails_helper'
 
 describe 'ControlledVocabularyTerms', :type => :feature do
-  let(:page_index_name) { 'Controlled vocabulary terms' }
+  let(:page_index_name) { 'controlled vocabulary terms' }
+  let(:index_path) { controlled_vocabulary_terms_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { controlled_vocabulary_terms_path }
   end
 
-  context 'signed in with a project selected' do
-    before { sign_in_user_and_select_project }
+  context 'signed in as a user, with some records created' do
+    let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
+    before {
+      sign_in_user_and_select_project
+      5.times {
+        FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
+      }
+    }
 
     describe 'GET /controlled_vocabulary_terms' do
       before {
         visit controlled_vocabulary_terms_path
       }
 
-      specify 'an index name is present' do
-        expect(page).to have_content('Controlled vocabulary terms')
-      end
+      it_behaves_like 'a_data_model_with_standard_index'
     end
 
-    context 'with some records created' do
-      let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
+    describe 'GET /controlled_vocabulary_terms/list' do
+      before do
+        visit list_controlled_vocabulary_terms_path
+      end
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
+
+    describe 'GET /controlled_vocabulary_terms/n' do
       before {
-        5.times {
-          FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
-        }
+        visit controlled_vocabulary_term_path(ControlledVocabularyTerm.second)
       }
 
-      describe 'GET /controlled_vocabulary_terms/list' do
-        before do
-          visit list_controlled_vocabulary_terms_path
-        end
+      it_behaves_like 'a_data_model_with_standard_show'
+   end
+  end
 
-        specify 'it renders list without error' do
-          expect(page).to have_content 'Listing Controlled Vocabulary Terms'
-        end
-      end
-
-      describe 'GET /controlled_vocabulary_terms/n' do
-        before {
-          visit controlled_vocabulary_term_path(ControlledVocabularyTerm.second)
-        }
-
-        specify 'there is a "previous" link' do
-          expect(page).to have_link('Previous')
-        end
-
-        specify 'there is a "next" link' do
-          expect(page).to have_link('Next')
-        end
-      end
-    end
-
-    specify 'controlled_vocabulary_terms_path should have a new link' do
+  context 'creating a new controlled vocabulary term' do
+    before {
+      sign_in_user_and_select_project
       visit controlled_vocabulary_terms_path
-      expect(page).to have_link('new') # it has a new link
+    }
+
+    specify 'it has a new link' do
+      expect(page).to have_link('new')
     end
 
     specify 'adding a new controlled vocabulary term' do
@@ -63,7 +56,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       click_link('new') # when I click the new link
 
       select('Topic', from: 'controlled_vocabulary_term_type') # I select 'Topic' from the Type dropdown
-      fill_in('Name', with: 'tests')   # I fill in the name field with "tests"
+      fill_in('Name', with: 'tests') # I fill in the name field with "tests"
       fill_in('Definition', with: 'This is a definition.') # I fill in the definition field with "This is a definition."
 
       click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
@@ -71,5 +64,5 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       # then I get the message "Topic 'tests' was successfully created"
       expect(page).to have_content("Topic 'tests' was successfully created")
     end
- end
+  end
 end

@@ -139,7 +139,9 @@ describe 'Geo', group: :geo do
 
   context 'multiple use cases' do
 
-  use_cases =        {'w88∫11′43.4″'                  => '-88.195389', #current test case
+  # todo: fix the interpretation of '-88.241121º'
+  use_cases =        {'-88.241121'                    => '-88.241121', #current test case ['-88.241121°']
+                      'w88∫11′43.4″'                  => '-88.195389', 
                       '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
                       '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
                       '40:26:46.302N'                 => '40.446195',

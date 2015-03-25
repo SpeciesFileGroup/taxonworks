@@ -4,13 +4,13 @@ include FormHelper
 RSpec.describe "TypeMaterials", :type => :feature do
   #Capybara.default_wait_time = 10
   let(:page_index_name) { 'Type materials' }
-  it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { type_materials_path }
-  end
+  let(:index_path) { type_materials_path }
+
+  it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'when signed in and a project is selected' do
     before {
-      sign_in_user_and_select_project # logged in and project selected
+      sign_in_user_and_select_project
     }
 
     context 'with some records created' do
@@ -19,28 +19,26 @@ RSpec.describe "TypeMaterials", :type => :feature do
       before do
         10.times {
           FactoryGirl.create(:valid_type_material,
-                             otu:      o,
+                             otu: o,
                              material: s,
-                             type:     'paratype',
-                             project:  @project,
-                             creator:  @user,
-                             updater:  @user
+                             type: 'paratype',
+                             project: @project,
+                             creator: @user,
+                             updater: @user
           )
         }
 
         describe 'GET /type_materials' do
           before {
             visit type_materials_path }
-          specify 'a index name is present' do
-            expect(page).to have_content(page_index_name)
-          end
+
+          it_behaves_like 'a_data_model_with_standard_index'
         end
 
         describe 'GET /type_materials/list' do
-          before { visit type_materials_path }
-          specify 'that it renders without error' do
-            expect(page).to have_content 'Listing type materials'
-          end
+          before { visit list_type_materials_path }
+
+          it_behaves_like 'a_data_model_with_standard_list'
         end
 
         describe 'GET /type_materials/n' do
@@ -48,14 +46,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
             visit type_material_path(TypeMaterial.second)
           }
 
-          specify 'there is a \'previous\' link' do
-            expect(page).to have_link('Previous')
-          end
-
-          specify 'there is a \'next\' link' do
-            expect(page).to have_link('Next')
-          end
-
+          it_behaves_like 'a_data_model_with_standard_show'
         end
       end
     end
@@ -68,34 +59,34 @@ RSpec.describe "TypeMaterials", :type => :feature do
       context 'testing the new type_materials form' do
         let!(:r) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
         #  - a namespace short name 'INHSIC' is created
-        let(:namesp) { FactoryGirl.create(:namespace, {creator:             @user, updater: @user,
-                                                       name:                'INHSIC', short_name: 'INHSIC',
+        let(:namesp) { FactoryGirl.create(:namespace, {creator: @user, updater: @user,
+                                                       name: 'INHSIC', short_name: 'INHSIC',
                                                        verbatim_short_name: 'INHSIC'}) }
 
         #  - a specimen is created
         let(:specimen) { FactoryGirl.create(:valid_specimen, user_project_attributes(@user, @project)) }
 
         specify 'filling out the form', js: true do
-          f = Protonym.new(name:    'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
-                           parent:  r,
+          f = Protonym.new(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
+                           parent: r,
                            creator: @user, updater: @user, project: @project)
           expect(f.save).to be_truthy
-          g = Protonym.new(name:    'Bus', rank_class: Ranks.lookup(:iczn, 'Genus'),
-                           parent:  f,
+          g = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'Genus'),
+                           parent: f,
                            creator: @user, updater: @user, project: @project)
           expect(g.save).to be_truthy
           #  - a species 'bus' with parent 'Bus' is created
-          sp = Protonym.new(name:    'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
-                            parent:  g,
+          sp = Protonym.new(name: 'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
+                            parent: g,
                             creator: @user, updater: @user, project: @project)
           expect(sp.save).to be_truthy
 
           # ident = Identifier::Local::CatalogNumber.new(namespace:  namesp, identifier_object: specimen,
           #                                              identifier: '1234')
           ident = Identifier::Local::CatalogNumber.new(identifier_object: specimen,
-                                                       identifier:        '1234',
-                                                       namespace_id:      namesp.id,
-                                                       creator:           @user, updater: @user, project: @project)
+                                                       identifier: '1234',
+                                                       namespace_id: namesp.id,
+                                                       creator: @user, updater: @user, project: @project)
           #  - an identifier with Namespace 'INHSIC' and identifier '1234' attached to specimen is created
           expect(ident.save).to be_truthy
           expect(ident.cached).to eq('INHSIC 1234')

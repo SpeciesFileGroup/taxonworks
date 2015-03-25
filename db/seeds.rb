@@ -29,6 +29,8 @@ case Rails.env
     FactoryGirl.create(:iczn_subspecies)
     FactoryGirl.create(:icn_variety)
 
+    20.times { FactoryGirl.create(:valid_asserted_distribution)}
+
   when 'production'
     # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.
 

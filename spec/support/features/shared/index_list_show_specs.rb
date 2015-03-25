@@ -3,9 +3,24 @@ shared_examples 'a_data_model_with_standard_index' do
   specify 'has model name' do
     expect(page).to have_content(page_index_name)
   end
-
   specify "has new link" do
     expect(page).to have_link('new')
+  end
+  specify "has list link" do
+    expect(page).to have_link('list')
+  end
+  specify "has download link" do
+    expect(page).to have_link('download')
+  end
+  specify "has Recent updates" do
+    expect(page).to have_text('Recent updates')
+  end
+end
+
+# annotations_index does not have 'new'
+shared_examples 'a_data_model_with_annotations_index' do
+  specify 'has model name' do
+    expect(page).to have_content(page_index_name)
   end
   specify "has list link" do
     expect(page).to have_link('list')

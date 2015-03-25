@@ -6,7 +6,7 @@ describe 'CollectionObjects', :type => :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
-  context 'with some records created' do
+  context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
       10.times { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }

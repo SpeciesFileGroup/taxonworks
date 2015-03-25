@@ -63,7 +63,7 @@
 
     <div id="feature_collection" data-georeference="<%= @georeference %>"
          data-feature-collection='<%= Gis::GeoJSON.feature_collection(@collecting_event.georeferences).to_json.html_safe %>'
-         data-map-center='<%= @map_center %>'>
+         data-map-center='<%= @verbatim_coordinate %>'>
 
     </div>
 

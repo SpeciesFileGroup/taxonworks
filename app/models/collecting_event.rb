@@ -382,9 +382,9 @@ class CollectingEvent < ActiveRecord::Base
 
 
   # returns either:
-  #  ( {'name' => [GAs]} 
-  # or 
-  # [{'name' => [GAs]}, {'name' => [GAs]}]) 
+  #  ( {'name' => [GAs]}
+  # or
+  # [{'name' => [GAs]}, {'name' => [GAs]}])
   #   one hash, consisting of a country name paired with an array of the corresponding GAs, or
   #   an array of all of the hashes (name/GA pairs),
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
@@ -595,9 +595,15 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       first
   end
 
-  def map_center
+  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
+  # @return [RGeo point]
+  def map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-
+      lat    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s).to_f
+      long   = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s).to_f
+      retval = Georeference::FACTORY.point(long, lat, delta_z)
+      spoon  = 0
+      retval
     end
   end
 
