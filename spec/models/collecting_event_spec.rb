@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectingEvent, :type => :model do
+describe CollectingEvent, type: :model, group: :geo do
   let(:collecting_event) { FactoryGirl.build(:collecting_event) }
 
   context 'validation' do
@@ -208,34 +208,77 @@ describe CollectingEvent, :type => :model do
   end
 
   context 'georeferences' do
-    context '#generate_verbatim_georeference' do
-      specify 'returns false if no verbatim values' do
-        expect(collecting_event.generate_verbatim_georeference).to be_falsey
+    context 'verbatim georeferences using with_verbatim_data_georeference: true' do
+
+      context 'on new()' do
+        specify 'creates a verbatim georeference using new()' do
+          c = CollectingEvent.new(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true )
+          expect(c.save!).to be_truthy
+          expect(c.verbatim_data_georeference.id).to be_truthy
+        end
       end
 
-      specify 'assigns a geographic item when verbatim_latitude/long are provided and !#new_record?' do
-        collecting_event.verbatim_latitude  = -10.0
-        collecting_event.verbatim_longitude = '-10'
-        expect(collecting_event.save).to be_truthy
-        expect(collecting_event.generate_verbatim_georeference).to be_truthy
-        expect(collecting_event.verbatim_georeference.blank?).to be_falsey
-        expect(collecting_event.verbatim_georeference.id.blank?).to be_falsey
-        expect(collecting_event.georeferences.first.geographic_item.geo_object.to_s).to eq('POINT (-10.0 -10.0 0.0)')
+      context 'on create()' do
+        let(:c) { CollectingEvent.create!(verbatim_latitude: '10.001', verbatim_longitude: '10',  project: @project, with_verbatim_data_georeference: true ) }
+
+        specify '#verbatim_data_georeference.id is set' do
+          expect(c.verbatim_data_georeference.id).to be_truthy 
+        end
+
+        specify '#verbatim_data_georeference.geographic_item.id is set' do
+          expect(c.verbatim_data_georeference.geographic_item.id).to be_truthy 
+        end
+
+        specify '#verbatim_data_georeference.project_id is set' do
+          expect(c.verbatim_data_georeference.project_id).to be_truthy 
+        end
       end
-    end
+
+      specify'creates a geo object that acurately represents the verbatim values' do
+        c = CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true )
+        # ! do points have to be decimalized?
+        expect(c.verbatim_data_georeference.geographic_item.geo_object.to_s).to eq('POINT (10.0 10.001 0.0)')
+      end
+
+      context "using by cascades creator/updater to georeference and geographic_item" do
+        let(:other_user) { FactoryGirl.create(:valid_user, name: 'other', email: 'other@test.com') }
+        let(:c) { CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true, by: other_user )}
+
+        specify 'sets collecting event updater' do
+          expect(c.updater).to eq(other_user)
+        end
+
+        specify 'sets collecting event creator' do
+          expect(c.updater).to eq(other_user)
+        end
+        
+        specify 'sets verbatim_data_georeference updater' do
+          expect(c.verbatim_data_georeference.updater).to eq(other_user)
+        end
+
+        specify 'sets verbatim_data_georeference creator' do
+          expect(c.verbatim_data_georeference.creator).to eq(other_user)
+        end
+
+        specify 'sets verbatim_data_georeference.geographic_item updater' do
+          expect(c.verbatim_data_georeference.geographic_item.updater).to eq(other_user)
+        end
+
+        specify 'sets verbatim_data_georeference.geographic_item creator' do
+          expect(c.verbatim_data_georeference.geographic_item.creator).to eq(other_user)
+        end
+      end
+    end 
 
     # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky,
     # we will likely need to write some sql generators to do this efficiently.  To start
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
       before(:all) {
-        clean_slate_geo
         generate_ce_test_objects
       }
+
       after(:all) {
-        Georeference.destroy_all
-        GeographicItem.destroy_all
-        CollectingEvent.destroy_all
         clean_slate_geo
       }
 
@@ -309,9 +352,8 @@ describe CollectingEvent, :type => :model do
       }
 
       context 'geolocate_ui_params_hash' do
-
         specify 'geolocate_ui_params_hash from locality' do
-          # @ce_n3 was built with locality, with no verbatim_lat/long
+         # @ce_n3 was built with locality, with no verbatim_lat/long
           expect(@ce_n3.geolocate_ui_params_hash).to eq({:country       => 'Old Boxia',
                                                          :state         => 'N3',
                                                          :county        => nil,
@@ -411,6 +453,8 @@ describe CollectingEvent, :type => :model do
   end
 
   context 'geopolitical labels' do
+ 
+    # this context is here 2x, see if we can simlify it 
     before(:all) {
       # create some bogus countries, states, provinces, counties, and a parish
       generate_political_areas_with_collecting_events
