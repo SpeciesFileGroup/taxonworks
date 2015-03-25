@@ -1,13 +1,12 @@
 class Georeference::VerbatimData < Georeference
 
-  def initialize(params = {}) # no available parms
-
+  def initialize(params = {}) 
     super
 
     self.is_median_z    = false
     self.is_undefined_z = false # and delta_z is zero, or ignored
 
-    unless collecting_event.nil?
+    unless collecting_event.nil? || geographic_item
 
       # get the data from the parent.collecting_event, and make a point of it
       lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_latitude.to_s).to_f
@@ -34,11 +33,13 @@ class Georeference::VerbatimData < Georeference
           self.is_median_z = true
         end
       end
-      #if geographic_item.nil?
-      self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(long, lat, delta_z))
-      #end
-      geographic_item
-    end
-  end
 
+      attributes =  { point: Georeference::FACTORY.point(long, lat, delta_z) }
+      attributes.merge!(by: self.by) if self.by
+
+      self.geographic_item = GeographicItem.new(attributes)
+    end 
+
+    geographic_item
+  end
 end
