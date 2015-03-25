@@ -3,8 +3,8 @@ module Housekeeping::Users
   extend ActiveSupport::Concern
 
   included do
-   related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' gives :threes
-   related_class = self.name
+    related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' then :threes
+    related_class = self.name
 
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
@@ -30,7 +30,6 @@ module Housekeeping::Users
   end
 
   module ClassMethods
-
     # @return [Scope]
     #   for all uniq Users that created this class
     def all_creators
@@ -44,22 +43,30 @@ module Housekeeping::Users
    end
   end
 
+  # A convienience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.
+  #   Otu.new(name: 'Aus', by: @user)
+  attr_accessor :by
+
+  # @return [self, nil]
+  #   a new_record settor to set both creator and updater
+  def by=(value)
+    @by = value
+    return nil if value.nil? || !value.class == User # || !self.created_by_id.blank? || !self.updated_by_id.blank?
+    self.created_by_id = value.to_param if self.created_by_id.blank?
+    self.updated_by_id = value.to_param
+    self
+  end
+
   protected
 
   def set_created_by_id
     self.created_by_id ||= $user_id
   end
 
-  # TODO: test this!!!!!!
   def set_updated_by_id 
-    if (self.changed? || self.new_record?) && !self.updated_by_id_changed?
+    if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
       self.updated_by_id = $user_id
     end
   end
 
-  def only_awesome_set_indexing? 
-    self.changes.keys.sort == ['lft', 'rgt']
-  end
-
 end
-

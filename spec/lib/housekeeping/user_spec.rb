@@ -21,6 +21,48 @@ describe 'Housekeeping::User' do
       end
     end
 
+    context '#by=' do
+      specify 'is a an available settor' do
+        expect(instance.by = user).to be_truthy
+      end
+
+      context 'with a new record' do
+        let(:new_record) { HousekeepingTestClass::WithUser.new }
+        specify 'sets creator and updater when provided' do
+          new_record.by = user
+          expect(new_record.creator).to eq(user)
+          expect(new_record.updater).to eq(user)
+        end
+      end
+
+      specify 'works with a previously saved record' do
+        instance.by = user
+        expect(instance.creator).to eq(user)
+        expect(instance.updater).to eq(user)
+      end
+
+      specify 'does not override creator' do
+        instance.creator = user 
+        instance.by = other_user
+        expect(instance.creator).to eq(user)
+      end
+
+      specify 'works with update_attributes' do
+        instance.update_attributes(by: user)
+        expect(instance.updater).to eq(user)
+        expect(instance.creator).to eq(user)
+      end
+
+      specify 'with new(), set order depends on last one provided, which should not be done' do
+        a = HousekeepingTestClass::WithUser.new(updater: other_user, by: user)
+        expect(a.updater).to eq(user)
+
+        b = HousekeepingTestClass::WithUser.new(by: user, updater: other_user)
+        expect(b.updater).to eq(other_user)
+      end
+
+    end
+
     context 'auto-population and validation' do
       let(:i) { HousekeepingTestClass::WithUser.new }
 
