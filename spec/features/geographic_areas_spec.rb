@@ -1,33 +1,28 @@
 require 'rails_helper'
 
 describe 'GeographicAreas', :type => :feature do
-  let(:page_index_name) { 'Geographic areas' }
+  let(:page_index_name) { 'geographic areas' }
+  let(:index_path) { geographic_areas_path }
 
-  it_behaves_like 'a_login_required_controller' do
-    let(:index_path) { geographic_areas_path }
-  end
+  it_behaves_like 'a_login_required_controller'
 
-  context 'visiting with some records created' do
-
-    before do
+  context 'signed in as a user, with some records created' do
+    before {
       sign_in_user_and_select_project
-      # this is so that there are more than one page of geographic_areas
       5.times { factory_girl_create_for_user(:valid_geographic_area, @user) }
-      visit list_geographic_areas_path
-    end
+    }
 
     describe 'GET /geographic_areas' do
       before {
         visit geographic_areas_path }
-      specify 'an index name is present' do
-        expect(page).to have_content(page_index_name)
-      end
+
+      it_behaves_like 'a_data_model_with_standard_index'
     end
 
     describe 'GET /geographic_areas/list' do
-      specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Geographic Areas'
-      end
+      before { visit list_geographic_areas_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
     end
 
     describe 'GET /geographic_areas/n' do
@@ -35,14 +30,7 @@ describe 'GeographicAreas', :type => :feature do
         visit geographic_area_path(GeographicArea.second)
       }
 
-      specify 'there is a "previous" link' do
-        expect(page).to have_link('Previous')
-      end
-
-      specify 'there is a "next" link' do
-        expect(page).to have_link('Next')
-      end
-
+      it_behaves_like 'a_data_model_with_standard_show'
     end
   end
 end
