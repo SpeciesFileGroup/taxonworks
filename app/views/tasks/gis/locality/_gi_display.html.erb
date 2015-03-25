@@ -11,7 +11,7 @@
     <td colspan="2">
       <table border='1'>
         <thead> Results for collecting events which are contained within area named 
-          <%= @geographic_item.geographic_areas.first.name %>: 
+          <%= @geographic_item.geographic_areas.first.name if @geographic_item.geographic_areas.any? %>: 
           <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %>
         </thead>
         <tr>
