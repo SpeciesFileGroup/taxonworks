@@ -9,7 +9,8 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   # POST
   def create
     @source = Source.new_from_citation(citation: params[:citation])
-    if @source.save 
+    if @source.save
+      flash[:notice] = "A #{@source.class} record was created."
       if params[:create_roles]
         if @source.create_related_people_and_roles 
           flash[:notice] = "Successfully created from resolution to bibtex, also created #{@source.roles.count} people as authors/editors."

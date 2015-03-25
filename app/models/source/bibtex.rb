@@ -629,9 +629,31 @@ class Source::Bibtex < Source
 
   #endregion    time/date related
 
-  def cached_string
+  # def cached_string
+  #   bx_entry = self.to_bibtex
+  #
+  #   if bx_entry.key.blank?
+  #     bx_entry.key = 'tmpID'
+  #   end
+  #
+  #   key = bx_entry.key
+  #   bx_bibliography = BibTeX::Bibliography.new
+  #   bx_bibliography.add(bx_entry)
+  #
+  #   # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+  #   cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
+  #   # cp.engine.format = 'html'
+  #   cp.import(bx_bibliography.to_citeproc)
+  #   cp.render(:bibliography, id: key).first.strip
+  # end
+
+  def cached_string(format)
+    unless (format == 'text') || (format == 'html')
+      errors.add(:base, 'unable to build cached string; format = ' + format.to_s)
+      return(nil)
+    end
     bx_entry = self.to_bibtex
-    
+
     if bx_entry.key.blank?
       bx_entry.key = 'tmpID'
     end
@@ -640,8 +662,7 @@ class Source::Bibtex < Source
     bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)
 
-    cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-    #cp.engine.format = 'html'
+    cp = CiteProc::Processor.new(style: 'zootaxa', format: format)
     cp.import(bx_bibliography.to_citeproc)
     cp.render(:bibliography, id: key).first.strip
   end
@@ -663,7 +684,7 @@ class Source::Bibtex < Source
 
   def set_cached
     if self.errors.empty?
-      self.cached               = cached_string
+      self.cached               = cached_string('text')
       self.cached_author_string = authority_name
     end
   end

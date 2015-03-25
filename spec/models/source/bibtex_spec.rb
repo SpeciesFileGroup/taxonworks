@@ -146,7 +146,7 @@ describe Source::Bibtex, :type => :model do
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
-        expect(src.cached_string).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
 
         # c = LaTeX.decode entry.title
         # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
@@ -167,7 +167,7 @@ describe Source::Bibtex, :type => :model do
         # input =  "Klapálek & Grunberg. 1909. Hft. 8. Ephemerida, Plecoptera, Lepidoptera. In Brauer, A. Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna. 1-163"
         input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
         src = Source.new_from_citation({citation: input, resolve: true})
-        expect(src.cached_string).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
         # expect(BibTeX.valid?(filename)).to be_truthy
         # expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
         # expect(a.save).to be_truthy
@@ -180,6 +180,32 @@ describe Source::Bibtex, :type => :model do
 =end
 
       end
+      specify 'Beth testing' do
+        input = 'Robillard. 2011. Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea). Zoosystema.'
+        src = Source.new_from_citation({citation: input, resolve: true})
+#         bibtex_str = %q(@article{Robillard_2011,\n\turl = {http://dx.doi.org/10.5252/z2011n1a2},\n\tyear = 2011,\n\tmonth = {mar},\n\tpublisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},\n\tvolume = {33},\n\tnumber = {1},\n\tpages = {49--60},\n\tauthor = {Tony Robillard},\n\ttitle = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },\n\tjournal = {Zoosystema}\n})
+#         bibtex_str2 = %q(@article{Robillard_2011,
+# 	url = {http://dx.doi.org/10.5252/z2011n1a2},
+# 	year = 2011,
+# 	month = {mar},
+# 	publisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},
+# 	volume = {33},
+# 	number = {1},
+# 	pages = {49--60},
+# 	author = {Tony Robillard},
+# 	title = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },
+# 	journal = {Zoosystema}
+# })
+#         bib1 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2).convert(:latex)
+#         bib2 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2)
+#         array1=[]
+#         array1 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
+#         array2=[]
+#         array2 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
+#         cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
+         expect(src.publisher).to eq("Museum National d’Histoire Naturelle, Paris, France")
+      end
+
     end
 
     skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
@@ -932,6 +958,19 @@ describe Source::Bibtex, :type => :model do
           expect(src.year_with_suffix).to eq('1922c')
           bibtex_entry = src.to_bibtex
           expect(bibtex_entry[:year]).to eq('1922c')
+        end
+      end
+
+      context '#cached_string correctly formats ' do
+
+        specify 'text' do
+          input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+          src = Source.new_from_citation({citation: input, resolve: true})
+          expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+
+        end
+        specify 'html' do
+
         end
       end
     end
