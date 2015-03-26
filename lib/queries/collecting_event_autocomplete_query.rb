@@ -22,7 +22,7 @@ module Queries
 
     def build_terms(string)
       string = string.to_s
-      @terms = [string] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
+      @terms = [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
     end
 
     def where_sql
@@ -50,7 +50,7 @@ module Queries
     end
 
     def with_cached
-      table[:cached].eq_any(@terms)
+      table[:cached].matches_any(@terms)
     end
 
     def with_verbatim_trip_code
@@ -62,7 +62,7 @@ module Queries
     end
 
     def identified_by
-      identifier_table[:cached].eq_any(@terms) 
+      identifier_table[:cached].matches_any(@terms) 
     end
 
     def geographic_area_named
