@@ -256,7 +256,7 @@ class Georeference < ActiveRecord::Base
   def check_obj_inside_err_geo_item
     # case 1
     retval = true
-    unless geographic_item.nil?
+    unless geographic_item.nil? || !geographic_item.geo_object
       unless error_geographic_item.nil?
         if error_geographic_item.geo_object # is NOT false
           retval = self.error_geographic_item.contains?(self.geographic_item.geo_object)
@@ -270,7 +270,7 @@ class Georeference < ActiveRecord::Base
   def check_obj_inside_err_radius
     # case 2
     retval = true
-    if error_radius.nil? == false && geographic_item.nil? == false
+    if !error_radius.blank? && geographic_item && geographic_item.geo_object 
       retval = self.error_box.contains?(self.geographic_item.geo_object)
     end
     retval
@@ -295,9 +295,11 @@ class Georeference < ActiveRecord::Base
   def check_error_radius_inside_area
     # case 4
     retval = true
-    unless collecting_event.nil?
-      if error_radius.nil? == false && collecting_event.geographic_area.nil? == false
-        retval = collecting_event.geographic_area.default_geographic_item.contains?(self.error_box)
+    if collecting_event
+      ga_gi = collecting_event.geographic_area_default_geographic_item
+      eb = self.error_box
+      if !error_radius.blank? && ga_gi && eb
+        retval = ga_gi.contains?(eb)
       end
     end
     retval
@@ -325,12 +327,29 @@ class Georeference < ActiveRecord::Base
     # case 6
     retval = true
     unless collecting_event.nil?
-      unless collecting_event.geographic_area.nil?
+      unless collecting_event.geographic_area.nil? || !geographic_item.geo_object
         retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
       end
     end
     retval
   end
+
+  # # @return [Boolean] true if error_box is completely contained in
+  # # collecting_event.geographic_area.default_geographic_item
+  # def check_error_radius_inside_area
+  #   # case 4
+  #   retval = true
+  #   if collecting_event
+  #     eb = self.error_box     
+  #     gi = collecting_event.default_area_geographic_item
+  #     if eb && gi
+  #       retval = gi.contains?(eb)
+  #     end
+  #   end
+  #   retval
+  # end
+
+
 
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
@@ -363,7 +382,7 @@ class Georeference < ActiveRecord::Base
     else
       problem = 'collecting_event area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
-      errors.add(:collecting_event, problem)
+      errors.add(:collecting_event, problem) # probably don't need error here
       false
     end
   end
