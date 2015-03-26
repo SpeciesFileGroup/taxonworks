@@ -591,8 +591,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       # where('collecting_events.id <> ? and (id not in (select georeferences.collecting_event_id from georeferences))', self.id).
       # joins(:georeferences).
       # pluck(:id).
-      uniq.
-      first
+      uniq.first
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
@@ -602,7 +601,6 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       lat    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s).to_f
       long   = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s).to_f
       retval = Georeference::FACTORY.point(long, lat, delta_z)
-      spoon  = 0
       retval
     end
   end
