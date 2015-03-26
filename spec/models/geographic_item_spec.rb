@@ -479,49 +479,71 @@ describe GeographicItem, type: :model, group: :geo do
         expect(pieces).to eq(@all_gi)
       end
 
-      specify '::are_contained_in - returns objects which contained in another object.' do
+      context '::are_contained_in - returns objects which contained in another object.' do
         #  expect(GeographicItem.are_contained_in('not_a_column_name', @p1).to_a).to eq([])
         #  expect(GeographicItem.are_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
-        # one thing inside k
-        expect(GeographicItem.are_contained_in('polygon', @p1).to_a).to eq([@k])
-        # three things inside k
-        expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3]).to_a).to eq [@k]
-        # one thing outside k
-        expect(GeographicItem.are_contained_in('polygon', @p4).to_a).to eq([])
-        # one thing inside two things (overlapping)
-        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.count).to eq(2)
-        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to eq([@e1, @e2].sort)
-        expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to eq([@e2, @e1].sort)
-        # three things inside and one thing outside k
-        expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3, @p11]).to_a).to include(@e1, @k)
-        # one thing inside one thing, and another thing inside another thing
-        expect(GeographicItem.are_contained_in('polygon', [@p1, @p11]).to_a).to include(@e1, @k)
-        # two things inside one thing, and
-        expect(GeographicItem.are_contained_in('polygon', @p18).to_a).to eq([@b1, @b2])
-        expect(GeographicItem.are_contained_in('polygon', @p19).to_a).to include(@b1, @b)
+        specify 'one thing inside k' do
+          expect(GeographicItem.are_contained_in('polygon', @p1).to_a).to eq([@k])
+        end
+
+        specify 'three things inside k' do
+          expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3]).to_a).to eq([@k])
+        end
+
+        specify 'one thing outside k' do
+          expect(GeographicItem.are_contained_in('polygon', @p4).to_a).to eq([])
+        end
+
+        specify ' one thing inside two things (overlapping)' do
+          expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to contain_exactly(@e1, @e2)
+        end
+
+        specify 'three things inside and one thing outside k' do
+          expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3, @p11]).to_a).to contain_exactly(@e1, @k)
+        end
+
+        specify 'one thing inside one thing, and another thing inside another thing' do
+          expect(GeographicItem.are_contained_in('polygon', [@p1, @p11]).to_a).to contain_exactly(@e1, @k)
+        end
+
+        specify 'two things inside one thing, and (1)' do
+          expect(GeographicItem.are_contained_in('polygon', @p18).to_a).to contain_exactly(@b1, @b2)
+        end
+
+        specify 'two things inside one thing, and (2)' do
+          expect(GeographicItem.are_contained_in('polygon', @p19).to_a).to contain_exactly(@b1, @b)
+        end
       end
+       
+      context  '::is_contained_by - returns objects which are contained by other objects.' do
+        specify ' three things inside k' do
+          expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to contain_exactly(@p1, @p2, @p3) 
+        end
+      
+        specify 'one thing outside k' do
+          expect(GeographicItem.is_contained_by('any', @p4).excluding(@p4).to_a).to eq([])
+        end
+        
+        specify 'three things inside and one thing outside k' do
+         expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a)
+        end
 
-      specify '::is_contained_by - returns objects which are contained by other objects.' do
+        xspecify 'one thing inside one thing, and another thing inside another thing' do
+          expect(GeographicItem.is_contained_by('any', [@e1, @k]).to_a).to contain_exactly(@p1, @p11) # was 'include', was this the intent?
+        end
 
-#       expect(GeographicItem.is_contained_by('not_a_column_name', @p1).to_a).to eq([])
-#       expect(GeographicItem.is_contained_by('point', 'Some devious SQL string').to_a).to eq([])
-
-# three things inside k
-        expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to eq([@p1, @p2, @p3])
-        # one thing outside k
-        expect(GeographicItem.is_contained_by('any', @p4).excluding(@p4).to_a).to eq([])
-        # three things inside and one thing outside k
-        expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to include(@p0, @p1, @p2, @p3, @p12, @p13, @item_a)
-        # one thing inside one thing, and another thing inside another thing
-        expect(GeographicItem.is_contained_by('any', [@e1, @k]).to_a).to include(@p1, @p11)
-        # one thing (p19) inside a polygon (b) with interior, and another inside the interior which is NOT included
-        # (p18).
-        expect(GeographicItem.is_contained_by('any', @b).excluding(@b).to_a).to eq([@p19])
-        # three things inside two things. Notice that the outer ring of b is co-incident with b1, and thus 'contained'.
-        expect(GeographicItem.is_contained_by('any', [@b1, @b2]).excluding([@b1, @b2]).to_a).to eq([@p18, @p19, @b])
-        # both b and b1 contain p19, which gets returned only once
-        expect(GeographicItem.is_contained_by('any', [@b1, @b]).to_a).to include(@p19)
+        specify 'one thing (p19) inside a polygon (b) with interior, and another inside the interior which is NOT included (p18)' do
+          expect(GeographicItem.is_contained_by('any', @b).excluding(@b).to_a).to eq([@p19])
+        end
+        
+        specify 'three things inside two things. Notice that the outer ring of b is co-incident with b1, and thus "contained".' do
+          expect(GeographicItem.is_contained_by('any', [@b1, @b2]).excluding([@b1, @b2]).to_a).to contain_exactly(@p18, @p19, @b) 
+        end
+      
+        xspecify 'both b and b1 contain p19, which gets returned only once' do
+          expect(GeographicItem.is_contained_by('any', [@b1, @b]).to_a).to contain_exactly(@p19) # was 'include', was that the intent?
+        end
       end
 
       specify '::excluding([]) drop specifc item[s] from any scope (list of objects.)' do
@@ -558,9 +580,6 @@ describe GeographicItem, type: :model, group: :geo do
         expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@j, @e])
       end
 
-      #TODOone: Is this test right?  What about @k, @d?
-      #   @k is too far away for a limit of 4, and #d in not a polygon, it is a line_string
-      # SELECT  "geographic_items".* FROM "geographic_items"  WHERE (st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0))')) and st_disjoint(polygon::geometry, GeomFromEWKT('srid=4326;POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0))'))) LIMIT 4
       specify "::disjoint_from list of objects (uses 'and')." do
         expect(GeographicItem.disjoint_from('point', [@e1, @e2, @e3, @e4, @e5]).order(:id).limit(1).to_a).to contain_exactly(@p1)
       end
