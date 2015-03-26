@@ -303,6 +303,16 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  # @return [GeographicItem, nil]
+  #    returns the geographic_item corresponding to the geographic area, if provided
+  def geographic_area_default_geographic_item
+    if geographic_area && geographic_area.default_geographic_item
+         geographic_area.default_geographic_item
+    else
+      nil
+    end
+  end
+
   # @param [GeographicItem]
   # @return [String]
   # see how far away we are from another gi
