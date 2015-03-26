@@ -149,22 +149,27 @@ describe Georeference, type: :model, group: :geo do
           g = Georeference::VerbatimData.new(collecting_event:     ce ,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
-
           g.valid?
 
           expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
           expect(g.errors.keys.include?(:collecting_event)).to be_truthy
         end
 
-        # TODO: What does this mean?
-        specify 'errors which result from badly formed collecting_event area values and error_radius' do
-          g = Georeference::VerbatimData.new(collecting_event: ce,
-                                             error_radius:     160000)
-          g.valid?
-          expect(g.errors.keys.include?(:error_radius)).to be_truthy
-          expect(g.errors.keys.include?(:geographic_item)).to be_truthy
-          expect(g.errors.keys.include?(:collecting_event)).to be_truthy
-        end
+        pending 'an error added to error_radius provided and geographic_item not provided' 
+
+     
+        # DEPRECATED - can not calculate a geo error from error_radius alone, so the error needs to be added 
+        # as described above 
+        # specify 'errors which result from badly formed collecting_event area values and error_radius' do
+        #   g = Georeference::VerbatimData.new(collecting_event: ce,
+        #                                      error_radius:     160000)
+        #   g.valid?
+        #
+        #   expect(g.errors.keys.include?(:error_radius)).to be_truthy
+        #   
+        #   expect(g.errors.keys.include?(:geographic_item)).to be_truthy
+        #   expect(g.errors.keys.include?(:collecting_event)).to be_truthy
+        # end
       end
 
       # TODO
