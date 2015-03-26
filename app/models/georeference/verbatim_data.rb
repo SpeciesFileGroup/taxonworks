@@ -6,11 +6,8 @@ class Georeference::VerbatimData < Georeference
     self.is_median_z    = false
     self.is_undefined_z = false # and delta_z is zero, or ignored
 
-    unless collecting_event.nil? || geographic_item
 
-      # get the data from the parent.collecting_event, and make a point of it
-      # lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_latitude.to_s).to_f
-      # long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(collecting_event.verbatim_longitude.to_s).to_f
+    unless collecting_event.nil? || geographic_item
 
       # value from collecting_event is normalised to meters
       z1   = collecting_event.minimum_elevation
@@ -34,12 +31,14 @@ class Georeference::VerbatimData < Georeference
         end
       end
 
-      attributes =  { point: GeographicItem.new(point: collecting_event.map_center(delta_z) }
+
+      attributes =  { point: collecting_event.map_center(delta_z) }
       attributes.merge!(by: self.by) if self.by
 
       self.geographic_item = GeographicItem.new(attributes)
+     
     end 
 
     geographic_item
-    end
   end
+end
