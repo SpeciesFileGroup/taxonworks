@@ -55,6 +55,7 @@ class Georeference < ActiveRecord::Base
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
   SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
+
   # This should probably be moved out to config/initializers/gis
   FACTORY  = RGeo::Geographic.projected_factory(srid:                    4326,
                                                 projection_srid:         4326,
@@ -62,9 +63,6 @@ class Georeference < ActiveRecord::Base
                                                 uses_lenient_assertions: true,
                                                 has_z_coordinate:        true)
 
-  # TODO: Document
-  ONE_WEST  = 111319.490779206
-  ONE_NORTH = 110574.38855796
 
   acts_as_list scope: [:collecting_event]
 
@@ -77,7 +75,8 @@ class Georeference < ActiveRecord::Base
   validates :collecting_event, presence: true
   validates :type, presence: true
 
-  # TODone: Break this down into individual validations
+  validates_presence_of :geographic_item
+
   # validate :proper_data_is_provided
   validate :add_error_radius
   validate :add_error_depth
@@ -116,6 +115,13 @@ class Georeference < ActiveRecord::Base
     Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
   end
 
+  # @return [String, nil]
+  #   the underscored version of the type, e.g. Georeference::GoogleMap => 'google_map'
+  def method_name
+    return nil if type.blank?
+    type.demodulize.underscore 
+  end
+
   # @param [String] locality string
   # @return [Scope] Georeferences
   #   all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
@@ -147,65 +153,32 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
-  # @return [GeographicItem] a square which represents either the bounding box of the
-  # circle represented by the error_radius, or the bounding box of the error_geographic_item, whichever is greater.
+  # @return [GeographicItem] 
+  #   a square which represents either the bounding box of the
+  #   circle represented by the error_radius, or the bounding box of the error_geographic_item
+  #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
   # TODO: cleanup, subclass, and calculate with SQL?
   def error_box
-    # POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
-    # ONE_WEST           = 111319.490779206
-    # ONE_NORTH          = 110574.38855796
-    # TEN_WEST           = 1113194.90779206  # Not used?
-    # TEN_NORTH          = 1105854.83323573  # Not used?
-
-    # EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
-    # RADIANS_PER_DEGREE = ::Math::PI/180.0
-    # DEGREES_PER_RADIAN = 180.0/::Math::PI
+    retval = nil
 
     if error_radius.nil?
-      # use the bounding box of the error_geo_item
-      if error_geographic_item.nil?
-        retval = nil
-      else
+      if !error_geographic_item.nil?
         retval = error_geographic_item.dup
       end
     else
-      if geographic_item.nil?
-        retval = nil
-      else
-        # if this object is a point
+      if !geographic_item.nil? && geographic_item.geo_object_type
         case geographic_item.geo_object_type
-          when :point
-            p0      = self.geographic_item.geo_object
-            delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) # 111319.490779206 meters/degree
-            delta_y = error_radius / ONE_NORTH # 110574.38855796 meters/degree
-            # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-=begin
-            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                           FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                           FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                           FACTORY.point(p0.x - delta_x, p0.y)  # west
-                                                          ]))
-            box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
-            box.add(retval)
-            box_geom = box.to_geometry
-=end
-
-            # or
-            # make the rectangle directly
-            retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                                           FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                                           FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                                           FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
-                                                          ]))
-          when :polygon
-            retval = geographic_item.geo_object
-          else
-            retval = nil
+        when :point
+          # TODO: discuss, I don't think we want to imply shape for these calculateions 
+          retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box
+        when :polygon
+          retval = geographic_item.geo_object
+        else
+          retval = nil
         end
-        #retval = retval.to_geometry
       end
+      retval
     end
-    retval
   end
 
   # Called by Gis::GeoJSON.feature_collection
@@ -266,7 +239,8 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-  # @return [Boolean] true if geographic_item is completely contained in error_box
+  # @return [Boolean] 
+  #   true if geographic_item is completely contained in error_box
   def check_obj_inside_err_radius
     # case 2
     retval = true
@@ -356,9 +330,8 @@ class Georeference < ActiveRecord::Base
     if check_obj_inside_area
       true
     else
-      problem = 'collecting_event area must contain georeference geographic_item.'
-      errors.add(:geographic_item, problem)
-      errors.add(:collecting_event, problem)
+      errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event' )
+      errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
       false
     end
   end
@@ -380,7 +353,7 @@ class Georeference < ActiveRecord::Base
     if check_error_radius_inside_area
       true
     else
-      problem = 'collecting_event area must contain georeference error_radius bounding box.'
+      problem = 'area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem) # probably don't need error here
       false
@@ -401,10 +374,8 @@ class Georeference < ActiveRecord::Base
 
   # @return [Boolean] true iff error_radius contains geographic_item.
   def add_obj_inside_err_radius
-    if check_obj_inside_err_radius
-      true
-    else
-      errors.add(:error_radius, 'error_radius must contain geographic_item.')
+    if !check_obj_inside_err_radius
+      errors.add(:error_radius, 'must contain geographic_item.')
       false
     end
   end
@@ -414,7 +385,7 @@ class Georeference < ActiveRecord::Base
     if check_obj_inside_err_geo_item
       true
     else
-      errors.add(:error_geographic_item, 'error_geographic_item must contain geographic_item.')
+      errors.add(:error_geographic_item, 'must contain geographic_item.')
       false
     end
   end
@@ -437,7 +408,7 @@ class Georeference < ActiveRecord::Base
       true
     else
       if error_radius > 20000000
-        errors.add(:error_radius, 'error_radius must be less than 20,000 kilometers (12,400 miles).')
+        errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).')
       end # 20,000 km
       false
     end

@@ -12,7 +12,7 @@ class Georeference::GeoLocate < Georeference
   end
 
   def iframe_response=(response_string)
-    lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_embedded_result(response_string)
+    lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
     make_geographic_item([long, lat])
     make_error_geographic_item(uncertainty_points, error_radius)
   end
@@ -50,22 +50,20 @@ class Georeference::GeoLocate < Georeference
   #   end
   # end
 
-  def make_error_geographic_item(uncertainty_polygon, uncertainty_radius = 3)
-    self.error_radius = uncertainty_radius.to_i
+
+  # TODO: get geoJson results and handle all this automatically?
+  def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
+    self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
       err_array = []
-      # TODO: get geoJson results and handle all this automatically?
       uncertainty_polygon.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
       self.error_geographic_item = GeographicItem.new(polygon: Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array)))
     end
   end
 
-  def self.build_from_embedded_result(response_string)
-    # TODO: Add error adding
-    self.new(iframe_response: response_string)
-  end
-
-  def self.parse_embedded_result(response_string)
+  # @return [Array]
+  #   parsing the four possible bits of a response into an array
+  def self.parse_iframe_result(response_string)
     lat, long, error_radius, uncertainty_polygon = response_string.split("|")
     unless uncertainty_polygon.nil?
       if uncertainty_polygon =~ /unavailable/i  # todo: there are many more possible error conditions
