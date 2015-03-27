@@ -2,7 +2,7 @@ class GeoreferencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_georeference, only: [:show, :edit, :update, :destroy]
-  before_action :disable_turbolinks, only: [:show, :list, :index]
+  # before_action :disable_turbolinks, only: [:show, :list, :index]
 
   # GET /georeferences
   # GET /georeferences.json
@@ -20,14 +20,15 @@ class GeoreferencesController < ApplicationController
   def show
   end
 
-  # GET /georeferences/new
+  # GET /georeferences/1
+  # GET /georeferences/1.json
   def new
-    @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
-    @georeference     = Georeference.new(collecting_event: @collecting_event)
+   redirect_to new_georeferences_geo_locate_path
   end
 
   # GET /georeferences/1/edit
   def edit
+    # presents a "Can't edit message at present"
   end
 
   # GET /georeferences/skip
@@ -48,15 +49,38 @@ class GeoreferencesController < ApplicationController
     if params['skip_next'].nil?
       respond_to do |format|
         if @georeference.save
-          target = @georeference.collecting_event
-          unless params['commit_next'].nil?
-            new_target = @georeference.collecting_event.next_without_georeference
-            target     = new_target unless new_target.nil?
-          end
-          format.html { redirect_to target, notice: 'Georeference was successfully created.' }
-          format.json { render action: 'show', status: :created, location: target }
+       
+        # target = @georeference.collecting_event
+
+        # unless params['commit_next'].nil?
+        #   new_target = @georeference.collecting_event.next_without_georeference
+        #   target     = new_target unless new_target.nil?
+        # end
+       
+          format.html {   
+            if false
+
+            else    
+              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
+            end
+          }
+
+          format.json { render action: 'show', status: :created }
+        
         else
-          format.html { redirect_to :back, notice: 'Georeference was NOT successfully created. ' + @georeference.errors.full_messages.join(" ") }
+          
+          format.html { 
+            if @georeference.method_name 
+              render "/georeferences/#{@georeference.method_name}/new"
+            else
+              if @georeference.collecting_event
+                 redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
+              else
+                 redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+              end 
+            end
+          }
+
           format.json { render json: @georeference.errors, status: :unprocessable_entity }
         end
       end
@@ -67,18 +91,18 @@ class GeoreferencesController < ApplicationController
 
   # PATCH/PUT /georeferences/1
   # PATCH/PUT /georeferences/1.json
-  def update
-    respond_to do |format|
-      if @georeference.update(georeference_params)
-
-        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+  #  def update
+  #    respond_to do |format|
+  #      if @georeference.update(georeference_params)
+  #  
+  #        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
+  #        format.json { head :no_content }
+  #      else
+  #        format.html { render action: :edit} #  "/georeferences/#{@georeference.method_name}/edit"}
+  #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+  #      end
+  #    end
+  #  end
 
   # DELETE /georeferences/1
   # DELETE /georeferences/1.json

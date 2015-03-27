@@ -90,15 +90,17 @@ TaxonWorks::Application.routes.draw do
   end
   resources :geographic_areas_geographic_items, except: [:index, :show]
   resources :geographic_items
-  resources :georeferences do
+
+  resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]
   end
-  scope 'georeferences' do
-    scope 'google_maps', controller: 'georeferences/google_maps' do
-      get 'new', action: 'new', as: 'new_google_map'
-      get 'collect_item'
-    end
+
+  namespace :georeferences do
+    resources :geo_locates, only: [:new, :create]
+    resources :google_maps, only: [:new, :create]
+    # verbatim_data
   end
+ 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
