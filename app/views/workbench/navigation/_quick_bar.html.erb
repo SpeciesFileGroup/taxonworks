@@ -1,8 +1,12 @@
 <nav id="quick_bar">
   <ul class="horizontal_navbar left_justified">
     <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
-    <%= content_tag(:li, link_to(controller_name.humanize.downcase, send("#{controller_name}_path"))) -%>
-    <% if  !DATA_RELATIONS_FOR_NAVIGATION[controller_name].nil? %>
+    <% if self.respond_to?("#{controller_name}_path") %>
+        <%= content_tag(:li, link_to(controller_name.humanize.downcase, send("#{controller_name}_path"))) -%>
+    <% else %>
+      <em class="disabled"><%= controller_name -%></em>
+    <% end %>
+    <% if !DATA_RELATIONS_FOR_NAVIGATION[controller_name].nil? %>
         <% DATA_RELATIONS_FOR_NAVIGATION[controller_name].each do |l| -%>
             <%= content_tag(:li, link_to(l.humanize.downcase, send("#{l}_path"))) -%>
         <% end %>
