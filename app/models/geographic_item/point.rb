@@ -19,6 +19,8 @@ class GeographicItem::Point < GeographicItem
     point_to_hash(self.point)
   end
 
+
+
   protected
 
   # @return [Boolean] true iff point.x is between -180.0 and +180.0
@@ -27,8 +29,5 @@ class GeographicItem::Point < GeographicItem
       errors.add(:point_limit, 'Longitude exceeds limits: 180.0 to -180.0.') if point.x > 180.0 || point.x < -180.0
     end
   end
-
-
-
 
 end

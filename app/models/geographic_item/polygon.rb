@@ -16,4 +16,8 @@ class GeographicItem::Polygon < GeographicItem
   def rendering_hash
     polygon_to_hash(self.polygon)
   end
+
+  def keystone_error_box
+    geo_object
+  end
 end
