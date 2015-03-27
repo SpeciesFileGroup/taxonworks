@@ -2,22 +2,71 @@ require 'rails_helper'
 
 describe Georeference::GeoLocate, type: :model, group: :geo do
 
-  let(:geo_locate) { FactoryGirl.build(:georeference_geo_locate) }
+  let(:geo_locate) { Georeference::GeoLocate.new }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
   let(:request) { Georeference::GeoLocate::Request.new(request_params) }
   let(:response) { VCR.use_cassette('geo-locate-with-request') { request.response } }
   let(:georeference_from_build) { VCR.use_cassette('geo-locate-with-build') { Georeference::GeoLocate.build(request_params) } }
+ 
+  # Behaviour -
+  #   all values, regardless of whether they are clicked on, are saved to iFrame
+  iframe_example_values = { drawn_polygon: '|||33.219077,-97.166004,41.974734,-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
+    drawn_point: '36.816903|-112.986316||', 
+    drawn_point_with_uncertainty: '41.449859|-98.220691|190700|',
+    drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|1100000|37.377719,-107.361316,46.018832,-99.802723,37.09783,-86.619129,37.377719,-107.361316',
+    georeferenced_point_no_polygon: '52.65|-106.333333|3036|Unavailable'
+  }
 
-  context 'building a Georeference::GeoLocate with #build_from_embedded_result(response_string)' do
-    before(:each) {
-      @a = Georeference::GeoLocate.build_from_embedded_result(GEO_LOCATE_STRING)
-    }
-
-    specify 'with a collecting event, is valid' do
-      @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
-      expect(@a.valid?).to be_truthy
+  context '.parse_iframe_result' do
+    specify 'for point alone' do
+      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point])).to eq(['36.816903', '-112.986316', nil, nil])
     end
 
+    specify 'for point and uncertainty' do
+      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_uncertainty])).to eq(['41.449859', '-98.220691', '190700', nil])
+    end
+
+    specify 'for point, uncertainty, and polygon' do
+      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty])).to eq(
+        ['41.449859','-98.220691', '1100000',  [['-107.361316', '37.377719'], [ '-86.619129',  '37.09783'],  ['-99.802723', '46.018832'],  [ '-107.361316', '37.377719'] ]  ])
+    end
+  end
+
+  context 'building a new instance from a copied iframe response' do
+    before {
+      geo_locate.collecting_event = CollectingEvent.new 
+    }
+
+    specify 'is valid for a drawn point with no further metadata' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_point]
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ")
+    end
+
+    specify 'is valid for a drawn point with uncertainty' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_point_with_uncertainty]
+      expect(geo_locate.valid?).to be_truthy 
+    end
+
+    specify 'is valid for a drawn point, polygon and uncertainty' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_point_with_polygon_and_uncertainty]
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ") 
+    end
+
+    specify 'is valid for a georeference point with no polygon' do
+      geo_locate.iframe_response = iframe_example_values[:georeferenced_point_no_polygon]
+      expect(geo_locate.valid?).to be_truthy 
+    end
+
+    specify 'is NOT valid for polygon alone' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_polygon]
+      expect(geo_locate.valid?).to be_falsey
+    end
+
+    # don't provide data that the user hasn't provided!!
+    specify 'has nil error_radius when not provided' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_point]
+      expect(geo_locate.error_radius).to eq(nil)
+    end
   end
 
   context 'building a Georeference::GeoLocate with #build' do
