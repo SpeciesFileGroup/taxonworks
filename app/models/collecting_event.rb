@@ -559,6 +559,8 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       parameters[:Longitude] = focus.point.x
       parameters[:Latitude]  = focus.point.y
     end
+
+    # TODO: no point in @ these variables
     @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
     @geolocate_string  = @geolocate_request.request_params_string
     @geolocate_hash    = @geolocate_request.request_params_hash
@@ -573,10 +575,12 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   end
 
   # @return [GeoJSON::Feature]
+  #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # geometry = RGeo::GeoJSON.encode(self.georeferences.first.geographic_item.geo_object)
-    geo_item = self.georeferences.first.geographic_item
-    geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_item.geo_object_type.to_s}::geometry) geo_json from geographic_items where id=#{geo_item.id};")[0]['geo_json'])
+    # !! avoid loding the whole geographic item, just grab the bits we need:
+    geo_item_id, t = self.geographic_items.pluck(:id, :type).first
+    geo_type = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
+    geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
     retval   = {
       'type'       => 'Feature',
       'geometry'   => geometry,
@@ -589,19 +593,18 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   end
 
   # @return [CollectingEvent]
-  # sort order
+  #   return the next collecting event without a georeference in this collecting events project sort order
   #   1.  verbatim_locality
   #   2.  geography_id
   #   3.  start_date_year
   #   4.  updated_on
   #   5.  id
   def next_without_georeference
-    part_1 = CollectingEvent.order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-      where('collecting_events.id <> ? and (id not in (select georeferences.collecting_event_id from georeferences))', self.id).
-      # where('collecting_events.id <> ? and (id not in (select georeferences.collecting_event_id from georeferences))', self.id).
-      # joins(:georeferences).
-      # pluck(:id).
-      uniq.first
+    CollectingEvent.excluding(self).
+      includes(:georeferences).
+      where(project_id: self.project_id, georeferences: { collecting_event_id: nil }).
+      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
+    first
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
@@ -614,6 +617,17 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       retval
     end
   end
+
+  # @return [String]
+  #   coordinates for centering a Google map
+  def verbatim_center_coordinates
+    if self.verbatim_latitude.blank? || self.verbatim_longitude.blank?
+      'POINT (0.0 0.0 0.0)'
+    else
+      self.map_center.to_s
+    end
+  end
+
 
   # class methods
 
@@ -641,16 +655,17 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     where.not(id: collecting_events)
   end
 
-  # Rich-  add a comment indicating why this is here if you want this to persist for a temporary period of time).
-  def self.test
-    result = []
-    colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
-    names  = ["Zerothus nillus", "Firstus, specius", "Secondus duo", "thirdius trio", "Fourthus quattro", "Fithus ovwhiskius", "Sixtus sextus", "Seventhus septium", "Eighthus octo", "Ninethus novim", "Tenthus dix"]
-    self.all.each_with_index do |c, i|
-      result.push(RGeo::GeoJSON.encode(c.georeferences.first.geographic_item.geo_object).merge('descriptor' => {'color' => colors[i], 'name' => names[i]}))
-    end
-    'var data = ' + result.to_json + ';'
-  end
+  # @jrflood add a comment indicating why this is here if you want this to persist for a temporary period of time.
+  # DEPRECATED, to be removed shortly
+  # def self.test
+  #   result = []
+  #   colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
+  #   names  = ["Zerothus nillus", "Firstus, specius", "Secondus duo", "thirdius trio", "Fourthus quattro", "Fithus ovwhiskius", "Sixtus sextus", "Seventhus septium", "Eighthus octo", "Ninethus novim", "Tenthus dix"]
+  #   self.all.each_with_index do |c, i|
+  #     result.push(RGeo::GeoJSON.encode(c.georeferences.first.geographic_item.geo_object).merge('descriptor' => {'color' => colors[i], 'name' => names[i]}))
+  #   end
+  #   'var data = ' + result.to_json + ';'
+  # end
 
   # @param params [Hash] of parameters for this search
   # @return [Scope] of collecting_events found by (partial) verbatim_locality
