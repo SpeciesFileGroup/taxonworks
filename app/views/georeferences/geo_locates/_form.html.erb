@@ -1,40 +1,38 @@
 <div class="flexbox">
   <div class="item item1 one_fifth_width">
-    <%= form_for(@georeference.metamorphosize) do |f| %>
-
+    <%= form_for(@georeference, url: '/georeferences/geo_locates') do |f| %>
       <%= render('shared/errors', object: @georeference) %>
-      
+
       <div class="field">
         <%= f.label :iframe_response %>
         <br>
         <%= text_field_tag('georeference[iframe_response]') %>
       </div>
 
-      <%= f.hidden_field :type, value: 'Georeference::GeoLocate' %>
-
       <div class="required">
         <div class="field">
           <%= f.label :collecting_event_id %>
           <br>
-          <%= render partial: '/workbench/elements/forms/ajax_select',
-            locals: {controller: 'collecting_events',
-                     object:     'georeference',
-                     method:     'collecting_event_id',
-                     tag_id:     'collecting_event_id_for_georeference',
-                     display:    collecting_event_tag(@georeference.collecting_event)
+          <%= render :partial => '/workbench/elements/forms/ajax_select',
+            :locals  => {controller: '/collecting_events',
+                         object:     'georeference',
+                         method:     'collecting_event_id',
+                         tag_id:     'collecting_event_id_for_georeference',
+                         display:    collecting_event_tag(@georeference.collecting_event)
           } %>
+        </div>
       </div>
-    </div>
 
     <div class="field">
       <%= f.label :source_id %>
       <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-        :locals  => {controller: 'sources',
+      <%= render :partial => '/workbench/elements/forms/ajax_select',
+        :locals  => {controller: '/sources',
                      object:     'georeference',
                      method:     'source_id',
                      tag_id:     'source_id_for_georeference',
                      display:    source_tag(@georeference.source)
+                  
       } %>
   </div>
 

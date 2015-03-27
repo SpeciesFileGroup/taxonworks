@@ -1,76 +1,71 @@
-<h2>New Map Item by Drawing</h2>
-
-<% if @georeference.errors.any? and @collecting_event.nil? %>
-    <% @collecting_event = @georeference.collecting_event %>
-<% end %>
-
 <div class="flexbox">
   <div class="item item1">
-    For collecting event:<br>
-    <%= collecting_event_tag(@collecting_event) %>
-    <td><%= link_to 'Show', @collecting_event %></td>
-    <td><%= link_to 'Edit', edit_collecting_event_path(@collecting_event) %></td>
-    <td><%= link_to 'Destroy', @collecting_event, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-    <br>
+    <% if !@georeference.collecting_event.new_record? -%>
+      <h2> Collecting event details </h2>
+      <%= collecting_event_tag(@georeference.collecting_event) %>
+      <%= link_to('Show', @georeference.collecting_event)  %> <br>
+    <% end %>
 
-    <div>
-      <%= form_for(@georeference.becomes(Georeference)) do |f| %>
-          <% if @georeference.errors.any? %>
-              <div id="error_explanation">
-                <h2><%= pluralize(@georeference.errors.count, 'error') %> prohibited this georeference from being
-                  saved:</h2>
-
-                <ul>
-                  <% @georeference.errors.full_messages.each do |msg| %>
-                      <li><%= msg %></li>
-                  <% end %>
-                </ul>
-              </div>
-          <% end %>
-
-          <div class="field">
-            <%= f.label :is_public %>
-            <br>
-            <%= f.check_box :is_public %>
-          </div>
-          <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
-              <%= gi.hidden_field(:shape) %>
-          <% end %>
-
-          <%= f.hidden_field(:collecting_event_id) -%>
-          <%= f.hidden_field(:type) -%>
-
-          <div>
-            Geotype: <span id='geoType'></span>
-            <br>
-            Shape: <span id='geoShape'></span>
-          </div>
-
-          <div class="actions">
-            <%= f.submit name: 'commit', value: 'Create', disabled: true %><br/>
-            <%= f.submit name: 'commit_next', value: 'Create and next CE without georeference', disabled: true %><br/>
-            <%= f.submit name: 'skip_next', value: 'Skip and next CE without georeference', action: 'skip' %>
-          </div>
-
-      <% end %>
+    <div class="disabled">
+      <h2> Debugging </h2>
+      <div>
+        Geotype: <span id='geoType'></span>
+        <br>
+        Shape: <span id='geoShape'></span>
+      </div>
     </div>
   </div>
 
   <div class="item item2">
+    <%= render(partial: 'shared/errors', locals: {object: @georeference}) -%>
+
+    <%= form_for(@georeference.metamorphosize, url: '/georeferences/google_maps') do |f| %>
+        <div class="required">
+          <div class="field">
+            <%= f.label :collecting_event_id %>
+            <br>
+            <%= render partial: '/workbench/elements/forms/ajax_select',
+              locals: {controller: '/collecting_events',
+                       object:     'georeference',
+                       method:     'collecting_event_id',
+                       tag_id:     'collecting_event_id_for_georeference',
+                       display:    collecting_event_tag(@georeference.collecting_event) }
+                     %>
+        </div>
+       </div>
+
+        <div class="field">
+          <%= f.label :is_public %>
+          <br>
+          <%= f.check_box :is_public %>
+        </div>
+
+        <%= f.fields_for(:geographic_item, @georeference.geographic_item) do |gi| %>
+            <%= gi.hidden_field(:shape) %>
+        <% end %>
+
+        <div class="actions">
+          <%= f.submit value: 'Create', disabled: true %><br/>
+          <%= f.submit name: :commit_and_next, value: 'Create and next CE without georeference', disabled: true %><br/>
+          <%= next_without_georeference_for_google_maps_link(@georeference.collecting_event) %>
+        </div>
+    <% end %>
+  </div>
+
+  <div class="item item3">
     <%= render(partial: 'layouts/map_header') -%>
-
-    <!--data-feature-collection='<%#= @feature_collection.to_json.html_safe -%>'-->
-
     <div id="feature_collection" data-georeference="<%= @georeference %>"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@collecting_event.georeferences).to_json.html_safe %>'
-         data-map-center='<%= @verbatim_coordinate %>'>
-
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
+         data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'>
     </div>
 
     <div id="new_georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
     <span id="map_coords"></span>
-    <!--<script>initDrawItem("map_canvas");</script>-->
   </div>
-</div>
-</div>
 
+</div>
+  
+<div> 
+  <h2> Existing georferences </h2>
+  <%= render(partial: '/georeferences/list_table', locals: {georeferences: @georeference.collecting_event.georeferences}) -%>   
+</div>
