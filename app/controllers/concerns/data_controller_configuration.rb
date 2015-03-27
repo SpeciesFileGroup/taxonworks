@@ -11,6 +11,7 @@ module DataControllerConfiguration
     @is_data_controller = true
   end 
 
+  # !! This needs to be redefined in STI model controllers (e.g. see Georeferences::GeoLocates controller)
   def set_data_model
     @data_model = controller_name.classify.constantize
   end 
