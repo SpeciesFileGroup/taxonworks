@@ -23,6 +23,18 @@ module Utilities::Geo
   # http://stackoverflow.com/questions/1774985/converting-degree-minutes-seconds-to-decimal-degrees
   # http://stackoverflow.com/questions/1774781/how-do-i-convert-coordinates-to-google-friendly-coordinates
 
+  # POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
+  # TEN_WEST           = 1113194.90779206  # Not used?
+  # TEN_NORTH          = 1105854.83323573  # Not used?
+
+  # EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
+  # RADIANS_PER_DEGREE = ::Math::PI/180.0
+  # DEGREES_PER_RADIAN = 180.0/::Math::PI
+
+
+  ONE_WEST  = 111319.490779206 # meters/degree
+  ONE_NORTH = 110574.38855796  # meters/degree
+
   class ConvertToDecimalDegrees
 
     attr_reader(:dd, :dms)
@@ -160,5 +172,37 @@ module Utilities::Geo
     params['digit2'] = decade.to_s
     nearby_distance  = digit * decade
   end
+
+  def self.point_keystone_error_box(geo_object, error_radius)
+    p0      = geo_object 
+    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) 
+    delta_y = error_radius / ONE_NORTH 
+    
+    Georeference::FACTORY.polygon(Georeference::FACTORY.line_string([Georeference::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                         Georeference::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                         Georeference::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                         Georeference::FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
+   
+    ]))
+  end
+
+   # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+   # NOT TESTED/USED 
+  def diamond_error_box
+    p0      = self.geo_object
+    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) 
+    delta_y = error_radius / ONE_NORTH 
+
+    retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                   FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                   FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                   FACTORY.point(p0.x - delta_x, p0.y)  # west
+    ]))
+    box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
+    box.add(retval)
+    box_geom = box.to_geometry
+  end
+
+
 
 end
