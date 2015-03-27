@@ -13,10 +13,12 @@
                            display:    taxon_name_for_select(@taxon_name.parent)} %>
     </div>
 
-    <div class="field">
-      <%= f.label :name %>
-      <br>
-      <%= f.text_field :name %>
+    <div class="required">
+      <div class="field">
+        <%= f.label :name %>
+        <br>
+        <%= f.text_field :name %>
+      </div>
     </div>
 
     <div class="field">
