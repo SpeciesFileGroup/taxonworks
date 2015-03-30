@@ -6,7 +6,7 @@ describe Georeference, type: :model, group: :geo do
   let(:earth) { FactoryGirl.build(:earth_geographic_area) }
   let(:g_a_t) { FactoryGirl.build(:testbox_geographic_area_type) }
 
-  let(:e_g_i)  { GeographicItem.new(polygon: BOX_1)  }
+  let(:e_g_i) { GeographicItem.new(polygon: BOX_1) }
   let(:item_d) { GeographicItem.new(polygon: BOX_4) }
 
   let(:g_a) {
@@ -17,16 +17,15 @@ describe Georeference, type: :model, group: :geo do
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
-  let(:collecting_event_with_geographic_area) { 
-    CollectingEvent.new(geographic_area:    g_a,
-                        verbatim_locality:  'Test Event',
-                        minimum_elevation:  0.1,
-                        verbatim_latitude:  '0.1',
-                        verbatim_longitude: '0.1')
+  let(:collecting_event_with_geographic_area) { CollectingEvent.new(geographic_area:    g_a,
+                                                                    verbatim_locality:  'Test Event',
+                                                                    minimum_elevation:  0.1,
+                                                                    verbatim_latitude:  '0.1',
+                                                                    verbatim_longitude: '0.1')
   }
 
-  let(:collecting_event_without_geographic_area) { 
-    CollectingEvent.new( verbatim_locality:  'without geographic area' )
+  let(:collecting_event_without_geographic_area) {
+    CollectingEvent.new(verbatim_locality: 'without geographic area')
   }
 
 
@@ -40,7 +39,7 @@ describe Georeference, type: :model, group: :geo do
       end
 
       specify '#error_geographic_item' do
-        expect(georeference.error_geographic_item = GeographicItem.new).to be_truthy 
+        expect(georeference.error_geographic_item = GeographicItem.new).to be_truthy
       end
 
       specify '#collecting_event' do
@@ -87,7 +86,7 @@ describe Georeference, type: :model, group: :geo do
         expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
       end
 
-      specify '#error_radius can be set to something reasonable' do 
+      specify '#error_radius can be set to something reasonable' do
         georeference.error_radius = 3
         georeference.valid?
         expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
@@ -95,7 +94,7 @@ describe Georeference, type: :model, group: :geo do
 
       specify '#error_depth is < some Earth-based limit' do
         # 8,800 meters
-        georeference.error_depth  = 9000
+        georeference.error_depth = 9000
         georeference.valid?
         expect(georeference.errors.keys.include?(:error_depth)).to be_truthy
       end
@@ -108,24 +107,24 @@ describe Georeference, type: :model, group: :geo do
 
       context 'allowed combinations of values' do
         before {
-          georeference.type = 'Georeference::GoogleMap'
+          georeference.type             = 'Georeference::GoogleMap'
           georeference.collecting_event = collecting_event_without_geographic_area
         }
 
         specify 'geographic_item without error_radius, error_depth, or error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: SIMPLE_SHAPES[:point] )
+          georeference.geographic_item = GeographicItem.new(point: SIMPLE_SHAPES[:point])
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_radius' do
-          georeference.geographic_item = GeographicItem.new(point: SIMPLE_SHAPES[:point] )
-          georeference.error_radius = 10000
+          georeference.geographic_item = GeographicItem.new(point: SIMPLE_SHAPES[:point])
+          georeference.error_radius    = 10000
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: 'POINT(5 5 0)' )
-          georeference.geographic_item = GeographicItem.new(polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))' )
+          georeference.geographic_item = GeographicItem.new(point: 'POINT(5 5 0)')
+          georeference.geographic_item = GeographicItem.new(polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))')
           expect(georeference.valid?).to be_truthy
         end
       end
@@ -157,14 +156,14 @@ describe Georeference, type: :model, group: :geo do
         expect(g.errors.keys.include?(:error_radius)).to be_truthy
       end
 
-      context 'testing geographic_item/error against geographic area provided through collecting event' do 
-        let(:gi) {GeographicItem.create!(polygon: POLY_E1) }
-        let(:ga) { GeographicArea.create!(name:                 'foo area',
-                                          data_origin:          'Test Data',
-                                          geographic_area_type: g_a_t, 
-                                          parent:               earth,
-                                          geographic_areas_geographic_items_attributes: [{ geographic_item: gi, data_origin: 'Test Data'}]
-                                         ) 
+      context 'testing geographic_item/error against geographic area provided through collecting event' do
+        let(:gi) { GeographicItem.create!(polygon: POLY_E1) }
+        let(:ga) { GeographicArea.create!(name:                                         'foo area',
+                                          data_origin:                                  'Test Data',
+                                          geographic_area_type:                         g_a_t,
+                                          parent:                                       earth,
+                                          geographic_areas_geographic_items_attributes: [{geographic_item: gi, data_origin: 'Test Data'}]
+        )
         }
         let(:ce) { CollectingEvent.new(geographic_area: ga) }
 
@@ -172,7 +171,7 @@ describe Georeference, type: :model, group: :geo do
 
         # TODO: What does this mean?
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event:     ce ,
+          g = Georeference::VerbatimData.new(collecting_event:      ce,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
           g.valid?
@@ -181,7 +180,7 @@ describe Georeference, type: :model, group: :geo do
           expect(g.errors.keys.include?(:collecting_event)).to be_truthy
         end
 
-        context 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does not contain #geographic_item'  do
+        context 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does not contain #geographic_item' do
           pending ' '
         end
 
@@ -190,32 +189,32 @@ describe Georeference, type: :model, group: :geo do
         end
       end
 
-      pending 'an error is added to error_radius when error_radius provided and geographic_item not provided'  # 2c 
+      pending 'an error is added to error_radius when error_radius provided and geographic_item not provided' # 2c
       pending 'an error is added to error_geographic_item when error_radius and point geographic_item do not fully contain error_geographic_item' # case 3
 
-   #  specify 'error_radius, when provided, should contain geographic_item' do
-   #    # case 2c
-   #    # skip 'implementation of geo_object for geographic_area'
-   #    # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
-   #    # must ALWAYS be 'contained' within the radius
-   #    georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-   #                                                  error_radius:     16000)
-   #    expect(georeference.save).to be_truthy
-   #    expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_truthy
-   #  end
+      #  specify 'error_radius, when provided, should contain geographic_item' do
+      #    # case 2c
+      #    # skip 'implementation of geo_object for geographic_area'
+      #    # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
+      #    # must ALWAYS be 'contained' within the radius
+      #    georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
+      #                                                  error_radius:     16000)
+      #    expect(georeference.save).to be_truthy
+      #    expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_truthy
+      #  end
 
-#     specify 'error_radius, when provided with geographic_item, should contain error_geographic_item, when provided' do
-#       # case 3
-#       georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-#                                                     error_geographic_item: e_g_i,
-#                                                     error_radius:          160000)
-#       georeference.save
-#       expect(georeference).to be_truthy
-#       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
-#       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
-#       # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
-#       expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_truthy
-#     end
+      #     specify 'error_radius, when provided with geographic_item, should contain error_geographic_item, when provided' do
+      #       # case 3
+      #       georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
+      #                                                     error_geographic_item: e_g_i,
+      #                                                     error_radius:          160000)
+      #       georeference.save
+      #       expect(georeference).to be_truthy
+      #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
+      #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
+      #       # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
+      #       expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_truthy
+      #     end
 
     end
   end
@@ -252,7 +251,7 @@ describe Georeference, type: :model, group: :geo do
       generate_geo_test_objects
     }
 
-    after(:all) { 
+    after(:all) {
       clean_slate_geo
     }
 
@@ -262,7 +261,7 @@ describe Georeference, type: :model, group: :geo do
                                 collecting_event: FactoryGirl.create(:valid_collecting_event),
                                 geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
-      @gr_poly = FactoryGirl.create(:valid_georeference_geo_locate)
+      @gr_poly  = FactoryGirl.create(:valid_georeference_geo_locate)
       @gr_point = FactoryGirl.create(:valid_georeference_verbatim_data)
 
       # using linting to check validity of valid_ models! for things like 
@@ -297,7 +296,7 @@ describe Georeference, type: :model, group: :geo do
     specify '.with_geographic_area(geographic_area)' do
       expect(Georeference).to respond_to :with_geographic_area
 
-      p_a  = earth
+      p_a = earth
 
       g_a1 = GeographicArea.new(name:                                         'Box_1',
                                 data_origin:                                  'Test Data',
@@ -322,7 +321,7 @@ describe Georeference, type: :model, group: :geo do
                                 parent:                                       p_a,
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: @item_c, data_origin: 'Test Data'}]
-                               )
+      )
 
       g_a4 = GeographicArea.new(name:                                         'Box_4',
                                 data_origin:                                  'Test Data',
@@ -331,7 +330,7 @@ describe Georeference, type: :model, group: :geo do
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: item_d, data_origin: 'Test Data'}])
 
-      g_a4.save! 
+      g_a4.save!
 
       # Create an orphan collecting_event which uses g_a4, so that first phase of 'with_geographic_area' will
       # have two records to find

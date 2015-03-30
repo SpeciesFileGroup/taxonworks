@@ -33,7 +33,7 @@ module Utilities::Geo
 
 
   ONE_WEST  = 111319.490779206 # meters/degree
-  ONE_NORTH = 110574.38855796  # meters/degree
+  ONE_NORTH = 110574.38855796 # meters/degree
 
   class ConvertToDecimalDegrees
 
@@ -174,35 +174,34 @@ module Utilities::Geo
   end
 
   def self.point_keystone_error_box(geo_object, error_radius)
-    p0      = geo_object 
-    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) 
-    delta_y = error_radius / ONE_NORTH 
-    
-    Georeference::FACTORY.polygon(Georeference::FACTORY.line_string([Georeference::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                         Georeference::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                         Georeference::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                         Georeference::FACTORY.point(p0.x - delta_x, p0.y - delta_y)  # southwest
-   
-    ]))
+    p0      = geo_object
+    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
+    delta_y = error_radius / ONE_NORTH
+
+    FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                         FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                         FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                         FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+
+                                        ]))
   end
 
-   # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-   # NOT TESTED/USED 
+  # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+  # NOT TESTED/USED
   def diamond_error_box
     p0      = self.geo_object
-    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y) 
-    delta_y = error_radius / ONE_NORTH 
+    delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
+    delta_y = error_radius / ONE_NORTH
 
-    retval  = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                   FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                   FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                   FACTORY.point(p0.x - delta_x, p0.y)  # west
-    ]))
-    box     = RGeo::Cartesian::BoundingBox.new(FACTORY)
+    retval = FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x, p0.y + delta_y), # north
+                                                  FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                  FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                  FACTORY.point(p0.x - delta_x, p0.y) # west
+                                                 ]))
+    box    = RGeo::Cartesian::BoundingBox.new(FACTORY)
     box.add(retval)
     box_geom = box.to_geometry
   end
-
 
 
 end

@@ -76,9 +76,9 @@ class CollectingEvent < ActiveRecord::Base
 
   after_create {
     if with_verbatim_data_georeference
-      generate_verbatim_data_georeference(true) 
+      generate_verbatim_data_georeference(true)
     end
-  } 
+  }
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -254,8 +254,8 @@ class CollectingEvent < ActiveRecord::Base
   def generate_verbatim_data_georeference(reference_self = false)
     return false if self.new_record?
     begin
-      CollectingEvent.transaction do 
-        vg_attributes = {collecting_event_id: self.to_param }
+      CollectingEvent.transaction do
+        vg_attributes = {collecting_event_id: self.to_param}
         vg_attributes.merge!(by: self.creator, project_id: self.project.to_param) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
@@ -263,7 +263,7 @@ class CollectingEvent < ActiveRecord::Base
         end
       end
     rescue
-      raise 
+      raise
     end
   end
 
@@ -278,7 +278,7 @@ class CollectingEvent < ActiveRecord::Base
       point           = Georeference::FACTORY.point(local_latitude, local_longitude)
       GeographicItem.new(point: point)
     else
-      nil 
+      nil
     end
   end
 
@@ -307,7 +307,7 @@ class CollectingEvent < ActiveRecord::Base
   #    returns the geographic_item corresponding to the geographic area, if provided
   def geographic_area_default_geographic_item
     if geographic_area && geographic_area.default_geographic_item
-         geographic_area.default_geographic_item
+      geographic_area.default_geographic_item
     else
       nil
     end
@@ -577,11 +577,11 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # !! avoid loding the whole geographic item, just grab the bits we need:
+    # !! avoid loading the whole geographic item, just grab the bits we need:
     geo_item_id, t = self.geographic_items.pluck(:id, :type).first
-    geo_type = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
-    geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
-    retval   = {
+    geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
+    geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
+    retval         = {
       'type'       => 'Feature',
       'geometry'   => geometry,
       'properties' => {
@@ -602,9 +602,9 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   def next_without_georeference
     CollectingEvent.excluding(self).
       includes(:georeferences).
-      where(project_id: self.project_id, georeferences: { collecting_event_id: nil }).
+      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
       order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-    first
+      first
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point

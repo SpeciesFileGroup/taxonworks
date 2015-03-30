@@ -1,4 +1,4 @@
-# A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
+# A georeference is an assertion which some shape, as derived from some method, describes the location of some collecting event.
 # A georeference contains three components:
 #    1) A reference to a CollectingEvent (who, where, when, how)
 #    2) A reference to a GeographicItem (a shape)
@@ -9,11 +9,11 @@
 #
 # @!attribute geographic_item_id
 #   @return [Integer]
-#     The id of a GeographicItem that represents the (non-error) representation of this georeference definition.
+#     The id of a GeographicItem which represents the (non-error) representation of this georeference definition.
 #     Generally, it will represent a point.
 # @!attribute collecting_event_id
 #   @return [Integer]
-#     The id of a CollectingEvent that represents the event of this georeference definition.
+#     The id of a CollectingEvent which represents the event of this georeference definition.
 # @!attribute error_radius
 #   @return [Integer]
 #     the distance in meters of the radius of the area of horizontal uncertainty of the accuracy of the location of
@@ -24,7 +24,7 @@
 #     this georeference definition.
 # @!attribute error_geographic_item_id
 #   @return [Integer]
-#     The id of a GeographicItem that represents the (error) representation of this georeference definition.
+#     The id of a GeographicItem which represents the (error) representation of this georeference definition.
 #     Generally, it will represent a polygon.
 # @!attribute type
 #   @return [String]
@@ -103,7 +103,7 @@ class Georeference < ActiveRecord::Base
     # point         => stored through the GeoLocate process
     #
     # TODO: or this with AREL
-    temp     = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
+    temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('polygon', geographic_item, distance) +
       GeographicItem.within_radius_of('point', geographic_item, distance)
 
@@ -119,13 +119,13 @@ class Georeference < ActiveRecord::Base
   #   the underscored version of the type, e.g. Georeference::GoogleMap => 'google_map'
   def method_name
     return nil if type.blank?
-    type.demodulize.underscore 
+    type.demodulize.underscore
   end
 
   # @param [String] locality string
   # @return [Scope] Georeferences
-  #   all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
-  # icludes String somewhere
+  #   all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
+  # includes String somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
   # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
   def self.with_locality_like(string)
@@ -134,7 +134,7 @@ class Georeference < ActiveRecord::Base
 
   # @param [String] locality string
   # @return [Scope] Georeferences
-  # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # return all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
   # equals String somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
   # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
@@ -168,13 +168,13 @@ class Georeference < ActiveRecord::Base
     else
       if !geographic_item.nil? && geographic_item.geo_object_type
         case geographic_item.geo_object_type
-        when :point
-          # TODO: discuss, I don't think we want to imply shape for these calculateions 
-          retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box
-        when :polygon
-          retval = geographic_item.geo_object
-        else
-          retval = nil
+          when :point
+            # TODO: discuss, I don't think we want to imply shape for these calculateions
+            retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box
+          when :polygon
+            retval = geographic_item.geo_object
+          else
+            retval = nil
         end
       end
       retval
@@ -208,16 +208,16 @@ class Georeference < ActiveRecord::Base
 
   # @param [String, Boolean] String to find in collecting_event.verbatim_locality, Bool = false for 'Starts with',
   # Bool = true if 'contains'
-  # @return [Scope] Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+  # @return [Scope] Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
   #   includes, or is equal to 'string' somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality
   # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
   # TODO: Arelize
   def self.with_locality_as(string, like)
-    likeness   = like ? '%' : ''
-    like       = like ? 'like' : '='
-    query      = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
-    
+    likeness = like ? '%' : ''
+    like     = like ? 'like' : '='
+    query    = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
+
     partial_ce = CollectingEvent.where(query)
 
     partial_gr = Georeference.where('collecting_event_id in (?)', partial_ce.pluck(:id))
@@ -244,7 +244,7 @@ class Georeference < ActiveRecord::Base
   def check_obj_inside_err_radius
     # case 2
     retval = true
-    if !error_radius.blank? && geographic_item && geographic_item.geo_object 
+    if !error_radius.blank? && geographic_item && geographic_item.geo_object
       retval = self.error_box.contains?(self.geographic_item.geo_object)
     end
     retval
@@ -271,7 +271,7 @@ class Georeference < ActiveRecord::Base
     retval = true
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
-      eb = self.error_box
+      eb    = self.error_box
       if !error_radius.blank? && ga_gi && eb
         retval = ga_gi.contains?(eb)
       end
@@ -324,13 +324,12 @@ class Georeference < ActiveRecord::Base
   # end
 
 
-
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
     if check_obj_inside_area
       true
     else
-      errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event' )
+      errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event')
       errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
       false
     end

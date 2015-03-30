@@ -238,7 +238,7 @@ describe GeographicArea, type: :model, group: :geo do
     after(:all) {
       clean_slate_geo
     }
-    
+
     context 'geolocate_ui_params_hash' do
 
       specify 'retrieving geolocate UI paramerters as a hash' do
@@ -364,36 +364,36 @@ describe GeographicArea, type: :model, group: :geo do
 
     specify('is_contained_by') do
       expect(GeographicArea.is_contained_by(@area_old_boxia).map(&:name)).to include('Old Boxia',
-                                                                                              'West Boxia',
-                                                                                              'QTM1',
-                                                                                              'QTM2',
-                                                                                              'QTN1',
-                                                                                              'QTN2',
-                                                                                              'M1',
-                                                                                              'QT',
-                                                                                              'West Boxia',
-                                                                                              'R',
-                                                                                              'N1',
-                                                                                              'M2',
-                                                                                              'RM3',
-                                                                                              'RM4',
-                                                                                              'RN3',
-                                                                                              'RN4',
-                                                                                              'M3',
-                                                                                              'N3',
-                                                                                              'M4',
-                                                                                              'N4',
-                                                                                              'N2')
+                                                                                     'West Boxia',
+                                                                                     'QTM1',
+                                                                                     'QTM2',
+                                                                                     'QTN1',
+                                                                                     'QTN2',
+                                                                                     'M1',
+                                                                                     'QT',
+                                                                                     'West Boxia',
+                                                                                     'R',
+                                                                                     'N1',
+                                                                                     'M2',
+                                                                                     'RM3',
+                                                                                     'RM4',
+                                                                                     'RN3',
+                                                                                     'RN4',
+                                                                                     'M3',
+                                                                                     'N3',
+                                                                                     'M4',
+                                                                                     'N4',
+                                                                                     'N2')
     end
 
     specify('are_contained_in') do
       expect(GeographicArea.are_contained_in(@area_p2).map(&:name)).to include('East Boxia',
-                                                                                       'Big Boxia',
-                                                                                       'Q',
-                                                                                       'QUP2',
-                                                                                       'QU',
-                                                                                       'P2',
-                                                                                       'Great Northern Land Mass')
+                                                                               'Big Boxia',
+                                                                               'Q',
+                                                                               'QUP2',
+                                                                               'QU',
+                                                                               'P2',
+                                                                               'Great Northern Land Mass')
     end
 
     specify('find_by_lat_long') do
