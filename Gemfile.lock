@@ -366,7 +366,7 @@ DEPENDENCIES
   chronic (~> 0.10)
   citeproc-ruby (~> 1.0.6)
   coffee-rails (~> 4.0)
-  colored
+  colored (~> 1.2)
   coveralls (~> 0.7)
   csl-styles
   database_cleaner (~> 1.4)

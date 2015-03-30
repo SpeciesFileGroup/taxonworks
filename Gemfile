@@ -77,7 +77,7 @@ gem 'exception_notification'
 
 gem 'modularity', '~> 2.0.1'
 
-
+gem 'colored', '~> 1.2'
 
 group :test, :development do
   gem 'faker', '~> 1.4.3'
@@ -114,7 +114,6 @@ group :test do
   gem 'database_cleaner', '~> 1.4'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
-  gem 'colored'
 end
 
 group :production do
