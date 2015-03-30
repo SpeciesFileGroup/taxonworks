@@ -79,6 +79,11 @@ describe User, :type => :model do
     it { is_expected.to be_valid }
   end
 
+  context 'with password, password confirmation, name < 2 characters, and email' do
+    before { user.password = user.name= 'a' }
+    it { is_expected.to be_invalid }
+  end
+
   context 'when password is empty' do
     before { user.password = user.password_confirmation = '' }
     it { is_expected.to be_invalid }

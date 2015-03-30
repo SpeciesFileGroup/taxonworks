@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
             :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
-  validates :name, length: {minimum: 3}, unless: 'self.name.blank?'
+  validates :name, length: {minimum: 2}, unless: 'self.name.blank?'
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
