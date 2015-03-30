@@ -147,6 +147,7 @@ describe Source::Bibtex, :type => :model do
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
         expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S.the saint Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
         # c = LaTeX.decode entry.title
         # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
