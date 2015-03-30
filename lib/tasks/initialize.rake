@@ -99,11 +99,70 @@ namespace :tw do
       end
     end
 
+
+    # users.yml uses the pattern:
+    #
+    # email:
+    #   attribute: value
+    #   ... 
+    #  
+    # ---
+    # test@example.com:
+    #    :password: some_long_password 
+    #    :is_administrator: true
+    #    :name: smith 
+    #
+    task :validate_users => [:environment, :data_directory] do
+      file = @args[:data_directory] + 'users.yml'
+      user_data = {} 
+
+      print "Checking for users.yml ..."
+      if File.exist?(file)
+        print "found, validating.\n"
+        user_data =  YAML.load_file(file)
+      else
+        print "not found, skipping.\n"
+        exit 
+      end
+
+      user_data.each do |k, v|
+        attributes = v.merge(email: k, self_created: true)
+        u =  User.new(attributes)
+        if !u.valid? 
+          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".bold.red
+          exit 
+        end 
+      end
+      puts "Users in users.yml are valid.".bold
+    end
+
+    task :load_users => [:environment, :data_directory, :validate_users] do
+      file = @args[:data_directory] + 'users.yml'
+      user_data = {} 
+      users = []
+      if File.exist?(file)
+        user_data = YAML.load_file(file)
+        begin
+          User.transaction do |t|
+            user_data.each do |k, v|
+              attributes = v.merge(email: k, self_created: true)
+              users.push User.create!(attributes) 
+            end
+          end
+        rescue
+          raise
+        end 
+      end 
+      puts "#{users.length} users loaded.".bold
+    end
+
     task :all => [
       :environment,
       :check_for_clean_database,
       :check_for_initialization_data,
+      :validate_users,
       :create_administrator,
+      :load_users,
       :load_repositories,
       :load_languages,
       :load_geo,
