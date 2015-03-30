@@ -163,7 +163,7 @@ describe GeographicItem, type: :model, group: :geo do
     }
 
     specify 'some data must be provided' do
-      expect(geographic_item.errors.keys).to include(:point)
+      expect(geographic_item.errors.keys).to include(:base)
     end
 
     specify 'invalid data for point is invalid' do
@@ -178,7 +178,6 @@ describe GeographicItem, type: :model, group: :geo do
     specify 'A good point that didn\'t change.' do
       expect(geographic_item_with_point_a.point.x).to eq -88.241413
     end
-
 
     specify 'a point, when provided, has a legal geography' do
       geographic_item.point = RSPEC_GEO_FACTORY.point(180.0, 85.0)

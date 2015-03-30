@@ -79,12 +79,12 @@ class GeographicItem < ActiveRecord::Base
     g2               = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
-      join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
+        join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
     GeographicItem.joins(# turn the Arel back into scope
-      c.join_sources # translate the Arel join to a join hash(?)
+        c.join_sources # translate the Arel join to a join hash(?)
     ).where(
-      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
@@ -399,8 +399,8 @@ SELECT round(CAST(
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
       q = select_distance_with_geo_object(column_name, geographic_item).
-        where_distance_greater_than_zero(column_name, geographic_item).
-        order('distance desc')
+          where_distance_greater_than_zero(column_name, geographic_item).
+          order('distance desc')
       q
     else
       where ('false')
@@ -442,6 +442,7 @@ SELECT round(CAST(
   # @return [String]
   def self.select_distance_with_geo_object(column_name, geographic_item)
     select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
+    Arel.spatial(geographic_item.geo_object).st_distance(polygon)
   end
 
   # @param [String, GeographicItem]
@@ -554,15 +555,14 @@ SELECT round(CAST(
   # @return [GeoJSON Feature] the shape as a GeoJSON Feature
   def to_geo_json_feature
     @geometry ||= to_geo_json
-    retval    = {
-      'type'       => 'Feature',
-      'geometry'   => self.geometry,
-      'properties' => {
-        'geographic_item' => {
-          'id' => self.id}
-      }
+    {
+        'type'       => 'Feature',
+        'geometry'   => self.geometry,
+        'properties' => {
+            'geographic_item' => {
+                'id' => self.id}
+        }
     }
-    retval
   end
 
   # def to_a
@@ -576,8 +576,11 @@ SELECT round(CAST(
     unless value.blank?
       geom      = RGeo::GeoJSON.decode(value, :json_parser => :json)
       this_type = JSON.parse(value)['geometry']['type']
+
+      # TODO: @tuckerjd isn't this set automatically? Or perhaps the callback isn't hit in this approach?
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
       raise('GeographicItem.type not set.') if self.type.blank?
+
       object = Georeference::FACTORY.parse_wkt(geom.geometry.to_s)
       write_attribute(this_type.underscore.to_sym, object)
       geom
@@ -654,7 +657,7 @@ SELECT round(CAST(
   def multi_point_to_hash(multi_point)
     # when we encounter a multi_point type, we only stick the points into the array, NOT the
     # it's identity as a group
-    {points: self.to_a}
+    {points: multi_point.to_a}
   end
 
   # @return [Array] of line_strings as arrays points
@@ -708,7 +711,7 @@ SELECT round(CAST(
       data.push(item) unless self.send(item).blank?
     end
 
-    errors.add(:point, 'Must contain at least one of [point, line_string, etc.].') if data.count == 0
+    errors.add(:base, 'must contain at least one of [point, line_string, etc.].') if data.count == 0
     if data.length > 1
       data.each do |object|
         errors.add(object, 'Only one of [point, line_string, etc.] can be provided.')
