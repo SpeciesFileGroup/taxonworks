@@ -442,7 +442,6 @@ SELECT round(CAST(
   # @return [String]
   def self.select_distance_with_geo_object(column_name, geographic_item)
     select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
-    Arel.spatial(geographic_item.geo_object).st_distance(polygon)
   end
 
   # @param [String, GeographicItem]
@@ -618,6 +617,23 @@ SELECT round(CAST(
     {points: [point_to_a(point)]}
   end
 
+
+  # @return [Array] of points
+  def multi_point_to_a(multi_point)
+    data = []
+    multi_point.each { |point|
+      data.push([point.x, point.y]) }
+    data
+  end
+
+  # @return [Hash] of points
+  def multi_point_to_hash(multi_point)
+    # when we encounter a multi_point type, we only stick the points into the array, NOT the
+    # it's identity as a group
+    {points: self.multi_point_to_a(self.multi_point)}
+  end
+
+
   # @return [Array] of points in the line
   def line_string_to_a(line_string)
     data = []
@@ -643,21 +659,6 @@ SELECT round(CAST(
   # @return [Hash] of points in the polygon (exterior_ring ONLY)
   def polygon_to_hash(polygon)
     {polygons: [polygon_to_a(polygon)]}
-  end
-
-  # @return [Array] of points
-  def multi_point_to_a(multi_point)
-    data = []
-    multi_point.each { |point|
-      data.push([point.x, point.y]) }
-    data
-  end
-
-  # @return [Hash] of points
-  def multi_point_to_hash(multi_point)
-    # when we encounter a multi_point type, we only stick the points into the array, NOT the
-    # it's identity as a group
-    {points: multi_point.to_a}
   end
 
   # @return [Array] of line_strings as arrays points

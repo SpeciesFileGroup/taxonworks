@@ -16,4 +16,5 @@ class GeographicItem::MultiPoint < GeographicItem
   def rendering_hash
     multi_point_to_hash(self.multi_point)
   end
+
 end
