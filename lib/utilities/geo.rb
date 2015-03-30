@@ -178,12 +178,14 @@ module Utilities::Geo
     delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
     delta_y = error_radius / ONE_NORTH
 
-    FACTORY.polygon(FACTORY.line_string([FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                         FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                         FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                         FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
-
-                                        ]))
+    Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(
+                                    [Georeference::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                                     Georeference::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                                     Georeference::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                                     Georeference::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+                                    ]
+                                  )
+    )
   end
 
   # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
