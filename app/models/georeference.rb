@@ -1,4 +1,4 @@
-# A georeference is an assertion which some shape, as derived from some method, describes the location of some collecting event.
+# A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
 # A georeference contains three components:
 #    1) A reference to a CollectingEvent (who, where, when, how)
 #    2) A reference to a GeographicItem (a shape)
