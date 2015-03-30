@@ -16,7 +16,7 @@ gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0'
+gem 'sass-rails', '~> 5.0.2'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 2.4'
@@ -40,12 +40,11 @@ gem 'chronic', '~> 0.10'
 gem 'awesome_nested_set', '~> 3.0.2' 
 
 # BibTex handling
-gem 'bibtex-ruby', '~> 4.0.11'
-gem 'citeproc-ruby', '~> 1.0.5'
-# gem 'citeproc'
+gem 'bibtex-ruby', '~> 4.0.12'
+gem 'citeproc-ruby', '~> 1.0.6'
 gem 'csl-styles'
 gem 'ref2bibtex', '~> 0.0.3'
-gem 'latex-decode', '~> 0.2.0'
+gem 'latex-decode', '~> 0.2.1'
 
 # gem 'anystyle-parser' # use when we stabilize
 
@@ -85,7 +84,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.0'
   gem 'rspec-activemodel-mocks', '~> 1.0.1'
   gem 'inch'
-  gem 'byebug', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 4.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.9.4'
@@ -110,9 +109,9 @@ group :test do
   gem 'coveralls', '~> 0.7', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.7.1'
-  gem 'webmock', '~> 1.20.0'
+  gem 'webmock', '~> 1.21.0'
   gem 'vcr', '~> 2.9.2'
-  gem 'database_cleaner', '~> 1.3.0'
+  gem 'database_cleaner', '~> 1.4'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
   gem 'colored'
@@ -120,6 +119,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger'
+  gem 'passenger', '~> 5.0.5'
 end
 
