@@ -649,7 +649,6 @@ class Source::Bibtex < Source
 
   def cached_string(format)
     unless (format == 'text') || (format == 'html')
-      errors.add(:base, 'unable to build cached string; format = ' + format.to_s)
       return(nil)
     end
     bx_entry = self.to_bibtex
@@ -684,7 +683,12 @@ class Source::Bibtex < Source
 
   def set_cached
     if self.errors.empty?
-      self.cached               = cached_string('text')
+      tmp = cached_string('text')
+      if tmp.nil?
+        errors.add(:cached, 'unable to build cached_string')
+        return
+      end
+      self.cached               =  tmp
       self.cached_author_string = authority_name
     end
   end

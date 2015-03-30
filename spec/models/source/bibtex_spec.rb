@@ -138,73 +138,19 @@ describe Source::Bibtex, :type => :model do
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
       }
-      # let(:bibtex_entry) { BibTeX.parse(citation_string).first }
       specify 'Strings are output properly' do
         expect(true).to be_truthy
-        a  = BibTeX.parse(citation_string).convert(:latex)
+        a     = BibTeX.parse(citation_string).convert(:latex)
         entry = a.first
-        src = Source::Bibtex.new_from_bibtex(entry)
+        src   = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
         expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S.the saint Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
-        # c = LaTeX.decode entry.title
-        # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
-        # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-        #cp.engine.format = 'html'
-        # cp.import(a.first)
-        # b = cp.render(:bibliography, id: key).first.strip
-
-        # array = [] 
-        # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users") 
-        # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "}) 
-        # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-        #  array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "}) 
-        # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"}) 
-        # array
-
-        #  have ref-in-ref problems not correctly creating the either book or article
-        # input =  "Klapálek & Grunberg. 1909. Hft. 8. Ephemerida, Plecoptera, Lepidoptera. In Brauer, A. Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna. 1-163"
         input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
-        src = Source.new_from_citation({citation: input, resolve: true})
+        src   = Source.new_from_citation({citation: input, resolve: true})
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
-        # expect(BibTeX.valid?(filename)).to be_truthy
-        # expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
-        # expect(a.save).to be_truthy
-        # a.reload
-
-=begin
-        cp.import a.to_citeproc
-
-      end
-=end
-
-      end
-      specify 'Beth testing' do
-        input = 'Robillard. 2011. Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea). Zoosystema.'
-        src = Source.new_from_citation({citation: input, resolve: true})
-#         bibtex_str = %q(@article{Robillard_2011,\n\turl = {http://dx.doi.org/10.5252/z2011n1a2},\n\tyear = 2011,\n\tmonth = {mar},\n\tpublisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},\n\tvolume = {33},\n\tnumber = {1},\n\tpages = {49--60},\n\tauthor = {Tony Robillard},\n\ttitle = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },\n\tjournal = {Zoosystema}\n})
-#         bibtex_str2 = %q(@article{Robillard_2011,
-# 	url = {http://dx.doi.org/10.5252/z2011n1a2},
-# 	year = 2011,
-# 	month = {mar},
-# 	publisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},
-# 	volume = {33},
-# 	number = {1},
-# 	pages = {49--60},
-# 	author = {Tony Robillard},
-# 	title = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },
-# 	journal = {Zoosystema}
-# })
-#         bib1 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2).convert(:latex)
-#         bib2 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2)
-#         array1=[]
-#         array1 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
-#         array2=[]
-#         array2 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
-#         cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
-         expect(src.publisher).to eq("Museum National d’Histoire Naturelle, Paris, France")
       end
 
     end
@@ -963,15 +909,17 @@ describe Source::Bibtex, :type => :model do
       end
 
       context '#cached_string correctly formats ' do
-
+        let(:src1) { Source.new_from_citation({citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.', resolve: true})
+        }
+        let(:src2) { Source.new_from_citation({citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837', resolve: true})
+        }
         specify 'text' do
-          input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
-          src = Source.new_from_citation({citation: input, resolve: true})
-          expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
-
+          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+          expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Can. J. Earth Sci. 18, 1824–1837.')
         end
         specify 'html' do
-
+          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> Smithsonian Institution.')
+          expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Can. J. Earth Sci.</i> 18, 1824–1837.')
         end
       end
     end
@@ -1159,6 +1107,57 @@ describe Source::Bibtex, :type => :model do
     #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
     #  bs3.save
     #end
+    #     specify 'Beth testing' do
+    #       input = 'Robillard. 2011. Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea). Zoosystema.'
+    #       src = Source.new_from_citation({citation: input, resolve: true})
+    # #         bibtex_str = %q(@article{Robillard_2011,\n\turl = {http://dx.doi.org/10.5252/z2011n1a2},\n\tyear = 2011,\n\tmonth = {mar},\n\tpublisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},\n\tvolume = {33},\n\tnumber = {1},\n\tpages = {49--60},\n\tauthor = {Tony Robillard},\n\ttitle = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },\n\tjournal = {Zoosystema}\n})
+    # #         bibtex_str2 = %q(@article{Robillard_2011,
+    # # 	url = {http://dx.doi.org/10.5252/z2011n1a2},
+    # # 	year = 2011,
+    # # 	month = {mar},
+    # # 	publisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},
+    # # 	volume = {33},
+    # # 	number = {1},
+    # # 	pages = {49--60},
+    # # 	author = {Tony Robillard},
+    # # 	title = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },
+    # # 	journal = {Zoosystema}
+    # # })
+    # #         bib1 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2).convert(:latex)
+    # #         bib2 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2)
+    # #         array1=[]
+    # #         array1 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
+    # #         array2=[]
+    # #         array2 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
+    # #         cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
+    #       expect(src.publisher).to eq("Museum National d’Histoire Naturelle, Paris, France")
+    #
+    #       # c = LaTeX.decode entry.title
+    #       # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
+    #       # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
+    #       #cp.engine.format = 'html'
+    #       # cp.import(a.first)
+    #       # b = cp.render(:bibliography, id: key).first.strip
+    #
+    #       # array = [] 
+    #       # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users") 
+    #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "}) 
+    #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
+    #       #  array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "}) 
+    #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"}) 
+    #       # array
+    #
+    #       #  have ref-in-ref problems not correctly creating the either book or article
+    #       # input =  "Klapálek & Grunberg. 1909. Hft. 8. Ephemerida, Plecoptera, Lepidoptera. In Brauer, A. Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna. 1-163"
+    #
+    #       # expect(BibTeX.valid?(filename)).to be_truthy
+    #       # expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
+    #       # expect(a.save).to be_truthy
+    #       # a.reload
+    #
+    #       # cp.import a.to_citeproc
+    #
+    #     end
 
   end
 end
