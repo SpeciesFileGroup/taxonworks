@@ -903,7 +903,7 @@ Old Boxia overlays R, and western Q.
 |------|------|------|------| |------|------|------|------|
 
 Two different shapes with the same name, 'East Boxia', and
-'East Boxia' (the square) are also listed as a state in
+'East Boxia' (the square) is also listed as a state in
 'Old Boxia'.
                                                            
 |------|------|------|------| |------|------|------|------|
