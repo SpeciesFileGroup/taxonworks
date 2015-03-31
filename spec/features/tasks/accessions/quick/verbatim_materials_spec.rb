@@ -1,7 +1,7 @@
 require 'rails_helper'
 #include FormHelper
 
-describe 'Quick verbatim material', :type => :feature do
+describe 'Quick verbatim material', type: :feature, group: :sources do
 
   context 'when signed in and a project is selected' do
     before {

@@ -1,7 +1,7 @@
 require 'rails_helper'
 include FormHelper
 
-describe 'Sources', :type => :feature do
+describe 'Sources', :type => :feature, :group => :sources do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
   let(:page_index_name) { 'sources' }
   let(:index_path) { sources_path }

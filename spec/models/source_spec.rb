@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source, :type => :model do
+describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
 
   after(:all) {
@@ -25,7 +25,8 @@ describe Source, :type => :model do
     end
 
     specify 'when citation is resolveable a Source::Bibtex instance is returned' do
-      expect(Source.new_from_citation(citation: citation).class).to eq(Source::Bibtex)
+      s =  Source.new_from_citation(citation: citation)
+      expect(s.class).to eq(Source::Bibtex)
     end
   end
 
