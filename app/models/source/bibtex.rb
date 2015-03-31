@@ -352,12 +352,16 @@ class Source::Bibtex < Source
 
   #region ruby-bibtex related
 
+  def journal
+   [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+  end
+
   # @return [BibTeX::Entry]
   #   entry equvalent to self
   def to_bibtex 
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
-      if (!self[f].blank?) && !(f == :bibtex_type)
+      if (!self.send(f).blank?) && !(f == :bibtex_type)
         b[f] = self.send(f)
       end
     end
@@ -647,10 +651,13 @@ class Source::Bibtex < Source
   #   cp.render(:bibliography, id: key).first.strip
   # end
 
+  # @return [String]
+  #   can not return nil or ""
   def cached_string(format)
     unless (format == 'text') || (format == 'html')
       return(nil)
     end
+
     bx_entry = self.to_bibtex
 
     if bx_entry.key.blank?
@@ -684,10 +691,10 @@ class Source::Bibtex < Source
   def set_cached
     if self.errors.empty?
       tmp = cached_string('text')
-      if tmp.nil?
-        errors.add(:cached, 'unable to build cached_string')
-        return
-      end
+  #   if tmp.nil?
+  #     errors.add(:cached, 'unable to build cached_string')
+  #     return
+  #   end
       self.cached               =  tmp
       self.cached_author_string = authority_name
     end

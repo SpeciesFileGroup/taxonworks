@@ -25,7 +25,7 @@ class Source < ActiveRecord::Base
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 
-  after_validation :set_cached
+  before_save :set_cached
 
   validates_presence_of :type
 

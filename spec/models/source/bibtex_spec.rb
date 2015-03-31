@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Bibtex, :type => :model do
+describe Source::Bibtex, type: :model, group: :sources do
 
   let(:bibtex) { FactoryGirl.build(:source_bibtex) }
 
@@ -149,8 +149,9 @@ describe Source::Bibtex, :type => :model do
         expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
         input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+        
         src   = Source.new_from_citation({citation: input, resolve: true})
-        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
       end
 
     end
@@ -914,11 +915,11 @@ describe Source::Bibtex, :type => :model do
         let(:src2) { Source.new_from_citation({citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837', resolve: true})
         }
         specify 'text' do
-          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
           expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Can. J. Earth Sci. 18, 1824–1837.')
         end
         specify 'html' do
-          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> Smithsonian Institution.')
+          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
           expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Can. J. Earth Sci.</i> 18, 1824–1837.')
         end
       end

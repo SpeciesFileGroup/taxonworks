@@ -25,19 +25,20 @@ BIBTEX_FIELDS = [
     :title,
     :volume,
     :year,
-    :URL,
-    :ISBN,
-    :ISSN,
-    :LCCN,
+    :url,
+    :isbn,
+    :issn,
     :abstract,
     :keywords,
-    :price,
     :copyright,
     :language,
-    :contents,
     :stated_year,
     :bibtex_type
 ]
+
+#    :lccn,
+# :price,
+# :contents,
 
 # The following lists are from http://rubydoc.info/gems/bibtex-ruby/2.3.4/BibTeX/Entry
 VALID_BIBTEX_TYPES = %w{
