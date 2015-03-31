@@ -528,9 +528,9 @@ describe GeographicItem, type: :model, group: :geo do
           expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a)
         end
 
+        # other objects are returned as well, we just don't care about them:
+        # we want to find p1 inside K, and p11 inside e1
         specify 'one specific thing inside one thing, and another specific thing inside another thing' do
-          # other objects are returned as well, we just don't care about them:
-          # we want to find p1 inside K, and p11 inside e1
           expect(GeographicItem.is_contained_by('any', [@e1, @k]).to_a).to include(@p1, @p11)
         end
 
@@ -542,9 +542,9 @@ describe GeographicItem, type: :model, group: :geo do
           expect(GeographicItem.is_contained_by('any', [@b1, @b2]).excluding([@b1, @b2]).to_a).to contain_exactly(@p18, @p19, @b)
         end
 
+        # other objects are returned as well, we just don't care about them
+        # we want to find p19 inside b and b1, but returned only once
         specify 'both b and b1 contain p19, which gets returned only once' do
-          # other objects are returned as well, we just don't care about them
-          # we want to find p19 inside b and b1, but returned only once
           expect(GeographicItem.is_contained_by('any', [@b1, @b]).to_a).to include(@p19)
         end
       end
