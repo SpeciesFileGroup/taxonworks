@@ -158,7 +158,7 @@ describe Georeference, type: :model, group: :geo do
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
         let(:gi) { GeographicItem.create!(polygon: POLY_E1) }
-        let(:ga) { GeographicArea.create!(name:                                         'foo area',
+        let(:ga) { GeographicArea.create!(name:                                         'test area',
                                           data_origin:                                  'Test Data',
                                           geographic_area_type:                         g_a_t,
                                           parent:                                       earth,
@@ -180,12 +180,24 @@ describe Georeference, type: :model, group: :geo do
           expect(g.errors.keys.include?(:collecting_event)).to be_truthy
         end
 
-        context 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does not contain #geographic_item' do
+        specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does not contain #geographic_item' do
+          g = Georeference::VerbatimData.new(collecting_event:      ce,
+                                             # e_g_i is test_box_1
+                                             error_geographic_item: e_g_i)
+          g.valid?
+
           pending ' '
+          expect(g.errors.keys.include?(:geographic_item)).to be_truthy
         end
 
-        context 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object does not contain #error_geographic_item' do
-          pending ' '
+        specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object does not contain #error_geographic_item' do
+          g = Georeference::VerbatimData.new(collecting_event:      ce,
+                                             # e_g_i is test_box_1
+                                             error_geographic_item: e_g_i)
+          g.valid?
+
+          # pending ' '
+          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
         end
       end
 
