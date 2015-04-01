@@ -157,21 +157,36 @@ describe Georeference, type: :model, group: :geo do
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
-        let(:gi) { GeographicItem.create!(polygon: POLY_E1) }
-        let(:ga) { GeographicArea.create!(name:                                         'test area',
-                                          data_origin:                                  'Test Data',
-                                          geographic_area_type:                         g_a_t,
-                                          parent:                                       earth,
-                                          geographic_areas_geographic_items_attributes: [{geographic_item: gi, data_origin: 'Test Data'}]
-        )
-        }
-        let(:ce) { CollectingEvent.new(geographic_area: ga) }
+        let(:p0) { GeographicItem.new(point: POINT0) }
+        let(:p18) { GeographicItem.new(point: POINT18) }
+        let(:gi_b1) { GeographicItem.create!(polygon: SHAPE_B_OUTER) }
+        let(:gi_b2) { GeographicItem.create!(polygon: SHAPE_B_INNER) }
+        let(:gi_e1) { GeographicItem.create!(polygon: POLY_E1) }
+        let(:ga_e1) { GeographicArea.create!(name:                                         'test area E1',
+                                             data_origin:                                  'Test Data',
+                                             geographic_area_type:                         g_a_t,
+                                             parent:                                       earth,
+                                             geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
+                                                                                             data_origin:     'Test Data'}]
+        ) }
+        let(:ga_b1) { GeographicArea.create!(name:                                         'test area B1',
+                                             data_origin:                                  'Test Data',
+                                             geographic_area_type:                         g_a_t,
+                                             parent:                                       earth,
+                                             geographic_areas_geographic_items_attributes: [{geographic_item: gi_b1,
+                                                                                             data_origin:     'Test Data'}]
+        ) }
+        let(:ce_e1) { CollectingEvent.new(geographic_area: ga_e1) }
+        let(:ce_b1) { CollectingEvent.new(geographic_area: ga_b1) }
 
-        before { GeographicAreasGeographicItem.create!(geographic_area: ga, geographic_item: gi) }
+        before {
+          GeographicAreasGeographicItem.create!(geographic_area: ga_e1, geographic_item: gi_e1)
+          GeographicAreasGeographicItem.create!(geographic_area: ga_b1, geographic_item: gi_b1)
+        }
 
         # TODO: What does this mean?
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event:      ce,
+          g = Georeference::VerbatimData.new(collecting_event:      ce_e1,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
           g.valid?
@@ -181,52 +196,74 @@ describe Georeference, type: :model, group: :geo do
         end
 
         specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does not contain #geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event:      ce,
+          g = Georeference::VerbatimData.new(collecting_event:      ce_e1,
+                                             # p0 is outside of both e_g_i and ce.geographic_area
+                                             geographic_item:       p0,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
           g.valid?
 
-          pending ' '
           expect(g.errors.keys.include?(:geographic_item)).to be_truthy
         end
 
         specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object does not contain #error_geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event:      ce,
+          g = Georeference::VerbatimData.new(collecting_event:      ce_e1,
+                                             # p0 is outside of both e_g_i and ce.geographic_area
+                                             geographic_item:       p0,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
           g.valid?
 
-          # pending ' '
           expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
         end
+
+        specify 'an error is added to error_radius when error_radius provided and geographic_item not provided' do # 2c
+          pending 'resolve possible order of validations issue'
+          g = Georeference::VerbatimData.new(collecting_event:      ce,
+                                             error_radius:          16000,
+                                             # e_g_i is test_box_1
+                                             error_geographic_item: e_g_i)
+          g.valid?
+
+          expect(g.errors.keys.include?(:error_radius)).to be_truthy
+        end
+
+        specify 'an error is added to error_geographic_item when error_radius and point geographic_item do not fully contain error_geographic_item' do # case 3
+          g = Georeference::VerbatimData.new(collecting_event:      ce_b1,
+                                             # p18 is inside of both gi_b2 and ce_b1
+                                             geographic_item:       p18,
+                                             error_radius:          160,
+                                             # e_g_i is test_box_1
+                                             error_geographic_item: gi_b2)
+          g.valid?
+
+          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
+        end
+
+        #  specify 'error_radius, when provided, should contain geographic_item' do
+        #    # case 2c
+        #    # skip 'implementation of geo_object for geographic_area'
+        #    # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
+        #    # must ALWAYS be 'contained' within the radius
+        #    georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
+        #                                                  error_radius:     16000)
+        #    expect(georeference.save).to be_truthy
+        #    expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_truthy
+        #  end
+
+        #     specify 'error_radius, when provided with geographic_item, should contain error_geographic_item, when provided' do
+        #       # case 3
+        #       georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
+        #                                                     error_geographic_item: e_g_i,
+        #                                                     error_radius:          160000)
+        #       georeference.save
+        #       expect(georeference).to be_truthy
+        #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
+        #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
+        #       # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
+        #       expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_truthy
+        #     end
       end
-
-      pending 'an error is added to error_radius when error_radius provided and geographic_item not provided' # 2c
-      pending 'an error is added to error_geographic_item when error_radius and point geographic_item do not fully contain error_geographic_item' # case 3
-
-      #  specify 'error_radius, when provided, should contain geographic_item' do
-      #    # case 2c
-      #    # skip 'implementation of geo_object for geographic_area'
-      #    # since the point specified is the center of a circle (or bounding box) defined by the error_radius, that point
-      #    # must ALWAYS be 'contained' within the radius
-      #    georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-      #                                                  error_radius:     16000)
-      #    expect(georeference.save).to be_truthy
-      #    expect(georeference.error_box.contains?(georeference.geographic_item.geo_object)).to be_truthy
-      #  end
-
-      #     specify 'error_radius, when provided with geographic_item, should contain error_geographic_item, when provided' do
-      #       # case 3
-      #       georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-      #                                                     error_geographic_item: e_g_i,
-      #                                                     error_radius:          160000)
-      #       georeference.save
-      #       expect(georeference).to be_truthy
-      #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
-      #       expect(georeference.error_geographic_item.contains?(georeference.geographic_item.geo_object)).to be_truthy
-      #       # in this case, error_box returns bounding box of error_radius, and should contain the error_geographic_item
-      #       expect(georeference.error_box.contains?(georeference.error_geographic_item.geo_object)).to be_truthy
-      #     end
 
     end
   end
