@@ -6,7 +6,6 @@
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
 
-
 # @return [True]
 #   nukes geo related tables, only to be used in after(:all) 
 def clean_slate_geo
@@ -71,11 +70,7 @@ ROOMS20NN = RSPEC_GEO_FACTORY.multi_point([ROOM2020,
                                            ROOM2024])
 
 GI_POINT_A       = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 0.0)
-
-
 GI_POINT_C       = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402, 0.0)
-
-
 GI_POINT_M       = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091, 0.0)
 GI_POINT_U       = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037, 0.0)
 GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
@@ -575,12 +570,12 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
 
   if user
     @all_gi.each do |i|
-      i.creator = user 
+      i.creator = user
       i.updater = user
       i.save!
     end
   else # an increasingly bad option
-  @all_gi.map(&:save!)
+    @all_gi.map(&:save!)
   end
 
   @debug_names = {
@@ -668,15 +663,15 @@ def generate_ce_test_objects(run_in_console = false, user = nil)
 
   @ce_p0 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p0')
 
-  @gr00  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr00',
-                              :collecting_event      => @ce_p0,
-                              :error_geographic_item => @item_d,
-                              :geographic_item       => @p0) #  1
-  @gr10  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request      => 'gr10',
-                              :collecting_event => @ce_p0,
-                              :geographic_item  => @p10) #  2
+  @gr00 = FactoryGirl.create(:georeference_verbatim_data,
+                             :api_request           => 'gr00',
+                             :collecting_event      => @ce_p0,
+                             :error_geographic_item => @item_d,
+                             :geographic_item       => @p0) #  1
+  @gr10 = FactoryGirl.create(:georeference_verbatim_data,
+                             :api_request      => 'gr10',
+                             :collecting_event => @ce_p0,
+                             :geographic_item  => @p10) #  2
 
   gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
 
@@ -696,17 +691,17 @@ def generate_ce_test_objects(run_in_console = false, user = nil)
 
   @ce_p1 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p1 collect_event test')
 
-  @gr01  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr01',
-                              :collecting_event      => @ce_p1,
-                              :error_geographic_item => @k,
-                              :geographic_item       => @p1) #  3
+  @gr01 = FactoryGirl.create(:georeference_verbatim_data,
+                             :api_request           => 'gr01',
+                             :collecting_event      => @ce_p1,
+                             :error_geographic_item => @k,
+                             :geographic_item       => @p1) #  3
 
-  @gr11  = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr11',
-                              :error_geographic_item => @e1,
-                              :collecting_event      => @ce_p1,
-                              :geographic_item       => @p11) #  4
+  @gr11 = FactoryGirl.create(:georeference_verbatim_data,
+                             :api_request           => 'gr11',
+                             :error_geographic_item => @e1,
+                             :collecting_event      => @ce_p1,
+                             :geographic_item       => @p11) #  4
 
   @ce_p2 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p2 collect_event test')
   @gr02  = FactoryGirl.create(:georeference_verbatim_data,
@@ -1603,35 +1598,35 @@ def gen_wkt_files_1()
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-    when 'Point'
-      f_type = f_point
-    when 'MultiPoint'
-      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-      f_type = $stdout
-    when /^Line[S]*/ #when 'Line' or 'LineString'
-      f_type = f_line
-    when 'MultiLineString'
-      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-      f_type = $stdout
-    when 'Polygon'
-      f_type = f_poly
-    when 'MultiPolygon'
-      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-      f_type = $stdout
-    when 'GeometryCollection'
-      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-      f_type = $stdout
-    else
-      f_type = $stdout
+      when 'Point'
+        f_type = f_point
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+        f_type = $stdout
+      when /^Line[S]*/ #when 'Line' or 'LineString'
+        f_type = f_line
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+        f_type = $stdout
+      when 'Polygon'
+        f_type = f_poly
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        f_type = $stdout
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        f_type = $stdout
+      else
+        f_type = $stdout
       # ignore it for now
-end
+    end
     f_type.write("#{index}:#{wkt}: #{name}\n")
   end
 
   f_point.close
   f_line.close
   f_poly.close
-  end
+end
 
 def gen_wkt_files()
   # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
@@ -1649,33 +1644,33 @@ def gen_wkt_files()
     wkt  = it[0].as_text
     name = it[1]
     case it[0].geometry_type.type_name
-    when 'Point'
-      f_type = f_point
-    when 'MultiPoint'
-      # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
-      f_type = $stdout
-    when /^Line[S]*/ #when 'Line' or 'LineString'
-      f_type = f_line
-    when 'MultiLineString'
-      # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
-      f_type = $stdout
-    when 'Polygon'
-      f_type = f_poly
-    when 'MultiPolygon'
-      # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
-      f_type = $stdout
-    when 'GeometryCollection'
-      # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
-      f_type = $stdout
-    else
-      f_type = $stdout
+      when 'Point'
+        f_type = f_point
+      when 'MultiPoint'
+        # MULTIPOINT ((3.0 -14.0 0.0), (6.0 -12.9 0.0)
+        f_type = $stdout
+      when /^Line[S]*/ #when 'Line' or 'LineString'
+        f_type = f_line
+      when 'MultiLineString'
+        # MULTILINESTRING ((-20.0 -1.0 0.0, -26.0 -6.0 0.0), (-21.0 -4.0 0.0, -31.0 -4.0 0.0))
+        f_type = $stdout
+      when 'Polygon'
+        f_type = f_poly
+      when 'MultiPolygon'
+        # MULTIPOLYGON (((28.0 2.3 0.0, 23.0 -1.7 0.0, 26.0 -4.8 0.0, 28.0 2.3 0.0))
+        f_type = $stdout
+      when 'GeometryCollection'
+        # GEOMETRYCOLLECTION (POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0)), POLYGON ((5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0)), POLYGON ((-11.0 -1.0 0.0, -11.0 -5.0 0.0, -7.0 -5.0 0.0, -7.0 -1.0 0.0, -11.0 -1.0 0.0)), POLYGON ((-3.0 -9.0 0.0, -3.0 -1.0 0.0, -7.0 -1.0 0.0, -7.0 -9.0 0.0, -3.0 -9.0 0.0)), POLYGON ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))
+        f_type = $stdout
+      else
+        f_type = $stdout
       # ignore it for now
-  end
+    end
     f_type.write("#{index}:#{wkt}: #{name}\n")
   end
 
   f_point.close
   f_line.close
   f_poly.close
-  end
+end
 

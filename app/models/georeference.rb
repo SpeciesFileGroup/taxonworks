@@ -62,14 +62,8 @@ class Georeference < ActiveRecord::Base
                                                 projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
                                                 uses_lenient_assertions: true,
                                                 has_z_coordinate:        true,
-                                                :wkb_parser => {
-                                                  :support_ewkb => true
-                                                }, 
-                                                :wkb_generator => {
-                                                  :hex_format => true, 
-                                                  :emit_ewkb_srid => true
-                                                } 
-                                               )
+                                                wkb_parser:              {support_ewkb: true},
+                                                wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
 
 
   acts_as_list scope: [:collecting_event]
@@ -94,16 +88,8 @@ class Georeference < ActiveRecord::Base
   validate :add_error_radius_inside_area
   validate :add_error_geo_item_inside_area
   validate :add_obj_inside_area
- 
-  validate :geographic_item_present_if_error_radius_provided
 
-  def geographic_item_present_if_error_radius_provided
-    if !self.error_radius.blank? && 
-        self.geographic_item_id.blank? &&  # provide existing
-        self.geographic_item.blank?        # provide new
-      errors.add(:error_radius, 'can only be provided when geographic item is provided')
-    end
-  end
+  validate :geographic_item_present_if_error_radius_provided
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
@@ -188,7 +174,7 @@ class Georeference < ActiveRecord::Base
         case geographic_item.geo_object_type
           when :point
             # TODO: discuss, I don't think we want to imply shape for these calculateions
-            retval =    Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
+            retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
           when :polygon
             retval = geographic_item.geo_object
           else
@@ -198,16 +184,14 @@ class Georeference < ActiveRecord::Base
       retval
     end
   end
+  # GeographicItem.connection.select_all("select st_dwithin((select point from geographic_items where id = 34820), (select polygon from geographic_items where id = 34809), 6800)").first['st_dwithin']
 
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if self.error_radius.nil? || self.geographic_item.nil?
-    value =  GeographicItem.connection.select_all(
-      "SELECT ST_BUFFER( 
-      '#{self.geographic_item.geo_object}',
-      #{self.error_radius}  
-      );").first['st_buffer']
+    value = GeographicItem.connection.select_all(
+      "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{self.error_radius});").first['st_buffer']
     Georeference::FACTORY.parse_wkb(value)
   end
 
@@ -358,7 +342,7 @@ class Georeference < ActiveRecord::Base
     unless check_obj_inside_area
       errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event')
       errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
-    end 
+    end
   end
 
   # @return [Boolean] true iff collecting_event area contains georeference error_geographic_item.
@@ -373,7 +357,7 @@ class Georeference < ActiveRecord::Base
   # @return [Boolean] true iff collecting_event area contains georeference error_radius bounding box.
   def add_error_radius_inside_area
     unless check_error_radius_inside_area
-      problem = 'area must contain georeference error_radius bounding box.'
+      problem = 'collecting_event area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem) # probably don't need error here
     end
@@ -414,6 +398,14 @@ class Georeference < ActiveRecord::Base
     if error_radius && error_radius > 20000000
       errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).')
     end # 20,000 km
+  end
+
+  def geographic_item_present_if_error_radius_provided
+    if !self.error_radius.blank? &&
+      self.geographic_item_id.blank? && # provide existing
+      self.geographic_item.blank? # provide new
+      errors.add(:error_radius, 'can only be provided when geographic item is provided')
+    end
   end
 
   # @param [Double, Double, Double, Double] two latitude/longitude pairs in decimal degrees
