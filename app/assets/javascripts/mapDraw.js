@@ -8,7 +8,9 @@ function initializeDrawItem(map_canvas, fcdata) {
     var mcparts = $("#feature_collection").data('map-center').split("(");   // this assumes always present
     var lat = mcparts[1].split(' ')[1];
     var lng = mcparts[1].split(' ')[0];
+
     get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+    
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
     // override computed center with verbatim center
     if (bounds.center_lat == 0 && bounds.center_long == 0) {
@@ -38,7 +40,9 @@ function initializeDrawItem(map_canvas, fcdata) {
     else {
     mapCoords = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6);
     }
-    mapCoords = mapCoords + ' \xA0 \xA0 <input type="button" onclick="drawingManager=clearItem();" value="Clear" />'
+   // mapCoords = mapCoords // + ' \xA0 \xA0 <input type="button" onclick="foo(' + map_canvas + ', ' + fcdata + ');" value="Clear" />'
+
+      
     $("#map_coords").html(mapCoords);
     //map.setCenter(center_lat_long);
     //map.setZoom(bounds.gzoom);
@@ -115,6 +119,7 @@ function initializeDrawItem(map_canvas, fcdata) {
     return map;
 
 }
+
 
 function clearItem() {
         var drawingManager = new google.maps.drawing.DrawingManager({

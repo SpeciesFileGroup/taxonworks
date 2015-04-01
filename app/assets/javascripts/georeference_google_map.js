@@ -27,6 +27,10 @@ _init_new_georeference_google_map = function init_new_georeference_google_map() 
       // is this the intent?  It seems is should default to render nothing if fcdata == null?
       var map = initializeDrawItem("new_georeference_google_map_canvas", fcdata); 
       // add_new_draw_item_map_listeners(map);
+
+      $( "#reset_georeference_map" ).bind( "click", function() {
+        map = initializeDrawItem("new_georeference_google_map_canvas", fcdata);
+      });
     }
   }
 }
