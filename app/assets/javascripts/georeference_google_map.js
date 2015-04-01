@@ -23,7 +23,7 @@ _init_new_georeference_google_map = function init_new_georeference_google_map() 
       var newadwidget = $("#feature_collection");
       var fcdata = newadwidget.data('feature-collection');
 
-      // Rich - the map presently fails to initialize unless there is a a legal feature collection in fc data,
+      // Rich - the map presently fails to initialize unless there is a a legal feature collection in fcdata,
       // is this the intent?  It seems is should default to render nothing if fcdata == null?
       var map = initializeDrawItem("new_georeference_google_map_canvas", fcdata); 
       // add_new_draw_item_map_listeners(map);
