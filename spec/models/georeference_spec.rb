@@ -31,7 +31,6 @@ describe Georeference, type: :model, group: :geo do
 
   let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
 
-
   context 'associations' do
     context 'belongs_to' do
       specify '#geographic_item' do
@@ -78,18 +77,25 @@ describe Georeference, type: :model, group: :geo do
     end
 
     context 'legal values' do
-      specify '#error_radius is < some Earth-based limit' do
-        # 12,400 miles, 20,000 km
-        #skip 'setting error radius to some reasonable distance'
-        georeference.error_radius = 30000000
-        georeference.valid?
-        expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
-      end
+      context '#error_radius' do
+        before {
+          georeference.geographic_item = FactoryGirl.create(:valid_geographic_item)
+        }
 
-      specify '#error_radius can be set to something reasonable' do
-        georeference.error_radius = 3
-        georeference.valid?
-        expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
+        specify 'is < some Earth-based limit' do
+          # 12,400 miles, 20,000 km
+          #skip 'setting error radius to some reasonable distance'
+          georeference.error_radius = 30000000
+          georeference.valid?
+          expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
+        end
+
+        specify 'can be set to something reasonable' do
+          georeference.geographic_item = GeographicItem.first
+          georeference.error_radius = 3
+          georeference.valid?
+          expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
+        end
       end
 
       specify '#error_depth is < some Earth-based limit' do
@@ -218,14 +224,10 @@ describe Georeference, type: :model, group: :geo do
         end
 
         specify 'an error is added to error_radius when error_radius provided and geographic_item not provided' do # 2c
-          pending 'resolve possible order of validations issue'
-          g = Georeference::VerbatimData.new(collecting_event:      ce,
-                                             error_radius:          16000,
-                                             # e_g_i is test_box_1
-                                             error_geographic_item: e_g_i)
+          g = Georeference.new(error_radius: 10)
           g.valid?
-
-          expect(g.errors.keys.include?(:error_radius)).to be_truthy
+          expect(g.errors.include?(:error_radius)).to be_truthy
+          expect(g.errors.messages[:error_radius]).to include('can only be provided when geographic item is provided')
         end
 
         specify 'an error is added to error_geographic_item when error_radius and point geographic_item do not fully contain error_geographic_item' do # case 3

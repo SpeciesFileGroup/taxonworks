@@ -16,8 +16,8 @@
 #     The id of a CollectingEvent which represents the event of this georeference definition.
 # @!attribute error_radius
 #   @return [Integer]
-#     the distance in meters of the radius of the area of horizontal uncertainty of the accuracy of the location of
-#     this georeference definition TODO: move to error/geographic item? or resolve meaning ... 
+#     the radius of the area of horizontal uncertainty of the accuracy of the location of
+#     this georeference definition. Measured in meters. Corresponding error areas are draw from the st_centroid() of the geographic item.
 # @!attribute error_depth
 #   @return [Integer]
 #     The distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of
@@ -61,7 +61,15 @@ class Georeference < ActiveRecord::Base
                                                 projection_srid:         4326,
                                                 projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
                                                 uses_lenient_assertions: true,
-                                                has_z_coordinate:        true)
+                                                has_z_coordinate:        true,
+                                                :wkb_parser => {
+                                                  :support_ewkb => true
+                                                }, 
+                                                :wkb_generator => {
+                                                  :hex_format => true, 
+                                                  :emit_ewkb_srid => true
+                                                } 
+                                               )
 
 
   acts_as_list scope: [:collecting_event]
@@ -86,6 +94,16 @@ class Georeference < ActiveRecord::Base
   validate :add_error_radius_inside_area
   validate :add_error_geo_item_inside_area
   validate :add_obj_inside_area
+ 
+  validate :geographic_item_present_if_error_radius_provided
+
+  def geographic_item_present_if_error_radius_provided
+    if !self.error_radius.blank? && 
+        self.geographic_item_id.blank? &&  # provide existing
+        self.geographic_item.blank?        # provide new
+      errors.add(:error_radius, 'can only be provided when geographic item is provided')
+    end
+  end
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
@@ -170,7 +188,7 @@ class Georeference < ActiveRecord::Base
         case geographic_item.geo_object_type
           when :point
             # TODO: discuss, I don't think we want to imply shape for these calculateions
-            retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box
+            retval =    Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
           when :polygon
             retval = geographic_item.geo_object
           else
@@ -179,6 +197,18 @@ class Georeference < ActiveRecord::Base
       end
       retval
     end
+  end
+
+  # @return [Rgeo::polygon, nil]
+  #   a polygon representing the buffer
+  def error_radius_buffer_polygon
+    return nil if self.error_radius.nil? || self.geographic_item.nil?
+    value =  GeographicItem.connection.select_all(
+      "SELECT ST_BUFFER( 
+      '#{self.geographic_item.geo_object}',
+      #{self.error_radius}  
+      );").first['st_buffer']
+    Georeference::FACTORY.parse_wkb(value)
   end
 
   # Called by Gis::GeoJSON.feature_collection
@@ -323,51 +353,38 @@ class Georeference < ActiveRecord::Base
   #   retval
   # end
 
-
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
-    if check_obj_inside_area
-      true
-    else
+    unless check_obj_inside_area
       errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event')
       errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
-      false
-    end
+    end 
   end
 
   # @return [Boolean] true iff collecting_event area contains georeference error_geographic_item.
   def add_error_geo_item_inside_area
-    if check_error_geo_item_inside_area
-      true
-    else
+    unless check_error_geo_item_inside_area
       problem = 'collecting_event area must contain georeference error_geographic_item.'
       errors.add(:error_geographic_item, problem)
       errors.add(:collecting_event, problem)
-      false
     end
   end
 
   # @return [Boolean] true iff collecting_event area contains georeference error_radius bounding box.
   def add_error_radius_inside_area
-    if check_error_radius_inside_area
-      true
-    else
+    unless check_error_radius_inside_area
       problem = 'area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem) # probably don't need error here
-      false
     end
   end
 
   # @return [Boolean] true iff error_radius contains error_geographic_item.
   def add_err_geo_item_inside_err_radius
-    if check_err_geo_item_inside_err_radius
-      true
-    else
+    unless check_err_geo_item_inside_err_radius
       problem = 'error_radius must contain error_geographic_item.'
       errors.add(:error_radius, problem)
       errors.add(:error_geographic_item, problem)
-      false
     end
   end
 
@@ -375,42 +392,28 @@ class Georeference < ActiveRecord::Base
   def add_obj_inside_err_radius
     if !check_obj_inside_err_radius
       errors.add(:error_radius, 'must contain geographic_item.')
-      false
     end
   end
 
   # @return [Boolean] true iff error_geographic_item contains geographic_item.
   def add_obj_inside_err_geo_item
-    if check_obj_inside_err_geo_item
-      true
-    else
+    if !check_obj_inside_err_geo_item
       errors.add(:error_geographic_item, 'must contain geographic_item.')
-      false
     end
   end
 
   # @return [Boolean] true iff error_depth is less than 8.8 kilometers (5.5 miles).
   def add_error_depth
-    if error_depth.nil?
-      true
-    else
-      if error_depth > 8800
-        errors.add(:error_depth, 'error_depth must be less than 8.8 kilometers (5.5 miles).')
-      end # 8,800 meters
-      false
-    end
+    if error_depth && error_depth > 8800
+      errors.add(:error_depth, 'error_depth must be less than 8.8 kilometers (5.5 miles).')
+    end # 8,800 meters
   end
 
   # @return [Boolean] true iff error_radius is less than 20,000 kilometers (12,400 miles).
   def add_error_radius
-    if error_radius.nil?
-      true
-    else
-      if error_radius > 20000000
-        errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).')
-      end # 20,000 km
-      false
-    end
+    if error_radius && error_radius > 20000000
+      errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).')
+    end # 20,000 km
   end
 
   # @param [Double, Double, Double, Double] two latitude/longitude pairs in decimal degrees
