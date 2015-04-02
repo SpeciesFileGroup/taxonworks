@@ -67,27 +67,27 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/list
   def list
-    @collection_objects =  CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collection_objects = CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search
   def search
-    if params[:id]
-      redirect_to collection_object_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to collection_object_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to collection_object_path(params[:id])
     end
   end
 
   def autocomplete
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
     data = @collection_objects.collect do |t|
-      {id:              t.id,
-       label:           CollectionObjectsHelper.collection_object_tag(t), # in helper
+      {id: t.id,
+       label: CollectionObjectsHelper.collection_object_tag(t), # in helper
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      CollectionObjectsHelper.collection_object_tag(t)  # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: CollectionObjectsHelper.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render :json => data
@@ -95,7 +95,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data CollectionObject.generate_download( CollectionObject.where(project_id: $project_id) ), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+    send_data CollectionObject.generate_download(CollectionObject.where(project_id: $project_id)), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
   end
 
   private

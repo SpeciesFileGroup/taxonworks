@@ -63,10 +63,10 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/search
   def search
-    if params[:id]
-      redirect_to alternate_value_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to alternate_value_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to alternate_value_path(params[:id])
     end
   end
 
@@ -88,7 +88,7 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/download
   def download
-    send_data AlternateValue.generate_download( AlternateValue.where(project_id: $project_id) ), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
+    send_data AlternateValue.generate_download(AlternateValue.where(project_id: $project_id)), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
   end
 
   private

@@ -73,11 +73,11 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/search
   def search
-    if params[:id]
-      redirect_to collecting_event_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to collecting_event_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
-    end
+    else
+      redirect_to collecting_event_path(params[:id])
+     end
   end
 
   def autocomplete

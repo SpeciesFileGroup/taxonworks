@@ -91,10 +91,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def search
-    if params[:id]
-      redirect_to asserted_distribution_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to asserted_distribution_path(params[:id])
     end
   end
 
