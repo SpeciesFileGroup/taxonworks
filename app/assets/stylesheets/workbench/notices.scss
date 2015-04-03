@@ -1,0 +1,15 @@
+@import 'palette';
+
+.alert {
+
+  padding: .5em; 
+  border: 1px solid $title_gray;
+
+  &.alert-notice {
+    background: $color-complement-2;
+  }
+
+  &.alert-alert {
+    background: $color-primary-2;
+  }
+}
