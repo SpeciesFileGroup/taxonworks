@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe AlternateValue do
-  let (:alternate_value) { FactoryGirl.build(:alternate_value) }
+describe AlternateValue, group: :annotators do
+  let(:alternate_value) { AlternateValue.new }
 
   context 'associations' do
     context 'belongs_to' do
@@ -37,42 +37,48 @@ describe AlternateValue do
       end
     end
 
-    specify 'alternate_value_object_attribute is legal column of alternate_value_object' do
+    specify 'illegal column name invalidates' do
       alternate_value.alternate_value_object           = FactoryGirl.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
+    end
+
+    specify 'legal column name is legal' do
+      alternate_value.alternate_value_object           = FactoryGirl.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'name'
+      alternate_value.value = "10"
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_falsey
     end
 
     specify 'value is not identical to existing value' do
-      alternate_value.alternate_value_object           = FactoryGirl.build(:valid_serial, name: 'foo')
+      alternate_value.alternate_value_object  = FactoryGirl.build(:valid_serial, name: 'foo')
       alternate_value.alternate_value_object_attribute = 'name'
-      alternate_value.value                            = 'foo'
+      alternate_value.value = 'foo'
+     
       alternate_value.valid?
-      expect(alternate_value.errors.include?(:value)).to be_truthy
+      
+      expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
+
       alternate_value.value = 'bar'
       alternate_value.valid?
-      expect(alternate_value.errors.include?(:value)).to be_falsey
+      expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_falsey
     end
 
+    # Note that av.type = 'Foo' succeeds to save, but fails to load afterwards.  Type should be set on new.
     specify 'valid type' do
-      av = FactoryGirl.build_stubbed(:valid_alternate_value)
-      expect(av.valid?).to be_truthy
-      av.type = 'Foo'
-      expect(av.valid?).to be_falsey
-      expect(av.errors.include?(:type)).to be_truthy
+      av = FactoryGirl.build(:valid_alternate_value, type: 'Foo').attributes
+      expect { AlternateValue.new(av) }.to raise_error
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do
-      sb                                               = FactoryGirl.build_stubbed(:valid_source_bibtex) # relies on valid_source_bibtex not having an assigned author
-      alternate_value.alternate_value_object           = sb
+      sb  = FactoryGirl.build_stubbed(:valid_source_bibtex) # relies on valid_source_bibtex not having an assigned author
+      alternate_value.alternate_value_object  = sb
       alternate_value.alternate_value_object_attribute = 'author'
-      alternate_value.value                            = 'foo'
+      alternate_value.value  = 'foo'
       alternate_value.valid?
-      expect(alternate_value.errors.include?(:value)).to be_truthy
+      expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
     end
   end
 
@@ -103,30 +109,34 @@ describe AlternateValue do
       expect(v.original_value).to eq(tmp) # see the serial_factory
     end
 
-    specify 'project_id is not set for community data (Shared::SharedAcrossProjects)' do
-      o                                                = FactoryGirl.build(:valid_serial, name: 'The Serial')
-      alternate_value.alternate_value_object           = o  # setting object let's current schema work
-      alternate_value.alternate_value_object_attribute = 'name'
-      alternate_value.value                            = 'T.S.'
-      alternate_value.type                             = 'AlternateValue::Abbreviation'
-      expect(alternate_value.valid?).to be(true)
-      expect(alternate_value.project_id).to eq(nil)
-    end
+    context 'for community data project_id is not set when is_community_annotation == true' do 
+      specify 'on save' do
+        o                                                = FactoryGirl.build(:valid_serial, name: 'The Serial')
+        alternate_value.alternate_value_object           = o  # setting object let's current schema work
+        alternate_value.alternate_value_object_attribute = 'name'
+        alternate_value.value                            = 'T.S.'
+        alternate_value.type                             = 'AlternateValue::Abbreviation'
+        alternate_value.is_community_annotation = true
+        expect(alternate_value.valid?).to be(true)
+        expect(alternate_value.project_id).to eq(nil)
+      end
 
-    specify 'project_id is not set for community data when using <<' do
-      o    = FactoryGirl.create(:valid_serial, name: 'The Serial')
-      altv = AlternateValue.new(type:                             'AlternateValue::AlternateSpelling',
-                                value:                            'Blorf',
-                                alternate_value_object_attribute: 'name',
-                                created_by_id: $user_id
-      )
-      o.alternate_values << altv
-      expect(o.valid?).to be_truthy
-      expect(o.save).to be_truthy
-      expect(o.alternate_values.size).to eq(1)
-      expect(altv.valid?).to be_truthy
-      expect(o.alternate_values.first).to eq(altv)
-      expect(o.alternate_values.first.project_id).to eq(nil)
+      specify 'when using <<' do
+        o    = FactoryGirl.create(:valid_serial, name: 'The Serial')
+        altv = AlternateValue.new(type:                             'AlternateValue::AlternateSpelling',
+                                  value:                            'Blorf',
+                                  alternate_value_object_attribute: 'name',
+                                  created_by_id: $user_id,
+                                  is_community_annotation: true
+                                 )
+        o.alternate_values << altv
+        expect(o.valid?).to be_truthy
+        expect(o.save).to be_truthy
+        expect(o.alternate_values.size).to eq(1)
+        expect(altv.valid?).to be_truthy
+        expect(o.alternate_values.first).to eq(altv)
+        expect(o.alternate_values.first.project_id).to eq(nil)
+      end
     end
 
     specify 'project_id is set for non community data' do

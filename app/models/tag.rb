@@ -1,7 +1,7 @@
 class Tag < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
-  include Shared::Annotates
+  include Shared::AttributeAnnotations
 
   acts_as_list scope: [:keyword_id]
 
@@ -29,6 +29,11 @@ class Tag < ActiveRecord::Base
   #   alias to simplify reference across classes 
   def annotated_object
     tag_object
+  end
+
+  # the column name containing the attribute name being annotated
+  def self.annotated_attribute_column
+    :tag_object_attribute
   end
 
   def self.generate_download(scope)

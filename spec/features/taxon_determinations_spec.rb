@@ -9,8 +9,16 @@ describe 'TaxonDeterminations', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-# todo @mjy, need to build object explicitly with user and project
-#       10.times { factory_girl_create_for_user_and_project(:valid_taxon_determination, @user, @project) }
+
+      # Create taxon determination via specimen.
+      otu = factory_girl_create_for_user_and_project(:valid_otu, @user, @project)
+      3.times { 
+        Specimen.create(  
+                        taxon_determinations_attributes: [ {otu: otu, by: @user, project: @project} ],
+                        by: @user,
+                        project: @project 
+                       )
+      }
     }
 
     describe 'GET /taxon_determinations' do
@@ -20,19 +28,18 @@ describe 'TaxonDeterminations', :type => :feature do
     it_behaves_like 'a_data_model_with_standard_index'
   end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /taxon_determinations/list' do
-    #   before { visit list_taxon_determinations_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
-    #
-    # describe 'GET /taxon_determinations/n' do
-    #   before {
-    #     visit taxon_determination_path(TaxonDetermination.second)
-    #   }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_show'
-    # end
+     describe 'GET /taxon_determinations/list' do
+       before { visit list_taxon_determinations_path }
+    
+       it_behaves_like 'a_data_model_with_standard_list'
+     end
+    
+     describe 'GET /taxon_determinations/n' do
+       before {
+         visit taxon_determination_path(TaxonDetermination.second)
+       }
+    
+       it_behaves_like 'a_data_model_with_standard_show'
+     end
   end
 end

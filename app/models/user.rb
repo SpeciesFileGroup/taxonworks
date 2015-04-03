@@ -72,6 +72,10 @@ class User < ActiveRecord::Base
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
+
+  scope :not_in_project, -> (project_id) { includes(:project_members).where( :project_members => { :id => nil, project_id: project_id} ) }
+
+
   def User.secure_random_token
     SecureRandom.urlsafe_base64
   end

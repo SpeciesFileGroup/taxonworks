@@ -3,7 +3,6 @@ module Shared::IsData
   extend ActiveSupport::Concern
 
   included do
-
     include Pinnable
   end
 
@@ -57,10 +56,11 @@ module Shared::IsData
   end
 
   module ClassMethods
+    # TODO: not right as class method
     # @return [Boolean]
     #   true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI 
     def annotates?
-      self.respond_to?(:is_annotator?)
+      self.respond_to?(:annotated_object?)
     end
   end
 

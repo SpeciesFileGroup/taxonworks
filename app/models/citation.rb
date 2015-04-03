@@ -3,7 +3,6 @@
 class Citation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
-  include Shared::Annotates
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations

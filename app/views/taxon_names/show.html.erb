@@ -1,6 +1,6 @@
 <% content_for :do do %>
   <% if @taxon_name.is_protonym? -%>
-    <%=  link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_id: @taxon_name.to_param)) -%> <br/>
+    <%=  link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%> <br/>
     <%= new_combination_for_protonym_link(@taxon_name) -%>
   <% end %>
 

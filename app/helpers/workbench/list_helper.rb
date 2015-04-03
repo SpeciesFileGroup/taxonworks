@@ -7,11 +7,11 @@ module Workbench::ListHelper
     records = model.where(['(name LIKE ? OR NAME like ?) AND id != ?', "#{name}%", "%#{name}%", instance]).limit(5)
     content_tag(:span) do
       content_tag(:em, 'Similarly named records: ') +
-        content_tag(:span) do
-          (records.count == 0 ?
-            'none' :
-            records.collect { |r| link_to(r.name, r) }.join(', ').html_safe)
-        end
+          content_tag(:span) do
+            (records.count == 0 ?
+                'none' :
+                records.collect { |r| link_to(r.name, r) }.join(', ').html_safe)
+          end
     end
   end
 
@@ -19,7 +19,7 @@ module Workbench::ListHelper
     if model.annotates?
       render partial: "/#{params[:controller]}/recent_objects_list", locals: {recent_objects: recent_objects}
     else
-      render partial: '/shared/data/project/recent_objects_list', locals: { recent_objects: recent_objects}
+      render partial: '/shared/data/project/recent_objects_list', locals: {recent_objects: recent_objects}
     end
   end
 

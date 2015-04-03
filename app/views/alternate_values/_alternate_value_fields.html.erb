@@ -32,7 +32,7 @@
   <div class="field">
     <%= avf.label :alternate_value_object_attribute %>
     <br>
-    <%= avf.select :alternate_value_object_attribute, options_for_select(avf.object.alternate_value_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = avf.object.alternate_value_object_attribute) -%>
+    <%= avf.select :alternate_value_object_attribute, options_for_select(avf.annotatble_attributes, selected = avf.object.alternate_value_object_attribute) -%>
   </div>
 
   <%#= avf.hidden_field :alternate_value_object_type %>

@@ -40,7 +40,12 @@ class Identifier < ActiveRecord::Base
   # TODO: @mjy resolve this to not require project id 
   include Housekeeping
   include Shared::IsData 
-  include Shared::Annotates
+  # 
+  # - context - show their parent object when clicked to show (rather than self)
+  # - new - doesn't get show in index
+  #
+  include Shared::DualAnnotator
+  #  include Shared::Annotates
 
   before_save :set_cached
 

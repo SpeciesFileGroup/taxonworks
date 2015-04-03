@@ -111,6 +111,64 @@ class Image < ActiveRecord::Base
     end
   end
 
+  # Returns the true, unscaled height/width ratio
+  def hw_ratio # :yields: Float
+    raise if height.nil? || width.nil? # if they are something has gone badly wrong
+    return (height.to_f / width.to_f)
+  end
+
+  # used in ImageHelper#image_thumb_tag
+  # asthetic scaling of very narrow images in thumbnails
+  def thumb_scaler # :yields: Hash
+    a = self.hw_ratio
+    if a < 0.6
+      { 'width' => 200, 'height' => 200 * a}
+    else
+      {}
+    end
+  end
+
+  # the scale factor is typically the same except in a few cases where we skew small thumbs
+  def width_scale_for_size(size = :medium) # :yields: Float
+    (width_for_size(size).to_f / width.to_f)
+  end
+
+  def height_scale_for_size(size = :medium) # :yields: Float
+    height_for_size(size).to_f / height.to_f
+  end
+
+  def width_for_size(size = :medium) # :yields: Float
+    a = self.hw_ratio
+    case size
+    when :thumb
+      a < 0.6 ? 200.0 : ((width.to_f / height.to_f ) * 160.0)
+    when :medium
+      a < 1 ? 640.0 : 640.0 / a
+    when :big
+      a < 1 ? 1600.0 : 1600.0 / a
+    when :original
+      width
+    else
+      nil
+    end
+  end
+
+  def height_for_size(size = :medium) # :yields: Float
+    a = self.hw_ratio
+    case size
+    when :thumb
+      a < 0.6 ? 213.0 * height.to_f / width.to_f : 160
+    when :medium
+      a < 1 ? a * 640 : 640
+    when :big
+      a < 1 ? a * 1600 : 1600
+    when :original
+      height
+    else
+      nil
+    end
+  end
+
   protected
 
   def extract_tw_attributes

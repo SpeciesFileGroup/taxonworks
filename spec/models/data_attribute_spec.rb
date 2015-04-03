@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe DataAttribute, :type => :model do
+describe DataAttribute, type: :model, group: :annotators do
   let(:attribute) {DataAttribute.new}
 
   context 'validation' do
@@ -58,25 +58,25 @@ describe DataAttribute, :type => :model do
       end
     end
 
-    context 'attached to community data does not set project_id' do
+    context 'attached to community data with is_community_annotation == true does not set project_id, ' do
       let(:s) { FactoryGirl.create(:valid_serial) }
 
       context 'for an import attribute' do
         specify 'using <<' do
-          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute')
+          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute', is_community_annotation: true)
           s.data_attributes << att
           expect(s.save!).to be_truthy
           expect(att.project_id).to eq(nil)
         end
 
         specify 'using build()' do
-          s.data_attributes.build(import_predicate: 'foo', value: '6', type: 'ImportAttribute') 
+          s.data_attributes.build(import_predicate: 'foo', value: '6', type: 'ImportAttribute', is_community_annotation: true) 
           expect(s.save!).to be_truthy
           expect(s.data_attributes.first.project_id).to eq(nil)
         end
 
         specify 'using new()' do
-          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute', attribute_subject: s)
+          att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute', attribute_subject: s, is_community_annotation: true)
           expect(att.save!).to be_truthy
           expect(att.project_id).to eq(nil)
         end
@@ -84,20 +84,20 @@ describe DataAttribute, :type => :model do
 
       context 'for an internal attribute' do
         specify 'using <<' do
-          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute')
+          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', is_community_annotation: true)
           s.data_attributes << att
           expect(s.save!).to be_truthy
           expect(att.project_id).to eq(nil)
         end
 
         specify 'using build()' do
-          s.data_attributes.build(predicate: p, value: '6', type: 'InternalAttribute') 
+          s.data_attributes.build(predicate: p, value: '6', type: 'InternalAttribute', is_community_annotation: true) 
           expect(s.save!).to be_truthy
           expect(s.data_attributes.first.project_id).to eq(nil)
         end
 
         specify 'using new()' do
-          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s)
+          att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true)
           expect(att.save!).to be_truthy
           expect(att.project_id).to eq(nil)
         end
@@ -105,7 +105,7 @@ describe DataAttribute, :type => :model do
 
       context 'using nested attributes' do
         specify 'for community data' do
-          s = Serial.new(name: 'Blorf', data_attributes_attributes: [{predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s}])  
+          s = Serial.new(name: 'Blorf', data_attributes_attributes: [{predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true}])  
           expect(s.save!).to be_truthy
           expect(s.data_attributes.size).to eq(1)
           expect(s.data_attributes.first.project_id).to eq(nil)

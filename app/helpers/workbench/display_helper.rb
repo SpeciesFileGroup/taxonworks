@@ -6,7 +6,11 @@ module Workbench::DisplayHelper
   #   object_tag(@otu) 
   def object_tag(object)
     return nil if object.nil? 
-    return send("taxon_works_content_tag", object).html_safe if object.class.base_class.name == 'Content' # Ugh, I hate this exception
+
+    # meh, exceptions  
+    return send("taxon_works_content_tag", object).html_safe if object.class.base_class.name == 'Content' 
+    return image_tag(object.image_file.url(:thumb)) if object.class.base_class.name == 'Image' 
+   
     send("#{object.class.base_class.name.underscore}_tag", object).html_safe
   end
 
