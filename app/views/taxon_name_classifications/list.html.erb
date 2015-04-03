@@ -4,28 +4,28 @@
 
 <table>
   <thead>
-  <tr>
-    <th>Taxon name</th>
-    <th>Type</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
+    <tr>
+      <th>Taxon name</th>
+      <th>Type</th>
+      <th>Last modified</th>
+      <th>Updated by</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
   </thead>
 
   <tbody>
-  <% @taxon_name_classifications.each do |taxon_name_classification| %>
-      <tr>
-        <td><%= object_tag(taxon_name_classification.taxon_name_object.metamorphosize) %></td>
-        <td><%= taxon_name_classification.type %></td>
-        <td><%= taxon_name_classification.updated_at %></td>
-        <td><%= object_tag(taxon_name_classification.updater) %></td>
-        <td><%= link_to 'Show', taxon_name_classification %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_classification_path(taxon_name_classification) %></td>
-        <td><%= link_to 'Destroy', taxon_name_classification, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-  <% end %>
+    <% @taxon_name_classifications.each do |taxon_name_classification| %>
+        <tr>
+          <td><%= object_tag(taxon_name_classification.taxon_name.metamorphosize) %></td>
+          <td><%= taxon_name_classification.type %></td>
+          <td><%= taxon_name_classification.updated_at %></td>
+          <td><%= object_tag(taxon_name_classification.updater) %></td>
+          <td><%= link_to 'Context', taxon_name_classification.taxon_name.metamorphosize %></td>
+          <td> <em> Edit </em> </td>
+          <td><%= link_to 'Destroy', taxon_name_classification.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %> </td>
+        </tr>
+    <% end %>
   </tbody>
 </table>

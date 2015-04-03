@@ -44,6 +44,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   # @return [String]
   #  a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
+  #  TODO: consider appending [iczn] [icn]
   def self.class_name
    const_defined?(:LABEL, false) ? self::LABEL : self.name.demodulize.underscore.humanize.downcase
   end
@@ -198,6 +199,10 @@ class TaxonNameClassification < ActiveRecord::Base
         }
       end
     end
+  end
+
+  def self.annotates?
+    true
   end
 
   private
