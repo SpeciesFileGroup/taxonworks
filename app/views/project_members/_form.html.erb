@@ -1,18 +1,24 @@
 <%= form_for(@project_member) do |f| %>
-    <%= render 'shared/errors', object: @project_member %>
+  <%= render 'shared/errors', object: @project_member %>
+
+  <%= ap(@project_member).html_safe -%>
 
   <div class="field">
     <%= f.label :project_id %><br>
-    <%= f.select :project_id, options_from_collection_for_select(Project.all, :id, :name) %>
+    <strong> <%= @project_member.project.name -%></strong>
+    <%= f.hidden_field :project_id -%>
   </div>
+
   <div class="field">
     <%= f.label :user_id %><br>
-    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :email) %>
+    <%= f.select :user_id, options_from_collection_for_select(User.all.not_in_project(@project_member.project_id), :id, :email, selected: @project_member.user) %>
   </div>
+
   <div class="field">
     <%= f.label :is_project_administrator %><br>
     <%= f.check_box :is_project_administrator %>
   </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>

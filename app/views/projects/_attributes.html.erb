@@ -1,9 +1,10 @@
 <div class="attributes">
-  <p id="notice"><%= notice %></p>
 
-  <p>
-    <strong>Name:</strong>
-    <%= @project.name %>
-  </p>
+<p>
+  <strong>Name:</strong>
+  <%= @project.name %>
+</p>
+
+<%= render partial: '/shared/data/project/show/housekeeping', locals: {object: @project} -%>
 
 </div>
