@@ -182,7 +182,7 @@ namespace :tw do
 
       TABLE_NAMES.each { |table|
         puts table
-        puts(Benchmark.measure { `pg_restore -Fc -c -d #{database_name} -t #{table} #{dump_filename}` })
+        puts(Benchmark.measure { `pg_restore -Fc -c --data_only --disable-triggers -d #{database_name} -t #{table} #{dump_filename}` })
 
         # puts(Benchmark.measure { Support::Database.pg_restore(database, "#{table}", '/Users/tuckerjd/src/gaz/data/hand-built/dump/2015-04-02_132159UTC.dump') })
       }
