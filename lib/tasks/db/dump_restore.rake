@@ -144,7 +144,7 @@ namespace :tw do
       path     = File.join(@args[:data_directory], Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
 
       puts "Dumping database to #{path}"
-      puts(Benchmark.measure { `pg_dump -U #{ENV["db_user"]} -Fc #{database} -f #{path}` })
+      puts(Benchmark.measure { `pg_dump -U #{ENV["db_user"]} -Fc #{database} --data-only -f #{path}` })
       raise "pg_dump failed with exit code #{$?.to_i}" unless $? == 0
       puts "Dump complete"
 
