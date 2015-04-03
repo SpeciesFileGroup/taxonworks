@@ -36,7 +36,7 @@ RSpec.describe ProjectMembersController, :type => :controller do
 
   describe "GET new" do
     it "assigns a new project_member as @project_member" do
-      get :new, {}, valid_session
+      get :new, {project_member: {project_id: 1}}, valid_session
       expect(assigns(:project_member)).to be_a_new(ProjectMember)
     end
   end
@@ -65,7 +65,7 @@ RSpec.describe ProjectMembersController, :type => :controller do
 
       it "redirects to the created project_member" do
         post :create, {:project_member => valid_attributes}, valid_session
-        expect(response).to redirect_to(ProjectMember.last)
+        expect(response).to redirect_to(project_path(1))
       end
     end
 
@@ -104,7 +104,7 @@ RSpec.describe ProjectMembersController, :type => :controller do
       it "redirects to the project_member" do
         project_member = ProjectMember.create! valid_attributes
         put :update, {:id => project_member.to_param, :project_member => valid_attributes}, valid_session
-        expect(response).to redirect_to(project_member)
+        expect(response).to redirect_to(project_path(1))
       end
     end
 
@@ -131,10 +131,10 @@ RSpec.describe ProjectMembersController, :type => :controller do
       }.to change(ProjectMember, :count).by(-1)
     end
 
-    it "redirects to the project_members list" do
+    it "redirects to the related project page" do
       project_member = ProjectMember.create! valid_attributes
       delete :destroy, {:id => project_member.to_param}, valid_session
-      expect(response).to redirect_to(project_members_url)
+      expect(response).to redirect_to(project_path(1))
     end
   end
 
