@@ -24,7 +24,6 @@ require 'benchmark'
  public | controlled_vocabulary_terms                            | table | taxonworks_development
  public | geographic_area_types                                  | table | taxonworks_development
  public | geographic_areas                                       | table | taxonworks_development
- public | geographic_areas_geographic_items                      | table | taxonworks_development
  public | geographic_items                                       | table | taxonworks_development
  public | georeferences                                          | table | taxonworks_development
  public | images                                                 | table | taxonworks_development
@@ -44,7 +43,6 @@ require 'benchmark'
  public | ranged_lot_categories                                  | table | taxonworks_development
  public | repositories                                           | table | taxonworks_development
  public | roles                                                  | table | taxonworks_development
- public | schema_migrations                                      | table | taxonworks_development
  public | serial_chronologies                                    | table | taxonworks_development
  public | serials                                                | table | taxonworks_development
  public | sources                                                | table | taxonworks_development
@@ -73,6 +71,9 @@ List of classes which are dependant on the existence of other objects
   notes
   tags
 
+Deliberately excluded:
+public | schema_migrations                                      | table | taxonworks_development
+
 =end
 
 TABLE_NAMES = %w{users
@@ -96,8 +97,8 @@ TABLE_NAMES = %w{users
                 controlled_vocabulary_terms
                 geographic_area_types
                 geographic_areas
-                geographic_areas_geographic_items
                 geographic_items
+                geographic_areas_geographic_items
                 georeferences
                 images
                 imports
@@ -116,7 +117,6 @@ TABLE_NAMES = %w{users
                 ranged_lot_categories
                 repositories
                 roles
-                schema_migrations
                 serial_chronologies
                 serials
                 sources
@@ -182,7 +182,7 @@ namespace :tw do
 
       TABLE_NAMES.each { |table|
         puts table
-        puts(Benchmark.measure { `pg_restore -Fc -c --data_only --disable-triggers -d #{database_name} -t #{table} #{dump_filename}` })
+        puts(Benchmark.measure { `pg_restore -Fc -c --data-only --disable-triggers -d #{database_name} -t #{table} #{dump_filename}` })
 
         # puts(Benchmark.measure { Support::Database.pg_restore(database, "#{table}", '/Users/tuckerjd/src/gaz/data/hand-built/dump/2015-04-02_132159UTC.dump') })
       }
