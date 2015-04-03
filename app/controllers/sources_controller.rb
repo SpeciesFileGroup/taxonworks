@@ -99,17 +99,21 @@ class SourcesController < ApplicationController
     end
   end
 
-  def batch_preview
-    @sources                    = Source.batch_preview(file: params[:file].tempfile)
-    sha256                      = Digest::SHA256.file(params[:file].tempfile)
-    cookies[:batch_sources_md5] = sha256.hexdigest
+  def batch_load
   end
 
-  def batch_create
+  def preview_bibtex_batch_load 
+    @sources  = Source.batch_preview(file: params[:file].tempfile)
+    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    cookies[:batch_sources_md5] = sha256.hexdigest
+    render 'sources/batch_load/batch_preview'
+  end
+
+  def create_bibtex_batch_load
     sha256 = Digest::SHA256.file(params[:file].tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
       if @sources = Source.batch_create(params.symbolize_keys.to_h)
-        flash[:notice] = "Successfully batch created #{@sources.count} Sources."
+        flash[:notice] = "Successfully batch created #{@sources.count} sources."
       else
         flash[:notice] = 'Failed to create the sources.'
       end

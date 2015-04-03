@@ -162,7 +162,12 @@ TaxonWorks::Application.routes.draw do
 
   resources :sources do
     concerns [:data_routes]
+    collection do
+      post :preview_bibtex_batch_load # should be get
+      post :create_bibtex_batch_load
+    end
   end
+
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
