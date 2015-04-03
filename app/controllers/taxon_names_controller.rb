@@ -67,10 +67,10 @@ class TaxonNamesController < ApplicationController
   end
 
   def search
-    if  params[:id]
-      redirect_to taxon_name_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to taxon_names_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to taxon_name_path(params[:id])
     end
   end
 

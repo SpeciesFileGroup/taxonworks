@@ -70,10 +70,10 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/search
   def search
-    if params[:id]
-      redirect_to taxon_name_relationship_path(params[:id])
-    else
+    if params[:id].blank?
       redirect_to taxon_name_relationship_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to taxon_name_relationship_path(params[:id])
     end
   end
 
