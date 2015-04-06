@@ -65,7 +65,7 @@ class AlternateValue < ActiveRecord::Base
     alternate_value_object 
   end
 
-  # return [Symbol]
+  # @return [Symbol]
   #   the column name containing the attribute name being annotated
   def self.annotated_attribute_column
     :alternate_value_object_attribute
