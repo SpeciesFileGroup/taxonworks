@@ -161,7 +161,7 @@ class GeographicArea < ActiveRecord::Base
     end
 
     search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
-    self.where(name: term) + self.where(search_term).includes(:parent, :geographic_area_type).order('length(name)', :name).limit(limit)
+    (self.where(name: term) + self.where(search_term).includes(:parent, :geographic_area_type).order('length(name)', :name).limit(limit)).uniq
   end
 
   # @param [GeographicArea]
