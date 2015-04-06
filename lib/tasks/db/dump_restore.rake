@@ -157,7 +157,7 @@ namespace :tw do
       database = ActiveRecord::Base.connection.current_database
       path     = File.join(@args[:data_directory], ENV["file"])
       puts "Restoring database from #{path}"
-      puts(Benchmark.measure { `pg_restore -U #{ENV["db_user"]} -Fc -c -d #{database} #{path}` })
+      puts(Benchmark.measure { `pg_restore -U #{ENV["db_user"]} -Fc -c --data-only -d #{database} #{path}` })
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       puts "Restore complete"
     end
