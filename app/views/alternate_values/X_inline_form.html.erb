@@ -17,7 +17,7 @@
     <div class="field">
       <%= f.label :alternate_value_object_attribute %>
       <br>
-      <%= f.select :alternate_value_object_attribute, options_for_select(@alternate_value.alternate_value_object.class.attribute_names.map(&:to_sym) - NON_ANNOTATABLE_COLUMNS, selected = @alternate_value.alternate_value_object_attribute) -%>
+      <%= f.select :alternate_value_object_attribute, options_for_select(@alternate_value.annotatable_attributes, selected = @alternate_value.alternate_value_object_attribute) -%>
     </div>
 
     <div class="field">

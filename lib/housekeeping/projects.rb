@@ -10,14 +10,14 @@ module Housekeeping::Projects
     # these are added to the model
     belongs_to :project, inverse_of: related_instances
 
-    before_validation :set_project_id, unless: 'self.annotates? && self.annotates_community?'
-    validates :project, presence: true, unless: 'self.annotates? && self.annotates_community?'
+    before_validation :set_project_id,  if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
+    validates :project, presence: true, if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
 
-    before_create :override_project_id, if: 'self.annotates? && self.annotates_community?'
+ #   before_create :override_project_id, if: 'self.annotates? && self.annotates_community?'
 
-    def override_project_id
-      self.project_id = nil if !self.project_id.blank?
-    end
+ #  def override_project_id
+ #    self.project_id = nil if !self.project_id.blank?
+ #  end
 
  #  before_save :prevent_alteration_in_other_projects
  #  before_destroy :prevent_alteration_in_other_projects
@@ -54,9 +54,9 @@ module Housekeeping::Projects
  #  # end
  #end
 
-  def annotates?
-    (self.class <= Shared::Annotates) ? true : false
-  end 
+  def annotates_community_object?
+    self.respond_to?(:is_community_annotation?) && self.is_community_annotation?
+  end
 
   def is_community?
     (self.class <= Shared::SharedAcrossProjects) ? true : false

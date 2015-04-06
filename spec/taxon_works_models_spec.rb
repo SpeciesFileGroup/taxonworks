@@ -26,11 +26,11 @@ describe TaxonWorks do
         end
       end
 
-      if model <= Shared::Annotates
-        it "#{model} should define an #annotated_object method" do
-          expect(model.new).to respond_to(:annotated_object) 
-        end
-      end
+    # if model <= Shared::Annotates
+    #   it "#{model} should define an #annotated_object method" do
+    #     expect(model.new).to respond_to(:annotated_object) 
+    #   end
+    # end
 
       if model.column_names.include?('project_id') && !model.name == 'ProjectMember'
         it "#{model} should include Housekeeping::Projects" do

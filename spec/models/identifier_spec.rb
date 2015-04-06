@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier, :type => :model do
+describe Identifier, type: :model, group: :annotators do
   let(:identifier) { FactoryGirl.build(:identifier) }
   let(:namespace) { FactoryGirl.create(:valid_namespace) }
   let(:specimen1) { FactoryGirl.create(:valid_specimen) }
@@ -44,83 +44,89 @@ describe Identifier, :type => :model do
         expect(identifier.errors.include?(:updater)).to be_falsey
       end
 
-      specify 'with << non community object' do
-        expect(specimen1.identifiers.count).to eq(0)
-        specimen1.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
-        expect(specimen1.save).to be_truthy
-        expect(specimen1.identifiers.first.creator.nil?).to be_falsey
-        expect(specimen1.identifiers.first.updater.nil?).to be_falsey
-        expect(specimen1.identifiers.first.project.nil?).to be_falsey
+      context 'non community object' do
+        specify 'with <<' do
+          expect(specimen1.identifiers.count).to eq(0)
+          specimen1.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
+          expect(specimen1.save).to be_truthy
+          expect(specimen1.identifiers.first.creator.nil?).to be_falsey
+          expect(specimen1.identifiers.first.updater.nil?).to be_falsey
+          expect(specimen1.identifiers.first.project.nil?).to be_falsey
+        end
+
+        specify 'with .build' do
+          expect(specimen1.identifiers.count).to eq(0)
+          specimen1.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
+          expect(specimen1.save).to be_truthy
+          expect(specimen1.identifiers.first.creator.nil?).to be_falsey
+          expect(specimen1.identifiers.first.updater.nil?).to be_falsey
+          expect(specimen1.identifiers.first.project.nil?).to be_falsey
+        end
+
+        specify 'with new and <<' do
+          s = FactoryGirl.build(:valid_specimen)
+          s.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
+          expect(s.save).to be_truthy
+          expect(s.identifiers.count).to eq(1)
+          expect(s.identifiers.first.id).to_not be(nil)
+          expect(s.identifiers.first.creator.nil?).to be_falsey
+          expect(s.identifiers.first.updater.nil?).to be_falsey
+          expect(s.identifiers.first.project.nil?).to be_falsey
+        end
+
+        specify 'with new and build' do
+          s = FactoryGirl.build(:valid_specimen)
+          s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
+          expect(s.save).to be_truthy
+          expect(s.identifiers.count).to eq(1)
+          expect(s.identifiers.first.creator.nil?).to be_falsey
+          expect(s.identifiers.first.updater.nil?).to be_falsey
+          expect(s.identifiers.first.project.nil?).to be_falsey
+        end
+      end
+      
+      context 'with community object and is_community_annotation == true' do
+        specify 'with .build' do
+          expect(serial.identifiers.count).to eq(0)
+          serial.identifiers.build(type: 'Identifier::Global::Issn', identifier: 'ISSN 0375-0825', is_community_annotation: true)
+          expect(serial.save).to be_truthy
+          expect(serial.identifiers.first.creator.nil?).to be_falsey
+          expect(serial.identifiers.first.updater.nil?).to be_falsey
+          expect(serial.identifiers.first.project.nil?).to be_truthy
+        end
+
+        specify 'with <<' do
+          expect(serial.identifiers.count).to eq(0)
+          serial.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825', is_community_annotation: true)
+          expect(serial.save).to be_truthy
+          expect(serial.identifiers.first.creator.nil?).to be_falsey
+          expect(serial.identifiers.first.updater.nil?).to be_falsey
+          expect(serial.identifiers.first.project.nil?).to be_truthy
+        end
+
+        specify 'with new and <<' do
+          s = FactoryGirl.build(:valid_serial)
+          s.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825', is_community_annotation: true)
+          expect(s.save).to be_truthy
+          expect(s.identifiers.count).to eq(1)
+          expect(s.identifiers.first.creator.nil?).to be_falsey
+          expect(s.identifiers.first.updater.nil?).to be_falsey
+          expect(s.identifiers.first.project.nil?).to be_truthy
+        end
+
+        specify 'with new and build' do
+          s = FactoryGirl.build(:valid_serial)
+          s.identifiers.build(type:       'Identifier::Global::Issn',
+                              identifier: 'ISSN 0375-0825',
+                              is_community_annotation: true)
+          expect(s.save).to be_truthy
+          expect(s.identifiers.count).to eq(1)
+          expect(s.identifiers.first.creator.nil?).to be_falsey
+          expect(s.identifiers.first.updater.nil?).to be_falsey
+          expect(s.identifiers.first.project.nil?).to be_truthy
+        end
       end
 
-      specify 'with << community object' do
-        expect(serial.identifiers.count).to eq(0)
-        serial.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825')
-        expect(serial.save).to be_truthy
-        expect(serial.identifiers.first.creator.nil?).to be_falsey
-        expect(serial.identifiers.first.updater.nil?).to be_falsey
-        expect(serial.identifiers.first.project.nil?).to be_truthy
-      end
-
-      specify 'with .build  non community object' do
-        expect(specimen1.identifiers.count).to eq(0)
-        specimen1.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
-        expect(specimen1.save).to be_truthy
-        expect(specimen1.identifiers.first.creator.nil?).to be_falsey
-        expect(specimen1.identifiers.first.updater.nil?).to be_falsey
-        expect(specimen1.identifiers.first.project.nil?).to be_falsey
-      end
-
-      specify 'with .build community object' do
-        expect(serial.identifiers.count).to eq(0)
-        serial.identifiers.build(type: 'Identifier::Global::Issn', identifier: 'ISSN 0375-0825')
-        expect(serial.save).to be_truthy
-        expect(serial.identifiers.first.creator.nil?).to be_falsey
-        expect(serial.identifiers.first.updater.nil?).to be_falsey
-        expect(serial.identifiers.first.project.nil?).to be_truthy
-      end
-
-      specify 'with new non community objects and <<' do
-        s = FactoryGirl.build(:valid_specimen)
-        s.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
-        expect(s.save).to be_truthy
-        expect(s.identifiers.count).to eq(1)
-        expect(s.identifiers.first.id).to_not be(nil)
-        expect(s.identifiers.first.creator.nil?).to be_falsey
-        expect(s.identifiers.first.updater.nil?).to be_falsey
-        expect(s.identifiers.first.project.nil?).to be_falsey
-      end
-
-      specify 'with new community objects and <<' do
-        s = FactoryGirl.build(:valid_serial)
-        s.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825')
-        expect(s.save).to be_truthy
-        expect(s.identifiers.count).to eq(1)
-        expect(s.identifiers.first.creator.nil?).to be_falsey
-        expect(s.identifiers.first.updater.nil?).to be_falsey
-        expect(s.identifiers.first.project.nil?).to be_truthy
-      end
-
-      specify 'with new non community objects and build' do
-        s = FactoryGirl.build(:valid_specimen)
-        s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
-        expect(s.save).to be_truthy
-        expect(s.identifiers.count).to eq(1)
-        expect(s.identifiers.first.creator.nil?).to be_falsey
-        expect(s.identifiers.first.updater.nil?).to be_falsey
-        expect(s.identifiers.first.project.nil?).to be_falsey
-      end
-
-      specify 'with new community objects and build' do
-        s = FactoryGirl.build(:valid_serial)
-        s.identifiers.build(type:       'Identifier::Global::Issn',
-                            identifier: 'ISSN 0375-0825')
-        expect(s.save).to be_truthy
-        expect(s.identifiers.count).to eq(1)
-        expect(s.identifiers.first.creator.nil?).to be_falsey
-        expect(s.identifiers.first.updater.nil?).to be_falsey
-        expect(s.identifiers.first.project.nil?).to be_truthy
-      end
     end
 
     specify 'has an identifier_object' do

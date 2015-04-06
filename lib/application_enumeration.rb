@@ -1,7 +1,15 @@
 # Methods for enumerating models, tables, columns etc. 
 # !! If you think that a method belongs here chances are it already exists in a Rails extension.
-
+#
+# Note the use of Module.nesting (http://urbanautomaton.com/blog/2013/08/27/rails-autoloading-hell/)
+#
 module ApplicationEnumeration
+
+  # return [Array]
+  #   a list symbols that represent of populated, non "cached", non "_id", non reserved attributes
+  def self.annotatable_attributes(object)
+    object.attributes.select{|k,v| !v.blank? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - RESERVED_ATTRIBUTES
+  end 
 
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.
   # Return all models in the /app/models/#{klass.name} (not necessarily inheriting) as an Array of Classes.
@@ -16,6 +24,6 @@ module ApplicationEnumeration
     file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").safe_constantize
   end
 
-  # Note the use of Module.nesting (http://urbanautomaton.com/blog/2013/08/27/rails-autoloading-hell/)
+
 
 end

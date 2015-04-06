@@ -9,31 +9,40 @@ describe 'TaxonNameClassifications', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      # todo @mjy, need to build object explicitly with user and project
-      # 10.times { factory_girl_create_for_user_and_project(:valid_taxon_name_classification, @user, @project) }
+      root = factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) 
+      taxon_name = Protonym.create!(
+        parent: root, 
+        name: 'Aus',
+        rank_class: Ranks.lookup(:iczn, 'genus'),
+        by: @user,
+        project: @project
+      )
+
+      TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: taxon_name, by: @user, project: @project)
+      TaxonNameClassification::Iczn::Available::Valid::NomenDubium.create!(taxon_name: taxon_name, by: @user, project: @project)
+      TaxonNameClassification::Iczn::Available.create!(taxon_name: taxon_name, by: @user, project: @project) 
     }
 
-    describe 'GET /taxon_name_classifications' do
-      before {
-        visit taxon_name_classifications_path }
 
-      it_behaves_like 'a_data_model_with_standard_index'
+    describe 'GET /taxon_name_classifications' do
+      before { visit taxon_name_classifications_path }
+      it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /taxon_name_classifications/list' do
-    #   before { visit list_taxon_name_classifications_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
-    #
-    # describe 'GET /taxon_name_classifications/n' do
-    #   before {
-    #     visit taxon_name_classification_path(TaxonNameClassification.second)
-    #   }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_show'
-    # end
+    describe 'GET /taxon_name_classifications/list' do
+      before { visit list_taxon_name_classifications_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
+
+   # TODO:  there is no GET /taxon_name_classifications, context is to TaxonName
+   #describe 'GET /taxon_name_classifications/n' do
+   #  before {
+   #    visit taxon_name_classification_path(TaxonNameClassification.second)
+   #  }
+   # 
+   #  # it_behaves_like 'a_data_model_with_standard_show'
+   # end
   end
 
   context 'resource routes' do

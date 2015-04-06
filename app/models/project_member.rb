@@ -7,6 +7,6 @@ class ProjectMember < ActiveRecord::Base
 
   validates :project, presence: true
   validates :user, presence: true
-  validates_uniqueness_of :user_id, scope: [:project_id]
+  validates_uniqueness_of :user_id, scope: [:project_id], message: 'is already a member of project'
 
 end

@@ -1,20 +1,24 @@
-<%#= render(partial: 'shared/data/project/show', locals: {object: @content}) -%>
-<p id="notice"><%= notice %></p>
+<h1> <%= @project.name -%> </h1>
 
-<p>
-  <strong>Name:</strong>
-  <%= @project.name %>
-</p>
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Attributes </h2>
+  <%= link_to 'Edit', edit_project_path(@project) %> 
+    <%= render partial: 'attributes' -%>
+  </div>
+  
+  <div class="item item2">
+    <h2> Members </h2>
+    <% if @project.users.any? -%>
+      <ul>
+        <%= @project.users.collect{|u| content_tag(:li, user_tag(u))}.join.html_safe -%>
+      </ul>
+    <% else  %>
+      <em> No members added yet! </em>
+    <% end %>
+    <%=  add_project_member_link -%>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @project.created_by_id %>
-</p>
+  </div>
+</div>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @project.updated_by_id %>
-</p>
 
-<%= link_to 'Edit', edit_project_path(@project) %> |
-<%= link_to 'Back', projects_path %>

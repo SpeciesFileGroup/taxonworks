@@ -2,8 +2,9 @@
   <p id="notice"><%= notice %></p>
 
   <p>
-    <strong>Image:</strong>
-    <%= image_tag(@image.image_file.url) %>
+  <strong>Image:</strong>
+   
+    <%= image_tag(@image.image_file.url(:medium)) %>
   </p>
 
   <p>

@@ -3,15 +3,15 @@
 <p> Import includes <%= @sources.count -%> records. </p>
 
 <p> To complete this import, select the file again and click create: 
-<%= form_tag batch_create_sources_path, multipart: true do -%>
+<%= form_tag create_bibtex_batch_load_sources_path, multipart: true do -%>
   <%= file_field_tag :file -%>
   <%= submit_tag 'Create' -%>
 <% end %>
 </p>
 
 <ol>
-  <% @sources.each_with_index do |o, i| %>
-    <%= content_tag(:li, o.cached_string) -%> 
+  <% @sources.each_with_index do |s, i| %>
+    <%= content_tag(:li, s.cached_string('html').html_safe) -%>
   <% end %>
 </ol>
 

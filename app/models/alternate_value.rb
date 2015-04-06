@@ -22,7 +22,8 @@
 class AlternateValue < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
-  include Shared::Annotates
+  include Shared::DualAnnotator
+  include Shared::AttributeAnnotations
 
   belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
@@ -30,17 +31,6 @@ class AlternateValue < ActiveRecord::Base
   validates :language, presence: true, allow_blank: true
   validates_presence_of :type, :value, :alternate_value_object_attribute
   validates :alternate_value_object, presence: true
-
-  before_validation :ensure_object_has_attribute,
-                    :ensure_alternate_value_is_not_identical,
-                    :validate_alternate_value_type,
-                    :not_empty_original_value
-
-  def original_value
-    (self.alternate_value_object_attribute && self.alternate_value_object && self.alternate_value_object.respond_to?(
-        self.alternate_value_object_attribute.to_sym)) ?
-        self.alternate_value_object.send(self.alternate_value_object_attribute.to_sym) : nil
-  end
 
   def type_name
     r = self.type.to_s
@@ -75,6 +65,16 @@ class AlternateValue < ActiveRecord::Base
     alternate_value_object 
   end
 
+  # return [Symbol]
+  #   the column name containing the attribute name being annotated
+  def self.annotated_attribute_column
+    :alternate_value_object_attribute
+  end
+
+  def self.annotation_value_column
+    :value
+  end
+
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -84,34 +84,6 @@ class AlternateValue < ActiveRecord::Base
         }
       end
     end
-  end
-
-  protected
-
-  def validate_alternate_value_type
-    errors.add(:type, 'Is not valid type') if !self.type.nil? and !ALTERNATE_VALUE_CLASS_NAMES.include?(self.type.to_s)
-  end
-
-  def ensure_object_has_attribute
-    # object must not only have this attribute, it must also be explicitly listed in ALTERNATE_VALUE_FOR
-
-    if self.alternate_value_object &&
-        !self.alternate_value_object.attributes.include?(self.alternate_value_object_attribute.to_s)
-      errors.add(:alternate_value_object_attribute, 'No attribute (column) with that name')
-    else
-      if self.alternate_value_object &&
-          !self.alternate_value_object.class::ALTERNATE_VALUES_FOR.include?(self.alternate_value_object_attribute.to_sym)
-        errors.add(:alternate_value_object_attribute, 'Attribute (column) does not allow alternate values.')
-      end
-    end
-  end
-
-  def ensure_alternate_value_is_not_identical
-    errors.add(:value, 'Value is not alternate, is identical to existing value') if (self.value == self.original_value)
-  end
-
-  def not_empty_original_value
-    errors.add(:value, 'An alternate value cannot be assigned to an empty field') if self.original_value.blank?
   end
 
 end

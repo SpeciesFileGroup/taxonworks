@@ -41,7 +41,10 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def new
-    @taxon_name_classification = TaxonNameClassification.new(taxon_name: TaxonName.find(params.permit(:taxon_name_id)['taxon_name_id']))
+    @taxon_name_classification = TaxonNameClassification.new(
+      taxon_name: TaxonName.find(
+        params.permit(taxon_name_classification: [:taxon_name_id, :type])['taxon_name_classification']['taxon_name_id'])
+    )
   end
 
   # DELETE /taxon_name_classifications/1

@@ -21,7 +21,9 @@
 class DataAttribute < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
-  include Shared::Annotates
+  include Shared::DualAnnotator
+
+#   include Shared::Annotates
 
   belongs_to :attribute_subject, polymorphic: true
 

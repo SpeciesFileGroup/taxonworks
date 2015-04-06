@@ -56,7 +56,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
+            expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -67,7 +67,7 @@ describe 'Users' do
             # fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
+            expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -78,7 +78,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: nil
             click_button 'Update User'
 
-            expect(page).to_not have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
+            expect(page).to_not have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
           end
         end
       end
@@ -206,7 +206,7 @@ describe 'Users' do
           fill_in 'Password confirmation', with: '1234ZZZ!'
           click_button 'Update User'
    
-          expect(page).to have_css('p.alert.alert--success', 'Changes to your account information have been saved.')
+          expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
         end
       end
 

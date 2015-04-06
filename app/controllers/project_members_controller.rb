@@ -1,11 +1,12 @@
 class ProjectMembersController < ApplicationController
   before_action :require_superuser_sign_in 
-
   before_action :set_project_member, only: [:edit, :update, :destroy]
 
   # GET /project_members/new
   def new
-    @project_member = ProjectMember.new
+    @project_member = ProjectMember.new(project_member_params)
+    @available_users = []
+    redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
   # GET /project_members/1/edit
@@ -19,7 +20,7 @@ class ProjectMembersController < ApplicationController
 
     respond_to do |format|
       if @project_member.save
-        format.html { redirect_to @project_member, notice: 'Project member was successfully created.' }
+        format.html { redirect_to project_path(@project_member.project), notice: "#{@project_member.user.name} was successfully added to #{@project_member.project.name}" }
         format.json { render :show, status: :created, location: @project_member }
       else
         format.html { render :new }
@@ -33,7 +34,7 @@ class ProjectMembersController < ApplicationController
   def update
     respond_to do |format|
       if @project_member.update(project_member_params)
-        format.html { redirect_to @project_member, notice: 'Project member was successfully updated.' }
+        format.html { redirect_to  project_path(@project_member.project), notice: 'Project member was successfully updated.' }
         format.json { render :show, status: :ok, location: @project_member }
       else
         format.html { render :edit }
@@ -47,7 +48,7 @@ class ProjectMembersController < ApplicationController
   def destroy
     @project_member.destroy
     respond_to do |format|
-      format.html { redirect_to project_members_url, notice: 'Project member was successfully destroyed.' }
+      format.html { redirect_to project_path(@project_member.project), notice: 'Project member was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

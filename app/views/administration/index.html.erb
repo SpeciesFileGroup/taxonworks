@@ -5,17 +5,11 @@
   <div class="item item1">
 
     <h2> Projects </h2>
+    <em> To add a project member view that project. </em>
     <nav>
       <ul>
         <%= content_tag(:li, link_to("New", new_project_path)) -%>
         <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
-      </ul>
-    </nav>
-
-    <h2> Project Membership </h2>
-    <nav>
-      <ul>
-        <%= content_tag(:li, link_to("Add a user to a project", new_project_member_path)) -%>
       </ul>
     </nav>
 
@@ -24,6 +18,7 @@
       <ul>
         <%= content_tag(:li, link_to("New", signup_path)) -%>
         <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
+        <%= content_tag(:li, link_to("All", users_path)) -%>
       </ul>
     </nav>
 

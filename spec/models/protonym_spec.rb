@@ -15,6 +15,8 @@ describe Protonym, :type => :model do
     Source.delete_all
   end
 
+  let(:root) { Protonym.where(name: 'Root').first }
+
   context 'methods' do
     specify 'all_generic_placements' do
       family = FactoryGirl.create(:relationship_family)
@@ -167,8 +169,36 @@ describe Protonym, :type => :model do
     before do
       protonym.valid?
     end
+
     specify 'name' do
       expect(protonym.errors.include?(:name)).to be_truthy
+    end
+
+    context 'latinization requires' do 
+      let(:error_message) {  'must be latinized, no digits or spaces allowed' } 
+      specify 'no digits are present at end' do
+        protonym.name = 'aus1'
+        protonym.valid?
+        expect(protonym.errors.messages[:name]).to include(error_message)
+      end
+
+      specify 'no digits are present at start' do
+        protonym.name = '1bus'
+        protonym.valid?
+        expect(protonym.errors.messages[:name]).to include(error_message)
+      end
+
+      specify 'no digits are present in middle' do
+        protonym.name = 'au1s'
+        protonym.valid?
+        expect(protonym.errors.messages[:name]).to include(error_message)
+      end
+        
+      specify 'no spaces are present' do
+        protonym.name = 'ab us'
+        protonym.valid?
+        expect(protonym.errors.messages[:name]).to include(error_message)
+      end
     end
   end
 
@@ -1074,7 +1104,7 @@ describe Protonym, :type => :model do
     end
 
     context 'combinations' do
-      let(:root) { Protonym.where(name: 'Root').first }
+
       let(:genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: root) }
       let(:alternate_genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Bus', parent: root) }
       let(:species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: genus) }
