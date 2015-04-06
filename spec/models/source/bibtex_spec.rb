@@ -130,30 +130,56 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context "Should handle BibTeX formatting" do
       # BibTeX.parse doesn't handle math version so no sub or sup (e.g. 20<sup>th</sup>)
-      let(:citation_string) { %q(@Article{py03,
+      specify 'Strings are output properly' do
+        citation_string = %q(@Article{py03,
                                     title = "The \t{oo} annual meeting of {BibTeX}--users",
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
                                     editor = "Simon {"}the {saint"} Templar",
                                     publisher = "@ sign publishing",
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
-      }
-      specify 'Strings are output properly' do
-        expect(true).to be_truthy
-        a     = BibTeX.parse(citation_string).convert(:latex)
-        entry = a.first
-        src   = Source::Bibtex.new_from_bibtex(entry)
+        a               = BibTeX.parse(citation_string).convert(:latex)
+        entry           = a.first
+        src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
         expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
         expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
-        input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
-        
-        src   = Source.new_from_citation({citation: input, resolve: true})
+        # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+        # src   = Source.new_from_citation({citation: input, resolve: true})
+        citation_string = "@book{Brauer_1909,
+            doi = {10.5962/bhl.title.1086},
+            url = {http://dx.doi.org/10.5962/bhl.title.1086},
+            year = 1909,
+            publisher = {Smithsonian Institution},
+            author = {August Brauer},
+            title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
+          }"
+        a               = BibTeX.parse(citation_string).convert(:latex)
+        entry           = a.first
+        src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
-      end
 
+        # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
+        # src   = Source.new_from_citation({citation: input, resolve: true})
+        citation_string = "@article{Grubbs_2014,
+            doi = {10.3897/zookeys.401.7299},
+            url = {http://dx.doi.org/10.3897/zookeys.401.7299},
+            year = 2014,
+            month = {apr},
+            publisher = {Pensoft Publishers},
+            volume = {401},
+            pages = {11--30},
+            author = {Scott Grubbs and Richard Baumann and R. DeWalt and Tari Tweddale},
+            title = {A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P.~hallasi Kondratieff {\&} Kirchner},
+            journal = {{ZooKeys}}
+          }"
+        a               = BibTeX.parse(citation_string).convert(:latex)
+        entry           = a.first
+        src             = Source::Bibtex.new_from_bibtex(entry)
+        expect(src.cached_string('html')).to eq("Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.")
+      end
     end
 
     skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
