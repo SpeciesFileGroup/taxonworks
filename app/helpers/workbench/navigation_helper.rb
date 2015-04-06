@@ -85,8 +85,8 @@ module Workbench::NavigationHelper
   def edit_object_link(object)
     # TODO  We need to think more about what the rules will be to allow editing on shared objects.
     # currently this is only allows the creator to edit a shared object.
-    if (@is_shared_data_model && object.created_by_id != $user_id)||
-      !self.respond_to?(edit_object_path_string(object))
+    if (!@sessions_current_user.is_administrator?) && ((@is_shared_data_model && object.created_by_id != $user_id)||
+      !self.respond_to?(edit_object_path_string(object)) )
       content_tag(:span, 'Edit', class: :disabled)
     else
       link_to('Edit', edit_object_path(object.metamorphosize))
@@ -94,7 +94,7 @@ module Workbench::NavigationHelper
   end
 
   def destroy_object_link(object)
-    if @is_shared_data_model
+    if (!@sessions_current_user.is_administrator?) && (@is_shared_data_model)
       content_tag(:span, 'Destroy', class: :disabled)
     else
       link_to('Destroy', object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'})
