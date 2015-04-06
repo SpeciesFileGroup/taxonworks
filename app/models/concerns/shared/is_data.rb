@@ -42,6 +42,11 @@ module Shared::IsData
     self.class.reflect_on_all_associations(:has_many).each do |r|
       return true if self.send(r.name).count > 0
     end
+
+    self.class.reflect_on_all_associations(:has_one).each do |r|
+      return true if self.send(r.name).count > 0
+    end
+
     false
   end
 
