@@ -18,7 +18,7 @@ namespace :tw do
 
     desc 'Dump the data as a backup, then restore the db from the specified file.'
     task :restore => [:dump, :environment, :data_directory, :db_user] do
-      raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV["file"]
+      raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV['file']
       Rake::Task['db:drop'].invoke
       raise "'db:drop' failed with exit code #{$?.to_i}" unless $? == 0
       Rake::Task['db:create'].invoke
