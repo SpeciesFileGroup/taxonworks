@@ -575,7 +575,8 @@ class Source::Bibtex < Source
 
   end
 
-  # ident_array = self.identifiers.to_a                             # ident_array.each do |ident|
+  # ident_array = self.identifiers.to_a
+  # ident_array.each do |ident|
   #     if ident.type == 'Identifier::Global::Doi'
   #       tw_doi = ident
   #     end
