@@ -42,9 +42,12 @@ describe 'Sources', :type => :feature, :group => :sources do
         sign_in_administrator_and_select_project
         visit list_sources_path
       }
+     
+     specify 'fix me' do 
       expect() # there is a recent update list & 'Edit' link is active
       expect() # there is at least one source
       expect() # that it was not created by the admin
+     end
       # go to show the source not created by admin
       # edit & delete are active links
       # go to edit page
