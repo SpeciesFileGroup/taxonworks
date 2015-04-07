@@ -72,9 +72,11 @@ class User < ActiveRecord::Base
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
-
-  scope :not_in_project, -> (project_id) { includes(:project_members).where( :project_members => { :id => nil, project_id: project_id} ) }
-
+  def self.not_in_project(project_id)
+    User.where(  
+               User.arel_table[:id].not_eq_all( ProjectMember.where(project_id: project_id).pluck(:user_id) ) 
+              )
+  end
 
   def User.secure_random_token
     SecureRandom.urlsafe_base64

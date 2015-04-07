@@ -32,6 +32,8 @@ class GeographicItem < ActiveRecord::Base
     set_rgeo_factory_for_column(t, column_factory)
   end
 
+  # validates_uniquness_of if !.blank.
+
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
 

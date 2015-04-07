@@ -5,7 +5,7 @@ class ProjectMembersController < ApplicationController
   # GET /project_members/new
   def new
     @project_member = ProjectMember.new(project_member_params)
-    @available_users = []
+    @available_users = User.not_in_project(@project_member.project_id) 
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 

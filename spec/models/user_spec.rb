@@ -202,6 +202,16 @@ describe User, :type => :model do
     end
   end
 
+  context 'scopes' do
+    let(:p) { Project.create(name: 'Stubbed for project member test') }
+    let!(:u) { User.create(name: 'Jones', email: 'abc@example.com', self_created: true, password: 'acdadewsr1A') }
+
+    specify '.not_in_project' do
+      expect(User.not_in_project(1).to_a).to include(u)
+    end
+
+  end
+
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'notable'
