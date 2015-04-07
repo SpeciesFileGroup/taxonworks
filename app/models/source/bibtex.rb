@@ -301,36 +301,36 @@ class Source::Bibtex < Source
 
   #region validations
   validates_inclusion_of :bibtex_type,
-    in:      ::VALID_BIBTEX_TYPES,
-    message: '%{value} is not a valid source type'
+                         in:      ::VALID_BIBTEX_TYPES,
+                         message: '%{value} is not a valid source type'
 
   validates_presence_of :year,
-    if:      '!month.blank? || !stated_year.blank?',
-    message: 'year is required when month or stated_year is provided'
+                        if:      '!month.blank? || !stated_year.blank?',
+                        message: 'year is required when month or stated_year is provided'
 
   # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_numericality_of :year,
-    only_integer:          true, greater_than: 999,
-    less_than_or_equal_to: Time.now.year + 2,
-    allow_blank:            true,
-    message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+                            only_integer:          true, greater_than: 999,
+                            less_than_or_equal_to: Time.now.year + 2,
+                            allow_blank:           true,
+                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
 
   validates_presence_of :month,
-    if:      '!day.nil?',
-    message: 'month is required when day is provided'
+                        if:      '!day.nil?',
+                        message: 'month is required when day is provided'
 
   validates_inclusion_of :month,
-    in:        ::VALID_BIBTEX_MONTHS,
-    allow_blank: true,
-    message:   ' month'
+                         in:          ::VALID_BIBTEX_MONTHS,
+                         allow_blank: true,
+                         message:     ' month'
 
   validates_numericality_of :day,
-    allow_blank:             true,
-    only_integer:          true,
-    greater_than:          0,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-    :unless                => 'year.nil? || month.nil?',
-    message:               '%{value} is not a valid day for the month provided'
+                            allow_blank:           true,
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
+                            :unless                => 'year.nil? || month.nil?',
+                            message:               '%{value} is not a valid day for the month provided'
 
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
                               message: "[%{value}] is not a valid URL"}, allow_blank: true
@@ -353,12 +353,12 @@ class Source::Bibtex < Source
   #region ruby-bibtex related
 
   def journal
-   [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
   end
 
   # @return [BibTeX::Entry]
   #   entry equvalent to self
-  def to_bibtex 
+  def to_bibtex
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
@@ -373,7 +373,7 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable 
     # TODO add conversion of Serial ID to journal name
 
-    b.key = self.id unless self.new_record? # id.blank?
+    b.key    = self.id unless self.new_record? # id.blank?
     b
   end
 
@@ -402,7 +402,7 @@ class Source::Bibtex < Source
     # TODO On input, convert ruby-bibtex.url to an identifier
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+    s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     import_attributes = []
     bibtex_entry.fields.each do |key, value|
       v = value.to_s.strip
@@ -425,7 +425,7 @@ class Source::Bibtex < Source
   # @return[String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if self.new_record?
-    [ cached_author_string, year].compact.join(", ")
+    [cached_author_string, year].compact.join(", ")
   end
 
   # Modified from build, the issues with polymorphic has_many and build
@@ -435,12 +435,12 @@ class Source::Bibtex < Source
       self.new_record? ||
       (self.author.blank? && self.editor.blank?) ||
       self.roles.count > 0
-    
+
     bibtex = to_bibtex
     bibtex.parse_names
 
     begin
-      Role.transaction do 
+      Role.transaction do
         unless bibtex.authors.blank?
           bibtex.authors.each do |a|
             p = Source::Bibtex.bibtex_author_to_person(a)
@@ -458,7 +458,7 @@ class Source::Bibtex < Source
         end
       end
     rescue ActiveRecord::RecordInvalid
-      raise 
+      raise
     end
     true
   end
@@ -477,29 +477,29 @@ class Source::Bibtex < Source
   #endregion  ruby-bibtex related
 
   #region getters & setters
-  
+
   # Return a String of last names as displayed in nomenclatural authority.
   def authority_name
     case self.authors.count
-    when 0
-      if self.author.blank?
-        return ('')
-      else        # build off the last names only of .authors
-        b = self.to_bibtex
-        b.parse_names
-        case b.author.tokens.count
-        when 0
-          return ('') # shouldn't ever get here
-        when 1
-          return(b.author[0].last)
-        else
-         return  b.author.tokens.collect{|t| t.last}.to_sentence( :last_word_connector => ' & ')
+      when 0
+        if self.author.blank?
+          return ('')
+        else # build off the last names only of .authors
+          b = self.to_bibtex
+          b.parse_names
+          case b.author.tokens.count
+            when 0
+              return ('') # shouldn't ever get here
+            when 1
+              return(b.author[0].last)
+            else
+              return b.author.tokens.collect { |t| t.last }.to_sentence(:last_word_connector => ' & ')
+          end
         end
-      end
-    when 1
-      return (authors.all.first.last_name)
-    else
-      return  self.authors.collect{|a| a.last_name}.to_sentence(:last_word_connector => ' & ')
+      when 1
+        return (authors.all.first.last_name)
+      else
+        return self.authors.collect { |a| a.last_name }.to_sentence(:last_word_connector => ' & ')
     end
   end
 
@@ -520,25 +520,40 @@ class Source::Bibtex < Source
     write_attribute(:month, v)
   end
 
-# def note=(value)
-#   write_attribute(:note, value)
-#   if !self.note.blank? && self.new_record?
-#     if value.include?('|')
-#       a = value.split(/|/)
-#       a.each do |n|
-#         self.notes.build({text: n + ' [Created on import from BibTeX.]'})
-#       end
-#     else
-#       self.notes.build({text: value + ' [Created on import from BibTeX.]'})
-#     end
-#   end
-# end
+  # def note=(value)
+  #   write_attribute(:note, value)
+  #   if !self.note.blank? && self.new_record?
+  #     if value.include?('|')
+  #       a = value.split(/|/)
+  #       a.each do |n|
+  #         self.notes.build({text: n + ' [Created on import from BibTeX.]'})
+  #       end
+  #     else
+  #       self.notes.build({text: value + ' [Created on import from BibTeX.]'})
+  #     end
+  #   end
+  # end
 
+  #region identifiers
   def isbn=(value)
-    write_attribute(:isbn, value)
+    tw_isbn = nil
+    if self.identified?
+      ident_array = self.identifiers.to_a
+      ident_array.each do |ident|
+        if ident.type == 'Identifier::Global::Isbn'
+          tw_isbn = ident
+        end
+      end
+    end
+    if tw_isbn.nil?
+      write_attribute(:isbn, value)
+      self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) unless value.blank?
+    else
+      if tw_isbn.identifier != value
+        tw_isbn.identifier = value
+      end
+    end
     #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
-
-    self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) if ! value.blank?
   end
 
   def isbn
@@ -547,9 +562,25 @@ class Source::Bibtex < Source
 
   def doi=(value)
     write_attribute(:doi, value)
-    #TODO if there is already an 'Identifier::Global::Doi' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value) if ! value.blank?
+    unless value.blank?
+      if tw_doi = self.identifiers.where(type: 'Identifier::Global::Doi').first
+        if tw_doi.identifier != value
+          tw_doi.destroy
+          self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
+        end
+      else
+        self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
+      end
+    end
+
   end
+
+  # ident_array = self.identifiers.to_a
+  # ident_array.each do |ident|
+  #     if ident.type == 'Identifier::Global::Doi'
+  #       tw_doi = ident
+  #     end
+  # end
 
   def doi
     identifier_string_of_type(:doi)
@@ -560,11 +591,16 @@ class Source::Bibtex < Source
   def issn=(value)
     write_attribute(:issn, value)
     #TODO if there is already an 'Identifier::Global::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if ! value.blank?
+    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if !value.blank?
   end
 
   def issn
     identifier_string_of_type(:issn)
+  end
+
+  # turn bibtex URL field into a Ruby URI object
+  def url_as_uri
+    URI(self.url) unless self.url.blank?
   end
 
   # TODO: Turn this into a has_one relationship
@@ -574,13 +610,11 @@ class Source::Bibtex < Source
     identifiers.size == 0 ? nil : identifiers.first.identifier
   end
 
+  #endregion identifiers
+
   #TODO if language is set => set language_id
   #endregion getters & setters
 
-  # turn bibtex URL field into a Ruby URI object
-  def url_as_uri
-    URI(self.url) unless self.url.blank?
-  end
 
   #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
@@ -611,7 +645,7 @@ class Source::Bibtex < Source
   #endregion has_<attribute>? section
 
   #region time/date related
- 
+
   # An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   # @return [Date] 
   def date
@@ -664,7 +698,7 @@ class Source::Bibtex < Source
       bx_entry.key = 'tmpID'
     end
 
-    key = bx_entry.key
+    key             = bx_entry.key
     bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)
 
@@ -690,12 +724,12 @@ class Source::Bibtex < Source
 
   def set_cached
     if self.errors.empty?
-      tmp = cached_string('text')
-  #   if tmp.nil?
-  #     errors.add(:cached, 'unable to build cached_string')
-  #     return
-  #   end
-      self.cached               =  tmp
+      tmp                       = cached_string('text')
+      #   if tmp.nil?
+      #     errors.add(:cached, 'unable to build cached_string')
+      #     return
+      #   end
+      self.cached               = tmp
       self.cached_author_string = authority_name
     end
   end
@@ -803,65 +837,65 @@ class Source::Bibtex < Source
 
   def sv_missing_required_bibtex_fields
     case self.bibtex_type
-    when 'article' #:article       => [:author,:title,:journal,:year]
-      sv_has_authors
-      sv_has_title
-      sv_is_article_missing_journal
-      sv_year_exists
-    when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
-      sv_contains_a_writer
-      sv_has_title
-      sv_has_a_publisher
-      sv_year_exists
-    when 'booklet' #    :booklet       => [:title],
-      sv_has_title
-    when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_booktitle
-      sv_year_exists
-    when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
-      sv_contains_a_writer
-      sv_has_title
-      sv_is_contained_has_chapter_or_pages
-      sv_has_a_publisher
-      sv_year_exists
-    when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_booktitle
-      sv_has_a_publisher
-      sv_year_exists
-    when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_booktitle
-      sv_year_exists
-    when 'manual' #    :manual        => [:title],
-      sv_has_title
-    when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_school
-      sv_year_exists
+      when 'article' #:article       => [:author,:title,:journal,:year]
+        sv_has_authors
+        sv_has_title
+        sv_is_article_missing_journal
+        sv_year_exists
+      when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
+        sv_contains_a_writer
+        sv_has_title
+        sv_has_a_publisher
+        sv_year_exists
+      when 'booklet' #    :booklet       => [:title],
+        sv_has_title
+      when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
+        sv_year_exists
+      when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
+        sv_contains_a_writer
+        sv_has_title
+        sv_is_contained_has_chapter_or_pages
+        sv_has_a_publisher
+        sv_year_exists
+      when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
+        sv_has_a_publisher
+        sv_year_exists
+      when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_booktitle
+        sv_year_exists
+      when 'manual' #    :manual        => [:title],
+        sv_has_title
+      when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_school
+        sv_year_exists
       #    :misc          => [],  (no required fields)
-    when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_school
-      sv_year_exists
-    when 'proceedings' #    :proceedings   => [:title,:year],
-      sv_has_title
-      sv_year_exists
-    when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
-      sv_has_authors
-      sv_has_title
-      sv_has_institution
-      sv_year_exists
-    when 'unpublished' #    :unpublished   => [:author,:title,:note]
-      sv_has_authors
-      sv_has_title
-      sv_has_note
+      when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_school
+        sv_year_exists
+      when 'proceedings' #    :proceedings   => [:title,:year],
+        sv_has_title
+        sv_year_exists
+      when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
+        sv_has_authors
+        sv_has_title
+        sv_has_institution
+        sv_year_exists
+      when 'unpublished' #    :unpublished   => [:author,:title,:note]
+        sv_has_authors
+        sv_has_title
+        sv_has_note
     end
   end
 

@@ -36,26 +36,26 @@ describe 'Sources', :type => :feature, :group => :sources do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
-
-    describe 'an administrator can edit or destroy any source not in use' do
-      before {
-        sign_in_administrator_and_select_project
-        visit list_sources_path
-      }
-     
-     specify 'fix me' do 
-      expect() # there is a recent update list & 'Edit' link is active
-      expect() # there is at least one source
-      expect() # that it was not created by the admin
-     end
-      # go to show the source not created by admin
-      # edit & delete are active links
-      # go to edit page
-      # return to show page
-      # go to delete page
-    end
   end
 
+  context "as an administrator, with a different user's records" do
+    specify 'can edit or destroy any source' do
+      create_source_by_user
+      expect(@src1.valid?).to be_truthy
+      sign_in_with(@administrator.email, @password) # sign in as administrator
+      visit sources_path
+      expect(@src1.cached).to eq('Author1 (2014) Article Title. Test journal.')
+      expect(page).to have_link('Author1 (2014) Article Title. Test journal.')
+      expect(page).to have_link('Edit') # there is a recent update list & 'Edit' link is active
+      click_link('Author1 (2014) Article Title. Test journal.') # go to show the source not created by admin
+      expect(page).to have_link('Edit') # edit & delete are active links
+      click_link('Edit') # go to edit page
+      expect(find_field('Title').value).to eq('Article Title')
+      click_link('Show') # return to show page
+      expect(page).to have_link('Destroy')
+    end
+
+  end
   context 'testing new source' do
     before {
       sign_in_user_and_select_project #   logged in and project selected
@@ -169,6 +169,17 @@ describe 'Sources', :type => :feature, :group => :sources do
     then I see the edit form
 =end
 
+  end
+
+  def create_source_by_user
+    sign_in_user_and_select_project # create record as a non-admin user
+    @src1             = Source::Bibtex.new(by: @user)
+    @src1.bibtex_type = 'article'
+    @src1.title       = 'Article Title'
+    @src1.author      = 'Author1'
+    @src1.year        = '2014'
+    @src1.journal     = 'Test journal'
+    @src1.save!
   end
 end
 
