@@ -1,8 +1,5 @@
 <%= form_for(@project_member) do |f| %>
   <%= render 'shared/errors', object: @project_member %>
-
-  <%= ap(@project_member).html_safe -%>
-
   <div class="field">
     <%= f.label :project_id %><br>
     <strong> <%= @project_member.project.name -%></strong>

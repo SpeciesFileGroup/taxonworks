@@ -16,7 +16,7 @@
     <% else  %>
       <em> No members added yet! </em>
     <% end %>
-    <%=  add_project_member_link -%>
+    <%= add_project_member_link(@project.to_param) -%>
 
   </div>
 </div>
