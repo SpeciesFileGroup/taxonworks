@@ -36,6 +36,21 @@ describe 'Sources', :type => :feature, :group => :sources do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
+
+    describe 'an administrator can edit or destroy any source not in use' do
+      before {
+        sign_in_administrator_and_select_project
+        visit list_sources_path
+      }
+      expect() # there is a recent update list & 'Edit' link is active
+      expect() # there is at least one source
+      expect() # that it was not created by the admin
+      # go to show the source not created by admin
+      # edit & delete are active links
+      # go to edit page
+      # return to show page
+      # go to delete page
+    end
   end
 
   context 'testing new source' do

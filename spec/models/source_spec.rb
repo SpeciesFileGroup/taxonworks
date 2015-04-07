@@ -7,7 +7,7 @@ describe Source, type: :model, group: :sources do
     Source.delete_all
   }
 
-  context 'associtations' do
+  context 'associations' do
     specify 'sources have citations' do
       expect(source.citations << Citation.new()).to be_truthy 
     end
@@ -24,7 +24,7 @@ describe Source, type: :model, group: :sources do
       expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
     end
 
-    specify 'when citation is resolveable a Source::Bibtex instance is returned' do
+    specify 'when citation is resolvable a Source::Bibtex instance is returned' do
       s =  Source.new_from_citation(citation: citation)
       expect(s.class).to eq(Source::Bibtex)
     end
@@ -47,7 +47,7 @@ describe Source, type: :model, group: :sources do
     end
   end
 
-  context "cited objects" do
+  context 'cited objects' do
     let(:o) {FactoryGirl.create(:valid_otu) }
     let(:a) {FactoryGirl.create(:valid_source_bibtex)}
 

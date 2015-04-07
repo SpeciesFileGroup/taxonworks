@@ -44,7 +44,7 @@ gem 'bibtex-ruby', '~> 4.0.12'
 gem 'citeproc-ruby', '~> 1.0.6'
 gem 'csl-styles'
 gem 'ref2bibtex', '~> 0.0.3'
-gem 'latex-decode', '~> 0.2.1'
+gem 'latex-decode', '~> 0.2.2'
 
 # gem 'anystyle-parser' # use when we stabilize
 
