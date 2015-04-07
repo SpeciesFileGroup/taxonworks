@@ -1,1 +1,22 @@
+<%= content_for :related_attributes do %>
+    <% if @source.type == 'Source::Bibtex' %>
+        <% if @source.authors.any? %>
+            <h3>Authors</h3>
+            <ul>
+              <% @source.authors.each do |author| %>
+                  <%= content_tag(:li, author.last_name) %>
+              <% end %>
+            </ul>
+        <% end %>
+        <% if @source.editors.any? %>
+            <h3>Editors</h3>
+            <ul>
+              <% @source.editors.each do |editor| %>
+                  <%= content_tag(:li, editor.last_name) %>
+              <% end %>
+            </ul>
+        <% end %>
+    <% end %>
+ <% end %>
+
 <%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @source}) -%>

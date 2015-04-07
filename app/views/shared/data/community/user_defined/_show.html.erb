@@ -17,8 +17,8 @@
 
     <div class="attributes">
       <%= render object_attributes_partial_path(object.metamorphosize) %>
-      <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
       <%= yield :related_attributes -%>
+      <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
       <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
       <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if !object.annotations.empty? -%>
     </div>
