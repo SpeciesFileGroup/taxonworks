@@ -536,24 +536,17 @@ class Source::Bibtex < Source
 
   #region identifiers
   def isbn=(value)
-    tw_isbn = nil
-    if self.identified?
-      ident_array = self.identifiers.to_a
-      ident_array.each do |ident|
-        if ident.type == 'Identifier::Global::Isbn'
-          tw_isbn = ident
+    write_attribute(:isbn, value)
+    unless value.blank?
+      if tw_isbn = self.identifiers.where(type: 'Identifier::Global::Isbn').first
+        if tw_isbn.identifier != value
+          tw_isbn.destroy
+          self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
         end
+      else
+        self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
       end
     end
-    if tw_isbn.nil?
-      write_attribute(:isbn, value)
-      self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value) unless value.blank?
-    else
-      if tw_isbn.identifier != value
-        tw_isbn.identifier = value
-      end
-    end
-    #TODO if there is already an 'Identifier::Global::Isbn' update instead of add
   end
 
   def isbn
@@ -572,26 +565,26 @@ class Source::Bibtex < Source
         self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
       end
     end
-
   end
-
-  # ident_array = self.identifiers.to_a
-  # ident_array.each do |ident|
-  #     if ident.type == 'Identifier::Global::Doi'
-  #       tw_doi = ident
-  #     end
-  # end
 
   def doi
     identifier_string_of_type(:doi)
   end
 
-  # TODO: Are ISSN only Serials now? Maybe the raw bibtex source may come in with an ISSN in which case
+  # TODO: Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
   # we need to set the serial based on ISSN.
   def issn=(value)
     write_attribute(:issn, value)
-    #TODO if there is already an 'Identifier::Global::Issn' update instead of add
-    self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value) if !value.blank?
+    unless value.blank?
+      if tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
+        if tw_issn.identifier != value
+          tw_issn.destroy
+          self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+        end
+      else
+        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+      end
+    end
   end
 
   def issn
