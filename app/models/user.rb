@@ -73,9 +73,10 @@ class User < ActiveRecord::Base
   has_many :pinboard_items, dependent: :destroy
 
   def self.not_in_project(project_id)
-    User.where(  
-               User.arel_table[:id].not_eq_all( ProjectMember.where(project_id: project_id).pluck(:user_id) ) 
-              )
+    ids =   ProjectMember.where(project_id: project_id).pluck(:user_id) 
+    return where(false) if ids.empty?
+
+    User.where( User.arel_table[:id].not_eq_all( ids ))
   end
 
   def User.secure_random_token
