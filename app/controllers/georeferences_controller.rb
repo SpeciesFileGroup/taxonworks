@@ -89,6 +89,10 @@ class GeoreferencesController < ApplicationController
     end
   end
 
+  def batch_create
+
+  end
+
   # PATCH/PUT /georeferences/1
   # PATCH/PUT /georeferences/1.json
   #  def update
