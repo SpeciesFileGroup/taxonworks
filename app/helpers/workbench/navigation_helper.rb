@@ -137,7 +137,8 @@ module Workbench::NavigationHelper
     if o.nil?
       link_to(route.parameterize(' - ').humanize.capitalize, route)
     elsif o
-      link_to(object_tag(o.metamorphosize) +  " [#{hsh[route]['object_type']}]" , route) 
+      o = o.metamorphosize if o.respond_to?(:metamorphosize)
+      link_to(object_tag(o) +  " [#{hsh[route]['object_type']}]" , route) 
     else
       content_tag(:em, 'Data no longer available.', class: :warning)
     end
