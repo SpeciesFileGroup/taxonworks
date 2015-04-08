@@ -42,7 +42,7 @@ class Image < ActiveRecord::Base
   soft_validate(:sv_duplicate_image?)
 
   def has_duplicate?
-    Image.exists?(:image_file_fingerprint => self.image_file_fingerprint)
+    Image.where(:image_file_fingerprint => self.image_file_fingerprint).count > 1
   end
 
   def duplicate_images
