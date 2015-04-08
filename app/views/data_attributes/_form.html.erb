@@ -11,7 +11,7 @@
       <%= f.label 'Predicate' %>
       <br>
       <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals => {:controller => 'controlled_vocabulary_terms',
+                 :locals => {:controller => 'predicates',
                              :object => 'data_attribute',
                              :method => 'controlled_vocabulary_term_id',
                              :tag_id => 'controlled_vocabulary_term_id_for_data_attribute',

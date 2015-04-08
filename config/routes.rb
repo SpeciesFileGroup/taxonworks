@@ -73,6 +73,12 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :predicates, only: [ ] do
+    collection do
+      get 'autocomplete'
+    end
+  end
+
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
   end

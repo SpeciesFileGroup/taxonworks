@@ -1,0 +1,69 @@
+<%= form_for(@combination) do |f| -%>
+    <div class="flexbox">
+      <div class="item item1">
+
+        <div class="field">
+          <%= f.label :verbatim_name %>
+          <br>
+          <%= f.text_field :verbatim_name %>
+        </div>
+
+        <h3> published in </h3>
+        <div class="field">
+          <%= f.label :source_id %>
+          <br>
+          <%= render(partial: '/workbench/elements/forms/ajax_select',
+                     locals:  {controller: 'sources',
+                               object:     'combination',
+                               method:     'source_id',
+                               tag_id:     'source_id_for_combination',
+                               display:    source_tag(@combination.source),
+                               size:       20
+                     })
+          %>
+        </div>
+
+        <em> or </em>
+
+        <div class="field">
+          <%= f.label :year_of_publication %>
+          <br>
+          <%= f.text_field :year_of_publication %>
+        </div>
+
+        <div class="field">
+          <%= f.label :verbatim_author %>
+          <br>
+          <%= f.text_field :verbatim_author %>
+        </div>
+
+
+      </div>
+
+      <div class="item item2 inline_fields">
+        <% Combination::APPLICABLE_RANKS.each do |rank| -%>
+            <div class="field">
+              <%= f.label rank %>
+              <br>
+              <% if @protonym && @protonym.rank == rank -%>
+                  <%= f.hidden_field("#{rank}_id".to_sym) -%>
+                  <mark><%= object_tag(@protonym) -%></mark>
+              <% else %>
+                  <%= render(partial: 'workbench/elements/forms/ajax_select',
+                             locals:  {controller: '/taxon_names',
+                                       object:     'combination',
+                                       method:     "#{rank}_id",
+                                       tag_id:     "taxon_name_id_for_combination_#{rank}",
+                                       display:    taxon_name_tag(@combination.send(rank)),
+                                       size:       55})
+                  %>
+              <% end %>
+            </div>
+        <% end %>
+      </div>
+
+    </div>
+    <%= submit_tag %>
+<% end %>
+
+
