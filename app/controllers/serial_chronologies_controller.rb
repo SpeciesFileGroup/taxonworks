@@ -48,6 +48,7 @@ class SerialChronologiesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_serial_chronology
       @serial_chronology = SerialChronology.find(params[:id])
+      @recent_object = @serial_chronology
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

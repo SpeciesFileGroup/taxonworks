@@ -104,6 +104,7 @@ class TaxonNamesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id($project_id).find(params[:id])
+    @recent_object = @taxon_name
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -119,4 +119,28 @@ module Workbench::NavigationHelper
     ].compact.join('<br>').html_safe
   end
 
+
+  def safe_object_from_attributes(hsh)
+    if hsh['object_type'] && hsh['object_type']
+      begin
+        return hsh['object_type'].constantize.find(hsh['object_id'])
+      rescue ActiveRecord::RecordNotFound
+        return false 
+      end
+    end
+    nil
+  end
+
+  def recent_route_link(hsh)
+    route = hsh.keys.first
+    o = safe_object_from_attributes(hsh[route])
+    if o.nil?
+      link_to(route.parameterize(' - ').humanize.capitalize, route)
+    elsif o
+      link_to(object_tag(o.metamorphosize) +  " [#{hsh[route]['object_type']}]" , route) 
+    else
+      content_tag(:em, 'Data no longer available.', class: :warning)
+    end
+  end
+
 end

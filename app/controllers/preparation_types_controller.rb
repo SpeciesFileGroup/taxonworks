@@ -102,6 +102,7 @@ class PreparationTypesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_preparation_type
     @preparation_type = PreparationType.find(params[:id])
+    @recent_object = @preparation_type 
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -107,6 +107,7 @@ class CollectingEventsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id($project_id).find(params[:id])
+    @recent_object = @collecting_event 
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

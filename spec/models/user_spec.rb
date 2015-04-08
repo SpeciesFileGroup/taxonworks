@@ -26,8 +26,8 @@ describe User, :type => :model do
       expect(user.favorite_routes).to eq([])
     end
 
-    specify '#recent_routes' do
-      expect(user.recent_routes).to eq([])
+    specify '#footprints' do
+      expect(user.footprints).to eq({})
     end
 
     context '#hub_tab_order' do
@@ -163,7 +163,6 @@ describe User, :type => :model do
   end
 
   describe 'API access token' do
-
     it 'is nil on a newly created user' do
       expect(user.api_access_token).to be_nil
     end
@@ -200,6 +199,44 @@ describe User, :type => :model do
     specify ".total_objects2('otus')" do # klass_string expects plural
       expect(user.total_objects2('otus')).to eq 5
     end
+  end
+
+  context 'footprints' do
+    before {
+      user.save
+    }
+    let(:otu) { Otu.create(name: 'for footprints testing') }
+    let(:object_route) { "/otus/#{otu.to_param}" }
+
+    context 'add_recently_visited_to_footprint' do
+
+      specify 'with a route and no recent object' do
+        user.add_recently_visited_to_footprint('/otus/')
+        expect(user.footprints).to eq('recently_visited' =>  [{'/otus/' => {}}])
+      end
+
+      specify 'with a route and a recent object' do
+        user.add_recently_visited_to_footprint(object_route, otu)
+        expect(user.footprints).to eq('recently_visited' => [ {object_route => {'object_type' => 'Otu', 'object_id' => otu.id}} ])
+      end
+
+      specify 'with the same route and recent object > 1x' do
+        user.add_recently_visited_to_footprint(object_route, otu)
+        user.add_recently_visited_to_footprint(object_route, otu)
+        user.add_recently_visited_to_footprint(object_route, otu)
+        
+        expect(user.footprints).to eq('recently_visited' => [ {object_route => {'object_type' => 'Otu', 'object_id' => otu.id}} ])
+      end
+
+      specify 'current limit is 10 items' do
+        (0..25).each do |i|
+          user.add_recently_visited_to_footprint("/otus/#{i}")
+        end
+        expect(user.footprints['recently_visited'].count).to eq(20)
+      end
+
+    end
+   
   end
 
   context 'scopes' do

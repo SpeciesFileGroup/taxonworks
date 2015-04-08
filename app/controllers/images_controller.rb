@@ -73,7 +73,7 @@ class ImagesController < ApplicationController
       redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to image_path(params[:id])
-     end
+    end
   end
 
   def autocomplete
@@ -83,7 +83,7 @@ class ImagesController < ApplicationController
       {id:              t.id,
        label:           ImagesHelper.image_tag(t), # in helper
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
@@ -98,13 +98,14 @@ class ImagesController < ApplicationController
 
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_image
-      @image = Image.with_project_id($project_id).find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_image
+    @image = Image.with_project_id($project_id).find(params[:id])
+    @recent_object = @image 
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def image_params
-      params.require(:image).permit(:image_file)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def image_params
+    params.require(:image).permit(:image_file)
+  end
 end

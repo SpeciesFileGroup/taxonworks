@@ -1,11 +1,13 @@
 <div>
+
   <ul>
-    <% @sessions_current_user.recent_routes.each do |route| -%>
-      <%= content_tag(:li, link_to(route.parameterize(' - '), route)) -%>
+  
+    <% @sessions_current_user.footprints['recently_visited'].each do |hsh| -%>
+      <%= content_tag(:li, recent_route_link(hsh))  -%>
     <% end %>
   </ul>
 
-  <% if @sessions_current_user.recent_routes.length == 0 %>
+  <% if @sessions_current_user.footprints['recently_visited'].count == 0 %>
     <div> Welcome <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench. TaxonWorks will keep track of where you were recently, and populate a list here. To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
   <% end %>
 </div>

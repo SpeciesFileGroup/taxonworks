@@ -97,6 +97,7 @@ class LoansController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_loan
     @loan = Loan.with_project_id($project_id).find(params[:id])
+    @recent_object = @loan 
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

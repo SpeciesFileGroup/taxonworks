@@ -123,6 +123,7 @@ class ControlledVocabularyTermsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_controlled_vocabulary_term
       @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id($project_id).find(params[:id])
+      @recent_object = @controlled_vocabulary_term
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

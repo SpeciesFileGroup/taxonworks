@@ -97,6 +97,7 @@ class TypeMaterialsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_type_material
       @type_material = TypeMaterial.with_project_id($project_id).find(params[:id])
+      @recent_object = @type_material
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

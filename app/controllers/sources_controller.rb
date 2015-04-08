@@ -133,6 +133,7 @@ class SourcesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_source
     @source = Source.find(params[:id])
+    @recent_object = @source
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

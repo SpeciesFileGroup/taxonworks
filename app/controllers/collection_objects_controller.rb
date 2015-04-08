@@ -102,6 +102,7 @@ class CollectionObjectsController < ApplicationController
 
   def set_collection_object
     @collection_object = CollectionObject.with_project_id($project_id).find(params[:id])
+    @recent_object = @collection_object 
   end
 
   def collection_object_params

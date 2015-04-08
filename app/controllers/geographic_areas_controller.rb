@@ -62,6 +62,7 @@ class GeographicAreasController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area
     @geographic_area = GeographicArea.find(params[:id])
+    @recent_object = @geographic_area 
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

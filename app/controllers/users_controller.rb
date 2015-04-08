@@ -117,6 +117,7 @@ class UsersController < ApplicationController
 
     def set_user
       @user = User.find(params[:id])
+      @recent_object = @user 
     end
 
     def validate_user_id_belongs_to_user_or_require_a_superuser

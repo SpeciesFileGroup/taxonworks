@@ -120,14 +120,28 @@ class User < ActiveRecord::Base
     true
   end
 
-  def add_page_to_recent(recent_route)
+  def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
-      when /\A\/\Z/ # the root path '/'
-      when /\A\/hub/ # any path which starts with '/hub'
-      when /\/autocomplete\?/ # any path used for AJAX autocomplete
-      else
-        update_attributes(recent_routes: ([recent_route] + recent_routes).uniq[0..9])
+    when /\A\/\Z/ # the root path '/'
+    when /\A\/hub/ # any path which starts with '/hub'
+    when /\/autocomplete\?/ # any path used for AJAX autocomplete
+    else
+ 
+      fp = footprints.dup 
+      fp['recently_visited'] ||= [] 
+
+      attrs = { recent_route => {}  }
+      if !recent_object.nil?
+        attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
+      end
+
+      fp['recently_visited'].unshift(attrs)
+      fp['recently_visited'] = fp['recently_visited'].uniq{|a| a.keys}[0..19]
+
+      self.footprints_will_change!  # if this isn't thrown weird caching happens !
+      self.update_attribute(:footprints, fp)
     end
+
     true
   end
 

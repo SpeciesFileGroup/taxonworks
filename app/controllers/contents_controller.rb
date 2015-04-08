@@ -96,6 +96,7 @@ class ContentsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_content
     @content = Content.with_project_id($project_id).find(params[:id])
+    @recent_object = @content 
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

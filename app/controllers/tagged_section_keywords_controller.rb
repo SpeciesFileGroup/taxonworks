@@ -47,6 +47,7 @@ class TaggedSectionKeywordsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_tagged_section_keyword
       @tagged_section_keyword = TaggedSectionKeyword.with_project_id($project_id).find(params[:id])
+      @recent_object = @tagged_section_keyword
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
