@@ -7,11 +7,11 @@ describe Settings do
         email_prefix: '[TW-Error] ',
         sender_address: %{"notifier" <notifier@example.com>},
         exception_recipients: ["exceptions@example.com"]
-      } 
+      }
     }
   end
   let(:rails_config) {
-    double('config', middleware: double('middleware'))
+    double('config', middleware: double('middleware'), action_mailer: double('action_mailer'))
   }
         
   describe '::load_from_hash' do
@@ -90,7 +90,31 @@ describe Settings do
       end
       
     end
-    
+
+    describe "action_mailer_smtp_settings" do
+      
+      context "when valid settings" do
+        let(:valid_smtp) { 
+          { action_mailer_smtp_settings: { address: 'smtp.example.com', port: 25, domain: 'example.com' } } 
+        }
+        
+        it "sets ActionMailer delivery method to SMTP with supplied config" do
+          expect(rails_config.action_mailer).to receive("delivery_method=").with(:smtp)
+          expect(rails_config.action_mailer).to receive("smtp_settings=").with(valid_smtp[:action_mailer_smtp_settings])
+          Settings.load_from_hash(rails_config, valid_smtp)
+        end
+          
+      end
+      
+      context "when not present" do
+        it "does not alter ActionMailer settings" do
+          expect(rails_config.action_mailer).not_to receive("delivery_method=")
+          Settings.load_from_hash(rails_config, { })
+        end
+      end
+      
+    end
+      
     describe "invalid section" do
       let(:invalid_section_config) do
         { invalid_section: { } }  

@@ -8,4 +8,8 @@ production:
     exception_recipients: 
       - exceptions@example.com
       - root@example.com
+  action_mailer_smtp_settings:
+  	address: 'smtp.example.com'
+  	port: 25
+  	domain: 'example.com' 
 empty:

@@ -8,7 +8,8 @@ module Settings
 
   VALID_SECTIONS = [
     :default_data_directory,
-    :exception_notification
+    :exception_notification,
+    :action_mailer_smtp_settings
   ]
 
   @@default_data_directory = nil
@@ -19,6 +20,7 @@ module Settings
 
     load_exception_notification(config, hash[:exception_notification])
     load_default_data_directory(hash[:default_data_directory])
+    load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
   end
   
   def self.load_from_file(config, path, set_name)
@@ -60,6 +62,13 @@ module Settings
 
       config.middleware.use ExceptionNotification::Rack, email: settings
     end    
+  end
+  
+  def self.load_action_mailer_smtp_settings(config, settings)
+    if settings
+      config.action_mailer.delivery_method = :smtp
+      config.action_mailer.smtp_settings = settings
+    end
   end
 
 end
