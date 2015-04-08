@@ -1,7 +1,8 @@
 class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def index
-
+    # something to hang one's hat on
+    @collecting_event = CollectingEvent.new
   end
 
   def filtered_collecting_events
