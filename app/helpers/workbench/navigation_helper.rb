@@ -79,7 +79,13 @@ module Workbench::NavigationHelper
   end
 
   def edit_object_path_string(object)
-    "edit_#{object.class.base_class.name.underscore}_path"
+    default = "edit_#{object.class.base_class.name.underscore}_path"  
+    specific = default + '_string' 
+    if self.respond_to?(specific)
+      self.send(specific, object)
+    else
+      default 
+    end
   end
 
   def edit_object_link(object)

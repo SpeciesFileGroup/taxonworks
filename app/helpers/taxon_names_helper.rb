@@ -32,6 +32,25 @@ module TaxonNamesHelper
     link_to('Edit original combination', edit_protonym_original_combination_task_path(taxon_name)) if GENUS_AND_SPECIES_RANK_NAMES.include?(taxon_name.rank_string)
   end
 
+  # See #edit_object_path_string in  navigation_helper.rb
+  def edit_taxon_name_path_string(taxon_name)
+    if taxon_name.type == 'Protonym'
+      'edit_taxon_name_path'
+    elsif taxon_name.type == 'Combination'
+      'edit_combination_path' 
+    else
+      nil 
+    end
+  end
+
+  def edit_taxon_name_link(taxon_name)
+    if taxon_name.type == 'Protonym'
+      link_to 'Edit', edit_taxon_name_path(taxon_name.metamorphosize)
+    else
+      link_to 'Edit', edit_combination_path(taxon_name)
+    end
+  end 
+
   def rank_tag(taxon_name)
     case taxon_name.type
     when 'Protonym'

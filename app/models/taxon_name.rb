@@ -27,6 +27,18 @@
 #       2) the parent of a synonym (any sense) is the parent of the synonym's valid name
 #       3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
+# @!attribute name 
+#   @return [String, nil]
+#     the fully latinized string (monomimial) of a code governed taxonomic biological name
+#     not applicable for Combinations, they are derived from their pieces 
+#
+# @!attribute verbatim_name
+#   @return [String]
+#     a representation of what the combination (fully spelled out) or protonym (monomial)
+#     *looked like* in its originating publication
+# The sole purpose of this string is to represent visual differences from what is recorded in the
+# latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
+#
 # @!attribute verbatim_author 
 #   @return [String]
 #     the verbatim author string as provided ? is not post-filled in when Source is referenced !?

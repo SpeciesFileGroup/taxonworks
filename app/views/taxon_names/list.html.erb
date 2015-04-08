@@ -35,7 +35,7 @@
         <td><%= object_tag(taxon_name.updater) %></td>
         <td><%= object_time_since_update_tag(taxon_name) %></td>
         <td><%= link_to 'Show', taxon_name.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_path(taxon_name.metamorphosize) %></td>
+        <td><%= edit_object_link(taxon_name) %></td>
         <td><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
