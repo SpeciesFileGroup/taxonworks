@@ -59,7 +59,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def destroy
     @taxon_name_relationship.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_name_relationships_url, notice: 'Taxon name relatinship was successfully destroyed.' }
+      format.html { redirect_to taxon_name_relationships_url, notice: 'Taxon name relationship was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
