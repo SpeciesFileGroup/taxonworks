@@ -72,6 +72,8 @@ class CollectingEvent < ActiveRecord::Base
 
   has_paper_trail
 
+  NEARBY_DISTANCE = 5000
+
   attr_accessor :with_verbatim_data_georeference
 
   after_create {
@@ -176,7 +178,7 @@ class CollectingEvent < ActiveRecord::Base
             length:       {is: 4},
             allow_nil:    true
 
-  # TODO: combine validations
+  # TODO: these are just simple integer validations now, fix!
   validates_inclusion_of :start_date_month,
                          in:     Utilities::Dates::LEGAL_MONTHS,
                          unless: 'start_date_month.blank?'
@@ -207,9 +209,10 @@ class CollectingEvent < ActiveRecord::Base
                             unless:                'start_date_year.nil? || start_date_month.nil?',
                             message:               '%{value} is not a valid start_date_day for the month provided'
 
+
   soft_validate(:sv_minimally_check_for_a_label)
 
-  NEARBY_DISTANCE = 5000
+ 
 
   # @param [String]
   def verbatim_label=(value)

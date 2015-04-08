@@ -107,7 +107,7 @@
                   <%= f.text_field :start_date_day, size: 2 %>
                 </td>
                 <td>
-                  <%= select_month(nil, field_name: :start_date_month, prefix: 'collecting_event', include_blank: true) %>
+                  <%= f.select :start_date_month, options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.start_date_month), include_blank: true -%>
                 </td>
                 <td>
                   <%= f.text_field :start_date_year, size: 4 %>
@@ -135,7 +135,7 @@
                   <%= f.text_field :end_date_day, size: 2 %>
                 </td>
                 <td>
-                  <%= select_month(nil, field_name: :end_date_month, prefix: 'collecting_event', include_blank: true) %>
+                  <%= f.select :end_date_month, options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.end_date_month), include_blank: true -%>
                 </td>
                 <td>
                   <%= f.text_field :end_date_year, size: 4 %>

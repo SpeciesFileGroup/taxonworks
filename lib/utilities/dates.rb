@@ -4,6 +4,8 @@ module Utilities::Dates
   SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}
   ROMAN_MONTHS = %i{i ii iii iv v vi vii viii ix x xi xii}
 
+  MONTHS_FOR_SELECT = LONG_MONTHS.collect{|m| [m.capitalize, LONG_MONTHS.index(m) + 1] }
+
   # This following is the better long term approach than using 
   # a preset LEGAL_MONTHS, as it depends on extending
   # SHORT_MONTH_FILTER correctly.
