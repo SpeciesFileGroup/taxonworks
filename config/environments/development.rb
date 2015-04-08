@@ -30,7 +30,7 @@ TaxonWorks::Application.configure do
   config.action_mailer.default_url_options = { :host => "localhost:3000" }
 
   # Load local settings
-  Settings.load_from_file(config, 'config/local_settings.yml', :development) if File.exist?('config/local_settings.yml')
+  Settings.load_from_file(config, 'config/local_settings.yml', :development) if File.exist?('config/application_settings.yml')
 
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
