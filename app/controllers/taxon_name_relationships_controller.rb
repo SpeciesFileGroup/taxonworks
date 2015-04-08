@@ -59,7 +59,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def destroy
     @taxon_name_relationship.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_name_relationships_url }
+      format.html { redirect_to taxon_name_relationships_url, notice: 'Taxon name relatinship was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -101,7 +101,6 @@ class TaxonNameRelationshipsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_relationship
     @taxon_name_relationship = TaxonNameRelationship.with_project_id($project_id).find(params[:id])
-    @recent_object = @taxon_name_relationship
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
