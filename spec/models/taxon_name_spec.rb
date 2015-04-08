@@ -530,8 +530,10 @@ describe TaxonName, :type => :model do
         end
 
         specify 'valid icn names' do
+          gen = FactoryGirl.create(:icn_genus)
           [ 'aus', 'a-aus', 'aus-aus', 'aus × aus', '× aus' ].each do |name|
-            s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: name )
+            s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name )
+            expect(s.valid?).to be_truthy, "failed for #{name}"
             s.soft_validate(:validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
           end
