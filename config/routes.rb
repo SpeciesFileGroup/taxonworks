@@ -224,6 +224,19 @@ TaxonWorks::Application.routes.draw do
       get 'collect_item', as: 'collect_draw_item_task'
     end
 
+    scope :gis, controller: 'tasks/gis/match_georeferences' do
+      get 'index'
+      get 'filtered_collecting_events'
+      get 'recent_collecting_events'
+      get 'tagged_collecting_events'
+      get 'drawn_collecting_events'
+
+      get 'filtered_georeferences'
+      get 'recent_georeferences'
+      get 'tagged_georeferences'
+      get 'drawn_georeferences'
+    end
+
     scope :serials, controller: 'tasks/serials/similar' do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
       post 'update/:id', action: 'update', as: 'update_serial_find_task'
