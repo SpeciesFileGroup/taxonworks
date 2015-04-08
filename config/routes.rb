@@ -224,7 +224,7 @@ TaxonWorks::Application.routes.draw do
       get 'collect_item', as: 'collect_draw_item_task'
     end
 
-    scope :gis, controller: 'tasks/gis/match_georeferences' do
+    scope :gis, controller: 'tasks/gis/match_georeference' do
       get 'index'
       get 'filtered_collecting_events'
       get 'recent_collecting_events'
