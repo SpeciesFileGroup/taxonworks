@@ -6,6 +6,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subtribe < NomenclaturalRank::Iczn::
 
   def self.validate_name_format(taxon_name)
     super
+    return true if taxon_name.name.length < 2
     taxon_name.errors.add(:name, 'name must end in -ina') if not(taxon_name.name =~ /.*ina\Z/)
   end
 

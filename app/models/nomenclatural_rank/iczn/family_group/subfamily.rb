@@ -6,6 +6,7 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subfamily < NomenclaturalRank::Iczn:
 
   def self.validate_name_format(taxon_name)
     super
+    return true if taxon_name.name.length < 2
     taxon_name.errors.add(:name, 'name must end in -inae') if not(taxon_name.name =~ /.*inae\Z/)
   end
 

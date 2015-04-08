@@ -6,6 +6,7 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Subphylum < Nomenclatur
 
   def self.validate_name_format(taxon_name)
     super
+    return true if taxon_name.name.length < 2
     taxon_name.errors.add(:name, 'name must end in -phytina, -phycotina, or -mycotina') if not(taxon_name.name =~ /.*phytina|phycotina|mycotina\Z/)
   end
 
