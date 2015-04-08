@@ -225,16 +225,16 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis, controller: 'tasks/gis/match_georeference' do
-      get 'index'
-      get 'filtered_collecting_events'
-      get 'recent_collecting_events'
-      get 'tagged_collecting_events'
-      get 'drawn_collecting_events'
+      get 'index', action: 'index', as: 'match_georeference_task'
+      get 'filtered_collecting_events', as: 'filtered_collecting_events_task'
+      get 'recent_collecting_events', as: 'recent_collecting_events_task'
+      get 'tagged_collecting_events', as: 'tagged_collecting_events_task'
+      get 'drawn_collecting_events', as: 'drawn_collecting_events_task'
 
-      get 'filtered_georeferences'
-      get 'recent_georeferences'
-      get 'tagged_georeferences'
-      get 'drawn_georeferences'
+      get 'filtered_georeferences', as: 'filtered_georeferences_task'
+      get 'recent_georeferences', as: 'recent_georeferences_task'
+      get 'tagged_georeferences', as: 'tagged_georeferences_task'
+      get 'drawn_georeferences', as: 'drawn_georeferences_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

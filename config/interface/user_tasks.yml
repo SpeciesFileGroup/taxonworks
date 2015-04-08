@@ -14,6 +14,11 @@
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
 #
 ---
+match_georeference_task:
+  name:
+  related:
+    - collecting_events
+    - georeferences
 nearby_locality_task:
   name:  
   related:
