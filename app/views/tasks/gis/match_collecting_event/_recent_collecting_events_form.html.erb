@@ -1,7 +1,22 @@
-<h2>Stub</h2>
 <div id="_recent_ce_partial">
-  Return (n) most recent
-  (button)
+  <%= form_for(@collecting_event) do |f| %>
+      <table border="1">
+        <tr>
+          <div class="field">
+            <td><%= f.label 'return' %></td>
+            <td><%= f.text_field :verbatim_label, size: 5 %></td>
+            <td>most recent</td>
+          </div>
+        </tr>
+        <tr>
+          <div class="actions">
+            <td></td>
+            <td><%= f.submit value: 'Find' %></td>
+            <td></td>
+          </div>
+        </tr>
+      </table>
+  <% end %>
 </div>
 
 

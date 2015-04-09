@@ -21,13 +21,24 @@
   </div>
   <div class="item item2">
     <h2>Current Georeference</h2>
+    <br>--------------------------------------
     <div id="_select_gr">
       Find a georeference at right and select it.
     </div>
-
+    <br>--------------------------------------
     <div id="_selected_gr">
-      (selected map)
-      (button)
+      <%= form_for(@georeference) do |f| %>
+          <table border="1">
+            <tr>
+              <td>This is where the current map goes</td>
+            </tr>
+            <tr>
+              <div class="actions">
+                <td><%= f.submit value: 'Clear selection' %></td>
+              </div>
+            </tr>
+          </table>
+      <% end %>
     </div>
 
   </div>

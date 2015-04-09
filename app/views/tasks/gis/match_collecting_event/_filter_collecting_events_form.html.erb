@@ -1,118 +1,96 @@
 <div id="_filter_ce_partial">
   Find collecting events matching
-  <p>
-    (start date)
-    Originating between
-    (end date)
-  </p>
-
-  <p>
-    Verbatim locality containing (text)
-  </p>
-
-  <p>
-    A lable containing (text)
-  </p>
-
-  <p>
-    An identifier containing (text)
-  </p>
-  (button)
-</div>
-
-<%= form_for(@collecting_event) do |f| %>
-
-    <table border="1">
-
-      <tr>
-        <td>Originating between</td>
-        <td>
-          <div>
+  <%= form_for(@collecting_event) do |f| %>
+      <table border="1">
+        <tr>
+          <td>Originating between</td>
+          <td>
             <div>
-              <table>
+              <div>
+                <table border="1">
+                  <tr>
+                    <td class="field">
+                      <%= f.label :start_date_day, :Day %>
+                    </td>
+                    <td class="field">
+                      <%= f.label :start_date_month, :Month %>
+                    </td>
+                    <td class="field">
+                      <%= f.label :start_date_year, :Year %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <%= f.text_field :start_date_day, size: 2 %>
+                    </td>
+                    <td>
+                      <%= f.select :start_date_month, options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.start_date_month), include_blank: true -%>
+                    </td>
+                    <td>
+                      <%= f.text_field :start_date_year, size: 4 %>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <div>
+              <table border="1">
                 <tr>
-                  <td class="field">
-                    <%= f.label :start_date_day, :Day %>
+                  <td>
+                    <%= f.label :end_date_day, :Day %>
                   </td>
-                  <td class="field">
-                    <%= f.label :start_date_month, :Month %>
+                  <td>
+                    <%= f.label :end_date_month, :Month %>
                   </td>
-                  <td class="field">
-                    <%= f.label :start_date_year, :Year %>
+                  <td>
+                    <%= f.label :end_date_year, :Year %>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <%= f.text_field :start_date_day, size: 2 %>
+                    <%= f.text_field :end_date_day, size: 2 %>
                   </td>
                   <td>
-                    <%= select_month(nil, field_name: :start_date_month, prefix: 'collecting_event', include_blank: true) %>
+                    <%= f.select :end_date_month, options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.start_date_month), include_blank: true -%>
                   </td>
                   <td>
-                    <%= f.text_field :start_date_year, size: 4 %>
+                    <%= f.text_field :end_date_year, size: 4 %>
                   </td>
                 </tr>
               </table>
             </div>
+          </td>
+        </tr>
+        <tr>
+          <div class="field">
+            <td><%= f.label 'verbatim_locality_containing' %></td>
+            <td><%= f.text_field :verbatim_locality, size: 35 %></td>
           </div>
-        </td>
-      </tr>
-      <tr>
-
-        <div>
-          <table>
-            <tr>
-              <td>
-                <%= f.label :end_date_day, :Day %>
-              </td>
-              <td>
-                <%= f.label :end_date_month, :Month %>
-              </td>
-              <td>
-                <%= f.label :end_date_year, :Year %>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <%= f.text_field :end_date_day, size: 2 %>
-              </td>
-              <td>
-                <%= select_month(nil, field_name: :end_date_month, prefix: 'collecting_event', include_blank: true) %>
-              </td>
-              <td>
-                <%= f.text_field :end_date_year, size: 4 %>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </tr>
-      <tr>
-
-        <div class="field">
-          <%= f.label 'verbatim_locality_containing' %>
-          <%= f.text_field :verbatim_locality, size: 35 %>
-        </div>
-      </tr>
-      <tr>
-
-        <div class="field label_above">
-          <%= f.label 'a_label_containing' %>
-          <%= f.text_field :verbatim_label, size: 35 %>
-        </div>
-      </tr>
-      <tr>
-
-        <div class="field label_above">
-          <%= f.label 'an_identifier_containing' %>
-          <%= f.text_field :verbatim_label, size: 35 %>
-        </div>
-      </tr>
-      <tr>
-
-        <div class="actions">
-          <%= f.submit value: 'Find' %>
-        </div>
-      </tr>
-    </table>
-<% end %>
+        </tr>
+        <tr>
+          <div class="field label_above">
+            <td><%= f.label 'a_label_containing' %></td>
+            <td><%= f.text_field :verbatim_label, size: 35 %></td>
+          </div>
+        </tr>
+        <tr>
+          <div class="field label_above">
+            <td><%= f.label 'an_identifier_containing' %></td>
+            <td><%= f.text_field :verbatim_label, size: 35 %></td>
+          </div>
+        </tr>
+        <tr>
+          <div class="actions">
+            <td></td>
+            <td><%= f.submit value: 'Find' %></td>
+          </div>
+        </tr>
+      </table>
+  <% end %>
+</div>
 

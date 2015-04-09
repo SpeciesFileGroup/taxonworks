@@ -1,7 +1,15 @@
-<h2>Stub</h2>
-<div id="_tag_ce_partial">
-  Find collecting events tagged with
-  Keyword: (text)
-  (button)
+<div id="_draw_ce_partial">
+  <%= form_for(@collecting_event) do |f| %>
+      <table border="1">
+        <tr>
+          <td>This is where the map goes</td>
+        </tr>
+        <tr>
+          <div class="actions">
+            <td><%= f.submit value: 'Find' %></td>
+          </div>
+        </tr>
+      </table>
+  <% end %>
 </div>
 

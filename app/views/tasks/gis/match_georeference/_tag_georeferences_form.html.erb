@@ -1,7 +1,20 @@
-<h2>Stub</h2>
 <div id="_tag_gr_partial">
-  Find georeferences atgged with
-  Keyword: (text)
-  (button)
+  <%= form_for(@georeference) do |f| %>
+      Find georeferences tagged with
+      <table border="1">
+        <tr>
+          <div class="field">
+            <td><%= f.label 'keyword' %></td>
+            <td><%= f.text_field :type, size: 35 %></td>
+          </div>
+        </tr>
+        <tr>
+          <div class="actions">
+            <td></td>
+            <td><%= f.submit value: 'Find' %></td>
+          </div>
+        </tr>
+      </table>
+  <% end %>
 </div>
 
