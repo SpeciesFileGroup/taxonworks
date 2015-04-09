@@ -9,7 +9,8 @@ module Settings
   VALID_SECTIONS = [
     :default_data_directory,
     :exception_notification,
-    :action_mailer_smtp_settings
+    :action_mailer_smtp_settings,
+    :capistrano
   ]
 
   @@default_data_directory = nil

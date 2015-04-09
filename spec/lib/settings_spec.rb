@@ -114,6 +114,12 @@ describe Settings do
       end
       
     end
+    
+    describe "capistrano" do
+      it "accepts a capistrano section" do
+        expect { Settings.load_from_hash(rails_config, { capistrano: { } }) }.to_not raise_error
+      end
+    end
       
     describe "invalid section" do
       let(:invalid_section_config) do
