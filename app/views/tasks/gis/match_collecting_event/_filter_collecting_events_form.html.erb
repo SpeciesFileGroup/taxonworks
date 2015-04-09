@@ -26,35 +26,35 @@
 
       <tr>
         <td>Originating between</td>
-        <td
-        <div>
+        <td>
           <div>
-            <table>
-              <tr>
-                <td class="field">
-                  <%= f.label :start_date_day, :Day %>
-                </td>
-                <td class="field">
-                  <%= f.label :start_date_month, :Month %>
-                </td>
-                <td class="field">
-                  <%= f.label :start_date_year, :Year %>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <%= f.text_field :start_date_day, size: 2 %>
-                </td>
-                <td>
-                  <%= select_month(nil, field_name: :start_date_month, prefix: 'collecting_event', include_blank: true) %>
-                </td>
-                <td>
-                  <%= f.text_field :start_date_year, size: 4 %>
-                </td>
-              </tr>
-            </table>
+            <div>
+              <table>
+                <tr>
+                  <td class="field">
+                    <%= f.label :start_date_day, :Day %>
+                  </td>
+                  <td class="field">
+                    <%= f.label :start_date_month, :Month %>
+                  </td>
+                  <td class="field">
+                    <%= f.label :start_date_year, :Year %>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <%= f.text_field :start_date_day, size: 2 %>
+                  </td>
+                  <td>
+                    <%= select_month(nil, field_name: :start_date_month, prefix: 'collecting_event', include_blank: true) %>
+                  </td>
+                  <td>
+                    <%= f.text_field :start_date_year, size: 4 %>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </div>
-        </div>
         </td>
       </tr>
       <tr>
