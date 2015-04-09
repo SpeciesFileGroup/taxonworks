@@ -251,9 +251,8 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # TODO: rename to reflect returning of string
-  # @return [String]
-  #   a 4 digit string representing year of publication, like '1974'
+  # @return [Integer]
+  #   a 4 digit integer representing year of publication, like 1974
   def year_integer
     return self.year_of_publication if !self.year_of_publication.nil?
     return self.source.year if !self.source_id.nil?
@@ -960,9 +959,9 @@ class TaxonName < ActiveRecord::Base
     end
 
     # TODO: break this one out   
-    if SPECIES_RANK_NAMES.include?(self.rank_string)
-      soft_validations.add(:name, 'must be lower case') unless self.name == self.name.downcase
-    end
+    #if SPECIES_RANK_NAMES.include?(self.rank_string)
+    #  soft_validations.add(:name, 'must be lower case') unless self.name == self.name.downcase
+    #end
 
   end
 
@@ -970,10 +969,10 @@ class TaxonName < ActiveRecord::Base
     soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
-                         success_message: 'Author was updated') if self.verbatim_author.blank?
+                         success_message: 'Author was updated') if self.author_string.nil?
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix: :sv_fix_missing_year,
-                         success_message: 'Year was updated') if self.year_of_publication.nil?
+                         success_message: 'Year was updated') if self.year_integer.nil?
   end
 
   def sv_fix_missing_author

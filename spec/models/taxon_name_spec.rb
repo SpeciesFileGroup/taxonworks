@@ -479,8 +479,10 @@ describe TaxonName, :type => :model do
           specify 'species name starting with upper case' do
             taxon_name.name       = 'Aus'
             taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
-            taxon_name.soft_validate(:validate_name)
-            expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
+            taxon_name.valid?
+            expect(taxon_name.errors.include?(:name)).to be_truthy
+            #taxon_name.soft_validate(:validate_name)
+            #expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
           end
         end
 
@@ -531,7 +533,7 @@ describe TaxonName, :type => :model do
 
         specify 'valid icn names' do
           gen = FactoryGirl.create(:icn_genus)
-          [ 'aus', 'a-aus', 'aus-aus', 'aus × aus', '× aus' ].each do |name|
+          [ 'aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus' ].each do |name|
             s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name )
             expect(s.valid?).to be_truthy, "failed for #{name}"
             s.soft_validate(:validate_name)
