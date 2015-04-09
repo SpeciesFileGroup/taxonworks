@@ -8,14 +8,10 @@
             <td>most recent</td>
           </div>
         </tr>
-        <tr>
-          <div class="actions">
-            <td></td>
-            <td><%= f.submit value: 'Find' %></td>
-            <td></td>
-          </div>
-        </tr>
       </table>
+  <% end %>
+  <%= form_tag(recent_collecting_events_path) do %>
+          <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
 

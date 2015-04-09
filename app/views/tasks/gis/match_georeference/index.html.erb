@@ -34,12 +34,10 @@
             <tr>
               <td>This is where the current map goes</td>
             </tr>
-            <tr>
-              <div class="actions">
-                <td><%= f.submit value: 'Clear selection' %></td>
-              </div>
-            </tr>
           </table>
+          <%= form_tag(tagged_georeferences_path) do %>
+              <div><%= submit_tag('clear selection') %></div>
+          <% end %>
       <% end %>
     </div>
 

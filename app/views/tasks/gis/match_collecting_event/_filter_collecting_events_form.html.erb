@@ -3,5 +3,8 @@
   <br>------------filter_form_inputs------
   <%= render(partial: 'collecting_events/filter_form_inputs') %>
   <br>--------------------------------------
+  <%= form_tag(filtered_collecting_events_path, method: 'get') do %>
+      <div><%= submit_tag('Find') %></div>
+  <% end %>
 </div>
 

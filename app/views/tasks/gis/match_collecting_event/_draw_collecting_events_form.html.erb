@@ -4,12 +4,10 @@
         <tr>
           <td>This is where the map goes</td>
         </tr>
-        <tr>
-          <div class="actions">
-            <td><%= f.submit value: 'Find' %></td>
-          </div>
-        </tr>
       </table>
+  <% end %>
+  <%= form_tag(drawn_collecting_events_path) do %>
+      <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
 

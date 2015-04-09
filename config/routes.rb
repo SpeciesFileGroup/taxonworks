@@ -219,20 +219,18 @@ TaxonWorks::Application.routes.draw do
     scope :gis, controller: 'tasks/gis/asserted_distribution' do
       get 'new', action: 'new', as: 'new_asserted_distribution_task'
       post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      # post 'generate_choices', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
       get 'generate_choices'
     end
 
     scope :gis, controller: 'tasks/gis/draw_map_item' do
       get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
       post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
-      # post 'generate_choices', action: 'generate_choices', as: 'generate_choices_asserted_distribution_task'
       get 'collect_item', as: 'collect_draw_item_task'
     end
 
     scope :gis, controller: 'tasks/gis/match_georeference' do
       get 'match_georeference', action: 'index', as: 'match_georeference_task'
-      get 'filtered_collecting_events'
+      get 'filtered_collecting_events', to: 'tasks/gis/match_georeference#filtered_collecting_events'
       get 'recent_collecting_events'
       get 'tagged_collecting_events'
       get 'drawn_collecting_events'

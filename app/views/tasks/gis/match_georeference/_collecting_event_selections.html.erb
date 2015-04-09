@@ -25,5 +25,7 @@
     </tbody>
   </table>
   <br>
-  <%= button_to('Create Georeference(s)') %>
+  <%= form_tag(filtered_collecting_events_path) do %>
+      <div><%= submit_tag('Create Georeference(s)') %></div>
+  <% end %>
 </div>

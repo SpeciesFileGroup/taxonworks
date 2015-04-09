@@ -8,13 +8,10 @@
             <td><%= f.text_field :type, size: 35 %></td>
           </div>
         </tr>
-        <tr>
-          <div class="actions">
-            <td></td>
-            <td><%= f.submit value: 'Find' %></td>
-          </div>
-        </tr>
       </table>
+      <%= form_tag(tagged_georeferences_path) do %>
+          <div><%= submit_tag('Find') %></div>
+      <% end %>
   <% end %>
 </div>
 
