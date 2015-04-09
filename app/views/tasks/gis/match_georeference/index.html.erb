@@ -8,24 +8,26 @@
     <%= link_to('drawing', drawn_collecting_events_path) %> |
     <%= link_to('recent', recent_collecting_events_path) %>
 
-    <br>--------------------------------------
+    <br>--------_filter_ce_partial-------------
     <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
-    <br>--------------------------------------
+    <br>--------_tag_ce_partial-------------
     <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
-    <br>--------------------------------------
+    <br>---------_draw_ce_partial----------------
     <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
-    <br>--------------------------------------
+    <br>---------_recent_ce_partial--------------
     <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
+    <br>-------_select_ce_partial---------------
+    <%= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
     <br>--------------------------------------
 
   </div>
   <div class="item item2">
     <h2>Current Georeference</h2>
-    <br>--------------------------------------
+    <br>------_select_gr-------------------
     <div id="_select_gr">
       Find a georeference at right and select it.
     </div>
-    <br>--------------------------------------
+    <br>------_selected_gr-------------------
     <div id="_selected_gr">
       <%= form_for(@georeference) do |f| %>
           <table border="1">
@@ -50,13 +52,13 @@
     <%= link_to('drawing', drawn_georeferences_path) %> |
     <%= link_to('recent', recent_georeferences_path) %>
 
-    <br>--------------------------------------
+    <br>-------_filter_gr_partial------------------
     <%= render(partial: 'filter_georeferences_form') %>
-    <br>--------------------------------------
+    <br>---------_tag_gr_partial---------------
     <%= render(partial: 'tag_georeferences_form') %>
-    <br>--------------------------------------
+    <br>-------_draw_gr_partial--------------
     <%= render(partial: 'draw_georeferences_form') %>
-    <br>--------------------------------------
+    <br>----------_recent_gr_partial-------------
     <%= render(partial: 'recent_georeferences_form') %>
     <br>--------------------------------------
 

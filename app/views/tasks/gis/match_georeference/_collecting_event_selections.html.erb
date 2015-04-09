@@ -1,28 +1,29 @@
-<h2>_collecting_event_partial</h2>
-<div id="_ce_display_partial">
-  <table border='1' style="left: 0; width: 100%; top: 0; height: 99px">
+<div id="_select_ce_partial">
+  <table border="1">
     <tr>
-      <th>Collecting Event (sort)</th>
+      <th>Collecting Event ID</th>
       <th>Verbatim Locality</th>
-      <th>ID (sort)</th>
-      <th></th>
+      <th>ID</th>
+      <th>
+        <%= check_box_tag(' ', @collecting_events.count) %>
+      </th>
     </tr>
     <tbody>
-    <tr>
-      <td>
-        (object_tag(ce))
-      </td>
-      <td>
-        (ce.verbatim_locality)
-      </td>
-      <td>
-        (ce.to_param)
-      </td>
-      <td>
-        (check box)
-      </td>
-    </tr>
+    <% @collecting_events.each { |collecting_event| %>
+        <tr>
+          <td>
+            <%= link_to(collecting_event.id.to_s, collecting_event_path(collecting_event.id)) %>
+          </td>
+          <td>
+            <%= collecting_event.verbatim_locality %>
+          </td>
+          <td>
+            <%= check_box_tag('here', collecting_event.id) %>
+          </td>
+        </tr>
+    <% } %>
     </tbody>
   </table>
-  ('create georeferences' button)
+  <br>
+  <%= button_to('Create Georeference(s)') %>
 </div>
