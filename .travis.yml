@@ -5,6 +5,8 @@ bundler_args: --without development
 branches:
   only:
       - master
+addons:
+  postgresql: "9.3"
 before_install: ./travis/before_install.sh
 before_script:
   - export DISPLAY=:99.0
