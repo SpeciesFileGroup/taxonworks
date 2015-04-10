@@ -23,12 +23,16 @@
   </div>
   <div class="item item2">
     <h2>Current Georeference</h2>
-    <br>------_select_gr-------------------
-    <div id="_select_gr">
+    <br>------_find_gr-------------------
+    <div id="_find_gr" name="_find_gr">
       Find a georeference at right and select it.
     </div>
+    <br>------_select_gr-------------------
+    <div id="_select_gr" name="_select_gr" hidden="true">
+      Select a georeference at right.
+    </div>
     <br>------_selected_gr-------------------
-    <div id="_selected_gr">
+    <div id="_selected_gr_form" name="_selected_gr_form" hidden="true">
       <%= form_for(@georeference) do |f| %>
           <table border="1">
             <tr>
