@@ -7,8 +7,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @collecting_events = CollectingEvent.where(verbatim_label: 'nothing')
   end
 
+  # NOT TESTED, but something like 
   def filtered_collecting_events
-    redirect_to(match_georeference_task_path)
+
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+
+    render json: {
+      html: render_to_string(partial: 'tasks/gis/match_georeferences/collecting_event_selections', locals: { collecting_events: @colleting_events } )
+    }
+    and
   end
 
   def recent_collecting_events
