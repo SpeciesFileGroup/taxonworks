@@ -1,11 +1,9 @@
 <div id="_draw_ce_partial">
-  <%= form_for(@collecting_event) do |f| %>
-      <table border="1">
-        <tr>
-          <td>This is where the map goes</td>
-        </tr>
-      </table>
-  <% end %>
+  <table border="1">
+    <tr>
+      <td>This is where the map goes</td>
+    </tr>
+  </table>
   <%= form_tag(drawn_collecting_events_path) do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>

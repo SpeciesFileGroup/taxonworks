@@ -230,7 +230,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :gis, controller: 'tasks/gis/match_georeference' do
       get 'match_georeference', action: 'index', as: 'match_georeference_task'
-      get 'filtered_collecting_events', to: 'tasks/gis/match_georeference#filtered_collecting_events'
+      get 'filtered_collecting_events'
       get 'recent_collecting_events'
       get 'tagged_collecting_events'
       get 'drawn_collecting_events'
