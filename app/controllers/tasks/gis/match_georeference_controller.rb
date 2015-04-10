@@ -8,6 +8,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_collecting_events
+    redirect_to(match_georeference_task_path)
   end
 
   def recent_collecting_events
