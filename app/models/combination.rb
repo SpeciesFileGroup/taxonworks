@@ -154,6 +154,34 @@ class Combination < TaxonName
     publication_years.sort.first
   end
 
+  # return [Array of TaxonNameRelationship]
+  #   classes that are applicable to this name, as deterimned by Rank
+  def combination_class_relationships
+    relations = []
+    TaxonNameRelationship::Combination.descendants.each do |r|
+      relations.push(r) if r.valid_object_ranks.include?(self.rank_string)
+    end
+    relations
+  end
+
+  def combination_relationships_and_stubs
+    display_order = [
+        :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
+    ]
+
+    defined_relations = self.combination_relationships.all
+    created_already = defined_relations.collect{|a| a.class}
+    new_relations = []
+
+    combination_class_relationships.each do |r|
+      new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
+    end
+
+    (new_relations + defined_relations).sort{|a,b|
+      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method)
+    }
+  end
+
   protected
 
   # @return [Array of TaxonNames, nil]

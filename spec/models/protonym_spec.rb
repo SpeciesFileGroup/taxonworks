@@ -151,17 +151,18 @@ describe Protonym, :type => :model do
       species = FactoryGirl.create(:relationship_species, parent: subgenus)
       subspecies = FactoryGirl.create(:iczn_subspecies, parent: species)
 
-      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus'])
+      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(["TaxonNameRelationship::OriginalCombination::OriginalForm", "TaxonNameRelationship::OriginalCombination::OriginalGenus", "TaxonNameRelationship::OriginalCombination::OriginalSpecies", "TaxonNameRelationship::OriginalCombination::OriginalSubgenus", "TaxonNameRelationship::OriginalCombination::OriginalSubspecies", "TaxonNameRelationship::OriginalCombination::OriginalVariety"])
 
       r1 = TaxonNameRelationship.create(subject_taxon_name: genus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       r2 = TaxonNameRelationship.create(subject_taxon_name: subgenus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       subspecies.reload
-      expect(subspecies.original_combination_relationships_and_stubs.count).to eq(3)
-      expect(subspecies.original_combination_relationships_and_stubs[0]).to eq(r1)
-      expect(subspecies.original_combination_relationships_and_stubs[1]).to eq(r2)
-      expect(subspecies.original_combination_relationships_and_stubs[2].subject_taxon_name_id).to be_falsey
-      expect(subspecies.original_combination_relationships_and_stubs[2].object_taxon_name_id).to eq(subspecies.id)
-      expect(subspecies.original_combination_relationships_and_stubs[2].type).to eq('TaxonNameRelationship::OriginalCombination::OriginalSpecies')
+      stubs = subspecies.original_combination_relationships_and_stubs
+      expect(stubs.count).to eq(6)
+      expect(stubs[0]).to eq(r1)
+      expect(stubs[1]).to eq(r2)
+      expect(stubs[2].subject_taxon_name_id).to be_falsey
+      expect(stubs[2].object_taxon_name_id).to eq(subspecies.id)
+      expect(stubs[2].type).to eq('TaxonNameRelationship::OriginalCombination::OriginalSpecies')
     end
   end
 
@@ -480,8 +481,9 @@ describe Protonym, :type => :model do
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
       end
 
+      ### This could be obsolete since the the author and year may come from publication.
+=begin
       specify 'fix author and year from the source' do
-        #TODO citeproc gem doesn't currently support lastname without firstname
         @source.update(year: 1758, author: 'Linnaeus, C.')
         @source.save
         
@@ -500,6 +502,7 @@ describe Protonym, :type => :model do
         
         expect(@kingdom.year_of_publication).to eq(1758)
       end
+=end
 
     end
 
@@ -1083,22 +1086,22 @@ describe Protonym, :type => :model do
 
         specify 'for iczn Genus' do
           t.rank_class = NomenclaturalRank::Iczn::GenusGroup::Genus
-          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus ].sort )
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus] )
         end
 
         specify 'for iczn Subgenus' do
           t.rank_class = NomenclaturalRank::Iczn::GenusGroup::Subgenus
-          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus ].sort )
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus] )
         end
 
         specify 'for iczn species' do
           t.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Species 
-          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus, :original_species ].sort )
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_form, :original_genus, :original_species, :original_subgenus, :original_subspecies, :original_variety] )
         end
 
         specify 'for iczn subspecies' do
           t.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Subspecies 
-          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_genus, :original_subgenus, :original_species ].sort )
+          expect(t.original_combination_class_relationships.collect{|a| a.inverse_assignment_method}.sort).to eq( [:original_form, :original_genus, :original_species, :original_subgenus, :original_subspecies, :original_variety] )
         end
       end
     end

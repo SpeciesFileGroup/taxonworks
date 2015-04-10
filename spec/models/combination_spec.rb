@@ -230,6 +230,28 @@ describe Combination, :type => :model do
         expect(basic_combination.save).to be_truthy
         expect(basic_combination.related_taxon_name_relationships.pluck('type')).to include('TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Genus') 
       end
+
+      specify 'combination_class_relationships' do
+        combination.genus = genus
+        combination.subgenus = genus
+        combination.species = species
+        combination.subspecies = species2
+
+        expect(combination.valid?).to be_truthy
+        combination.save
+
+        expect(combination.combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Subgenus'])
+
+        stubs = combination.combination_relationships_and_stubs
+
+        expect(stubs.count).to eq(6)
+        #expect(stubs[0]).to eq(r1)
+        #expect(stubs[1]).to eq(r2)
+        expect(stubs[2].subject_taxon_name_id).to be_falsey
+        expect(stubs[2].object_taxon_name_id).to eq(subspecies.id)
+        expect(stubs[2].type).to eq('TaxonNameRelationship::Combination::Species')
+      end
+
     end
   end
 

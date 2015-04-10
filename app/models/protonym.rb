@@ -246,7 +246,7 @@ class Protonym < TaxonName
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
     display_order = [
-      :original_genus, :original_subgenus, :original_species, :original_subspecies
+      :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
     ]
 
     defined_relations = self.original_combination_relationships.all
