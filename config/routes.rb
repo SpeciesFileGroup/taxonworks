@@ -141,13 +141,13 @@ TaxonWorks::Application.routes.draw do
   end
   resources :people do
     concerns [:data_routes]
+    member do
+      get :roles
+    end
   end
   resources :preparation_types do
     concerns [:data_routes]
   end
-
-
-
 
   resources :public_contents, only: [:create, :update, :destroy]
 

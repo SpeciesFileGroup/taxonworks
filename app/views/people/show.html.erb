@@ -1,2 +1,10 @@
+<%= content_for :see do -%>
+    <% if @person.roles.any? %>
+        <ul class="no_bullets">
+          <%= content_tag(:li, link_to('Roles', roles_person_path(@person))) %>
+        </ul>
+    <% end %>
+<% end %>
+
 <%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @person}) -%>
 

@@ -1,7 +1,7 @@
 class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_person, only: [:show, :edit, :update, :destroy]
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles]
 
   # GET /people
   # GET /people.json
@@ -97,6 +97,9 @@ class PeopleController < ApplicationController
     send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now.to_s}.csv"
   end
 
+  def roles
+
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
