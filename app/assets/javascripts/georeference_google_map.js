@@ -22,14 +22,19 @@ _init_new_georeference_google_map = function init_new_georeference_google_map() 
     if ($('#feature_collection').length) {
       var newadwidget = $("#feature_collection");
       var fcdata = newadwidget.data('feature-collection');
+      var last = null;
+
 
       // Rich - the map presently fails to initialize unless there is a a legal feature collection in fcdata,
       // is this the intent?  It seems is should default to render nothing if fcdata == null?
-      var map = initializeDrawItem("new_georeference_google_map_canvas", fcdata); 
+      var map = initializeDrawItem("new_georeference_google_map_canvas", fcdata, last);
       // add_new_draw_item_map_listeners(map);
 
       $( "#reset_georeference_map" ).bind( "click", function() {
-        map = initializeDrawItem("new_georeference_google_map_canvas", fcdata);
+        last = null;
+        map = initializeDrawItem("new_georeference_google_map_canvas", fcdata, last);
+        $("#shape_is_loaded").toggleClass('alert alert-notice');
+        $("#shape_is_loaded").text('');
       });
     }
   }

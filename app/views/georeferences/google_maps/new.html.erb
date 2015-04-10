@@ -1,3 +1,46 @@
 <h1>New Google map georeference</h1>
-<%= render 'form' %>
+
+
+<div class="flexbox">
+  <div class="item item1">
+    <% if !@georeference.collecting_event.new_record? -%>
+        <h2> Collecting event details </h2>
+        <%= collecting_event_tag(@georeference.collecting_event) %>
+        <%= link_to('Show', @georeference.collecting_event) %> <br>
+    <% end %>
+
+    <div class="disabled">
+      <h2> Debugging </h2>
+
+      <div>
+        Geotype: <span id='geoType'></span>
+        <br>
+        Shape: <span id='geoShape'></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="item item2">
+    <%= render(partial: 'shared/errors', locals: {object: @georeference}) -%>
+    <%= render 'form' %>
+  </div>
+
+  <div class="item item3">
+    <%= render(partial: 'layouts/map_header') -%>
+    <div id="feature_collection" data-georeference="<%= @georeference %>"
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
+         data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'>
+    </div>
+
+    <div id="new_georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
+    <%= submit_tag(:reset, id: :reset_georeference_map) -%>
+    <span id="map_coords"></span>
+  </div>
+
+</div>
+
+<div>
+  <h2> Existing georferences </h2>
+  <%= render(partial: '/georeferences/list_table', locals: {georeferences: @georeference.collecting_event.georeferences}) -%>
+</div>
 
