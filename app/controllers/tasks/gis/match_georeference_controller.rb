@@ -15,7 +15,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
 
     render json: {
-      html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections', locals: { collecting_events: @colleting_events } )
+      html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections', locals: { collecting_events: @collecting_events } )
     }
     # and
   end
@@ -30,6 +30,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_georeferences
+    @motion = 'filtered_georeference'
   end
 
   def recent_georeferences

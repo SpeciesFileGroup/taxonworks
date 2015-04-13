@@ -3,10 +3,10 @@
   <div class="item item1">
     <h2>Collecting Events</h2>
     find by:
-    <%= link_to('filter', filtered_collecting_events_path) %> |
-    <%= link_to('tag', tagged_collecting_events_path) %> |
-    <%= link_to('drawing', drawn_collecting_events_path) %> |
-    <%= link_to('recent', recent_collecting_events_path) %>
+    <%= link_to_filter_ce %> |
+    <%= link_to_tag_ce %> |
+    <%= link_to_draw_ce %> |
+    <%= link_to_recent_ce %>
 
     <br>--------_filter_ce_partial-------------
     <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
