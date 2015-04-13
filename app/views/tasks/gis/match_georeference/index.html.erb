@@ -49,10 +49,10 @@
   <div class="item item3">
     <h2>Georeferences</h2>
     find by:
-    <%= link_to('filter', filtered_georeferences_path) %> |
-    <%= link_to('tag', tagged_georeferences_path) %> |
-    <%= link_to('drawing', drawn_georeferences_path) %> |
-    <%= link_to('recent', recent_georeferences_path) %>
+    <%= link_to_filter_gr %> |
+    <%= link_to_tag_gr %> |
+    <%= link_to_draw_gr %> |
+    <%= link_to_recent_gr %>
 
     <br>-------_filter_gr_partial------------------
     <%= render(partial: 'filter_georeferences_form') %>
