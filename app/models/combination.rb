@@ -156,15 +156,15 @@ class Combination < TaxonName
 
   # return [Array of TaxonNameRelationship]
   #   classes that are applicable to this name, as deterimned by Rank
-  def combination_class_relationships
+  def combination_class_relationships(rank_string)
     relations = []
     TaxonNameRelationship::Combination.descendants.each do |r|
-      relations.push(r) if r.valid_object_ranks.include?(self.rank_string)
+      relations.push(r) if r.valid_object_ranks.include?(rank_string)
     end
     relations
   end
 
-  def combination_relationships_and_stubs
+  def combination_relationships_and_stubs(rank_string)
     display_order = [
         :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
     ]
@@ -173,7 +173,7 @@ class Combination < TaxonName
     created_already = defined_relations.collect{|a| a.class}
     new_relations = []
 
-    combination_class_relationships.each do |r|
+    combination_class_relationships(rank_string).each do |r|
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
     end
 
@@ -245,7 +245,21 @@ class Combination < TaxonName
   end
 
   def at_least_two_protonyms_are_included
-    errors.add(:base, 'Combination includes no protonyms, it is not valid') if protonyms.count < 2 
+    c = protonyms.count
+
+    if c == 0
+      errors.add(:base, 'Combination includes no taxa, it is not valid')
+    else
+      rank = protonyms.last.rank_string
+
+      if rank =~/Species/
+        errors.add(:base, 'Combination includes only one taxon, it is not valid') if c < 2
+      elsif rank =~/Genus/
+        errors.add(:base, 'Combination includes more than two taxa, it is not valid') if c > 2
+      else
+        errors.add(:base, 'Combination includes more than one taxon, it is not valid') if c > 1
+      end
+    end
   end
 
 end

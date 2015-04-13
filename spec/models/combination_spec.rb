@@ -37,10 +37,32 @@ describe Combination, :type => :model do
       expect(combination.errors.include?(:base)).to be_truthy
     end
 
-    specify 'is valid with two protonyms' do
-      c = Combination.new(genus: genus, species: species) 
+    specify 'species combination is valid with two protonyms' do
+      c = Combination.new(genus: genus, species: species)
+      c.valid?
+      expect(c.protonyms.last.rank_string).to eq('NomenclaturalRank::Iczn::SpeciesGroup::Species')
       expect(c.errors.include?(:base)).to be_falsey
     end
+
+    specify 'species combination is invalid with one protonym' do
+      c = Combination.new(species: species)
+      c.valid?
+      expect(c.errors.include?(:base)).to be_truthy
+    end
+
+    specify 'genus combination is valid with two protonyms' do
+      c = Combination.new(genus: genus, subgenus: genus)
+      c.valid?
+      expect(c.errors.include?(:base)).to be_falsey
+    end
+
+    specify 'genus combination is valid with one protonym' do
+      c = Combination.new(genus: genus)
+      c.valid?
+      expect(c.protonyms.last.rank_string).to eq('NomenclaturalRank::Iczn::GenusGroup::Genus')
+      expect(c.errors.include?(:base)).to be_falsey
+    end
+
 
     specify 'name must be nil' do
       expect(combination.errors.include?(:name)).to be_falsey
@@ -240,16 +262,18 @@ describe Combination, :type => :model do
         expect(combination.valid?).to be_truthy
         combination.save
 
-        expect(combination.combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Subgenus'])
+        expect(combination.combination_class_relationships(genus.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Subgenus'])
+        expect(combination.combination_class_relationships(species.rank_string).collect{|i| i.to_s}.sort).to eq(["TaxonNameRelationship::Combination::Form", "TaxonNameRelationship::Combination::Genus", "TaxonNameRelationship::Combination::Species", "TaxonNameRelationship::Combination::Subgenus", "TaxonNameRelationship::Combination::Subspecies", "TaxonNameRelationship::Combination::Variety"])
 
-        stubs = combination.combination_relationships_and_stubs
+        stubs = combination.combination_relationships_and_stubs(species.rank_string)
 
         expect(stubs.count).to eq(6)
-        #expect(stubs[0]).to eq(r1)
-        #expect(stubs[1]).to eq(r2)
-        expect(stubs[2].subject_taxon_name_id).to be_falsey
-        expect(stubs[2].object_taxon_name_id).to eq(subspecies.id)
-        expect(stubs[2].type).to eq('TaxonNameRelationship::Combination::Species')
+        expect(stubs[0].subject_taxon_name_id).to eq(genus.id)
+        expect(stubs[0].object_taxon_name_id).to eq(combination.id)
+        expect(stubs[0].type).to eq('TaxonNameRelationship::Combination::Genus')
+        expect(stubs[5].subject_taxon_name_id).to be_falsey
+        expect(stubs[5].object_taxon_name_id).to eq(combination.id)
+        expect(stubs[5].type).to eq('TaxonNameRelationship::Combination::Form')
       end
 
     end
