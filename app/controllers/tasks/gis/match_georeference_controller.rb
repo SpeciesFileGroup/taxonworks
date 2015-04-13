@@ -18,7 +18,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections', locals: { collecting_events: @colleting_events } )
     }
     # and
-#    and
   end
 
   def recent_collecting_events
