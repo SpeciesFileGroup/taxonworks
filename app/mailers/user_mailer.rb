@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default from: 'noreply@example.com'
+  default from: Proc.new { "TaxonWorks <noreply@#{Settings.mail_domain}>" }
   
   def welcome_email(user)
     @user = user

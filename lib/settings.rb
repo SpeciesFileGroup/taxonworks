@@ -10,6 +10,8 @@ module Settings
     :default_data_directory,
     :exception_notification,
     :action_mailer_smtp_settings,
+    :action_mailer_url_host,
+    :mail_domain,
     :capistrano
   ]
 
@@ -22,6 +24,8 @@ module Settings
     load_exception_notification(config, hash[:exception_notification])
     load_default_data_directory(hash[:default_data_directory])
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
+    load_action_mailer_url_host(config, hash[:action_mailer_url_host])
+    load_mail_domain(config, hash[:mail_domain])
   end
   
   def self.load_from_file(config, path, set_name)
@@ -32,6 +36,10 @@ module Settings
   
   def self.default_data_directory
     @@default_data_directory
+  end
+  
+  def self.mail_domain
+    @@mail_domain
   end
   
   private
@@ -70,6 +78,16 @@ module Settings
       config.action_mailer.delivery_method = :smtp
       config.action_mailer.smtp_settings = settings
     end
+  end
+  
+  def self.load_action_mailer_url_host(config, url_host)
+    if url_host
+      config.action_mailer.default_url_options = { :host => url_host }
+    end
+  end
+  
+  def self.load_mail_domain(config, mail_domain)
+    @@mail_domain = mail_domain
   end
 
 end
