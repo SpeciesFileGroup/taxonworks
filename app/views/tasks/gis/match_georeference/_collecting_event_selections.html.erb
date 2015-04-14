@@ -1,18 +1,18 @@
-<div id="_select_ce_form" name="_select_ce_form" hidden="true">
+<div id="_select_ce_form" name="_select_ce_form">
   <table border="1">
     <tr>
-      <th>Collecting Event ID</th>
+      <th>Collecting Event</th>
       <th>Verbatim Locality</th>
       <th>ID</th>
       <th>
-        <%= check_box_tag('select this event', @collecting_events.count) %>
+        <%= @motion %>
       </th>
     </tr>
     <tbody>
     <% @collecting_events.each { |collecting_event| %>
         <tr>
           <td>
-            <%= link_to(collecting_event.id.to_s, collecting_event_path(collecting_event.id)) %>
+            <%= link_to(collecting_event_tag(collecting_event), collecting_event_path(collecting_event.to_param)) %>
           </td>
           <td>
             <%= collecting_event.verbatim_locality %>

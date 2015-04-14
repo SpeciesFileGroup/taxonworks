@@ -9,9 +9,8 @@
           </div>
         </tr>
       </table>
-      <%= form_tag(recent_georeferences_path) do %>
-          <div><%= submit_tag('Find') %></div>
-      <% end %>
+  <% end %>
+  <%= form_tag(recent_georeferences_path, method: 'get') do %>
+      <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
-

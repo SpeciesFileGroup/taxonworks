@@ -6,7 +6,7 @@
         </tr>
       </table>
   <% end %>
-  <%= form_tag(drawn_georeferences_path) do %>
+  <%= form_tag(drawn_georeferences_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>

@@ -4,15 +4,13 @@
       <table border="1">
         <tr>
           <!--<div class="field">-->
-            <td><%= f.label 'keyword' %></td>
-            <td><%= f.text_field :verbatim_label, size: 35 %></td>
+          <td><%= f.label 'keyword' %></td>
+          <td><%= f.text_field :verbatim_label, size: 35 %></td>
           <!--</div>-->
         </tr>
       </table>
   <% end %>
-  <%= form_tag(tagged_collecting_events_path) do %>
+  <%= form_tag(tagged_collecting_events_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
-
-

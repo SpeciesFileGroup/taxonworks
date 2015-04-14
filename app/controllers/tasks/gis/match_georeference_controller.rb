@@ -9,36 +9,59 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # NOT TESTED, but something like 
   def filtered_collecting_events
-    @motion = 'filtered_collecting_event'
-    # redirect_to(:back)
-
+    @motion            = 'filtered_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-
-    render json: {
-      html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections', locals: { collecting_events: @collecting_events } )
-    }
-    # and
+    render_ce_select
   end
 
   def recent_collecting_events
+    @motion            = 'recent_collecting_events'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def tagged_collecting_events
+    @motion            = 'tagged_collecting_events'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def drawn_collecting_events
+    @motion            = 'drawn_collecting_events'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def filtered_georeferences
-    @motion = 'filtered_georeference'
+    @motion            = 'filtered_georeference'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def recent_georeferences
+    @motion            = 'recent_georeferences'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def tagged_georeferences
+    @motion            = 'tagged_georeferences'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
   end
 
   def drawn_georeferences
+    @motion            = 'drawn_georeferences'
+    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    render_ce_select
+  end
+
+  # @return [JSON]
+  def render_ce_select
+    render json: {
+             html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections',
+                                    locals:  {collecting_events: @collecting_events,
+                                              motion:            @motion})
+           }
   end
 end

@@ -4,8 +4,7 @@
       <td>This is where the map goes</td>
     </tr>
   </table>
-  <%= form_tag(drawn_collecting_events_path) do %>
+  <%= form_tag(drawn_collecting_events_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
-
