@@ -3,10 +3,10 @@
   <div class="item item1">
     <h2>Collecting Events</h2>
     find by:
-    <%= link_to_filter_ce %> |
-    <%= link_to_tag_ce %> |
-    <%= link_to_draw_ce %> |
-    <%= link_to_recent_ce %>
+    <%= link_to_georeference_match_type('filter', 'ce') %> |
+    <%= link_to_georeference_match_type('tag', 'ce') %> |
+    <%= link_to_georeference_match_type('draw', 'ce') %> |
+    <%= link_to_georeference_match_type('recent', 'ce') %>
 
     <br>--------_filter_ce_partial-------------
     <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
@@ -51,10 +51,10 @@
   <div class="item item3">
     <h2>Georeferences</h2>
     find by:
-    <%= link_to_filter_gr %> |
-    <%= link_to_tag_gr %> |
-    <%= link_to_draw_gr %> |
-    <%= link_to_recent_gr %>
+    <%= link_to_georeference_match_type('filter', 'gr') %> |
+    <%= link_to_georeference_match_type('tag', 'gr') %> |
+    <%= link_to_georeference_match_type('draw', 'gr') %> |
+    <%= link_to_georeference_match_type('recent', 'gr') %>
 
     <br>-------_filter_gr_partial------------------
     <%= render(partial: 'filter_georeferences_form') %>

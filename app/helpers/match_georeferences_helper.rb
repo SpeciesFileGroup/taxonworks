@@ -1,4 +1,5 @@
 module MatchGeoreferencesHelper
+=begin
   def link_to_filter_ce
     link_to('filter', '', class: 'filter-ce')
   end
@@ -22,5 +23,12 @@ module MatchGeoreferencesHelper
   end
   def link_to_recent_gr
     link_to('recent', '', class: 'recent-gr')
+    end
+=end
+  # @param [String] method of (filter, tag, draw, recent)
+  # @param [String] type of (ce, gr)
+  # @return [Link] to visualize a particular partial
+  def link_to_georeference_match_type(method, type)
+    link_to("#{method}", '', class: "#{method}-#{type}")
   end
 end
