@@ -3,6 +3,9 @@
 
 <%#= this is an error %>
 
-<% @person.roles.each do |role| %>
-
+<% @person.roles.group_by{|a| a.class.human_name}.each do |group, roles| %>
+    <h3><%= group -%></h3>
+      <% roles.each do |role| -%>
+          <%= object_link(role.role_object) -%>
+      <% end %>
 <% end %>
