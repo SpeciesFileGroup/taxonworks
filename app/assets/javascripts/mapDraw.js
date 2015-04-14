@@ -1,8 +1,73 @@
+function buildFeatureCollectionFromShape(shape, shape_type) {
+
+  //  var featureCollection = [];
+  var feature = [];
+  var coordinates = [];
+  var coordList = [];
+  var geometry = [];
+  var overlayType = shape_type[0].toUpperCase() + shape_type.slice(1);
+  var radius = undefined;
+
+  switch (overlayType) {
+    case 'Polyline':
+      overlayType = 'LineString';
+      break;
+    case 'Marker':
+      overlayType = 'Point';
+      coordinates.push(shape.position);
+      break;
+    case 'Circle':
+      overlayType = 'Point';
+
+      coordinates.push(shape.center);
+      radius = shape.radius;
+      break;
+  }
+
+  if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
+    coordinates = shape.getPath().getArray();     // so get the array from the path
+
+    for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
+      geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
+    }
+
+    if (overlayType == 'Polygon') {
+      geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
+      coordList.push(geometry);
+    }
+    else {
+      coordList = geometry;
+    }
+
+  }
+  else {          // it is a circle or point
+    geometry = [coordinates[0].lng(), coordinates[0].lat()];
+    coordList = geometry;
+  }
+
+  feature.push({
+    "type": "Feature",
+    "geometry": {
+      "type": overlayType,
+      "coordinates": coordList
+    },
+    "properties": {}
+  });
+
+  // if it is a circle, the radius will be defined, so set the property
+  if (radius != undefined) {
+    feature[0]['properties'] = {"radius": radius};
+  }
+
+  return feature
+}
+
+function removeItemFromMap(item) {
+  item.setMap(null);
+}
+
 function initializeDrawItem(map_canvas, fcdata, last) {
-  var drawingManager;
-
-
-  drawingManager = clearItem(drawingManager);
+  var drawingManager = clearItem(drawingManager);
 
   var mapData = fcdata;
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
@@ -38,119 +103,59 @@ function initializeDrawItem(map_canvas, fcdata, last) {
 
   map.data.addGeoJson(mapData);
 
-  // Debugging, deprecated now.
-  // var mapCoords;
-  // if (lat != 0 || lng != 0) {
-  //     mapCoords = 'Verbatim coordinate:\xA0 Latitude= ' + lat + ' , Longitude= ' + lng;
-  // }
-  // else {
-  //   mapCoords = 'Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6);
-  // }
-  // mapCoords = mapCoords // + ' \xA0 \xA0 <input type="button" onclick="foo(' + map_canvas + ', ' + fcdata + ');" value="Clear" />'
-  //$("#map_coords").html(mapCoords);
-  //map.setCenter(center_lat_long);
-  //map.setZoom(bounds.gzoom);
-
   drawingManager.setMap(map);
 
+  //   drawingManager.setDrawingMode(null);
+  //  drawingManager.setOptions({
+  //   drawingControl: false
+  //  });
 
-  google.maps.event.addListener(drawingManager, 'overlaycomplete', function (overlay) {
 
+
+  // Add the listeners
+  google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
         if (last != null) {
           if (last[0] != null) {
             if (last[1] != 'marker' || overlay.type != 'marker') {
-              last[0].setMap(null)
+              removeItemFromMap(last[0]);
             }
             ;
           }
           ;
         }
         ;
+
         last = [overlay.overlay, overlay.type];
 
-
-        //     drawingManager.setDrawingMode(null);
-        //    drawingManager.setOptions({
-        //     drawingControl: false
-        //    });
-
-//        var featureCollection = [];
-        var feature = [];
-        var coordinates = [];
-        var coordList = [];
-        var geometry = [];
-        var overlayType = overlay.type[0].toUpperCase() + overlay.type.slice(1);
-        var radius = undefined;
-
-        switch (overlayType) {
-          case 'Polyline':
-            overlayType = 'LineString';
-            break;
-          case 'Marker':
-            overlayType = 'Point';
-            coordinates.push(overlay.overlay.position);
-            break;
-          case 'Circle':
-            overlayType = 'Point';
-            coordinates.push(overlay.overlay.center);
-            radius = overlay.overlay.radius;
-            break;
-        }
-
-        if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
-          coordinates = overlay.overlay.getPath().getArray();     // so get the array from the path
-
-          for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
-            geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
-          }
-          if (overlayType == 'Polygon') {
-            geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
-            coordList.push(geometry);
-          }
-          else {
-            coordList = geometry;
-          }
-        }
-        else {          // it is a circle or point
-          geometry = [coordinates[0].lng(), coordinates[0].lat()];
-          coordList = geometry;
-        }
-
-        feature.push({
-          "type": "Feature",
-          "geometry": {
-            "type": overlayType,
-            "coordinates": coordList
-          },
-          "properties": {}
-        });
-
-        // if it is a circle, the radius will be defined, so set the property
-        if (radius != undefined) {
-          feature[0]['properties'] = {"radius": radius};
-        }
-
+        // debugging
+        // var feature = buildFeatureCollectionFromShape(last[0], last[1]);
         // make a full-fledged FeatureCollection for grins
         // featureCollection.push({"type": "FeatureCollection", "features": feature})
-
-        // debugging
-        $("#geoType").text(feature[0]["geometry"]["type"])
-        $("#geoShape").text(JSON.stringify(feature[0]));
-
-        $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-
-        $("#shape_is_loaded").text('Shape is assigned.');
-        $("#shape_is_loaded").toggleClass('alert alert-notice');
-
+        //  $("#geoType").text(feature[0]["geometry"]["type"])
+        //  $("#geoShape").text(JSON.stringify(feature[0]));
+        //  $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         //$("#map_coords").html(JSON.stringify(featureCollection[0]));
 
-        document.getElementsByName('commit')[0].disabled = false;
-        document.getElementsByName('commit_next')[0].disabled = false;
+        $("#shape_is_loaded").text('Shape (' + last[1] + ') is assigned.');
+        $("#shape_is_loaded").prop('class', 'alert alert-notice');
+
+        $("#create_georeference_button").prop('disabled', false);
+
+        if ($("#next_without_georeference").length) {
+          $("#create_and_next_georeference_button").prop('disabled', false);
+        }
+
+        $("#create_georeference_button").bind("click", function() {
+          var feature = buildFeatureCollectionFromShape(last[0], last[1]);
+          $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+        });
+
       }
   );
 
   return map;
 }
+
 
 function clearItem() {
   var drawingManager = new google.maps.drawing.DrawingManager({

@@ -14,7 +14,9 @@
                                  tag_id:     'collecting_event_id_for_georeference',
                                  display:    collecting_event_tag(@georeference.collecting_event)}
             %>
-          </div>
+        </div>
+      <% else %> 
+         <%= f.hidden_field :collecting_event_id -%>
       <% end %>
     </div>
 
@@ -29,9 +31,13 @@
     <% end %>
 
     <div class="actions">
-      <%= f.submit value: 'Create', disabled: true %><br/>
-      <%= f.submit name: :commit_and_next, value: 'Create and next CE without georeference', disabled: true %><br/>
-      <%= next_without_georeference_for_google_maps_link(@georeference.collecting_event) %>
+      <%= f.submit value: 'Create', disabled: true, id: :create_georeference_button %><br/>
+   
+      <% if @georeference.collecting_event.next_without_georeference %>
+        <%= f.submit name: :commit_and_next, value: 'Create and next CE without georeference', disabled: true, id: :create_and_next_georeference_button %><br/>
+        <%= next_without_georeference_for_google_maps_link(@georeference.collecting_event) %>
+      <% end %>
+    
     </div>
 <% end %>
 

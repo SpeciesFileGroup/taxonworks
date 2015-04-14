@@ -3,7 +3,10 @@ class Georeferences::GoogleMapsController < ApplicationController
 
   # GET /georeferences/google_maps/new
   def new
-    @georeference = Georeference::GoogleMap.new(georeference_params)
+    p = georeference_params
+    p.merge!(collecting_event: CollectingEvent.new) if p['collecting_event_id'].blank?
+    p.merge!(geographic_item: GeographicItem.new) # not required in present state - if p['geographic_item_id'].blank?
+    @georeference = Georeference::GoogleMap.new(p)
   end
 
   # POST /georeferences/google_maps
@@ -31,14 +34,12 @@ class Georeferences::GoogleMapsController < ApplicationController
   private
 
   def georeference_params
-    p = params.require(:georeference).permit(:collecting_event_id,
-                                             :type,
-                                             :is_public,
-                                             :geo_type,
-                                             :geographic_item_attributes => [:shape])
-    p.merge!(collecting_event: CollectingEvent.new) if params[:georeference][:collecting_event_id].blank?
-    p.merge!(geographic_item: GeographicItem.new) if params[:georeference][:geographic_item_id].blank?
-    p    
+    params.require(:georeference).permit(:collecting_event_id,
+                                         :type,
+                                         :is_public,
+                                         :geo_type,
+                                         :geographic_item_attributes => [:shape]
+                                        )
   end
 
  # Over-ride the default model setting for this subclass
