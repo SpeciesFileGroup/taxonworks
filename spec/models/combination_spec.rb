@@ -5,6 +5,7 @@ describe Combination, :type => :model do
   let(:source_older_than_combination) { FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
   let(:family) { FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
   let(:genus ) {FactoryGirl.create(:relationship_genus, parent: family, year_of_publication: 1950)}
+  let(:subgenus ) {FactoryGirl.create(:iczn_subgenus, parent: genus, year_of_publication: 1950)}
   let(:species) { FactoryGirl.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
   let(:species2) { FactoryGirl.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
 
@@ -51,8 +52,9 @@ describe Combination, :type => :model do
     end
 
     specify 'genus combination is valid with two protonyms' do
-      c = Combination.new(genus: genus, subgenus: genus)
+      c = Combination.new(genus: genus, subgenus: subgenus)
       c.valid?
+      expect(c.protonyms.last).to eq(subgenus)
       expect(c.errors.include?(:base)).to be_falsey
     end
 
