@@ -4,7 +4,7 @@
   <table border="1">
     <tr>
       <td>
-        <div id="feature_collection_2"
+        <div id="feature_collectionX"
              data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'>
 
         </div>
@@ -12,6 +12,7 @@
 
       </td>
     </tr>
+    <!--<script>_init_draw_collecting_event()</script>-->
   </table>
   <%= form_tag(drawn_collecting_events_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
