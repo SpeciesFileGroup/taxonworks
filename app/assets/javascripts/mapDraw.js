@@ -66,8 +66,8 @@ function removeItemFromMap(item) {
   item.setMap(null);
 }
 
-function initializeDrawItem(map_canvas, fcdata, last) {
-  var drawingManager = clearItem(drawingManager);
+
+function initializeDrawItem(map_canvas, fcdata) {
 
   var mapData = fcdata;
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
@@ -103,61 +103,15 @@ function initializeDrawItem(map_canvas, fcdata, last) {
 
   map.data.addGeoJson(mapData);
 
-  drawingManager.setMap(map);
-
-  //   drawingManager.setDrawingMode(null);
-  //  drawingManager.setOptions({
-  //   drawingControl: false
-  //  });
 
 
 
-  // Add the listeners
-  google.maps.event.addListener(drawingManager, 'overlaycomplete', function(overlay) {
-        if (last != null) {
-          if (last[0] != null) {
-            if (last[1] != 'marker' || overlay.type != 'marker') {
-              removeItemFromMap(last[0]);
-            }
-            ;
-          }
-          ;
-        }
-        ;
-
-        last = [overlay.overlay, overlay.type];
-
-        // debugging
-        // var feature = buildFeatureCollectionFromShape(last[0], last[1]);
-        // make a full-fledged FeatureCollection for grins
-        // featureCollection.push({"type": "FeatureCollection", "features": feature})
-        //  $("#geoType").text(feature[0]["geometry"]["type"])
-        //  $("#geoShape").text(JSON.stringify(feature[0]));
-        //  $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        //$("#map_coords").html(JSON.stringify(featureCollection[0]));
-
-        $("#shape_is_loaded").text('Shape (' + last[1] + ') is assigned.');
-        $("#shape_is_loaded").prop('class', 'alert alert-notice');
-
-        $("#create_georeference_button").prop('disabled', false);
-
-        if ($("#next_without_georeference").length) {
-          $("#create_and_next_georeference_button").prop('disabled', false);
-        }
-
-        $("#create_georeference_button").bind("click", function() {
-          var feature = buildFeatureCollectionFromShape(last[0], last[1]);
-          $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        });
-
-      }
-  );
 
   return map;
 }
 
 
-function clearItem() {
+function initializeDrawingManger(map) {
   var drawingManager = new google.maps.drawing.DrawingManager({
     drawingMode: google.maps.drawing.OverlayType.CIRCLE,
     drawingControl: true,
@@ -198,6 +152,8 @@ function clearItem() {
       strokeColor: 'black'
     }
   });
+
+  drawingManager.setMap(map);
   return drawingManager;
 }
 
