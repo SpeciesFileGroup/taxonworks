@@ -157,7 +157,7 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
-  # @return [GeographicItem] 
+  # @return [GeographicItem]
   #   a square which represents either the bounding box of the
   #   circle represented by the error_radius, or the bounding box of the error_geographic_item
   #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
@@ -184,6 +184,7 @@ class Georeference < ActiveRecord::Base
       retval
     end
   end
+
   # GeographicItem.connection.select_all("select st_dwithin((select point from geographic_items where id = 34820), (select polygon from geographic_items where id = 34809), 6800)").first['st_dwithin']
 
   # @return [Rgeo::polygon, nil]
@@ -196,7 +197,7 @@ class Georeference < ActiveRecord::Base
   end
 
   # Called by Gis::GeoJSON.feature_collection
-  # @return [Hash] formed as a GeoJSON 'Feature'  
+  # @return [Hash] formed as a GeoJSON 'Feature'
   def to_geo_json_feature
     geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
     retval   = {
@@ -215,6 +216,16 @@ class Georeference < ActiveRecord::Base
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
+    end
+  end
+
+  # @param [Hash] params from _collecting_event_selection form
+  def self.batch_create_from_georeference_matcher(params)
+    gr = Georeference.find(params['georeference_id'])
+    params['collecting_events'].each do |event_id|
+      new_gr                     = gr.dup
+      new_gr.collecting_event_id = event_id
+      new_gr.save
     end
   end
 
@@ -238,7 +249,7 @@ class Georeference < ActiveRecord::Base
     partial_gr
   end
 
-  # @return [Boolean] 
+  # @return [Boolean]
   #   true if geographic_item is completely contained in error_geographic_item
   def check_obj_inside_err_geo_item
     # case 1
@@ -253,7 +264,7 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-  # @return [Boolean] 
+  # @return [Boolean]
   #   true if geographic_item is completely contained in error_box
   def check_obj_inside_err_radius
     # case 2
@@ -328,7 +339,7 @@ class Georeference < ActiveRecord::Base
   #   # case 4
   #   retval = true
   #   if collecting_event
-  #     eb = self.error_box     
+  #     eb = self.error_box
   #     gi = collecting_event.default_area_geographic_item
   #     if eb && gi
   #       retval = gi.contains?(eb)

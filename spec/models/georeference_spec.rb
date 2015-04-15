@@ -92,7 +92,7 @@ describe Georeference, type: :model, group: :geo do
 
         specify 'can be set to something reasonable' do
           georeference.geographic_item = GeographicItem.first
-          georeference.error_radius = 3
+          georeference.error_radius    = 3
           georeference.valid?
           expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
         end
@@ -294,8 +294,22 @@ describe Georeference, type: :model, group: :geo do
         expect(georeference.error_box.geo_object.to_s).to eq(BOX_1.to_s)
       end
     end
+    context 'batch_create_from_georeference_matcher' do
+      specify 'adding this georeference to two collecting events' do
+        georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
+                                                      error_radius:     160000)
+        georeference.save
+        ce1 = collecting_event_with_geographic_area
+        ce2 = collecting_event_without_geographic_area
+        ce2.save
+        params = {'georeference_id' => georeference.id, 'collecting_events' => [ce1.id, ce2.id]}
+        Georeference.batch_create_from_georeference_matcher(params)
+        expect(ce1.georeferences.count).to eq(2)
+        expect(ce2.georeferences.count).to eq(1)
+        expect(Georeference.all.count).to eq(3)
+      end
+    end
   end
-
 
   context 'scopes' do
     before(:all) {
