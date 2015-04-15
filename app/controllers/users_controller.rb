@@ -62,7 +62,7 @@ class UsersController < ApplicationController
 
   # POST /send_password_reset
   def send_password_reset
-    user = User.find_by_email(params[:email])
+    user = User.find_by_email(params[:email].downcase)
     
     if user.nil? 
       redirect_to :forgot_password
