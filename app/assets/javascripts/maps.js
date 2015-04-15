@@ -28,7 +28,7 @@ initializeMap = function(canvas, feature_collection) {
 
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-  get_Data(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+  getData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
@@ -169,15 +169,17 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   bounds.center_long = center_long;
   bounds.gzoom = gzoom;
   bounds.box = box;
-  return /*center_lat_long =*/ new google.maps.LatLng(center_lat, center_long);
+  return new google.maps.LatLng(center_lat, center_long); /* DO NOT place comments between code center_lat_long =*/
 };
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
-// variables below used by stripped-down get_Data to compute bounds
-function reset_center_and_bounds(bounds) {         // used to
-  bounds.center_long = undefined;               // clear previous history
-  bounds.center_lat = undefined;               // so that center is recalculated
+// variables below used by stripped-down getData to compute bounds
+// used to clear previous history
+// so that center is recalculated
+function reset_center_and_bounds(bounds) {
+  bounds.center_long = undefined;
+  bounds.center_lat = undefined;
 
   bounds.xminp = 180.0;       // use 0
   bounds.xmaxp = 0.0;        // to
@@ -191,14 +193,19 @@ function reset_center_and_bounds(bounds) {         // used to
   bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm), new google.maps.LatLng(bounds.ymin, bounds.xminp));
 }
 
-function get_Data(feature_collection_data, bounds) {       //this is the scanner version; no google objects are created
+// this is the scanner version; no google objects are created
+function getData(feature_collection_data, bounds) {
   reset_center_and_bounds(bounds);
-  //		get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
+
+  // TODO: is this doing two things? What is the code after the above doing, altering the content of feature_collection_data
+
+  // ?! does this actually affect/return anything?!
+  //	get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
   var data = feature_collection_data;
   if (typeof (data) != "undefined") {
     var dataArray = [];
     if (data instanceof Array) {
-    }      // if already an array, then do nothing
+    }       // if already an array, then do nothing
     else    // convert it to an array
     {
       dataArray[0] = data;
@@ -230,7 +237,7 @@ function get_Data(feature_collection_data, bounds) {       //this is the scanner
     ;        // for i
   }
   ;           //data != undefined
-};              //get_Data
+};              //getData
 
 function getFeature(thisFeature, bounds) {
   getTypeData(thisFeature.geometry, bounds);

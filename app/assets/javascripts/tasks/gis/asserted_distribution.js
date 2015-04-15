@@ -68,7 +68,7 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
 
             var data = local_data['feature_collection'];
             var bounds = {};
-            get_Data(data, bounds);
+            getData(data, bounds);
             var center_lat_long = get_window_center(bounds);
             map.setCenter(center_lat_long);
             map.setZoom(bounds.gzoom);

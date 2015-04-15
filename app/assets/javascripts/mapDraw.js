@@ -1,3 +1,5 @@
+
+
 function buildFeatureCollectionFromShape(shape, shape_type) {
 
   //  var featureCollection = [];
@@ -66,18 +68,26 @@ function removeItemFromMap(item) {
   item.setMap(null);
 }
 
+// This references nothing in the DOM!
+// TODO: make more forgiving by allowing null fcdata or map_center_parts (stub blank legal values)
+// in these cases draw a default map
+function initializeGoogleMap(map_canvas, fcdata, map_center_parts) {
 
-function initializeDrawItem(map_canvas, fcdata) {
-
+  // does this need to be set?  would it alter fcdata if not set?
   var mapData = fcdata;
+
+  //
+  // find a bounding box for the map (and a map center?)
+  //
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
 
-  var mcparts = $("#feature_collection").data('map-center').split("(");   // this assumes always present
-  var lat = mcparts[1].split(' ')[1];
-  var lng = mcparts[1].split(' ')[0];
+  var lat = map_center_parts[1].split(' ')[1];
+  var lng = map_center_parts[1].split(' ')[0];
 
-  get_Data(mapData, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
-
+  // TODO: what does this actually do, should it be calculateCenter()?  If it is
+  // setting a value for bounds then it should be assinging bounds to a function
+  // that returns bounds
+  getData(mapData, bounds);  // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
 
   // override computed center with verbatim center
@@ -90,7 +100,7 @@ function initializeDrawItem(map_canvas, fcdata) {
     zoom: bounds.gzoom
   };
 
-  var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
+ var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
 
   map.data.setStyle({
     icon: '/assets/mapicons/mm_20_gray.png',
@@ -99,13 +109,9 @@ function initializeDrawItem(map_canvas, fcdata) {
     strokeColor: "black",
     strokeWeight: 1,
     fillOpacity: 0.2
-  });                         // boundary/center work done, now actually add the data to the map
+  });
 
   map.data.addGeoJson(mapData);
-
-
-
-
 
   return map;
 }

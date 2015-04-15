@@ -1,3 +1,5 @@
+
+
 <%= form_for(@georeference.metamorphosize, url: '/georeferences/google_maps') do |f| %>
 
     <div id="shape_is_loaded"></div>
@@ -21,7 +23,7 @@
     </div>
 
     <div class="field">
-      <%= f.label :is_public %>
+      <%= f.label :is_public %> <span class="subtle"> (Georeference will be marked as public) </span>
       <br>
       <%= f.check_box :is_public %>
     </div>
