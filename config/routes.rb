@@ -39,7 +39,7 @@ TaxonWorks::Application.routes.draw do
 
   match '/administration', to: 'administration#index', via: 'get'
 
-  resources :project_members, except: [:index, :show] 
+  resources :project_members, except: [:index, :show]
   resources :pinboard_items, only: [:create, :destroy]
 
   resources :alternate_values, except: [:show] do
@@ -73,7 +73,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :predicates, only: [ ] do
+  resources :predicates, only: [] do
     collection do
       get 'autocomplete'
     end
@@ -106,7 +106,7 @@ TaxonWorks::Application.routes.draw do
     resources :google_maps, only: [:new, :create]
     # verbatim_data
   end
- 
+
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
@@ -126,12 +126,12 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
   resources :otu_page_layouts do
-     collection do
+    collection do
       get :list
-     end 
+    end
 
   end
-  
+
   resources :otus do
     concerns [:data_routes]
     collection do
@@ -239,6 +239,8 @@ TaxonWorks::Application.routes.draw do
       get 'recent_georeferences'
       get 'tagged_georeferences'
       get 'drawn_georeferences'
+
+      post 'batch_create'
 
       # get 'filtered_collecting_events', as: 'filtered_collecting_events'
       # get 'recent_collecting_events', as: 'recent_collecting_events'

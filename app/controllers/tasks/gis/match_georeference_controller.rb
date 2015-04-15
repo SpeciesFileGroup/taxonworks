@@ -56,6 +56,14 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_ce_select
   end
 
+  def batch_create
+    count = Georeference.batch_create_from_georeference_matcher(params)
+    if count > 0
+      render json: {html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
+    end
+
+  end
+
   # @return [JSON]
   def render_ce_select
     render json: {
