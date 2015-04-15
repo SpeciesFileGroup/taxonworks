@@ -1,4 +1,11 @@
 module GeographicItemsHelper
+
+
+  def geographic_item_tag(geographic_item)
+    return nil if geographic_item.nil?
+    geographic_item.to_param 
+  end
+
   def json_tag(geographic_item)
     retval = geographic_item.to_geo_json_feature.to_json.html_safe
     retval
