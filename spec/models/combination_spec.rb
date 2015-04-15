@@ -74,6 +74,19 @@ describe Combination, :type => :model do
     specify 'rank_class is optional' do
       expect(combination.errors.include?(:rank_class)).to be_falsey
     end
+
+    specify 'scope with_cached_original_combination' do
+      c = Combination.new(genus: genus, species: species)
+      c.save
+      expect(Combination.with_cached_html('<em>' + genus.name + ' ' + species.name + '</em>').first).to eq(c)
+    end
+
+    specify 'scope with_protonym_at_rank' do
+      c = Combination.new(genus: genus, species: species)
+      c.save
+      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Genus', genus).first).to eq(c)
+      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Species', species).first).to eq(c)
+    end
   end
 
   specify 'type is Combination' do

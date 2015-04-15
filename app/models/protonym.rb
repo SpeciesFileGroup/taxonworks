@@ -128,6 +128,7 @@ class Protonym < TaxonName
   soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
   soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
   soft_validate(:sv_source_not_older_then_description, set: :dates)
+  soft_validate(:sv_missing_current_combination, set: :missing_combination)
 
   before_validation :check_format_of_name,
     :validate_rank_class_class,
@@ -699,6 +700,10 @@ class Protonym < TaxonName
         end
       end
     end
+  end
+
+  def sv_missing_current_combination
+
   end
 
   def set_cached_names

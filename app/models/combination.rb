@@ -98,6 +98,8 @@ class Combination < TaxonName
   end
 
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
+  scope :with_cached_html, -> (html) { where(cached_html: html) }
+  scope :with_protonym_at_rank, -> (rank, protonym) { includes(:combination_relationships).where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).references(:combination_relationships)}
 
   validate :at_least_two_protonyms_are_included,
     :parent_is_properly_set
@@ -215,7 +217,8 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self.id).with_parent_id(self.parent_id).with_cached_original_combination(self.cached_original_combination)
+    duplicate = Combination.not_self(self.id).with_cached_html(self.cached_html)
+#    duplicate = Combination.not_self(self.id).with_parent_id(self.parent_id).with_cached_html(self.cached_html)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
