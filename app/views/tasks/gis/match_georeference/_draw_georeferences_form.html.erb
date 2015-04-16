@@ -1,11 +1,12 @@
 <div id="_draw_gr_form" name="_draw_gr_form" hidden="true">
-  <%= form_for(@georeference) do |f| %>
       <table border="1">
         <tr>
-          <td>This is where the drawing map goes</td>
+          <div id="feature_collection"
+               data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'>
+          </div>
+          <td><div id="georeference_map_canvas" style="width:512px; height: 256px;"></div></td>
         </tr>
       </table>
-  <% end %>
   <%= form_tag(drawn_georeferences_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>

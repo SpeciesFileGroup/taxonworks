@@ -85,7 +85,7 @@ $(document).on('ready page:load', function () {
         $("#_filter_gr_form").attr("hidden", true)
         $("#_tag_gr_form").attr("hidden", true)
         $("#_recent_gr_form").attr("hidden", true)
-
+        _init_georeference_map_widget();
         event.preventDefault();
 
         return;
