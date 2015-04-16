@@ -33,7 +33,7 @@ class Source::Verbatim < Source
 
   def only_verbatim_is_populated
     self.attributes.each do |k, v|
-      next if %w{type cached verbatim created_by_id updated_by_id}.include?(k)
+      next if %w{id type cached verbatim created_by_id updated_by_id created_at updated_at}.include?(k)
       errors.add(k, 'can not be provided to a verbatim reference') if !v.blank?
     end
   end

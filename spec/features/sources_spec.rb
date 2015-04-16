@@ -143,12 +143,14 @@ describe 'Sources', :type => :feature, :group => :sources do
     end
     specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
       @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
+      tmp = @src_verbatim.verbatim
       fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached)
       click_button('Show')
       expect(page).to have_content(@src_verbatim.cached)
       expect(page).to have_link('Edit')
       click_link('Edit')
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
+      expect(page.find_field('Verbatim').value).to eq(tmp)
       # TODO shelved until Matt fixes the coffee script
       #       expect(find_field('Title').value).to eq('I am a soft valid article')
       #       expect(find_field('Author').value).to eq('Person, Test')
@@ -156,9 +158,10 @@ describe 'Sources', :type => :feature, :group => :sources do
       #       expect(find_field('Year').value).to eq('1000')
       #       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       #       fill_in('Year', with: '1920')  # change Year to '1920'
-      #       click_button('Update Source')
-      #       expect(page).to have_content("Source was successfully updated.")
-      #       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
+      fill_in('Verbatim', with: 'New Verbatim source')
+            click_button('Update Source')
+            expect(page).to have_content('Source was successfully updated.')
+            expect(page).to have_content('New Verbatim source')
     end
 
 =begin
