@@ -107,7 +107,8 @@ class TaxonName < ActiveRecord::Base
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
-  after_save :set_cached_names_for_dependants
+  after_save :create_new_combination_if_absent,
+             :set_cached_names_for_dependants
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -461,12 +462,33 @@ class TaxonName < ActiveRecord::Base
       set_cached_html
       set_cached_author_year
       set_cached_classified_as
-
-      # @proceps this line does nothing:
-      #self.cached_original_combination.blank? if self.class == Protonym
-
-      # @proceps - move this to Combination
       set_cached_original_combination
+    end
+  end
+
+  def create_new_combination_if_absent
+    return true unless self.type == "Protonym"
+    if Combination.with_cached_html(self.cached_html).count == 0
+      begin
+        TaxonName.transaction do
+          c = Combination.new
+          safe_self_and_ancestors.each do |i|
+            case i.rank
+              when 'genus'
+                c.genus = i
+              when 'subgenus'
+                c.subgenus = i
+              when 'species'
+                c.species = i
+              when 'subspecies'
+                c.subspecies = i
+            end
+          end
+          c.save
+        end
+      rescue
+      end
+      false
     end
   end
 
