@@ -1,10 +1,10 @@
 <%= render(partial: 'layouts/map_header') -%>
 
-<div id="_draw_ce_form" name="_draw_ce_form" hidden="true">
+<div id="_draw_ce_form" hidden="true">
   <table border="1">
     <tr>
       <td>
-        <div id="feature_collectionX"
+        <div id="feature_collection"
              data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'>
 
         </div>

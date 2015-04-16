@@ -1,19 +1,21 @@
-var _init_collecting_event_map;
+var _init_collecting_event_map_widget;
 
-_init_collecting_event_map = function init_collecting_event_map()         // initialization function for collecting event map
+_init_collecting_event_map_widget = function init_collecting_event_map()         // initialization function for collecting event map
 {
-    if ($("collecting_event_map_canvas").length) {
-        if (document.getElementById('feature_collection') != null) {
-            var newfcdata = $("#feature_collection");
-            var fcdata = newfcdata.data('feature-collection');
+    if ($("#_draw_ce_form").attr("hidden") != "hidden") {
+        if ($("#collecting_event_map_canvas").length) {
+            if (document.getElementById('feature_collection') != null) {
+                var newfcdata = $("#feature_collection");
+                var fcdata = newfcdata.data('feature-collection');
 
-            initializeMap("collecting_event_map_canvas", fcdata);
-            //add_map_listeners();
+                initializeMap("collecting_event_map_canvas", fcdata);
+                //add_map_listeners();
+            }
         }
     }
 }
-$(document).ready(_init_collecting_event_map);
-$(document).on("page:load", _init_collecting_event_map);
+$(document).ready(_init_collecting_event_map_widget);
+$(document).on("page:load", _init_collecting_event_map_widget);
 
 /*
  var _initialize_google_maps_georeference_widget;
@@ -27,7 +29,7 @@ $(document).on("page:load", _init_collecting_event_map);
  var fcdata = widget.data('feature-collection');
  var map_center_parts = widget.data('map-center').split("(");
 
- var map = initializeGoogleMap("new_georeference_google_map_canvas", fcdata, map_center_parts);
+ var map = initializeGoogleMap("collecting_event_map_canvas", fcdata, map_center_parts);
  var drawingManager = initializeDrawingManger(map);
 
  // An array containing the marker itself, and the marker type

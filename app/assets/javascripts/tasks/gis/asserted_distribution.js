@@ -115,14 +115,15 @@ function add_new_asserted_distribution_map_listeners(map) {      // 4 listeners,
 var _init_asserted_distributions_map;
 
 _init_asserted_distributions_map = function init_asserted_distributions_map() {
-  if (document.getElementById('feature_collection') != null)  {
-    var newadwidget = $("#feature_collection");
-    var fcdata = newadwidget.data('feature-collection');
+    if ($("#new_asserted_distribution_map_canvas").length) {
+        if (document.getElementById('feature_collection') != null) {
+            var newadwidget = $("#feature_collection");
+            var fcdata = newadwidget.data('feature-collection');
 //    alert(fcdata);
-    var map = initializeMap("new_asserted_distribution_map_canvas", fcdata  ); // fcdata
-    add_new_asserted_distribution_map_listeners(map);
-  }
+            var map = initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
+            add_new_asserted_distribution_map_listeners(map);
+        }
+    }
 }
-
 $(document).ready(_init_asserted_distributions_map);
 $(document).on("page:load", _init_asserted_distributions_map);

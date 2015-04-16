@@ -33,7 +33,7 @@ $(document).on('ready page:load', function () {
         $("#_filter_ce_form").attr("hidden", true)
         $("#_tag_ce_form").attr("hidden", true)
         $("#_recent_ce_form").attr("hidden", true)
-
+        _init_collecting_event_map_widget();
         event.preventDefault();
 
         return;
