@@ -30,7 +30,7 @@ $(document).on("page:load", _init_collecting_event_map_widget);
  var map_center_parts = widget.data('map-center').split("(");
 
  var map = initializeGoogleMap("collecting_event_map_canvas", fcdata, map_center_parts);
- var drawingManager = initializeDrawingManger(map);
+ var drawingManager = initializeDrawingManager(map);
 
  // An array containing the marker itself, and the marker type
  var last = null;
