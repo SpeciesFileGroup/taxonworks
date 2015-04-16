@@ -97,7 +97,6 @@ class Combination < TaxonName
     } 
   end
 
-  scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
   scope :with_protonym_at_rank, -> (rank, protonym) { includes(:combination_relationships).where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).references(:combination_relationships)}
 

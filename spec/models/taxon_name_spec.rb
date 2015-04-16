@@ -586,13 +586,13 @@ describe TaxonName, :type => :model do
   context 'after save' do
     context 'create_new_combination_if_absent' do
       specify 'new combination' do
-        expect(Combination.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(0)
+        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(0)
         sp = FactoryGirl.build (:relationship_species)
         sp.save
         expect(sp.cached_html).to eq('<em>Erythroneura vitis</em>')
-        expect(Combination.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
+        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
         sp.save
-        expect(Combination.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
+        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
       end
     end
   end

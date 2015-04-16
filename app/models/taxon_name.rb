@@ -184,11 +184,10 @@ class TaxonName < ActiveRecord::Base
     where('tnr1.subject_taxon_name_id IS NULL AND tnr2.object_taxon_name_id IS NULL')
   }
 
-  # TODO move to shared code (Shared::IsData)
-  scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
-
-
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
+
+  scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
+  scope :with_cached_html, -> (html) { where(cached_html: html) }
 
   validates_presence_of :type, message: 'is not specified'
   validates_presence_of :rank_class, message: 'is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
@@ -468,7 +467,7 @@ class TaxonName < ActiveRecord::Base
 
   def create_new_combination_if_absent
     return true unless self.type == "Protonym"
-    if Combination.with_cached_html(self.cached_html).count == 0
+    if TaxonName.with_cached_html(self.cached_html).count == 0
       begin
         TaxonName.transaction do
           c = Combination.new
