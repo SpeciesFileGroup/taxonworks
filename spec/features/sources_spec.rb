@@ -143,7 +143,7 @@ describe 'Sources', :type => :feature, :group => :sources do
     end
     specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
       @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
-      tmp = @src_verbatim.verbatim
+      tmp           = @src_verbatim.verbatim
       fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached)
       click_button('Show')
       expect(page).to have_content(@src_verbatim.cached)
@@ -159,9 +159,9 @@ describe 'Sources', :type => :feature, :group => :sources do
       #       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       #       fill_in('Year', with: '1920')  # change Year to '1920'
       fill_in('Verbatim', with: 'New Verbatim source')
-            click_button('Update Source')
-            expect(page).to have_content('Source was successfully updated.')
-            expect(page).to have_content('New Verbatim source')
+      click_button('Update Source')
+      expect(page).to have_content('Source was successfully updated.')
+      expect(page).to have_content('New Verbatim source')
     end
 
 =begin
