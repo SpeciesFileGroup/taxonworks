@@ -15,19 +15,38 @@ $(document).ready(_init_georeference_google_map);
 $(document).on("page:load", _init_georeference_google_map);
 
 
+// widget name is a css selector for an id'ed div, like "#my_widget"
+function initializeGoogleMapWithDrawManager(widget_name) {
+  var widget = $(widget_name);
+
+  // a legal feature collection and map-center value in the widget is required, or the code fails
+  var fcdata = widget.data('feature-collection');
+
+  var map_center= widget.data('map-center');
+
+  var map = initializeGoogleMap("widget_canvas", fcdata, map_center);
+  var drawingManager = initializeDrawingManager(map);
+
+  return [map, drawingManager];
+}
+
 var _initialize_google_maps_georeference_widget;
 
 _initialize_google_maps_georeference_widget = function init_new_georeference_google_map() {
     if ($('#google_maps_georeference_widget').length) {  // preempt omni-listener affecting wrong canvas
 
-        var widget = $("#google_maps_georeference_widget");
+//       var widget = $("#google_maps_georeference_widget");
 
-        // a legal feature collection and map-center value in the widget is required, or the code fails
-        var fcdata = widget.data('feature-collection');
-        var map_center_parts = widget.data('map-center').split("(");
+//       // a legal feature collection and map-center value in the widget is required, or the code fails
+//       var fcdata = widget.data('feature-collection');
+//       var map_center_parts = widget.data('map-center').split("(");
 
-        var map = initializeGoogleMap("new_georeference_google_map_canvas", fcdata, map_center_parts);
-        var drawingManager = initializeDrawingManager(map);
+//       var map = initializeGoogleMap("new_georeference_google_map_canvas", fcdata, map_center_parts);
+//       var drawingManager = initializeDrawingManager(map);
+
+        var setup = initializeGoogleMapWithDrawManager("#google_maps_georeference_widget");
+        var map = setup[0];
+        var drawingManager = setup[1];
 
         // An array containing the marker itself, and the marker type
         var last = null;

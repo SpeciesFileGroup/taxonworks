@@ -69,7 +69,7 @@ function removeItemFromMap(item) {
 // This references nothing in the DOM!
 // TODO: make more forgiving by allowing null fcdata or map_center_parts (stub blank legal values)
 // in these cases draw a default map
-function initializeGoogleMap(map_canvas, fcdata, map_center_parts) {
+function initializeGoogleMap(map_canvas, fcdata, map_center) {
 
     // does this need to be set?  would it alter fcdata if not set?
     var mapData = fcdata;
@@ -79,6 +79,9 @@ function initializeGoogleMap(map_canvas, fcdata, map_center_parts) {
     //
     var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
 
+   // a map center looks like  'POINT (0.0 0.0 0.0)'
+
+    var map_center_parts  = map_center.split("(");
     var lat = map_center_parts[1].split(' ')[1];
     var lng = map_center_parts[1].split(' ')[0];
 

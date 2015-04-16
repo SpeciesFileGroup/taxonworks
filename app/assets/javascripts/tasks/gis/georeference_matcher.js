@@ -1,4 +1,12 @@
-$(document).on('ready page:load', function () {
+
+
+  var _init_collecting_event_map_widget;
+
+  _init_collecting_event_map_widget = function init_collecting_event_map()
+  {
+
+    var setup = [];
+    setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
     $(".filter-ce").click(function (event) {
 
@@ -34,7 +42,7 @@ $(document).on('ready page:load', function () {
         $("#_tag_ce_form").attr("hidden", true)
         $("#_recent_ce_form").attr("hidden", true)
         _init_collecting_event_map_widget();
-        event.preventDefault();
+      event.preventDefault();
 
         return;
     });
@@ -104,5 +112,13 @@ $(document).on('ready page:load', function () {
         return;
     });
 
-    return;
-});
+    // this is the find submits ajax request, get's FC response and draws it on the map
+
+    // within above, bind click events to copy FC item to FC item
+    // setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+
+
+};
+
+$(document).ready(_init_collecting_event_map_widget);
+$(document).on("page:load", _init_collecting_event_map_widget);

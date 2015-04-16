@@ -1,14 +1,14 @@
-<%= render(partial: 'layouts/map_header') -%>
 
-<div id="_draw_ce_form" hidden="true">
+<div id="_draw_ce_form"
+     hidden="true"
+     data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
+     data-map-center='POINT (0.0 0.0 0.0)'
+>
+
   <table border="1">
     <tr>
       <td>
-        <div id="feature_collection"
-             data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'>
-
-        </div>
-        <div id="collecting_event_map_canvas" style="width:512px; height: 256px;"></div>
+        <div id="widget_canvas" style="width:512px; height:256px;"></div>
 
       </td>
     </tr>

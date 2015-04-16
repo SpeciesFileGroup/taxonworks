@@ -21,7 +21,7 @@
          data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
          data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'>
 
-      <div id="new_georeference_google_map_canvas" style="width:640px; height:480px;"></div>
+      <div id="widget_canvas" style="width:640px; height:480px;"></div>
     </div>
 
 
