@@ -16,7 +16,8 @@ module Settings
   ]
 
   @@default_data_directory = nil
-  
+  @@mail_domain = nil 
+
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
     raise "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
