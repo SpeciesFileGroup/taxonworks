@@ -215,14 +215,6 @@ describe Project, type: :model do
       end
     }
 
-    after(:each) {
-      # Cleanup filesystem hack vs. Paperclip
-      Image.all.each do |img|
-        img.destroy
-        img.run_callbacks(:commit)
-      end
-    }
-
     specify 'project build goes well' do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
@@ -236,6 +228,10 @@ describe Project, type: :model do
     context '#nuke' do
       before(:each) {
         p.nuke
+      }
+      
+      after(:each) {
+        nuke_image_folder
       }
 
       specify '#nuke nukes "everything"' do
