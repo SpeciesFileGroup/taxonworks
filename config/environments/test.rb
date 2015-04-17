@@ -40,10 +40,11 @@ TaxonWorks::Application.configure do
     exception_notification: {
       email_prefix: "[TW-Error] ",
       sender_address: %{"notifier" <notifier@example.com>},
-      exception_recipients: %w{exceptions@example.com}
-    }
+      exception_recipients: %w{exceptions@example.com},
+    },
+    mail_domain: "example.com"
   })  
-  
+
   # Post scaffolding changes 
   require 'taxonworks'
   require 'taxonworks_autoload'
