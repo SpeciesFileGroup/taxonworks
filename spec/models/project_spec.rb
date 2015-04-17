@@ -1,10 +1,6 @@
 require 'rails_helper'
 
-# Projects are extended by various related concerns.  When 
-# we get to testing them we will have to do this here:
-#   Rails.application.eager_load!
-
-describe Project, :type => :model do
+describe Project, type: :model do
 
   let(:project) { FactoryGirl.build(:project) }
 
@@ -134,7 +130,6 @@ describe Project, :type => :model do
       p = Project.create!(name: "testing root taxon name", without_root_taxon_name: true)
       expect(p.taxon_names.count).to eq(0)
     end
-
   end
 
   context '#destroy sanity test' do
@@ -217,6 +212,14 @@ describe Project, :type => :model do
       length = @failed_factories.length
       if length > 0
         @project_build_err_msg += "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
+      end
+    }
+
+    after(:each) {
+      # Cleanup filesystem hack vs. Paperclip
+      Image.all.each do |img|
+        img.destroy
+        img.run_callbacks(:commit)
       end
     }
 

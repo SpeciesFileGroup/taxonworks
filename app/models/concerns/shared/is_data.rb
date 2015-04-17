@@ -76,7 +76,6 @@ module Shared::IsData
         where(object.class.table_name => {id: '<> 0' })
       else
         where(object.class.arel_table[:id].not_eq(object.to_param) )
-       # where(object.class.table_name => {id: ["<> ?", object.to_param] } )
       end
     end
   end

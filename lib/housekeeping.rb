@@ -6,7 +6,6 @@ module Housekeeping
     include Projects 
     include Timestamps
     include CombinedScopes
-    include SharedAttributeScopes
   end
 
   def has_polymorphic_relationship?

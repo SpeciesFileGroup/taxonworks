@@ -46,7 +46,7 @@ class Image < ActiveRecord::Base
   end
 
   def duplicate_images
-    Image.where(:image_file_fingerprint => self.image_file_fingerprint).to_a
+    Image.where(:image_file_fingerprint => self.image_file_fingerprint).not_self(self).to_a
   end
 
   def exif
