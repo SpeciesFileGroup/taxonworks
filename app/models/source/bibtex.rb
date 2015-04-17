@@ -67,7 +67,7 @@ require 'csl/styles'
 # @!attribute annote
 #   BibTeX standard field (ignored by standard processors)
 #   An annotation. It is not used by the standard bibliography styles, but
-#   may be used by others that produce an annotated bibliography.
+#   may be used by others that produce an annotated bibliography. (compare to a note which is any additional information which may be useful to the reader)
 #   @return [String] the annotation
 #   @return [nil] means the attribute is not stored in the database.
 #
@@ -608,8 +608,7 @@ class Source::Bibtex < Source
   #TODO if language is set => set language_id
   #endregion getters & setters
 
-
-  #region has_<attribute>? section
+   #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?)
     # author attribute is empty
