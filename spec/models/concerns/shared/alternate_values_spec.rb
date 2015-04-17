@@ -39,12 +39,12 @@ describe 'AlternateValues', :type => :model do
     end
 
     context 'instance methods' do
-      specify 'alternate_valued? with none attached' do
+      specify '#alternate_valued? with none attached' do
         tav =   TestAlternateValue.new
         expect(tav.alternate_valued?).to be_falsey
       end
 
-      specify 'alternate_valued? with some attached' do
+      specify '#alternate_valued? with some attached' do
         tav =   TestAlternateValue.new
         tav.string = 'Foo'
         tav.alternate_values << AlternateValue::Misspelling.new(alternate_value_object_attribute: :string, value: 'Fu')
@@ -59,20 +59,6 @@ describe 'AlternateValues', :type => :model do
         expect(instance_with_alternate_values.all_values_for(:string)).to \
           eq(['gibberish', 'test1', 'Testing alternate values', 'tst', 'tast1'].sort)
       end
-
-      specify 'alternate_value is on a valid object attribute' do
-        # Test that can add an alternate value on something in list, and can't for something not in list
-        av = AlternateValue::Misspelling.create(
-          value:                            'tast1',
-          alternate_value_object_attribute: 'foo',
-          alternate_value_object:           instance_with_alternate_values)
-        expect(av.valid?).to be_falsey
-        expect(av.errors.include?(:alternate_value_object_attribute)).to be_truthy
-        av.alternate_value_object_attribute = instance_with_alternate_values.class::ALTERNATE_VALUES_FOR[0]
-        expect(av.valid?).to be_truthy
-        expect(av.errors.include?(:alternate_value_object_attribute)).to be_falsey
-      end
-
     end
 
     context 'class methods' do
