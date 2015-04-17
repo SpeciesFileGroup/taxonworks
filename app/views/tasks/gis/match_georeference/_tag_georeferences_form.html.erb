@@ -1,16 +1,12 @@
-<div id="_tag_gr_form" name="_tag_gr_form" hidden="true">
-  <%= form_for(@georeference) do |f| %>
+<div id="_tag_gr_form" name="_tag_gr_form" hidden="hidden">
+  <%= form_tag(tagged_georeferences_path, method: 'get') do %>
       Find georeferences tagged with
       <table border="1">
         <tr>
-          <div class="field">
-            <td><%= f.label 'keyword' %></td>
-            <td><%= f.text_field :type, size: 35 %></td>
-          </div>
+          <td>Keyword </td>
+          <td><label for="what_keyword"></label><input id="what_keyword"></td>
         </tr>
       </table>
-  <% end %>
-  <%= form_tag(tagged_georeferences_path, method: 'get') do %>
       <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>

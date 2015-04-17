@@ -15,8 +15,8 @@ RSpec.describe UserMailer, :type => :mailer do
       expect(mail.to).to eq([user.email])
     end
     
-    it 'renders the sender email', skip: 'Need to figure out how to set up' do
-      
+    it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
     end
     
     it 'shows the user\'s e-mail address in the e-mail body' do
@@ -36,8 +36,8 @@ RSpec.describe UserMailer, :type => :mailer do
       expect(mail.to).to eq([user.email])
     end
     
-    it 'renders the sender email', skip: 'Need to figure out how to set up' do
-      
+    it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
     end
 
     it 'shows the user\'s e-mail address in the e-mail body' do

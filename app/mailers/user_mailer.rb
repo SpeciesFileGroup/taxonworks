@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default from: Proc.new { "TaxonWorks <noreply@#{Settings.mail_domain}>" }
+  default from: Proc.new { ["TaxonWorks <noreply@#{Settings.mail_domain}>"] }
   
   def welcome_email(user)
     @user = user
@@ -10,5 +10,5 @@ class UserMailer < ActionMailer::Base
     @user = user
     @token = token
     mail(to: user.email, subject: 'Password reset request for TaxonWorks')
-  end  
+  end
 end

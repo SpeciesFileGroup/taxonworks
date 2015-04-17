@@ -115,6 +115,46 @@ describe Settings do
       
     end
     
+    describe "action_mailer_url_host" do
+      
+      context "present" do
+        let(:host) { { action_mailer_url_host: 'example.com' } }
+
+        it "sets up ActionMailer default URL host with the supplied config" do
+          expect(rails_config.action_mailer).to receive("default_url_options=").with({ :host => 'example.com' })
+          Settings.load_from_hash(rails_config, host)
+        end
+      end
+      
+      context "when not present" do
+        it "does not alter ActionMailer settings" do
+          expect(rails_config.action_mailer).not_to receive("default_url_options=")
+          Settings.load_from_hash(rails_config, { })
+        end
+      end
+      
+    end
+    
+    describe "mail_domain" do
+
+      context "present" do
+        let(:host) { { mail_domain: 'example.com' } }
+
+        it "sets ::mail_domain with the supplied domain" do
+          Settings.load_from_hash(rails_config, host)
+          expect(Settings.mail_domain).to eq('example.com')
+        end
+      end
+      
+      context "when not present" do
+        it "sets ::mail_domain to nil" do
+          Settings.load_from_hash(rails_config, { })
+          expect(Settings.mail_domain).to be_nil
+        end
+      end
+            
+    end
+    
     describe "capistrano" do
       it "accepts a capistrano section" do
         expect { Settings.load_from_hash(rails_config, { capistrano: { } }) }.to_not raise_error
