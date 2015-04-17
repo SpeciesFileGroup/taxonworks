@@ -1,18 +1,40 @@
-#sources.js.coffee 
+# sources.js.coffee 
 
-toggle_source_form_fields = (button) ->
-  to_show = button.value.split('::')[1].toLowerCase()
-  $('[id^=fields_for_]').hide()
+toggle_source_form_fields = (type_label) ->
+  types = ['bibtex', 'verbatim', 'human']
+  to_show = type_label.split('::')[1].toLowerCase()
+
+  # show everything
   $('#fields_for_' + to_show).show()
-  for f in $('#fields_for_'+to_show+'input,textarea,select')
-    f.value = null
-  $('#source_bibtex_type').val("")
-  # need to remove ajax picker source too
-  $('#fields_for_' + to_show).show()
+
+  # hide not visible (we can't hide everything
+  # and show because we lose content of inputs
+  for f in types when f isnt to_show
+    $('[id^=fields_for_'+f+']').hide()
+    for k in $('#fields_for_'+f+' :input')
+      k.value = null
+
+  # misc form cleanup (for ajax/selects)
+  if to_show != 'bibtex'
+    $('#source_bibtex_type').val("")
+    $('[name=source\\[serial_id\\]]').val("")
 
 $(document).on 'ready page:load', ->
-  $("#fields_for_verbatim").hide()
-  $("[id^=source_type_source]").click (event) ->
-    toggle_source_form_fields(this) 
+  if $('#source_edit_type').length
+    current_type = $('#source_edit_type input[checked="checked"]').first()
+
+    if current_type.val() == undefined
+      # new record
+      toggle_source_form_fields('Source::Bibtex')
+      $('#source_type_sourcebibtex').attr('checked', true)
+    else
+      # existing record
+      toggle_source_form_fields(current_type.val())
+       # disable any option, you can't swap types
+      for i in $('#source_edit_type :input')
+        i.disabled = true
+
+    $("[id^=source_type_source]").click (event) ->
+      toggle_source_form_fields(this.value)
 return
 

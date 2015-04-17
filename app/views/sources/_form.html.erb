@@ -1,9 +1,12 @@
+
+
+
 <%= form_for(@source.metamorphosize) do |f| %>
     <%= render 'shared/errors', object: @source %>
 
-    <div class="field">
+    <div class="field" id="source_edit_type">
       <%= f.label :type %><br>
-      BibTeX <%= f.radio_button :type, 'Source::Bibtex', checked: true %>
+      BibTeX <%= f.radio_button :type, 'Source::Bibtex'  %>
       Verbatim <%= f.radio_button :type, 'Source::Verbatim' %>
       <span class="disabled"> Person </span> <%= f.radio_button :type, 'Source::Person', disabled: true %>
     </div>
