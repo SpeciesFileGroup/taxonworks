@@ -216,8 +216,8 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self.id).with_cached_html(self.cached_html)
-#    duplicate = Combination.not_self(self.id).with_parent_id(self.parent_id).with_cached_html(self.cached_html)
+    duplicate = Combination.not_self(self).with_cached_html(self.cached_html)
+#    duplicate = Combination.not_self(self).with_parent_id(self.parent_id).with_cached_html(self.cached_html)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 

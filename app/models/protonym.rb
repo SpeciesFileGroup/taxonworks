@@ -94,7 +94,6 @@ class Protonym < TaxonName
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
   scope :with_homonym_or_suppressed, -> { includes(:taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'").references(:taxon_name_relationships) }
   scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
-  scope :not_self, -> (id) {where('taxon_names.id <> ?', id )}
   scope :with_primary_homonym, -> (primary_homonym) {where(cached_primary_homonym: primary_homonym)}
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
@@ -618,12 +617,12 @@ class Protonym < TaxonName
           primary_types = self.get_primary_type
           unless primary_types.empty?
             p = primary_types.collect!{|t| t.biological_object_id}
-            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_project(self.project_id)
+            possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
           end
         else
           type = self.type_taxon_name
           unless type.nil?
-            possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self.id).with_project(self.project_id)
+            possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
           end
         end
         reduce_list_of_synonyms(possible_synonyms)
@@ -652,7 +651,7 @@ class Protonym < TaxonName
         if self.id == self.lowest_rank_coordinated_taxon.id
           rank_base = self.rank_class.parent.to_s
           name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
-          possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+          possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
           list1 = reduce_list_of_synonyms(possible_primary_homonyms)
           if !list1.empty?
             list1.each do |s|
@@ -667,7 +666,7 @@ class Protonym < TaxonName
             end
           else
             name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
-            possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+            possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
             list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
             if !list2.empty?
               list2.each do |s|
@@ -679,7 +678,7 @@ class Protonym < TaxonName
               end
             elsif rank_base =~ /Species/
               name3 = self.cached_secondary_homonym ? self.cached_secondary_homonym : nil
-              possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+              possible_secondary_homonyms = name3 ? Protonym.with_secondary_homonym(name3).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
               list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
               if !list3.empty?
                 list3.each do |s|
@@ -687,7 +686,7 @@ class Protonym < TaxonName
                 end
               else
                 name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alternative_spelling : nil
-                possible_secondary_homonyms_alternative_spelling = name4 ? Protonym.with_secondary_homonym_alternative_spelling(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self.id).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
+                possible_secondary_homonyms_alternative_spelling = name4 ? Protonym.with_secondary_homonym_alternative_spelling(name4).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_base_of_rank_class(rank_base).with_project(self.project_id) : []
                 list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alternative_spelling)
                 if !list4.empty?
                   list4.each do |s|

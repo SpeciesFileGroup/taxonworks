@@ -49,7 +49,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :with_two_type_bases, -> (base_string1, base_string2) {where("type LIKE '#{base_string1}%' OR type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
-  scope :not_self, -> (id) {where('id <> ?', id )}
 
   # TODO: SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
@@ -220,13 +219,13 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_uniqueness_of_synonym_subject
-    if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self.id||0).empty?
+    if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
       errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
     end
   end
 
   def validate_uniqueness_of_typification_object
-    if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self.id||0).empty?
+    if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self).empty?
       errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
     end
   end

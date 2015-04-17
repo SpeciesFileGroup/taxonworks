@@ -24,9 +24,6 @@ class AssertedDistribution < ActiveRecord::Base
   scope :with_is_absent, -> { where('is_absent = true') }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
-  # TODO: this should be a housekeeping scope
-  scope :not_self, -> (id) { where('asserted_distribution.id <> ?', id) }
-
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
 
   def self.find_for_autocomplete(params)

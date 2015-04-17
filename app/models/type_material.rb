@@ -41,7 +41,6 @@ class TypeMaterial < ActiveRecord::Base
   scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }
   scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
-  scope :not_self, -> (id) {where('id != ?', id )}
 
   scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}

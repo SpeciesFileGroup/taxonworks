@@ -21,7 +21,6 @@ class TaxonNameClassification < ActiveRecord::Base
   scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
-  scope :not_self, -> (id) {where('id != ?', id )}
 
   soft_validate(:sv_proper_classification, set: :proper_classification)
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
@@ -113,7 +112,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def validate_uniqueness_of_latinized
     if /Latinized/.match(self.type_name)
-      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self.id||0)
+      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
       unless lat.empty?
         if /Gender/.match(lat.first.type_name)
           errors.add(:taxon_name_id, 'The Gender is already selected')
