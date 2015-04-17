@@ -18,6 +18,9 @@
             <%= collecting_event.verbatim_locality %>
           </td>
           <td>
+            <%=	 collecting_event.to_param %>
+          </td>
+          <td>
             <%= check_box_tag('here', collecting_event.id) %>
           </td>
         </tr>

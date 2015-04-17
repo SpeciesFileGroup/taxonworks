@@ -11,49 +11,50 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def filtered_collecting_events
     @motion            = 'filtered_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def recent_collecting_events
     @motion            = 'recent_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    @collecting_events = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render_ce_select_json
   end
 
   def tagged_collecting_events
     @motion            = 'tagged_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def drawn_collecting_events
     @motion            = 'drawn_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def filtered_georeferences
     @motion            = 'filtered_georeference'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def recent_georeferences
     @motion            = 'recent_georeferences'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def tagged_georeferences
     @motion            = 'tagged_georeferences'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def drawn_georeferences
     @motion            = 'drawn_georeferences'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select
+    render_ce_select_json
   end
 
   def batch_create
@@ -65,11 +66,14 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   # @return [JSON]
-  def render_ce_select
-    render json: {
-             html: render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections',
-                                    locals:  {collecting_events: @collecting_events,
-                                              motion:            @motion})
-           }
+  def render_ce_select_json
+    render json: {html: render_to_html}
+  end
+
+  # @return [String] of html for partial
+  def render_to_html
+    render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections',
+                     locals:  {collecting_events: @collecting_events,
+                               motion:            @motion})
   end
 end
