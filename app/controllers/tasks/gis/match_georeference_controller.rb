@@ -16,8 +16,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def recent_collecting_events
     @motion            = 'recent_collecting_events'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    @collecting_events = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @collecting_events = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(params['how_many'])
     render_ce_select_json
   end
 

@@ -6,6 +6,7 @@
   {
 
     var setup = [];
+      // todo: the execution of this routine should be conditioned on whether or not a suitable map canvas is un-hidden, *NOT* blindly invoked when the page appears. See click event for .draw_ce, and _init_collecting_event_map_widget()
     setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
     $(".filter-ce").click(function (event) {
@@ -20,6 +21,7 @@
 
         return;
     });
+
     $(".tag-ce").click(function (event) {
 
         // unhide this form
@@ -33,6 +35,7 @@
 
         return;
     });
+
     $(".draw-ce").click(function (event) {
 
         // unhide this form
@@ -46,6 +49,7 @@
 
         return;
     });
+
     $(".recent-ce").click(function (event) {
 
         // unhide this form
@@ -58,6 +62,13 @@
         event.preventDefault();
 
         return;
+    });
+    $("#submit_recent_ce").click(function (event) {
+        //$.get('recent_collecting_events', $("form#_recent_ce_form").serialize(), function(local_data)
+        $.get('recent_collecting_events', '5', function(local_data)
+        {
+            var this_id = this.id;
+        })
     });
 
     $(".filter-gr").click(function (event) {
@@ -72,6 +83,7 @@
 
         return;
     });
+
     $(".tag-gr").click(function (event) {
 
         // unhide this form
@@ -85,6 +97,7 @@
 
         return;
     });
+
     $(".draw-gr").click(function (event) {
 
         // unhide this form
@@ -98,6 +111,7 @@
 
         return;
     });
+
     $(".recent-gr").click(function (event) {
 
         // unhide this form
