@@ -4,7 +4,6 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
   if ($('#match_georeference_widget').length) {
 
     var setup = [];
-      // todo: the execution of this routine should be conditioned on whether or not a suitable map canvas is un-hidden, *NOT* blindly invoked when the page appears. See click event for .draw_ce, and _init_collecting_event_map_widget()
     setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
     $(".filter-ce").click(function (event) {
