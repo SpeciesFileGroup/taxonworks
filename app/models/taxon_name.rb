@@ -495,33 +495,41 @@ class TaxonName < ActiveRecord::Base
   def set_cached_names_for_dependants
     dependants = []
     original_combination_relationships = []
-    if self.rank_string =~/Species|Genus/
-      dependants = TaxonName.descendants_of(self).with_type('Protonym')
-      original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-    end
-    classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
-    unless dependants.empty?
-      dependants.each do |i|
-        i.update_columns(:cached => i.get_full_name_no_html,
-                            :cached_html => i.get_full_name)
-      end
-    end
+    begin
+      TaxonName.transaction do
 
-    unless original_combination_relationships.empty?
-      related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
-      related_taxa.each do |i|
-        i.update_column(:cached_original_combination, i.get_original_combination)
+        if self.rank_string =~/Species|Genus/
+          dependants = TaxonName.descendants_of(self).with_type('Protonym')
+          original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        end
+        classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+        unless dependants.empty?
+          dependants.each do |i|
+            i.update_columns(:cached => i.get_full_name_no_html,
+                             :cached_html => i.get_full_name)
+          end
+        end
 
-        j = 1
-      end
-    end
+        unless original_combination_relationships.empty?
+          related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa.each do |i|
+            i.update_column(:cached_original_combination, i.get_original_combination)
 
-    unless classified_as_relationships.empty?
-      related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
-      related_taxa.each do |i|
-        i.update_column(:cached_classified_as, i.get_cached_classified_as)
+            j = 1
+          end
+        end
+
+        unless classified_as_relationships.empty?
+          related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
+          related_taxa.each do |i|
+            i.update_column(:cached_classified_as, i.get_cached_classified_as)
+          end
+        end
+
       end
+      rescue
     end
+    false
   end
 
   # Abstract method 
