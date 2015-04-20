@@ -63,10 +63,10 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
         $("#submit_recent_ce").click(function (event) {
             $('#how_many').val($('#how_many_recent').val());
             extra = $('form#funny_farm').serialize();
-            $.get('recent_collecting_events', function (local_data) {
+            $.get('recent_collecting_events', extra, function (local_data) {
                 // what to do with the json we get back....
                 $('#_selecting_ce_form').removeAttr('hidden');
-                $('#_selecting_ce_form').html(local_data(['html']));
+                $('#_selecting_ce_form').html(local_data['html']);
             })
         });
 

@@ -67,8 +67,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @return [JSON]
   def render_ce_select_json
-    retval = render_to_html
-    # retval = render json: {html: render_to_html}
+    # retval = render_to_html
+    retval = render json: {html: render_to_html}
     retval
   end
 
