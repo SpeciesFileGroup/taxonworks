@@ -139,6 +139,7 @@ class TaxonName < ActiveRecord::Base
 
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
 
+  scope :with_type, -> (type) {where(type: type)}
   scope :ordered_by_rank, -> { order(:lft) } # TODO: test
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
@@ -492,7 +493,35 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names_for_dependants
+    dependants = []
+    original_combination_relationships = []
+    if self.rank_string =~/Species|Genus/
+      dependants = TaxonName.descendants_of(self).with_type('Protonym')
+      original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+    end
+    classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+    unless dependants.empty?
+      dependants.each do |i|
+        i.update_columns(:cached => i.get_full_name_no_html,
+                            :cached_html => i.get_full_name)
+      end
+    end
 
+    unless original_combination_relationships.empty?
+      related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
+      related_taxa.each do |i|
+        i.update_column(:cached_original_combination, i.get_original_combination)
+
+        j = 1
+      end
+    end
+
+    unless classified_as_relationships.empty?
+      related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
+      related_taxa.each do |i|
+        i.update_column(:cached_classified_as, i.get_cached_classified_as)
+      end
+    end
   end
 
   # Abstract method 
@@ -829,16 +858,13 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_cached_classified_as
-    # note defined for Protonym
-    unless self.type == 'Combination' || self.type == 'Protonym'
-      return nil
-    end
+    return nil unless self.type == 'Combination' || self.type == 'Protonym'
 
-    if c = self.source_classified_as
-      " (as #{c.name})" 
-    else
-      nil
+    c = self.source_classified_as
+    unless c.blank?
+      return " (as #{c.name})"
     end
+    nil
   end
 
   def self.find_for_autocomplete(params)

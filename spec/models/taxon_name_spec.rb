@@ -587,12 +587,48 @@ describe TaxonName, :type => :model do
     context 'create_new_combination_if_absent' do
       specify 'new combination' do
         expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(0)
-        sp = FactoryGirl.build (:relationship_species)
+        sp = FactoryGirl.build(:relationship_species)
         sp.save
         expect(sp.cached_html).to eq('<em>Erythroneura vitis</em>')
         expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
         sp.save
         expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
+      end
+    end
+
+    context 'set_cached_names_for_dependants' do
+      specify 'dependants' do
+        family = FactoryGirl.create(:relationship_family)
+        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
+        genus2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family)
+        species = FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758)
+        species.original_genus = genus2
+        species.source_classified_as = family
+        species.save
+        species.reload
+        expect(species.cached).to eq('Aus aus')
+        expect(species.cached_html).to eq('<em>Aus aus</em>')
+        expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
+        expect(species.cached_author_year).to eq('(Linnaeus, 1758)')
+        expect(species.cached_classified_as).to eq(' (as Erythroneuridae)')
+        genus1.name = 'Cus'
+        genus1.save
+        species.reload
+        expect(species.cached).to eq('Cus aus')
+        expect(species.cached_html).to eq('<em>Cus aus</em>')
+        expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
+        genus2.name = 'Dus'
+        genus2.save
+        species.reload
+        expect(species.cached).to eq('Cus aus')
+        expect(species.cached_html).to eq('<em>Cus aus</em>')
+        expect(species.cached_original_combination).to eq('<em>Dus aus</em>')
+        family.name = 'Cicadellidae'
+        family.save
+        species.reload
+        expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
+      end
+      specify 'original_combination' do
       end
     end
   end
