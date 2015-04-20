@@ -93,12 +93,12 @@ describe 'Hub', :type => :feature do
 
     specify 'should see recent links' do
       sign_in_user_and_select_project
-      @otu1 = Otu.new(name: 'a', by: @user, project: @project)
-      @otu1.save!
-      @otu2 = Otu.new(name: 'b', by: @user, project: @project)
-      @otu2.save!
-      @otu3 = Otu.new(name: 'c', by: @user, project: @project)
-      @otu3.save!
+      otu1 = Otu.new(name: 'a', by: @user, project: @project)
+      otu1.save!
+      otu2 = Otu.new(name: 'b', by: @user, project: @project)
+      otu2.save!
+      otu3 = Otu.new(name: 'c', by: @user, project: @project)
+      otu3.save!
 
       visit otus_path
       expect(page).to have_link('a')
