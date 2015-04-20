@@ -16,7 +16,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def recent_collecting_events
     @motion            = 'recent_collecting_events'
-    @collecting_events = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(params['how_many'])
+    how_many           = params['how_many']
+    @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
     render_ce_select_json
   end
 
@@ -66,13 +67,16 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @return [JSON]
   def render_ce_select_json
-    render json: {html: render_to_html}
+    retval = render_to_html
+    # retval = render json: {html: render_to_html}
+    retval
   end
 
   # @return [String] of html for partial
   def render_to_html
     render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections',
                      locals:  {collecting_events: @collecting_events,
+                               # locals:            {token: form_authenticity_token},
                                motion:            @motion})
   end
 end

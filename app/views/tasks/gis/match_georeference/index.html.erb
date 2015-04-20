@@ -1,72 +1,74 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <h1>Task: Georeference matcher</h1>
-<div class="flexbox">
-  <div class="item item1">
-    <h2>Collecting Events</h2>
-    find by:
-    <%= link_to_georeference_match_type('filter', 'ce') %> |
-    <%= link_to_georeference_match_type('tag', 'ce') %> |
-    <%= link_to_georeference_match_type('draw', 'ce') %> |
-    <%= link_to_georeference_match_type('recent', 'ce') %>
+<div id="match_georeference_widget">
+  <div class="flexbox">
+    <div class="item item1">
+      <h2>Collecting Events</h2>
+      find by:
+      <%= link_to_georeference_match_type('filter', 'ce') %> |
+      <%= link_to_georeference_match_type('tag', 'ce') %> |
+      <%= link_to_georeference_match_type('draw', 'ce') %> |
+      <%= link_to_georeference_match_type('recent', 'ce') %>
 
-    <br>--------_filter_ce_form-------------
-    <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
-    <br>--------_tag_ce_form-------------
-    <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
-    <br>---------_draw_ce_form----------------
-    <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
-    <br>---------_recent_ce_form--------------
-    <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
-    <br>-------_selecting_ce_form---------------
-    <div id="_selecting_ce_form" name="_selecting_ce_form" hidden>
-      <%#= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
+      <br>--------_filter_ce_form-------------
+      <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
+      <br>--------_tag_ce_form-------------
+      <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
+      <br>---------_draw_ce_form----------------
+      <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
+      <br>---------_recent_ce_form--------------
+      <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
+      <br>-------_selecting_ce_form---------------
+      <div id="_selecting_ce_form" name="_selecting_ce_form" hidden>
+        <%#= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
+      </div>
+      <br>--------------------------------------
+
     </div>
-    <br>--------------------------------------
+    <div class="item item2">
+      <h2>Current Georeference</h2>
+      <br>------_find_gr-------------------
+      <div id="_find_gr" name="_find_gr">
+        Find a georeference at right and select it.
+      </div>
+      <br>------_select_gr-------------------
+      <div id="_select_gr" name="_select_gr" hidden="hidden">
+        Select a georeference at right.
+      </div>
+      <br>------_selected_gr-------------------
+      <div id="_selected_gr_form" name="_selected_gr_form" hidden="hidden">
+        <%#= form_for(@georeference) do |f| %>
+        <table border="1">
+          <tr>
+            <td>This is where the current map goes</td>
+          </tr>
+        </table>
+        <%= form_tag(tagged_georeferences_path) do %>
+            <div><%= submit_tag('clear selection') %></div>
+        <% end %>
+        <%# end %>
+      </div>
 
-  </div>
-  <div class="item item2">
-    <h2>Current Georeference</h2>
-    <br>------_find_gr-------------------
-    <div id="_find_gr" name="_find_gr">
-      Find a georeference at right and select it.
     </div>
-    <br>------_select_gr-------------------
-    <div id="_select_gr" name="_select_gr" hidden="hidden">
-      Select a georeference at right.
+    <div class="item item3">
+      <h2>Georeferences</h2>
+      find by:
+      <%= link_to_georeference_match_type('filter', 'gr') %> |
+      <%= link_to_georeference_match_type('tag', 'gr') %> |
+      <%= link_to_georeference_match_type('draw', 'gr') %> |
+      <%= link_to_georeference_match_type('recent', 'gr') %>
+
+      <br>-------_filter_gr_form------------------
+      <%= render(partial: 'filter_georeferences_form') %>
+      <br>---------_tag_gr_form---------------
+      <%= render(partial: 'tag_georeferences_form') %>
+      <br>-------_draw_gr_form--------------
+      <%= render(partial: 'draw_georeferences_form') %>
+      <br>----------_recent_gr_form-------------
+      <%= render(partial: 'recent_georeferences_form') %>
+      <br>--------------------------------------
+
     </div>
-    <br>------_selected_gr-------------------
-    <div id="_selected_gr_form" name="_selected_gr_form" hidden="hidden">
-      <%#= form_for(@georeference) do |f| %>
-      <table border="1">
-        <tr>
-          <td>This is where the current map goes</td>
-        </tr>
-      </table>
-      <%= form_tag(tagged_georeferences_path) do %>
-          <div><%= submit_tag('clear selection') %></div>
-      <% end %>
-      <%# end %>
-    </div>
-
-  </div>
-  <div class="item item3">
-    <h2>Georeferences</h2>
-    find by:
-    <%= link_to_georeference_match_type('filter', 'gr') %> |
-    <%= link_to_georeference_match_type('tag', 'gr') %> |
-    <%= link_to_georeference_match_type('draw', 'gr') %> |
-    <%= link_to_georeference_match_type('recent', 'gr') %>
-
-    <br>-------_filter_gr_form------------------
-    <%= render(partial: 'filter_georeferences_form') %>
-    <br>---------_tag_gr_form---------------
-    <%= render(partial: 'tag_georeferences_form') %>
-    <br>-------_draw_gr_form--------------
-    <%= render(partial: 'draw_georeferences_form') %>
-    <br>----------_recent_gr_form-------------
-    <%= render(partial: 'recent_georeferences_form') %>
-    <br>--------------------------------------
-
   </div>
 </div>

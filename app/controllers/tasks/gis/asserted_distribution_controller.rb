@@ -24,7 +24,8 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
              html:               render_to_string(partial:    'asserted_distributions/quick_new_asserted_distribution_form',
                                                   collection: @asserted_distributions,
                                                   as:         :asserted_distribution,
-                                                  locals:     {token: form_authenticity_token, lock_source: (params['lock_source'] ? 'true' : false)}),
+                                                  locals:     {token:       form_authenticity_token,
+                                                               lock_source: (params['lock_source'] ? 'true' : false)}),
              feature_collection: @feature_collection,
            }
   end

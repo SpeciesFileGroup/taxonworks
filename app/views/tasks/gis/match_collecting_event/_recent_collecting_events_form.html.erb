@@ -1,14 +1,15 @@
 <div id="_recent_ce_form" name="_recent_ce_form" hidden="hidden">
-  <%= form_tag(recent_collecting_events_path, method: 'get') do %>
+  <%= form_tag(recent_collecting_events_url, {method: 'get', id: 'funny_farm'}) do %>
       <table border="1">
         <tr>
           <div class="field">
             <td>Return</td>
-            <td><input id="how_many" size="5"></td>
+            <td><input id="how_many_recent" size="5"></td>
             <td>most recent</td>
           </div>
         </tr>
       </table>
+      <%=	 hidden_field_tag('how_many') %>
       <div><%= submit_tag('Find', {id: 'submit_recent_ce'}) %></div>
   <% end %>
 </div>
