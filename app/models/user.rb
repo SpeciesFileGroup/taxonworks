@@ -109,15 +109,14 @@ class User < ActiveRecord::Base
 
   def add_page_to_favorites(favorite_route)
     new_routes = ([favorite_route] + favorite_routes.clone).uniq[0..19].sort
-    update_attribute(:favorite_routes, new_routes )
+    update_column(:favorite_routes, new_routes )
     true
   end
 
   def remove_page_from_favorites(favorite_route)
     new_routes = favorite_routes.clone
     new_routes.delete(favorite_route)
-    update_attribute(:favorite_routes, new_routes )
-    true
+    update_column(:favorite_routes, new_routes )
   end
 
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
@@ -139,7 +138,7 @@ class User < ActiveRecord::Base
       fp['recently_visited'] = fp['recently_visited'].uniq{|a| a.keys}[0..19]
 
       self.footprints_will_change!  # if this isn't thrown weird caching happens !
-      self.update_attribute(:footprints, fp)
+      self.update_column(:footprints, fp)
     end
 
     true
@@ -217,7 +216,7 @@ class User < ActiveRecord::Base
 
   def configure_self_created
     if !self.new_record? && self.creator.nil? && self.updater.nil?
-      self.update_attributes(created_by_id: self.id, updated_by_id: self.id)
+      self.update_columns(created_by_id: self.id, updated_by_id: self.id) # !?
     end
   end
 
