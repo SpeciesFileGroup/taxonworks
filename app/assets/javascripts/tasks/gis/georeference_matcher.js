@@ -53,7 +53,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             event.preventDefault();
         });
         $("#submit_recent_ce").click(function (event) {
-            $('#how_many').val($('#how_many_recent').val());
+           // $('#how_many').val($('#how_many_recent').val());
             var extra = $('form#recent_count').serialize();
             $.get('recent_collecting_events', extra, function (local_data) {
                 // what to do with the json we get back....
