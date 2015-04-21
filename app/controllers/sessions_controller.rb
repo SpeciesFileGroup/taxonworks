@@ -7,7 +7,7 @@ class SessionsController < ApplicationController
   # POST /sessions
   def create
     user = User.find_by(email: params[:session][:email].downcase)
-    if user && user.authenticate(params[:session][:password])
+    if user && user.authenticate(params[:session][:password]) && !user.is_flagged_for_password_reset?
       sessions_sign_in(user)
       redirect_to root_path
     else
