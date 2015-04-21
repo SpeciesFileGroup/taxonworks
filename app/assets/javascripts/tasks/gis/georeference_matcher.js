@@ -121,7 +121,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_tag_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
             $('#_selecting_ce_form').attr('hidden', true);
-            _init_georeference_map_widget();
+            //_init_georeference_map_widget();
             //_init_georeference_map_widget();
 
             event.preventDefault();
