@@ -29,7 +29,7 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
-  column_factory = Georeference::FACTORY
+  column_factory = Gis::FACTORY
   DATA_TYPES.each do |t|
     set_rgeo_factory_for_column(t, column_factory)
   end
@@ -188,7 +188,7 @@ SELECT round(CAST(
   #   distance in meters from this object to supplied 'geo_object'
   # TODO: use a geographic_item_id rather than a geo_object
   def st_distance(geo_object)
-    GeographicItem.where(id: self.id).pluck("ST_Distance_Spheroid('#{self.geo_object}','#{geo_object}','#{Georeference::SPHEROID}') as distance").first
+    GeographicItem.where(id: self.id).pluck("ST_Distance_Spheroid('#{self.geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
   end
 
 =begin
@@ -584,7 +584,7 @@ SELECT round(CAST(
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
       raise('GeographicItem.type not set.') if self.type.blank?
 
-      object = Georeference::FACTORY.parse_wkt(geom.geometry.to_s)
+      object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
       write_attribute(this_type.underscore.to_sym, object)
       geom
     end

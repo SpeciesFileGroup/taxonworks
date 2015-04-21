@@ -5,7 +5,7 @@ class GeographicItem::GeometryCollection < GeographicItem
   # @return [RGeo::Point] first point in the collection
   def st_start_point
     rgeo_to_geo_json =~ /(-?\d+\.?\d*),(-?\d+\.?\d*)/
-    Georeference::FACTORY.point($1.to_f, $2.to_f, 0.0)
+    Gis::FACTORY.point($1.to_f, $2.to_f, 0.0)
   end
 
   # @return [Hash]

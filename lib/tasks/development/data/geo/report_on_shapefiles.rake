@@ -20,13 +20,13 @@ namespace :tw do
         # This does not update the database. 
         # Should be considered early trial code?
         def read_shape(filename, index)
-          # TODO: For some reason, Georeference::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
+          # TODO: For some reason, Gis::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
           # See http://dazuma.github.io/rgeo-shapefile/rdoc/RGeo/Shapefile/Reader.html for reader options.
 
-          # ne10 = RGeo::Shapefile::Reader.open('G:\Share\Downloads\PostgreSQL\PostGIS\10m_cultural\10m_cultural\ne_10m_admin_0_countries.shp', factory: Georeference::FACTORY)
-          # gadm = RGeo::Shapefile::Reader.open('G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp', factory: Georeference::FACTORY)
+          # ne10 = RGeo::Shapefile::Reader.open('G:\Share\Downloads\PostgreSQL\PostGIS\10m_cultural\10m_cultural\ne_10m_admin_0_countries.shp', factory: Gis::FACTORY)
+          # gadm = RGeo::Shapefile::Reader.open('G:\Share\rails\shapes\gadm_v2_shp\gadm2.shp', factory: Gis::FACTORY)
 
-          RGeo::Shapefile::Reader.open(filename, factory: Georeference::FACTORY) { |file|
+          RGeo::Shapefile::Reader.open(filename, factory: Gis::FACTORY) { |file|
             file.seek_index(index)
             count = file.num_records
             ess   = (count == 1) ? '' : 's'

@@ -278,7 +278,7 @@ class CollectingEvent < ActiveRecord::Base
       local_longitude = self.verbatim_longitude
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_longitude)
-      point           = Georeference::FACTORY.point(local_latitude, local_longitude)
+      point           = Gis::FACTORY.point(local_latitude, local_longitude)
       GeographicItem.new(point: point)
     else
       nil
@@ -616,7 +616,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s).to_f
       long   = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s).to_f
-      retval = Georeference::FACTORY.point(long, lat, delta_z)
+      retval = Gis::FACTORY.point(long, lat, delta_z)
       retval
     end
   end

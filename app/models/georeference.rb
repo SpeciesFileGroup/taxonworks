@@ -54,18 +54,6 @@ class Georeference < ActiveRecord::Base
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
-  SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
-
-  # This should probably be moved out to config/initializers/gis
-  FACTORY  = RGeo::Geographic.projected_factory(srid:                    4326,
-                                                projection_srid:         4326,
-                                                projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
-                                                uses_lenient_assertions: true,
-                                                has_z_coordinate:        true,
-                                                wkb_parser:              {support_ewkb: true},
-                                                wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
-
-
   acts_as_list scope: [:collecting_event]
 
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
@@ -193,7 +181,7 @@ class Georeference < ActiveRecord::Base
     return nil if self.error_radius.nil? || self.geographic_item.nil?
     value = GeographicItem.connection.select_all(
       "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{self.error_radius});").first['st_buffer']
-    Georeference::FACTORY.parse_wkb(value)
+    Gis::FACTORY.parse_wkb(value)
   end
 
   # Called by Gis::GeoJSON.feature_collection

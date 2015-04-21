@@ -23,7 +23,7 @@ class Georeference::GeoLocate < Georeference
 
   # coordinates is an Array of Stings of [longitude, latitude]
   def make_geographic_item(coordinates)
-    self.geographic_item = GeographicItem.new(point: Georeference::FACTORY.point(coordinates[0], coordinates[1]))
+    self.geographic_item = GeographicItem.new(point: Gis::FACTORY.point(coordinates[0], coordinates[1]))
   end
 
   # def make_error_geographic_item(result)
@@ -37,16 +37,16 @@ class Georeference::GeoLocate < Georeference
   #     # isolate the array of points from the response, and build the polygon from a line_string
   #     # made out of the points
   #     p         = result['resultSet']['features'][0]['properties']['uncertaintyPolygon']['coordinates'][0]
-  #     # build an array of Georeference::FACTORY.points from p
+  #     # build an array of Gis::FACTORY.points from p
 
   #     # poly = 'MULTIPOLYGON(((' + p.collect{|a,b| "#{a} #{b}"}.join(',') + ')))'
-  #     # parsed_poly = Georeference::FACTORY.parse_wkt(poly)
+  #     # parsed_poly = Gis::FACTORY.parse_wkt(poly)
 
   #     err_array = []
   #     # TODO: get geoJson results and handle all this automatically?
-  #     p.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
+  #     p.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
   #     self.error_geographic_item         = GeographicItem.new
-  #     self.error_geographic_item.polygon = Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array))
+  #     self.error_geographic_item.polygon = Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array))
   #   end
   # end
 
@@ -56,8 +56,8 @@ class Georeference::GeoLocate < Georeference
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
       err_array = []
-      uncertainty_polygon.each { |point| err_array.push(Georeference::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item = GeographicItem.new(polygon: Georeference::FACTORY.polygon(Georeference::FACTORY.line_string(err_array)))
+      uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
+      self.error_geographic_item = GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
     end
   end
 

@@ -54,10 +54,10 @@ SIMPLE_SHAPES     = {
 
 # TODO: this comment block meaningless now?
 # this is the factory for use *only* by rspec
-# for normal build- and run-time, use Georeference::FACTORY
+# for normal build- and run-time, use Gis::FACTORY
 # FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
 
-RSPEC_GEO_FACTORY = Georeference::FACTORY
+RSPEC_GEO_FACTORY = Gis::FACTORY
 
 ROOM2024 = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757)
 ROOM2020 = RSPEC_GEO_FACTORY.point(-88.241421, 40.091565, 757)
