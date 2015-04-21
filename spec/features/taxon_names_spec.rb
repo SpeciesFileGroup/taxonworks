@@ -100,24 +100,24 @@ describe 'TaxonNames', :type => :feature do
     specify 'change the original combination of a species to a different genus', js: true do
       # create the original combination Note: couldn't figure out how to do it directly so just used the web interface
       click_link('new')
-      fill_in('Name', with: 'species1')
+      fill_in('Name', with: 'specius')
       select('species (ICZN)', from: 'taxon_name_rank_class')
       fill_autocomplete('parent_id_for_name', with: 'Aus')
       click_button('Create Taxon name')
-      expect(page).to have_content("Taxon name 'species1' was successfully created.")
+      expect(page).to have_content("Taxon name 'specius' was successfully created.")
       # Note that we're now on the show page for species1 # When I show that species
-      expect(page).to have_content('Cached original combination: species1')
-      # TODO when cached values are correctly updating, the above may need to change to 'Aus species1'
+      expect(page).to have_content('Cached original combination: specius')
+      # TODO when cached values are correctly updating, the above may need to change to 'Aus specius'
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
       click_link('Edit original combination') # When I click that link
-      expect(page).to have_content('Editing original combination for Aus species1')
+      expect(page).to have_content('Editing original combination for Aus specius')
       fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Bus')
       # select 'Bus' for the original genus ajax select
       click_button('Save changes') # click 'Save changes'
       # I am returned to show for the species in question
       expect(page).to have_content('Successfully updated the original combination.') # success msg
       # TODO The following test needs to be added back in once the protonym cached values are updating correctly
-      # expect(page).to have_content('Cached original combination: Bus species1')  # show page original genus is changed
+      # expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
     end
     pending "Fix 'edit original combination' to update the cached values" do
       expect(true).to be_falsey

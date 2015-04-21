@@ -118,7 +118,8 @@ describe 'Hub', :type => :feature do
       expect(page).to have_link('a [Otu]')
       expect(page).to have_link('b [Otu]')
       expect(page).to have_link('c [Otu]')
-      #TODO find out from Matt if there really is supposed to be an OTU link
+      expect(page).to have_link('Otus')
+      #The last line of this test will fail until Matt fixes TW-262
     end
   end
 end
