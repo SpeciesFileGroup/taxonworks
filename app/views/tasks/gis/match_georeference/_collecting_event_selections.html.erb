@@ -4,7 +4,7 @@
       <th>Collecting Event</th>
       <th>Verbatim Locality</th>
       <th>ID</th>
-      <th>Select</th>
+      <th></th>
     </tr>
     <tbody>
     <% @collecting_events.each { |collecting_event| %>
@@ -19,7 +19,7 @@
             <%=	 collecting_event.to_param %>
           </td>
           <td>
-            <%= check_box_tag('here', collecting_event.id) %>
+            <%= check_box_tag('', collecting_event.id) %>
           </td>
         </tr>
     <% } %>

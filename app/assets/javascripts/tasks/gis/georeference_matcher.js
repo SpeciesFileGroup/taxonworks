@@ -14,6 +14,8 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_tag_ce_form").attr("hidden", true);
             $("#_draw_ce_form").attr("hidden", true);
             $("#_recent_ce_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
+
             event.preventDefault();
         });
 
@@ -25,6 +27,20 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_ce_form").attr("hidden", true);
             $("#_draw_ce_form").attr("hidden", true);
             $("#_recent_ce_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
+
+            event.preventDefault();
+        });
+        $("#submit_tag_ce").click(function (event) {
+            //$('#how_many').val($('#how_many_recent').val());
+            var extra = $('form#tagged_keyword').serialize();
+            $.get('tagged_collecting_events', extra, function (local_data) {
+                // what to do with the json we get back....
+                $("#_tag_ce_form").attr("hidden", true);
+                var selecting = $('#_selecting_ce_form');
+                selecting.removeAttr('hidden');
+                selecting.html(local_data['html']);
+            });
 
             event.preventDefault();
         });
@@ -37,7 +53,9 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_ce_form").attr("hidden", true);
             $("#_tag_ce_form").attr("hidden", true);
             $("#_recent_ce_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
             _init_collecting_event_map_widget();
+
             event.preventDefault();
         });
 
@@ -49,6 +67,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_ce_form").attr("hidden", true);
             $("#_tag_ce_form").attr("hidden", true);
             $("#_draw_ce_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
 
             event.preventDefault();
         });
@@ -74,6 +93,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_tag_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
 
             event.preventDefault();
         });
@@ -86,6 +106,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
 
             event.preventDefault();
         });
@@ -98,6 +119,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_tag_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
             _init_georeference_map_widget();
 
             event.preventDefault();
@@ -111,6 +133,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_tag_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
+            $('#_selecting_ce_form').attr('hidden', true);
 
             event.preventDefault();
         });

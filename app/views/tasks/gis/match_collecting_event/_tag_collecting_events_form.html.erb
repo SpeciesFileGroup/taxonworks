@@ -1,12 +1,16 @@
-<div id="_tag_ce_form" name="_tag_ce_form" hidden="hidden">
-  <%= form_tag(tagged_collecting_events_url, method: 'get') do %>
+<div id="_tag_ce_form" hidden="hidden">
+  <%= form_tag(tagged_collecting_events_url, {method: 'get', id: 'tagged_keyword'}) do %>
       Find collecting event tagged with
       <table border="1">
         <tr>
-          <td>Keyword </td>
-          <td><input id="what_keyword" ></td>
+          <td>
+            <div class="field">
+              <label for="what_keyword">Keyword</label>
+              <input id="what_keyword" name="what_keyword">
+            </div>
+          </td>
         </tr>
       </table>
-      <div><%= submit_tag('Find') %></div>
   <% end %>
+  <div><input type="button" id="submit_tag_ce" value="Find"/></div>
 </div>

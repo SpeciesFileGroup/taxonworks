@@ -23,7 +23,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def tagged_collecting_events
     @motion            = 'tagged_collecting_events'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(10)
     render_ce_select_json
   end
 
